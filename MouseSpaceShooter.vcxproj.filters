@@ -93,12 +93,21 @@
     <ClInclude Include="tools\graphicsHelpers.hpp">
       <Filter>src\tools</Filter>
     </ClInclude>
+    <ClInclude Include="components\connection.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.fs">
       <Filter>src\shaders</Filter>
     </None>
     <None Include="shaders\basic.vs">
+      <Filter>src\shaders</Filter>
+    </None>
+    <None Include="shaders\colored.fs">
+      <Filter>src\shaders</Filter>
+    </None>
+    <None Include="shaders\colored.vs">
       <Filter>src\shaders</Filter>
     </None>
   </ItemGroup>

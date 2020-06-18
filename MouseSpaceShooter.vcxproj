@@ -30,6 +30,7 @@
     <ClCompile Include="tools\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="components\connection.hpp" />
     <ClInclude Include="components\grapple.hpp" />
     <ClInclude Include="components\mouseState.hpp" />
     <ClInclude Include="components\mvp.hpp" />
@@ -49,6 +50,8 @@
   <ItemGroup>
     <None Include="shaders\basic.fs" />
     <None Include="shaders\basic.vs" />
+    <None Include="shaders\colored.fs" />
+    <None Include="shaders\colored.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

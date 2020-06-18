@@ -32,6 +32,18 @@ namespace Components
 			body->SetAngularVelocity(0.0f);
 		}
 
+		glm::vec2 getPosition() const
+		{
+			return { body->GetWorldCenter().x, body->GetWorldCenter().y };
+		}
+
+		glm::mat4 getModelMatrix() const
+		{
+			const auto& transform = body->GetTransform();
+			return glm::rotate(glm::translate(glm::mat4(1.0f), { transform.p.x, transform.p.y, 0.0f }),
+				transform.q.GetAngle(), {0.0f, 0.0f, 1.0f});
+		}
+
 		void updateVerticesCache()
 		{
 			const auto& fixture = *body->GetFixtureList();
@@ -46,13 +58,6 @@ namespace Components
 				const auto& b2v = polygonShape.m_vertices[i];
 				verticesCache[i] = { b2v.x, b2v.y, 0.0f };
 			}
-		}
-
-		glm::mat4 getModelMatrix() const
-		{
-			const auto& transform = body->GetTransform();
-			return glm::rotate(glm::translate(glm::mat4(1.0f), { transform.p.x, transform.p.y, 0.0f }),
-				transform.q.GetAngle(), {0.0f, 0.0f, 1.0f});
 		}
 	};
 }

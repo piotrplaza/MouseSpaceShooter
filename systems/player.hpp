@@ -19,7 +19,8 @@ namespace Systems
 		void initGraphics();
 
 		void turn(glm::vec2 controllerDelta) const;
-		void throttle() const;
+		void throttle(bool active) const;
+		void magneticHook(bool active) const;
 
 		shaders::ProgramId shadersProgram;
 		GLuint vertexArray;

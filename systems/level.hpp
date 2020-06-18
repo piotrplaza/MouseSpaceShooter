@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 #include "shaders.hpp"
 
@@ -22,8 +23,10 @@ namespace Systems
 
 		void updateWalls();
 		void updateGrapples();
+		void updateConnections();
 
-		shaders::ProgramId shadersProgram;
+		shaders::ProgramId basicShadersProgram;
+		shaders::ProgramId coloredShadersProgram;
 
 		GLuint wallsVertexArray;
 		GLuint wallsVertexBuffer;
@@ -31,7 +34,13 @@ namespace Systems
 		GLuint grapplesVertexArray;
 		GLuint grapplesVertexBuffer;
 
+		GLuint connectionsVertexArray;
+		GLuint connectionsVertexBuffer;
+		GLuint connectionsColorBuffer;
+
 		std::vector<glm::vec3> wallsVerticesCache;
 		std::vector<glm::vec3> grapplesVerticesCache;
+		std::vector<glm::vec3> connectionsVerticesCache;
+		std::vector<glm::vec4> connectionsColorsCache;
 	};
 }

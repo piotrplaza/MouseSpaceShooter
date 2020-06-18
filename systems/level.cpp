@@ -10,6 +10,7 @@
 #include <components/mvp.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
+#include <components/connection.hpp>
 
 namespace Systems
 {
@@ -28,8 +29,11 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		shadersProgram = shaders::LinkProgram(shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"),
+		basicShadersProgram = shaders::LinkProgram(shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"),
 			{ {0, "bPos"} });
+
+		coloredShadersProgram = shaders::LinkProgram(shaders::CompileShaders("shaders/colored.vs", "shaders/colored.fs"),
+			{ {0, "bPos"}, {1, "bColor"} });
 
 		glCreateVertexArrays(1, &wallsVertexArray);
 		glBindVertexArray(wallsVertexArray);
@@ -44,6 +48,17 @@ namespace Systems
 		glBindBuffer(GL_ARRAY_BUFFER, grapplesVertexBuffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(0);
+
+		glCreateVertexArrays(1, &connectionsVertexArray);
+		glBindVertexArray(connectionsVertexArray);
+		glGenBuffers(1, &connectionsVertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, connectionsVertexBuffer);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(0);
+		glGenBuffers(1, &connectionsColorBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, connectionsColorBuffer);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(1);
 	}
 
 	void Level::updateWalls()
@@ -78,16 +93,41 @@ namespace Systems
 			grapplesVerticesCache.data(), GL_DYNAMIC_DRAW);
 	}
 
+	void Level::updateConnections()
+	{
+		using namespace Globals::Components;
+
+		connectionsVerticesCache.clear();
+		connectionsColorsCache.clear();
+		for (auto& connection : connections)
+		{
+			connection.updateVerticesCache();
+			connectionsVerticesCache.insert(connectionsVerticesCache.end(), connection.verticesCache.begin(), connection.verticesCache.end());
+
+			connection.updateColorsCache();
+			connectionsColorsCache.insert(connectionsColorsCache.end(), connection.colorsCache.begin(), connection.colorsCache.end());
+		}
+
+		glBindBuffer(GL_ARRAY_BUFFER, connectionsVertexBuffer);
+		glBufferData(GL_ARRAY_BUFFER, connectionsVerticesCache.size() * sizeof(connectionsVerticesCache.front()),
+			connectionsVerticesCache.data(), GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, connectionsColorBuffer);
+		glBufferData(GL_ARRAY_BUFFER, connectionsColorsCache.size() * sizeof(connectionsColorsCache.front()),
+			connectionsColorsCache.data(), GL_DYNAMIC_DRAW);
+	}
+
 	void Level::step()
 	{
 		updateWalls();
 		updateGrapples();
+		updateConnections();
 	}
 
 	void Level::render() const
 	{
-		glUseProgram(shadersProgram);
-		glUniformMatrix4fv(glGetUniformLocation(shadersProgram, "mvp"), 1, GL_FALSE,
+		glUseProgram(basicShadersProgram);
+		glUniformMatrix4fv(glGetUniformLocation(basicShadersProgram, "mvp"), 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getVP()));
 
 		glBindVertexArray(wallsVertexArray);
@@ -95,5 +135,13 @@ namespace Systems
 
 		glBindVertexArray(grapplesVertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, grapplesVerticesCache.size());
+
+
+		glUseProgram(coloredShadersProgram);
+		glUniformMatrix4fv(glGetUniformLocation(coloredShadersProgram, "mvp"), 1, GL_FALSE,
+			glm::value_ptr(Globals::Components::mvp.getVP()));
+
+		glBindVertexArray(connectionsVertexArray);
+		glDrawArrays(GL_LINES, 0, connectionsVerticesCache.size());
 	}
 }

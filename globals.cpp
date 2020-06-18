@@ -8,6 +8,7 @@
 #include "components/player.hpp"
 #include "components/wall.hpp"
 #include "components/grapple.hpp"
+#include "components/connection.hpp"
 
 #include "systems/physics.hpp"
 #include "systems/player.hpp"
@@ -23,6 +24,7 @@ namespace Components
 
 	static std::vector<::Components::Wall> walls;
 	static std::vector<::Components::Grapple> grapples;
+	static std::vector<::Components::Connection> connections;
 }
 
 namespace Globals
@@ -37,6 +39,7 @@ namespace Globals
 
 		std::vector<::Components::Wall>& walls = ::Components::walls;
 		std::vector<::Components::Grapple>& grapples = ::Components::grapples;
+		std::vector<::Components::Connection>& connections = ::Components::connections;
 	}
 
 	namespace Systems

@@ -1,5 +1,9 @@
 #include "player.hpp"
 
+#include <vector>
+#include <limits>
+#include <type_traits>
+
 #include <Box2D/Box2D.h>
 
 #include <glm/gtc/type_ptr.hpp>
@@ -10,6 +14,8 @@
 #include <components/physics.hpp>
 #include <components/mvp.hpp>
 #include <components/mouseState.hpp>
+#include <components/grapple.hpp>
+#include <components/connection.hpp>
 
 b2Vec2 operator *(const b2Vec2 v, const float s)
 {
@@ -27,6 +33,7 @@ namespace Systems
 	void Player::initPhysics() const
 	{
 		using namespace Globals::Components;
+		using namespace Globals::Defaults;
 
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;
@@ -50,8 +57,8 @@ namespace Systems
 
 		player.body->SetSleepingAllowed(false);
 
-		player.body->SetAngularDamping(10.0f);
-		player.body->SetLinearDamping(0.1f);
+		player.body->SetLinearDamping(playerLinearDamping);
+		player.body->SetAngularDamping(playerAngularDamping);
 	}
 
 	void Player::initGraphics()
@@ -81,7 +88,8 @@ namespace Systems
 		const glm::vec2 mouseDelta = { windowSpaceMouseDelta.x, -windowSpaceMouseDelta.y };
 
 		turn(mouseDelta);
-		if (mouseState.rmb) throttle();
+		throttle(mouseState.rmb);
+		magneticHook(mouseState.lmb);
 	}
 
 	void Player::render() const
@@ -109,14 +117,54 @@ namespace Systems
 		}
 	}
 
-	void Player::throttle() const
+	void Player::throttle(bool active) const
+	{
+		using namespace Globals::Components;
+		using namespace Globals::Defaults;
+
+		if (!active) return;
+
+		const float currentAngle = player.body->GetAngle();
+		player.body->ApplyForce(b2Vec2(glm::cos(currentAngle),
+			glm::sin(currentAngle)) * playerForwardForce, player.body->GetWorldCenter(), true);
+	}
+
+	void Player::magneticHook(bool active) const
 	{
 		using namespace Globals::Components;
 
-		const float force = 15.0f;
-		const float currentAngle = player.body->GetAngle();
+		connections.clear();
 
-		player.body->ApplyForce(b2Vec2(glm::cos(currentAngle),
-			glm::sin(currentAngle)) * force, player.body->GetWorldCenter(), true);
+		auto nearestGrappleIt = grapples.end();
+		float nearestDistance = std::numeric_limits<float>::infinity();
+		std::vector<std::remove_reference<decltype(grapples)>::type::iterator> grapplesInRange;
+
+		for (auto it = grapples.begin(); it != grapples.end(); ++it)
+		{
+			const float distance = glm::distance(player.getPosition(), it->getPosition());
+
+			if (distance > it->influenceRadius) continue;
+
+			grapplesInRange.push_back(it);
+
+			if (distance < nearestDistance)
+			{
+				nearestDistance = distance;
+				nearestGrappleIt = it;
+			}
+		}
+
+		for (auto it = grapplesInRange.begin(); it != grapplesInRange.end(); ++it)
+		{
+			if (*it == nearestGrappleIt)
+			{
+				//Temporary. TODO: Implement lightning effect.
+				connections.emplace_back(player.getPosition(), (*it)->getPosition(), glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
+			}
+			else
+			{
+				connections.emplace_back(player.getPosition(), (*it)->getPosition(), glm::vec4(1.0f, 1.0f, 1.0f, 0.2f));
+			}
+		}
 	}
 }

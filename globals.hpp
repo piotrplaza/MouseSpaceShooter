@@ -11,6 +11,7 @@ namespace Components
 	struct Player;
 	struct Wall;
 	struct Grapple;
+	struct Connection;
 }
 
 namespace Systems
@@ -32,6 +33,7 @@ namespace Globals
 
 		extern std::vector<::Components::Wall>& walls;
 		extern std::vector<::Components::Grapple>& grapples;
+		extern std::vector<::Components::Connection>& connections;
 	}
 
 	namespace Systems
@@ -45,6 +47,10 @@ namespace Globals
 
 	namespace Defaults
 	{
+		constexpr float playerForwardForce = 15.0f;
+		constexpr float playerLinearDamping = 0.1f;
+		constexpr float playerAngularDamping = 15.0f;
+
 		constexpr float mouseSensitivity = 0.01f;
 		constexpr float hProjectionSize = 25.0f;
 		constexpr int circleGraphicsComplexity = 20;

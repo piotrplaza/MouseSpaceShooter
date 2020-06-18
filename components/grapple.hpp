@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -18,6 +20,11 @@ namespace Components
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
 		std::vector<glm::vec3> verticesCache;
 		float influenceRadius;
+
+		glm::vec2 getPosition() const
+		{
+			return { body->GetWorldCenter().x, body->GetWorldCenter().y };
+		}
 
 		void updateVerticesCache()
 		{
