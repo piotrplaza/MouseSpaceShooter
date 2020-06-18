@@ -47,7 +47,6 @@ namespace Globals
 	{
 		constexpr float mouseSensitivity = 0.01f;
 		constexpr float hProjectionSize = 25.0f;
-		constexpr float grappleRadius = 1.0f;
 		constexpr int grappleGraphicsComplexity = 20;
 	}
 }

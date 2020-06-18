@@ -19,5 +19,7 @@ namespace tools
 {
 	std::unique_ptr<b2Body, b2BodyDeleter> CreateBoxBody(glm::vec2 position, glm::vec2 hSize, float angle = 0.0f,
 		b2BodyType bodyType = b2_staticBody, float density = 1.0f);
+	std::unique_ptr<b2Body, b2BodyDeleter> CreateCircleBody(glm::vec2 position, float radius,
+		b2BodyType bodyType = b2_staticBody, float density = 1.0f);
 	void PinBodies(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected = false);
 }

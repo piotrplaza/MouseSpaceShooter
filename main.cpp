@@ -61,8 +61,8 @@ void CreateLevel()
 	tools::PinBodies(wall1, wall2, {5.0f, 0.0f});
 
 	//Grapples.
-	grapples.push_back(glm::vec2{ 0.0f, 10.0f });
-	grapples.push_back(glm::vec2{ 0.0f, -10.0f });
+	grapples.emplace_back(tools::CreateCircleBody({0.0f, 10.0f}, 1.0f), 15.0f);
+	grapples.emplace_back(tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f);
 }
 
 void Initialize()

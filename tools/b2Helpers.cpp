@@ -32,6 +32,26 @@ namespace tools
 		return body;
 	}
 
+	std::unique_ptr<b2Body, b2BodyDeleter> CreateCircleBody(glm::vec2 position, float radius,
+		b2BodyType bodyType, float density)
+	{
+		using namespace Globals::Components;
+
+		b2BodyDef bodyDef;
+		bodyDef.type = bodyType;
+		bodyDef.position.Set(position.x, position.y);
+		std::unique_ptr<b2Body, b2BodyDeleter> body(physics.world.CreateBody(&bodyDef));
+
+		b2FixtureDef fixtureDef;
+		b2CircleShape circleShape;
+		circleShape.m_radius = radius;
+		fixtureDef.shape = &circleShape;
+		fixtureDef.density = density;
+		body->CreateFixture(&fixtureDef);
+
+		return body;
+	}
+
 	void PinBodies(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected)
 	{
 		using namespace Globals::Components;
