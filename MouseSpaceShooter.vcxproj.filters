@@ -84,6 +84,9 @@
     <ClInclude Include="tools\b2Helpers.hpp">
       <Filter>src\tools</Filter>
     </ClInclude>
+    <ClInclude Include="components\grapple.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.fs">

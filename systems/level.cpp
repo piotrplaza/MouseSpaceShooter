@@ -6,9 +6,10 @@
 
 #include <globals.hpp>
 
-#include <components/wall.hpp>
 #include <components/physics.hpp>
 #include <components/mvp.hpp>
+#include <components/wall.hpp>
+#include <components/grapple.hpp>
 
 namespace Systems
 {
@@ -30,33 +31,57 @@ namespace Systems
 		shadersProgram = shaders::LinkProgram(shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"),
 			{ {0, "bPos"} });
 
-		glCreateVertexArrays(1, &vertexArray);
-		glBindVertexArray(vertexArray);
+		glCreateVertexArrays(1, &wallsVertexArray);
+		glBindVertexArray(wallsVertexArray);
+		glGenBuffers(1, &wallsVertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, wallsVertexBuffer);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(0);
 
-		glGenBuffers(1, &vertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-
+		glCreateVertexArrays(1, &grapplesVertexArray);
+		glBindVertexArray(grapplesVertexArray);
+		glGenBuffers(1, &grapplesVertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, grapplesVertexBuffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(0);
 	}
 
-	void Level::step()
+	void Level::updateWalls()
 	{
 		using namespace Globals::Components;
 
 		wallsVerticesCache.clear();
 		for (auto& wall : walls)
 		{
-			//wall.body->SetTransform(wall.body->GetPosition(), wall.body->GetAngle() + 0.01f);
 			wall.updateVerticesCache();
 			wallsVerticesCache.insert(wallsVerticesCache.end(), wall.verticesCache.begin(), wall.verticesCache.end());
 		}
 
-		glBindVertexArray(vertexArray);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-
+		glBindBuffer(GL_ARRAY_BUFFER, wallsVertexBuffer);
 		glBufferData(GL_ARRAY_BUFFER, wallsVerticesCache.size() * sizeof(wallsVerticesCache.front()),
 			wallsVerticesCache.data(), GL_DYNAMIC_DRAW);
+	}
+
+	void Level::updateGrapples()
+	{
+		using namespace Globals::Components;
+
+		grapplesVerticesCache.clear();
+		for (auto& grapple : grapples)
+		{
+			grapple.updateVerticesCache();
+			grapplesVerticesCache.insert(grapplesVerticesCache.end(), grapple.verticesCache.begin(), grapple.verticesCache.end());
+		}
+
+		glBindBuffer(GL_ARRAY_BUFFER, grapplesVertexBuffer);
+		glBufferData(GL_ARRAY_BUFFER, grapplesVerticesCache.size() * sizeof(grapplesVerticesCache.front()),
+			grapplesVerticesCache.data(), GL_DYNAMIC_DRAW);
+	}
+
+	void Level::step()
+	{
+		updateWalls();
+		updateGrapples();
 	}
 
 	void Level::render() const
@@ -65,7 +90,10 @@ namespace Systems
 		glUniformMatrix4fv(glGetUniformLocation(shadersProgram, "mvp"), 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getVP()));
 
-		glBindVertexArray(vertexArray);
+		glBindVertexArray(wallsVertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, wallsVerticesCache.size());
+
+		glBindVertexArray(grapplesVertexArray);
+		glDrawArrays(GL_TRIANGLES, 0, grapplesVerticesCache.size());
 	}
 }

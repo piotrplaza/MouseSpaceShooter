@@ -10,6 +10,7 @@ namespace Components
 	struct Physics;
 	struct Player;
 	struct Wall;
+	struct Grapple;
 }
 
 namespace Systems
@@ -30,6 +31,7 @@ namespace Globals
 		extern ::Components::Player& player;
 
 		extern std::vector<::Components::Wall>& walls;
+		extern std::vector<::Components::Grapple>& grapples;
 	}
 
 	namespace Systems
@@ -45,5 +47,7 @@ namespace Globals
 	{
 		constexpr float mouseSensitivity = 0.01f;
 		constexpr float hProjectionSize = 25.0f;
+		constexpr float grappleRadius = 1.0f;
+		constexpr int grappleGraphicsComplexity = 20;
 	}
 }

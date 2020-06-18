@@ -29,6 +29,7 @@
     <ClCompile Include="tools\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="components\grapple.hpp" />
     <ClInclude Include="components\mouseState.hpp" />
     <ClInclude Include="components\mvp.hpp" />
     <ClInclude Include="components\physics.hpp" />

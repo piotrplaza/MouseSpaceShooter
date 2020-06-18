@@ -15,9 +15,10 @@
 #include "components/mouseState.hpp"
 #include "components/screenInfo.hpp"
 #include "components/mvp.hpp"
-#include "components/wall.hpp"
 #include "components/physics.hpp"
 #include "components/player.hpp"
+#include "components/wall.hpp"
+#include "components/grapple.hpp"
 
 #include "systems/level.hpp"
 #include "systems/player.hpp"
@@ -25,7 +26,7 @@
 
 #include "tools/utility.hpp"
 
-const bool fullScreen = false;
+const bool fullScreen = true;
 const bool console = true;
 const glm::ivec2 windowRes = { 800, 800 };
 
@@ -58,6 +59,10 @@ void CreateLevel()
 	wall1.GetFixtureList()->SetRestitution(1);
 	wall2.GetFixtureList()->SetRestitution(1);
 	tools::PinBodies(wall1, wall2, {5.0f, 0.0f});
+
+	//Grapples.
+	grapples.push_back(glm::vec2{ 0.0f, 10.0f });
+	grapples.push_back(glm::vec2{ 0.0f, -10.0f });
 }
 
 void Initialize()

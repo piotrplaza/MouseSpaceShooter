@@ -26,7 +26,7 @@ namespace Components
 
 			const auto& fixture = *body->GetFixtureList();
 			assert(!fixture.GetNext());
-			assert(fixture.GetType() == b2Shape::e_polygon);
+			assert(fixture.GetType() == b2Shape::e_polygon); //Temporary. TODO: Add other shapes.
 
 			const auto& polygonShape = static_cast<const b2PolygonShape&>(*fixture.GetShape());
 

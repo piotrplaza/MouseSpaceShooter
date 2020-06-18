@@ -20,10 +20,18 @@ namespace Systems
 		void initPhysics() const;
 		void initGraphics();
 
+		void updateWalls();
+		void updateGrapples();
+
 		shaders::ProgramId shadersProgram;
-		GLuint vertexArray;
-		GLuint vertexBuffer;
+
+		GLuint wallsVertexArray;
+		GLuint wallsVertexBuffer;
+
+		GLuint grapplesVertexArray;
+		GLuint grapplesVertexBuffer;
 
 		std::vector<glm::vec3> wallsVerticesCache;
+		std::vector<glm::vec3> grapplesVerticesCache;
 	};
 }
