@@ -10,7 +10,8 @@ struct b2BodyDeleter {
 	void operator()(b2Body* body) const;
 };
 
-inline b2Vec2 toB2Vec(const glm::vec2 v)
+template <typename TargetVec2, typename SourceVec2>
+inline TargetVec2 toVec2(const SourceVec2 v)
 {
 	return { v.x, v.y };
 }

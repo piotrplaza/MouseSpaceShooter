@@ -52,6 +52,7 @@ void CreateLevel()
 	walls.emplace_back(tools::CreateBoxBody({ 20.0f, 0.0f }, { 0.2f, 20.0f }));
 	walls.emplace_back(tools::CreateBoxBody({ 0.0f, -20.0f }, { 20.0f, 0.2f }));
 	walls.emplace_back(tools::CreateBoxBody({ 0.0f, 20.0f }, { 20.0f, 0.2f }));
+	walls.emplace_back(tools::CreateCircleBody({ 10.0f, 0.0f }, 2.0f));
 
 	//Dynamic walls.
 	auto& wall1 = *walls.emplace_back(tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f)).body;

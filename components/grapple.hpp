@@ -32,9 +32,7 @@ namespace Components
 			assert(fixture.GetType() == b2Shape::e_circle); //Temporary. TODO: Add other shapes.
 
 			const auto& circleShape = static_cast<const b2CircleShape&>(*fixture.GetShape());
-			const glm::vec2 position(circleShape.m_p.x, circleShape.m_p.y);
-
-			verticesCache = tools::createCircleVertices({ 0, 0 }, circleShape.m_radius, circleGraphicsComplexity, modelMatrix);
+			verticesCache = tools::createCircleVertices(toVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity, modelMatrix);
 		}
 	};
 }
