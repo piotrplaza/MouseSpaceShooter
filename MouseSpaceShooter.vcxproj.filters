@@ -43,6 +43,9 @@
     <ClCompile Include="tools\b2Helpers.cpp">
       <Filter>src\tools</Filter>
     </ClCompile>
+    <ClCompile Include="tools\graphicsHelpers.cpp">
+      <Filter>src\tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shaders.hpp">
@@ -86,6 +89,9 @@
     </ClInclude>
     <ClInclude Include="components\grapple.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\graphicsHelpers.hpp">
+      <Filter>src\tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

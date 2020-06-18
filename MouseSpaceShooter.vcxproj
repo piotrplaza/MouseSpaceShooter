@@ -26,6 +26,7 @@
     <ClCompile Include="systems\physics.cpp" />
     <ClCompile Include="systems\player.cpp" />
     <ClCompile Include="tools\b2Helpers.cpp" />
+    <ClCompile Include="tools\graphicsHelpers.cpp" />
     <ClCompile Include="tools\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -42,6 +43,7 @@
     <ClInclude Include="systems\physics.hpp" />
     <ClInclude Include="systems\player.hpp" />
     <ClInclude Include="tools\b2Helpers.hpp" />
+    <ClInclude Include="tools\graphicsHelpers.hpp" />
     <ClInclude Include="tools\utility.hpp" />
   </ItemGroup>
   <ItemGroup>
