@@ -18,8 +18,8 @@ namespace Systems
 		void initPhysics() const;
 		void initGraphics();
 
-		void turn(glm::vec2 mouseDelta) const;
-		void throttle(bool rmb) const;
+		void turn(glm::vec2 controllerDelta) const;
+		void throttle() const;
 
 		shaders::ProgramId shadersProgram;
 		GLuint vertexArray;
