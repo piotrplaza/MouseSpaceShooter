@@ -5,6 +5,8 @@
 #include <fcntl.h>
 #include <io.h>
 #include <ios>
+#include <cstdlib>
+#include <ctime>
 
 namespace tools
 {
@@ -39,5 +41,15 @@ namespace tools
 	void SetMouseCursorVisibility(bool visibility)
 	{
 
+	}
+
+	void RandomInit()
+	{
+		std::srand((unsigned int)std::time(NULL));
+	}
+
+	float Random(float min, float max)
+	{
+		return (float)std::rand() / RAND_MAX * (max - min) + min;
 	}
 }

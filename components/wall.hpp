@@ -48,7 +48,7 @@ namespace Components
 			case b2Shape::e_circle:
 			{
 				const auto& circleShape = static_cast<const b2CircleShape&>(*fixture.GetShape());
-				verticesCache = tools::createCircleVertices(toVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity, modelMatrix);
+				verticesCache = tools::CreateCircleVertices(toVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity, modelMatrix);
 			} break;
 			default:
 				assert(!"unsupported shape type");
