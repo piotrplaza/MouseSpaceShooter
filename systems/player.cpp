@@ -64,8 +64,9 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		shadersProgram = shaders::LinkProgram(shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"),
+		basicShadersProgram = shaders::LinkProgram(shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"),
 			{ {0, "bPos"} });
+		basicShadersMVPUniform = glGetUniformLocation(basicShadersProgram, "mvp");
 
 		glCreateVertexArrays(1, &vertexArray);
 		glBindVertexArray(vertexArray);
@@ -93,8 +94,8 @@ namespace Systems
 
 	void Player::render() const
 	{
-		glUseProgram(shadersProgram);
-		glUniformMatrix4fv(glGetUniformLocation(shadersProgram, "mvp"), 1, GL_FALSE,
+		glUseProgram(basicShadersProgram);
+		glUniformMatrix4fv(basicShadersMVPUniform, 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getMVP(Globals::Components::player.getModelMatrix())));
 
 		glBindVertexArray(vertexArray);

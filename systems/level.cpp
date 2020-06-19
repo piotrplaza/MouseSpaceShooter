@@ -31,9 +31,12 @@ namespace Systems
 
 		basicShadersProgram = shaders::LinkProgram(shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"),
 			{ {0, "bPos"} });
+		basicShadersMVPUniform = glGetUniformLocation(basicShadersProgram, "mvp");
+		basicShadersColorUniform = glGetUniformLocation(basicShadersProgram, "color");
 
 		coloredShadersProgram = shaders::LinkProgram(shaders::CompileShaders("shaders/colored.vs", "shaders/colored.fs"),
 			{ {0, "bPos"}, {1, "bColor"} });
+		coloredShadersMVPUniform = glGetUniformLocation(coloredShadersProgram, "mvp");
 
 		glCreateVertexArrays(1, &wallsVertexArray);
 		glBindVertexArray(wallsVertexArray);
@@ -127,12 +130,14 @@ namespace Systems
 	void Level::renderBackground() const
 	{
 		glUseProgram(basicShadersProgram);
-		glUniformMatrix4fv(glGetUniformLocation(basicShadersProgram, "mvp"), 1, GL_FALSE,
+		glUniformMatrix4fv(basicShadersMVPUniform, 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getVP()));
 
+		glUniform4f(basicShadersColorUniform, 0.5f, 0.5f, 0.5f, 1.0f);
 		glBindVertexArray(wallsVertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, wallsVerticesCache.size());
 
+		glUniform4f(basicShadersColorUniform, 0.0f, 0.5f, 0.0f, 1.0f);
 		glBindVertexArray(grapplesVertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, grapplesVerticesCache.size());
 	}
@@ -140,7 +145,7 @@ namespace Systems
 	void Level::renderForeground() const
 	{
 		glUseProgram(coloredShadersProgram);
-		glUniformMatrix4fv(glGetUniformLocation(coloredShadersProgram, "mvp"), 1, GL_FALSE,
+		glUniformMatrix4fv(coloredShadersMVPUniform, 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getVP()));
 
 		glBindVertexArray(connectionsVertexArray);

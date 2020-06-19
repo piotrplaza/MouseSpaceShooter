@@ -23,7 +23,9 @@ namespace Systems
 		void magneticHook(bool active) const;
 		void createGrappleJoint() const;
 
-		shaders::ProgramId shadersProgram;
+		shaders::ProgramId basicShadersProgram;
+		GLint basicShadersMVPUniform;
+
 		GLuint vertexArray;
 		GLuint vertexBuffer;
 	};

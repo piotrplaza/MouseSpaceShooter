@@ -27,7 +27,11 @@ namespace Systems
 		void updateConnections();
 
 		shaders::ProgramId basicShadersProgram;
+		GLint basicShadersMVPUniform;
+		GLint basicShadersColorUniform;
+
 		shaders::ProgramId coloredShadersProgram;
+		GLint coloredShadersMVPUniform;
 
 		GLuint wallsVertexArray;
 		GLuint wallsVertexBuffer;

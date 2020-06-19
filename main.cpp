@@ -26,7 +26,7 @@
 
 #include "tools/utility.hpp"
 
-const bool fullScreen = false;
+const bool fullScreen = true;
 const bool console = true;
 const glm::ivec2 windowRes = { 800, 800 };
 
