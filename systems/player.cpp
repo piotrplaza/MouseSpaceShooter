@@ -119,9 +119,9 @@ namespace Systems
 			const float playerAngle = player.body->GetAngle();
 			const float playerSideAngle = playerAngle + glm::half_pi<float>();
 			const glm::vec2 playerDirection = { std::cos(playerSideAngle), std::sin(playerSideAngle) };
-			const float dot = glm::dot(playerDirection, controllerDelta);
+			const float controllerDot = glm::dot(playerDirection, controllerDelta);
 
-			player.body->SetTransform(player.body->GetPosition(), playerAngle + dot * Globals::Defaults::mouseSensitivity);
+			player.body->SetTransform(player.body->GetPosition(), playerAngle + controllerDot * Globals::Defaults::mouseSensitivity);
 		}
 	}
 
@@ -175,11 +175,10 @@ namespace Systems
 
 			if (*it == nearestGrappleId)
 			{
-				if (active && !player.strongConnection &&
+				if (active && !player.grappleJoint &&
 					glm::distance(player.getPosition(), grapple.getPosition()) >=
 					glm::distance(player.previousPosition, grapple.getPosition()))
 				{
-					player.strongConnection = true;
 					player.connectedGrappleId = *it;
 					createGrappleJoint();
 				}
@@ -187,7 +186,6 @@ namespace Systems
 				{
 					if (active)
 					{
-						player.strongConnection = false;
 						player.connectedGrappleId = *it;
 					}
 					else
@@ -206,7 +204,7 @@ namespace Systems
 		if (player.connectedGrappleId != -1)
 		{
 			connections.emplace_back(player.getPosition(), grapples[player.connectedGrappleId].getPosition(),
-				glm::vec4(0.0f, 0.0f, 1.0f, player.strongConnection ? 0.7f : 0.5f), 20, player.strongConnection ? 0.4f : 0.1f);
+				glm::vec4(0.0f, 0.0f, 1.0f, player.grappleJoint ? 0.7f : 0.5f), 20, player.grappleJoint ? 0.4f : 0.1f);
 		}
 	}
 

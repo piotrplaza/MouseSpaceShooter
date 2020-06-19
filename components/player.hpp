@@ -17,7 +17,6 @@ namespace Components
 		std::unique_ptr<b2Joint, b2JointDeleter> grappleJoint;
 		std::array<glm::vec3, 3> verticesCache{};
 		int connectedGrappleId = -1;
-		bool strongConnection = false;
 
 		glm::vec2 previousPosition{0.0f, 0.0f};
 		
