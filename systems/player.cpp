@@ -159,7 +159,8 @@ namespace Systems
 			if (*it == nearestGrappleIt)
 			{
 				//Temporary. TODO: Implement lightning effect.
-				connections.emplace_back(player.getPosition(), (*it)->getPosition(), glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
+				connections.emplace_back(player.getPosition(), (*it)->getPosition(),
+					active ? glm::vec4(0.0f, 0.0f, 1.0f, 0.7f) : glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
 			}
 			else
 			{

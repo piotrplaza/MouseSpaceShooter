@@ -124,7 +124,7 @@ namespace Systems
 		updateConnections();
 	}
 
-	void Level::render() const
+	void Level::renderBackground() const
 	{
 		glUseProgram(basicShadersProgram);
 		glUniformMatrix4fv(glGetUniformLocation(basicShadersProgram, "mvp"), 1, GL_FALSE,
@@ -135,8 +135,10 @@ namespace Systems
 
 		glBindVertexArray(grapplesVertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, grapplesVerticesCache.size());
+	}
 
-
+	void Level::renderForeground() const
+	{
 		glUseProgram(coloredShadersProgram);
 		glUniformMatrix4fv(glGetUniformLocation(coloredShadersProgram, "mvp"), 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getVP()));

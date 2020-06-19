@@ -15,7 +15,8 @@ namespace Systems
 		Level();
 
 		void step();
-		void render() const;
+		void renderBackground() const;
+		void renderForeground() const;
 
 	private:
 		void initPhysics() const;
