@@ -11,7 +11,7 @@ namespace Systems
 	public:
 		Player();
 
-		void step() const;
+		void step();
 		void render() const;
 
 	private:
@@ -28,5 +28,7 @@ namespace Systems
 
 		GLuint vertexArray;
 		GLuint vertexBuffer;
+
+		bool firstStep = true;
 	};
 }

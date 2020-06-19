@@ -80,16 +80,24 @@ namespace Systems
 		glEnableVertexAttribArray(0);
 	}
 
-	void Player::step() const
+	void Player::step()
 	{
 		using namespace Globals::Components;
 
 		const glm::ivec2 windowSpaceMouseDelta = mouseState.getMouseDelta();
 		const glm::vec2 mouseDelta = { windowSpaceMouseDelta.x, -windowSpaceMouseDelta.y };
 
+		if (firstStep)
+		{
+			player.previousPosition = player.getPosition();
+			firstStep = false;
+		}
+
 		turn(mouseDelta);
 		throttle(mouseState.rmb);
 		magneticHook(mouseState.lmb);
+
+		player.previousPosition = player.getPosition();
 	}
 
 	void Player::render() const
@@ -167,15 +175,26 @@ namespace Systems
 
 			if (*it == nearestGrappleId)
 			{
-				if (active && player.connectedGrappleId == -1)
+				if (active && !player.strongConnection &&
+					glm::distance(player.getPosition(), grapple.getPosition()) >=
+					glm::distance(player.previousPosition, grapple.getPosition()))
 				{
+					player.strongConnection = true;
 					player.connectedGrappleId = *it;
 					createGrappleJoint();
 				}
 				else if(player.connectedGrappleId != *it)
 				{
-					connections.emplace_back(player.getPosition(), grapple.getPosition(),
-						glm::vec4(0.0f, 1.0f, 0.0f, 0.2f), 1);
+					if (active)
+					{
+						player.strongConnection = false;
+						player.connectedGrappleId = *it;
+					}
+					else
+					{
+						connections.emplace_back(player.getPosition(), grapple.getPosition(),
+							glm::vec4(0.0f, 1.0f, 0.0f, 0.2f), 1);
+					}
 				}
 			}
 			else if (player.connectedGrappleId != *it)
@@ -187,7 +206,7 @@ namespace Systems
 		if (player.connectedGrappleId != -1)
 		{
 			connections.emplace_back(player.getPosition(), grapples[player.connectedGrappleId].getPosition(),
-				glm::vec4(0.0f, 0.0f, 1.0f, 0.7f), 20, 0.5f);
+				glm::vec4(0.0f, 0.0f, 1.0f, player.strongConnection ? 0.7f : 0.5f), 20, player.strongConnection ? 0.4f : 0.1f);
 		}
 	}
 
