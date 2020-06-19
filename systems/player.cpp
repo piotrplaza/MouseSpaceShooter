@@ -154,7 +154,11 @@ namespace Systems
 			}
 		}
 
-		if (!active) player.connectedGrappleId = -1;
+		if (!active)
+		{
+			player.connectedGrappleId = -1;
+			player.grappleJoint.reset();
+		}
 
 		for (auto it = grapplesInRange.begin(); it != grapplesInRange.end(); ++it)
 		{
@@ -165,6 +169,7 @@ namespace Systems
 				if (active && player.connectedGrappleId == -1)
 				{
 					player.connectedGrappleId = *it;
+					createGrappleJoint();
 				}
 				else if(player.connectedGrappleId != *it)
 				{
@@ -183,5 +188,23 @@ namespace Systems
 			connections.emplace_back(player.getPosition(), grapples[player.connectedGrappleId].getPosition(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 0.7f), 20, 0.5f);
 		}
+	}
+
+	void Player::createGrappleJoint() const
+	{
+		using namespace Globals::Components;
+
+		assert(player.connectedGrappleId != -1);
+
+		const auto& grapple = grapples[player.connectedGrappleId];
+
+		b2DistanceJointDef distanceJointDef;
+		distanceJointDef.bodyA = player.body.get();
+		distanceJointDef.bodyB = grapple.body.get();
+		distanceJointDef.localAnchorA = distanceJointDef.bodyA->GetLocalCenter();
+		distanceJointDef.localAnchorB = distanceJointDef.bodyB->GetLocalCenter();
+		distanceJointDef.length = glm::distance(player.getPosition(), grapple.getPosition());
+		distanceJointDef.collideConnected = true;
+		player.grappleJoint.reset(physics.world.CreateJoint(&distanceJointDef));
 	}
 }

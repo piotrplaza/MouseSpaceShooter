@@ -10,6 +10,10 @@ struct b2BodyDeleter {
 	void operator()(b2Body* body) const;
 };
 
+struct b2JointDeleter {
+	void operator()(b2Joint* joint) const;
+};
+
 template <typename TargetVec2, typename SourceVec2>
 inline TargetVec2 toVec2(const SourceVec2 v)
 {

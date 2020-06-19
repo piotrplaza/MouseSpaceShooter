@@ -9,6 +9,11 @@ void b2BodyDeleter::operator()(b2Body * body) const
 		body->GetWorld()->DestroyBody(body);
 }
 
+void b2JointDeleter::operator()(b2Joint* joint) const
+{
+	joint->GetBodyA()->GetWorld()->DestroyJoint(joint);
+}
+
 namespace tools
 {
 	std::unique_ptr<b2Body, b2BodyDeleter> CreateBoxBody(glm::vec2 position, glm::vec2 hSize, float angle,

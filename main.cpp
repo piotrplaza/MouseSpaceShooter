@@ -95,9 +95,9 @@ void PrepareFrame(bool focus)
 	Globals::Systems::AccessLevel().step();
 	Globals::Systems::AccessPlayer().step();
 
-	Globals::Systems::AccessPhysics().step();
-
 	RenderScene();
+
+	Globals::Systems::AccessPhysics().step();
 }
 
 void HandleKeyboard(bool const* const keys)

@@ -21,6 +21,7 @@ namespace Systems
 		void turn(glm::vec2 controllerDelta) const;
 		void throttle(bool active) const;
 		void magneticHook(bool active) const;
+		void createGrappleJoint() const;
 
 		shaders::ProgramId shadersProgram;
 		GLuint vertexArray;
