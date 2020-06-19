@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <limits>
-#include <type_traits>
 
 #include <Box2D/Box2D.h>
 
@@ -135,42 +134,54 @@ namespace Systems
 
 		connections.clear();
 
-		auto nearestGrappleIt = grapples.end();
+		int nearestGrappleId = -1;
 		float nearestDistance = std::numeric_limits<float>::infinity();
-		std::vector<std::remove_reference<decltype(grapples)>::type::iterator> grapplesInRange;
+		std::vector<int> grapplesInRange;
 
-		for (auto it = grapples.begin(); it != grapples.end(); ++it)
+		for (int i = 0; i < (int)grapples.size(); ++i)
 		{
-			const float distance = glm::distance(player.getPosition(), it->getPosition());
+			const auto& grapple = grapples[i];
+			const float distance = glm::distance(player.getPosition(), grapple.getPosition());
 
-			if (distance > it->influenceRadius) continue;
+			if (distance > grapple.influenceRadius) continue;
 
-			grapplesInRange.push_back(it);
+			grapplesInRange.push_back(i);
 
 			if (distance < nearestDistance)
 			{
 				nearestDistance = distance;
-				nearestGrappleIt = it;
+				nearestGrappleId = i;
 			}
 		}
 
+		if (!active) player.connectedGrappleId = -1;
+
 		for (auto it = grapplesInRange.begin(); it != grapplesInRange.end(); ++it)
 		{
-			if (*it == nearestGrappleIt)
+			const auto& grapple = grapples[*it];
+
+			if (*it == nearestGrappleId)
 			{
-				if (active)
+				if (active && player.connectedGrappleId == -1)
 				{
-					connections.emplace_back(player.getPosition(), (*it)->getPosition(), glm::vec4(0.0f, 0.0f, 1.0f, 0.7f), 20, 0.5f);
+					player.connectedGrappleId = *it;
 				}
-				else
+				else if(player.connectedGrappleId != *it)
 				{
-					connections.emplace_back(player.getPosition(), (*it)->getPosition(), glm::vec4(1.0f, 1.0f, 1.0f, 0.5f), 1);
+					connections.emplace_back(player.getPosition(), grapple.getPosition(),
+						glm::vec4(0.0f, 1.0f, 0.0f, 0.2f), 1);
 				}
 			}
-			else
+			else if (player.connectedGrappleId != *it)
 			{
-				connections.emplace_back(player.getPosition(), (*it)->getPosition(), glm::vec4(1.0f, 1.0f, 1.0f, 0.2f), 1);
+				connections.emplace_back(player.getPosition(), grapple.getPosition(), glm::vec4(1.0f, 0.0f, 0.0f, 0.2f), 1);
 			}
+		}
+
+		if (player.connectedGrappleId != -1)
+		{
+			connections.emplace_back(player.getPosition(), grapples[player.connectedGrappleId].getPosition(),
+				glm::vec4(0.0f, 0.0f, 1.0f, 0.7f), 20, 0.5f);
 		}
 	}
 }

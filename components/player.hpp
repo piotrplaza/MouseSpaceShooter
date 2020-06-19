@@ -15,6 +15,7 @@ namespace Components
 	{
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
 		std::array<glm::vec3, 3> verticesCache{};
+		int connectedGrappleId = -1;
 		
 		void setPosition(const glm::vec2& position)
 		{
