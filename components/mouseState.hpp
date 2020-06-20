@@ -8,6 +8,7 @@ namespace Components
 	{
 		bool lmb{ false };
 		bool rmb{ false };
+		bool mmb{ false };
 		glm::ivec2 position{ 0, 0 };
 		glm::ivec2 delta{ 0, 0 };
 		

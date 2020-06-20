@@ -273,8 +273,10 @@ LRESULT CALLBACK WndProc(
 			mouseState.lmb = false;
 			break;
 		case WM_MBUTTONDOWN:
+			mouseState.mmb = true;
 			break;
 		case WM_MBUTTONUP:
+			mouseState.mmb = false;
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);

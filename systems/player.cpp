@@ -133,7 +133,7 @@ namespace Systems
 			{
 				const glm::vec2 normalizedStepVelocity = stepVelocity / stepVelocityLength;
 				const float playerAngle = player.body->GetAngle();
-				const float playerSideAngle = playerAngle + glm::half_pi<float>();
+				const float playerSideAngle = playerAngle + glm::half_pi<float>() * (mouseState.mmb ? -1.0f : 1.0f);
 				const glm::vec2 playerDirection = { std::cos(playerSideAngle), std::sin(playerSideAngle) };
 				const float velocityDot = glm::dot(playerDirection, normalizedStepVelocity);
 
