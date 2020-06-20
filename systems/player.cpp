@@ -166,6 +166,7 @@ namespace Systems
 		if (!active)
 		{
 			player.connectedGrappleId = -1;
+			player.weakConnectedGrappleId = -1;
 			player.grappleJoint.reset();
 		}
 
@@ -180,13 +181,19 @@ namespace Systems
 					glm::distance(player.previousPosition, grapple.getPosition()))
 				{
 					player.connectedGrappleId = *it;
+					player.weakConnectedGrappleId = -1;
 					createGrappleJoint();
 				}
 				else if(player.connectedGrappleId != *it)
 				{
 					if (active)
 					{
-						player.connectedGrappleId = *it;
+						if (player.grappleJoint)
+						{
+							connections.emplace_back(player.getPosition(), grapple.getPosition(),
+								glm::vec4(0.0f, 1.0f, 0.0f, 0.2f), 1);
+						}
+						player.weakConnectedGrappleId = *it;
 					}
 					else
 					{
@@ -204,7 +211,12 @@ namespace Systems
 		if (player.connectedGrappleId != -1)
 		{
 			connections.emplace_back(player.getPosition(), grapples[player.connectedGrappleId].getPosition(),
-				glm::vec4(0.0f, 0.0f, 1.0f, player.grappleJoint ? 0.7f : 0.5f), 20, player.grappleJoint ? 0.4f : 0.1f);
+				glm::vec4(0.0f, 0.0f, 1.0f, 0.7f), 20, 0.4f);
+		}
+		else if (player.weakConnectedGrappleId != -1)
+		{
+			connections.emplace_back(player.getPosition(), grapples[player.weakConnectedGrappleId].getPosition(),
+				glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), 20, 0.1f);
 		}
 	}
 
