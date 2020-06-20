@@ -93,8 +93,8 @@ void PrepareFrame(bool focus)
 {
 	if (!focus) return;
 
-	Globals::Systems::AccessLevel().step();
 	Globals::Systems::AccessPlayer().step();
+	Globals::Systems::AccessLevel().step();
 
 	RenderScene();
 

@@ -23,8 +23,11 @@ namespace Systems
 		void magneticHook(bool active) const;
 		void createGrappleJoint() const;
 
+		void debugRender() const;
+
 		shaders::ProgramId basicShadersProgram;
 		GLint basicShadersMVPUniform;
+		GLint basicShadersColorUniform;
 
 		GLuint vertexArray;
 		GLuint vertexBuffer;

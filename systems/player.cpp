@@ -67,6 +67,7 @@ namespace Systems
 		basicShadersProgram = shaders::LinkProgram(shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"),
 			{ {0, "bPos"} });
 		basicShadersMVPUniform = glGetUniformLocation(basicShadersProgram, "mvp");
+		basicShadersColorUniform = glGetUniformLocation(basicShadersProgram, "color");
 
 		glCreateVertexArrays(1, &vertexArray);
 		glBindVertexArray(vertexArray);
@@ -102,12 +103,17 @@ namespace Systems
 
 	void Player::render() const
 	{
+		using namespace Globals::Components;
+
 		glUseProgram(basicShadersProgram);
 		glUniformMatrix4fv(basicShadersMVPUniform, 1, GL_FALSE,
-			glm::value_ptr(Globals::Components::mvp.getMVP(Globals::Components::player.getModelMatrix())));
+			glm::value_ptr(Globals::Components::mvp.getMVP(player.getModelMatrix())));
 
+		glUniform4f(basicShadersColorUniform, 1.0f, 1.0f, 1.0f, 1.0f);
 		glBindVertexArray(vertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, Globals::Components::player.verticesCache.size());
+		glDrawArrays(GL_TRIANGLES, 0, player.verticesCache.size());
+
+		//debugRender();
 	}
 
 	void Player::turn(glm::vec2 controllerDelta) const
@@ -162,21 +168,21 @@ namespace Systems
 		connections.clear();
 
 		int nearestGrappleId = -1;
-		float nearestDistance = std::numeric_limits<float>::infinity();
+		float nearestGrappleDistance = std::numeric_limits<float>::infinity();
 		std::vector<int> grapplesInRange;
 
 		for (int i = 0; i < (int)grapples.size(); ++i)
 		{
 			const auto& grapple = grapples[i];
-			const float distance = glm::distance(player.getPosition(), grapple.getPosition());
+			const float grappleDistance = glm::distance(player.getPosition(), grapple.getPosition());
 
-			if (distance > grapple.influenceRadius) continue;
+			if (grappleDistance > grapple.influenceRadius) continue;
 
 			grapplesInRange.push_back(i);
 
-			if (distance < nearestDistance)
+			if (grappleDistance < nearestGrappleDistance)
 			{
-				nearestDistance = distance;
+				nearestGrappleDistance = grappleDistance;
 				nearestGrappleId = i;
 			}
 		}
@@ -254,5 +260,19 @@ namespace Systems
 		distanceJointDef.length = glm::distance(player.getPosition(), grapple.getPosition());
 		distanceJointDef.collideConnected = true;
 		player.grappleJoint.reset(physics.world.CreateJoint(&distanceJointDef));
+	}
+
+	void Player::debugRender() const
+	{
+		using namespace Globals::Components;
+
+		glPointSize(10);
+		glUniform4f(basicShadersColorUniform, 1.0f, 0.0f, 0.0f, 1.0f);
+		glBindVertexArray(0);
+		std::vector<glm::vec3> v{
+			{glm::vec3(player.getPosition(), 0.0f)}
+		};
+		glVertexAttribPointer(0, 3, GL_POINTS, false, 0, v.data());
+		glDrawArrays(GL_POINTS, 0, v.size());
 	}
 }
