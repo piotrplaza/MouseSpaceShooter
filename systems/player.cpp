@@ -123,6 +123,23 @@ namespace Systems
 
 			player.body->SetTransform(player.body->GetPosition(), playerAngle + controllerDot * Globals::Defaults::mouseSensitivity);
 		}
+
+		if (player.grappleJoint)
+		{
+			const glm::vec2 stepVelocity = player.getPosition() - player.previousPosition;
+			const float stepVelocityLength = glm::length(stepVelocity);
+
+			if (stepVelocityLength > 0.0f)
+			{
+				const glm::vec2 normalizedStepVelocity = stepVelocity / stepVelocityLength;
+				const float playerAngle = player.body->GetAngle();
+				const float playerSideAngle = playerAngle + glm::half_pi<float>();
+				const glm::vec2 playerDirection = { std::cos(playerSideAngle), std::sin(playerSideAngle) };
+				const float velocityDot = glm::dot(playerDirection, normalizedStepVelocity);
+
+				player.body->SetTransform(player.body->GetPosition(), playerAngle + velocityDot * Globals::Defaults::playerAutoRotationFactor);
+			}
+		}
 	}
 
 	void Player::throttle(bool active) const

@@ -50,6 +50,7 @@ namespace Globals
 		constexpr float playerForwardForce = 15.0f;
 		constexpr float playerLinearDamping = 0.1f;
 		constexpr float playerAngularDamping = 15.0f;
+		constexpr float playerAutoRotationFactor = 0.2f;
 
 		constexpr float mouseSensitivity = 0.01f;
 		constexpr float hProjectionSize = 25.0f;
