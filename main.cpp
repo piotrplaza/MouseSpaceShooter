@@ -71,6 +71,7 @@ void CreateLevel()
 void Initialize()
 {
 	if (console) tools::RedirectIOToConsole({ 2000, 10 });
+	tools::RandomInit();
 	ShowCursor(false);
 	OGLInitialize();
 

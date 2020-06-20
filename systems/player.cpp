@@ -137,7 +137,8 @@ namespace Systems
 				const glm::vec2 playerDirection = { std::cos(playerSideAngle), std::sin(playerSideAngle) };
 				const float velocityDot = glm::dot(playerDirection, normalizedStepVelocity);
 
-				player.body->SetTransform(player.body->GetPosition(), playerAngle + velocityDot * Globals::Defaults::playerAutoRotationFactor);
+				player.body->SetTransform(player.body->GetPosition(), playerAngle + velocityDot *
+					stepVelocityLength * Globals::Defaults::playerAutoRotationFactor);
 			}
 		}
 	}
