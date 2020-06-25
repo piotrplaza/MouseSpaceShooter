@@ -133,6 +133,7 @@ void ChangeWindowSize(glm::ivec2 size)
 	using namespace Globals::Components;
 
 	screenInfo.windowSize = size;
+	screenInfo.windowCenterInScreenSpace = { screenInfo.windowLocation + screenInfo.windowSize / 2 };
 
 	glViewport(0, 0, size.x, size.y);
 }
@@ -141,6 +142,7 @@ void ChangeWindowLocation(glm::ivec2 location)
 {
 	using namespace Globals::Components;
 
+	screenInfo.windowLocation = location;
 	screenInfo.windowCenterInScreenSpace = { location + screenInfo.windowSize / 2 };
 }
 
