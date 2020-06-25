@@ -26,7 +26,7 @@
 
 #include "tools/utility.hpp"
 
-const bool fullScreen = false;
+const bool fullScreen = true;
 const bool console = true;
 const glm::ivec2 windowRes = { 800, 800 };
 
@@ -68,8 +68,10 @@ void CreateLevel()
 	grapples.emplace_back(tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f);
 
 	//Camera.
-	camera.projectionHSizeF = []() { return 25.0f; };
-	camera.mainActorPositionF = []() { return player.getPosition(); };
+	camera.projectionHSizeF = []() { return 25.0f + glm::length(player.getVelocity()) * 0.1f; };
+	camera.projectionTransitionFactor = 0.1f;
+	camera.mainActorPositionF = []() { return player.getPosition() + player.getVelocity() * 0.2f; };
+	camera.positionTransitionFactor = 0.1f;
 }
 
 void Initialize()

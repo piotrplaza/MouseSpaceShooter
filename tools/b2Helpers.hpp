@@ -15,7 +15,7 @@ struct b2JointDeleter {
 };
 
 template <typename TargetVec2, typename SourceVec2>
-inline TargetVec2 toVec2(const SourceVec2 v)
+inline TargetVec2 ToVec2(const SourceVec2 v)
 {
 	return { v.x, v.y };
 }

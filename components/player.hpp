@@ -39,7 +39,12 @@ namespace Components
 
 		glm::vec2 getPosition() const
 		{
-			return { body->GetWorldCenter().x, body->GetWorldCenter().y };
+			return ToVec2<glm::vec2>(body->GetWorldCenter());
+		}
+
+		glm::vec2 getVelocity() const
+		{
+			return ToVec2<glm::vec2>(body->GetLinearVelocity());
 		}
 
 		glm::mat4 getModelMatrix() const

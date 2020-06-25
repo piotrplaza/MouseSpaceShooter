@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/vec2.hpp>
+
 namespace Systems
 {
 	class Camera
@@ -7,6 +9,12 @@ namespace Systems
 	public:
 		Camera();
 
-		void step() const;
+		void step();
+
+	private:
+		bool firstStep = true;
+
+		float prevProjectionHSize{};
+		glm::vec2 prevMainActorPosition{};
 	};
 }

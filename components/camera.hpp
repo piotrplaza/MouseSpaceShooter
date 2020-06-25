@@ -10,5 +10,8 @@ namespace Components
 	{
 		std::function<glm::vec2()> mainActorPositionF;
 		std::function<float()> projectionHSizeF;
+
+		float positionTransitionFactor = 1.0f;
+		float projectionTransitionFactor = 1.0f;
 	};
 }

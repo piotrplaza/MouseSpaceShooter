@@ -10,11 +10,9 @@
 
 namespace Systems
 {
-	Camera::Camera()
-	{
-	}
+	Camera::Camera() = default;
 
-	void Camera::step() const
+	void Camera::step()
 	{
 		using namespace Globals::Components;
 
@@ -24,8 +22,21 @@ namespace Systems
 		const float windowHeightRatio = screenInfo.windowSize.x < screenInfo.windowSize.y
 			? (float)screenInfo.windowSize.y / screenInfo.windowSize.x
 			: 1.0f;
-		const float projectionHSize = camera.projectionHSizeF();
-		const glm::vec2 mainActorPosition = camera.mainActorPositionF();
+		const float targetProjectionHSize = camera.projectionHSizeF();
+		const glm::vec2 targetMainActorPosition = camera.mainActorPositionF();
+
+		if (firstStep)
+		{
+			prevProjectionHSize = targetProjectionHSize;
+			prevMainActorPosition = targetMainActorPosition;
+			firstStep = false;
+		}
+
+		const float projectionHSize = prevProjectionHSize + (targetProjectionHSize - prevProjectionHSize) * camera.projectionTransitionFactor;
+		const glm::vec2 mainActorPosition = prevMainActorPosition + (targetMainActorPosition - prevMainActorPosition) * camera.positionTransitionFactor;
+
+		prevProjectionHSize = projectionHSize;
+		prevMainActorPosition = mainActorPosition;
 
 		mvp.view = glm::translate(glm::mat4(1.0f), glm::vec3(-mainActorPosition, 0.0f));
 		mvp.projection = glm::ortho(-projectionHSize * windowWidthRatio, projectionHSize * windowWidthRatio,
