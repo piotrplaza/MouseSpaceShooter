@@ -40,7 +40,7 @@ namespace tools
 
 	void SetMouseCursorVisibility(bool visibility)
 	{
-
+		ShowCursor(visibility);
 	}
 
 	void RandomInit()

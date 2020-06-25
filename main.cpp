@@ -76,7 +76,6 @@ void Initialize()
 {
 	if (console) tools::RedirectIOToConsole({ 2000, 10 });
 	tools::RandomInit();
-	ShowCursor(false);
 	OGLInitialize();
 
 	Globals::Systems::Initialize();
@@ -93,10 +92,8 @@ void RenderScene()
 	Globals::Systems::AccessLevel().renderForeground();
 }
 
-void PrepareFrame(bool focus)
+void PrepareFrame()
 {
-	if (!focus) return;
-
 	Globals::Systems::AccessPlayer().step();
 	Globals::Systems::AccessLevel().step();
 	Globals::Systems::AccessCamera().step();
@@ -110,6 +107,14 @@ void HandleKeyboard(bool const* const keys)
 {
 }
 
+void ResetMousePosition()
+{
+	using namespace Globals::Components;
+
+	tools::SetMousePos(screenInfo.windowCenterInScreenSpace);
+	mouseState.position = screenInfo.windowCenterInScreenSpace;
+}
+
 void HandleMouse()
 {
 	using namespace Globals::Components;
@@ -120,8 +125,7 @@ void HandleMouse()
 	mouseState.position = { mousePos.x, mousePos.y };
 	mouseState.delta = mouseState.position - prevPosition;
 	
-	tools::SetMousePos(screenInfo.windowCenterInScreenSpace);
-	mouseState.position = screenInfo.windowCenterInScreenSpace;
+	ResetMousePosition();
 }
 
 void ChangeWindowSize(glm::ivec2 size)
@@ -138,14 +142,6 @@ void ChangeWindowLocation(glm::ivec2 location)
 	using namespace Globals::Components;
 
 	screenInfo.windowCenterInScreenSpace = { location + screenInfo.windowSize / 2 };
-}
-
-void WindowLocationInitialized()
-{
-	using namespace Globals::Components;
-
-	tools::SetMousePos(screenInfo.windowCenterInScreenSpace);
-	mouseState.position = screenInfo.windowCenterInScreenSpace;
 }
 
 void SetDCPixelFormat(HDC hDC)
@@ -176,6 +172,7 @@ void SetDCPixelFormat(HDC hDC)
 static bool keys[256];
 static bool quit;
 static bool focus;
+static bool resetMousePositionRequired;
 static HDC hDC;
 
 LRESULT CALLBACK WndProc(
@@ -187,9 +184,6 @@ LRESULT CALLBACK WndProc(
 	using namespace Globals::Components;
 
 	static HGLRC hRC;
-	static bool locationInitialized = false;
-	static bool firstSize = true;
-	static bool firstMove = true;
 
 	switch(message)
 	{
@@ -221,37 +215,21 @@ LRESULT CALLBACK WndProc(
 		{
 			const glm::ivec2 size{ LOWORD(lParam), HIWORD(lParam) };
 			ChangeWindowSize(size);
-			if (firstSize)
-			{
-				if (!firstMove && !locationInitialized)
-				{
-					WindowLocationInitialized();
-					locationInitialized = true;
-				}
-				firstSize = false;
-			}
 			break;
 		}
 		case WM_MOVE:
 		{
 			const glm::ivec2 location{ LOWORD(lParam), HIWORD(lParam) };
 			ChangeWindowLocation(location);
-			if (firstMove)
-			{
-				if (!firstSize && !locationInitialized)
-				{
-					WindowLocationInitialized();
-					locationInitialized = true;
-				}
-				firstMove = false;
-			}
 			break;
 		}
 		case WM_SETFOCUS:
-			WindowLocationInitialized();
+			ShowCursor(false);
 			focus = true;
+			resetMousePositionRequired = true;
 			break;
 		case WM_KILLFOCUS:
+			ShowCursor(true);
 			focus = false;
 			break;
 		case WM_KEYDOWN:
@@ -344,11 +322,16 @@ int APIENTRY WinMain(
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		else
+		else if(focus)
 		{
+			if (resetMousePositionRequired)
+			{
+				ResetMousePosition();
+				resetMousePositionRequired = false;
+			}
 			HandleKeyboard(keys);
 			HandleMouse();
-			PrepareFrame(focus);
+			PrepareFrame();
 			SwapBuffers(hDC);
 		}
 	}
