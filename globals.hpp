@@ -57,7 +57,6 @@ namespace Globals
 		constexpr float playerAutoRotationFactor = 0.5f;
 
 		constexpr float mouseSensitivity = 0.01f;
-		constexpr float hProjectionSize = 25.0f;
 		constexpr int circleGraphicsComplexity = 20;
 	}
 }

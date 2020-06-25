@@ -6,5 +6,7 @@ namespace Systems
 	{
 	public:
 		Camera();
+
+		void step() const;
 	};
 }

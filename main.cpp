@@ -8,25 +8,25 @@
 #include <gl/gl.h>
 
 #include <glm/vec2.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "globals.hpp"
 
 #include "components/mouseState.hpp"
 #include "components/screenInfo.hpp"
-#include "components/mvp.hpp"
 #include "components/physics.hpp"
 #include "components/player.hpp"
 #include "components/wall.hpp"
 #include "components/grapple.hpp"
+#include "components/camera.hpp"
 
 #include "systems/level.hpp"
 #include "systems/player.hpp"
 #include "systems/physics.hpp"
+#include "systems/camera.hpp"
 
 #include "tools/utility.hpp"
 
-const bool fullScreen = true;
+const bool fullScreen = false;
 const bool console = true;
 const glm::ivec2 windowRes = { 800, 800 };
 
@@ -66,6 +66,10 @@ void CreateLevel()
 	//Grapples.
 	grapples.emplace_back(tools::CreateCircleBody({0.0f, 10.0f}, 1.0f), 15.0f);
 	grapples.emplace_back(tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f);
+
+	//Camera.
+	camera.verticalProjectionHSizeF = []() { return 25.0f; };
+	camera.mainActorPositionF = []() { return player.getPosition(); };
 }
 
 void Initialize()
@@ -95,6 +99,7 @@ void PrepareFrame(bool focus)
 
 	Globals::Systems::AccessPlayer().step();
 	Globals::Systems::AccessLevel().step();
+	Globals::Systems::AccessCamera().step();
 
 	RenderScene();
 
@@ -122,15 +127,10 @@ void HandleMouse()
 void ChangeWindowSize(glm::ivec2 size)
 {
 	using namespace Globals::Components;
-	using namespace Globals::Defaults;
 
-	const float ratio = (float)size.x / size.y;
-
-	screenInfo.windowSize = { size.x, size.y };
+	screenInfo.windowSize = size;
 
 	glViewport(0, 0, size.x, size.y);
-
-	mvp.projection = glm::ortho(-hProjectionSize * ratio, hProjectionSize * ratio, -hProjectionSize, hProjectionSize);
 }
 
 void ChangeWindowLocation(glm::ivec2 location)
