@@ -9,10 +9,12 @@
 #include "components/wall.hpp"
 #include "components/grapple.hpp"
 #include "components/connection.hpp"
+#include "components/camera.hpp"
 
 #include "systems/physics.hpp"
 #include "systems/player.hpp"
 #include "systems/level.hpp"
+#include "systems/camera.hpp"
 
 namespace Components
 {
@@ -21,6 +23,7 @@ namespace Components
 	static ::Components::MVP mvp;
 	static ::Components::Physics physics;
 	static ::Components::Player player;
+	static ::Components::Camera camera;
 
 	static std::vector<::Components::Wall> walls;
 	static std::vector<::Components::Grapple> grapples;
@@ -36,6 +39,7 @@ namespace Globals
 		::Components::MVP& mvp = ::Components::mvp;
 		::Components::Physics& physics = ::Components::physics;
 		::Components::Player& player = ::Components::player;
+		::Components::Camera& camera = ::Components::camera;
 
 		std::vector<::Components::Wall>& walls = ::Components::walls;
 		std::vector<::Components::Grapple>& grapples = ::Components::grapples;
@@ -47,12 +51,14 @@ namespace Globals
 		std::unique_ptr<::Systems::Physics> physics;
 		std::unique_ptr<::Systems::Player> player;
 		std::unique_ptr<::Systems::Level> level;
+		std::unique_ptr<::Systems::Camera> camera;
 
 		void Initialize()
 		{
 			physics = std::make_unique<::Systems::Physics>();
 			player = std::make_unique<::Systems::Player>();
 			level = std::make_unique<::Systems::Level>();
+			camera = std::make_unique<::Systems::Camera>();
 		}
 
 		::Systems::Physics& AccessPhysics()
@@ -68,6 +74,11 @@ namespace Globals
 		::Systems::Level& AccessLevel()
 		{
 			return *level;
+		}
+
+		::Systems::Camera& AccessCamera()
+		{
+			return *camera;
 		}
 	}
 }

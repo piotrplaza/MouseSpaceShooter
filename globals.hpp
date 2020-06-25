@@ -12,6 +12,7 @@ namespace Components
 	struct Wall;
 	struct Grapple;
 	struct Connection;
+	struct Camera;
 }
 
 namespace Systems
@@ -19,6 +20,7 @@ namespace Systems
 	class Physics;
 	class Player;
 	class Level;
+	class Camera;
 }
 
 namespace Globals
@@ -30,6 +32,7 @@ namespace Globals
 		extern ::Components::MVP& mvp;
 		extern ::Components::Physics& physics;
 		extern ::Components::Player& player;
+		extern ::Components::Camera& camera;
 
 		extern std::vector<::Components::Wall>& walls;
 		extern std::vector<::Components::Grapple>& grapples;
@@ -43,6 +46,7 @@ namespace Globals
 		::Systems::Physics& AccessPhysics();
 		::Systems::Player& AccessPlayer();
 		::Systems::Level& AccessLevel();
+		::Systems::Camera& AccessCamera();
 	}
 
 	namespace Defaults
