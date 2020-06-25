@@ -18,11 +18,17 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		const float windowRatio = (float)screenInfo.windowSize.x / screenInfo.windowSize.y;
-		const float hProjectionSize = camera.verticalProjectionHSizeF();
+		const float windowWidthRatio = screenInfo.windowSize.x > screenInfo.windowSize.y
+			? (float)screenInfo.windowSize.x / screenInfo.windowSize.y
+			: 1.0f;
+		const float windowHeightRatio = screenInfo.windowSize.x < screenInfo.windowSize.y
+			? (float)screenInfo.windowSize.y / screenInfo.windowSize.x
+			: 1.0f;
+		const float projectionHSize = camera.projectionHSizeF();
 		const glm::vec2 mainActorPosition = camera.mainActorPositionF();
 
 		mvp.view = glm::translate(glm::mat4(1.0f), glm::vec3(-mainActorPosition, 0.0f));
-		mvp.projection = glm::ortho(-hProjectionSize * windowRatio, hProjectionSize * windowRatio, -hProjectionSize, hProjectionSize);
+		mvp.projection = glm::ortho(-projectionHSize * windowWidthRatio, projectionHSize * windowWidthRatio,
+			-projectionHSize * windowHeightRatio, projectionHSize * windowHeightRatio);
 	}
 }

@@ -9,6 +9,6 @@ namespace Components
 	struct Camera
 	{
 		std::function<glm::vec2()> mainActorPositionF;
-		std::function<float()> verticalProjectionHSizeF;
+		std::function<float()> projectionHSizeF;
 	};
 }

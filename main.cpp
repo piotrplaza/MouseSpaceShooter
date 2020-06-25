@@ -68,7 +68,7 @@ void CreateLevel()
 	grapples.emplace_back(tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f);
 
 	//Camera.
-	camera.verticalProjectionHSizeF = []() { return 25.0f; };
+	camera.projectionHSizeF = []() { return 25.0f; };
 	camera.mainActorPositionF = []() { return player.getPosition(); };
 }
 
