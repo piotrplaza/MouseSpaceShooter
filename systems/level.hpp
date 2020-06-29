@@ -17,14 +17,14 @@ namespace Systems
 		void step();
 		void renderBackground() const;
 		void renderForeground() const;
+		void updateStaticWallsGraphics();
 
 	private:
-		void initPhysics() const;
 		void initGraphics();
 
-		void updateWalls();
-		void updateGrapples();
-		void updateConnections();
+		void updateDynamicWallsGraphics();
+		void updateGrapplesGraphics();
+		void updateConnectionsGraphics();
 
 		shaders::ProgramId basicShadersProgram;
 		GLint basicShadersMVPUniform;
@@ -33,8 +33,11 @@ namespace Systems
 		shaders::ProgramId coloredShadersProgram;
 		GLint coloredShadersMVPUniform;
 
-		GLuint wallsVertexArray;
-		GLuint wallsVertexBuffer;
+		GLuint staticWallsVertexArray;
+		GLuint staticWallsVertexBuffer;
+
+		GLuint dynamicWallsVertexArray;
+		GLuint dynamicWallsVertexBuffer;
 
 		GLuint grapplesVertexArray;
 		GLuint grapplesVertexBuffer;
@@ -43,7 +46,8 @@ namespace Systems
 		GLuint connectionsVertexBuffer;
 		GLuint connectionsColorBuffer;
 
-		std::vector<glm::vec3> wallsVerticesCache;
+		std::vector<glm::vec3> staticWallsVerticesCache;
+		std::vector<glm::vec3> dynamicWallsVerticesCache;
 		std::vector<glm::vec3> grapplesVerticesCache;
 		std::vector<glm::vec3> connectionsVerticesCache;
 		std::vector<glm::vec4> connectionsColorsCache;

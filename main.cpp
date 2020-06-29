@@ -47,18 +47,19 @@ void CreateLevel()
 	using namespace Globals::Components;
 
 	//Player configuration.
+	player = Components::Player(tools::CreateBasicPlayerBody());
 	player.setPosition({ -10.0f, 0.0f });
 
 	//Static walls.
-	walls.emplace_back(tools::CreateBoxBody({ -20.0f, 0.0f }, { 0.2f, 20.0f }));
-	walls.emplace_back(tools::CreateBoxBody({ 20.0f, 0.0f }, { 0.2f, 20.0f }));
-	walls.emplace_back(tools::CreateBoxBody({ 0.0f, -20.0f }, { 20.0f, 0.2f }));
-	walls.emplace_back(tools::CreateBoxBody({ 0.0f, 20.0f }, { 20.0f, 0.2f }));
-	walls.emplace_back(tools::CreateCircleBody({ 10.0f, 0.0f }, 2.0f));
+	staticWalls.emplace_back(tools::CreateBoxBody({ -20.0f, 0.0f }, { 0.2f, 20.0f }));
+	staticWalls.emplace_back(tools::CreateBoxBody({ 20.0f, 0.0f }, { 0.2f, 20.0f }));
+	staticWalls.emplace_back(tools::CreateBoxBody({ 0.0f, -20.0f }, { 20.0f, 0.2f }));
+	staticWalls.emplace_back(tools::CreateBoxBody({ 0.0f, 20.0f }, { 20.0f, 0.2f }));
+	staticWalls.emplace_back(tools::CreateCircleBody({ 10.0f, 0.0f }, 2.0f));
 
 	//Dynamic walls.
-	auto& wall1 = *walls.emplace_back(tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f)).body;
-	auto& wall2 = *walls.emplace_back(tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f)).body;
+	auto& wall1 = *dynamicWalls.emplace_back(tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f)).body;
+	auto& wall2 = *dynamicWalls.emplace_back(tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f)).body;
 	wall1.GetFixtureList()->SetRestitution(1);
 	wall2.GetFixtureList()->SetRestitution(1);
 	tools::PinBodies(wall1, wall2, {5.0f, 0.0f});
@@ -80,9 +81,9 @@ void Initialize()
 	tools::RandomInit();
 	OGLInitialize();
 
-	Globals::Systems::Initialize();
-
 	CreateLevel();
+
+	Globals::Systems::Initialize();
 }
 
 void RenderScene()

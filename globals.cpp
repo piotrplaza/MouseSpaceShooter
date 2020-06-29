@@ -25,7 +25,8 @@ namespace Components
 	static ::Components::Player player;
 	static ::Components::Camera camera;
 
-	static std::vector<::Components::Wall> walls;
+	static std::vector<::Components::Wall> staticWalls;
+	static std::vector<::Components::Wall> dynamicWalls;
 	static std::vector<::Components::Grapple> grapples;
 	static std::vector<::Components::Connection> connections;
 }
@@ -41,7 +42,8 @@ namespace Globals
 		::Components::Player& player = ::Components::player;
 		::Components::Camera& camera = ::Components::camera;
 
-		std::vector<::Components::Wall>& walls = ::Components::walls;
+		std::vector<::Components::Wall>& staticWalls = ::Components::staticWalls;
+		std::vector<::Components::Wall>& dynamicWalls = ::Components::dynamicWalls;
 		std::vector<::Components::Grapple>& grapples = ::Components::grapples;
 		std::vector<::Components::Connection>& connections = ::Components::connections;
 	}

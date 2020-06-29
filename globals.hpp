@@ -34,7 +34,8 @@ namespace Globals
 		extern ::Components::Player& player;
 		extern ::Components::Camera& camera;
 
-		extern std::vector<::Components::Wall>& walls;
+		extern std::vector<::Components::Wall>& staticWalls;
+		extern std::vector<::Components::Wall>& dynamicWalls;
 		extern std::vector<::Components::Grapple>& grapples;
 		extern std::vector<::Components::Connection>& connections;
 	}

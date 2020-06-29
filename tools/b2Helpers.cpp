@@ -16,6 +16,38 @@ void b2JointDeleter::operator()(b2Joint* joint) const
 
 namespace tools
 {
+	std::unique_ptr<b2Body, b2BodyDeleter> CreateBasicPlayerBody()
+	{
+		using namespace Globals::Components;
+		using namespace Globals::Defaults;
+
+		b2BodyDef bodyDef;
+		bodyDef.type = b2_dynamicBody;
+		bodyDef.position.Set(0.0f, 0.0f);
+		bodyDef.angle = 0.0f;
+		std::unique_ptr<b2Body, b2BodyDeleter> playerBody(physics.world.CreateBody(&bodyDef));
+
+		b2FixtureDef fixtureDef;
+		const float playerSize = 1.0f;
+		const b2Vec2 playerTriangle[3] = {
+			{ playerSize, 0 },
+			{ -playerSize / 2.0f, playerSize / 2.0f },
+			{ -playerSize / 2.0f, -playerSize / 2.0f }
+		};
+		b2PolygonShape polygonShape;
+		polygonShape.Set(playerTriangle, 3);
+		fixtureDef.shape = &polygonShape;
+		fixtureDef.density = 1.0f;
+		fixtureDef.restitution = 0.1f;
+		playerBody->CreateFixture(&fixtureDef);
+
+		playerBody->SetSleepingAllowed(false);
+		playerBody->SetLinearDamping(playerLinearDamping);
+		playerBody->SetAngularDamping(playerAngularDamping);
+
+		return playerBody;
+	}
+
 	std::unique_ptr<b2Body, b2BodyDeleter> CreateBoxBody(glm::vec2 position, glm::vec2 hSize, float angle,
 		b2BodyType bodyType, float density)
 	{

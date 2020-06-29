@@ -16,13 +16,7 @@ namespace Systems
 {
 	Level::Level()
 	{
-		initPhysics();
 		initGraphics();
-	}
-
-	void Level::initPhysics() const
-	{
-		using namespace Globals::Components;
 	}
 
 	void Level::initGraphics()
@@ -38,10 +32,17 @@ namespace Systems
 			{ {0, "bPos"}, {1, "bColor"} });
 		coloredShadersMVPUniform = glGetUniformLocation(coloredShadersProgram, "mvp");
 
-		glCreateVertexArrays(1, &wallsVertexArray);
-		glBindVertexArray(wallsVertexArray);
-		glGenBuffers(1, &wallsVertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, wallsVertexBuffer);
+		glCreateVertexArrays(1, &staticWallsVertexArray);
+		glBindVertexArray(staticWallsVertexArray);
+		glGenBuffers(1, &staticWallsVertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, staticWallsVertexBuffer);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(0);
+
+		glCreateVertexArrays(1, &dynamicWallsVertexArray);
+		glBindVertexArray(dynamicWallsVertexArray);
+		glGenBuffers(1, &dynamicWallsVertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, dynamicWallsVertexBuffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(0);
 
@@ -62,25 +63,43 @@ namespace Systems
 		glBindBuffer(GL_ARRAY_BUFFER, connectionsColorBuffer);
 		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(1);
+
+		updateStaticWallsGraphics();
 	}
 
-	void Level::updateWalls()
+	void Level::updateStaticWallsGraphics()
 	{
 		using namespace Globals::Components;
 
-		wallsVerticesCache.clear();
-		for (auto& wall : walls)
+		staticWallsVerticesCache.clear();
+		for (auto& staticWall : staticWalls)
 		{
-			wall.updateVerticesCache();
-			wallsVerticesCache.insert(wallsVerticesCache.end(), wall.verticesCache.begin(), wall.verticesCache.end());
+			staticWall.updateVerticesCache();
+			staticWallsVerticesCache.insert(staticWallsVerticesCache.end(), staticWall.verticesCache.begin(), staticWall.verticesCache.end());
 		}
 
-		glBindBuffer(GL_ARRAY_BUFFER, wallsVertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, wallsVerticesCache.size() * sizeof(wallsVerticesCache.front()),
-			wallsVerticesCache.data(), GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, staticWallsVertexBuffer);
+		glBufferData(GL_ARRAY_BUFFER, staticWallsVerticesCache.size() * sizeof(staticWallsVerticesCache.front()),
+			staticWallsVerticesCache.data(), GL_STATIC_DRAW);
 	}
 
-	void Level::updateGrapples()
+	void Level::updateDynamicWallsGraphics()
+	{
+		using namespace Globals::Components;
+
+		dynamicWallsVerticesCache.clear();
+		for (auto& dynamicWall : dynamicWalls)
+		{
+			dynamicWall.updateVerticesCache();
+			dynamicWallsVerticesCache.insert(dynamicWallsVerticesCache.end(), dynamicWall.verticesCache.begin(), dynamicWall.verticesCache.end());
+		}
+
+		glBindBuffer(GL_ARRAY_BUFFER, dynamicWallsVertexBuffer);
+		glBufferData(GL_ARRAY_BUFFER, dynamicWallsVerticesCache.size() * sizeof(dynamicWallsVerticesCache.front()),
+			dynamicWallsVerticesCache.data(), GL_DYNAMIC_DRAW);
+	}
+
+	void Level::updateGrapplesGraphics()
 	{
 		using namespace Globals::Components;
 
@@ -96,7 +115,7 @@ namespace Systems
 			grapplesVerticesCache.data(), GL_DYNAMIC_DRAW);
 	}
 
-	void Level::updateConnections()
+	void Level::updateConnectionsGraphics()
 	{
 		using namespace Globals::Components;
 
@@ -122,9 +141,9 @@ namespace Systems
 
 	void Level::step()
 	{
-		updateWalls();
-		updateGrapples();
-		updateConnections();
+		updateDynamicWallsGraphics();
+		updateGrapplesGraphics();
+		updateConnectionsGraphics();
 	}
 
 	void Level::renderBackground() const
@@ -134,8 +153,12 @@ namespace Systems
 			glm::value_ptr(Globals::Components::mvp.getVP()));
 
 		glUniform4f(basicShadersColorUniform, 0.5f, 0.5f, 0.5f, 1.0f);
-		glBindVertexArray(wallsVertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, wallsVerticesCache.size());
+		glBindVertexArray(staticWallsVertexArray);
+		glDrawArrays(GL_TRIANGLES, 0, staticWallsVerticesCache.size());
+
+		glUniform4f(basicShadersColorUniform, 0.5f, 0.5f, 0.5f, 1.0f);
+		glBindVertexArray(dynamicWallsVertexArray);
+		glDrawArrays(GL_TRIANGLES, 0, dynamicWallsVerticesCache.size());
 
 		glUniform4f(basicShadersColorUniform, 0.0f, 0.5f, 0.0f, 1.0f);
 		glBindVertexArray(grapplesVertexArray);

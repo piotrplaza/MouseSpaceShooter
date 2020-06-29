@@ -13,6 +13,14 @@ namespace Components
 {
 	struct Player
 	{
+		Player()
+		{
+		}
+
+		Player(std::unique_ptr<b2Body, b2BodyDeleter> body) : body(std::move(body))
+		{
+		}
+
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
 		std::unique_ptr<b2Joint, b2JointDeleter> grappleJoint;
 		std::array<glm::vec3, 3> verticesCache{};

@@ -13,9 +13,9 @@ namespace Systems
 
 		void step();
 		void render() const;
+		void updateStaticPlayerGraphics() const;
 
 	private:
-		void initPhysics() const;
 		void initGraphics();
 
 		void turn(glm::vec2 controllerDelta) const;
