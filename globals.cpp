@@ -10,11 +10,13 @@
 #include "components/grapple.hpp"
 #include "components/connection.hpp"
 #include "components/camera.hpp"
+#include "components/texture.hpp"
 
 #include "systems/physics.hpp"
 #include "systems/player.hpp"
 #include "systems/level.hpp"
 #include "systems/camera.hpp"
+#include "systems/textures.hpp"
 
 namespace Components
 {
@@ -29,6 +31,7 @@ namespace Components
 	static std::vector<::Components::Wall> dynamicWalls;
 	static std::vector<::Components::Grapple> grapples;
 	static std::vector<::Components::Connection> connections;
+	static std::vector<::Components::Texture> textures;
 }
 
 namespace Globals
@@ -46,6 +49,7 @@ namespace Globals
 		std::vector<::Components::Wall>& dynamicWalls = ::Components::dynamicWalls;
 		std::vector<::Components::Grapple>& grapples = ::Components::grapples;
 		std::vector<::Components::Connection>& connections = ::Components::connections;
+		std::vector<::Components::Texture>& textures = ::Components::textures;
 	}
 
 	namespace Systems
@@ -54,6 +58,7 @@ namespace Globals
 		std::unique_ptr<::Systems::Player> player;
 		std::unique_ptr<::Systems::Level> level;
 		std::unique_ptr<::Systems::Camera> camera;
+		std::unique_ptr<::Systems::Textures> textures;
 
 		void Initialize()
 		{
@@ -61,6 +66,7 @@ namespace Globals
 			player = std::make_unique<::Systems::Player>();
 			level = std::make_unique<::Systems::Level>();
 			camera = std::make_unique<::Systems::Camera>();
+			textures = std::make_unique<::Systems::Textures>();
 		}
 
 		::Systems::Physics& AccessPhysics()
@@ -81,6 +87,11 @@ namespace Globals
 		::Systems::Camera& AccessCamera()
 		{
 			return *camera;
+		}
+
+		::Systems::Textures& AccessTextures()
+		{
+			return *textures;
 		}
 	}
 }

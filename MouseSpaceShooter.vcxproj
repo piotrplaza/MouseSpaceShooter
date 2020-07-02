@@ -26,6 +26,7 @@
     <ClCompile Include="systems\level.cpp" />
     <ClCompile Include="systems\physics.cpp" />
     <ClCompile Include="systems\player.cpp" />
+    <ClCompile Include="systems\textures.cpp" />
     <ClCompile Include="tools\b2Helpers.cpp" />
     <ClCompile Include="tools\graphicsHelpers.cpp" />
     <ClCompile Include="tools\utility.cpp" />
@@ -39,6 +40,7 @@
     <ClInclude Include="components\physics.hpp" />
     <ClInclude Include="components\player.hpp" />
     <ClInclude Include="components\screenInfo.hpp" />
+    <ClInclude Include="components\texture.hpp" />
     <ClInclude Include="components\wall.hpp" />
     <ClInclude Include="globals.hpp" />
     <ClInclude Include="shaders.hpp" />
@@ -46,6 +48,7 @@
     <ClInclude Include="systems\level.hpp" />
     <ClInclude Include="systems\physics.hpp" />
     <ClInclude Include="systems\player.hpp" />
+    <ClInclude Include="systems\textures.hpp" />
     <ClInclude Include="tools\b2Helpers.hpp" />
     <ClInclude Include="tools\graphicsHelpers.hpp" />
     <ClInclude Include="tools\utility.hpp" />

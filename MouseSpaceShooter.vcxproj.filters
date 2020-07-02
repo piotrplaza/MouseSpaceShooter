@@ -49,6 +49,9 @@
     <ClCompile Include="systems\camera.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
+    <ClCompile Include="systems\textures.cpp">
+      <Filter>src\systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shaders.hpp">
@@ -104,6 +107,12 @@
     </ClInclude>
     <ClInclude Include="components\camera.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\texture.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\textures.hpp">
+      <Filter>src\systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
