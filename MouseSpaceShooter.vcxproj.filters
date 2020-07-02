@@ -17,6 +17,12 @@
     <Filter Include="src\tools">
       <UniqueIdentifier>{bcc7b15d-f579-4bbd-966d-93ce50f1465f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\3rdParty">
+      <UniqueIdentifier>{63ecb792-ef4d-45b7-b7b5-13c48be85436}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\3rdParty\stb_image">
+      <UniqueIdentifier>{9f611d57-c33e-4f67-883d-f126627eafa6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -51,6 +57,9 @@
     </ClCompile>
     <ClCompile Include="systems\textures.cpp">
       <Filter>src\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdParty\stb_image\stb_image.cpp">
+      <Filter>src\3rdParty\stb_image</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +123,9 @@
     <ClInclude Include="systems\textures.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
+    <ClInclude Include="3rdParty\stb_image\stb_image.h">
+      <Filter>src\3rdParty\stb_image</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.fs">
@@ -126,6 +138,12 @@
       <Filter>src\shaders</Filter>
     </None>
     <None Include="shaders\colored.vs">
+      <Filter>src\shaders</Filter>
+    </None>
+    <None Include="shaders\sceneCoordTextured.fs">
+      <Filter>src\shaders</Filter>
+    </None>
+    <None Include="shaders\sceneCoordTextured.vs">
       <Filter>src\shaders</Filter>
     </None>
   </ItemGroup>

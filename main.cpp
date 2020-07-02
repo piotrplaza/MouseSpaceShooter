@@ -18,6 +18,7 @@
 #include "components/wall.hpp"
 #include "components/grapple.hpp"
 #include "components/camera.hpp"
+#include "components/texture.hpp"
 
 #include "systems/level.hpp"
 #include "systems/player.hpp"
@@ -46,16 +47,22 @@ void CreateLevel()
 {
 	using namespace Globals::Components;
 
+	//Textures.
+	const unsigned spaceRockTexture = textures.size();
+	textures.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT);
+	const unsigned woodTexture = textures.size();
+	textures.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
+
 	//Player configuration.
 	player = Components::Player(tools::CreateBasicPlayerBody());
 	player.setPosition({ -10.0f, 0.0f });
 
 	//Static walls.
-	staticWalls.emplace_back(tools::CreateBoxBody({ -20.0f, 0.0f }, { 0.2f, 20.0f }));
-	staticWalls.emplace_back(tools::CreateBoxBody({ 20.0f, 0.0f }, { 0.2f, 20.0f }));
-	staticWalls.emplace_back(tools::CreateBoxBody({ 0.0f, -20.0f }, { 20.0f, 0.2f }));
-	staticWalls.emplace_back(tools::CreateBoxBody({ 0.0f, 20.0f }, { 20.0f, 0.2f }));
-	staticWalls.emplace_back(tools::CreateCircleBody({ 10.0f, 0.0f }, 2.0f));
+	staticWalls.emplace_back(tools::CreateBoxBody({ -20.0f, 0.0f }, { 0.2f, 20.0f }), woodTexture);
+	staticWalls.emplace_back(tools::CreateBoxBody({ 20.0f, 0.0f }, { 0.2f, 20.0f }), woodTexture);
+	staticWalls.emplace_back(tools::CreateBoxBody({ 0.0f, -20.0f }, { 20.0f, 0.2f }), woodTexture);
+	staticWalls.emplace_back(tools::CreateBoxBody({ 0.0f, 20.0f }, { 20.0f, 0.2f }), woodTexture);
+	staticWalls.emplace_back(tools::CreateCircleBody({ 10.0f, 0.0f }, 2.0f), spaceRockTexture);
 
 	//Dynamic walls.
 	auto& wall1 = *dynamicWalls.emplace_back(tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f)).body;

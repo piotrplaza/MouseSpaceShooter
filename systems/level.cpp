@@ -11,6 +11,7 @@
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
 #include <components/connection.hpp>
+#include <components/texture.hpp>
 
 namespace Systems
 {
@@ -31,6 +32,13 @@ namespace Systems
 		coloredShadersProgram = shaders::LinkProgram(shaders::CompileShaders("shaders/colored.vs", "shaders/colored.fs"),
 			{ {0, "bPos"}, {1, "bColor"} });
 		coloredShadersMVPUniform = glGetUniformLocation(coloredShadersProgram, "mvp");
+
+		sceneCoordTexturedShadersProgram = shaders::LinkProgram(shaders::CompileShaders("shaders/sceneCoordTextured.vs", "shaders/sceneCoordTextured.fs"),
+			{ {0, "bPos"} });
+		sceneCoordTexturedShadersMVPUniform = glGetUniformLocation(sceneCoordTexturedShadersProgram, "mvp");
+		sceneCoordTexturedShadersModelUniform = glGetUniformLocation(sceneCoordTexturedShadersProgram, "model");
+		sceneCoordTexturedShadersTexture1Uniform = glGetUniformLocation(sceneCoordTexturedShadersProgram, "texture1");
+		sceneCoordTexturedShadersTextureScalingUniform = glGetUniformLocation(sceneCoordTexturedShadersProgram, "textureScaling");
 
 		glCreateVertexArrays(1, &staticWallsVertexArray);
 		glBindVertexArray(staticWallsVertexArray);
@@ -71,32 +79,42 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		staticWallsVerticesCache.clear();
-		for (auto& staticWall : staticWalls)
-		{
-			staticWall.updateVerticesCache();
-			staticWallsVerticesCache.insert(staticWallsVerticesCache.end(), staticWall.verticesCache.begin(), staticWall.verticesCache.end());
-		}
+		updateWallsVerticesCache(staticWalls, simpleStaticWallsVerticesCache, textureToStaticWallsVerticesCache);
 
 		glBindBuffer(GL_ARRAY_BUFFER, staticWallsVertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, staticWallsVerticesCache.size() * sizeof(staticWallsVerticesCache.front()),
-			staticWallsVerticesCache.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, simpleStaticWallsVerticesCache.size() * sizeof(simpleStaticWallsVerticesCache.front()),
+			simpleStaticWallsVerticesCache.data(), GL_STATIC_DRAW);
 	}
 
 	void Level::updateDynamicWallsGraphics()
 	{
 		using namespace Globals::Components;
 
-		dynamicWallsVerticesCache.clear();
-		for (auto& dynamicWall : dynamicWalls)
-		{
-			dynamicWall.updateVerticesCache();
-			dynamicWallsVerticesCache.insert(dynamicWallsVerticesCache.end(), dynamicWall.verticesCache.begin(), dynamicWall.verticesCache.end());
-		}
+		updateWallsVerticesCache(dynamicWalls, simpleDynamicWallsVerticesCache, textureToDynamicWallsVerticesCache);
 
 		glBindBuffer(GL_ARRAY_BUFFER, dynamicWallsVertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, dynamicWallsVerticesCache.size() * sizeof(dynamicWallsVerticesCache.front()),
-			dynamicWallsVerticesCache.data(), GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, simpleDynamicWallsVerticesCache.size() * sizeof(simpleDynamicWallsVerticesCache.front()),
+			simpleDynamicWallsVerticesCache.data(), GL_DYNAMIC_DRAW);
+	}
+
+	void Level::updateWallsVerticesCache(std::vector<::Components::Wall>& walls, std::vector<glm::vec3>& simpleWallsVerticesCache,
+		std::unordered_map<unsigned, std::vector<glm::vec3>>& textureToWallsVerticesCache) const
+	{
+		simpleWallsVerticesCache.clear();
+		textureToWallsVerticesCache.clear();
+		for (auto& wall : walls)
+		{
+			wall.updateVerticesCache();
+			if (wall.texture)
+			{
+				auto& texturedWallVerticesCache = textureToWallsVerticesCache[*wall.texture];
+				texturedWallVerticesCache.insert(texturedWallVerticesCache.end(), wall.verticesCache.begin(), wall.verticesCache.end());
+			}
+			else
+			{
+				simpleWallsVerticesCache.insert(simpleWallsVerticesCache.end(), wall.verticesCache.begin(), wall.verticesCache.end());
+			}
+		}
 	}
 
 	void Level::updateGrapplesGraphics()
@@ -148,17 +166,43 @@ namespace Systems
 
 	void Level::renderBackground() const
 	{
+		using namespace Globals::Components;
+		using namespace Globals::Constants;
+
+		glUseProgram(sceneCoordTexturedShadersProgram);
+		glUniformMatrix4fv(sceneCoordTexturedShadersMVPUniform, 1, GL_FALSE,
+			glm::value_ptr(Globals::Components::mvp.getVP()));
+		glUniformMatrix4fv(sceneCoordTexturedShadersModelUniform, 1, GL_FALSE,
+			glm::value_ptr(glm::mat4(1.0f)));
+
+		//TODO: Improve performance by preallocate VRAM buffers.
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glEnableVertexAttribArray(0);
+		for (const auto& [texture, texturedStaticWallsVerticesCache] : textureToStaticWallsVerticesCache)
+		{
+			const auto& textureComponent = textures[texture];
+			//const float textureScale
+
+			glUniform1i(sceneCoordTexturedShadersTexture1Uniform, texture);
+			glUniform2f(sceneCoordTexturedShadersTextureScalingUniform,
+				(float)textureComponent.height / textureComponent.width * defaultScreenCoordTextureScaling, defaultScreenCoordTextureScaling);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, texturedStaticWallsVerticesCache.data());
+			glDrawArrays(GL_TRIANGLES, 0, texturedStaticWallsVerticesCache.size());
+		}
+		//
+
 		glUseProgram(basicShadersProgram);
 		glUniformMatrix4fv(basicShadersMVPUniform, 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getVP()));
 
 		glUniform4f(basicShadersColorUniform, 0.5f, 0.5f, 0.5f, 1.0f);
 		glBindVertexArray(staticWallsVertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, staticWallsVerticesCache.size());
+		glDrawArrays(GL_TRIANGLES, 0, simpleStaticWallsVerticesCache.size());
 
 		glUniform4f(basicShadersColorUniform, 0.5f, 0.5f, 0.5f, 1.0f);
 		glBindVertexArray(dynamicWallsVertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, dynamicWallsVerticesCache.size());
+		glDrawArrays(GL_TRIANGLES, 0, simpleDynamicWallsVerticesCache.size());
 
 		glUniform4f(basicShadersColorUniform, 0.0f, 0.5f, 0.0f, 1.0f);
 		glBindVertexArray(grapplesVertexArray);

@@ -102,7 +102,7 @@ namespace Systems
 			const glm::vec2 playerDirection = { std::cos(playerSideAngle), std::sin(playerSideAngle) };
 			const float controllerDot = glm::dot(playerDirection, controllerDelta);
 
-			player.body->SetTransform(player.body->GetPosition(), playerAngle + controllerDot * Globals::Defaults::mouseSensitivity);
+			player.body->SetTransform(player.body->GetPosition(), playerAngle + controllerDot * Globals::Constants::mouseSensitivity);
 		}
 
 		if (player.grappleJoint)
@@ -119,7 +119,7 @@ namespace Systems
 				const float velocityDot = glm::dot(playerDirection, normalizedStepVelocity);
 
 				player.body->SetTransform(player.body->GetPosition(), playerAngle + velocityDot *
-					stepVelocityLength * Globals::Defaults::playerAutoRotationFactor);
+					stepVelocityLength * Globals::Constants::playerAutoRotationFactor);
 			}
 		}
 	}
@@ -127,7 +127,7 @@ namespace Systems
 	void Player::throttle(bool active) const
 	{
 		using namespace Globals::Components;
-		using namespace Globals::Defaults;
+		using namespace Globals::Constants;
 
 		if (!active) return;
 

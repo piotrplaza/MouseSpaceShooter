@@ -19,7 +19,7 @@ namespace tools
 	std::unique_ptr<b2Body, b2BodyDeleter> CreateBasicPlayerBody()
 	{
 		using namespace Globals::Components;
-		using namespace Globals::Defaults;
+		using namespace Globals::Constants;
 
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="shaders.cpp" />
@@ -32,6 +33,7 @@
     <ClCompile Include="tools\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="3rdParty\stb_image\stb_image.h" />
     <ClInclude Include="components\camera.hpp" />
     <ClInclude Include="components\connection.hpp" />
     <ClInclude Include="components\grapple.hpp" />
@@ -58,6 +60,8 @@
     <None Include="shaders\basic.vs" />
     <None Include="shaders\colored.fs" />
     <None Include="shaders\colored.vs" />
+    <None Include="shaders\sceneCoordTextured.fs" />
+    <None Include="shaders\sceneCoordTextured.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -128,7 +132,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\libraries\glew-2.1.0\include;C:\libraries\glm;C:\libraries\box2d-2.3.1\Box2D;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\libraries\glew-2.1.0\include;C:\libraries\glm;C:\libraries\box2d-2.3.1\Box2D;$(ProjectDir)\3rdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -161,7 +165,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\libraries\glew-2.1.0\include;C:\libraries\glm;C:\libraries\box2d-2.3.1\Box2D;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\libraries\glew-2.1.0\include;C:\libraries\glm;C:\libraries\box2d-2.3.1\Box2D;$(ProjectDir)\3rdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -197,5 +201,6 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Language)'=='C++'">
     <CAExcludePath>C:\libraries\box2d-2.3.1\Box2D;$(CAExcludePath)</CAExcludePath>
+    <CAExcludePath>$(ProjectDir)\3rdParty;$(CAExcludePath)</CAExcludePath>
   </PropertyGroup>
 </Project>

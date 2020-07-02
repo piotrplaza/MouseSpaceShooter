@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <optional>
 
 #include <Box2D/Box2D.h>
 
@@ -13,16 +14,17 @@ namespace Components
 {
 	struct Wall
 	{
-		Wall(std::unique_ptr<b2Body, b2BodyDeleter> body): body(std::move(body))
+		Wall(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt): body(std::move(body)), texture(texture)
 		{
 		}
 
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
+		std::optional<unsigned> texture;
 		std::vector<glm::vec3> verticesCache;
 
 		void updateVerticesCache()
 		{
-			using namespace Globals::Defaults;
+			using namespace Globals::Constants;
 
 			const auto& bodyTransform = body->GetTransform();
 			const auto modelMatrix = glm::rotate(glm::translate(glm::mat4(1.0f), { bodyTransform.p.x, bodyTransform.p.y, 0.0f }),

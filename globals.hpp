@@ -54,7 +54,7 @@ namespace Globals
 		::Systems::Textures& AccessTextures();
 	}
 
-	namespace Defaults
+	namespace Constants
 	{
 		constexpr float playerForwardForce = 15.0f;
 		constexpr float playerLinearDamping = 0.1f;
@@ -62,6 +62,10 @@ namespace Globals
 		constexpr float playerAutoRotationFactor = 0.5f;
 
 		constexpr float mouseSensitivity = 0.01f;
+		constexpr float defaultScreenCoordTextureScaling = 0.1f;
 		constexpr int circleGraphicsComplexity = 20;
+		constexpr int maxTextureObjects = 100;
+
+		constexpr const char* texturesLocation = "../textures/";
 	}
 }

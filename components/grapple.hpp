@@ -28,7 +28,7 @@ namespace Components
 
 		void updateVerticesCache()
 		{
-			using namespace Globals::Defaults;
+			using namespace Globals::Constants;
 
 			const auto& bodyTransform = body->GetTransform();
 			const auto modelMatrix = glm::rotate(glm::translate(glm::mat4(1.0f), { bodyTransform.p.x, bodyTransform.p.y, 0.0f }),
