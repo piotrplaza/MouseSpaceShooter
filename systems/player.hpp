@@ -1,12 +1,14 @@
 #pragma once
 
-#include "shaders.hpp"
-
 #include <vector>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+
+#include <shaders.hpp>
+#include <shaders/basic.hpp>
+#include <shaders/colored.hpp>
 
 namespace Systems
 {
@@ -29,12 +31,8 @@ namespace Systems
 
 		void updateConnectionsGraphics();
 
-		shaders::ProgramId basicShadersProgram;
-		GLint basicShadersMVPUniform;
-		GLint basicShadersColorUniform;
-
-		shaders::ProgramId coloredShadersProgram;
-		GLint coloredShadersMVPUniform;
+		Shaders::Programs::Basic basicShadersProgram;
+		Shaders::Programs::Colored coloredShadersProgram;
 
 		GLuint playerVertexArray;
 		GLuint playerVertexBuffer;

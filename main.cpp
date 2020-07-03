@@ -54,26 +54,26 @@ void CreateLevel()
 	textures.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
 
 	//Player configuration.
-	player = Components::Player(tools::CreateBasicPlayerBody());
+	player = Components::Player(Tools::CreateBasicPlayerBody());
 	player.setPosition({ -10.0f, 0.0f });
 
 	//Static walls.
-	staticWalls.emplace_back(tools::CreateBoxBody({ -20.0f, 0.0f }, { 0.2f, 20.0f }), woodTexture);
-	staticWalls.emplace_back(tools::CreateBoxBody({ 20.0f, 0.0f }, { 0.2f, 20.0f }), woodTexture);
-	staticWalls.emplace_back(tools::CreateBoxBody({ 0.0f, -20.0f }, { 20.0f, 0.2f }), woodTexture);
-	staticWalls.emplace_back(tools::CreateBoxBody({ 0.0f, 20.0f }, { 20.0f, 0.2f }), woodTexture);
-	staticWalls.emplace_back(tools::CreateCircleBody({ 10.0f, 0.0f }, 2.0f), spaceRockTexture);
+	staticWalls.emplace_back(Tools::CreateBoxBody({ -20.0f, 0.0f }, { 0.2f, 20.0f }), woodTexture);
+	staticWalls.emplace_back(Tools::CreateBoxBody({ 20.0f, 0.0f }, { 0.2f, 20.0f }), woodTexture);
+	staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, -20.0f }, { 20.0f, 0.2f }), woodTexture);
+	staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, 20.0f }, { 20.0f, 0.2f }), woodTexture);
+	staticWalls.emplace_back(Tools::CreateCircleBody({ 10.0f, 0.0f }, 2.0f), spaceRockTexture);
 
 	//Dynamic walls.
-	auto& wall1 = *dynamicWalls.emplace_back(tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f)).body;
-	auto& wall2 = *dynamicWalls.emplace_back(tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f)).body;
+	auto& wall1 = *dynamicWalls.emplace_back(Tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f)).body;
+	auto& wall2 = *dynamicWalls.emplace_back(Tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f)).body;
 	wall1.GetFixtureList()->SetRestitution(1);
 	wall2.GetFixtureList()->SetRestitution(1);
-	tools::PinBodies(wall1, wall2, {5.0f, 0.0f});
+	Tools::PinBodies(wall1, wall2, {5.0f, 0.0f});
 
 	//Grapples.
-	grapples.emplace_back(tools::CreateCircleBody({0.0f, 10.0f}, 1.0f), 15.0f);
-	grapples.emplace_back(tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f);
+	grapples.emplace_back(Tools::CreateCircleBody({0.0f, 10.0f}, 1.0f), 15.0f);
+	grapples.emplace_back(Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f);
 
 	//Camera.
 	camera.projectionHSizeF = []() { return 25.0f + glm::length(player.getVelocity()) * 0.1f; };
@@ -84,8 +84,8 @@ void CreateLevel()
 
 void Initialize()
 {
-	if (console) tools::RedirectIOToConsole({ 2000, 10 });
-	tools::RandomInit();
+	if (console) Tools::RedirectIOToConsole({ 2000, 10 });
+	Tools::RandomInit();
 	OGLInitialize();
 
 	CreateLevel();
@@ -120,7 +120,7 @@ void ResetMousePosition()
 {
 	using namespace Globals::Components;
 
-	tools::SetMousePos(screenInfo.windowCenterInScreenSpace);
+	Tools::SetMousePos(screenInfo.windowCenterInScreenSpace);
 	mouseState.position = screenInfo.windowCenterInScreenSpace;
 }
 

@@ -5,10 +5,11 @@
 
 #include <GL/glew.h>
 
-namespace shaders
+namespace Shaders
 {
 	using ShaderId = GLuint;
 	using ProgramId = GLuint;
+	using UniformId = GLint;
 	using ShaderType = GLenum;
 	using AttribLocation = GLuint;
 

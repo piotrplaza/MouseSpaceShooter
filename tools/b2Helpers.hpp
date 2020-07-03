@@ -25,7 +25,7 @@ inline b2Vec2 operator *(const b2Vec2 v, const float s)
 	return { v.x * s, v.y * s };
 }
 
-namespace tools
+namespace Tools
 {
 	std::unique_ptr<b2Body, b2BodyDeleter> CreateBasicPlayerBody();
 	std::unique_ptr<b2Body, b2BodyDeleter> CreateBoxBody(glm::vec2 position, glm::vec2 hSize, float angle = 0.0f,

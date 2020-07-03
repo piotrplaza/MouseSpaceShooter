@@ -14,7 +14,7 @@ void b2JointDeleter::operator()(b2Joint* joint) const
 	joint->GetBodyA()->GetWorld()->DestroyJoint(joint);
 }
 
-namespace tools
+namespace Tools
 {
 	std::unique_ptr<b2Body, b2BodyDeleter> CreateBasicPlayerBody()
 	{

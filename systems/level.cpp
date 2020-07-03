@@ -24,17 +24,17 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		basicShadersProgram = shaders::LinkProgram(shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"),
+		basicShadersProgram.program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"),
 			{ {0, "bPos"} });
-		basicShadersMVPUniform = glGetUniformLocation(basicShadersProgram, "mvp");
-		basicShadersColorUniform = glGetUniformLocation(basicShadersProgram, "color");
+		basicShadersProgram.mvpUniform = glGetUniformLocation(basicShadersProgram.program, "mvp");
+		basicShadersProgram.colorUniform = glGetUniformLocation(basicShadersProgram.program, "color");
 
-		sceneCoordTexturedShadersProgram = shaders::LinkProgram(shaders::CompileShaders("shaders/sceneCoordTextured.vs", "shaders/sceneCoordTextured.fs"),
+		sceneCoordTextured.program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/sceneCoordTextured.vs", "shaders/sceneCoordTextured.fs"),
 			{ {0, "bPos"} });
-		sceneCoordTexturedShadersMVPUniform = glGetUniformLocation(sceneCoordTexturedShadersProgram, "mvp");
-		sceneCoordTexturedShadersModelUniform = glGetUniformLocation(sceneCoordTexturedShadersProgram, "model");
-		sceneCoordTexturedShadersTexture1Uniform = glGetUniformLocation(sceneCoordTexturedShadersProgram, "texture1");
-		sceneCoordTexturedShadersTextureScalingUniform = glGetUniformLocation(sceneCoordTexturedShadersProgram, "textureScaling");
+		sceneCoordTextured.mvpUniform = glGetUniformLocation(sceneCoordTextured.program, "mvp");
+		sceneCoordTextured.modelUniform = glGetUniformLocation(sceneCoordTextured.program, "model");
+		sceneCoordTextured.texture1Uniform = glGetUniformLocation(sceneCoordTextured.program, "texture1");
+		sceneCoordTextured.textureScalingUniform = glGetUniformLocation(sceneCoordTextured.program, "textureScaling");
 
 		glCreateVertexArrays(1, &staticWallsVertexArray);
 		glBindVertexArray(staticWallsVertexArray);
@@ -129,10 +129,10 @@ namespace Systems
 		using namespace Globals::Components;
 		using namespace Globals::Constants;
 
-		glUseProgram(sceneCoordTexturedShadersProgram);
-		glUniformMatrix4fv(sceneCoordTexturedShadersMVPUniform, 1, GL_FALSE,
+		glUseProgram(sceneCoordTextured.program);
+		glUniformMatrix4fv(sceneCoordTextured.mvpUniform, 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getVP()));
-		glUniformMatrix4fv(sceneCoordTexturedShadersModelUniform, 1, GL_FALSE,
+		glUniformMatrix4fv(sceneCoordTextured.modelUniform, 1, GL_FALSE,
 			glm::value_ptr(glm::mat4(1.0f)));
 
 		//TODO: Improve performance by preallocate VRAM buffers.
@@ -142,29 +142,28 @@ namespace Systems
 		for (const auto& [texture, texturedStaticWallsVerticesCache] : textureToStaticWallsVerticesCache)
 		{
 			const auto& textureComponent = textures[texture];
-			//const float textureScale
 
-			glUniform1i(sceneCoordTexturedShadersTexture1Uniform, texture);
-			glUniform2f(sceneCoordTexturedShadersTextureScalingUniform,
+			glUniform1i(sceneCoordTextured.texture1Uniform, texture);
+			glUniform2f(sceneCoordTextured.textureScalingUniform,
 				(float)textureComponent.height / textureComponent.width * defaultScreenCoordTextureScaling, defaultScreenCoordTextureScaling);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, texturedStaticWallsVerticesCache.data());
 			glDrawArrays(GL_TRIANGLES, 0, texturedStaticWallsVerticesCache.size());
 		}
 		//
 
-		glUseProgram(basicShadersProgram);
-		glUniformMatrix4fv(basicShadersMVPUniform, 1, GL_FALSE,
+		glUseProgram(basicShadersProgram.program);
+		glUniformMatrix4fv(basicShadersProgram.mvpUniform, 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getVP()));
 
-		glUniform4f(basicShadersColorUniform, 0.5f, 0.5f, 0.5f, 1.0f);
+		glUniform4f(basicShadersProgram.colorUniform, 0.5f, 0.5f, 0.5f, 1.0f);
 		glBindVertexArray(staticWallsVertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, simpleStaticWallsVerticesCache.size());
 
-		glUniform4f(basicShadersColorUniform, 0.5f, 0.5f, 0.5f, 1.0f);
+		glUniform4f(basicShadersProgram.colorUniform, 0.5f, 0.5f, 0.5f, 1.0f);
 		glBindVertexArray(dynamicWallsVertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, simpleDynamicWallsVerticesCache.size());
 
-		glUniform4f(basicShadersColorUniform, 0.0f, 0.5f, 0.0f, 1.0f);
+		glUniform4f(basicShadersProgram.colorUniform, 0.0f, 0.5f, 0.0f, 1.0f);
 		glBindVertexArray(grapplesVertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, grapplesVerticesCache.size());
 	}

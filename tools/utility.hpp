@@ -2,7 +2,7 @@
 
 #include <glm/vec2.hpp>
 
-namespace tools
+namespace Tools
 {
 	void RedirectIOToConsole(glm::ivec2 windowPos = {10, 10}, int maxConsoleLines = 500);
 

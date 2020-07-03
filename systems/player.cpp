@@ -29,14 +29,14 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		basicShadersProgram = shaders::LinkProgram(shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"),
+		basicShadersProgram.program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"),
 			{ {0, "bPos"} });
-		basicShadersMVPUniform = glGetUniformLocation(basicShadersProgram, "mvp");
-		basicShadersColorUniform = glGetUniformLocation(basicShadersProgram, "color");
+		basicShadersProgram.mvpUniform = glGetUniformLocation(basicShadersProgram.program, "mvp");
+		basicShadersProgram.colorUniform = glGetUniformLocation(basicShadersProgram.program, "color");
 
-		coloredShadersProgram = shaders::LinkProgram(shaders::CompileShaders("shaders/colored.vs", "shaders/colored.fs"),
+		coloredShadersProgram.program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/colored.vs", "shaders/colored.fs"),
 			{ {0, "bPos"}, {1, "bColor"} });
-		coloredShadersMVPUniform = glGetUniformLocation(coloredShadersProgram, "mvp");
+		coloredShadersProgram.mvpUniform = glGetUniformLocation(coloredShadersProgram.program, "mvp");
 
 		glCreateVertexArrays(1, &playerVertexArray);
 		glBindVertexArray(playerVertexArray);
@@ -118,15 +118,15 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		glUseProgram(basicShadersProgram);
-		glUniformMatrix4fv(basicShadersMVPUniform, 1, GL_FALSE,
+		glUseProgram(basicShadersProgram.program);
+		glUniformMatrix4fv(basicShadersProgram.mvpUniform, 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getMVP(player.getModelMatrix())));
-		glUniform4f(basicShadersColorUniform, 1.0f, 1.0f, 1.0f, 1.0f);
+		glUniform4f(basicShadersProgram.colorUniform, 1.0f, 1.0f, 1.0f, 1.0f);
 		glBindVertexArray(playerVertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, player.verticesCache.size());
 
-		glUseProgram(coloredShadersProgram);
-		glUniformMatrix4fv(coloredShadersMVPUniform, 1, GL_FALSE,
+		glUseProgram(coloredShadersProgram.program);
+		glUniformMatrix4fv(coloredShadersProgram.mvpUniform, 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getVP()));
 		glBindVertexArray(connectionsVertexArray);
 		glDrawArrays(GL_LINES, 0, connectionsVerticesCache.size());

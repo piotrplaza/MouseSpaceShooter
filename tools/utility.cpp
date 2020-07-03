@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include <ctime>
 
-namespace tools
+namespace Tools
 {
 	void RedirectIOToConsole(glm::ivec2 windowPos, int maxConsoleLines)
 	{

@@ -36,7 +36,7 @@ namespace Components
 			}
 			else
 			{
-				verticesCache = tools::CreateLightningVertices(p1, p2, segmentsNum, frayFactor);
+				verticesCache = Tools::CreateLightningVertices(p1, p2, segmentsNum, frayFactor);
 			}
 		}
 

@@ -12,7 +12,7 @@ inline glm::vec2 OrthoVec2(const glm::vec2& p1, const glm::vec2& p2, bool invert
 	else return glm::normalize(glm::vec2(d.y, -d.x));
 }
 
-namespace tools
+namespace Tools
 {
 	std::vector<glm::vec3> CreateCircleVertices(const glm::vec2& position, float radius, int complexity, const glm::mat4& modelMatrix)
 	{

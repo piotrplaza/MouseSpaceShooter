@@ -6,7 +6,9 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
-#include "shaders.hpp"
+#include <shaders.hpp>
+#include <shaders/basic.hpp>
+#include <shaders/sceneCoordTextured.hpp>
 
 namespace Components
 {
@@ -33,15 +35,8 @@ namespace Systems
 		void updateWallsVerticesCache(std::vector<Components::Wall>& walls, std::vector<glm::vec3>& simpleWallsVerticesCache,
 			std::unordered_map<unsigned, std::vector<glm::vec3>>& textureToWallsVerticesCache) const;
 
-		shaders::ProgramId basicShadersProgram;
-		GLint basicShadersMVPUniform;
-		GLint basicShadersColorUniform;
-
-		shaders::ProgramId sceneCoordTexturedShadersProgram;
-		GLint sceneCoordTexturedShadersMVPUniform;
-		GLint sceneCoordTexturedShadersModelUniform;
-		GLint sceneCoordTexturedShadersTexture1Uniform;
-		GLint sceneCoordTexturedShadersTextureScalingUniform;
+		Shaders::Programs::Basic basicShadersProgram;
+		Shaders::Programs::SceneCoordTextured sceneCoordTextured;
 
 		GLuint staticWallsVertexArray;
 		GLuint staticWallsVertexBuffer;

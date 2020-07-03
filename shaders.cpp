@@ -6,7 +6,7 @@
 
 using namespace std::string_literals;
 
-namespace shaders
+namespace Shaders
 {
 	static const std::unordered_map< ShaderType, std::string> shaderTypesToNames =
 	{

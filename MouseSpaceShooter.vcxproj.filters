@@ -126,6 +126,15 @@
     <ClInclude Include="3rdParty\stb_image\stb_image.h">
       <Filter>src\3rdParty\stb_image</Filter>
     </ClInclude>
+    <ClInclude Include="shaders\basic.hpp">
+      <Filter>src\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="shaders\colored.hpp">
+      <Filter>src\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="shaders\sceneCoordTextured.hpp">
+      <Filter>src\shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.fs">

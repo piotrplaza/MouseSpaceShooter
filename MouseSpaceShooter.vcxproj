@@ -46,6 +46,9 @@
     <ClInclude Include="components\wall.hpp" />
     <ClInclude Include="globals.hpp" />
     <ClInclude Include="shaders.hpp" />
+    <ClInclude Include="shaders\basic.hpp" />
+    <ClInclude Include="shaders\colored.hpp" />
+    <ClInclude Include="shaders\sceneCoordTextured.hpp" />
     <ClInclude Include="systems\camera.hpp" />
     <ClInclude Include="systems\level.hpp" />
     <ClInclude Include="systems\physics.hpp" />
