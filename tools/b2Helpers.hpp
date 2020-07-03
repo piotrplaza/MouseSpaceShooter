@@ -20,6 +20,11 @@ inline TargetVec2 ToVec2(const SourceVec2 v)
 	return { v.x, v.y };
 }
 
+inline b2Vec2 operator *(const b2Vec2 v, const float s)
+{
+	return { v.x * s, v.y * s };
+}
+
 namespace tools
 {
 	std::unique_ptr<b2Body, b2BodyDeleter> CreateBasicPlayerBody();

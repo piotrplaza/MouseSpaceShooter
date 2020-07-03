@@ -7,6 +7,8 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include <tools/b2Helpers.hpp>
+
 #include <globals.hpp>
 
 #include <components/player.hpp>
@@ -15,11 +17,6 @@
 #include <components/mouseState.hpp>
 #include <components/grapple.hpp>
 #include <components/connection.hpp>
-
-b2Vec2 operator *(const b2Vec2 v, const float s)
-{
-	return { v.x * s, v.y * s };
-}
 
 namespace Systems
 {
