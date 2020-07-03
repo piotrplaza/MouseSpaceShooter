@@ -21,8 +21,7 @@ namespace Systems
 		Level();
 
 		void step();
-		void renderBackground() const;
-		void renderForeground() const;
+		void render() const;
 		void updateStaticWallsGraphics();
 
 	private:
@@ -30,7 +29,6 @@ namespace Systems
 
 		void updateDynamicWallsGraphics();
 		void updateGrapplesGraphics();
-		void updateConnectionsGraphics();
 
 		void updateWallsVerticesCache(std::vector<Components::Wall>& walls, std::vector<glm::vec3>& simpleWallsVerticesCache,
 			std::unordered_map<unsigned, std::vector<glm::vec3>>& textureToWallsVerticesCache) const;
@@ -38,9 +36,6 @@ namespace Systems
 		shaders::ProgramId basicShadersProgram;
 		GLint basicShadersMVPUniform;
 		GLint basicShadersColorUniform;
-
-		shaders::ProgramId coloredShadersProgram;
-		GLint coloredShadersMVPUniform;
 
 		shaders::ProgramId sceneCoordTexturedShadersProgram;
 		GLint sceneCoordTexturedShadersMVPUniform;
@@ -57,18 +52,11 @@ namespace Systems
 		GLuint grapplesVertexArray;
 		GLuint grapplesVertexBuffer;
 
-		GLuint connectionsVertexArray;
-		GLuint connectionsVertexBuffer;
-		GLuint connectionsColorBuffer;
-
 		std::vector<glm::vec3> simpleStaticWallsVerticesCache;
 		std::vector<glm::vec3> simpleDynamicWallsVerticesCache;
 		std::unordered_map<unsigned, std::vector<glm::vec3>> textureToStaticWallsVerticesCache;
 		std::unordered_map<unsigned, std::vector<glm::vec3>> textureToDynamicWallsVerticesCache;
 
 		std::vector<glm::vec3> grapplesVerticesCache;
-
-		std::vector<glm::vec3> connectionsVerticesCache;
-		std::vector<glm::vec4> connectionsColorsCache;
 	};
 }

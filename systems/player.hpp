@@ -2,7 +2,11 @@
 
 #include "shaders.hpp"
 
+#include <vector>
+
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 namespace Systems
 {
@@ -23,14 +27,24 @@ namespace Systems
 		void magneticHook(bool active) const;
 		void createGrappleJoint() const;
 
-		void debugRender() const;
+		void updateConnectionsGraphics();
 
 		shaders::ProgramId basicShadersProgram;
 		GLint basicShadersMVPUniform;
 		GLint basicShadersColorUniform;
 
-		GLuint vertexArray;
-		GLuint vertexBuffer;
+		shaders::ProgramId coloredShadersProgram;
+		GLint coloredShadersMVPUniform;
+
+		GLuint playerVertexArray;
+		GLuint playerVertexBuffer;
+
+		GLuint connectionsVertexArray;
+		GLuint connectionsVertexBuffer;
+		GLuint connectionsColorBuffer;
+
+		std::vector<glm::vec3> connectionsVerticesCache;
+		std::vector<glm::vec4> connectionsColorsCache;
 
 		bool firstStep = true;
 	};
