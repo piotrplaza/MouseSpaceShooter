@@ -81,14 +81,32 @@ namespace Systems
 		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, simpleWallsBuffers.vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, simpleWallsBuffers.verticesCache.size() * sizeof(simpleWallsBuffers.verticesCache.front()),
-			simpleWallsBuffers.verticesCache.data(), bufferDataUsage);
-
-		for (auto& [texture, wallBuffers] : texturesToWallsBuffers)
+		if (simpleWallsBuffers.vertexBufferAllocation < simpleWallsBuffers.verticesCache.size())
 		{
-			glBindBuffer(GL_ARRAY_BUFFER, wallBuffers.vertexBuffer);
-			glBufferData(GL_ARRAY_BUFFER, wallBuffers.verticesCache.size() * sizeof(wallBuffers.verticesCache.front()),
-				wallBuffers.verticesCache.data(), bufferDataUsage);
+			glBufferData(GL_ARRAY_BUFFER, simpleWallsBuffers.verticesCache.size() * sizeof(simpleWallsBuffers.verticesCache.front()),
+				simpleWallsBuffers.verticesCache.data(), bufferDataUsage);
+			simpleWallsBuffers.vertexBufferAllocation = simpleWallsBuffers.verticesCache.size();
+		}
+		else
+		{
+			glBufferSubData(GL_ARRAY_BUFFER, 0, simpleWallsBuffers.verticesCache.size() * sizeof(simpleWallsBuffers.verticesCache.front()),
+				simpleWallsBuffers.verticesCache.data());
+		}
+
+		for (auto& [texture, texturedWallBuffers] : texturesToWallsBuffers)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, texturedWallBuffers.vertexBuffer);
+			if (texturedWallBuffers.vertexBufferAllocation < texturedWallBuffers.verticesCache.size())
+			{
+				glBufferData(GL_ARRAY_BUFFER, texturedWallBuffers.verticesCache.size() * sizeof(texturedWallBuffers.verticesCache.front()),
+					texturedWallBuffers.verticesCache.data(), bufferDataUsage);
+				texturedWallBuffers.vertexBufferAllocation = texturedWallBuffers.verticesCache.size();
+			}
+			else
+			{
+				glBufferSubData(GL_ARRAY_BUFFER, 0, texturedWallBuffers.verticesCache.size() * sizeof(texturedWallBuffers.verticesCache.front()),
+					texturedWallBuffers.verticesCache.data());
+			}
 		}
 	}
 
@@ -104,8 +122,17 @@ namespace Systems
 		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, grapplesBuffers->vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, grapplesBuffers->verticesCache.size() * sizeof(grapplesBuffers->verticesCache.front()),
-			grapplesBuffers->verticesCache.data(), GL_DYNAMIC_DRAW);
+		if (grapplesBuffers->vertexBufferAllocation < grapplesBuffers->verticesCache.size())
+		{
+			glBufferData(GL_ARRAY_BUFFER, grapplesBuffers->verticesCache.size() * sizeof(grapplesBuffers->verticesCache.front()),
+				grapplesBuffers->verticesCache.data(), GL_DYNAMIC_DRAW);
+			grapplesBuffers->vertexBufferAllocation = grapplesBuffers->verticesCache.size();
+		}
+		else
+		{
+			glBufferSubData(GL_ARRAY_BUFFER, 0, grapplesBuffers->verticesCache.size() * sizeof(grapplesBuffers->verticesCache.front()),
+				grapplesBuffers->verticesCache.data());
+		}
 	}
 
 	void Level::step()

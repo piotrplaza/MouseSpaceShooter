@@ -30,6 +30,9 @@ namespace Systems
 
 			GLuint vertexArray;
 			GLuint vertexBuffer;
+
+			std::vector<glm::vec3> verticesCache;
+			size_t vertexBufferAllocation = 0;
 		};
 
 		struct ConnectionsBuffers
@@ -43,6 +46,7 @@ namespace Systems
 
 			std::vector<glm::vec3> verticesCache;
 			std::vector<glm::vec4> colorsCache;
+			size_t vertexBufferAllocation = 0;
 		};
 
 		void initGraphics();

@@ -48,9 +48,20 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
+		playerBuffers->verticesCache.clear();
 		player.updateVerticesCache();
+		playerBuffers->verticesCache.insert(playerBuffers->verticesCache.end(), player.verticesCache.begin(), player.verticesCache.end());
+
 		glBindBuffer(GL_ARRAY_BUFFER, playerBuffers->vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, player.verticesCache.size() * sizeof(player.verticesCache.front()), player.verticesCache.data(), GL_STATIC_DRAW);
+		if (playerBuffers->vertexBufferAllocation < playerBuffers->verticesCache.size())
+		{
+			glBufferData(GL_ARRAY_BUFFER, playerBuffers->verticesCache.size() * sizeof(playerBuffers->verticesCache.front()), playerBuffers->verticesCache.data(), GL_STATIC_DRAW);
+			playerBuffers->vertexBufferAllocation = playerBuffers->verticesCache.size();
+		}
+		else
+		{
+			glBufferSubData(GL_ARRAY_BUFFER, 0, playerBuffers->verticesCache.size() * sizeof(playerBuffers->verticesCache.front()), playerBuffers->verticesCache.data());
+		}
 	}
 
 	void Player::updateConnectionsGraphics()
@@ -68,13 +79,25 @@ namespace Systems
 			connectionsBuffers->colorsCache.insert(connectionsBuffers->colorsCache.end(), connection.colorsCache.begin(), connection.colorsCache.end());
 		}
 
-		glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->vertexArray);
-		glBufferData(GL_ARRAY_BUFFER, connectionsBuffers->verticesCache.size() * sizeof(connectionsBuffers->verticesCache.front()),
-			connectionsBuffers->verticesCache.data(), GL_DYNAMIC_DRAW);
-
-		glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->colorBuffer);
-		glBufferData(GL_ARRAY_BUFFER, connectionsBuffers->colorsCache.size() * sizeof(connectionsBuffers->colorsCache.front()),
-			connectionsBuffers->colorsCache.data(), GL_DYNAMIC_DRAW);
+		if (connectionsBuffers->vertexBufferAllocation < connectionsBuffers->verticesCache.size())
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->vertexBuffer);
+			glBufferData(GL_ARRAY_BUFFER, connectionsBuffers->verticesCache.size() * sizeof(connectionsBuffers->verticesCache.front()),
+				connectionsBuffers->verticesCache.data(), GL_DYNAMIC_DRAW);
+			glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->colorBuffer);
+			glBufferData(GL_ARRAY_BUFFER, connectionsBuffers->colorsCache.size() * sizeof(connectionsBuffers->colorsCache.front()),
+				connectionsBuffers->colorsCache.data(), GL_DYNAMIC_DRAW);
+			connectionsBuffers->vertexBufferAllocation = connectionsBuffers->verticesCache.size();
+		}
+		else
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->vertexBuffer);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, connectionsBuffers->verticesCache.size() * sizeof(connectionsBuffers->verticesCache.front()),
+				connectionsBuffers->verticesCache.data());
+			glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->colorBuffer);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, connectionsBuffers->colorsCache.size() * sizeof(connectionsBuffers->colorsCache.front()),
+				connectionsBuffers->colorsCache.data());
+		}
 	}
 
 	void Player::step()

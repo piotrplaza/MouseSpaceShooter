@@ -37,6 +37,7 @@ namespace Systems
 			GLuint vertexBuffer;
 
 			std::vector<glm::vec3> verticesCache;
+			size_t vertexBufferAllocation = 0;
 		};
 
 		struct GrapplesBuffers
@@ -48,6 +49,7 @@ namespace Systems
 			GLuint vertexBuffer;
 
 			std::vector<glm::vec3> verticesCache;
+			size_t vertexBufferAllocation = 0;
 		};
 
 		void initGraphics();
