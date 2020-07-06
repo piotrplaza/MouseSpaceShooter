@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include <glm/vec2.hpp>
@@ -22,6 +23,28 @@ namespace Systems
 		void updateStaticPlayerGraphics() const;
 
 	private:
+		struct PlayerBuffers
+		{
+			PlayerBuffers();
+			~PlayerBuffers();
+
+			GLuint vertexArray;
+			GLuint vertexBuffer;
+		};
+
+		struct ConnectionsBuffers
+		{
+			ConnectionsBuffers();
+			~ConnectionsBuffers();
+
+			GLuint vertexArray;
+			GLuint vertexBuffer;
+			GLuint colorBuffer;
+
+			std::vector<glm::vec3> verticesCache;
+			std::vector<glm::vec4> colorsCache;
+		};
+
 		void initGraphics();
 
 		void turn(glm::vec2 controllerDelta) const;
@@ -34,15 +57,8 @@ namespace Systems
 		Shaders::Programs::Basic basicShadersProgram;
 		Shaders::Programs::Colored coloredShadersProgram;
 
-		GLuint playerVertexArray;
-		GLuint playerVertexBuffer;
-
-		GLuint connectionsVertexArray;
-		GLuint connectionsVertexBuffer;
-		GLuint connectionsColorBuffer;
-
-		std::vector<glm::vec3> connectionsVerticesCache;
-		std::vector<glm::vec4> connectionsColorsCache;
+		std::unique_ptr<PlayerBuffers> playerBuffers;
+		std::unique_ptr<ConnectionsBuffers> connectionsBuffers;
 
 		bool firstStep = true;
 	};

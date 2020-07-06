@@ -38,23 +38,8 @@ namespace Systems
 			{ {0, "bPos"}, {1, "bColor"} });
 		coloredShadersProgram.mvpUniform = glGetUniformLocation(coloredShadersProgram.program, "mvp");
 
-		glCreateVertexArrays(1, &playerVertexArray);
-		glBindVertexArray(playerVertexArray);
-		glGenBuffers(1, &playerVertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, playerVertexBuffer);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-		glEnableVertexAttribArray(0);
-
-		glCreateVertexArrays(1, &connectionsVertexArray);
-		glBindVertexArray(connectionsVertexArray);
-		glGenBuffers(1, &connectionsVertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, connectionsVertexBuffer);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-		glEnableVertexAttribArray(0);
-		glGenBuffers(1, &connectionsColorBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, connectionsColorBuffer);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
-		glEnableVertexAttribArray(1);
+		playerBuffers = std::make_unique<PlayerBuffers>();
+		connectionsBuffers = std::make_unique<ConnectionsBuffers>();
 		
 		updateStaticPlayerGraphics();
 	}
@@ -64,7 +49,7 @@ namespace Systems
 		using namespace Globals::Components;
 
 		player.updateVerticesCache();
-		glBindBuffer(GL_ARRAY_BUFFER, playerVertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, playerBuffers->vertexBuffer);
 		glBufferData(GL_ARRAY_BUFFER, player.verticesCache.size() * sizeof(player.verticesCache.front()), player.verticesCache.data(), GL_STATIC_DRAW);
 	}
 
@@ -72,24 +57,24 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		connectionsVerticesCache.clear();
-		connectionsColorsCache.clear();
+		connectionsBuffers->verticesCache.clear();
+		connectionsBuffers->colorsCache.clear();
 		for (auto& connection : connections)
 		{
 			connection.updateVerticesCache();
-			connectionsVerticesCache.insert(connectionsVerticesCache.end(), connection.verticesCache.begin(), connection.verticesCache.end());
+			connectionsBuffers->verticesCache.insert(connectionsBuffers->verticesCache.end(), connection.verticesCache.begin(), connection.verticesCache.end());
 
 			connection.updateColorsCache();
-			connectionsColorsCache.insert(connectionsColorsCache.end(), connection.colorsCache.begin(), connection.colorsCache.end());
+			connectionsBuffers->colorsCache.insert(connectionsBuffers->colorsCache.end(), connection.colorsCache.begin(), connection.colorsCache.end());
 		}
 
-		glBindBuffer(GL_ARRAY_BUFFER, connectionsVertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, connectionsVerticesCache.size() * sizeof(connectionsVerticesCache.front()),
-			connectionsVerticesCache.data(), GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->vertexArray);
+		glBufferData(GL_ARRAY_BUFFER, connectionsBuffers->verticesCache.size() * sizeof(connectionsBuffers->verticesCache.front()),
+			connectionsBuffers->verticesCache.data(), GL_DYNAMIC_DRAW);
 
-		glBindBuffer(GL_ARRAY_BUFFER, connectionsColorBuffer);
-		glBufferData(GL_ARRAY_BUFFER, connectionsColorsCache.size() * sizeof(connectionsColorsCache.front()),
-			connectionsColorsCache.data(), GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->colorBuffer);
+		glBufferData(GL_ARRAY_BUFFER, connectionsBuffers->colorsCache.size() * sizeof(connectionsBuffers->colorsCache.front()),
+			connectionsBuffers->colorsCache.data(), GL_DYNAMIC_DRAW);
 	}
 
 	void Player::step()
@@ -122,14 +107,14 @@ namespace Systems
 		glUniformMatrix4fv(basicShadersProgram.mvpUniform, 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getMVP(player.getModelMatrix())));
 		glUniform4f(basicShadersProgram.colorUniform, 1.0f, 1.0f, 1.0f, 1.0f);
-		glBindVertexArray(playerVertexArray);
+		glBindVertexArray(playerBuffers->vertexBuffer);
 		glDrawArrays(GL_TRIANGLES, 0, player.verticesCache.size());
 
 		glUseProgram(coloredShadersProgram.program);
 		glUniformMatrix4fv(coloredShadersProgram.mvpUniform, 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getVP()));
-		glBindVertexArray(connectionsVertexArray);
-		glDrawArrays(GL_LINES, 0, connectionsVerticesCache.size());
+		glBindVertexArray(connectionsBuffers->vertexArray);
+		glDrawArrays(GL_LINES, 0, connectionsBuffers->verticesCache.size());
 	}
 
 	void Player::turn(glm::vec2 controllerDelta) const
@@ -276,5 +261,42 @@ namespace Systems
 		distanceJointDef.length = glm::distance(player.getPosition(), grapple.getPosition());
 		distanceJointDef.collideConnected = true;
 		player.grappleJoint.reset(physics.world.CreateJoint(&distanceJointDef));
+	}
+
+	Player::PlayerBuffers::PlayerBuffers()
+	{
+		glCreateVertexArrays(1, &vertexArray);
+		glBindVertexArray(vertexArray);
+		glGenBuffers(1, &vertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(0);
+	}
+
+	Player::PlayerBuffers::~PlayerBuffers()
+	{
+		glDeleteBuffers(1, &vertexBuffer);
+		glDeleteVertexArrays(1, &vertexArray);
+	}
+
+	Player::ConnectionsBuffers::ConnectionsBuffers()
+	{
+		glCreateVertexArrays(1, &vertexArray);
+		glBindVertexArray(vertexArray);
+		glGenBuffers(1, &vertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(0);
+		glGenBuffers(1, &colorBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(1);
+	}
+
+	Player::ConnectionsBuffers::~ConnectionsBuffers()
+	{
+		glDeleteBuffers(1, &vertexBuffer);
+		glDeleteBuffers(1, &colorBuffer);
+		glDeleteVertexArrays(1, &vertexArray);
 	}
 }

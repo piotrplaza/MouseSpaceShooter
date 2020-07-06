@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 #include <unordered_map>
 
@@ -27,31 +28,44 @@ namespace Systems
 		void updateStaticWallsGraphics();
 
 	private:
+		struct WallsBuffers
+		{
+			WallsBuffers();
+			~WallsBuffers();
+
+			GLuint vertexArray;
+			GLuint vertexBuffer;
+
+			std::vector<glm::vec3> verticesCache;
+		};
+
+		struct GrapplesBuffers
+		{
+			GrapplesBuffers();
+			~GrapplesBuffers();
+
+			GLuint vertexArray;
+			GLuint vertexBuffer;
+
+			std::vector<glm::vec3> verticesCache;
+		};
+
 		void initGraphics();
 
 		void updateDynamicWallsGraphics();
 		void updateGrapplesGraphics();
 
-		void updateWallsVerticesCache(std::vector<Components::Wall>& walls, std::vector<glm::vec3>& simpleWallsVerticesCache,
-			std::unordered_map<unsigned, std::vector<glm::vec3>>& textureToWallsVerticesCache) const;
+		void updateWallsBuffers(std::vector<Components::Wall>& walls, WallsBuffers& simpleWallsBuffers,
+			std::unordered_map<unsigned, WallsBuffers>& texturesToWallsBuffers, GLenum bufferDataUsage) const;
 
 		Shaders::Programs::Basic basicShadersProgram;
-		Shaders::Programs::SceneCoordTextured sceneCoordTextured;
+		Shaders::Programs::SceneCoordTextured sceneCoordTexturedShadersProgram;
 
-		GLuint staticWallsVertexArray;
-		GLuint staticWallsVertexBuffer;
+		std::unique_ptr<WallsBuffers> staticWallsBuffers;
+		std::unique_ptr<WallsBuffers> dynamicWallsBuffers;
+		std::unordered_map<unsigned, WallsBuffers> texturesToStaticWallsBuffers;
+		std::unordered_map<unsigned, WallsBuffers> texturesToDynamicWallsBuffers;
 
-		GLuint dynamicWallsVertexArray;
-		GLuint dynamicWallsVertexBuffer;
-
-		GLuint grapplesVertexArray;
-		GLuint grapplesVertexBuffer;
-
-		std::vector<glm::vec3> simpleStaticWallsVerticesCache;
-		std::vector<glm::vec3> simpleDynamicWallsVerticesCache;
-		std::unordered_map<unsigned, std::vector<glm::vec3>> textureToStaticWallsVerticesCache;
-		std::unordered_map<unsigned, std::vector<glm::vec3>> textureToDynamicWallsVerticesCache;
-
-		std::vector<glm::vec3> grapplesVerticesCache;
+		std::unique_ptr<GrapplesBuffers> grapplesBuffers;
 	};
 }
