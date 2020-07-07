@@ -18,7 +18,7 @@
 #include "components/wall.hpp"
 #include "components/grapple.hpp"
 #include "components/camera.hpp"
-#include "components/texture.hpp"
+#include "components/textureDef.hpp"
 
 #include "systems/level.hpp"
 #include "systems/player.hpp"
@@ -27,7 +27,7 @@
 
 #include "tools/utility.hpp"
 
-const bool fullScreen = true;
+const bool fullScreen = false;
 const bool console = true;
 const glm::ivec2 windowRes = { 800, 800 };
 
@@ -48,10 +48,10 @@ void CreateLevel()
 	using namespace Globals::Components;
 
 	//Textures.
-	const unsigned spaceRockTexture = textures.size();
-	textures.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT);
-	const unsigned woodTexture = textures.size();
-	textures.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
+	const unsigned spaceRockTexture = texturesDef.size();
+	texturesDef.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT);
+	const unsigned woodTexture = texturesDef.size();
+	texturesDef.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
 
 	//Player configuration.
 	player = Components::Player(Tools::CreateBasicPlayerBody());

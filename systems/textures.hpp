@@ -1,5 +1,6 @@
 namespace Components
 {
+	struct TextureDef;
 	struct Texture;
 }
 
@@ -11,6 +12,6 @@ namespace Systems
 		Textures();
 
 	private:
-		void loadAndConfigureTexture(Components::Texture& texture) const;
+		void loadAndConfigureTexture(const Components::TextureDef& textureDef, Components::Texture& texture) const;
 	};
 }

@@ -13,6 +13,7 @@ namespace Components
 	struct Grapple;
 	struct Connection;
 	struct Camera;
+	struct TextureDef;
 	struct Texture;
 }
 
@@ -40,6 +41,7 @@ namespace Globals
 		extern std::vector<::Components::Wall>& dynamicWalls;
 		extern std::vector<::Components::Grapple>& grapples;
 		extern std::vector<::Components::Connection>& connections;
+		extern std::vector<::Components::TextureDef>& texturesDef;
 		extern std::vector<::Components::Texture>& textures;
 	}
 

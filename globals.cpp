@@ -10,6 +10,7 @@
 #include "components/grapple.hpp"
 #include "components/connection.hpp"
 #include "components/camera.hpp"
+#include "components/textureDef.hpp"
 #include "components/texture.hpp"
 
 #include "systems/physics.hpp"
@@ -31,6 +32,7 @@ namespace Components
 	static std::vector<::Components::Wall> dynamicWalls;
 	static std::vector<::Components::Grapple> grapples;
 	static std::vector<::Components::Connection> connections;
+	static std::vector<::Components::TextureDef> texturesDef;
 	static std::vector<::Components::Texture> textures;
 }
 
@@ -49,6 +51,7 @@ namespace Globals
 		std::vector<::Components::Wall>& dynamicWalls = ::Components::dynamicWalls;
 		std::vector<::Components::Grapple>& grapples = ::Components::grapples;
 		std::vector<::Components::Connection>& connections = ::Components::connections;
+		std::vector<::Components::TextureDef>& texturesDef = ::Components::texturesDef;
 		std::vector<::Components::Texture>& textures = ::Components::textures;
 	}
 

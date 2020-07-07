@@ -135,6 +135,9 @@
     <ClInclude Include="shaders\sceneCoordTextured.hpp">
       <Filter>src\shaders</Filter>
     </ClInclude>
+    <ClInclude Include="components\textureDef.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.fs">
