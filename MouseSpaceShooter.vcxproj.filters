@@ -138,6 +138,9 @@
     <ClInclude Include="components\textureDef.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
+    <ClInclude Include="shaders\textured.hpp">
+      <Filter>src\shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.fs">
@@ -156,6 +159,12 @@
       <Filter>src\shaders</Filter>
     </None>
     <None Include="shaders\sceneCoordTextured.vs">
+      <Filter>src\shaders</Filter>
+    </None>
+    <None Include="shaders\textured.fs">
+      <Filter>src\shaders</Filter>
+    </None>
+    <None Include="shaders\textured.vs">
       <Filter>src\shaders</Filter>
     </None>
   </ItemGroup>

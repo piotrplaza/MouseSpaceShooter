@@ -84,6 +84,9 @@ namespace Shaders
 			throw std::runtime_error("Unable to link program.\n"s + programInfoLog);
 		}
 
+		glDetachShader(program, shaders.vertexShader);
+		glDetachShader(program, shaders.fragmentShader);
+
 		return program;
 	}
 }

@@ -24,17 +24,9 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		basicShadersProgram.program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"),
-			{ {0, "bPos"} });
-		basicShadersProgram.mvpUniform = glGetUniformLocation(basicShadersProgram.program, "mvp");
-		basicShadersProgram.colorUniform = glGetUniformLocation(basicShadersProgram.program, "color");
-
-		sceneCoordTexturedShadersProgram.program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/sceneCoordTextured.vs", "shaders/sceneCoordTextured.fs"),
-			{ {0, "bPos"} });
-		sceneCoordTexturedShadersProgram.mvpUniform = glGetUniformLocation(sceneCoordTexturedShadersProgram.program, "mvp");
-		sceneCoordTexturedShadersProgram.modelUniform = glGetUniformLocation(sceneCoordTexturedShadersProgram.program, "model");
-		sceneCoordTexturedShadersProgram.texture1Uniform = glGetUniformLocation(sceneCoordTexturedShadersProgram.program, "texture1");
-		sceneCoordTexturedShadersProgram.textureScalingUniform = glGetUniformLocation(sceneCoordTexturedShadersProgram.program, "textureScaling");
+		basicShadersProgram = std::make_unique<Shaders::Programs::Basic>();
+		sceneCoordTexturedShadersProgram = std::make_unique<Shaders::Programs::SceneCoordTextured>();
+		texturedShadersProgram = std::make_unique<Shaders::Programs::Textured>();
 
 		staticWallsBuffers = std::make_unique<WallsBuffers>();
 		dynamicWallsBuffers = std::make_unique<WallsBuffers>();
@@ -146,18 +138,18 @@ namespace Systems
 		using namespace Globals::Components;
 		using namespace Globals::Constants;
 
-		glUseProgram(sceneCoordTexturedShadersProgram.program);
-		glUniformMatrix4fv(sceneCoordTexturedShadersProgram.mvpUniform, 1, GL_FALSE,
+		glUseProgram(sceneCoordTexturedShadersProgram->program);
+		glUniformMatrix4fv(sceneCoordTexturedShadersProgram->mvpUniform, 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getVP()));
-		glUniformMatrix4fv(sceneCoordTexturedShadersProgram.modelUniform, 1, GL_FALSE,
+		glUniformMatrix4fv(sceneCoordTexturedShadersProgram->modelUniform, 1, GL_FALSE,
 			glm::value_ptr(glm::mat4(1.0f)));
 
 		for (const auto& [texture, texturedStaticWallBuffers] : texturesToStaticWallsBuffers)
 		{
 			const auto& textureComponent = textures[texture];
 
-			glUniform1i(sceneCoordTexturedShadersProgram.texture1Uniform, texture);
-			glUniform2f(sceneCoordTexturedShadersProgram.textureScalingUniform,
+			glUniform1i(sceneCoordTexturedShadersProgram->texture1Uniform, texture);
+			glUniform2f(sceneCoordTexturedShadersProgram->textureScaleUniform,
 				(float)textureComponent.height / textureComponent.width * defaultScreenCoordTextureScaling, defaultScreenCoordTextureScaling);
 			glBindVertexArray(texturedStaticWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, texturedStaticWallBuffers.verticesCache.size());
@@ -167,26 +159,26 @@ namespace Systems
 		{
 			const auto& textureComponent = textures[texture];
 
-			glUniform1i(sceneCoordTexturedShadersProgram.texture1Uniform, texture);
-			glUniform2f(sceneCoordTexturedShadersProgram.textureScalingUniform,
+			glUniform1i(sceneCoordTexturedShadersProgram->texture1Uniform, texture);
+			glUniform2f(sceneCoordTexturedShadersProgram->textureScaleUniform,
 				(float)textureComponent.height / textureComponent.width * defaultScreenCoordTextureScaling, defaultScreenCoordTextureScaling);
 			glBindVertexArray(texturedDynamicWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, texturedDynamicWallBuffers.verticesCache.size());
 		}
 
-		glUseProgram(basicShadersProgram.program);
-		glUniformMatrix4fv(basicShadersProgram.mvpUniform, 1, GL_FALSE,
+		glUseProgram(basicShadersProgram->program);
+		glUniformMatrix4fv(basicShadersProgram->mvpUniform, 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getVP()));
 
-		glUniform4f(basicShadersProgram.colorUniform, 0.5f, 0.5f, 0.5f, 1.0f);
+		glUniform4f(basicShadersProgram->colorUniform, 0.5f, 0.5f, 0.5f, 1.0f);
 		glBindVertexArray(staticWallsBuffers->vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, staticWallsBuffers->verticesCache.size());
 
-		glUniform4f(basicShadersProgram.colorUniform, 0.5f, 0.5f, 0.5f, 1.0f);
+		glUniform4f(basicShadersProgram->colorUniform, 0.5f, 0.5f, 0.5f, 1.0f);
 		glBindVertexArray(dynamicWallsBuffers->vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, dynamicWallsBuffers->verticesCache.size());
 
-		glUniform4f(basicShadersProgram.colorUniform, 0.0f, 0.5f, 0.0f, 1.0f);
+		glUniform4f(basicShadersProgram->colorUniform, 0.0f, 0.5f, 0.0f, 1.0f);
 		glBindVertexArray(grapplesBuffers->vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, grapplesBuffers->verticesCache.size());
 	}

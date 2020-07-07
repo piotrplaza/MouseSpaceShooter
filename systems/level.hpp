@@ -10,6 +10,7 @@
 #include <shaders.hpp>
 #include <shaders/basic.hpp>
 #include <shaders/sceneCoordTextured.hpp>
+#include <shaders/textured.hpp>
 
 namespace Components
 {
@@ -60,8 +61,9 @@ namespace Systems
 		void updateWallsBuffers(std::vector<Components::Wall>& walls, WallsBuffers& simpleWallsBuffers,
 			std::unordered_map<unsigned, WallsBuffers>& texturesToWallsBuffers, GLenum bufferDataUsage) const;
 
-		Shaders::Programs::Basic basicShadersProgram;
-		Shaders::Programs::SceneCoordTextured sceneCoordTexturedShadersProgram;
+		std::unique_ptr<Shaders::Programs::Basic> basicShadersProgram;
+		std::unique_ptr<Shaders::Programs::SceneCoordTextured> sceneCoordTexturedShadersProgram;
+		std::unique_ptr<Shaders::Programs::Textured> texturedShadersProgram;
 
 		std::unique_ptr<WallsBuffers> staticWallsBuffers;
 		std::unique_ptr<WallsBuffers> dynamicWallsBuffers;

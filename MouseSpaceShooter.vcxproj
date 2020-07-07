@@ -50,6 +50,7 @@
     <ClInclude Include="shaders\basic.hpp" />
     <ClInclude Include="shaders\colored.hpp" />
     <ClInclude Include="shaders\sceneCoordTextured.hpp" />
+    <ClInclude Include="shaders\textured.hpp" />
     <ClInclude Include="systems\camera.hpp" />
     <ClInclude Include="systems\level.hpp" />
     <ClInclude Include="systems\physics.hpp" />
@@ -66,6 +67,8 @@
     <None Include="shaders\colored.vs" />
     <None Include="shaders\sceneCoordTextured.fs" />
     <None Include="shaders\sceneCoordTextured.vs" />
+    <None Include="shaders\textured.fs" />
+    <None Include="shaders\textured.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

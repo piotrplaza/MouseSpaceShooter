@@ -58,8 +58,8 @@ namespace Systems
 
 		void updateConnectionsGraphics();
 
-		Shaders::Programs::Basic basicShadersProgram;
-		Shaders::Programs::Colored coloredShadersProgram;
+		std::unique_ptr<Shaders::Programs::Basic> basicShadersProgram;
+		std::unique_ptr<Shaders::Programs::Colored> coloredShadersProgram;
 
 		std::unique_ptr<PlayerBuffers> playerBuffers;
 		std::unique_ptr<ConnectionsBuffers> connectionsBuffers;

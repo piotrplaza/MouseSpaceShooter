@@ -8,6 +8,17 @@ namespace Shaders
 	{
 		struct Colored
 		{
+			Colored()
+			{
+				program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/colored.vs", "shaders/colored.fs"), { {0, "bPos"}, {1, "bColor"} });
+				mvpUniform = glGetUniformLocation(program, "mvp");
+			}
+
+			~Colored()
+			{
+				glDeleteProgram(program);
+			}
+
 			Shaders::ProgramId program;
 			Shaders::UniformId mvpUniform;
 		};

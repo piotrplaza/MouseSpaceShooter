@@ -6,30 +6,26 @@ namespace Shaders
 {
 	namespace Programs
 	{
-		struct SceneCoordTextured
+		struct Textured
 		{
-			SceneCoordTextured()
+			Textured()
 			{
-				program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/sceneCoordTextured.vs", "shaders/sceneCoordTextured.fs"), { {0, "bPos"} });
+				program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/sceneCoordTextured.vs", "shaders/sceneCoordTextured.fs"), { {0, "bPos"}, {1, "bTexCoord"} });
 				mvpUniform = glGetUniformLocation(program, "mvp");
-				modelUniform = glGetUniformLocation(program, "model");
 				textureTranslateUniform = glGetUniformLocation(program, "textureTranslate");
 				textureScaleUniform = glGetUniformLocation(program, "textureScale");
-				textureCoordBasedOnModelTransformUniform = glGetUniformLocation(program, "textureCoordBasedOnModelTransform");
 				texture1Uniform = glGetUniformLocation(program, "texture1");
 			}
 
-			~SceneCoordTextured()
+			~Textured()
 			{
 				glDeleteProgram(program);
 			}
 
 			Shaders::ProgramId program;
 			Shaders::UniformId mvpUniform;
-			Shaders::UniformId modelUniform;
 			Shaders::UniformId textureTranslateUniform;
 			Shaders::UniformId textureScaleUniform;
-			Shaders::UniformId textureCoordBasedOnModelTransformUniform;
 			Shaders::UniformId texture1Uniform;
 		};
 	}

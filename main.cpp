@@ -65,7 +65,7 @@ void CreateLevel()
 	staticWalls.emplace_back(Tools::CreateCircleBody({ 10.0f, 0.0f }, 2.0f), spaceRockTexture);
 
 	//Dynamic walls.
-	auto& wall1 = *dynamicWalls.emplace_back(Tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f)).body;
+	auto& wall1 = *dynamicWalls.emplace_back(Tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), woodTexture).body;
 	auto& wall2 = *dynamicWalls.emplace_back(Tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f)).body;
 	wall1.GetFixtureList()->SetRestitution(1);
 	wall2.GetFixtureList()->SetRestitution(1);

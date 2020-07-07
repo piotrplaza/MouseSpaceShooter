@@ -29,14 +29,8 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		basicShadersProgram.program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"),
-			{ {0, "bPos"} });
-		basicShadersProgram.mvpUniform = glGetUniformLocation(basicShadersProgram.program, "mvp");
-		basicShadersProgram.colorUniform = glGetUniformLocation(basicShadersProgram.program, "color");
-
-		coloredShadersProgram.program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/colored.vs", "shaders/colored.fs"),
-			{ {0, "bPos"}, {1, "bColor"} });
-		coloredShadersProgram.mvpUniform = glGetUniformLocation(coloredShadersProgram.program, "mvp");
+		basicShadersProgram = std::make_unique<Shaders::Programs::Basic>();
+		coloredShadersProgram = std::make_unique<Shaders::Programs::Colored>();
 
 		playerBuffers = std::make_unique<PlayerBuffers>();
 		connectionsBuffers = std::make_unique<ConnectionsBuffers>();
@@ -126,15 +120,15 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		glUseProgram(basicShadersProgram.program);
-		glUniformMatrix4fv(basicShadersProgram.mvpUniform, 1, GL_FALSE,
+		glUseProgram(basicShadersProgram->program);
+		glUniformMatrix4fv(basicShadersProgram->mvpUniform, 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getMVP(player.getModelMatrix())));
-		glUniform4f(basicShadersProgram.colorUniform, 1.0f, 1.0f, 1.0f, 1.0f);
+		glUniform4f(basicShadersProgram->colorUniform, 1.0f, 1.0f, 1.0f, 1.0f);
 		glBindVertexArray(playerBuffers->vertexBuffer);
 		glDrawArrays(GL_TRIANGLES, 0, player.verticesCache.size());
 
-		glUseProgram(coloredShadersProgram.program);
-		glUniformMatrix4fv(coloredShadersProgram.mvpUniform, 1, GL_FALSE,
+		glUseProgram(coloredShadersProgram->program);
+		glUniformMatrix4fv(coloredShadersProgram->mvpUniform, 1, GL_FALSE,
 			glm::value_ptr(Globals::Components::mvp.getVP()));
 		glBindVertexArray(connectionsBuffers->vertexArray);
 		glDrawArrays(GL_LINES, 0, connectionsBuffers->verticesCache.size());
