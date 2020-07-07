@@ -10,7 +10,7 @@ namespace Shaders
 		{
 			Textured()
 			{
-				program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/sceneCoordTextured.vs", "shaders/sceneCoordTextured.fs"), { {0, "bPos"}, {1, "bTexCoord"} });
+				program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/textured.vs", "shaders/textured.fs"), { {0, "bPos"}, {1, "bTexCoord"} });
 				mvpUniform = glGetUniformLocation(program, "mvp");
 				textureTranslateUniform = glGetUniformLocation(program, "textureTranslate");
 				textureScaleUniform = glGetUniformLocation(program, "textureScale");

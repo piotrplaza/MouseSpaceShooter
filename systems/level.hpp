@@ -2,8 +2,10 @@
 
 #include <memory>
 #include <vector>
+#include <optional>
 #include <unordered_map>
 
+#include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
@@ -26,18 +28,19 @@ namespace Systems
 
 		void step();
 		void render() const;
-		void updateStaticWallsGraphics();
 
 	private:
 		struct WallsBuffers
 		{
-			WallsBuffers();
+			WallsBuffers(bool texCoord = false);
 			~WallsBuffers();
 
 			GLuint vertexArray;
 			GLuint vertexBuffer;
+			std::optional<GLuint> texCoordBuffer;
 
 			std::vector<glm::vec3> verticesCache;
+			std::vector<glm::vec2> texCoordCache;
 			size_t vertexBufferAllocation = 0;
 		};
 
@@ -55,7 +58,9 @@ namespace Systems
 
 		void initGraphics();
 
+		void updateStaticWallsGraphics();
 		void updateDynamicWallsGraphics();
+		void updateDynamicWallsTexCoords();
 		void updateGrapplesGraphics();
 
 		void updateWallsBuffers(std::vector<Components::Wall>& walls, WallsBuffers& simpleWallsBuffers,

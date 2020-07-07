@@ -1,7 +1,7 @@
 #version 440
 
 in vec3 bPos;
-in vec2 bTexCoord
+in vec2 bTexCoord;
 
 out vec2 vTexCoord;
 
