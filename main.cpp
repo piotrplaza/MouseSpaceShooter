@@ -27,7 +27,7 @@
 
 #include "tools/utility.hpp"
 
-const bool fullScreen = false;
+const bool fullScreen = true;
 const bool console = true;
 const glm::ivec2 windowRes = { 800, 800 };
 
@@ -49,24 +49,26 @@ void CreateLevel()
 
 	//Textures.
 	const unsigned spaceRockTexture = texturesDef.size();
-	texturesDef.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT);
+	texturesDef.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT).scale = glm::vec2(0.04f);
+	texturesDef.back().translate = glm::vec2(0.4f);
 	const unsigned woodTexture = texturesDef.size();
-	texturesDef.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
+	texturesDef.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT).scale = glm::vec2(0.06f);
+	texturesDef.back().translate = glm::vec2(0.2f);
 
 	//Player configuration.
 	player = Components::Player(Tools::CreateBasicPlayerBody());
 	player.setPosition({ -10.0f, 0.0f });
 
 	//Static walls.
-	staticWalls.emplace_back(Tools::CreateBoxBody({ -20.0f, 0.0f }, { 0.2f, 20.0f }), woodTexture);
-	staticWalls.emplace_back(Tools::CreateBoxBody({ 20.0f, 0.0f }, { 0.2f, 20.0f }), woodTexture);
-	staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, -20.0f }, { 20.0f, 0.2f }), woodTexture);
-	staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, 20.0f }, { 20.0f, 0.2f }), woodTexture);
+	staticWalls.emplace_back(Tools::CreateBoxBody({ -30.0f, 0.0f }, { 1.0f, 31.0f }), spaceRockTexture);
+	staticWalls.emplace_back(Tools::CreateBoxBody({ 30.0f, 0.0f }, { 1.0f, 31.0f }), spaceRockTexture);
+	staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, -30.0f }, { 31.0f, 1.0f }), spaceRockTexture);
+	staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, 30.0f }, { 31.0f, 1.0f }), spaceRockTexture);
 	staticWalls.emplace_back(Tools::CreateCircleBody({ 10.0f, 0.0f }, 2.0f), spaceRockTexture);
 
 	//Dynamic walls.
 	auto& wall1 = *dynamicWalls.emplace_back(Tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), woodTexture).body;
-	auto& wall2 = *dynamicWalls.emplace_back(Tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f)).body;
+	auto& wall2 = *dynamicWalls.emplace_back(Tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), woodTexture).body;
 	wall1.GetFixtureList()->SetRestitution(1);
 	wall2.GetFixtureList()->SetRestitution(1);
 	Tools::PinBodies(wall1, wall2, {5.0f, 0.0f});

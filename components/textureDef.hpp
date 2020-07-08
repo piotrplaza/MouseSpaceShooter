@@ -2,6 +2,8 @@
 
 #include <GL/glew.h>
 
+#include <glm/vec2.hpp>
+
 namespace Components
 {
 	struct TextureDef
@@ -15,5 +17,8 @@ namespace Components
 		GLenum wrapMode;
 		GLenum minFilter;
 		GLenum magFilter;
+
+		glm::vec2 translate{ 0.0f };
+		glm::vec2 scale{ 1.0f };
 	};
 }

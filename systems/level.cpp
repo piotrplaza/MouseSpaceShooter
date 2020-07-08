@@ -12,6 +12,7 @@
 #include <components/grapple.hpp>
 #include <components/connection.hpp>
 #include <components/texture.hpp>
+#include <components/textureDef.hpp>
 
 namespace Systems
 {
@@ -158,7 +159,6 @@ namespace Systems
 	void Level::render() const
 	{
 		using namespace Globals::Components;
-		using namespace Globals::Constants;
 
 		glUseProgram(sceneCoordTexturedShadersProgram->program);
 		glUniformMatrix4fv(sceneCoordTexturedShadersProgram->mvpUniform, 1, GL_FALSE,
@@ -167,10 +167,13 @@ namespace Systems
 		for (const auto& [texture, texturedStaticWallBuffers] : texturesToStaticWallsBuffers)
 		{
 			const auto& textureComponent = textures[texture];
+			const auto& textureDefComponent = texturesDef[texture];
 
 			glUniform1i(sceneCoordTexturedShadersProgram->texture1Uniform, texture);
+			glUniform2f(sceneCoordTexturedShadersProgram->textureTranslateUniform,
+				textureDefComponent.translate.x, textureDefComponent.translate.y);
 			glUniform2f(sceneCoordTexturedShadersProgram->textureScaleUniform,
-				(float)textureComponent.height / textureComponent.width * defaultScreenCoordTextureScaling, defaultScreenCoordTextureScaling);
+				(float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y);
 			glBindVertexArray(texturedStaticWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, texturedStaticWallBuffers.verticesCache.size());
 		}
@@ -182,10 +185,13 @@ namespace Systems
 		for (const auto& [texture, texturedDynamicWallBuffers] : texturesToDynamicWallsBuffers)
 		{
 			const auto& textureComponent = textures[texture];
+			const auto& textureDefComponent = texturesDef[texture];
 
 			glUniform1i(texturedShadersProgram->texture1Uniform, texture);
+			glUniform2f(texturedShadersProgram->textureTranslateUniform,
+				textureDefComponent.translate.x, textureDefComponent.translate.y);
 			glUniform2f(texturedShadersProgram->textureScaleUniform,
-				(float)textureComponent.height / textureComponent.width * defaultScreenCoordTextureScaling, defaultScreenCoordTextureScaling);
+				(float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y);
 			glBindVertexArray(texturedDynamicWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, texturedDynamicWallBuffers.verticesCache.size());
 		}
