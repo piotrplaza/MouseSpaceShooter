@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <optional>
 
 #include <glm/glm.hpp>
 
@@ -13,28 +14,32 @@ namespace Components
 {
 	struct Grapple
 	{
-		Grapple(std::unique_ptr<b2Body, b2BodyDeleter> body, float influenceRadius):
+		Grapple(std::unique_ptr<b2Body, b2BodyDeleter> body, float influenceRadius, std::optional<unsigned> texture = std::nullopt):
 			body(std::move(body)),
-			influenceRadius(influenceRadius)
+			influenceRadius(influenceRadius),
+			texture(texture)
 		{
 		}
 
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
-		std::vector<glm::vec3> verticesCache;
 		float influenceRadius;
+		std::optional<unsigned> texture;
+		std::vector<glm::vec3> verticesCache;
 
 		glm::vec2 getPosition() const
 		{
 			return { body->GetWorldCenter().x, body->GetWorldCenter().y };
 		}
 
-		void updateVerticesCache()
+		void updateVerticesCache(bool transform = true)
 		{
 			using namespace Globals::Constants;
 
 			const auto& bodyTransform = body->GetTransform();
-			const auto modelMatrix = glm::rotate(glm::translate(glm::mat4(1.0f), { bodyTransform.p.x, bodyTransform.p.y, 0.0f }),
-				bodyTransform.q.GetAngle(), { 0.0f, 0.0f, 1.0f });
+			const auto modelMatrix = transform
+				? glm::rotate(glm::translate(glm::mat4(1.0f), { bodyTransform.p.x, bodyTransform.p.y, 0.0f }),
+					bodyTransform.q.GetAngle(), { 0.0f, 0.0f, 1.0f })
+				: glm::mat4(1.0f);
 
 			const auto& fixture = *body->GetFixtureList();
 			assert(!fixture.GetNext());

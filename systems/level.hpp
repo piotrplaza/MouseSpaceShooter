@@ -46,13 +46,15 @@ namespace Systems
 
 		struct GrapplesBuffers
 		{
-			GrapplesBuffers();
+			GrapplesBuffers(bool texCoord = false);
 			~GrapplesBuffers();
 
 			GLuint vertexArray;
 			GLuint vertexBuffer;
+			std::optional<GLuint> texCoordBuffer;
 
 			std::vector<glm::vec3> verticesCache;
+			std::vector<glm::vec2> texCoordCache;
 			size_t vertexBufferAllocation = 0;
 		};
 
@@ -60,21 +62,26 @@ namespace Systems
 
 		void updateStaticWallsGraphics();
 		void updateDynamicWallsGraphics();
-		void updateDynamicWallsTexCoords();
+		void updateTexCoords();
 		void updateGrapplesGraphics();
 
 		void updateWallsBuffers(std::vector<Components::Wall>& walls, WallsBuffers& simpleWallsBuffers,
 			std::unordered_map<unsigned, WallsBuffers>& texturesToWallsBuffers, GLenum bufferDataUsage) const;
 
+		void sceneCoordTexturedRender() const;
+		void texturedRender() const;
+		void basicRender() const;
+
 		std::unique_ptr<Shaders::Programs::Basic> basicShadersProgram;
 		std::unique_ptr<Shaders::Programs::SceneCoordTextured> sceneCoordTexturedShadersProgram;
 		std::unique_ptr<Shaders::Programs::Textured> texturedShadersProgram;
 
-		std::unique_ptr<WallsBuffers> staticWallsBuffers;
-		std::unique_ptr<WallsBuffers> dynamicWallsBuffers;
+		std::unique_ptr<WallsBuffers> simpleStaticWallsBuffers;
+		std::unique_ptr<WallsBuffers> simpleDynamicWallsBuffers;
 		std::unordered_map<unsigned, WallsBuffers> texturesToStaticWallsBuffers;
 		std::unordered_map<unsigned, WallsBuffers> texturesToDynamicWallsBuffers;
 
-		std::unique_ptr<GrapplesBuffers> grapplesBuffers;
+		std::unique_ptr<GrapplesBuffers> simpleGrapplesBuffers;
+		std::unordered_map<unsigned, GrapplesBuffers> texturesToGrapplesBuffers;
 	};
 }

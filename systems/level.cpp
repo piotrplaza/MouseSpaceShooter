@@ -29,45 +29,61 @@ namespace Systems
 		sceneCoordTexturedShadersProgram = std::make_unique<Shaders::Programs::SceneCoordTextured>();
 		texturedShadersProgram = std::make_unique<Shaders::Programs::Textured>();
 
-		staticWallsBuffers = std::make_unique<WallsBuffers>();
-		dynamicWallsBuffers = std::make_unique<WallsBuffers>();
-		grapplesBuffers = std::make_unique<GrapplesBuffers>();
+		simpleStaticWallsBuffers = std::make_unique<WallsBuffers>();
+		simpleDynamicWallsBuffers = std::make_unique<WallsBuffers>();
+		simpleGrapplesBuffers = std::make_unique<GrapplesBuffers>();
 
 		updateStaticWallsGraphics();
-		updateDynamicWallsTexCoords();
+		updateTexCoords();
 	}
 
 	void Level::updateStaticWallsGraphics()
 	{
 		using namespace Globals::Components;
 
-		updateWallsBuffers(staticWalls, *staticWallsBuffers, texturesToStaticWallsBuffers, GL_STATIC_DRAW);
+		updateWallsBuffers(staticWalls, *simpleStaticWallsBuffers, texturesToStaticWallsBuffers, GL_STATIC_DRAW);
 	}
 
 	void Level::updateDynamicWallsGraphics()
 	{
 		using namespace Globals::Components;
 
-		updateWallsBuffers(dynamicWalls, *dynamicWallsBuffers, texturesToDynamicWallsBuffers, GL_DYNAMIC_DRAW);
+		updateWallsBuffers(dynamicWalls, *simpleDynamicWallsBuffers, texturesToDynamicWallsBuffers, GL_DYNAMIC_DRAW);
 	}
 
-	void Level::updateDynamicWallsTexCoords()
+	void Level::updateTexCoords()
 	{
 		using namespace Globals::Components;
 
 		for (auto& dynamicWall : dynamicWalls)
 		{
-			dynamicWall.updateVerticesCache();
+			dynamicWall.updateVerticesCache(false);
 			if (dynamicWall.texture)
 			{
 				auto& texturedDynamicWallBuffers = texturesToDynamicWallsBuffers.emplace(*dynamicWall.texture, true).first->second;
-				for (const auto& verticesCache : dynamicWall.verticesCache)
+				for (const auto& vertex : dynamicWall.verticesCache)
 				{
-					texturedDynamicWallBuffers.texCoordCache.emplace_back(verticesCache);
+					texturedDynamicWallBuffers.texCoordCache.emplace_back(vertex);
 				}
 				glBindBuffer(GL_ARRAY_BUFFER, *texturedDynamicWallBuffers.texCoordBuffer);
 				glBufferData(GL_ARRAY_BUFFER, texturedDynamicWallBuffers.texCoordCache.size() * sizeof(texturedDynamicWallBuffers.texCoordCache.front()),
 					texturedDynamicWallBuffers.texCoordCache.data(), GL_STATIC_DRAW);
+			}
+		}
+
+		for (auto& grapple : grapples)
+		{
+			grapple.updateVerticesCache(false);
+			if (grapple.texture)
+			{
+				auto& texturedGrappleBuffers = texturesToGrapplesBuffers.emplace(*grapple.texture, true).first->second;
+				for (const auto& vertex : grapple.verticesCache)
+				{
+					texturedGrappleBuffers.texCoordCache.emplace_back(vertex);
+				}
+				glBindBuffer(GL_ARRAY_BUFFER, *texturedGrappleBuffers.texCoordBuffer);
+				glBufferData(GL_ARRAY_BUFFER, texturedGrappleBuffers.texCoordCache.size() * sizeof(texturedGrappleBuffers.texCoordCache.front()),
+					texturedGrappleBuffers.texCoordCache.data(), GL_STATIC_DRAW);
 			}
 		}
 	}
@@ -129,24 +145,53 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		grapplesBuffers->verticesCache.clear();
+		simpleGrapplesBuffers->verticesCache.clear();
+		for (auto& [texture, grappleBuffers] : texturesToGrapplesBuffers)
+		{
+			grappleBuffers.verticesCache.clear();
+		}
+
 		for (auto& grapple : grapples)
 		{
 			grapple.updateVerticesCache();
-			grapplesBuffers->verticesCache.insert(grapplesBuffers->verticesCache.end(), grapple.verticesCache.begin(), grapple.verticesCache.end());
+			if (grapple.texture)
+			{
+				auto& texturedGrappleBuffers = texturesToGrapplesBuffers[*grapple.texture];
+				texturedGrappleBuffers.verticesCache.insert(texturedGrappleBuffers.verticesCache.end(), grapple.verticesCache.begin(), grapple.verticesCache.end());
+			}
+			else
+			{
+				simpleGrapplesBuffers->verticesCache.insert(simpleGrapplesBuffers->verticesCache.end(), grapple.verticesCache.begin(), grapple.verticesCache.end());
+			}
 		}
 
-		glBindBuffer(GL_ARRAY_BUFFER, grapplesBuffers->vertexBuffer);
-		if (grapplesBuffers->vertexBufferAllocation < grapplesBuffers->verticesCache.size())
+		glBindBuffer(GL_ARRAY_BUFFER, simpleGrapplesBuffers->vertexBuffer);
+		if (simpleGrapplesBuffers->vertexBufferAllocation < simpleGrapplesBuffers->verticesCache.size())
 		{
-			glBufferData(GL_ARRAY_BUFFER, grapplesBuffers->verticesCache.size() * sizeof(grapplesBuffers->verticesCache.front()),
-				grapplesBuffers->verticesCache.data(), GL_DYNAMIC_DRAW);
-			grapplesBuffers->vertexBufferAllocation = grapplesBuffers->verticesCache.size();
+			glBufferData(GL_ARRAY_BUFFER, simpleGrapplesBuffers->verticesCache.size() * sizeof(simpleGrapplesBuffers->verticesCache.front()),
+				simpleGrapplesBuffers->verticesCache.data(), GL_STATIC_DRAW);
+			simpleGrapplesBuffers->vertexBufferAllocation = simpleGrapplesBuffers->verticesCache.size();
 		}
 		else
 		{
-			glBufferSubData(GL_ARRAY_BUFFER, 0, grapplesBuffers->verticesCache.size() * sizeof(grapplesBuffers->verticesCache.front()),
-				grapplesBuffers->verticesCache.data());
+			glBufferSubData(GL_ARRAY_BUFFER, 0, simpleGrapplesBuffers->verticesCache.size() * sizeof(simpleGrapplesBuffers->verticesCache.front()),
+				simpleGrapplesBuffers->verticesCache.data());
+		}
+
+		for (auto& [texture, texturedGrappleBuffers] : texturesToGrapplesBuffers)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, texturedGrappleBuffers.vertexBuffer);
+			if (texturedGrappleBuffers.vertexBufferAllocation < texturedGrappleBuffers.verticesCache.size())
+			{
+				glBufferData(GL_ARRAY_BUFFER, texturedGrappleBuffers.verticesCache.size() * sizeof(texturedGrappleBuffers.verticesCache.front()),
+					texturedGrappleBuffers.verticesCache.data(), GL_STATIC_DRAW);
+				texturedGrappleBuffers.vertexBufferAllocation = texturedGrappleBuffers.verticesCache.size();
+			}
+			else
+			{
+				glBufferSubData(GL_ARRAY_BUFFER, 0, texturedGrappleBuffers.verticesCache.size() * sizeof(texturedGrappleBuffers.verticesCache.front()),
+					texturedGrappleBuffers.verticesCache.data());
+			}
 		}
 	}
 
@@ -158,10 +203,17 @@ namespace Systems
 
 	void Level::render() const
 	{
+		sceneCoordTexturedRender();
+		texturedRender();
+		basicRender();
+	}
+
+	void Level::sceneCoordTexturedRender() const
+	{
 		using namespace Globals::Components;
 
 		glUseProgram_proxy(sceneCoordTexturedShadersProgram->program);
-		sceneCoordTexturedShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
+		sceneCoordTexturedShadersProgram->mvpUniform.setValue(mvp.getVP());
 
 		for (const auto& [texture, texturedStaticWallBuffers] : texturesToStaticWallsBuffers)
 		{
@@ -176,9 +228,14 @@ namespace Systems
 			glBindVertexArray(texturedStaticWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, texturedStaticWallBuffers.verticesCache.size());
 		}
+	}
+
+	void Level::texturedRender() const
+	{
+		using namespace Globals::Components;
 
 		glUseProgram_proxy(texturedShadersProgram->program);
-		texturedShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
+		texturedShadersProgram->mvpUniform.setValue(mvp.getVP());
 
 		for (const auto& [texture, texturedDynamicWallBuffers] : texturesToDynamicWallsBuffers)
 		{
@@ -193,20 +250,38 @@ namespace Systems
 			glDrawArrays(GL_TRIANGLES, 0, texturedDynamicWallBuffers.verticesCache.size());
 		}
 
+		for (const auto& [texture, texturedGrappleBuffers] : texturesToGrapplesBuffers)
+		{
+			const auto& textureComponent = textures[texture];
+			const auto& textureDefComponent = texturesDef[texture];
+
+			texturedShadersProgram->texture1Uniform.setValue(texture);
+			texturedShadersProgram->textureTranslateUniform.setValue({ textureDefComponent.translate.x, textureDefComponent.translate.y });
+			texturedShadersProgram->textureScaleUniform.setValue(
+				{ (float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y });
+			glBindVertexArray(texturedGrappleBuffers.vertexArray);
+			glDrawArrays(GL_TRIANGLES, 0, texturedGrappleBuffers.verticesCache.size());
+		}
+	}
+
+	void Level::basicRender() const
+	{
+		using namespace Globals::Components;
+
 		glUseProgram_proxy(basicShadersProgram->program);
-		basicShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
+		basicShadersProgram->mvpUniform.setValue(mvp.getVP());
 
 		basicShadersProgram->colorUniform.setValue({ 0.5f, 0.5f, 0.5f, 1.0f });
-		glBindVertexArray(staticWallsBuffers->vertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, staticWallsBuffers->verticesCache.size());
+		glBindVertexArray(simpleStaticWallsBuffers->vertexArray);
+		glDrawArrays(GL_TRIANGLES, 0, simpleStaticWallsBuffers->verticesCache.size());
 
 		basicShadersProgram->colorUniform.setValue({ 0.5f, 0.5f, 0.5f, 1.0f });
-		glBindVertexArray(dynamicWallsBuffers->vertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, dynamicWallsBuffers->verticesCache.size());
+		glBindVertexArray(simpleDynamicWallsBuffers->vertexArray);
+		glDrawArrays(GL_TRIANGLES, 0, simpleDynamicWallsBuffers->verticesCache.size());
 
 		basicShadersProgram->colorUniform.setValue({ 0.0f, 0.5f, 0.0f, 1.0f });
-		glBindVertexArray(grapplesBuffers->vertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, grapplesBuffers->verticesCache.size());
+		glBindVertexArray(simpleGrapplesBuffers->vertexArray);
+		glDrawArrays(GL_TRIANGLES, 0, simpleGrapplesBuffers->verticesCache.size());
 	}
 
 	Level::WallsBuffers::WallsBuffers(bool texCoord)
@@ -234,7 +309,7 @@ namespace Systems
 		glDeleteVertexArrays(1, &vertexArray);
 	}
 
-	Level::GrapplesBuffers::GrapplesBuffers()
+	Level::GrapplesBuffers::GrapplesBuffers(bool texCoord)
 	{
 		glCreateVertexArrays(1, &vertexArray);
 		glBindVertexArray(vertexArray);
@@ -242,11 +317,20 @@ namespace Systems
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(0);
+		if (texCoord)
+		{
+			texCoordBuffer = 0;
+			glGenBuffers(1, &*texCoordBuffer);
+			glBindBuffer(GL_ARRAY_BUFFER, *texCoordBuffer);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+			glEnableVertexAttribArray(1);
+		}
 	}
 
 	Level::GrapplesBuffers::~GrapplesBuffers()
 	{
 		glDeleteBuffers(1, &vertexBuffer);
+		if (texCoordBuffer) glDeleteBuffers(1, &*texCoordBuffer);
 		glDeleteVertexArrays(1, &vertexArray);
 	}
 }

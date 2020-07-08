@@ -53,7 +53,9 @@ void CreateLevel()
 	texturesDef.back().translate = glm::vec2(0.4f);
 	const unsigned woodTexture = texturesDef.size();
 	texturesDef.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT).scale = glm::vec2(0.06f);
-	texturesDef.back().translate = glm::vec2(0.2f);
+	const unsigned orbTexture = texturesDef.size();
+	texturesDef.emplace_back("textures/orb.png").scale = glm::vec2(0.5f);
+	texturesDef.back().translate = glm::vec2(0.5f);
 
 	//Player configuration.
 	player = Components::Player(Tools::CreateBasicPlayerBody());
@@ -69,13 +71,13 @@ void CreateLevel()
 	//Dynamic walls.
 	auto& wall1 = *dynamicWalls.emplace_back(Tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), woodTexture).body;
 	auto& wall2 = *dynamicWalls.emplace_back(Tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), woodTexture).body;
-	wall1.GetFixtureList()->SetRestitution(1);
-	wall2.GetFixtureList()->SetRestitution(1);
+	wall1.GetFixtureList()->SetRestitution(0.5f);
+	wall2.GetFixtureList()->SetRestitution(0.5f);
 	Tools::PinBodies(wall1, wall2, {5.0f, 0.0f});
 
 	//Grapples.
-	grapples.emplace_back(Tools::CreateCircleBody({0.0f, 10.0f}, 1.0f), 15.0f);
-	grapples.emplace_back(Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f);
+	grapples.emplace_back(Tools::CreateCircleBody({0.0f, 10.0f}, 1.0f), 15.0f, orbTexture);
+	grapples.emplace_back(Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f, orbTexture);
 
 	//Camera.
 	camera.projectionHSizeF = []() { return 25.0f + glm::length(player.getVelocity()) * 0.1f; };

@@ -26,13 +26,15 @@ namespace Components
 		std::optional<unsigned> texture;
 		std::vector<glm::vec3> verticesCache;
 
-		void updateVerticesCache()
+		void updateVerticesCache(bool transform = true)
 		{
 			using namespace Globals::Constants;
 
 			const auto& bodyTransform = body->GetTransform();
-			const auto modelMatrix = glm::rotate(glm::translate(glm::mat4(1.0f), { bodyTransform.p.x, bodyTransform.p.y, 0.0f }),
-				bodyTransform.q.GetAngle(), { 0.0f, 0.0f, 1.0f });
+			const auto modelMatrix = transform
+				? glm::rotate(glm::translate(glm::mat4(1.0f), { bodyTransform.p.x, bodyTransform.p.y, 0.0f }),
+					bodyTransform.q.GetAngle(), { 0.0f, 0.0f, 1.0f })
+				: glm::mat4(1.0f);
 
 			const auto& fixture = *body->GetFixtureList();
 			assert(!fixture.GetNext());
