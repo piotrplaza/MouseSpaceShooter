@@ -33,8 +33,9 @@ namespace Systems
 		simpleDynamicWallsBuffers = std::make_unique<WallsBuffers>();
 		simpleGrapplesBuffers = std::make_unique<GrapplesBuffers>();
 
-		updateStaticWallsGraphics();
 		updateTexCoords();
+		updateStaticWallsGraphics();
+		updateGrapplesGraphics();
 	}
 
 	void Level::updateStaticWallsGraphics()
@@ -157,6 +158,7 @@ namespace Systems
 			if (grapple.texture)
 			{
 				auto& texturedGrappleBuffers = texturesToGrapplesBuffers[*grapple.texture];
+				assert(texturedGrappleBuffers.texCoordBuffer);
 				texturedGrappleBuffers.verticesCache.insert(texturedGrappleBuffers.verticesCache.end(), grapple.verticesCache.begin(), grapple.verticesCache.end());
 			}
 			else
@@ -198,7 +200,6 @@ namespace Systems
 	void Level::step()
 	{
 		updateDynamicWallsGraphics();
-		updateGrapplesGraphics();
 	}
 
 	void Level::render() const
@@ -221,8 +222,7 @@ namespace Systems
 			const auto& textureDefComponent = texturesDef[texture];
 
 			sceneCoordTexturedShadersProgram->texture1Uniform.setValue(texture);
-			sceneCoordTexturedShadersProgram->textureTranslateUniform.setValue(
-				{ textureDefComponent.translate.x, textureDefComponent.translate.y });
+			sceneCoordTexturedShadersProgram->textureTranslateUniform.setValue(textureDefComponent.translate);
 			sceneCoordTexturedShadersProgram->textureScaleUniform.setValue(
 				{ (float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y });
 			glBindVertexArray(texturedStaticWallBuffers.vertexArray);
@@ -243,7 +243,7 @@ namespace Systems
 			const auto& textureDefComponent = texturesDef[texture];
 
 			texturedShadersProgram->texture1Uniform.setValue(texture);
-			texturedShadersProgram->textureTranslateUniform.setValue({ textureDefComponent.translate.x, textureDefComponent.translate.y });
+			texturedShadersProgram->textureTranslateUniform.setValue(textureDefComponent.translate);
 			texturedShadersProgram->textureScaleUniform.setValue(
 				{ (float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y });
 			glBindVertexArray(texturedDynamicWallBuffers.vertexArray);
@@ -256,7 +256,7 @@ namespace Systems
 			const auto& textureDefComponent = texturesDef[texture];
 
 			texturedShadersProgram->texture1Uniform.setValue(texture);
-			texturedShadersProgram->textureTranslateUniform.setValue({ textureDefComponent.translate.x, textureDefComponent.translate.y });
+			texturedShadersProgram->textureTranslateUniform.setValue(textureDefComponent.translate);
 			texturedShadersProgram->textureScaleUniform.setValue(
 				{ (float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y });
 			glBindVertexArray(texturedGrappleBuffers.vertexArray);
