@@ -14,7 +14,7 @@ namespace Shaders
 		{GL_FRAGMENT_SHADER, "fragment shader"}
 	};
 
-	ShaderId CompileShader(const std::string & path, ShaderType shaderType)
+	ShaderId CompileShader(const std::string& path, ShaderType shaderType)
 	{
 		std::ifstream file(path);
 		if (file)
@@ -53,12 +53,12 @@ namespace Shaders
 		}
 	}
 
-	VertexAndFragmentShader CompileShaders(const std::string & vsPath, const std::string & fsPath)
+	VertexAndFragmentShader CompileShaders(const std::string& vsPath, const std::string& fsPath)
 	{
 		return { CompileShader(vsPath, GL_VERTEX_SHADER), CompileShader(fsPath, GL_FRAGMENT_SHADER) };
 	}
 
-	ProgramId LinkProgram(const VertexAndFragmentShader & shaders,
+	ProgramId LinkProgram(const VertexAndFragmentShader& shaders,
 		const std::map<AttribLocation, std::string>& attribLocationsToNames)
 	{
 		ProgramId program = glCreateProgram();

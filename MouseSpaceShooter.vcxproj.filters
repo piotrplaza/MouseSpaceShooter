@@ -23,12 +23,12 @@
     <Filter Include="src\3rdParty\stb_image">
       <UniqueIdentifier>{9f611d57-c33e-4f67-883d-f126627eafa6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ogl">
+      <UniqueIdentifier>{0c6e7bbe-52e5-431e-aa9f-d82767a35b7b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="shaders.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="globals.cpp">
@@ -61,11 +61,17 @@
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp">
       <Filter>src\3rdParty\stb_image</Filter>
     </ClCompile>
+    <ClCompile Include="ogl\oglProxy.cpp">
+      <Filter>src\ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="ogl\shaders.cpp">
+      <Filter>src\ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="ogl\uniformControllers.cpp">
+      <Filter>src\ogl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="shaders.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="globals.hpp">
       <Filter>src</Filter>
     </ClInclude>
@@ -140,6 +146,15 @@
     </ClInclude>
     <ClInclude Include="shaders\textured.hpp">
       <Filter>src\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\oglProxy.hpp">
+      <Filter>src\ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\uniformControllers.hpp">
+      <Filter>src\ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\shaders.hpp">
+      <Filter>src\ogl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

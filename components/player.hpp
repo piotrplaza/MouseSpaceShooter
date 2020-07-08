@@ -17,7 +17,8 @@ namespace Components
 		{
 		}
 
-		Player(std::unique_ptr<b2Body, b2BodyDeleter> body) : body(std::move(body))
+		Player(std::unique_ptr<b2Body, b2BodyDeleter> body):
+			body(std::move(body))
 		{
 		}
 

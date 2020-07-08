@@ -4,6 +4,8 @@
 #include <vector>
 #include <optional>
 
+#include <glm/gtx/transform.hpp>
+
 #include <Box2D/Box2D.h>
 
 #include <globals.hpp>
@@ -14,7 +16,9 @@ namespace Components
 {
 	struct Wall
 	{
-		Wall(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt): body(std::move(body)), texture(texture)
+		Wall(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt):
+			body(std::move(body)),
+			texture(texture)
 		{
 		}
 

@@ -13,7 +13,9 @@ namespace Components
 {
 	struct Grapple
 	{
-		Grapple(std::unique_ptr<b2Body, b2BodyDeleter> body, float influenceRadius) : body(std::move(body)), influenceRadius(influenceRadius)
+		Grapple(std::unique_ptr<b2Body, b2BodyDeleter> body, float influenceRadius):
+			body(std::move(body)),
+			influenceRadius(influenceRadius)
 		{
 		}
 

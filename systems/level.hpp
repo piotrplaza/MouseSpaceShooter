@@ -9,7 +9,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
-#include <shaders.hpp>
+#include <ogl/shaders.hpp>
 #include <shaders/basic.hpp>
 #include <shaders/sceneCoordTextured.hpp>
 #include <shaders/textured.hpp>

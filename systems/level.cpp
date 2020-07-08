@@ -2,7 +2,7 @@
 
 #include <Box2D/Box2D.h>
 
-#include <glm/gtc/type_ptr.hpp>
+#include <ogl/oglProxy.hpp>
 
 #include <globals.hpp>
 
@@ -160,55 +160,51 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		glUseProgram(sceneCoordTexturedShadersProgram->program);
-		glUniformMatrix4fv(sceneCoordTexturedShadersProgram->mvpUniform, 1, GL_FALSE,
-			glm::value_ptr(Globals::Components::mvp.getVP()));
+		glUseProgram_proxy(sceneCoordTexturedShadersProgram->program);
+		sceneCoordTexturedShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
 
 		for (const auto& [texture, texturedStaticWallBuffers] : texturesToStaticWallsBuffers)
 		{
 			const auto& textureComponent = textures[texture];
 			const auto& textureDefComponent = texturesDef[texture];
 
-			glUniform1i(sceneCoordTexturedShadersProgram->texture1Uniform, texture);
-			glUniform2f(sceneCoordTexturedShadersProgram->textureTranslateUniform,
-				textureDefComponent.translate.x, textureDefComponent.translate.y);
-			glUniform2f(sceneCoordTexturedShadersProgram->textureScaleUniform,
-				(float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y);
+			sceneCoordTexturedShadersProgram->texture1Uniform.setValue(texture);
+			sceneCoordTexturedShadersProgram->textureTranslateUniform.setValue(
+				{ textureDefComponent.translate.x, textureDefComponent.translate.y });
+			sceneCoordTexturedShadersProgram->textureScaleUniform.setValue(
+				{ (float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y });
 			glBindVertexArray(texturedStaticWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, texturedStaticWallBuffers.verticesCache.size());
 		}
 
-		glUseProgram(texturedShadersProgram->program);
-		glUniformMatrix4fv(texturedShadersProgram->mvpUniform, 1, GL_FALSE,
-			glm::value_ptr(Globals::Components::mvp.getVP()));
+		glUseProgram_proxy(texturedShadersProgram->program);
+		texturedShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
 
 		for (const auto& [texture, texturedDynamicWallBuffers] : texturesToDynamicWallsBuffers)
 		{
 			const auto& textureComponent = textures[texture];
 			const auto& textureDefComponent = texturesDef[texture];
 
-			glUniform1i(texturedShadersProgram->texture1Uniform, texture);
-			glUniform2f(texturedShadersProgram->textureTranslateUniform,
-				textureDefComponent.translate.x, textureDefComponent.translate.y);
-			glUniform2f(texturedShadersProgram->textureScaleUniform,
-				(float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y);
+			texturedShadersProgram->texture1Uniform.setValue(texture);
+			texturedShadersProgram->textureTranslateUniform.setValue({ textureDefComponent.translate.x, textureDefComponent.translate.y });
+			texturedShadersProgram->textureScaleUniform.setValue(
+				{ (float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y });
 			glBindVertexArray(texturedDynamicWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, texturedDynamicWallBuffers.verticesCache.size());
 		}
 
-		glUseProgram(basicShadersProgram->program);
-		glUniformMatrix4fv(basicShadersProgram->mvpUniform, 1, GL_FALSE,
-			glm::value_ptr(Globals::Components::mvp.getVP()));
+		glUseProgram_proxy(basicShadersProgram->program);
+		basicShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
 
-		glUniform4f(basicShadersProgram->colorUniform, 0.5f, 0.5f, 0.5f, 1.0f);
+		basicShadersProgram->colorUniform.setValue({ 0.5f, 0.5f, 0.5f, 1.0f });
 		glBindVertexArray(staticWallsBuffers->vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, staticWallsBuffers->verticesCache.size());
 
-		glUniform4f(basicShadersProgram->colorUniform, 0.5f, 0.5f, 0.5f, 1.0f);
+		basicShadersProgram->colorUniform.setValue({ 0.5f, 0.5f, 0.5f, 1.0f });
 		glBindVertexArray(dynamicWallsBuffers->vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, dynamicWallsBuffers->verticesCache.size());
 
-		glUniform4f(basicShadersProgram->colorUniform, 0.0f, 0.5f, 0.0f, 1.0f);
+		basicShadersProgram->colorUniform.setValue({ 0.0f, 0.5f, 0.0f, 1.0f });
 		glBindVertexArray(grapplesBuffers->vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, grapplesBuffers->verticesCache.size());
 	}

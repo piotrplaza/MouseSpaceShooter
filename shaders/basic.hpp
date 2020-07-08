@@ -1,6 +1,7 @@
 #pragma once
 
-#include <shaders.hpp>
+#include <ogl/shaders.hpp>
+#include <ogl/uniformControllers.hpp>
 
 namespace Shaders
 {
@@ -8,11 +9,11 @@ namespace Shaders
 	{
 		struct Basic
 		{
-			Basic()
+			Basic():
+				program(Shaders::LinkProgram(Shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"), { {0, "bPos"} })),
+				mvpUniform(program, "mvp"),
+				colorUniform(program, "color")
 			{
-				program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"), { {0, "bPos"} });
-				mvpUniform = glGetUniformLocation(program, "mvp");
-				colorUniform = glGetUniformLocation(program, "color");
 			}
 
 			~Basic()
@@ -21,8 +22,8 @@ namespace Shaders
 			}
 
 			Shaders::ProgramId program;
-			Shaders::UniformId mvpUniform;
-			Shaders::UniformId colorUniform;
+			Uniforms::UniformControllerMat4f mvpUniform;
+			Uniforms::UniformController4f colorUniform;
 		};
 	}
 }

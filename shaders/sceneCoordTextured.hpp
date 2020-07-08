@@ -1,6 +1,7 @@
 #pragma once
 
-#include <shaders.hpp>
+#include <ogl/shaders.hpp>
+#include <ogl/uniformControllers.hpp>
 
 namespace Shaders
 {
@@ -8,15 +9,15 @@ namespace Shaders
 	{
 		struct SceneCoordTextured
 		{
-			SceneCoordTextured()
+			SceneCoordTextured():
+				program(Shaders::LinkProgram(Shaders::CompileShaders("shaders/sceneCoordTextured.vs", "shaders/sceneCoordTextured.fs"), { {0, "bPos"} })),
+				mvpUniform(program, "mvp"),
+				modelUniform(program, "model"),
+				textureTranslateUniform(program, "textureTranslate"),
+				textureScaleUniform(program, "textureScale"),
+				textureCoordBasedOnModelTransformUniform(program, "textureCoordBasedOnModelTransform"),
+				texture1Uniform(program, "texture1")
 			{
-				program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/sceneCoordTextured.vs", "shaders/sceneCoordTextured.fs"), { {0, "bPos"} });
-				mvpUniform = glGetUniformLocation(program, "mvp");
-				modelUniform = glGetUniformLocation(program, "model");
-				textureTranslateUniform = glGetUniformLocation(program, "textureTranslate");
-				textureScaleUniform = glGetUniformLocation(program, "textureScale");
-				textureCoordBasedOnModelTransformUniform = glGetUniformLocation(program, "textureCoordBasedOnModelTransform");
-				texture1Uniform = glGetUniformLocation(program, "texture1");
 			}
 
 			~SceneCoordTextured()
@@ -25,12 +26,12 @@ namespace Shaders
 			}
 
 			Shaders::ProgramId program;
-			Shaders::UniformId mvpUniform;
-			Shaders::UniformId modelUniform;
-			Shaders::UniformId textureTranslateUniform;
-			Shaders::UniformId textureScaleUniform;
-			Shaders::UniformId textureCoordBasedOnModelTransformUniform;
-			Shaders::UniformId texture1Uniform;
+			Uniforms::UniformControllerMat4f mvpUniform;
+			Uniforms::UniformControllerMat4f modelUniform;
+			Uniforms::UniformController2f textureTranslateUniform;
+			Uniforms::UniformController2f textureScaleUniform;
+			Uniforms::UniformController1i textureCoordBasedOnModelTransformUniform;
+			Uniforms::UniformController1i texture1Uniform;
 		};
 	}
 }

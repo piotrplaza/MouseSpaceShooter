@@ -22,7 +22,9 @@
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="shaders.cpp" />
+    <ClCompile Include="ogl\oglProxy.cpp" />
+    <ClCompile Include="ogl\shaders.cpp" />
+    <ClCompile Include="ogl\uniformControllers.cpp" />
     <ClCompile Include="systems\camera.cpp" />
     <ClCompile Include="systems\level.cpp" />
     <ClCompile Include="systems\physics.cpp" />
@@ -46,7 +48,9 @@
     <ClInclude Include="components\textureDef.hpp" />
     <ClInclude Include="components\wall.hpp" />
     <ClInclude Include="globals.hpp" />
-    <ClInclude Include="shaders.hpp" />
+    <ClInclude Include="ogl\oglProxy.hpp" />
+    <ClInclude Include="ogl\shaders.hpp" />
+    <ClInclude Include="ogl\uniformControllers.hpp" />
     <ClInclude Include="shaders\basic.hpp" />
     <ClInclude Include="shaders\colored.hpp" />
     <ClInclude Include="shaders\sceneCoordTextured.hpp" />

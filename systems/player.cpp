@@ -5,7 +5,7 @@
 
 #include <Box2D/Box2D.h>
 
-#include <glm/gtc/type_ptr.hpp>
+#include <ogl/oglProxy.hpp>
 
 #include <tools/b2Helpers.hpp>
 
@@ -120,16 +120,14 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		glUseProgram(basicShadersProgram->program);
-		glUniformMatrix4fv(basicShadersProgram->mvpUniform, 1, GL_FALSE,
-			glm::value_ptr(Globals::Components::mvp.getMVP(player.getModelMatrix())));
-		glUniform4f(basicShadersProgram->colorUniform, 1.0f, 1.0f, 1.0f, 1.0f);
+		glUseProgram_proxy(basicShadersProgram->program);
+		basicShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getMVP(player.getModelMatrix()));
+		basicShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
 		glBindVertexArray(playerBuffers->vertexBuffer);
 		glDrawArrays(GL_TRIANGLES, 0, player.verticesCache.size());
 
-		glUseProgram(coloredShadersProgram->program);
-		glUniformMatrix4fv(coloredShadersProgram->mvpUniform, 1, GL_FALSE,
-			glm::value_ptr(Globals::Components::mvp.getVP()));
+		glUseProgram_proxy(coloredShadersProgram->program);
+		coloredShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
 		glBindVertexArray(connectionsBuffers->vertexArray);
 		glDrawArrays(GL_LINES, 0, connectionsBuffers->verticesCache.size());
 	}

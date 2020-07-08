@@ -1,6 +1,7 @@
 #pragma once
 
-#include <shaders.hpp>
+#include <ogl/shaders.hpp>
+#include <ogl/uniformControllers.hpp>
 
 namespace Shaders
 {
@@ -8,13 +9,13 @@ namespace Shaders
 	{
 		struct Textured
 		{
-			Textured()
+			Textured() :
+				program(Shaders::LinkProgram(Shaders::CompileShaders("shaders/textured.vs", "shaders/textured.fs"), { {0, "bPos"}, {1, "bTexCoord"} })),
+				mvpUniform(program, "mvp"),
+				textureTranslateUniform(program, "textureTranslate"),
+				textureScaleUniform(program, "textureScale"),
+				texture1Uniform(program, "texture1")
 			{
-				program = Shaders::LinkProgram(Shaders::CompileShaders("shaders/textured.vs", "shaders/textured.fs"), { {0, "bPos"}, {1, "bTexCoord"} });
-				mvpUniform = glGetUniformLocation(program, "mvp");
-				textureTranslateUniform = glGetUniformLocation(program, "textureTranslate");
-				textureScaleUniform = glGetUniformLocation(program, "textureScale");
-				texture1Uniform = glGetUniformLocation(program, "texture1");
 			}
 
 			~Textured()
@@ -23,10 +24,10 @@ namespace Shaders
 			}
 
 			Shaders::ProgramId program;
-			Shaders::UniformId mvpUniform;
-			Shaders::UniformId textureTranslateUniform;
-			Shaders::UniformId textureScaleUniform;
-			Shaders::UniformId texture1Uniform;
+			Uniforms::UniformControllerMat4f mvpUniform;
+			Uniforms::UniformController2f textureTranslateUniform;
+			Uniforms::UniformController2f textureScaleUniform;
+			Uniforms::UniformController1i texture1Uniform;
 		};
 	}
 }
