@@ -40,7 +40,7 @@ void OGLInitialize()
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glClearColor(0, 0, 0, 1);
+	glClearColor(0, 0.03f, 0.1f, 1);
 }
 
 void CreateLevel()
@@ -48,8 +48,8 @@ void CreateLevel()
 	using namespace Globals::Components;
 
 	//Textures.
-	const unsigned rocketTexture = texturesDef.size();
-	texturesDef.emplace_back("textures/rocket.png").scale = glm::vec2(0.7f);
+	const unsigned rocketPlaneTexture = texturesDef.size();
+	texturesDef.emplace_back("textures/rocket plane.png").scale = glm::vec2(0.6f);
 	texturesDef.back().translate = glm::vec2(0.35f, 0.5f);
 	const unsigned spaceRockTexture = texturesDef.size();
 	texturesDef.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT).scale = glm::vec2(0.1f);
@@ -60,7 +60,7 @@ void CreateLevel()
 	texturesDef.back().translate = glm::vec2(0.5f);
 
 	//Player configuration.
-	player = Components::Player(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), rocketTexture);
+	player = Components::Player(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), rocketPlaneTexture);
 	player.setPosition({ -10.0f, 0.0f });
 
 	//Static walls.

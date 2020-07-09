@@ -19,9 +19,9 @@ namespace Systems
 		struct TextureCache
 		{
 			std::unique_ptr<unsigned char[]> bytes;
-			int width;
-			int height;
-			int bitDepth;
+			int width = 0;
+			int height = 0;
+			int bitDepth = 0;
 		};
 
 		void loadAndConfigureTexture(const Components::TextureDef& textureDef, Components::Texture& texture);
