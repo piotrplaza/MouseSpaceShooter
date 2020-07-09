@@ -32,16 +32,24 @@ namespace Systems
 		}
 	}
 
-	void Textures::loadAndConfigureTexture(const Components::TextureDef& textureDef, Components::Texture& texture) const
+	void Textures::loadAndConfigureTexture(const Components::TextureDef& textureDef, Components::Texture& texture)
 	{
 		glActiveTexture(texture.textureUnit);
 		glBindTexture(GL_TEXTURE_2D, texture.textureObject);
 
-		if (nullptr == (texture.bytes = stbi_load(textureDef.path.c_str(), &texture.width, &texture.height, &texture.bitDepth, 0)))
+		auto& textureCache = pathsToTextureCaches[textureDef.path];
+		if (!textureCache.bytes)
 		{
-			assert(!"Unable to load image.");
-			throw std::runtime_error("Unable to load image \"" + textureDef.path + "\".");
+			textureCache.bytes.reset(stbi_load(textureDef.path.c_str(), &textureCache.width, &textureCache.height, &textureCache.bitDepth, 0));
+			if (!textureCache.bytes)
+			{
+				assert(!"Unable to load image.");
+				throw std::runtime_error("Unable to load image \"" + textureDef.path + "\".");
+			}
 		}
+		texture.width = textureCache.width;
+		texture.height = textureCache.height;
+		texture.bitDepth = textureCache.bitDepth;
 
 		const GLint format = texture.bitDepth == 4 ? GL_RGBA : texture.bitDepth == 3 ? GL_RGB : texture.bitDepth == 2 ? GL_RG : GL_RED;
 
@@ -52,7 +60,7 @@ namespace Systems
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, textureDef.magFilter);
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, texture.width, texture.height, 0, format, GL_UNSIGNED_BYTE, texture.bytes);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, texture.width, texture.height, 0, format, GL_UNSIGNED_BYTE, textureCache.bytes.get());
 
 		if (textureDef.minFilter == GL_LINEAR_MIPMAP_LINEAR ||
 			textureDef.minFilter == GL_LINEAR_MIPMAP_NEAREST ||

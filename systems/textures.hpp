@@ -1,3 +1,7 @@
+#include <memory>
+#include <string>
+#include <unordered_map>
+
 namespace Components
 {
 	struct TextureDef;
@@ -12,6 +16,16 @@ namespace Systems
 		Textures();
 
 	private:
-		void loadAndConfigureTexture(const Components::TextureDef& textureDef, Components::Texture& texture) const;
+		struct TextureCache
+		{
+			std::unique_ptr<unsigned char[]> bytes;
+			int width;
+			int height;
+			int bitDepth;
+		};
+
+		void loadAndConfigureTexture(const Components::TextureDef& textureDef, Components::Texture& texture);
+
+		std::unordered_map<std::string, TextureCache> pathsToTextureCaches;
 	};
 }
