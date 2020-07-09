@@ -48,9 +48,11 @@ void CreateLevel()
 	using namespace Globals::Components;
 
 	//Textures.
+	const unsigned rocketTexture = texturesDef.size();
+	texturesDef.emplace_back("textures/rocket.png").scale = glm::vec2(0.7f);
+	texturesDef.back().translate = glm::vec2(0.35f, 0.5f);
 	const unsigned spaceRockTexture = texturesDef.size();
-	texturesDef.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT).scale = glm::vec2(0.04f);
-	texturesDef.back().translate = glm::vec2(0.4f);
+	texturesDef.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT).scale = glm::vec2(0.1f);
 	const unsigned woodTexture = texturesDef.size();
 	texturesDef.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT).scale = glm::vec2(0.06f);
 	const unsigned orbTexture = texturesDef.size();
@@ -58,7 +60,7 @@ void CreateLevel()
 	texturesDef.back().translate = glm::vec2(0.5f);
 
 	//Player configuration.
-	player = Components::Player(Tools::CreateBasicPlayerBody());
+	player = Components::Player(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), rocketTexture);
 	player.setPosition({ -10.0f, 0.0f });
 
 	//Static walls.
@@ -80,9 +82,9 @@ void CreateLevel()
 	grapples.emplace_back(Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f, orbTexture);
 
 	//Camera.
-	camera.projectionHSizeF = []() { return 25.0f + glm::length(player.getVelocity()) * 0.1f; };
+	camera.projectionHSizeF = []() { return 15.0f + glm::length(player.getVelocity()) * 0.1f; };
 	camera.projectionTransitionFactor = 0.1f;
-	camera.mainActorPositionF = []() { return player.getPosition() + player.getVelocity() * 0.2f; };
+	camera.mainActorPositionF = []() { return player.getPosition() + player.getVelocity() * 0.3f; };
 	camera.positionTransitionFactor = 0.1f;
 }
 

@@ -10,7 +10,6 @@
 #include <components/mvp.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
-#include <components/connection.hpp>
 #include <components/texture.hpp>
 #include <components/textureDef.hpp>
 

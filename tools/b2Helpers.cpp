@@ -16,7 +16,7 @@ void b2JointDeleter::operator()(b2Joint* joint) const
 
 namespace Tools
 {
-	std::unique_ptr<b2Body, b2BodyDeleter> CreateBasicPlayerBody()
+	std::unique_ptr<b2Body, b2BodyDeleter> CreateTrianglePlayerBody(float size, float density, float spreadFactor)
 	{
 		using namespace Globals::Components;
 		using namespace Globals::Constants;
@@ -28,16 +28,15 @@ namespace Tools
 		std::unique_ptr<b2Body, b2BodyDeleter> playerBody(physics.world.CreateBody(&bodyDef));
 
 		b2FixtureDef fixtureDef;
-		const float playerSize = 1.0f;
 		const b2Vec2 playerTriangle[3] = {
-			{ playerSize, 0 },
-			{ -playerSize / 2.0f, playerSize / 2.0f },
-			{ -playerSize / 2.0f, -playerSize / 2.0f }
+			{ size, 0 },
+			{ -size * spreadFactor, size * spreadFactor },
+			{ -size * spreadFactor, -size * spreadFactor }
 		};
 		b2PolygonShape polygonShape;
 		polygonShape.Set(playerTriangle, 3);
 		fixtureDef.shape = &polygonShape;
-		fixtureDef.density = 1.0f;
+		fixtureDef.density = density;
 		fixtureDef.restitution = 0.1f;
 		playerBody->CreateFixture(&fixtureDef);
 

@@ -27,7 +27,7 @@ inline b2Vec2 operator *(const b2Vec2 v, const float s)
 
 namespace Tools
 {
-	std::unique_ptr<b2Body, b2BodyDeleter> CreateBasicPlayerBody();
+	std::unique_ptr<b2Body, b2BodyDeleter> CreateTrianglePlayerBody(float size, float density, float spreadFactor = 0.5f);
 	std::unique_ptr<b2Body, b2BodyDeleter> CreateBoxBody(glm::vec2 position, glm::vec2 hSize, float angle = 0.0f,
 		b2BodyType bodyType = b2_staticBody, float density = 1.0f);
 	std::unique_ptr<b2Body, b2BodyDeleter> CreateCircleBody(glm::vec2 position, float radius,

@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <optional>
 
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
@@ -17,14 +18,16 @@ namespace Components
 		{
 		}
 
-		Player(std::unique_ptr<b2Body, b2BodyDeleter> body):
-			body(std::move(body))
+		Player(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt):
+			body(std::move(body)),
+			texture(texture)
 		{
 		}
 
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
+		std::optional<unsigned> texture;
+
 		std::unique_ptr<b2Joint, b2JointDeleter> grappleJoint;
-		
 		int connectedGrappleId = -1;
 		int weakConnectedGrappleId = -1;
 		

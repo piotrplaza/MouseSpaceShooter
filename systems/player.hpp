@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -9,6 +10,7 @@
 
 #include <ogl/shaders.hpp>
 #include <shaders/basic.hpp>
+#include <shaders/sceneCoordTextured.hpp>
 #include <shaders/colored.hpp>
 
 namespace Systems
@@ -20,7 +22,6 @@ namespace Systems
 
 		void step();
 		void render() const;
-		void updateStaticPlayerGraphics() const;
 
 	private:
 		struct PlayerBuffers
@@ -56,12 +57,20 @@ namespace Systems
 		void magneticHook(bool active) const;
 		void createGrappleJoint() const;
 
+		void updatePlayerGraphics();
 		void updateConnectionsGraphics();
 
+		void basicRender() const;
+		void coloredRender() const;
+		void sceneCoordTexturedRender() const;
+
 		std::unique_ptr<Shaders::Programs::Basic> basicShadersProgram;
+		std::unique_ptr<Shaders::Programs::SceneCoordTextured> sceneCoordTexturedShadersProgram;
 		std::unique_ptr<Shaders::Programs::Colored> coloredShadersProgram;
 
-		std::unique_ptr<PlayerBuffers> playerBuffers;
+		std::unique_ptr<PlayerBuffers> simplePlayersBuffers;
+		std::unordered_map<unsigned, PlayerBuffers> texturesToPlayersBuffers;
+
 		std::unique_ptr<ConnectionsBuffers> connectionsBuffers;
 
 		bool firstStep = true;

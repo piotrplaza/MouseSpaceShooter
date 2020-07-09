@@ -17,6 +17,8 @@
 #include <components/mouseState.hpp>
 #include <components/grapple.hpp>
 #include <components/connection.hpp>
+#include <components/texture.hpp>
+#include <components/textureDef.hpp>
 
 namespace Systems
 {
@@ -30,31 +32,83 @@ namespace Systems
 		using namespace Globals::Components;
 
 		basicShadersProgram = std::make_unique<Shaders::Programs::Basic>();
+		sceneCoordTexturedShadersProgram = std::make_unique<Shaders::Programs::SceneCoordTextured>();
 		coloredShadersProgram = std::make_unique<Shaders::Programs::Colored>();
 
-		playerBuffers = std::make_unique<PlayerBuffers>();
+		simplePlayersBuffers = std::make_unique<PlayerBuffers>();
 		connectionsBuffers = std::make_unique<ConnectionsBuffers>();
 		
-		updateStaticPlayerGraphics();
+		updatePlayerGraphics();
 	}
 
-	void Player::updateStaticPlayerGraphics() const
+	void Player::updatePlayerGraphics()
 	{
 		using namespace Globals::Components;
 
-		playerBuffers->verticesCache.clear();
+		/*simplePlayersBuffers->verticesCache.clear();
 		const auto verticesCache = player.generateVerticesCache();
-		playerBuffers->verticesCache.insert(playerBuffers->verticesCache.end(), verticesCache.begin(), verticesCache.end());
+		simplePlayersBuffers->verticesCache.insert(simplePlayersBuffers->verticesCache.end(), verticesCache.begin(), verticesCache.end());
 
-		glBindBuffer(GL_ARRAY_BUFFER, playerBuffers->vertexBuffer);
-		if (playerBuffers->vertexBufferAllocation < playerBuffers->verticesCache.size())
+		glBindBuffer(GL_ARRAY_BUFFER, simplePlayersBuffers->vertexBuffer);
+		if (simplePlayersBuffers->vertexBufferAllocation < simplePlayersBuffers->verticesCache.size())
 		{
-			glBufferData(GL_ARRAY_BUFFER, playerBuffers->verticesCache.size() * sizeof(playerBuffers->verticesCache.front()), playerBuffers->verticesCache.data(), GL_STATIC_DRAW);
-			playerBuffers->vertexBufferAllocation = playerBuffers->verticesCache.size();
+			glBufferData(GL_ARRAY_BUFFER, simplePlayersBuffers->verticesCache.size() * sizeof(simplePlayersBuffers->verticesCache.front()),
+				simplePlayersBuffers->verticesCache.data(), GL_STATIC_DRAW);
+			simplePlayersBuffers->vertexBufferAllocation = simplePlayersBuffers->verticesCache.size();
 		}
 		else
 		{
-			glBufferSubData(GL_ARRAY_BUFFER, 0, playerBuffers->verticesCache.size() * sizeof(playerBuffers->verticesCache.front()), playerBuffers->verticesCache.data());
+			glBufferSubData(GL_ARRAY_BUFFER, 0, simplePlayersBuffers->verticesCache.size() * sizeof(simplePlayersBuffers->verticesCache.front()),
+				simplePlayersBuffers->verticesCache.data());
+		}*/
+
+		simplePlayersBuffers->verticesCache.clear();
+		for (auto& [texture, playerBuffers] : texturesToPlayersBuffers)
+		{
+			playerBuffers.verticesCache.clear();
+		}
+
+		//for (auto& player : players )
+		{
+			const auto verticesCache = player.generateVerticesCache();
+			if (player.texture)
+			{
+				auto& texturedPlayerBuffers = texturesToPlayersBuffers[*player.texture];
+				texturedPlayerBuffers.verticesCache.insert(texturedPlayerBuffers.verticesCache.end(), verticesCache.begin(), verticesCache.end());
+			}
+			else
+			{
+				simplePlayersBuffers->verticesCache.insert(simplePlayersBuffers->verticesCache.end(), verticesCache.begin(), verticesCache.end());
+			}
+		}
+
+		glBindBuffer(GL_ARRAY_BUFFER, simplePlayersBuffers->vertexBuffer);
+		if (simplePlayersBuffers->vertexBufferAllocation < simplePlayersBuffers->verticesCache.size())
+		{
+			glBufferData(GL_ARRAY_BUFFER, simplePlayersBuffers->verticesCache.size() * sizeof(simplePlayersBuffers->verticesCache.front()),
+				simplePlayersBuffers->verticesCache.data(), GL_STATIC_DRAW);
+			simplePlayersBuffers->vertexBufferAllocation = simplePlayersBuffers->verticesCache.size();
+		}
+		else
+		{
+			glBufferSubData(GL_ARRAY_BUFFER, 0, simplePlayersBuffers->verticesCache.size() * sizeof(simplePlayersBuffers->verticesCache.front()),
+				simplePlayersBuffers->verticesCache.data());
+		}
+
+		for (auto& [texture, texturedPlayerBuffers] : texturesToPlayersBuffers)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, texturedPlayerBuffers.vertexBuffer);
+			if (texturedPlayerBuffers.vertexBufferAllocation < texturedPlayerBuffers.verticesCache.size())
+			{
+				glBufferData(GL_ARRAY_BUFFER, texturedPlayerBuffers.verticesCache.size() * sizeof(texturedPlayerBuffers.verticesCache.front()),
+					texturedPlayerBuffers.verticesCache.data(), GL_STATIC_DRAW);
+				texturedPlayerBuffers.vertexBufferAllocation = texturedPlayerBuffers.verticesCache.size();
+			}
+			else
+			{
+				glBufferSubData(GL_ARRAY_BUFFER, 0, texturedPlayerBuffers.verticesCache.size() * sizeof(texturedPlayerBuffers.verticesCache.front()),
+					texturedPlayerBuffers.verticesCache.data());
+			}
 		}
 	}
 
@@ -118,16 +172,49 @@ namespace Systems
 
 	void Player::render() const
 	{
+		basicRender();
+		sceneCoordTexturedRender();
+		coloredRender();
+	}
+
+	void Player::basicRender() const
+	{
 		using namespace Globals::Components;
 
 		glUseProgram_proxy(basicShadersProgram->program);
-		basicShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getMVP(player.getModelMatrix()));
+		basicShadersProgram->mvpUniform.setValue(mvp.getMVP(player.getModelMatrix()));
 		basicShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
-		glBindVertexArray(playerBuffers->vertexBuffer);
-		glDrawArrays(GL_TRIANGLES, 0, playerBuffers->verticesCache.size());
+		glBindVertexArray(simplePlayersBuffers->vertexBuffer);
+		glDrawArrays(GL_TRIANGLES, 0, simplePlayersBuffers->verticesCache.size());
+	}
+
+	void Player::sceneCoordTexturedRender() const
+	{
+		using namespace Globals::Components;
+
+		glUseProgram_proxy(sceneCoordTexturedShadersProgram->program);
+		sceneCoordTexturedShadersProgram->mvpUniform.setValue(mvp.getMVP(player.getModelMatrix()));
+
+		for (const auto& [texture, texturedPlayerBuffers] : texturesToPlayersBuffers)
+		{
+			const auto& textureComponent = textures[texture];
+			const auto& textureDefComponent = texturesDef[texture];
+
+			sceneCoordTexturedShadersProgram->texture1Uniform.setValue(texture);
+			sceneCoordTexturedShadersProgram->textureTranslateUniform.setValue(textureDefComponent.translate);
+			sceneCoordTexturedShadersProgram->textureScaleUniform.setValue(
+				{ (float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y });
+			glBindVertexArray(texturedPlayerBuffers.vertexArray);
+			glDrawArrays(GL_TRIANGLES, 0, texturedPlayerBuffers.verticesCache.size());
+		}
+	}
+
+	void Player::coloredRender() const
+	{
+		using namespace Globals::Components;
 
 		glUseProgram_proxy(coloredShadersProgram->program);
-		coloredShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
+		coloredShadersProgram->mvpUniform.setValue(mvp.getVP());
 		glBindVertexArray(connectionsBuffers->vertexArray);
 		glDrawArrays(GL_LINES, 0, connectionsBuffers->verticesCache.size());
 	}
