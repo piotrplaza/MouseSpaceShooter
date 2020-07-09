@@ -58,11 +58,11 @@ namespace Systems
 
 		for (auto& dynamicWall : dynamicWalls)
 		{
-			dynamicWall.updateVerticesCache(false);
+			const auto verticesCache = dynamicWall.generateVerticesCache(false);
 			if (dynamicWall.texture)
 			{
 				auto& texturedDynamicWallBuffers = texturesToDynamicWallsBuffers.emplace(*dynamicWall.texture, true).first->second;
-				for (const auto& vertex : dynamicWall.verticesCache)
+				for (const auto& vertex : verticesCache)
 				{
 					texturedDynamicWallBuffers.texCoordCache.emplace_back(vertex);
 				}
@@ -74,11 +74,11 @@ namespace Systems
 
 		for (auto& grapple : grapples)
 		{
-			grapple.updateVerticesCache(false);
+			const auto verticesCache = grapple.generateVerticesCache(false);
 			if (grapple.texture)
 			{
 				auto& texturedGrappleBuffers = texturesToGrapplesBuffers.emplace(*grapple.texture, true).first->second;
-				for (const auto& vertex : grapple.verticesCache)
+				for (const auto& vertex : verticesCache)
 				{
 					texturedGrappleBuffers.texCoordCache.emplace_back(vertex);
 				}
@@ -100,15 +100,15 @@ namespace Systems
 
 		for (auto& wall : walls)
 		{
-			wall.updateVerticesCache();
+			const auto verticesCache = wall.generateVerticesCache();
 			if (wall.texture)
 			{
 				auto& texturedWallBuffers = texturesToWallsBuffers[*wall.texture];
-				texturedWallBuffers.verticesCache.insert(texturedWallBuffers.verticesCache.end(), wall.verticesCache.begin(), wall.verticesCache.end());
+				texturedWallBuffers.verticesCache.insert(texturedWallBuffers.verticesCache.end(), verticesCache.begin(), verticesCache.end());
 			}
 			else
 			{
-				simpleWallsBuffers.verticesCache.insert(simpleWallsBuffers.verticesCache.end(), wall.verticesCache.begin(), wall.verticesCache.end());
+				simpleWallsBuffers.verticesCache.insert(simpleWallsBuffers.verticesCache.end(), verticesCache.begin(), verticesCache.end());
 			}
 		}
 
@@ -154,16 +154,16 @@ namespace Systems
 
 		for (auto& grapple : grapples)
 		{
-			grapple.updateVerticesCache();
+			const auto verticesCache = grapple.generateVerticesCache();
 			if (grapple.texture)
 			{
 				auto& texturedGrappleBuffers = texturesToGrapplesBuffers[*grapple.texture];
 				assert(texturedGrappleBuffers.texCoordBuffer);
-				texturedGrappleBuffers.verticesCache.insert(texturedGrappleBuffers.verticesCache.end(), grapple.verticesCache.begin(), grapple.verticesCache.end());
+				texturedGrappleBuffers.verticesCache.insert(texturedGrappleBuffers.verticesCache.end(), verticesCache.begin(), verticesCache.end());
 			}
 			else
 			{
-				simpleGrapplesBuffers->verticesCache.insert(simpleGrapplesBuffers->verticesCache.end(), grapple.verticesCache.begin(), grapple.verticesCache.end());
+				simpleGrapplesBuffers->verticesCache.insert(simpleGrapplesBuffers->verticesCache.end(), verticesCache.begin(), verticesCache.end());
 			}
 		}
 

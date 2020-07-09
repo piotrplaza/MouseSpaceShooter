@@ -43,8 +43,8 @@ namespace Systems
 		using namespace Globals::Components;
 
 		playerBuffers->verticesCache.clear();
-		player.updateVerticesCache();
-		playerBuffers->verticesCache.insert(playerBuffers->verticesCache.end(), player.verticesCache.begin(), player.verticesCache.end());
+		const auto verticesCache = player.generateVerticesCache();
+		playerBuffers->verticesCache.insert(playerBuffers->verticesCache.end(), verticesCache.begin(), verticesCache.end());
 
 		glBindBuffer(GL_ARRAY_BUFFER, playerBuffers->vertexBuffer);
 		if (playerBuffers->vertexBufferAllocation < playerBuffers->verticesCache.size())
@@ -66,11 +66,11 @@ namespace Systems
 		connectionsBuffers->colorsCache.clear();
 		for (auto& connection : connections)
 		{
-			connection.updateVerticesCache();
-			connectionsBuffers->verticesCache.insert(connectionsBuffers->verticesCache.end(), connection.verticesCache.begin(), connection.verticesCache.end());
+			const auto verticesCache = connection.generateVerticesCache();
+			connectionsBuffers->verticesCache.insert(connectionsBuffers->verticesCache.end(), verticesCache.begin(), verticesCache.end());
 
-			connection.updateColorsCache();
-			connectionsBuffers->colorsCache.insert(connectionsBuffers->colorsCache.end(), connection.colorsCache.begin(), connection.colorsCache.end());
+			const auto colorsCache = connection.generateColorsCache();
+			connectionsBuffers->colorsCache.insert(connectionsBuffers->colorsCache.end(), colorsCache.begin(), colorsCache.end());
 		}
 
 		if (connectionsBuffers->vertexBufferAllocation < connectionsBuffers->verticesCache.size())
@@ -103,7 +103,7 @@ namespace Systems
 
 		if (firstStep)
 		{
-			player.previousPosition = player.getPosition();
+			playerPreviousPosition = player.getPosition();
 			firstStep = false;
 		}
 
@@ -113,7 +113,7 @@ namespace Systems
 
 		updateConnectionsGraphics();
 
-		player.previousPosition = player.getPosition();
+		playerPreviousPosition = player.getPosition();
 	}
 
 	void Player::render() const
@@ -124,7 +124,7 @@ namespace Systems
 		basicShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getMVP(player.getModelMatrix()));
 		basicShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
 		glBindVertexArray(playerBuffers->vertexBuffer);
-		glDrawArrays(GL_TRIANGLES, 0, player.verticesCache.size());
+		glDrawArrays(GL_TRIANGLES, 0, playerBuffers->verticesCache.size());
 
 		glUseProgram_proxy(coloredShadersProgram->program);
 		coloredShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
@@ -148,7 +148,7 @@ namespace Systems
 
 		if (player.grappleJoint)
 		{
-			const glm::vec2 stepVelocity = player.getPosition() - player.previousPosition;
+			const glm::vec2 stepVelocity = player.getPosition() - playerPreviousPosition;
 			const float stepVelocityLength = glm::length(stepVelocity);
 
 			if (stepVelocityLength > 0.0f)
@@ -218,7 +218,7 @@ namespace Systems
 			{
 				if (active && !player.grappleJoint &&
 					glm::distance(player.getPosition(), grapple.getPosition()) >=
-					glm::distance(player.previousPosition, grapple.getPosition()))
+					glm::distance(playerPreviousPosition, grapple.getPosition()))
 				{
 					player.connectedGrappleId = *it;
 					player.weakConnectedGrappleId = -1;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <array>
+#include <vector>
 
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
@@ -24,11 +24,9 @@ namespace Components
 
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
 		std::unique_ptr<b2Joint, b2JointDeleter> grappleJoint;
-		std::array<glm::vec3, 3> verticesCache{};
+		
 		int connectedGrappleId = -1;
 		int weakConnectedGrappleId = -1;
-
-		glm::vec2 previousPosition{0.0f, 0.0f};
 		
 		void setPosition(const glm::vec2& position)
 		{
@@ -63,20 +61,22 @@ namespace Components
 				transform.q.GetAngle(), {0.0f, 0.0f, 1.0f});
 		}
 
-		void updateVerticesCache()
+		std::vector<glm::vec3> generateVerticesCache() const
 		{
+			std::vector<glm::vec3> verticesCache;
+
 			const auto& fixture = *body->GetFixtureList();
 			assert(!fixture.GetNext());
 			assert(fixture.GetType() == b2Shape::e_polygon);
-
 			const auto& polygonShape = static_cast<const b2PolygonShape&>(*fixture.GetShape());
-			assert(polygonShape.m_count == 3);
-
+			verticesCache.reserve(polygonShape.m_count);
 			for (int i = 0; i < polygonShape.m_count; ++i)
 			{
 				const auto& b2v = polygonShape.m_vertices[i];
-				verticesCache[i] = { b2v.x, b2v.y, 0.0f };
+				verticesCache.emplace_back(b2v.x, b2v.y, 0.0f);
 			}
+
+			return verticesCache;
 		}
 	};
 }

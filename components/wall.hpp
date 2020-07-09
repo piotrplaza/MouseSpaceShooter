@@ -24,11 +24,12 @@ namespace Components
 
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
 		std::optional<unsigned> texture;
-		std::vector<glm::vec3> verticesCache;
 
-		void updateVerticesCache(bool transform = true)
+		std::vector<glm::vec3> generateVerticesCache(bool transform = true)
 		{
 			using namespace Globals::Constants;
+
+			std::vector<glm::vec3> verticesCache;
 
 			const auto& bodyTransform = body->GetTransform();
 			const auto modelMatrix = transform
@@ -61,6 +62,8 @@ namespace Components
 			default:
 				assert(!"unsupported shape type");
 			}
+
+			return verticesCache;
 		}
 	};
 }

@@ -22,11 +22,10 @@ namespace Components
 		int segmentsNum;
 		float frayFactor;
 
-		std::vector<glm::vec3> verticesCache;
-		std::vector<glm::vec4> colorsCache;
-
-		void updateVerticesCache()
+		std::vector<glm::vec3> generateVerticesCache() const
 		{
+			std::vector<glm::vec3> verticesCache;
+
 			if (segmentsNum == 1)
 			{
 				verticesCache.clear();
@@ -38,13 +37,19 @@ namespace Components
 			{
 				verticesCache = Tools::CreateLightningVertices(p1, p2, segmentsNum, frayFactor);
 			}
+
+			return verticesCache;
 		}
 
-		void updateColorsCache()
+		std::vector<glm::vec4> generateColorsCache() const
 		{
+			std::vector<glm::vec4> colorsCache;
+
 			colorsCache.clear();
 			colorsCache.reserve(segmentsNum * 2);
 			for (int i = 0; i < segmentsNum * 2; ++i) colorsCache.push_back(color);
+
+			return colorsCache;
 		}
 	};
 }
