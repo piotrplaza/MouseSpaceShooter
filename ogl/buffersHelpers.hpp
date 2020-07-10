@@ -6,55 +6,55 @@
 namespace Tools
 {
 	template <typename Component, typename Buffers>
-	void UpdateSimpleAndTexturesBuffers(std::vector<Component>& components, Buffers& simpleBuffers,
+	void UpdateSimpleAndTexturesPositionsBuffers(const std::vector<Component>& components, Buffers& simpleBuffers,
 		std::unordered_map<unsigned, Buffers>& texturesToBuffers, GLenum bufferDataUsage)
 	{
-		simpleBuffers.verticesCache.clear();
+		simpleBuffers.positionsCache.clear();
 		for (auto& [texture, buffers] : texturesToBuffers)
 		{
-			buffers.verticesCache.clear();
+			buffers.positionsCache.clear();
 		}
 
 		for (auto& component : components)
 		{
-			const auto verticesCache = component.generateVerticesCache();
+			const auto positionsCache = component.generatePositionsCache();
 			if (component.texture)
 			{
 				auto& texturedBuffers = texturesToBuffers[*component.texture];
-				texturedBuffers.verticesCache.insert(texturedBuffers.verticesCache.end(), verticesCache.begin(), verticesCache.end());
+				texturedBuffers.positionsCache.insert(texturedBuffers.positionsCache.end(), positionsCache.begin(), positionsCache.end());
 			}
 			else
 			{
-				simpleBuffers.verticesCache.insert(simpleBuffers.verticesCache.end(), verticesCache.begin(), verticesCache.end());
+				simpleBuffers.positionsCache.insert(simpleBuffers.positionsCache.end(), positionsCache.begin(), positionsCache.end());
 			}
 		}
 
-		glBindBuffer(GL_ARRAY_BUFFER, simpleBuffers.vertexBuffer);
-		if (simpleBuffers.vertexBufferAllocation < simpleBuffers.verticesCache.size())
+		glBindBuffer(GL_ARRAY_BUFFER, simpleBuffers.positionBuffer);
+		if (simpleBuffers.numOfAllocatedVertices < simpleBuffers.positionsCache.size())
 		{
-			glBufferData(GL_ARRAY_BUFFER, simpleBuffers.verticesCache.size() * sizeof(simpleBuffers.verticesCache.front()),
-				simpleBuffers.verticesCache.data(), bufferDataUsage);
-			simpleBuffers.vertexBufferAllocation = simpleBuffers.verticesCache.size();
+			glBufferData(GL_ARRAY_BUFFER, simpleBuffers.positionsCache.size() * sizeof(simpleBuffers.positionsCache.front()),
+				simpleBuffers.positionsCache.data(), bufferDataUsage);
+			simpleBuffers.numOfAllocatedVertices = simpleBuffers.positionsCache.size();
 		}
 		else
 		{
-			glBufferSubData(GL_ARRAY_BUFFER, 0, simpleBuffers.verticesCache.size() * sizeof(simpleBuffers.verticesCache.front()),
-				simpleBuffers.verticesCache.data());
+			glBufferSubData(GL_ARRAY_BUFFER, 0, simpleBuffers.positionsCache.size() * sizeof(simpleBuffers.positionsCache.front()),
+				simpleBuffers.positionsCache.data());
 		}
 
 		for (auto& [texture, texturedBuffers] : texturesToBuffers)
 		{
-			glBindBuffer(GL_ARRAY_BUFFER, texturedBuffers.vertexBuffer);
-			if (texturedBuffers.vertexBufferAllocation < texturedBuffers.verticesCache.size())
+			glBindBuffer(GL_ARRAY_BUFFER, texturedBuffers.positionBuffer);
+			if (texturedBuffers.numOfAllocatedVertices < texturedBuffers.positionsCache.size())
 			{
-				glBufferData(GL_ARRAY_BUFFER, texturedBuffers.verticesCache.size() * sizeof(texturedBuffers.verticesCache.front()),
-					texturedBuffers.verticesCache.data(), bufferDataUsage);
-				texturedBuffers.vertexBufferAllocation = texturedBuffers.verticesCache.size();
+				glBufferData(GL_ARRAY_BUFFER, texturedBuffers.positionsCache.size() * sizeof(texturedBuffers.positionsCache.front()),
+					texturedBuffers.positionsCache.data(), bufferDataUsage);
+				texturedBuffers.numOfAllocatedVertices = texturedBuffers.positionsCache.size();
 			}
 			else
 			{
-				glBufferSubData(GL_ARRAY_BUFFER, 0, texturedBuffers.verticesCache.size() * sizeof(texturedBuffers.verticesCache.front()),
-					texturedBuffers.verticesCache.data());
+				glBufferSubData(GL_ARRAY_BUFFER, 0, texturedBuffers.positionsCache.size() * sizeof(texturedBuffers.positionsCache.front()),
+					texturedBuffers.positionsCache.data());
 			}
 		}
 	}

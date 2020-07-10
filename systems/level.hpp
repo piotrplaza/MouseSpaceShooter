@@ -36,12 +36,12 @@ namespace Systems
 			~WallsBuffers();
 
 			GLuint vertexArray;
-			GLuint vertexBuffer;
+			GLuint positionBuffer;
 			std::optional<GLuint> texCoordBuffer;
 
-			std::vector<glm::vec3> verticesCache;
+			std::vector<glm::vec3> positionsCache;
 			std::vector<glm::vec2> texCoordCache;
-			size_t vertexBufferAllocation = 0;
+			size_t numOfAllocatedVertices = 0;
 		};
 
 		struct GrapplesBuffers
@@ -50,20 +50,20 @@ namespace Systems
 			~GrapplesBuffers();
 
 			GLuint vertexArray;
-			GLuint vertexBuffer;
+			GLuint positionBuffer;
 			std::optional<GLuint> texCoordBuffer;
 
-			std::vector<glm::vec3> verticesCache;
+			std::vector<glm::vec3> positionsCache;
 			std::vector<glm::vec2> texCoordCache;
-			size_t vertexBufferAllocation = 0;
+			size_t numOfAllocatedVertices = 0;
 		};
 
 		void initGraphics();
 
-		void updateStaticWallsGraphics();
-		void updateDynamicWallsGraphics();
-		void updateTexCoords();
-		void updateGrapplesGraphics();
+		void updateTexCoordsBuffers();
+		void updateStaticWallsPositionsBuffers();
+		void updateDynamicWallsPositionsBuffers();
+		void updateGrapplesPositionsBuffers();
 
 		void sceneCoordTexturedRender() const;
 		void texturedRender() const;

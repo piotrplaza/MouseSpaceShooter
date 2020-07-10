@@ -37,7 +37,7 @@ namespace Systems
 		glActiveTexture(texture.textureUnit);
 		glBindTexture(GL_TEXTURE_2D, texture.textureObject);
 
-		auto& textureCache = pathsToTextureCaches[textureDef.path];
+		auto& textureCache = pathsToTexturesCache[textureDef.path];
 		if (!textureCache.bytes)
 		{
 			textureCache.bytes.reset(stbi_load(textureDef.path.c_str(), &textureCache.width, &textureCache.height, &textureCache.bitDepth, 0));

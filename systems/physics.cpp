@@ -6,15 +6,33 @@
 
 namespace Systems
 {
-	Physics::Physics()
+	Physics::Physics() = default;
+
+	void Physics::step()
 	{
 		using namespace Globals::Components;
-	}
+		using namespace Globals::Constants;
 
-	void Physics::step() const
-	{
-		using namespace Globals::Components;
+		if (firstStep)
+		{
+#ifndef _DEBUG 
+			start = std::chrono::high_resolution_clock::now();
+#endif
 
-		physics.world.Step(1.0f / 60, 3, 8);
+			firstStep = false;
+		}
+
+#ifndef _DEBUG 
+		const auto simulationTime = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
+		physics.frameTime = simulationTime - physics.simulationTime;
+		physics.simulationTime = simulationTime;
+		physics.targetFrameTimeFactor = physics.frameTime / targetFrameTime;
+#else
+		physics.frameTime = targetFrameTime;
+		physics.simulationTime += targetFrameTime;
+		physics.targetFrameTimeFactor = 1.0f;
+#endif
+
+		physics.world.Step(physics.frameTime, 3, 8);
 	}
 }

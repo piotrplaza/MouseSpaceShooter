@@ -3,12 +3,16 @@
 #include <memory>
 #include <vector>
 #include <optional>
+#include <functional>
 
 #include <glm/gtx/transform.hpp>
 
 #include <Box2D/Box2D.h>
 
+#include <ogl/shaders.hpp>
+
 #include <globals.hpp>
+
 #include <tools/b2Helpers.hpp>
 #include <tools/graphicsHelpers.hpp>
 
@@ -16,20 +20,23 @@ namespace Components
 {
 	struct Wall
 	{
-		Wall(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt):
+		Wall(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt,
+			std::function<void(Shaders::ProgramId)> setup = nullptr):
 			body(std::move(body)),
-			texture(texture)
+			texture(texture),
+			setup(setup)
 		{
 		}
 
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
 		std::optional<unsigned> texture;
+		std::function<void(Shaders::ProgramId)> setup;
 
-		std::vector<glm::vec3> generateVerticesCache(bool transform = true)
+		std::vector<glm::vec3> generatePositionsCache(bool transform = true) const
 		{
 			using namespace Globals::Constants;
 
-			std::vector<glm::vec3> verticesCache;
+			std::vector<glm::vec3> positionsCache;
 
 			const auto& bodyTransform = body->GetTransform();
 			const auto modelMatrix = transform
@@ -45,25 +52,25 @@ namespace Components
 			case b2Shape::e_polygon:
 			{
 				const auto& polygonShape = static_cast<const b2PolygonShape&>(*fixture.GetShape());
-				verticesCache.clear();
+				positionsCache.clear();
 				assert(polygonShape.m_count == 4); //Temporary. TODO: Add triangulation.
-				verticesCache.reserve(6);
+				positionsCache.reserve(6);
 				for (int i = 0; i < 6; ++i)
 				{
 					const auto& b2v = polygonShape.m_vertices[i < 3 ? i : (i - 1) % 4];
-					verticesCache.push_back(modelMatrix * glm::vec4(b2v.x, b2v.y, 0.0f, 1.0f));
+					positionsCache.push_back(modelMatrix * glm::vec4(b2v.x, b2v.y, 0.0f, 1.0f));
 				}
 			} break;
 			case b2Shape::e_circle:
 			{
 				const auto& circleShape = static_cast<const b2CircleShape&>(*fixture.GetShape());
-				verticesCache = Tools::CreateCircleVertices(ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity, modelMatrix);
+				positionsCache = Tools::CreateCirclePositions(ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity, modelMatrix);
 			} break;
 			default:
 				assert(!"unsupported shape type");
 			}
 
-			return verticesCache;
+			return positionsCache;
 		}
 	};
 }

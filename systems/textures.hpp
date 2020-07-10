@@ -26,6 +26,6 @@ namespace Systems
 
 		void loadAndConfigureTexture(const Components::TextureDef& textureDef, Components::Texture& texture);
 
-		std::unordered_map<std::string, TextureCache> pathsToTextureCaches;
+		std::unordered_map<std::string, TextureCache> pathsToTexturesCache;
 	};
 }

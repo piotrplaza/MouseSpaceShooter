@@ -35,10 +35,10 @@ namespace Systems
 			~PlayersBuffers();
 
 			GLuint vertexArray;
-			GLuint vertexBuffer;
+			GLuint positionBuffer;
 
-			std::vector<glm::vec3> verticesCache;
-			size_t vertexBufferAllocation = 0;
+			std::vector<glm::vec3> positionsCache;
+			size_t numOfAllocatedVertices = 0;
 		};
 
 		struct ConnectionsBuffers
@@ -47,12 +47,12 @@ namespace Systems
 			~ConnectionsBuffers();
 
 			GLuint vertexArray;
-			GLuint vertexBuffer;
+			GLuint positionBuffer;
 			GLuint colorBuffer;
 
-			std::vector<glm::vec3> verticesCache;
+			std::vector<glm::vec3> positionsCache;
 			std::vector<glm::vec4> colorsCache;
-			size_t vertexBufferAllocation = 0;
+			size_t numOfAllocatedVertices = 0;
 		};
 
 		void initGraphics();
@@ -62,8 +62,8 @@ namespace Systems
 		void magneticHook(bool active) const;
 		void createGrappleJoint() const;
 
-		void updatePlayersGraphics();
-		void updateConnectionsGraphics();
+		void updatePlayersPositionsBuffers();
+		void updateConnectionsGraphicsBuffers();
 
 		void basicRender() const;
 		void coloredRender() const;

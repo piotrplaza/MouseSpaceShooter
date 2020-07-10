@@ -1,5 +1,7 @@
 #include "camera.hpp"
 
+#include <algorithm>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <globals.hpp>
@@ -32,8 +34,10 @@ namespace Systems
 			firstStep = false;
 		}
 
-		const float projectionHSize = prevProjectionHSize + (targetProjectionHSize - prevProjectionHSize) * camera.projectionTransitionFactor;
-		const glm::vec2 mainActorPosition = prevMainActorPosition + (targetMainActorPosition - prevMainActorPosition) * camera.positionTransitionFactor;
+		const float projectionHSize = prevProjectionHSize + (targetProjectionHSize - prevProjectionHSize)
+			* std::clamp(camera.projectionTransitionFactor, 0.0f, 1.0f);
+		const glm::vec2 mainActorPosition = prevMainActorPosition + (targetMainActorPosition - prevMainActorPosition)
+			* std::clamp(camera.positionTransitionFactor, 0.0f, 1.0f);
 
 		prevProjectionHSize = projectionHSize;
 		prevMainActorPosition = mainActorPosition;

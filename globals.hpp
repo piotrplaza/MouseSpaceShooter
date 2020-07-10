@@ -64,6 +64,7 @@ namespace Globals
 		constexpr float playerAutoRotationFactor = 0.5f;
 
 		constexpr float mouseSensitivity = 0.01f;
+		constexpr float targetFrameTime = 1.0f / 60;
 		constexpr int circleGraphicsComplexity = 20;
 		constexpr int maxTextureObjects = 100;
 

@@ -3,10 +3,13 @@
 #include <memory>
 #include <vector>
 #include <optional>
+#include <functional>
 
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include <ogl/shaders.hpp>
 
 #include <tools/b2Helpers.hpp>
 
@@ -18,14 +21,17 @@ namespace Components
 		{
 		}
 
-		Player(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt):
+		Player(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt,
+			std::function<void(Shaders::ProgramId)> setup = nullptr):
 			body(std::move(body)),
-			texture(texture)
+			texture(texture),
+			setup(setup)
 		{
 		}
 
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
 		std::optional<unsigned> texture;
+		std::function<void(Shaders::ProgramId)> setup;
 
 		std::unique_ptr<b2Joint, b2JointDeleter> grappleJoint;
 		int connectedGrappleId = -1;
@@ -64,22 +70,22 @@ namespace Components
 				transform.q.GetAngle(), {0.0f, 0.0f, 1.0f});
 		}
 
-		std::vector<glm::vec3> generateVerticesCache() const
+		std::vector<glm::vec3> generatePositionsCache() const
 		{
-			std::vector<glm::vec3> verticesCache;
+			std::vector<glm::vec3> positionsCache;
 
 			const auto& fixture = *body->GetFixtureList();
 			assert(!fixture.GetNext());
 			assert(fixture.GetType() == b2Shape::e_polygon);
 			const auto& polygonShape = static_cast<const b2PolygonShape&>(*fixture.GetShape());
-			verticesCache.reserve(polygonShape.m_count);
+			positionsCache.reserve(polygonShape.m_count);
 			for (int i = 0; i < polygonShape.m_count; ++i)
 			{
 				const auto& b2v = polygonShape.m_vertices[i];
-				verticesCache.emplace_back(b2v.x, b2v.y, 0.0f);
+				positionsCache.emplace_back(b2v.x, b2v.y, 0.0f);
 			}
 
-			return verticesCache;
+			return positionsCache;
 		}
 	};
 }

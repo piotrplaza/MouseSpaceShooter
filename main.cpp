@@ -40,6 +40,7 @@ void OGLInitialize()
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glLineWidth(3.0f);
 	glClearColor(0, 0.03f, 0.1f, 1);
 }
 
@@ -82,10 +83,14 @@ void CreateLevel()
 	grapples.emplace_back(Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f, orbTexture);
 
 	//Camera.
-	camera.projectionHSizeF = []() { return 15.0f + glm::length(players.front().getVelocity()) * 0.1f; };
-	camera.projectionTransitionFactor = 0.1f;
-	camera.mainActorPositionF = []() { return players.front().getPosition() + players.front().getVelocity() * 0.3f; };
-	camera.positionTransitionFactor = 0.1f;
+	camera.projectionHSizeF = []() {
+		camera.projectionTransitionFactor = 0.1f * physics.targetFrameTimeFactor;
+		return 15.0f + glm::length(players.front().getVelocity()) * 0.2f;
+	};
+	camera.mainActorPositionF = []() { 
+		camera.positionTransitionFactor = 0.1f * physics.targetFrameTimeFactor;
+		return players.front().getPosition() + players.front().getVelocity() * 0.3f;
+	};
 }
 
 void Initialize()

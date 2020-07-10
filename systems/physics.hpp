@@ -1,5 +1,7 @@
 #pragma once
 
+#include <chrono>
+
 namespace Systems
 {
 	class Physics
@@ -7,6 +9,11 @@ namespace Systems
 	public:
 		Physics();
 
-		void step() const;
+		void step();
+
+	private:
+		bool firstStep = true;
+
+		std::chrono::high_resolution_clock::time_point start;
 	};
 }
