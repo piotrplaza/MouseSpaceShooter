@@ -20,7 +20,7 @@ namespace Components
 namespace Systems
 {
 	class Physics;
-	class Player;
+	class Players;
 	class Level;
 	class Camera;
 	class Textures;
@@ -34,9 +34,9 @@ namespace Globals
 		extern ::Components::ScreenInfo& screenInfo;
 		extern ::Components::MVP& mvp;
 		extern ::Components::Physics& physics;
-		extern ::Components::Player& player;
 		extern ::Components::Camera& camera;
 
+		extern std::vector<::Components::Player>& players;
 		extern std::vector<::Components::Wall>& staticWalls;
 		extern std::vector<::Components::Wall>& dynamicWalls;
 		extern std::vector<::Components::Grapple>& grapples;
@@ -50,7 +50,7 @@ namespace Globals
 		void Initialize();
 
 		::Systems::Physics& AccessPhysics();
-		::Systems::Player& AccessPlayer();
+		::Systems::Players& AccessPlayers();
 		::Systems::Level& AccessLevel();
 		::Systems::Camera& AccessCamera();
 		::Systems::Textures& AccessTextures();

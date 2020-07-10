@@ -1,4 +1,4 @@
-#include "player.hpp"
+#include "players.hpp"
 
 #include <vector>
 #include <limits>
@@ -22,12 +22,12 @@
 
 namespace Systems
 {
-	Player::Player()
+	Players::Players() : player(Globals::Components::players.front())
 	{
 		initGraphics();
 	}
 
-	void Player::initGraphics()
+	void Players::initGraphics()
 	{
 		using namespace Globals::Components;
 
@@ -41,34 +41,11 @@ namespace Systems
 		updatePlayerGraphics();
 	}
 
-	void Player::updatePlayerGraphics()
+	void Players::updatePlayerGraphics()
 	{
 		using namespace Globals::Components;
 
-		/*simplePlayersBuffers->verticesCache.clear();
-		const auto verticesCache = player.generateVerticesCache();
-		simplePlayersBuffers->verticesCache.insert(simplePlayersBuffers->verticesCache.end(), verticesCache.begin(), verticesCache.end());
-
-		glBindBuffer(GL_ARRAY_BUFFER, simplePlayersBuffers->vertexBuffer);
-		if (simplePlayersBuffers->vertexBufferAllocation < simplePlayersBuffers->verticesCache.size())
-		{
-			glBufferData(GL_ARRAY_BUFFER, simplePlayersBuffers->verticesCache.size() * sizeof(simplePlayersBuffers->verticesCache.front()),
-				simplePlayersBuffers->verticesCache.data(), GL_STATIC_DRAW);
-			simplePlayersBuffers->vertexBufferAllocation = simplePlayersBuffers->verticesCache.size();
-		}
-		else
-		{
-			glBufferSubData(GL_ARRAY_BUFFER, 0, simplePlayersBuffers->verticesCache.size() * sizeof(simplePlayersBuffers->verticesCache.front()),
-				simplePlayersBuffers->verticesCache.data());
-		}*/
-
-		simplePlayersBuffers->verticesCache.clear();
-		for (auto& [texture, playerBuffers] : texturesToPlayersBuffers)
-		{
-			playerBuffers.verticesCache.clear();
-		}
-
-		//for (auto& player : players )
+		for (auto& player : players )
 		{
 			const auto verticesCache = player.generateVerticesCache();
 			if (player.texture)
@@ -112,7 +89,7 @@ namespace Systems
 		}
 	}
 
-	void Player::updateConnectionsGraphics()
+	void Players::updateConnectionsGraphics()
 	{
 		using namespace Globals::Components;
 
@@ -148,7 +125,7 @@ namespace Systems
 		}
 	}
 
-	void Player::step()
+	void Players::step()
 	{
 		using namespace Globals::Components;
 
@@ -170,14 +147,14 @@ namespace Systems
 		playerPreviousPosition = player.getPosition();
 	}
 
-	void Player::render() const
+	void Players::render() const
 	{
 		basicRender();
 		sceneCoordTexturedRender();
 		coloredRender();
 	}
 
-	void Player::basicRender() const
+	void Players::basicRender() const
 	{
 		using namespace Globals::Components;
 
@@ -188,7 +165,7 @@ namespace Systems
 		glDrawArrays(GL_TRIANGLES, 0, simplePlayersBuffers->verticesCache.size());
 	}
 
-	void Player::sceneCoordTexturedRender() const
+	void Players::sceneCoordTexturedRender() const
 	{
 		using namespace Globals::Components;
 
@@ -209,7 +186,7 @@ namespace Systems
 		}
 	}
 
-	void Player::coloredRender() const
+	void Players::coloredRender() const
 	{
 		using namespace Globals::Components;
 
@@ -219,7 +196,7 @@ namespace Systems
 		glDrawArrays(GL_LINES, 0, connectionsBuffers->verticesCache.size());
 	}
 
-	void Player::turn(glm::vec2 controllerDelta) const
+	void Players::turn(glm::vec2 controllerDelta) const
 	{
 		using namespace Globals::Components;
 
@@ -252,7 +229,7 @@ namespace Systems
 		}
 	}
 
-	void Player::throttle(bool active) const
+	void Players::throttle(bool active) const
 	{
 		using namespace Globals::Components;
 		using namespace Globals::Constants;
@@ -264,7 +241,7 @@ namespace Systems
 			glm::sin(currentAngle)) * playerForwardForce, player.body->GetWorldCenter(), true);
 	}
 
-	void Player::magneticHook(bool active) const
+	void Players::magneticHook(bool active) const
 	{
 		using namespace Globals::Components;
 
@@ -347,7 +324,7 @@ namespace Systems
 		}
 	}
 
-	void Player::createGrappleJoint() const
+	void Players::createGrappleJoint() const
 	{
 		using namespace Globals::Components;
 
@@ -365,7 +342,7 @@ namespace Systems
 		player.grappleJoint.reset(physics.world.CreateJoint(&distanceJointDef));
 	}
 
-	Player::PlayerBuffers::PlayerBuffers()
+	Players::PlayerBuffers::PlayerBuffers()
 	{
 		glCreateVertexArrays(1, &vertexArray);
 		glBindVertexArray(vertexArray);
@@ -375,13 +352,13 @@ namespace Systems
 		glEnableVertexAttribArray(0);
 	}
 
-	Player::PlayerBuffers::~PlayerBuffers()
+	Players::PlayerBuffers::~PlayerBuffers()
 	{
 		glDeleteBuffers(1, &vertexBuffer);
 		glDeleteVertexArrays(1, &vertexArray);
 	}
 
-	Player::ConnectionsBuffers::ConnectionsBuffers()
+	Players::ConnectionsBuffers::ConnectionsBuffers()
 	{
 		glCreateVertexArrays(1, &vertexArray);
 		glBindVertexArray(vertexArray);
@@ -395,7 +372,7 @@ namespace Systems
 		glEnableVertexAttribArray(1);
 	}
 
-	Player::ConnectionsBuffers::~ConnectionsBuffers()
+	Players::ConnectionsBuffers::~ConnectionsBuffers()
 	{
 		glDeleteBuffers(1, &vertexBuffer);
 		glDeleteBuffers(1, &colorBuffer);

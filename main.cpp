@@ -21,7 +21,7 @@
 #include "components/textureDef.hpp"
 
 #include "systems/level.hpp"
-#include "systems/player.hpp"
+#include "systems/players.hpp"
 #include "systems/physics.hpp"
 #include "systems/camera.hpp"
 
@@ -60,8 +60,8 @@ void CreateLevel()
 	texturesDef.back().translate = glm::vec2(0.5f);
 
 	//Player configuration.
-	player = Components::Player(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), rocketPlaneTexture);
-	player.setPosition({ -10.0f, 0.0f });
+	players.emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), rocketPlaneTexture);
+	players.back().setPosition({ -10.0f, 0.0f });
 
 	//Static walls.
 	staticWalls.emplace_back(Tools::CreateBoxBody({ -30.0f, 0.0f }, { 1.0f, 31.0f }), spaceRockTexture);
@@ -82,9 +82,9 @@ void CreateLevel()
 	grapples.emplace_back(Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f, orbTexture);
 
 	//Camera.
-	camera.projectionHSizeF = []() { return 15.0f + glm::length(player.getVelocity()) * 0.1f; };
+	camera.projectionHSizeF = []() { return 15.0f + glm::length(players.front().getVelocity()) * 0.1f; };
 	camera.projectionTransitionFactor = 0.1f;
-	camera.mainActorPositionF = []() { return player.getPosition() + player.getVelocity() * 0.3f; };
+	camera.mainActorPositionF = []() { return players.front().getPosition() + players.front().getVelocity() * 0.3f; };
 	camera.positionTransitionFactor = 0.1f;
 }
 
@@ -104,12 +104,12 @@ void RenderScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Globals::Systems::AccessLevel().render();
-	Globals::Systems::AccessPlayer().render();
+	Globals::Systems::AccessPlayers().render();
 }
 
 void PrepareFrame()
 {
-	Globals::Systems::AccessPlayer().step();
+	Globals::Systems::AccessPlayers().step();
 	Globals::Systems::AccessLevel().step();
 	Globals::Systems::AccessCamera().step();
 

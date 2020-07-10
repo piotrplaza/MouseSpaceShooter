@@ -13,12 +13,17 @@
 #include <shaders/sceneCoordTextured.hpp>
 #include <shaders/colored.hpp>
 
+namespace Components
+{
+	struct Player;
+}
+
 namespace Systems
 {
-	class Player
+	class Players
 	{
 	public:
-		Player();
+		Players();
 
 		void step();
 		void render() const;
@@ -63,6 +68,8 @@ namespace Systems
 		void basicRender() const;
 		void coloredRender() const;
 		void sceneCoordTexturedRender() const;
+
+		Components::Player& player; //Temporary.
 
 		std::unique_ptr<Shaders::Programs::Basic> basicShadersProgram;
 		std::unique_ptr<Shaders::Programs::SceneCoordTextured> sceneCoordTexturedShadersProgram;

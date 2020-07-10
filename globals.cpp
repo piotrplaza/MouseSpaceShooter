@@ -14,7 +14,7 @@
 #include "components/texture.hpp"
 
 #include "systems/physics.hpp"
-#include "systems/player.hpp"
+#include "systems/players.hpp"
 #include "systems/level.hpp"
 #include "systems/camera.hpp"
 #include "systems/textures.hpp"
@@ -25,9 +25,9 @@ namespace Components
 	static ::Components::ScreenInfo screenInfo;
 	static ::Components::MVP mvp;
 	static ::Components::Physics physics;
-	static ::Components::Player player;
 	static ::Components::Camera camera;
 
+	static std::vector<::Components::Player> players;
 	static std::vector<::Components::Wall> staticWalls;
 	static std::vector<::Components::Wall> dynamicWalls;
 	static std::vector<::Components::Grapple> grapples;
@@ -44,9 +44,9 @@ namespace Globals
 		::Components::ScreenInfo& screenInfo = ::Components::screenInfo;
 		::Components::MVP& mvp = ::Components::mvp;
 		::Components::Physics& physics = ::Components::physics;
-		::Components::Player& player = ::Components::player;
 		::Components::Camera& camera = ::Components::camera;
 
+		std::vector<::Components::Player>& players = ::Components::players;
 		std::vector<::Components::Wall>& staticWalls = ::Components::staticWalls;
 		std::vector<::Components::Wall>& dynamicWalls = ::Components::dynamicWalls;
 		std::vector<::Components::Grapple>& grapples = ::Components::grapples;
@@ -58,7 +58,7 @@ namespace Globals
 	namespace Systems
 	{
 		std::unique_ptr<::Systems::Physics> physics;
-		std::unique_ptr<::Systems::Player> player;
+		std::unique_ptr<::Systems::Players> players;
 		std::unique_ptr<::Systems::Level> level;
 		std::unique_ptr<::Systems::Camera> camera;
 		std::unique_ptr<::Systems::Textures> textures;
@@ -66,7 +66,7 @@ namespace Globals
 		void Initialize()
 		{
 			physics = std::make_unique<::Systems::Physics>();
-			player = std::make_unique<::Systems::Player>();
+			players = std::make_unique<::Systems::Players>();
 			level = std::make_unique<::Systems::Level>();
 			camera = std::make_unique<::Systems::Camera>();
 			textures = std::make_unique<::Systems::Textures>();
@@ -77,9 +77,9 @@ namespace Globals
 			return *physics;
 		}
 
-		::Systems::Player& AccessPlayer()
+		::Systems::Players& AccessPlayers()
 		{
-			return *player;
+			return *players;
 		}
 
 		::Systems::Level& AccessLevel()

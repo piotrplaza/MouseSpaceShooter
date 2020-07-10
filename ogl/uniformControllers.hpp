@@ -14,13 +14,14 @@ namespace Uniforms
 	class UniformController
 	{
 	public:
+		UniformController();
 		UniformController(Shaders::ProgramId programId, const std::string& uniformName);
 
 		bool isValid() const;
 
 	protected:
-		Shaders::ProgramId programId;
-		GLint uniformId;
+		Shaders::ProgramId programId = 0;
+		GLint uniformId = -1;
 	};
 
 	class UniformController1i : public UniformController

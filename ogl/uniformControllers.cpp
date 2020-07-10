@@ -6,6 +6,8 @@
 
 namespace Uniforms
 {
+	UniformController::UniformController() = default;
+
 	UniformController::UniformController(Shaders::ProgramId programId, const std::string& uniformName) :
 		programId(programId),
 		uniformId(glGetUniformLocation(programId, uniformName.c_str()))
