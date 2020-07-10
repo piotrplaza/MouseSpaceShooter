@@ -156,6 +156,9 @@
     <ClInclude Include="systems\players.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
+    <ClInclude Include="ogl\buffersHelpers.hpp">
+      <Filter>src\ogl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.fs">

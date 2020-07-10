@@ -3,9 +3,12 @@
 #include <vector>
 #include <limits>
 
+#include <GL/glew.h>
+
 #include <Box2D/Box2D.h>
 
 #include <ogl/oglProxy.hpp>
+#include <ogl/buffersHelpers.hpp>
 
 #include <tools/b2Helpers.hpp>
 
@@ -35,58 +38,17 @@ namespace Systems
 		sceneCoordTexturedShadersProgram = std::make_unique<Shaders::Programs::SceneCoordTextured>();
 		coloredShadersProgram = std::make_unique<Shaders::Programs::Colored>();
 
-		simplePlayersBuffers = std::make_unique<PlayerBuffers>();
+		simplePlayersBuffers = std::make_unique<PlayersBuffers>();
 		connectionsBuffers = std::make_unique<ConnectionsBuffers>();
 		
-		updatePlayerGraphics();
+		updatePlayersGraphics();
 	}
 
-	void Players::updatePlayerGraphics()
+	void Players::updatePlayersGraphics()
 	{
 		using namespace Globals::Components;
 
-		for (auto& player : players )
-		{
-			const auto verticesCache = player.generateVerticesCache();
-			if (player.texture)
-			{
-				auto& texturedPlayerBuffers = texturesToPlayersBuffers[*player.texture];
-				texturedPlayerBuffers.verticesCache.insert(texturedPlayerBuffers.verticesCache.end(), verticesCache.begin(), verticesCache.end());
-			}
-			else
-			{
-				simplePlayersBuffers->verticesCache.insert(simplePlayersBuffers->verticesCache.end(), verticesCache.begin(), verticesCache.end());
-			}
-		}
-
-		glBindBuffer(GL_ARRAY_BUFFER, simplePlayersBuffers->vertexBuffer);
-		if (simplePlayersBuffers->vertexBufferAllocation < simplePlayersBuffers->verticesCache.size())
-		{
-			glBufferData(GL_ARRAY_BUFFER, simplePlayersBuffers->verticesCache.size() * sizeof(simplePlayersBuffers->verticesCache.front()),
-				simplePlayersBuffers->verticesCache.data(), GL_STATIC_DRAW);
-			simplePlayersBuffers->vertexBufferAllocation = simplePlayersBuffers->verticesCache.size();
-		}
-		else
-		{
-			glBufferSubData(GL_ARRAY_BUFFER, 0, simplePlayersBuffers->verticesCache.size() * sizeof(simplePlayersBuffers->verticesCache.front()),
-				simplePlayersBuffers->verticesCache.data());
-		}
-
-		for (auto& [texture, texturedPlayerBuffers] : texturesToPlayersBuffers)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, texturedPlayerBuffers.vertexBuffer);
-			if (texturedPlayerBuffers.vertexBufferAllocation < texturedPlayerBuffers.verticesCache.size())
-			{
-				glBufferData(GL_ARRAY_BUFFER, texturedPlayerBuffers.verticesCache.size() * sizeof(texturedPlayerBuffers.verticesCache.front()),
-					texturedPlayerBuffers.verticesCache.data(), GL_STATIC_DRAW);
-				texturedPlayerBuffers.vertexBufferAllocation = texturedPlayerBuffers.verticesCache.size();
-			}
-			else
-			{
-				glBufferSubData(GL_ARRAY_BUFFER, 0, texturedPlayerBuffers.verticesCache.size() * sizeof(texturedPlayerBuffers.verticesCache.front()),
-					texturedPlayerBuffers.verticesCache.data());
-			}
-		}
+		Tools::UpdateSimpleAndTexturesBuffers(players, *simplePlayersBuffers, texturesToPlayersBuffers, GL_STATIC_DRAW);
 	}
 
 	void Players::updateConnectionsGraphics()
@@ -342,7 +304,7 @@ namespace Systems
 		player.grappleJoint.reset(physics.world.CreateJoint(&distanceJointDef));
 	}
 
-	Players::PlayerBuffers::PlayerBuffers()
+	Players::PlayersBuffers::PlayersBuffers()
 	{
 		glCreateVertexArrays(1, &vertexArray);
 		glBindVertexArray(vertexArray);
@@ -352,7 +314,7 @@ namespace Systems
 		glEnableVertexAttribArray(0);
 	}
 
-	Players::PlayerBuffers::~PlayerBuffers()
+	Players::PlayersBuffers::~PlayersBuffers()
 	{
 		glDeleteBuffers(1, &vertexBuffer);
 		glDeleteVertexArrays(1, &vertexArray);

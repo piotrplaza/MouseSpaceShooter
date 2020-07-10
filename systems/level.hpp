@@ -65,9 +65,6 @@ namespace Systems
 		void updateTexCoords();
 		void updateGrapplesGraphics();
 
-		void updateWallsBuffers(std::vector<Components::Wall>& walls, WallsBuffers& simpleWallsBuffers,
-			std::unordered_map<unsigned, WallsBuffers>& texturesToWallsBuffers, GLenum bufferDataUsage) const;
-
 		void sceneCoordTexturedRender() const;
 		void texturedRender() const;
 		void basicRender() const;

@@ -1,8 +1,11 @@
 #include "level.hpp"
 
+#include <GL/glew.h>
+
 #include <Box2D/Box2D.h>
 
 #include <ogl/oglProxy.hpp>
+#include <ogl/buffersHelpers.hpp>
 
 #include <globals.hpp>
 
@@ -41,14 +44,14 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		updateWallsBuffers(staticWalls, *simpleStaticWallsBuffers, texturesToStaticWallsBuffers, GL_STATIC_DRAW);
+		Tools::UpdateSimpleAndTexturesBuffers(staticWalls, *simpleStaticWallsBuffers, texturesToStaticWallsBuffers, GL_STATIC_DRAW);
 	}
 
 	void Level::updateDynamicWallsGraphics()
 	{
 		using namespace Globals::Components;
 
-		updateWallsBuffers(dynamicWalls, *simpleDynamicWallsBuffers, texturesToDynamicWallsBuffers, GL_DYNAMIC_DRAW);
+		Tools::UpdateSimpleAndTexturesBuffers(dynamicWalls, *simpleDynamicWallsBuffers, texturesToDynamicWallsBuffers, GL_DYNAMIC_DRAW);
 	}
 
 	void Level::updateTexCoords()
@@ -84,59 +87,6 @@ namespace Systems
 				glBindBuffer(GL_ARRAY_BUFFER, *texturedGrappleBuffers.texCoordBuffer);
 				glBufferData(GL_ARRAY_BUFFER, texturedGrappleBuffers.texCoordCache.size() * sizeof(texturedGrappleBuffers.texCoordCache.front()),
 					texturedGrappleBuffers.texCoordCache.data(), GL_STATIC_DRAW);
-			}
-		}
-	}
-
-	void Level::updateWallsBuffers(std::vector<Components::Wall>& walls, WallsBuffers& simpleWallsBuffers,
-		std::unordered_map<unsigned, WallsBuffers>& texturesToWallsBuffers, GLenum bufferDataUsage) const
-	{
-		simpleWallsBuffers.verticesCache.clear();
-		for (auto& [texture, wallBuffers] : texturesToWallsBuffers)
-		{
-			wallBuffers.verticesCache.clear();
-		}
-
-		for (auto& wall : walls)
-		{
-			const auto verticesCache = wall.generateVerticesCache();
-			if (wall.texture)
-			{
-				auto& texturedWallBuffers = texturesToWallsBuffers[*wall.texture];
-				texturedWallBuffers.verticesCache.insert(texturedWallBuffers.verticesCache.end(), verticesCache.begin(), verticesCache.end());
-			}
-			else
-			{
-				simpleWallsBuffers.verticesCache.insert(simpleWallsBuffers.verticesCache.end(), verticesCache.begin(), verticesCache.end());
-			}
-		}
-
-		glBindBuffer(GL_ARRAY_BUFFER, simpleWallsBuffers.vertexBuffer);
-		if (simpleWallsBuffers.vertexBufferAllocation < simpleWallsBuffers.verticesCache.size())
-		{
-			glBufferData(GL_ARRAY_BUFFER, simpleWallsBuffers.verticesCache.size() * sizeof(simpleWallsBuffers.verticesCache.front()),
-				simpleWallsBuffers.verticesCache.data(), bufferDataUsage);
-			simpleWallsBuffers.vertexBufferAllocation = simpleWallsBuffers.verticesCache.size();
-		}
-		else
-		{
-			glBufferSubData(GL_ARRAY_BUFFER, 0, simpleWallsBuffers.verticesCache.size() * sizeof(simpleWallsBuffers.verticesCache.front()),
-				simpleWallsBuffers.verticesCache.data());
-		}
-
-		for (auto& [texture, texturedWallBuffers] : texturesToWallsBuffers)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, texturedWallBuffers.vertexBuffer);
-			if (texturedWallBuffers.vertexBufferAllocation < texturedWallBuffers.verticesCache.size())
-			{
-				glBufferData(GL_ARRAY_BUFFER, texturedWallBuffers.verticesCache.size() * sizeof(texturedWallBuffers.verticesCache.front()),
-					texturedWallBuffers.verticesCache.data(), bufferDataUsage);
-				texturedWallBuffers.vertexBufferAllocation = texturedWallBuffers.verticesCache.size();
-			}
-			else
-			{
-				glBufferSubData(GL_ARRAY_BUFFER, 0, texturedWallBuffers.verticesCache.size() * sizeof(texturedWallBuffers.verticesCache.front()),
-					texturedWallBuffers.verticesCache.data());
 			}
 		}
 	}

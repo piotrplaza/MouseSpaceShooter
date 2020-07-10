@@ -29,10 +29,10 @@ namespace Systems
 		void render() const;
 
 	private:
-		struct PlayerBuffers
+		struct PlayersBuffers
 		{
-			PlayerBuffers();
-			~PlayerBuffers();
+			PlayersBuffers();
+			~PlayersBuffers();
 
 			GLuint vertexArray;
 			GLuint vertexBuffer;
@@ -62,7 +62,7 @@ namespace Systems
 		void magneticHook(bool active) const;
 		void createGrappleJoint() const;
 
-		void updatePlayerGraphics();
+		void updatePlayersGraphics();
 		void updateConnectionsGraphics();
 
 		void basicRender() const;
@@ -75,8 +75,8 @@ namespace Systems
 		std::unique_ptr<Shaders::Programs::SceneCoordTextured> sceneCoordTexturedShadersProgram;
 		std::unique_ptr<Shaders::Programs::Colored> coloredShadersProgram;
 
-		std::unique_ptr<PlayerBuffers> simplePlayersBuffers;
-		std::unordered_map<unsigned, PlayerBuffers> texturesToPlayersBuffers;
+		std::unique_ptr<PlayersBuffers> simplePlayersBuffers;
+		std::unordered_map<unsigned, PlayersBuffers> texturesToPlayersBuffers;
 
 		std::unique_ptr<ConnectionsBuffers> connectionsBuffers;
 
