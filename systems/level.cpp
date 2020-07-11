@@ -29,9 +29,9 @@ namespace Systems
 		sceneCoordTexturedShadersProgram = std::make_unique<Shaders::Programs::SceneCoordTextured>();
 		texturedShadersProgram = std::make_unique<Shaders::Programs::Textured>();
 
-		simpleStaticWallsBuffers = std::make_unique<WallsBuffers>();
-		simpleDynamicWallsBuffers = std::make_unique<WallsBuffers>();
-		simpleGrapplesBuffers = std::make_unique<GrapplesBuffers>();
+		simpleStaticWallsBuffers = std::make_unique<PosTexCoordBuffers>();
+		simpleDynamicWallsBuffers = std::make_unique<PosTexCoordBuffers>();
+		simpleGrapplesBuffers = std::make_unique<PosTexCoordBuffers>();
 
 		updateTexCoordsBuffers();
 		updateStaticWallsPositionsBuffers();
@@ -179,7 +179,7 @@ namespace Systems
 		glDrawArrays(GL_TRIANGLES, 0, simpleGrapplesBuffers->positionsCache.size());
 	}
 
-	Level::WallsBuffers::WallsBuffers(bool texCoord)
+	Level::PosTexCoordBuffers::PosTexCoordBuffers(bool texCoord)
 	{
 		glCreateVertexArrays(1, &vertexArray);
 		glBindVertexArray(vertexArray);
@@ -197,32 +197,7 @@ namespace Systems
 		}
 	}
 
-	Level::WallsBuffers::~WallsBuffers()
-	{
-		glDeleteBuffers(1, &positionBuffer);
-		if (texCoordBuffer) glDeleteBuffers(1, &*texCoordBuffer);
-		glDeleteVertexArrays(1, &vertexArray);
-	}
-
-	Level::GrapplesBuffers::GrapplesBuffers(bool texCoord)
-	{
-		glCreateVertexArrays(1, &vertexArray);
-		glBindVertexArray(vertexArray);
-		glGenBuffers(1, &positionBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-		glEnableVertexAttribArray(0);
-		if (texCoord)
-		{
-			texCoordBuffer = 0;
-			glGenBuffers(1, &*texCoordBuffer);
-			glBindBuffer(GL_ARRAY_BUFFER, *texCoordBuffer);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-			glEnableVertexAttribArray(1);
-		}
-	}
-
-	Level::GrapplesBuffers::~GrapplesBuffers()
+	Level::PosTexCoordBuffers::~PosTexCoordBuffers()
 	{
 		glDeleteBuffers(1, &positionBuffer);
 		if (texCoordBuffer) glDeleteBuffers(1, &*texCoordBuffer);

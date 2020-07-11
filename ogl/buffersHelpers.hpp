@@ -6,7 +6,7 @@
 namespace Tools
 {
 	template <typename Component, typename Buffers>
-	void UpdateSimpleAndTexturesPositionsBuffers(const std::vector<Component>& components, Buffers& simpleBuffers,
+	inline void UpdateSimpleAndTexturesPositionsBuffers(const std::vector<Component>& components, Buffers& simpleBuffers,
 		std::unordered_map<unsigned, Buffers>& texturesToBuffers, GLenum bufferDataUsage)
 	{
 		simpleBuffers.positionsCache.clear();

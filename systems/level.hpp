@@ -30,24 +30,10 @@ namespace Systems
 		void render() const;
 
 	private:
-		struct WallsBuffers
+		struct PosTexCoordBuffers
 		{
-			WallsBuffers(bool texCoord = false);
-			~WallsBuffers();
-
-			GLuint vertexArray;
-			GLuint positionBuffer;
-			std::optional<GLuint> texCoordBuffer;
-
-			std::vector<glm::vec3> positionsCache;
-			std::vector<glm::vec2> texCoordCache;
-			size_t numOfAllocatedVertices = 0;
-		};
-
-		struct GrapplesBuffers
-		{
-			GrapplesBuffers(bool texCoord = false);
-			~GrapplesBuffers();
+			PosTexCoordBuffers(bool texCoord = false);
+			~PosTexCoordBuffers();
 
 			GLuint vertexArray;
 			GLuint positionBuffer;
@@ -73,12 +59,12 @@ namespace Systems
 		std::unique_ptr<Shaders::Programs::SceneCoordTextured> sceneCoordTexturedShadersProgram;
 		std::unique_ptr<Shaders::Programs::Textured> texturedShadersProgram;
 
-		std::unique_ptr<WallsBuffers> simpleStaticWallsBuffers;
-		std::unique_ptr<WallsBuffers> simpleDynamicWallsBuffers;
-		std::unordered_map<unsigned, WallsBuffers> texturesToStaticWallsBuffers;
-		std::unordered_map<unsigned, WallsBuffers> texturesToDynamicWallsBuffers;
+		std::unique_ptr<PosTexCoordBuffers> simpleStaticWallsBuffers;
+		std::unique_ptr<PosTexCoordBuffers> simpleDynamicWallsBuffers;
+		std::unordered_map<unsigned, PosTexCoordBuffers> texturesToStaticWallsBuffers;
+		std::unordered_map<unsigned, PosTexCoordBuffers> texturesToDynamicWallsBuffers;
 
-		std::unique_ptr<GrapplesBuffers> simpleGrapplesBuffers;
-		std::unordered_map<unsigned, GrapplesBuffers> texturesToGrapplesBuffers;
+		std::unique_ptr<PosTexCoordBuffers> simpleGrapplesBuffers;
+		std::unordered_map<unsigned, PosTexCoordBuffers> texturesToGrapplesBuffers;
 	};
 }
