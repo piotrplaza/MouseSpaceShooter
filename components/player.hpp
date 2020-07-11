@@ -22,16 +22,16 @@ namespace Components
 		}
 
 		Player(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt,
-			std::function<void(Shaders::ProgramId)> setup = nullptr):
+			std::function<void(Shaders::ProgramId)> renderingSetup = nullptr):
 			body(std::move(body)),
 			texture(texture),
-			setup(setup)
+			renderingSetup(renderingSetup)
 		{
 		}
 
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
 		std::optional<unsigned> texture;
-		std::function<void(Shaders::ProgramId)> setup;
+		std::function<void(Shaders::ProgramId)> renderingSetup;
 
 		std::unique_ptr<b2Joint, b2JointDeleter> grappleJoint;
 		int connectedGrappleId = -1;

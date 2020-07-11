@@ -77,6 +77,8 @@ namespace Systems
 
 		std::unique_ptr<PlayersBuffers> simplePlayersBuffers;
 		std::unordered_map<unsigned, PlayersBuffers> texturesToPlayersBuffers;
+		std::vector<PlayersBuffers> customSimplePlayersBuffers;
+		std::vector<PlayersBuffers> customTexturedPlayersBuffers;
 
 		std::unique_ptr<ConnectionsBuffers> connectionsBuffers;
 

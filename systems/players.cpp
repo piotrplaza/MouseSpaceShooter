@@ -45,7 +45,8 @@ namespace Systems
 	void Players::updatePlayersPositionsBuffers()
 	{
 		Tools::UpdateSimpleAndTexturesPositionsBuffers(Globals::Components::players,
-			*simplePlayersBuffers, texturesToPlayersBuffers, GL_STATIC_DRAW);
+			*simplePlayersBuffers, texturesToPlayersBuffers, customSimplePlayersBuffers,
+			customTexturedPlayersBuffers, GL_STATIC_DRAW);
 	}
 
 	void Players::updateConnectionsGraphicsBuffers()
@@ -56,29 +57,35 @@ namespace Systems
 		for (auto& connection : Globals::Components::connections)
 		{
 			const auto positionsCache = connection.generatePositionsCache();
-			connectionsBuffers->positionsCache.insert(connectionsBuffers->positionsCache.end(), positionsCache.begin(), positionsCache.end());
+			connectionsBuffers->positionsCache.insert(connectionsBuffers->positionsCache.end(),
+				positionsCache.begin(), positionsCache.end());
 
 			const auto colorsCache = connection.generateColorsCache();
-			connectionsBuffers->colorsCache.insert(connectionsBuffers->colorsCache.end(), colorsCache.begin(), colorsCache.end());
+			connectionsBuffers->colorsCache.insert(connectionsBuffers->colorsCache.end(),
+				colorsCache.begin(), colorsCache.end());
 		}
 
 		if (connectionsBuffers->numOfAllocatedVertices < connectionsBuffers->positionsCache.size())
 		{
 			glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->positionBuffer);
-			glBufferData(GL_ARRAY_BUFFER, connectionsBuffers->positionsCache.size() * sizeof(connectionsBuffers->positionsCache.front()),
+			glBufferData(GL_ARRAY_BUFFER, connectionsBuffers->positionsCache.size()
+				* sizeof(connectionsBuffers->positionsCache.front()),
 				connectionsBuffers->positionsCache.data(), GL_DYNAMIC_DRAW);
 			glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->colorBuffer);
-			glBufferData(GL_ARRAY_BUFFER, connectionsBuffers->colorsCache.size() * sizeof(connectionsBuffers->colorsCache.front()),
+			glBufferData(GL_ARRAY_BUFFER, connectionsBuffers->colorsCache.size()
+				* sizeof(connectionsBuffers->colorsCache.front()),
 				connectionsBuffers->colorsCache.data(), GL_DYNAMIC_DRAW);
 			connectionsBuffers->numOfAllocatedVertices = connectionsBuffers->positionsCache.size();
 		}
 		else
 		{
 			glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->positionBuffer);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, connectionsBuffers->positionsCache.size() * sizeof(connectionsBuffers->positionsCache.front()),
+			glBufferSubData(GL_ARRAY_BUFFER, 0, connectionsBuffers->positionsCache.size()
+				* sizeof(connectionsBuffers->positionsCache.front()),
 				connectionsBuffers->positionsCache.data());
 			glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->colorBuffer);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, connectionsBuffers->colorsCache.size() * sizeof(connectionsBuffers->colorsCache.front()),
+			glBufferSubData(GL_ARRAY_BUFFER, 0, connectionsBuffers->colorsCache.size()
+				* sizeof(connectionsBuffers->colorsCache.front()),
 				connectionsBuffers->colorsCache.data());
 		}
 
@@ -226,21 +233,21 @@ namespace Systems
 			player.grappleJoint.reset();
 		}
 
-		for (auto it = grapplesInRange.begin(); it != grapplesInRange.end(); ++it)
+		for (const int grappleInRange : grapplesInRange)
 		{
-			const auto& grapple = grapples[*it];
+			const auto& grapple = grapples[grappleInRange];
 
-			if (*it == nearestGrappleId)
+			if (grappleInRange == nearestGrappleId)
 			{
 				if (active && !player.grappleJoint &&
 					glm::distance(player.getPosition(), grapple.getPosition()) >=
 					glm::distance(playerPreviousPosition, grapple.getPosition()))
 				{
-					player.connectedGrappleId = *it;
+					player.connectedGrappleId = grappleInRange;
 					player.weakConnectedGrappleId = -1;
 					createGrappleJoint();
 				}
-				else if(player.connectedGrappleId != *it)
+				else if(player.connectedGrappleId != grappleInRange)
 				{
 					if (active)
 					{
@@ -249,7 +256,7 @@ namespace Systems
 							connections.emplace_back(player.getPosition(), grapple.getPosition(),
 								glm::vec4(0.0f, 1.0f, 0.0f, 0.2f), 1);
 						}
-						player.weakConnectedGrappleId = *it;
+						player.weakConnectedGrappleId = grappleInRange;
 					}
 					else
 					{
@@ -258,7 +265,7 @@ namespace Systems
 					}
 				}
 			}
-			else if (player.connectedGrappleId != *it)
+			else if (player.connectedGrappleId != grappleInRange)
 			{
 				connections.emplace_back(player.getPosition(), grapple.getPosition(), glm::vec4(1.0f, 0.0f, 0.0f, 0.2f), 1);
 			}

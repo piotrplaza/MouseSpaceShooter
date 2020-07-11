@@ -33,63 +33,48 @@ namespace Systems
 		simpleDynamicWallsBuffers = std::make_unique<PosTexCoordBuffers>();
 		simpleGrapplesBuffers = std::make_unique<PosTexCoordBuffers>();
 
-		updateTexCoordsBuffers();
 		updateStaticWallsPositionsBuffers();
 		updateGrapplesPositionsBuffers();
-	}
-
-	void Level::updateTexCoordsBuffers()
-	{
-		using namespace Globals::Components;
-
-		for (auto& dynamicWall : dynamicWalls)
-		{
-			const auto positionsCache = dynamicWall.generatePositionsCache(false);
-			if (dynamicWall.texture)
-			{
-				auto& texturedDynamicWallBuffers = texturesToDynamicWallsBuffers.emplace(*dynamicWall.texture, true).first->second;
-				for (const auto& position : positionsCache)
-				{
-					texturedDynamicWallBuffers.texCoordCache.emplace_back(position);
-				}
-				glBindBuffer(GL_ARRAY_BUFFER, *texturedDynamicWallBuffers.texCoordBuffer);
-				glBufferData(GL_ARRAY_BUFFER, texturedDynamicWallBuffers.texCoordCache.size() * sizeof(texturedDynamicWallBuffers.texCoordCache.front()),
-					texturedDynamicWallBuffers.texCoordCache.data(), GL_STATIC_DRAW);
-			}
-		}
-
-		for (auto& grapple : grapples)
-		{
-			const auto positionsCache = grapple.generatePositionsCache(false);
-			if (grapple.texture)
-			{
-				auto& texturedGrappleBuffers = texturesToGrapplesBuffers.emplace(*grapple.texture, true).first->second;
-				for (const auto& position : positionsCache)
-				{
-					texturedGrappleBuffers.texCoordCache.emplace_back(position);
-				}
-				glBindBuffer(GL_ARRAY_BUFFER, *texturedGrappleBuffers.texCoordBuffer);
-				glBufferData(GL_ARRAY_BUFFER, texturedGrappleBuffers.texCoordCache.size() * sizeof(texturedGrappleBuffers.texCoordCache.front()),
-					texturedGrappleBuffers.texCoordCache.data(), GL_STATIC_DRAW);
-			}
-		}
+		updateTexCoordsBuffers();
 	}
 
 	void Level::updateStaticWallsPositionsBuffers()
-	{Tools::UpdateSimpleAndTexturesPositionsBuffers(Globals::Components::staticWalls,
-			*simpleStaticWallsBuffers, texturesToStaticWallsBuffers, GL_STATIC_DRAW);
+	{
+		Tools::UpdateSimpleAndTexturesPositionsBuffers(Globals::Components::staticWalls,
+			*simpleStaticWallsBuffers, texturesToStaticWallsBuffers, customSimpleStaticWallsBuffers,
+			customTexturedStaticWallsBuffers, GL_STATIC_DRAW);
 	}
 
 	void Level::updateDynamicWallsPositionsBuffers()
 	{
 		Tools::UpdateSimpleAndTexturesPositionsBuffers(Globals::Components::dynamicWalls,
-			*simpleDynamicWallsBuffers, texturesToDynamicWallsBuffers, GL_DYNAMIC_DRAW);
+			*simpleDynamicWallsBuffers, texturesToDynamicWallsBuffers, customSimpleDynamicWallsBuffers,
+			customTexturedDynamicWallsBuffers, GL_DYNAMIC_DRAW);
 	}
 
 	void Level::updateGrapplesPositionsBuffers()
 	{
 		Tools::UpdateSimpleAndTexturesPositionsBuffers(Globals::Components::grapples,
-			*simpleGrapplesBuffers, texturesToGrapplesBuffers, GL_STATIC_DRAW);
+			*simpleGrapplesBuffers, texturesToGrapplesBuffers, customSimpleGrapplesBuffers,
+			customTexturedGrapplesBuffers, GL_STATIC_DRAW);
+	}
+
+	void Level::updateTexCoordsBuffers()
+	{
+		updateDynamicWallsTexCoordsBuffers();
+		updateGrapplesTexCoordsBuffers();
+	}
+
+	void Level::updateDynamicWallsTexCoordsBuffers()
+	{
+		Tools::UpdateTexCoordBuffers(Globals::Components::dynamicWalls, texturesToDynamicWallsBuffers,
+			customTexturedDynamicWallsBuffers, GL_STATIC_DRAW);
+	}
+
+	void Level::updateGrapplesTexCoordsBuffers()
+	{
+		Tools::UpdateTexCoordBuffers(Globals::Components::grapples, texturesToGrapplesBuffers,
+			customTexturedGrapplesBuffers, GL_STATIC_DRAW);
 	}
 
 	void Level::step()
@@ -187,14 +172,7 @@ namespace Systems
 		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(0);
-		if (texCoord)
-		{
-			texCoordBuffer = 0;
-			glGenBuffers(1, &*texCoordBuffer);
-			glBindBuffer(GL_ARRAY_BUFFER, *texCoordBuffer);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-			glEnableVertexAttribArray(1);
-		}
+		if (texCoord) createTexCoordBuffer();
 	}
 
 	Level::PosTexCoordBuffers::~PosTexCoordBuffers()
@@ -202,5 +180,16 @@ namespace Systems
 		glDeleteBuffers(1, &positionBuffer);
 		if (texCoordBuffer) glDeleteBuffers(1, &*texCoordBuffer);
 		glDeleteVertexArrays(1, &vertexArray);
+	}
+
+	void Level::PosTexCoordBuffers::createTexCoordBuffer()
+	{
+		assert(!texCoordBuffer);
+		texCoordBuffer = 0;
+		glBindVertexArray(vertexArray);
+		glGenBuffers(1, &*texCoordBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, *texCoordBuffer);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(1);
 	}
 }

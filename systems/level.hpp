@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <optional>
+#include <functional>
 #include <unordered_map>
 
 #include <glm/vec2.hpp>
@@ -35,9 +36,12 @@ namespace Systems
 			PosTexCoordBuffers(bool texCoord = false);
 			~PosTexCoordBuffers();
 
+			void createTexCoordBuffer();
+
 			GLuint vertexArray;
 			GLuint positionBuffer;
 			std::optional<GLuint> texCoordBuffer;
+			std::function<void(Shaders::ProgramId)> setup;
 
 			std::vector<glm::vec3> positionsCache;
 			std::vector<glm::vec2> texCoordCache;
@@ -47,6 +51,8 @@ namespace Systems
 		void initGraphics();
 
 		void updateTexCoordsBuffers();
+		void updateDynamicWallsTexCoordsBuffers();
+		void updateGrapplesTexCoordsBuffers();
 		void updateStaticWallsPositionsBuffers();
 		void updateDynamicWallsPositionsBuffers();
 		void updateGrapplesPositionsBuffers();
@@ -63,8 +69,14 @@ namespace Systems
 		std::unique_ptr<PosTexCoordBuffers> simpleDynamicWallsBuffers;
 		std::unordered_map<unsigned, PosTexCoordBuffers> texturesToStaticWallsBuffers;
 		std::unordered_map<unsigned, PosTexCoordBuffers> texturesToDynamicWallsBuffers;
+		std::vector<PosTexCoordBuffers> customSimpleStaticWallsBuffers;
+		std::vector<PosTexCoordBuffers> customSimpleDynamicWallsBuffers;
+		std::vector<PosTexCoordBuffers> customTexturedStaticWallsBuffers;
+		std::vector<PosTexCoordBuffers> customTexturedDynamicWallsBuffers;
 
 		std::unique_ptr<PosTexCoordBuffers> simpleGrapplesBuffers;
 		std::unordered_map<unsigned, PosTexCoordBuffers> texturesToGrapplesBuffers;
+		std::vector<PosTexCoordBuffers> customSimpleGrapplesBuffers;
+		std::vector<PosTexCoordBuffers> customTexturedGrapplesBuffers;
 	};
 }

@@ -16,18 +16,18 @@ namespace Components
 	struct Grapple
 	{
 		Grapple(std::unique_ptr<b2Body, b2BodyDeleter> body, float influenceRadius, std::optional<unsigned> texture = std::nullopt,
-			std::function<void(Shaders::ProgramId)> setup = nullptr):
+			std::function<void(Shaders::ProgramId)> renderingSetup = nullptr):
 			body(std::move(body)),
 			influenceRadius(influenceRadius),
 			texture(texture),
-			setup(setup)
+			renderingSetup(renderingSetup)
 		{
 		}
 
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
 		float influenceRadius;
 		std::optional<unsigned> texture;
-		std::function<void(Shaders::ProgramId)> setup;
+		std::function<void(Shaders::ProgramId)> renderingSetup;
 
 		glm::vec2 getPosition() const
 		{
