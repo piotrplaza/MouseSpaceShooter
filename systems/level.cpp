@@ -155,6 +155,13 @@ namespace Systems
 		glBindVertexArray(simpleStaticWallsBuffers->vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, simpleStaticWallsBuffers->positionsCache.size());
 
+		for (const auto& customSimpleStaticWallBuffers : customSimpleStaticWallsBuffers)
+		{
+			customSimpleStaticWallBuffers.renderingSetup(basicShadersProgram->program);
+			glBindVertexArray(customSimpleStaticWallBuffers.vertexArray);
+			glDrawArrays(GL_TRIANGLES, 0, customSimpleStaticWallBuffers.positionsCache.size());
+		}
+
 		basicShadersProgram->colorUniform.setValue({ 0.5f, 0.5f, 0.5f, 1.0f });
 		glBindVertexArray(simpleDynamicWallsBuffers->vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, simpleDynamicWallsBuffers->positionsCache.size());
@@ -164,7 +171,7 @@ namespace Systems
 		glDrawArrays(GL_TRIANGLES, 0, simpleGrapplesBuffers->positionsCache.size());
 	}
 
-	Level::PosTexCoordBuffers::PosTexCoordBuffers(bool texCoord)
+	Level::PosTexCoordBuffers::PosTexCoordBuffers()
 	{
 		glCreateVertexArrays(1, &vertexArray);
 		glBindVertexArray(vertexArray);
@@ -172,7 +179,6 @@ namespace Systems
 		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(0);
-		if (texCoord) createTexCoordBuffer();
 	}
 
 	Level::PosTexCoordBuffers::~PosTexCoordBuffers()

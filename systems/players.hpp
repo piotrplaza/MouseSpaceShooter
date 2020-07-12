@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <functional>
 #include <vector>
 #include <unordered_map>
 
@@ -36,6 +37,7 @@ namespace Systems
 
 			GLuint vertexArray;
 			GLuint positionBuffer;
+			std::function<void(Shaders::ProgramId)> renderingSetup;
 
 			std::vector<glm::vec3> positionsCache;
 			size_t numOfAllocatedVertices = 0;

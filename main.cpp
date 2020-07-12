@@ -7,7 +7,7 @@
 #include <GL/glew.h>
 #include <gl/gl.h>
 
-#include <glm/vec2.hpp>
+#include <glm/glm.hpp>
 
 #include "globals.hpp"
 
@@ -69,7 +69,14 @@ void CreateLevel()
 	staticWalls.emplace_back(Tools::CreateBoxBody({ 30.0f, 0.0f }, { 1.0f, 31.0f }), spaceRockTexture);
 	staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, -30.0f }, { 31.0f, 1.0f }), spaceRockTexture);
 	staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, 30.0f }, { 31.0f, 1.0f }), spaceRockTexture);
-	staticWalls.emplace_back(Tools::CreateCircleBody({ 10.0f, 0.0f }, 2.0f), spaceRockTexture);
+	staticWalls.emplace_back(Tools::CreateCircleBody({ 10.0f, 0.0f }, 2.0f)/*, spaceRockTexture*/);
+	staticWalls.back().renderingSetup = [
+		colorUniform = Uniforms::UniformController4f()
+	](Shaders::ProgramId program) mutable {
+			if (!colorUniform.isValid()) colorUniform = Uniforms::GetUniformController4f(program, "color");
+			colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
+				(glm::sin(Globals::Components::physics.simulationTime * glm::two_pi<float>()) + 1.0f) / 2.0f });
+	};
 
 	//Dynamic walls.
 	auto& wall1 = *dynamicWalls.emplace_back(Tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), woodTexture).body;

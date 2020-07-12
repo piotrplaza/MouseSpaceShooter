@@ -1,9 +1,9 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 #include <optional>
 #include <functional>
+#include <vector>
 #include <unordered_map>
 
 #include <glm/vec2.hpp>
@@ -33,7 +33,7 @@ namespace Systems
 	private:
 		struct PosTexCoordBuffers
 		{
-			PosTexCoordBuffers(bool texCoord = false);
+			PosTexCoordBuffers();
 			~PosTexCoordBuffers();
 
 			void createTexCoordBuffer();
@@ -41,7 +41,7 @@ namespace Systems
 			GLuint vertexArray;
 			GLuint positionBuffer;
 			std::optional<GLuint> texCoordBuffer;
-			std::function<void(Shaders::ProgramId)> setup;
+			std::function<void(Shaders::ProgramId)> renderingSetup;
 
 			std::vector<glm::vec3> positionsCache;
 			std::vector<glm::vec2> texCoordCache;
