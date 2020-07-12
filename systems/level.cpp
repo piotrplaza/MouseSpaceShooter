@@ -34,7 +34,6 @@ namespace Systems
 		simpleGrapplesBuffers = std::make_unique<PosTexCoordBuffers>();
 
 		updateStaticWallsPositionsBuffers();
-		updateGrapplesPositionsBuffers();
 		updateTexCoordsBuffers();
 	}
 
@@ -56,7 +55,7 @@ namespace Systems
 	{
 		Tools::UpdateSimpleAndTexturesPositionsBuffers(Globals::Components::grapples,
 			*simpleGrapplesBuffers, texturesToGrapplesBuffers, customSimpleGrapplesBuffers,
-			customTexturedGrapplesBuffers, GL_STATIC_DRAW);
+			customTexturedGrapplesBuffers, GL_DYNAMIC_DRAW);
 	}
 
 	void Level::updateTexCoordsBuffers()
@@ -80,6 +79,7 @@ namespace Systems
 	void Level::step()
 	{
 		updateDynamicWallsPositionsBuffers();
+		updateGrapplesPositionsBuffers();
 	}
 
 	void Level::render() const

@@ -53,11 +53,11 @@ void CreateLevel()
 	texturesDef.emplace_back("textures/rocket plane.png").scale = glm::vec2(0.6f);
 	texturesDef.back().translate = glm::vec2(0.35f, 0.5f);
 	const unsigned spaceRockTexture = texturesDef.size();
-	texturesDef.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT).scale = glm::vec2(0.1f);
+	texturesDef.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT).scale = glm::vec2(0.05f);
 	const unsigned woodTexture = texturesDef.size();
 	texturesDef.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT).scale = glm::vec2(0.06f);
 	const unsigned orbTexture = texturesDef.size();
-	texturesDef.emplace_back("textures/orb.png").scale = glm::vec2(0.5f);
+	texturesDef.emplace_back("textures/orb.png").scale = glm::vec2(0.25f);
 	texturesDef.back().translate = glm::vec2(0.5f);
 
 	//Player configuration.
@@ -65,10 +65,16 @@ void CreateLevel()
 	players.back().setPosition({ -10.0f, 0.0f });
 
 	//Static walls.
-	staticWalls.emplace_back(Tools::CreateBoxBody({ -30.0f, 0.0f }, { 1.0f, 31.0f }), spaceRockTexture);
-	staticWalls.emplace_back(Tools::CreateBoxBody({ 30.0f, 0.0f }, { 1.0f, 31.0f }), spaceRockTexture);
-	staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, -30.0f }, { 31.0f, 1.0f }), spaceRockTexture);
-	staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, 30.0f }, { 31.0f, 1.0f }), spaceRockTexture);
+	const float levelHSize = 50.0f;
+	const float bordersHGauge = 50.0f;
+	staticWalls.emplace_back(Tools::CreateBoxBody({ -levelHSize - bordersHGauge, 0.0f },
+		{ bordersHGauge, levelHSize + bordersHGauge * 2 }), spaceRockTexture);
+	staticWalls.emplace_back(Tools::CreateBoxBody({ levelHSize + bordersHGauge, 0.0f },
+		{ bordersHGauge, levelHSize + bordersHGauge * 2 }), spaceRockTexture);
+	staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize - bordersHGauge },
+		{ levelHSize + bordersHGauge * 2, bordersHGauge }), spaceRockTexture);
+	staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize + bordersHGauge },
+		{ levelHSize + bordersHGauge * 2, bordersHGauge }), spaceRockTexture);
 	staticWalls.emplace_back(Tools::CreateCircleBody({ 10.0f, 0.0f }, 2.0f)/*, spaceRockTexture*/);
 	staticWalls.back().renderingSetup = [
 		colorUniform = Uniforms::UniformController4f()
@@ -88,6 +94,8 @@ void CreateLevel()
 	//Grapples.
 	grapples.emplace_back(Tools::CreateCircleBody({0.0f, 10.0f}, 1.0f), 15.0f, orbTexture);
 	grapples.emplace_back(Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f, orbTexture);
+	grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f, orbTexture);
+	grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f);
 
 	//Camera.
 	camera.projectionHSizeF = []() {

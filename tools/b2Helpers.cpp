@@ -25,6 +25,7 @@ namespace Tools
 		bodyDef.type = b2_dynamicBody;
 		bodyDef.position.Set(0.0f, 0.0f);
 		bodyDef.angle = 0.0f;
+		bodyDef.bullet = true;
 		std::unique_ptr<b2Body, b2BodyDeleter> playerBody(physics.world.CreateBody(&bodyDef));
 
 		b2FixtureDef fixtureDef;
@@ -48,7 +49,7 @@ namespace Tools
 	}
 
 	std::unique_ptr<b2Body, b2BodyDeleter> CreateBoxBody(glm::vec2 position, glm::vec2 hSize, float angle,
-		b2BodyType bodyType, float density)
+		b2BodyType bodyType, float density, float restitution, float friction)
 	{
 		using namespace Globals::Components;
 
@@ -63,13 +64,15 @@ namespace Tools
 		polygonShape.SetAsBox(hSize.x, hSize.y);
 		fixtureDef.shape = &polygonShape;
 		fixtureDef.density = density;
+		fixtureDef.restitution = restitution;
+		fixtureDef.friction = friction;
 		body->CreateFixture(&fixtureDef);
 
 		return body;
 	}
 
 	std::unique_ptr<b2Body, b2BodyDeleter> CreateCircleBody(glm::vec2 position, float radius,
-		b2BodyType bodyType, float density)
+		b2BodyType bodyType, float density, float restitution, float friction)
 	{
 		using namespace Globals::Components;
 
@@ -83,6 +86,8 @@ namespace Tools
 		circleShape.m_radius = radius;
 		fixtureDef.shape = &circleShape;
 		fixtureDef.density = density;
+		fixtureDef.restitution = restitution;
+		fixtureDef.friction = friction;
 		body->CreateFixture(&fixtureDef);
 
 		return body;
