@@ -5,6 +5,47 @@
 
 namespace Tools
 {
+	namespace Detail
+	{
+		template <typename Buffers>
+		void AllocateOrUpdatePositionsData(Buffers& buffers, GLenum bufferDataUsage)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, buffers.positionBuffer);
+			if (buffers.numOfAllocatedPositions < buffers.positionsCache.size())
+			{
+				glBufferData(GL_ARRAY_BUFFER, buffers.positionsCache.size()
+					* sizeof(buffers.positionsCache.front()),
+					buffers.positionsCache.data(), bufferDataUsage);
+				buffers.numOfAllocatedPositions = buffers.positionsCache.size();
+			}
+			else
+			{
+				glBufferSubData(GL_ARRAY_BUFFER, 0, buffers.positionsCache.size()
+					* sizeof(buffers.positionsCache.front()),
+					buffers.positionsCache.data());
+			}
+		}
+
+		template <typename Buffers>
+		void AllocateOrUpdateTexCoordData(Buffers& buffers, GLenum bufferDataUsage)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, *buffers.texCoordBuffer);
+			if (buffers.numOfAllocatedTexCoord < buffers.texCoordCache.size())
+			{
+				glBufferData(GL_ARRAY_BUFFER, buffers.texCoordCache.size()
+					* sizeof(buffers.texCoordCache.front()),
+					buffers.texCoordCache.data(), bufferDataUsage);
+				buffers.numOfAllocatedTexCoord = buffers.texCoordCache.size();
+			}
+			else
+			{
+				glBufferSubData(GL_ARRAY_BUFFER, 0, buffers.texCoordCache.size()
+					* sizeof(buffers.texCoordCache.front()),
+					buffers.texCoordCache.data());
+			}
+		}
+	}
+
 	template <typename Component, typename Buffers>
 	inline void UpdateSimpleAndTexturesPositionsBuffers(const std::vector<Component>& components, Buffers& simpleBuffers,
 		std::unordered_map<unsigned, Buffers>& texturesToBuffers, std::vector<Buffers>& customSimpleBuffers,
@@ -18,83 +59,46 @@ namespace Tools
 		for (auto& component : components)
 		{
 			const auto positionsCache = component.generatePositionsCache();
-			if (component.texture)
+			auto& buffers = [&]() -> auto &
 			{
-				auto& texturedBuffers = texturesToBuffers[*component.texture];
-				texturedBuffers.positionsCache.insert(texturedBuffers.positionsCache.end(),
-					positionsCache.begin(), positionsCache.end());
-			}
-			else
-			{
-				auto& bufferPositionsCache = [&]() -> auto&
+				if (component.texture)
+				{
+					if (component.renderingSetup)
+					{
+						auto& buffers = customTexturedBuffers.emplace_back();
+						buffers.renderingSetup = component.renderingSetup;
+						buffers.texture = component.texture;
+						return buffers;
+					}
+					else
+					{
+						auto& buffers = texturesToBuffers[*component.texture];
+						buffers.texture = component.texture;
+						return buffers;
+					}
+				}
+				else
 				{
 					if (component.renderingSetup)
 					{
 						customSimpleBuffers.emplace_back().renderingSetup = component.renderingSetup;
-						return customSimpleBuffers.back().positionsCache;
+						return customSimpleBuffers.back();
 					}
 					else
 					{
-						return simpleBuffers.positionsCache;
+						return simpleBuffers;
 					}
-				}();
-				
-				bufferPositionsCache.insert(bufferPositionsCache.end(),
-					positionsCache.begin(), positionsCache.end());
+				}
+			}();
 
-			}
-		}
-
-		glBindBuffer(GL_ARRAY_BUFFER, simpleBuffers.positionBuffer);
-		if (simpleBuffers.numOfAllocatedVertices < simpleBuffers.positionsCache.size())
-		{
-			glBufferData(GL_ARRAY_BUFFER, simpleBuffers.positionsCache.size()
-				* sizeof(simpleBuffers.positionsCache.front()),
-				simpleBuffers.positionsCache.data(), bufferDataUsage);
-			simpleBuffers.numOfAllocatedVertices = simpleBuffers.positionsCache.size();
-		}
-		else
-		{
-			glBufferSubData(GL_ARRAY_BUFFER, 0, simpleBuffers.positionsCache.size()
-				* sizeof(simpleBuffers.positionsCache.front()),
-				simpleBuffers.positionsCache.data());
+			buffers.positionsCache.insert(buffers.positionsCache.end(),
+				positionsCache.begin(), positionsCache.end());
 		}
 
-		for (auto& [texture, texturedBuffers] : texturesToBuffers)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, texturedBuffers.positionBuffer);
-			if (texturedBuffers.numOfAllocatedVertices < texturedBuffers.positionsCache.size())
-			{
-				glBufferData(GL_ARRAY_BUFFER, texturedBuffers.positionsCache.size()
-					* sizeof(texturedBuffers.positionsCache.front()),
-					texturedBuffers.positionsCache.data(), bufferDataUsage);
-				texturedBuffers.numOfAllocatedVertices = texturedBuffers.positionsCache.size();
-			}
-			else
-			{
-				glBufferSubData(GL_ARRAY_BUFFER, 0, texturedBuffers.positionsCache.size()
-					* sizeof(texturedBuffers.positionsCache.front()),
-					texturedBuffers.positionsCache.data());
-			}
-		}
-
-		for (auto& customSimpleBuffer : customSimpleBuffers)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, customSimpleBuffer.positionBuffer);
-			if (customSimpleBuffer.numOfAllocatedVertices < customSimpleBuffer.positionsCache.size())
-			{
-				glBufferData(GL_ARRAY_BUFFER, customSimpleBuffer.positionsCache.size()
-					* sizeof(customSimpleBuffer.positionsCache.front()),
-					customSimpleBuffer.positionsCache.data(), bufferDataUsage);
-				customSimpleBuffer.numOfAllocatedVertices = customSimpleBuffer.positionsCache.size();
-			}
-			else
-			{
-				glBufferSubData(GL_ARRAY_BUFFER, 0, customSimpleBuffer.positionsCache.size()
-					* sizeof(customSimpleBuffer.positionsCache.front()),
-					customSimpleBuffer.positionsCache.data());
-			}
-		}
+		Detail::AllocateOrUpdatePositionsData(simpleBuffers, bufferDataUsage);
+		for (auto& [texture, buffers] : texturesToBuffers) Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
+		for (auto& buffers : customSimpleBuffers) Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
+		for (auto& buffers : customTexturedBuffers) Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
 	}
 
 	template <typename Component, typename Buffers>
@@ -114,6 +118,7 @@ namespace Tools
 					? customTexturedBuffers.emplace_back()
 					: texturesToBuffers[*component.texture];
 
+				texturedBuffers.texture = component.texture;
 				if (!texturedBuffers.texCoordBuffer) texturedBuffers.createTexCoordBuffer();
 
 				for (const auto& position : positionsCache)
@@ -123,17 +128,7 @@ namespace Tools
 			}
 		}
 
-		for (auto& [texture, buffers] : texturesToBuffers)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, *buffers.texCoordBuffer);
-			glBufferData(GL_ARRAY_BUFFER, buffers.texCoordCache.size() * sizeof(buffers.texCoordCache.front()),
-				buffers.texCoordCache.data(), bufferDataUsage);
-		}
-		for (auto& buffers : customTexturedBuffers)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, *buffers.texCoordBuffer);
-			glBufferData(GL_ARRAY_BUFFER, buffers.texCoordCache.size() * sizeof(buffers.texCoordCache.front()),
-				buffers.texCoordCache.data(), bufferDataUsage);
-		}
+		for (auto& [texture, buffers] : texturesToBuffers) Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
+		for (auto& buffers : customTexturedBuffers) Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
 	}
 }

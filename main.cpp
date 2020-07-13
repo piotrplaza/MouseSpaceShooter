@@ -75,7 +75,7 @@ void CreateLevel()
 		{ levelHSize + bordersHGauge * 2, bordersHGauge }), spaceRockTexture);
 	staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize + bordersHGauge },
 		{ levelHSize + bordersHGauge * 2, bordersHGauge }), spaceRockTexture);
-	staticWalls.emplace_back(Tools::CreateCircleBody({ 10.0f, 0.0f }, 2.0f)/*, spaceRockTexture*/);
+	staticWalls.emplace_back(Tools::CreateCircleBody({ 10.0f, 0.0f }, 2.0f), spaceRockTexture);
 	staticWalls.back().renderingSetup = [
 		colorUniform = Uniforms::UniformController4f()
 	](Shaders::ProgramId program) mutable {

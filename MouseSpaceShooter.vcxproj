@@ -50,6 +50,7 @@
     <ClInclude Include="globals.hpp" />
     <ClInclude Include="ogl\buffersHelpers.hpp" />
     <ClInclude Include="ogl\oglProxy.hpp" />
+    <ClInclude Include="ogl\renderingHelpers.hpp" />
     <ClInclude Include="ogl\shaders.hpp" />
     <ClInclude Include="ogl\uniformControllers.hpp" />
     <ClInclude Include="shaders\basic.hpp" />

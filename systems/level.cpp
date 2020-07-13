@@ -6,6 +6,7 @@
 
 #include <ogl/oglProxy.hpp>
 #include <ogl/buffersHelpers.hpp>
+#include <ogl/renderingHelpers.hpp>
 
 #include <globals.hpp>
 
@@ -95,19 +96,14 @@ namespace Systems
 
 		glUseProgram_proxy(sceneCoordTexturedShadersProgram->program);
 		sceneCoordTexturedShadersProgram->mvpUniform.setValue(mvp.getVP());
+		sceneCoordTexturedShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 		for (const auto& [texture, texturedStaticWallBuffers] : texturesToStaticWallsBuffers)
-		{
-			const auto& textureComponent = textures[texture];
-			const auto& textureDefComponent = texturesDef[texture];
+			Tools::TexturedRender(*sceneCoordTexturedShadersProgram, texturedStaticWallBuffers, texture);
 
-			sceneCoordTexturedShadersProgram->texture1Uniform.setValue(texture);
-			sceneCoordTexturedShadersProgram->textureTranslateUniform.setValue(textureDefComponent.translate);
-			sceneCoordTexturedShadersProgram->textureScaleUniform.setValue(
-				{ (float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y });
-			glBindVertexArray(texturedStaticWallBuffers.vertexArray);
-			glDrawArrays(GL_TRIANGLES, 0, texturedStaticWallBuffers.positionsCache.size());
-		}
+		for (const auto& customTexturedStaticWallBuffers : customTexturedStaticWallsBuffers)
+			Tools::TexturedRender(*sceneCoordTexturedShadersProgram, customTexturedStaticWallBuffers ,
+				*customTexturedStaticWallBuffers.texture);
 	}
 
 	void Level::texturedRender() const
@@ -116,32 +112,13 @@ namespace Systems
 
 		glUseProgram_proxy(texturedShadersProgram->program);
 		texturedShadersProgram->mvpUniform.setValue(mvp.getVP());
+		texturedShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 		for (const auto& [texture, texturedDynamicWallBuffers] : texturesToDynamicWallsBuffers)
-		{
-			const auto& textureComponent = textures[texture];
-			const auto& textureDefComponent = texturesDef[texture];
-
-			texturedShadersProgram->texture1Uniform.setValue(texture);
-			texturedShadersProgram->textureTranslateUniform.setValue(textureDefComponent.translate);
-			texturedShadersProgram->textureScaleUniform.setValue(
-				{ (float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y });
-			glBindVertexArray(texturedDynamicWallBuffers.vertexArray);
-			glDrawArrays(GL_TRIANGLES, 0, texturedDynamicWallBuffers.positionsCache.size());
-		}
+			Tools::TexturedRender(*texturedShadersProgram, texturedDynamicWallBuffers, texture);
 
 		for (const auto& [texture, texturedGrappleBuffers] : texturesToGrapplesBuffers)
-		{
-			const auto& textureComponent = textures[texture];
-			const auto& textureDefComponent = texturesDef[texture];
-
-			texturedShadersProgram->texture1Uniform.setValue(texture);
-			texturedShadersProgram->textureTranslateUniform.setValue(textureDefComponent.translate);
-			texturedShadersProgram->textureScaleUniform.setValue(
-				{ (float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y });
-			glBindVertexArray(texturedGrappleBuffers.vertexArray);
-			glDrawArrays(GL_TRIANGLES, 0, texturedGrappleBuffers.positionsCache.size());
-		}
+			Tools::TexturedRender(*texturedShadersProgram, texturedGrappleBuffers, texture);
 	}
 
 	void Level::basicRender() const
@@ -150,10 +127,16 @@ namespace Systems
 
 		glUseProgram_proxy(basicShadersProgram->program);
 		basicShadersProgram->mvpUniform.setValue(mvp.getVP());
+		basicShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
 
-		basicShadersProgram->colorUniform.setValue({ 0.5f, 0.5f, 0.5f, 1.0f });
 		glBindVertexArray(simpleStaticWallsBuffers->vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, simpleStaticWallsBuffers->positionsCache.size());
+
+		glBindVertexArray(simpleDynamicWallsBuffers->vertexArray);
+		glDrawArrays(GL_TRIANGLES, 0, simpleDynamicWallsBuffers->positionsCache.size());
+
+		glBindVertexArray(simpleGrapplesBuffers->vertexArray);
+		glDrawArrays(GL_TRIANGLES, 0, simpleGrapplesBuffers->positionsCache.size());
 
 		for (const auto& customSimpleStaticWallBuffers : customSimpleStaticWallsBuffers)
 		{
@@ -161,14 +144,6 @@ namespace Systems
 			glBindVertexArray(customSimpleStaticWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimpleStaticWallBuffers.positionsCache.size());
 		}
-
-		basicShadersProgram->colorUniform.setValue({ 0.5f, 0.5f, 0.5f, 1.0f });
-		glBindVertexArray(simpleDynamicWallsBuffers->vertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, simpleDynamicWallsBuffers->positionsCache.size());
-
-		basicShadersProgram->colorUniform.setValue({ 0.0f, 0.5f, 0.0f, 1.0f });
-		glBindVertexArray(simpleGrapplesBuffers->vertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, simpleGrapplesBuffers->positionsCache.size());
 	}
 
 	Level::PosTexCoordBuffers::PosTexCoordBuffers()

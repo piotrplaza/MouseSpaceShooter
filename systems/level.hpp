@@ -40,12 +40,15 @@ namespace Systems
 
 			GLuint vertexArray;
 			GLuint positionBuffer;
+
 			std::optional<GLuint> texCoordBuffer;
+			std::optional<unsigned> texture;
 			std::function<void(Shaders::ProgramId)> renderingSetup;
 
 			std::vector<glm::vec3> positionsCache;
 			std::vector<glm::vec2> texCoordCache;
-			size_t numOfAllocatedVertices = 0;
+			size_t numOfAllocatedPositions = 0;
+			size_t numOfAllocatedTexCoord = 0;
 		};
 
 		void initGraphics();

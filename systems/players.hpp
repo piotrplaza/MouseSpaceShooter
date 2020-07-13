@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <functional>
+#include <optional>
 #include <vector>
 #include <unordered_map>
 
@@ -37,10 +38,12 @@ namespace Systems
 
 			GLuint vertexArray;
 			GLuint positionBuffer;
+
+			std::optional<unsigned> texture;
 			std::function<void(Shaders::ProgramId)> renderingSetup;
 
 			std::vector<glm::vec3> positionsCache;
-			size_t numOfAllocatedVertices = 0;
+			size_t numOfAllocatedPositions = 0;
 		};
 
 		struct ConnectionsBuffers

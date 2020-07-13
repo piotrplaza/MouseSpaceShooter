@@ -159,6 +159,9 @@
     <ClInclude Include="ogl\buffersHelpers.hpp">
       <Filter>src\ogl</Filter>
     </ClInclude>
+    <ClInclude Include="ogl\renderingHelpers.hpp">
+      <Filter>src\ogl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.fs">
