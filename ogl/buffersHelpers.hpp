@@ -56,16 +56,21 @@ namespace Tools
 		for (auto& buffers: customSimpleBuffers) buffers.positionsCache.clear();
 		for (auto& buffers: customTexturedBuffers) buffers.positionsCache.clear();
 
+		auto customSimpleBuffersIt = customSimpleBuffers.begin();
+		auto customTexturedBuffersIt = customTexturedBuffers.begin();
+
 		for (auto& component : components)
 		{
 			const auto positionsCache = component.generatePositionsCache();
-			auto& buffers = [&]() -> auto &
+			auto& buffers = [&]() -> auto&
 			{
 				if (component.texture)
 				{
 					if (component.renderingSetup)
 					{
-						auto& buffers = customTexturedBuffers.emplace_back();
+						auto& buffers = customTexturedBuffersIt == customTexturedBuffers.end()
+							? customTexturedBuffers.emplace_back()
+							: *customTexturedBuffersIt++;
 						buffers.renderingSetup = component.renderingSetup;
 						buffers.texture = component.texture;
 						return buffers;
@@ -81,8 +86,11 @@ namespace Tools
 				{
 					if (component.renderingSetup)
 					{
-						customSimpleBuffers.emplace_back().renderingSetup = component.renderingSetup;
-						return customSimpleBuffers.back();
+						auto& buffers = customSimpleBuffersIt == customSimpleBuffers.end()
+							? customSimpleBuffers.emplace_back()
+							: *customSimpleBuffersIt++;
+						buffers.renderingSetup = component.renderingSetup;
+						return buffers;
 					}
 					else
 					{
@@ -109,14 +117,26 @@ namespace Tools
 		for (auto& [texture, buffers] : texturesToBuffers) buffers.texCoordCache.clear();
 		for (auto& buffers : customTexturedBuffers) buffers.texCoordCache.clear();
 
+		auto customTexturedBuffersIt = customTexturedBuffers.begin();
+
 		for (auto& component : components)
 		{
 			if (component.texture)
 			{
 				const auto positionsCache = component.generatePositionsCache(false);
-				auto& texturedBuffers = component.renderingSetup
-					? customTexturedBuffers.emplace_back()
-					: texturesToBuffers[*component.texture];
+				auto& texturedBuffers = [&]() -> auto&
+				{
+					if (component.renderingSetup)
+					{
+						return customTexturedBuffersIt == customTexturedBuffers.end()
+							? customTexturedBuffers.emplace_back()
+							: *customTexturedBuffersIt++;
+					}
+					else
+					{
+						return texturesToBuffers[*component.texture];
+					}
+				}();
 
 				texturedBuffers.texture = component.texture;
 				if (!texturedBuffers.texCoordBuffer) texturedBuffers.createTexCoordBuffer();

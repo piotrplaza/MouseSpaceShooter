@@ -90,6 +90,13 @@ void CreateLevel()
 	wall1.GetFixtureList()->SetRestitution(0.5f);
 	wall2.GetFixtureList()->SetRestitution(0.5f);
 	Tools::PinBodies(wall1, wall2, {5.0f, 0.0f});
+	dynamicWalls.back().renderingSetup = [
+		colorUniform = Uniforms::UniformController4f()
+	](Shaders::ProgramId program) mutable {
+		if (!colorUniform.isValid()) colorUniform = Uniforms::GetUniformController4f(program, "color");
+		colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
+			(glm::sin(Globals::Components::physics.simulationTime * glm::two_pi<float>()) + 1.0f) / 2.0f });
+	};
 
 	//Grapples.
 	grapples.emplace_back(Tools::CreateCircleBody({0.0f, 10.0f}, 1.0f), 15.0f, orbTexture);

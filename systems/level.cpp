@@ -119,6 +119,10 @@ namespace Systems
 
 		for (const auto& [texture, texturedGrappleBuffers] : texturesToGrapplesBuffers)
 			Tools::TexturedRender(*texturedShadersProgram, texturedGrappleBuffers, texture);
+
+		for (const auto& customTexturedDynamicWallBuffers : customTexturedDynamicWallsBuffers)
+			Tools::TexturedRender(*texturedShadersProgram, customTexturedDynamicWallBuffers,
+				*customTexturedDynamicWallBuffers.texture);
 	}
 
 	void Level::basicRender() const

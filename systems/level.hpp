@@ -53,12 +53,13 @@ namespace Systems
 
 		void initGraphics();
 
-		void updateTexCoordsBuffers();
-		void updateDynamicWallsTexCoordsBuffers();
-		void updateGrapplesTexCoordsBuffers();
 		void updateStaticWallsPositionsBuffers();
 		void updateDynamicWallsPositionsBuffers();
 		void updateGrapplesPositionsBuffers();
+
+		void updateTexCoordsBuffers();
+		void updateDynamicWallsTexCoordsBuffers();
+		void updateGrapplesTexCoordsBuffers();
 
 		void sceneCoordTexturedRender() const;
 		void texturedRender() const;
