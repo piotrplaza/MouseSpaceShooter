@@ -95,14 +95,28 @@ void CreateLevel()
 	](Shaders::ProgramId program) mutable {
 		if (!colorUniform.isValid()) colorUniform = Uniforms::GetUniformController4f(program, "color");
 		colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
-			(glm::sin(Globals::Components::physics.simulationTime * glm::two_pi<float>()) + 1.0f) / 2.0f });
+			(glm::sin(Globals::Components::physics.simulationTime / 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
 	};
 
 	//Grapples.
-	grapples.emplace_back(Tools::CreateCircleBody({0.0f, 10.0f}, 1.0f), 15.0f, orbTexture);
+	grapples.emplace_back(Tools::CreateCircleBody({ 0.0f, 10.0f }, 1.0f), 15.0f, orbTexture);
 	grapples.emplace_back(Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f, orbTexture);
+	grapples.back().renderingSetup = [
+		colorUniform = Uniforms::UniformController4f()
+	](Shaders::ProgramId program) mutable {
+		if (!colorUniform.isValid()) colorUniform = Uniforms::GetUniformController4f(program, "color");
+		colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
+			(glm::sin(Globals::Components::physics.simulationTime / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
+	};
 	grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f, orbTexture);
 	grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f);
+	grapples.back().renderingSetup = [
+		colorUniform = Uniforms::UniformController4f()
+	](Shaders::ProgramId program) mutable {
+		if (!colorUniform.isValid()) colorUniform = Uniforms::GetUniformController4f(program, "color");
+		colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
+			(glm::sin(Globals::Components::physics.simulationTime / 4.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
+	};
 
 	//Camera.
 	camera.projectionHSizeF = []() {

@@ -102,8 +102,11 @@ namespace Systems
 			Tools::TexturedRender(*sceneCoordTexturedShadersProgram, texturedStaticWallBuffers, texture);
 
 		for (const auto& customTexturedStaticWallBuffers : customTexturedStaticWallsBuffers)
-			Tools::TexturedRender(*sceneCoordTexturedShadersProgram, customTexturedStaticWallBuffers ,
+		{
+			customTexturedStaticWallBuffers.renderingSetup(sceneCoordTexturedShadersProgram->program);
+			Tools::TexturedRender(*sceneCoordTexturedShadersProgram, customTexturedStaticWallBuffers,
 				*customTexturedStaticWallBuffers.texture);
+		}
 	}
 
 	void Level::texturedRender() const
@@ -121,8 +124,18 @@ namespace Systems
 			Tools::TexturedRender(*texturedShadersProgram, texturedGrappleBuffers, texture);
 
 		for (const auto& customTexturedDynamicWallBuffers : customTexturedDynamicWallsBuffers)
+		{
+			customTexturedDynamicWallBuffers.renderingSetup(texturedShadersProgram->program);
 			Tools::TexturedRender(*texturedShadersProgram, customTexturedDynamicWallBuffers,
 				*customTexturedDynamicWallBuffers.texture);
+		}
+
+		for (const auto& customTextureGrapplesBuffers : customTexturedGrapplesBuffers)
+		{
+			customTextureGrapplesBuffers.renderingSetup(texturedShadersProgram->program);
+			Tools::TexturedRender(*texturedShadersProgram, customTextureGrapplesBuffers,
+				*customTextureGrapplesBuffers.texture);
+		}
 	}
 
 	void Level::basicRender() const
@@ -147,6 +160,13 @@ namespace Systems
 			customSimpleStaticWallBuffers.renderingSetup(basicShadersProgram->program);
 			glBindVertexArray(customSimpleStaticWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimpleStaticWallBuffers.positionsCache.size());
+		}
+
+		for (const auto& customSimpleGrapplesBuffers : customSimpleGrapplesBuffers)
+		{
+			customSimpleGrapplesBuffers.renderingSetup(basicShadersProgram->program);
+			glBindVertexArray(customSimpleGrapplesBuffers.vertexArray);
+			glDrawArrays(GL_TRIANGLES, 0, customSimpleGrapplesBuffers.positionsCache.size());
 		}
 	}
 
