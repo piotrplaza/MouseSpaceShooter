@@ -18,7 +18,7 @@ namespace Tools
 		shadersProgram.texture1Uniform.setValue(texture);
 		shadersProgram.textureTranslateUniform.setValue(textureDefComponent.translate);
 		shadersProgram.textureScaleUniform.setValue(
-			{ (float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y });
+			{ (float)textureComponent.width / textureComponent.height * textureDefComponent.scale.x, textureDefComponent.scale.y });
 		if (buffers.renderingSetup) buffers.renderingSetup(shadersProgram.program);
 		glBindVertexArray(buffers.vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, buffers.positionsCache.size());

@@ -12,6 +12,6 @@ uniform bool textureCoordBasedOnModelTransform = false;
 
 void main()
 {
-	vTexCoord = ((textureCoordBasedOnModelTransform ? model : mat4(1.0)) * vec4(bPos, 1.0)).xy * textureScale + textureTranslate;
+	vTexCoord = ((textureCoordBasedOnModelTransform ? model : mat4(1.0)) * vec4(bPos, 1.0)).xy / textureScale + textureTranslate;
 	gl_Position = mvp * vec4(bPos, 1.0);
 }
