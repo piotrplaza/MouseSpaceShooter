@@ -63,6 +63,13 @@ void CreateLevel()
 	//Player configuration.
 	players.emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), rocketPlaneTexture);
 	players.back().setPosition({ -10.0f, 0.0f });
+	players.back().renderingSetup = [
+		colorUniform = Uniforms::UniformController4f()
+	](Shaders::ProgramId program) mutable {
+		if (!colorUniform.isValid()) colorUniform = Uniforms::GetUniformController4f(program, "color");
+		const float fade = (glm::sin(Globals::Components::physics.simulationTime / 0.5f * glm::two_pi<float>()) + 1.0f) / 2.0f;
+		colorUniform.setValue({ fade, 1.0f, fade, 1.0f});
+	};
 
 	//Static walls.
 	const float levelHSize = 50.0f;

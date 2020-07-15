@@ -9,6 +9,7 @@
 
 #include <ogl/oglProxy.hpp>
 #include <ogl/buffersHelpers.hpp>
+#include <ogl/renderingHelpers.hpp>
 
 #include <tools/b2Helpers.hpp>
 
@@ -126,29 +127,29 @@ namespace Systems
 		glUseProgram_proxy(basicShadersProgram->program);
 		basicShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getMVP(player.getModelMatrix()));
 		basicShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
+
 		glBindVertexArray(simplePlayersBuffers->positionBuffer);
 		glDrawArrays(GL_TRIANGLES, 0, simplePlayersBuffers->positionsCache.size());
+
+		for (const auto& customSimplePlayerBuffers : customSimplePlayersBuffers)
+		{
+			customSimplePlayerBuffers.renderingSetup(basicShadersProgram->program);
+			glBindVertexArray(customSimplePlayerBuffers.vertexArray);
+			glDrawArrays(GL_TRIANGLES, 0, customSimplePlayerBuffers.positionsCache.size());
+		}
 	}
 
 	void Players::sceneCoordTexturedRender() const
 	{
-		using namespace Globals::Components;
-
 		glUseProgram_proxy(sceneCoordTexturedShadersProgram->program);
-		sceneCoordTexturedShadersProgram->mvpUniform.setValue(mvp.getMVP(player.getModelMatrix()));
+		sceneCoordTexturedShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getMVP(player.getModelMatrix()));
 
 		for (const auto& [texture, texturedPlayerBuffers] : texturesToPlayersBuffers)
-		{
-			const auto& textureComponent = textures[texture];
-			const auto& textureDefComponent = texturesDef[texture];
+			Tools::TexturedRender(*sceneCoordTexturedShadersProgram, texturedPlayerBuffers, texture);
 
-			sceneCoordTexturedShadersProgram->texture1Uniform.setValue(texture);
-			sceneCoordTexturedShadersProgram->textureTranslateUniform.setValue(textureDefComponent.translate);
-			sceneCoordTexturedShadersProgram->textureScaleUniform.setValue(
-				{ (float)textureComponent.height / textureComponent.width * textureDefComponent.scale.x, textureDefComponent.scale.y });
-			glBindVertexArray(texturedPlayerBuffers.vertexArray);
-			glDrawArrays(GL_TRIANGLES, 0, texturedPlayerBuffers.positionsCache.size());
-		}
+		for (const auto& customTexturedPlayerBuffers : customTexturedPlayersBuffers)
+			Tools::TexturedRender(*sceneCoordTexturedShadersProgram, customTexturedPlayerBuffers,
+				*customTexturedPlayerBuffers.texture);
 	}
 
 	void Players::coloredRender() const
