@@ -38,6 +38,7 @@
     <ClInclude Include="3rdParty\stb_image\stb_image.h" />
     <ClInclude Include="components\camera.hpp" />
     <ClInclude Include="components\connection.hpp" />
+    <ClInclude Include="components\decoration.hpp" />
     <ClInclude Include="components\grapple.hpp" />
     <ClInclude Include="components\mouseState.hpp" />
     <ClInclude Include="components\mvp.hpp" />
@@ -58,6 +59,7 @@
     <ClInclude Include="shaders\sceneCoordTextured.hpp" />
     <ClInclude Include="shaders\textured.hpp" />
     <ClInclude Include="systems\camera.hpp" />
+    <ClInclude Include="systems\decorations.hpp" />
     <ClInclude Include="systems\level.hpp" />
     <ClInclude Include="systems\physics.hpp" />
     <ClInclude Include="systems\players.hpp" />

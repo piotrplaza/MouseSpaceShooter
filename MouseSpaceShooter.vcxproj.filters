@@ -162,6 +162,12 @@
     <ClInclude Include="ogl\renderingHelpers.hpp">
       <Filter>src\ogl</Filter>
     </ClInclude>
+    <ClInclude Include="components\decoration.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\decorations.hpp">
+      <Filter>src\systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.fs">

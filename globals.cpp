@@ -5,19 +5,21 @@
 #include "components/screenInfo.hpp"
 #include "components/mvp.hpp"
 #include "components/physics.hpp"
+#include "components/textureDef.hpp"
+#include "components/texture.hpp"
 #include "components/player.hpp"
 #include "components/wall.hpp"
 #include "components/grapple.hpp"
 #include "components/connection.hpp"
 #include "components/camera.hpp"
-#include "components/textureDef.hpp"
-#include "components/texture.hpp"
+#include "components/decoration.hpp"
 
 #include "systems/physics.hpp"
+#include "systems/textures.hpp"
 #include "systems/players.hpp"
 #include "systems/level.hpp"
 #include "systems/camera.hpp"
-#include "systems/textures.hpp"
+#include "systems/decorations.hpp"
 
 namespace Components
 {
@@ -27,13 +29,16 @@ namespace Components
 	static ::Components::Physics physics;
 	static ::Components::Camera camera;
 
+	static std::vector<::Components::TextureDef> texturesDef;
+	static std::vector<::Components::Texture> textures;
 	static std::vector<::Components::Player> players;
 	static std::vector<::Components::Wall> staticWalls;
 	static std::vector<::Components::Wall> dynamicWalls;
 	static std::vector<::Components::Grapple> grapples;
 	static std::vector<::Components::Connection> connections;
-	static std::vector<::Components::TextureDef> texturesDef;
-	static std::vector<::Components::Texture> textures;
+	static std::vector<::Components::Decoration> backgroundDecorations;
+	static std::vector<::Components::Decoration> midgroundDecorations;
+	static std::vector<::Components::Decoration> foregroundDecorations;
 }
 
 namespace Globals
@@ -46,35 +51,45 @@ namespace Globals
 		::Components::Physics& physics = ::Components::physics;
 		::Components::Camera& camera = ::Components::camera;
 
+		std::vector<::Components::TextureDef>& texturesDef = ::Components::texturesDef;
+		std::vector<::Components::Texture>& textures = ::Components::textures;
 		std::vector<::Components::Player>& players = ::Components::players;
 		std::vector<::Components::Wall>& staticWalls = ::Components::staticWalls;
 		std::vector<::Components::Wall>& dynamicWalls = ::Components::dynamicWalls;
 		std::vector<::Components::Grapple>& grapples = ::Components::grapples;
 		std::vector<::Components::Connection>& connections = ::Components::connections;
-		std::vector<::Components::TextureDef>& texturesDef = ::Components::texturesDef;
-		std::vector<::Components::Texture>& textures = ::Components::textures;
+		std::vector<::Components::Decoration>& backgroundDecorations = ::Components::backgroundDecorations;
+		std::vector<::Components::Decoration>& midgroundDecorations = ::Components::midgroundDecorations;;
+		std::vector<::Components::Decoration>& foregroundDecorations = ::Components::foregroundDecorations;;
 	}
 
 	namespace Systems
 	{
 		std::unique_ptr<::Systems::Physics> physics;
+		std::unique_ptr<::Systems::Textures> textures;
 		std::unique_ptr<::Systems::Players> players;
 		std::unique_ptr<::Systems::Level> level;
 		std::unique_ptr<::Systems::Camera> camera;
-		std::unique_ptr<::Systems::Textures> textures;
+		std::unique_ptr<::Systems::Decorations> decorations;
 
 		void Initialize()
 		{
 			physics = std::make_unique<::Systems::Physics>();
+			textures = std::make_unique<::Systems::Textures>();
 			players = std::make_unique<::Systems::Players>();
 			level = std::make_unique<::Systems::Level>();
 			camera = std::make_unique<::Systems::Camera>();
-			textures = std::make_unique<::Systems::Textures>();
+			decorations = std::make_unique<::Systems::Decorations>();
 		}
 
 		::Systems::Physics& AccessPhysics()
 		{
 			return *physics;
+		}
+
+		::Systems::Textures& AccessTextures()
+		{
+			return *textures;
 		}
 
 		::Systems::Players& AccessPlayers()
@@ -92,9 +107,9 @@ namespace Globals
 			return *camera;
 		}
 
-		::Systems::Textures& AccessTextures()
+		::Systems::Decorations& AccessDecorations()
 		{
-			return *textures;
+			return *decorations;
 		}
 	}
 }

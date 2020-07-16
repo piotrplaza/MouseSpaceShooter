@@ -14,16 +14,18 @@
 #include "components/mouseState.hpp"
 #include "components/screenInfo.hpp"
 #include "components/physics.hpp"
+#include "components/textureDef.hpp"
 #include "components/player.hpp"
 #include "components/wall.hpp"
 #include "components/grapple.hpp"
 #include "components/camera.hpp"
-#include "components/textureDef.hpp"
+#include "components/decoration.hpp"
 
 #include "systems/level.hpp"
 #include "systems/players.hpp"
 #include "systems/physics.hpp"
 #include "systems/camera.hpp"
+#include "systems/decorations.hpp"
 
 #include "tools/utility.hpp"
 
