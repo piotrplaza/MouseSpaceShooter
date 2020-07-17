@@ -15,6 +15,8 @@
 #include <shaders/sceneCoordTextured.hpp>
 #include <shaders/textured.hpp>
 
+#include <buffers/posTexCoordBuffers.hpp>
+
 namespace Components
 {
 	struct Wall;
@@ -31,26 +33,6 @@ namespace Systems
 		void render() const;
 
 	private:
-		struct PosTexCoordBuffers
-		{
-			PosTexCoordBuffers();
-			~PosTexCoordBuffers();
-
-			void createTexCoordBuffer();
-
-			GLuint vertexArray;
-			GLuint positionBuffer;
-
-			std::optional<GLuint> texCoordBuffer;
-			std::optional<unsigned> texture;
-			std::function<void(Shaders::ProgramId)> renderingSetup;
-
-			std::vector<glm::vec3> positionsCache;
-			std::vector<glm::vec2> texCoordCache;
-			size_t numOfAllocatedPositions = 0;
-			size_t numOfAllocatedTexCoord = 0;
-		};
-
 		void initGraphics();
 
 		void updateStaticWallsPositionsBuffers();
@@ -69,18 +51,18 @@ namespace Systems
 		std::unique_ptr<Shaders::Programs::SceneCoordTextured> sceneCoordTexturedShadersProgram;
 		std::unique_ptr<Shaders::Programs::Textured> texturedShadersProgram;
 
-		std::unique_ptr<PosTexCoordBuffers> simpleStaticWallsBuffers;
-		std::unique_ptr<PosTexCoordBuffers> simpleDynamicWallsBuffers;
-		std::unordered_map<unsigned, PosTexCoordBuffers> texturesToStaticWallsBuffers;
-		std::unordered_map<unsigned, PosTexCoordBuffers> texturesToDynamicWallsBuffers;
-		std::vector<PosTexCoordBuffers> customSimpleStaticWallsBuffers;
-		std::vector<PosTexCoordBuffers> customSimpleDynamicWallsBuffers;
-		std::vector<PosTexCoordBuffers> customTexturedStaticWallsBuffers;
-		std::vector<PosTexCoordBuffers> customTexturedDynamicWallsBuffers;
+		std::unique_ptr<Buffers::PosTexCoordBuffers> simpleStaticWallsBuffers;
+		std::unique_ptr<Buffers::PosTexCoordBuffers> simpleDynamicWallsBuffers;
+		std::unordered_map<unsigned, Buffers::PosTexCoordBuffers> texturesToStaticWallsBuffers;
+		std::unordered_map<unsigned, Buffers::PosTexCoordBuffers> texturesToDynamicWallsBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> customSimpleStaticWallsBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> customSimpleDynamicWallsBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> customTexturedStaticWallsBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> customTexturedDynamicWallsBuffers;
 
-		std::unique_ptr<PosTexCoordBuffers> simpleGrapplesBuffers;
-		std::unordered_map<unsigned, PosTexCoordBuffers> texturesToGrapplesBuffers;
-		std::vector<PosTexCoordBuffers> customSimpleGrapplesBuffers;
-		std::vector<PosTexCoordBuffers> customTexturedGrapplesBuffers;
+		std::unique_ptr<Buffers::PosTexCoordBuffers> simpleGrapplesBuffers;
+		std::unordered_map<unsigned, Buffers::PosTexCoordBuffers> texturesToGrapplesBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> customSimpleGrapplesBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> customTexturedGrapplesBuffers;
 	};
 }

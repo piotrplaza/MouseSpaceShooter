@@ -20,12 +20,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
+    <ClCompile Include="buffers\posTexCoordBuffers.cpp" />
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ogl\oglProxy.cpp" />
     <ClCompile Include="ogl\shaders.cpp" />
     <ClCompile Include="ogl\uniformControllers.cpp" />
     <ClCompile Include="systems\camera.cpp" />
+    <ClCompile Include="systems\decorations.cpp" />
     <ClCompile Include="systems\level.cpp" />
     <ClCompile Include="systems\physics.cpp" />
     <ClCompile Include="systems\players.cpp" />
@@ -36,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdParty\stb_image\stb_image.h" />
+    <ClInclude Include="buffers\posTexCoordBuffers.hpp" />
     <ClInclude Include="components\camera.hpp" />
     <ClInclude Include="components\connection.hpp" />
     <ClInclude Include="components\decoration.hpp" />

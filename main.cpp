@@ -20,6 +20,7 @@
 #include "components/grapple.hpp"
 #include "components/camera.hpp"
 #include "components/decoration.hpp"
+#include "components/mvp.hpp"
 
 #include "systems/level.hpp"
 #include "systems/players.hpp"
@@ -67,14 +68,26 @@ void CreateLevel()
 	texturesDef.back().scale = glm::vec2(4.0f);
 
 	//Player configuration.
-	players.emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), rocketPlaneTexture);
-	players.back().setPosition({ -10.0f, 0.0f });
-	players.back().renderingSetup = [
+	auto& player1 = players.emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), rocketPlaneTexture);
+	player1.setPosition({ -10.0f, 0.0f });
+	player1.renderingSetup = [
 		colorUniform = Uniforms::UniformController4f()
 	](Shaders::ProgramId program) mutable {
 		if (!colorUniform.isValid()) colorUniform = Uniforms::GetUniformController4f(program, "color");
-		const float fade = (glm::sin(Globals::Components::physics.simulationTime / 0.5f * glm::two_pi<float>()) + 1.0f) / 2.0f;
+		const float fade = (glm::sin(Globals::Components::physics.simulationTime * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
 		colorUniform.setValue({ fade, 1.0f, fade, 1.0f});
+	};
+
+	foregroundDecorations.emplace_back(Tools::CreateRectanglePositions({ 0.0f, 0.0f }, { 0.5f, 0.5f }));
+	foregroundDecorations.back().renderingSetup = [&,
+		mvpUniform = Uniforms::UniformControllerMat4f(),
+		colorUniform = Uniforms::UniformController4f()
+	](Shaders::ProgramId program) mutable {
+		if (!mvpUniform.isValid()) mvpUniform = Uniforms::GetUniformControllerMat4f(program, "mvp");
+		if (!colorUniform.isValid()) colorUniform = Uniforms::GetUniformController4f(program, "color");
+		const float fade = (glm::sin(Globals::Components::physics.simulationTime * 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
+		colorUniform.setValue({ 1.0f, fade, 0, 0.1f });
+		mvpUniform.setValue(mvp.getVP() * glm::translate(Tools::GetModelMatrix(*player1.body), {-1.5f, 0.0f, 0.0f}));
 	};
 
 	//Static walls.
@@ -136,7 +149,7 @@ void CreateLevel()
 		camera.projectionTransitionFactor = 0.1f * physics.targetFrameTimeFactor;
 		return 15.0f + glm::length(players.front().getVelocity()) * 0.2f;
 	};
-	camera.mainActorPositionF = []() { 
+	camera.positionF = []() {
 		camera.positionTransitionFactor = 0.1f * physics.targetFrameTimeFactor;
 		return players.front().getPosition() + players.front().getVelocity() * 0.3f;
 	};
@@ -157,8 +170,11 @@ void RenderScene()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	Globals::Systems::AccessDecorations().renderBackground();
 	Globals::Systems::AccessLevel().render();
+	Globals::Systems::AccessDecorations().renderMidground();
 	Globals::Systems::AccessPlayers().render();
+	Globals::Systems::AccessDecorations().renderForeground();
 }
 
 void PrepareFrame()

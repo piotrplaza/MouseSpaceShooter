@@ -25,24 +25,24 @@ namespace Systems
 			? (float)screenInfo.windowSize.y / screenInfo.windowSize.x
 			: 1.0f;
 		const float targetProjectionHSize = camera.projectionHSizeF();
-		const glm::vec2 targetMainActorPosition = camera.mainActorPositionF();
+		const glm::vec2 targetPosition = camera.positionF();
 
 		if (firstStep)
 		{
 			prevProjectionHSize = targetProjectionHSize;
-			prevMainActorPosition = targetMainActorPosition;
+			prevPosition = targetPosition;
 			firstStep = false;
 		}
 
 		const float projectionHSize = prevProjectionHSize + (targetProjectionHSize - prevProjectionHSize)
 			* std::clamp(camera.projectionTransitionFactor, 0.0f, 1.0f);
-		const glm::vec2 mainActorPosition = prevMainActorPosition + (targetMainActorPosition - prevMainActorPosition)
+		const glm::vec2 position = prevPosition + (targetPosition - prevPosition)
 			* std::clamp(camera.positionTransitionFactor, 0.0f, 1.0f);
 
 		prevProjectionHSize = projectionHSize;
-		prevMainActorPosition = mainActorPosition;
+		prevPosition = position;
 
-		mvp.view = glm::translate(glm::mat4(1.0f), glm::vec3(-mainActorPosition, 0.0f));
+		mvp.view = glm::translate(glm::mat4(1.0f), glm::vec3(-position, 0.0f));
 		mvp.projection = glm::ortho(-projectionHSize * windowWidthRatio, projectionHSize * windowWidthRatio,
 			-projectionHSize * windowHeightRatio, projectionHSize * windowHeightRatio);
 	}

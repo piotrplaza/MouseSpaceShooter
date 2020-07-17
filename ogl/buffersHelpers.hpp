@@ -47,7 +47,7 @@ namespace Tools
 	}
 
 	template <typename Component, typename Buffers>
-	inline void UpdateSimpleAndTexturesPositionsBuffers(const std::vector<Component>& components, Buffers& simpleBuffers,
+	inline void UpdateTransformedPositionsBuffers(const std::vector<Component>& components, Buffers& simpleBuffers,
 		std::unordered_map<unsigned, Buffers>& texturesToBuffers, std::vector<Buffers>& customSimpleBuffers,
 		std::vector<Buffers>& customTexturedBuffers, GLenum bufferDataUsage)
 	{
@@ -61,7 +61,6 @@ namespace Tools
 
 		for (auto& component : components)
 		{
-			const auto positionsCache = component.generatePositionsCache();
 			auto& buffers = [&]() -> auto&
 			{
 				if (component.texture)
@@ -99,6 +98,7 @@ namespace Tools
 				}
 			}();
 
+			const auto& positionsCache = component.getTransformedPositionsCache();
 			buffers.positionsCache.insert(buffers.positionsCache.end(),
 				positionsCache.begin(), positionsCache.end());
 		}
@@ -107,6 +107,43 @@ namespace Tools
 		for (auto& [texture, buffers] : texturesToBuffers) Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
 		for (auto& buffers : customSimpleBuffers) Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
 		for (auto& buffers : customTexturedBuffers) Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
+	}
+
+	template <typename Component, typename Buffers>
+	inline void UpdatePositionsBuffers(const std::vector<Component>& components, std::vector<Buffers>& simpleBuffers,
+		std::vector<Buffers>& texturedBuffers, GLenum bufferDataUsage)
+	{
+		auto simpleBuffersIt = simpleBuffers.begin();
+		auto texturedBuffersIt = texturedBuffers.begin();
+
+		for (auto& component : components)
+		{
+			auto& buffers = [&]() -> auto&
+			{
+				if (component.texture)
+				{
+					auto& buffers = texturedBuffersIt == texturedBuffers.end()
+						? texturedBuffers.emplace_back()
+						: *texturedBuffersIt++;
+					return buffers;
+				}
+				else
+				{
+					auto& buffers = simpleBuffersIt == simpleBuffers.end()
+						? simpleBuffers.emplace_back()
+						: *simpleBuffersIt++;
+					return buffers;
+				}
+			}();
+
+			const auto& positionsCache = component.getPositionsCache();
+
+			buffers.renderingSetup = component.renderingSetup;
+			buffers.texture = component.texture;
+			buffers.positionsCache.clear();
+			buffers.positionsCache.insert(buffers.positionsCache.end(), positionsCache.begin(), positionsCache.end());
+			Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
+		}
 	}
 
 	template <typename Component, typename Buffers>
@@ -123,8 +160,8 @@ namespace Tools
 		{
 			if (component.texture)
 			{
-				const auto positionsCache = component.generatePositionsCache(false);
-				auto& texturedBuffers = [&]() -> auto&
+				const auto& positionsCache = component.getPositionsCache();
+				auto& buffers = [&]() -> auto&
 				{
 					if (component.renderingSetup)
 					{
@@ -138,17 +175,39 @@ namespace Tools
 					}
 				}();
 
-				texturedBuffers.texture = component.texture;
-				if (!texturedBuffers.texCoordBuffer) texturedBuffers.createTexCoordBuffer();
+				buffers.texture = component.texture;
+				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
 
-				for (const auto& position : positionsCache)
-				{
-					texturedBuffers.texCoordCache.emplace_back(position);
-				}
+				buffers.texCoordCache.insert(buffers.texCoordCache.end(), positionsCache.begin(), positionsCache.end());
 			}
 		}
 
 		for (auto& [texture, buffers] : texturesToBuffers) Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
 		for (auto& buffers : customTexturedBuffers) Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
+	}
+
+	template <typename Component, typename Buffers>
+	inline void UpdateTexCoordBuffers(const std::vector<Component>& components,
+		std::vector<Buffers>& texturedBuffers, GLenum bufferDataUsage)
+	{
+		auto texturedBuffersIt = texturedBuffers.begin();
+
+		for (auto& component : components)
+		{
+			if (component.texture)
+			{
+				const auto& positionsCache = component.getPositionsCache();
+				auto& buffers = texturedBuffersIt == texturedBuffers.end()
+					? texturedBuffers.emplace_back()
+					: *texturedBuffersIt++;
+
+				buffers.texture = component.texture;
+				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
+
+				buffers.texCoordCache.clear();
+				buffers.texCoordCache.insert(buffers.texCoordCache.end(), positionsCache.begin(), positionsCache.end());
+				Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
+			}
+		}
 	}
 }

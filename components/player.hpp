@@ -70,7 +70,7 @@ namespace Components
 				transform.q.GetAngle(), {0.0f, 0.0f, 1.0f});
 		}
 
-		std::vector<glm::vec3> generatePositionsCache() const
+		std::vector<glm::vec3> getPositionsCache() const
 		{
 			std::vector<glm::vec3> positionsCache;
 
@@ -86,6 +86,16 @@ namespace Components
 			}
 
 			return positionsCache;
+		}
+
+		std::vector<glm::vec3> getTransformedPositionsCache() const
+		{
+			const auto modelMatrix = Tools::GetModelMatrix(*body);
+			auto transformedPositionsCache = getPositionsCache();
+
+			for (auto& position : transformedPositionsCache) position = modelMatrix * glm::vec4(position, 1.0f);
+
+			return transformedPositionsCache;
 		}
 	};
 }

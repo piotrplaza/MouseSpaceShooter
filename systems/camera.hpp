@@ -15,6 +15,6 @@ namespace Systems
 		bool firstStep = true;
 
 		float prevProjectionHSize{};
-		glm::vec2 prevMainActorPosition{};
+		glm::vec2 prevPosition{};
 	};
 }

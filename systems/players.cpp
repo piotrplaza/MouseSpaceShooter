@@ -34,19 +34,25 @@ namespace Systems
 	void Players::initGraphics()
 	{
 		basicShadersProgram = std::make_unique<Shaders::Programs::Basic>();
-		sceneCoordTexturedShadersProgram = std::make_unique<Shaders::Programs::SceneCoordTextured>();
+		texturedShadersProgram = std::make_unique<Shaders::Programs::Textured>();
 		coloredShadersProgram = std::make_unique<Shaders::Programs::Colored>();
 
-		simplePlayersBuffers = std::make_unique<PlayersBuffers>();
+		simplePlayersBuffers = std::make_unique<Buffers::PosTexCoordBuffers>();
 		connectionsBuffers = std::make_unique<ConnectionsBuffers>();
-		
-		updatePlayersPositionsBuffers();
+
+		updatePlayersTexCoordBuffers();
 	}
 
 	void Players::updatePlayersPositionsBuffers()
 	{
-		Tools::UpdateSimpleAndTexturesPositionsBuffers(Globals::Components::players,
+		Tools::UpdateTransformedPositionsBuffers(Globals::Components::players,
 			*simplePlayersBuffers, texturesToPlayersBuffers, customSimplePlayersBuffers,
+			customTexturedPlayersBuffers, GL_DYNAMIC_DRAW);
+	}
+
+	void Players::updatePlayersTexCoordBuffers()
+	{
+		Tools::UpdateTexCoordBuffers(Globals::Components::players, texturesToPlayersBuffers,
 			customTexturedPlayersBuffers, GL_STATIC_DRAW);
 	}
 
@@ -57,11 +63,11 @@ namespace Systems
 
 		for (auto& connection : Globals::Components::connections)
 		{
-			const auto positionsCache = connection.generatePositionsCache();
+			const auto positionsCache = connection.getPositionsCache();
 			connectionsBuffers->positionsCache.insert(connectionsBuffers->positionsCache.end(),
 				positionsCache.begin(), positionsCache.end());
 
-			const auto colorsCache = connection.generateColorsCache();
+			const auto colorsCache = connection.getColorsCache();
 			connectionsBuffers->colorsCache.insert(connectionsBuffers->colorsCache.end(),
 				colorsCache.begin(), colorsCache.end());
 		}
@@ -110,6 +116,7 @@ namespace Systems
 		throttle(mouseState.rmb);
 		magneticHook(mouseState.lmb);
 
+		updatePlayersPositionsBuffers();
 		updateConnectionsGraphicsBuffers();
 
 		playerPreviousPosition = player.getPosition();
@@ -125,7 +132,7 @@ namespace Systems
 	void Players::basicRender() const
 	{
 		glUseProgram_proxy(basicShadersProgram->program);
-		basicShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getMVP(player.getModelMatrix()));
+		basicShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
 		basicShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 		glBindVertexArray(simplePlayersBuffers->positionBuffer);
@@ -141,14 +148,14 @@ namespace Systems
 
 	void Players::sceneCoordTexturedRender() const
 	{
-		glUseProgram_proxy(sceneCoordTexturedShadersProgram->program);
-		sceneCoordTexturedShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getMVP(player.getModelMatrix()));
+		glUseProgram_proxy(texturedShadersProgram->program);
+		texturedShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
 
 		for (const auto& [texture, texturedPlayerBuffers] : texturesToPlayersBuffers)
-			Tools::TexturedRender(*sceneCoordTexturedShadersProgram, texturedPlayerBuffers, texture);
+			Tools::TexturedRender(*texturedShadersProgram, texturedPlayerBuffers, texture);
 
 		for (const auto& customTexturedPlayerBuffers : customTexturedPlayersBuffers)
-			Tools::TexturedRender(*sceneCoordTexturedShadersProgram, customTexturedPlayerBuffers,
+			Tools::TexturedRender(*texturedShadersProgram, customTexturedPlayerBuffers,
 				*customTexturedPlayerBuffers.texture);
 	}
 
@@ -300,22 +307,6 @@ namespace Systems
 		distanceJointDef.length = glm::distance(player.getPosition(), grapple.getPosition());
 		distanceJointDef.collideConnected = true;
 		player.grappleJoint.reset(physics.world.CreateJoint(&distanceJointDef));
-	}
-
-	Players::PlayersBuffers::PlayersBuffers()
-	{
-		glCreateVertexArrays(1, &vertexArray);
-		glBindVertexArray(vertexArray);
-		glGenBuffers(1, &positionBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-		glEnableVertexAttribArray(0);
-	}
-
-	Players::PlayersBuffers::~PlayersBuffers()
-	{
-		glDeleteBuffers(1, &positionBuffer);
-		glDeleteVertexArrays(1, &vertexArray);
 	}
 
 	Players::ConnectionsBuffers::ConnectionsBuffers()

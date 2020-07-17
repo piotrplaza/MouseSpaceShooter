@@ -14,7 +14,23 @@ inline glm::vec2 OrthoVec2(const glm::vec2& p1, const glm::vec2& p2, bool invert
 
 namespace Tools
 {
-	std::vector<glm::vec3> CreateCirclePositions(const glm::vec2& position, float radius, int complexity, const glm::mat4& modelMatrix)
+	std::vector<glm::vec3> CreateRectanglePositions(const glm::vec2& position, const glm::vec2& hSize)
+	{
+		std::vector<glm::vec3> positions;
+		positions.reserve(6);
+
+		positions.emplace_back(position - hSize, 0.0f);
+		const auto& diagonal1 = positions.emplace_back(position.x + hSize.x, position.y - hSize.y, 0.0f);
+		const auto& diagonal2 = positions.emplace_back(position.x - hSize.x, position.y + hSize.y, 0.0f);
+		positions.push_back(diagonal2);
+		positions.push_back(diagonal1);
+		positions.emplace_back(position + hSize, 0.0f);
+
+		return positions;
+	}
+
+	std::vector<glm::vec3> CreateCirclePositions(const glm::vec2& position, float radius, int complexity,
+		const glm::mat4& modelMatrix)
 	{
 		std::vector<glm::vec3> positions;
 		positions.reserve(complexity * 3);
@@ -36,7 +52,8 @@ namespace Tools
 		return positions;
 	}
 
-	std::vector<glm::vec3> CreateLightningPositions(const glm::vec2& p1, const glm::vec2& p2, int segmentsNum, float frayFactor, float zValue)
+	std::vector<glm::vec3> CreateLightningPositions(const glm::vec2& p1, const glm::vec2& p2,
+		int segmentsNum, float frayFactor, float zValue)
 	{
 		std::vector<glm::vec3> positions;
 		positions.reserve(segmentsNum * 2);

@@ -1,5 +1,7 @@
 #include "b2Helpers.hpp"
 
+#include <glm/gtx/transform.hpp>
+
 #include "globals.hpp"
 
 #include "components/physics.hpp"
@@ -104,5 +106,12 @@ namespace Tools
 		revoluteJointDef.localAnchorB = body2.GetLocalPoint({ pinPoint.x, pinPoint.y });
 		revoluteJointDef.collideConnected = collideConnected;
 		physics.world.CreateJoint(&revoluteJointDef);
+	}
+
+	glm::mat4 GetModelMatrix(const b2Body& body)
+	{
+		const auto& bodyTransform = body.GetTransform();
+		return glm::rotate(glm::translate(glm::mat4(1.0f), { bodyTransform.p.x, bodyTransform.p.y, 0.0f }),
+			bodyTransform.q.GetAngle(), { 0.0f, 0.0f, 1.0f });
 	}
 }

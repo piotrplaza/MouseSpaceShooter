@@ -5,8 +5,6 @@
 #include <optional>
 #include <functional>
 
-#include <glm/gtx/transform.hpp>
-
 #include <Box2D/Box2D.h>
 
 #include <ogl/shaders.hpp>
@@ -24,7 +22,7 @@ namespace Components
 			std::function<void(Shaders::ProgramId)> renderingSetup = nullptr):
 			body(std::move(body)),
 			texture(texture),
-			renderingSetup(renderingSetup)
+			renderingSetup(std::move(renderingSetup))
 		{
 		}
 
@@ -32,17 +30,11 @@ namespace Components
 		std::optional<unsigned> texture;
 		std::function<void(Shaders::ProgramId)> renderingSetup;
 
-		std::vector<glm::vec3> generatePositionsCache(bool transform = true) const
+		std::vector<glm::vec3> getPositionsCache() const
 		{
 			using namespace Globals::Constants;
 
 			std::vector<glm::vec3> positionsCache;
-
-			const auto& bodyTransform = body->GetTransform();
-			const auto modelMatrix = transform
-				? glm::rotate(glm::translate(glm::mat4(1.0f), { bodyTransform.p.x, bodyTransform.p.y, 0.0f }),
-					bodyTransform.q.GetAngle(), { 0.0f, 0.0f, 1.0f })
-				: glm::mat4(1.0f);
 
 			const auto& fixture = *body->GetFixtureList();
 			assert(!fixture.GetNext());
@@ -58,19 +50,29 @@ namespace Components
 				for (int i = 0; i < 6; ++i)
 				{
 					const auto& b2v = polygonShape.m_vertices[i < 3 ? i : (i - 1) % 4];
-					positionsCache.push_back(modelMatrix * glm::vec4(b2v.x, b2v.y, 0.0f, 1.0f));
+					positionsCache.emplace_back(b2v.x, b2v.y, 0.0f);
 				}
 			} break;
 			case b2Shape::e_circle:
 			{
 				const auto& circleShape = static_cast<const b2CircleShape&>(*fixture.GetShape());
-				positionsCache = Tools::CreateCirclePositions(ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity, modelMatrix);
+				positionsCache = Tools::CreateCirclePositions(ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity);
 			} break;
 			default:
 				assert(!"unsupported shape type");
 			}
 
 			return positionsCache;
+		}
+
+		std::vector<glm::vec3> getTransformedPositionsCache() const
+		{
+			const auto modelMatrix = Tools::GetModelMatrix(*body);
+			auto transformedPositionsCache = getPositionsCache();
+
+			for (auto& position : transformedPositionsCache) position = modelMatrix * glm::vec4(position, 1.0f);
+
+			return transformedPositionsCache;
 		}
 	};
 }

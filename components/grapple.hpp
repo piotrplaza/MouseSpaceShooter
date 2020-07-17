@@ -34,21 +34,26 @@ namespace Components
 			return { body->GetWorldCenter().x, body->GetWorldCenter().y };
 		}
 
-		std::vector<glm::vec3> generatePositionsCache(bool transform = true) const
+		std::vector<glm::vec3> getPositionsCache() const
 		{
 			using namespace Globals::Constants;
 
-			const auto& bodyTransform = body->GetTransform();
-			const auto modelMatrix = transform
-				? glm::rotate(glm::translate(glm::mat4(1.0f), { bodyTransform.p.x, bodyTransform.p.y, 0.0f }),
-					bodyTransform.q.GetAngle(), { 0.0f, 0.0f, 1.0f })
-				: glm::mat4(1.0f);
 			const auto& fixture = *body->GetFixtureList();
 			assert(!fixture.GetNext());
 			assert(fixture.GetType() == b2Shape::e_circle); //Temporary. TODO: Add other shapes.
 			const auto& circleShape = static_cast<const b2CircleShape&>(*fixture.GetShape());
 
-			return Tools::CreateCirclePositions(ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity, modelMatrix);
+			return Tools::CreateCirclePositions(ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity);
+		}
+
+		std::vector<glm::vec3> getTransformedPositionsCache() const
+		{
+			const auto modelMatrix = Tools::GetModelMatrix(*body);
+			auto transformedPositionsCache = getPositionsCache();
+
+			for (auto& position : transformedPositionsCache) position = modelMatrix * glm::vec4(position, 1.0f);
+
+			return transformedPositionsCache;
 		}
 	};
 }

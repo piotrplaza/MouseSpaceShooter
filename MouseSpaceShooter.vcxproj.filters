@@ -26,6 +26,9 @@
     <Filter Include="src\ogl">
       <UniqueIdentifier>{0c6e7bbe-52e5-431e-aa9f-d82767a35b7b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\buffers">
+      <UniqueIdentifier>{7278c980-8a19-4601-a473-b23ac7952f20}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -69,6 +72,12 @@
     </ClCompile>
     <ClCompile Include="systems\players.cpp">
       <Filter>src\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="systems\decorations.cpp">
+      <Filter>src\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="buffers\posTexCoordBuffers.cpp">
+      <Filter>src\buffers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -167,6 +176,9 @@
     </ClInclude>
     <ClInclude Include="systems\decorations.hpp">
       <Filter>src\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="buffers\posTexCoordBuffers.hpp">
+      <Filter>src\buffers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

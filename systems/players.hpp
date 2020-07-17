@@ -12,8 +12,10 @@
 
 #include <ogl/shaders.hpp>
 #include <shaders/basic.hpp>
-#include <shaders/sceneCoordTextured.hpp>
+#include <shaders/textured.hpp>
 #include <shaders/colored.hpp>
+
+#include <buffers/posTexCoordBuffers.hpp>
 
 namespace Components
 {
@@ -31,21 +33,6 @@ namespace Systems
 		void render() const;
 
 	private:
-		struct PlayersBuffers
-		{
-			PlayersBuffers();
-			~PlayersBuffers();
-
-			GLuint vertexArray;
-			GLuint positionBuffer;
-
-			std::optional<unsigned> texture;
-			std::function<void(Shaders::ProgramId)> renderingSetup;
-
-			std::vector<glm::vec3> positionsCache;
-			size_t numOfAllocatedPositions = 0;
-		};
-
 		struct ConnectionsBuffers
 		{
 			ConnectionsBuffers();
@@ -68,6 +55,7 @@ namespace Systems
 		void createGrappleJoint() const;
 
 		void updatePlayersPositionsBuffers();
+		void updatePlayersTexCoordBuffers();
 		void updateConnectionsGraphicsBuffers();
 
 		void basicRender() const;
@@ -77,13 +65,13 @@ namespace Systems
 		Components::Player& player; //Temporary.
 
 		std::unique_ptr<Shaders::Programs::Basic> basicShadersProgram;
-		std::unique_ptr<Shaders::Programs::SceneCoordTextured> sceneCoordTexturedShadersProgram;
+		std::unique_ptr<Shaders::Programs::Textured> texturedShadersProgram;
 		std::unique_ptr<Shaders::Programs::Colored> coloredShadersProgram;
 
-		std::unique_ptr<PlayersBuffers> simplePlayersBuffers;
-		std::unordered_map<unsigned, PlayersBuffers> texturesToPlayersBuffers;
-		std::vector<PlayersBuffers> customSimplePlayersBuffers;
-		std::vector<PlayersBuffers> customTexturedPlayersBuffers;
+		std::unique_ptr<Buffers::PosTexCoordBuffers> simplePlayersBuffers;
+		std::unordered_map<unsigned, Buffers::PosTexCoordBuffers> texturesToPlayersBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> customSimplePlayersBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> customTexturedPlayersBuffers;
 
 		std::unique_ptr<ConnectionsBuffers> connectionsBuffers;
 

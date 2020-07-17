@@ -22,7 +22,7 @@ namespace Components
 		int segmentsNum;
 		float frayFactor;
 
-		std::vector<glm::vec3> generatePositionsCache() const
+		std::vector<glm::vec3> getPositionsCache() const
 		{
 			std::vector<glm::vec3> positionsCache;
 
@@ -41,7 +41,7 @@ namespace Components
 			return positionsCache;
 		}
 
-		std::vector<glm::vec4> generateColorsCache() const
+		std::vector<glm::vec4> getColorsCache() const
 		{
 			std::vector<glm::vec4> colorsCache;
 
