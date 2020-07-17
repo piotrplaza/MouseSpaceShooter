@@ -11,6 +11,6 @@ uniform vec2 textureScale = vec2(1.0);
 
 void main()
 {
-	vTexCoord = bTexCoord / textureScale + textureTranslate;
+	vTexCoord = bTexCoord / textureScale - textureTranslate;
 	gl_Position = mvp * vec4(bPos, 1.0);
 }

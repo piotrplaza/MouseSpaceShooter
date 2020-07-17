@@ -53,7 +53,7 @@ void CreateLevel()
 	//Textures.
 	const unsigned rocketPlaneTexture = texturesDef.size();
 	texturesDef.emplace_back("textures/rocket plane.png");
-	texturesDef.back().translate = glm::vec2(0.35f, 0.5f);
+	texturesDef.back().translate = glm::vec2(-0.35f, -0.5f);
 	texturesDef.back().scale = glm::vec2(1.7f);
 	const unsigned spaceRockTexture = texturesDef.size();
 	texturesDef.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT);
@@ -63,7 +63,7 @@ void CreateLevel()
 	texturesDef.back().scale = glm::vec2(16.0f);
 	const unsigned orbTexture = texturesDef.size();
 	texturesDef.emplace_back("textures/orb.png");
-	texturesDef.back().translate = glm::vec2(0.5f);
+	texturesDef.back().translate = glm::vec2(-0.5f);
 	texturesDef.back().scale = glm::vec2(4.0f);
 
 	//Player configuration.
