@@ -132,7 +132,7 @@ namespace Systems
 	void Players::basicRender() const
 	{
 		glUseProgram_proxy(basicShadersProgram->program);
-		basicShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
+		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 		basicShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 		glBindVertexArray(simplePlayersBuffers->positionBuffer);
@@ -149,7 +149,7 @@ namespace Systems
 	void Players::sceneCoordTexturedRender() const
 	{
 		glUseProgram_proxy(texturedShadersProgram->program);
-		texturedShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
+		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
 		for (const auto& [texture, texturedPlayerBuffers] : texturesToPlayersBuffers)
 			Tools::TexturedRender(*texturedShadersProgram, texturedPlayerBuffers, texture);
@@ -162,7 +162,7 @@ namespace Systems
 	void Players::coloredRender() const
 	{
 		glUseProgram_proxy(coloredShadersProgram->program);
-		coloredShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
+		coloredShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 		glBindVertexArray(connectionsBuffers->vertexArray);
 		glDrawArrays(GL_LINES, 0, connectionsBuffers->positionsCache.size());
 	}

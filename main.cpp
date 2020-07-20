@@ -80,14 +80,14 @@ void CreateLevel()
 
 	foregroundDecorations.emplace_back(Tools::CreateRectanglePositions({ 0.0f, 0.0f }, { 0.5f, 0.5f }));
 	foregroundDecorations.back().renderingSetup = [&,
-		mvpUniform = Uniforms::UniformControllerMat4f(),
+		modelUniform = Uniforms::UniformControllerMat4f(),
 		colorUniform = Uniforms::UniformController4f()
 	](Shaders::ProgramId program) mutable {
-		if (!mvpUniform.isValid()) mvpUniform = Uniforms::GetUniformControllerMat4f(program, "mvp");
+		if (!modelUniform.isValid()) modelUniform = Uniforms::GetUniformControllerMat4f(program, "model");
 		if (!colorUniform.isValid()) colorUniform = Uniforms::GetUniformController4f(program, "color");
 		const float fade = (glm::sin(Globals::Components::physics.simulationTime * 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
 		colorUniform.setValue({ 1.0f, fade, 0, 0.1f });
-		mvpUniform.setValue(mvp.getVP() * glm::translate(Tools::GetModelMatrix(*player1.body), {-1.5f, 0.0f, 0.0f}));
+		modelUniform.setValue(glm::translate(Tools::GetModelMatrix(*player1.body), {-1.5f, 0.0f, 0.0f}));
 	};
 
 	//Static walls.

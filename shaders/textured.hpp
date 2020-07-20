@@ -11,7 +11,8 @@ namespace Shaders
 		{
 			Textured() :
 				program(Shaders::LinkProgram(Shaders::CompileShaders("shaders/textured.vs", "shaders/textured.fs"), { {0, "bPos"}, {1, "bTexCoord"} })),
-				mvpUniform(program, "mvp"),
+				modelUniform(program, "model"),
+				vpUniform(program, "vp"),
 				colorUniform(program, "color"),
 				textureTranslateUniform(program, "textureTranslate"),
 				textureScaleUniform(program, "textureScale"),
@@ -25,7 +26,8 @@ namespace Shaders
 			}
 
 			Shaders::ProgramId program;
-			Uniforms::UniformControllerMat4f mvpUniform;
+			Uniforms::UniformControllerMat4f modelUniform;
+			Uniforms::UniformControllerMat4f vpUniform;
 			Uniforms::UniformController4f colorUniform;
 			Uniforms::UniformController2f textureTranslateUniform;
 			Uniforms::UniformController2f textureScaleUniform;

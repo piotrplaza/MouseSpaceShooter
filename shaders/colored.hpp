@@ -11,7 +11,8 @@ namespace Shaders
 		{
 			Colored():
 				program(Shaders::LinkProgram(Shaders::CompileShaders("shaders/colored.vs", "shaders/colored.fs"), { {0, "bPos"}, {1, "bColor"} })),
-				mvpUniform(program, "mvp"),
+				modelUniform(program, "model"),
+				vpUniform(program, "vp"),
 				colorUniform(program, "color")
 			{
 			}
@@ -22,7 +23,8 @@ namespace Shaders
 			}
 
 			Shaders::ProgramId program;
-			Uniforms::UniformControllerMat4f mvpUniform;
+			Uniforms::UniformControllerMat4f modelUniform;
+			Uniforms::UniformControllerMat4f vpUniform;
 			Uniforms::UniformController4f colorUniform;
 		};
 	}

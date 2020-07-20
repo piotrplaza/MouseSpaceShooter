@@ -93,7 +93,7 @@ namespace Systems
 	void Level::sceneCoordTexturedRender() const
 	{
 		glUseProgram_proxy(sceneCoordTexturedShadersProgram->program);
-		sceneCoordTexturedShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
+		sceneCoordTexturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 		sceneCoordTexturedShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 		for (const auto& [texture, texturedStaticWallBuffers] : texturesToStaticWallsBuffers)
@@ -107,7 +107,7 @@ namespace Systems
 	void Level::texturedRender() const
 	{
 		glUseProgram_proxy(texturedShadersProgram->program);
-		texturedShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
+		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 		texturedShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 		for (const auto& [texture, texturedDynamicWallBuffers] : texturesToDynamicWallsBuffers)
@@ -128,7 +128,7 @@ namespace Systems
 	void Level::basicRender() const
 	{
 		glUseProgram_proxy(basicShadersProgram->program);
-		basicShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
+		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 		basicShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 		glBindVertexArray(simpleStaticWallsBuffers->vertexArray);

@@ -66,7 +66,7 @@ namespace Systems
 	void Decorations::texturedRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
 	{
 		glUseProgram_proxy(texturedShadersProgram->program);
-		texturedShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
+		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 		texturedShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 		for (const auto& currentBuffers : buffers)
@@ -78,7 +78,7 @@ namespace Systems
 	void Decorations::basicRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
 	{
 		glUseProgram_proxy(basicShadersProgram->program);
-		basicShadersProgram->mvpUniform.setValue(Globals::Components::mvp.getVP());
+		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 		basicShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 		for (const auto& currentBuffers : buffers)
