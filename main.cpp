@@ -106,8 +106,8 @@ void CreateLevel()
 		if (!juliaCOffsetUniform.isValid()) juliaCOffsetUniform = Uniforms::GetUniformController2f(program, "juliaCOffset");
 		if (!minColorUniform.isValid()) minColorUniform = Uniforms::GetUniformController4f(program, "minColor");
 		if (!maxColorUniform.isValid()) maxColorUniform = Uniforms::GetUniformController4f(program, "maxColor");
-		vpUniform.setValue(
-			glm::scale(mvp.getMVP(glm::translate(glm::mat4(1.0f), glm::vec3(-camera.prevPosition * 0.05f, 0.0f))), glm::vec3(50.0f)));
+		vpUniform.setValue(glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(-camera.prevPosition * 0.005f, 0.0f)),
+			glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f));
 		juliaCOffsetUniform.setValue(player1.getPosition() * 0.00001f);
 		minColorUniform.setValue({ 0.0f, 0.0f, 0.0f, 1.0f });
 		maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
