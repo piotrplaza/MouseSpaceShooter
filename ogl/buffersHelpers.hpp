@@ -111,16 +111,24 @@ namespace Tools
 
 	template <typename Component, typename Buffers>
 	inline void UpdatePositionsBuffers(const std::vector<Component>& components, std::vector<Buffers>& simpleBuffers,
-		std::vector<Buffers>& texturedBuffers, GLenum bufferDataUsage)
+		std::vector<Buffers>& texturedBuffers, std::vector<Buffers>& customShadersBuffers, GLenum bufferDataUsage)
 	{
 		auto simpleBuffersIt = simpleBuffers.begin();
 		auto texturedBuffersIt = texturedBuffers.begin();
+		auto customBuffersIt = customShadersBuffers.begin();
 
 		for (auto& component : components)
 		{
 			auto& buffers = [&]() -> auto&
 			{
-				if (component.texture)
+				if (component.customShadersProgram)
+				{
+					auto& buffers = customBuffersIt == customShadersBuffers.end()
+						? customShadersBuffers.emplace_back()
+						: *customBuffersIt++;
+					return buffers;
+				}
+				else if (component.texture)
 				{
 					auto& buffers = texturedBuffersIt == texturedBuffers.end()
 						? texturedBuffers.emplace_back()
@@ -140,6 +148,7 @@ namespace Tools
 
 			buffers.renderingSetup = component.renderingSetup;
 			buffers.texture = component.texture;
+			buffers.customShadersProgram = component.customShadersProgram;
 			buffers.positionsCache.clear();
 			buffers.positionsCache.insert(buffers.positionsCache.end(), positionsCache.begin(), positionsCache.end());
 			Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
@@ -188,18 +197,26 @@ namespace Tools
 
 	template <typename Component, typename Buffers>
 	inline void UpdateTexCoordBuffers(const std::vector<Component>& components,
-		std::vector<Buffers>& texturedBuffers, GLenum bufferDataUsage)
+		std::vector<Buffers>& texturedBuffers, std::vector<Buffers>& customShadersTexturedBuffers, GLenum bufferDataUsage)
 	{
 		auto texturedBuffersIt = texturedBuffers.begin();
+		auto customShadersTexturedBuffersIt = customShadersTexturedBuffers.begin();
 
 		for (auto& component : components)
 		{
 			if (component.texture)
 			{
+				auto& relevantBuffers = component.customShadersProgram
+					? customShadersTexturedBuffers
+					: texturedBuffers;
+				auto& relevantBuffersIt = component.customShadersProgram
+					? customShadersTexturedBuffersIt
+					: texturedBuffersIt;
+
 				const auto& positionsCache = component.getPositionsCache();
-				auto& buffers = texturedBuffersIt == texturedBuffers.end()
-					? texturedBuffers.emplace_back()
-					: *texturedBuffersIt++;
+				auto& buffers = relevantBuffersIt == relevantBuffers.end()
+					? relevantBuffers.emplace_back()
+					: *relevantBuffersIt++;
 
 				buffers.texture = component.texture;
 				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();

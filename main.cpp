@@ -30,6 +30,8 @@
 
 #include "tools/utility.hpp"
 
+#include "shaders/julia.hpp"
+
 const bool fullScreen = true;
 const bool console = true;
 const glm::ivec2 windowRes = { 800, 800 };
@@ -90,6 +92,27 @@ void CreateLevel()
 		modelUniform.setValue(glm::translate(Tools::GetModelMatrix(*player1.body), {-1.5f, 0.0f, 0.0f}));
 	};
 
+	//Background.
+	static Shaders::Programs::Julia julia; //Tmp.
+	auto& background = backgroundDecorations.emplace_back(Tools::CreateRectanglePositions({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
+	background.customShadersProgram = julia.program;
+	background.renderingSetup = [&,
+		vpUniform = Uniforms::UniformControllerMat4f(),
+		juliaCOffsetUniform = Uniforms::UniformController2f(),
+		minColorUniform = Uniforms::UniformController4f(),
+		maxColorUniform = Uniforms::UniformController4f()
+	](Shaders::ProgramId program) mutable {
+		if (!vpUniform.isValid()) vpUniform = Uniforms::GetUniformControllerMat4f(program, "vp");
+		if (!juliaCOffsetUniform.isValid()) juliaCOffsetUniform = Uniforms::GetUniformController2f(program, "juliaCOffset");
+		if (!minColorUniform.isValid()) minColorUniform = Uniforms::GetUniformController4f(program, "minColor");
+		if (!maxColorUniform.isValid()) maxColorUniform = Uniforms::GetUniformController4f(program, "maxColor");
+		vpUniform.setValue(
+			glm::scale(mvp.getMVP(glm::translate(glm::mat4(1.0f), glm::vec3(-camera.prevPosition * 0.05f, 0.0f))), glm::vec3(50.0f)));
+		juliaCOffsetUniform.setValue(player1.getPosition() * 0.00001f);
+		minColorUniform.setValue({ 0.0f, 0.0f, 0.0f, 1.0f });
+		maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
+	};
+
 	//Static walls.
 	const float levelHSize = 50.0f;
 	const float bordersHGauge = 50.0f;
@@ -145,11 +168,11 @@ void CreateLevel()
 	};
 
 	//Camera.
-	camera.projectionHSizeF = []() {
+	camera.targetProjectionHSizeF = []() {
 		camera.projectionTransitionFactor = 0.1f * physics.targetFrameTimeFactor;
 		return 15.0f + glm::length(players.front().getVelocity()) * 0.2f;
 	};
-	camera.positionF = []() {
+	camera.targetPositionF = []() {
 		camera.positionTransitionFactor = 0.1f * physics.targetFrameTimeFactor;
 		return players.front().getPosition() + players.front().getVelocity() * 0.3f;
 	};

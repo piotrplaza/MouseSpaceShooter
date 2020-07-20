@@ -24,23 +24,23 @@ namespace Systems
 		const float windowHeightRatio = screenInfo.windowSize.x < screenInfo.windowSize.y
 			? (float)screenInfo.windowSize.y / screenInfo.windowSize.x
 			: 1.0f;
-		const float targetProjectionHSize = camera.projectionHSizeF();
-		const glm::vec2 targetPosition = camera.positionF();
+		const float targetProjectionHSize = camera.targetProjectionHSizeF();
+		const glm::vec2 targetPosition = camera.targetPositionF();
 
 		if (firstStep)
 		{
-			prevProjectionHSize = targetProjectionHSize;
-			prevPosition = targetPosition;
+			camera.prevProjectionHSize = targetProjectionHSize;
+			camera.prevPosition = targetPosition;
 			firstStep = false;
 		}
 
-		const float projectionHSize = prevProjectionHSize + (targetProjectionHSize - prevProjectionHSize)
+		const float projectionHSize = camera.prevProjectionHSize + (targetProjectionHSize - camera.prevProjectionHSize)
 			* std::clamp(camera.projectionTransitionFactor, 0.0f, 1.0f);
-		const glm::vec2 position = prevPosition + (targetPosition - prevPosition)
+		const glm::vec2 position = camera.prevPosition + (targetPosition - camera.prevPosition)
 			* std::clamp(camera.positionTransitionFactor, 0.0f, 1.0f);
 
-		prevProjectionHSize = projectionHSize;
-		prevPosition = position;
+		camera.prevProjectionHSize = projectionHSize;
+		camera.prevPosition = position;
 
 		mvp.view = glm::translate(glm::mat4(1.0f), glm::vec3(-position, 0.0f));
 		mvp.projection = glm::ortho(-projectionHSize * windowWidthRatio, projectionHSize * windowWidthRatio,

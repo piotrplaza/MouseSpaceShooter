@@ -59,6 +59,7 @@
     <ClInclude Include="ogl\uniformControllers.hpp" />
     <ClInclude Include="shaders\basic.hpp" />
     <ClInclude Include="shaders\colored.hpp" />
+    <ClInclude Include="shaders\julia.hpp" />
     <ClInclude Include="shaders\sceneCoordTextured.hpp" />
     <ClInclude Include="shaders\textured.hpp" />
     <ClInclude Include="systems\camera.hpp" />
@@ -76,6 +77,8 @@
     <None Include="shaders\basic.vs" />
     <None Include="shaders\colored.fs" />
     <None Include="shaders\colored.vs" />
+    <None Include="shaders\julia.fs" />
+    <None Include="shaders\julia.vs" />
     <None Include="shaders\sceneCoordTextured.fs" />
     <None Include="shaders\sceneCoordTextured.vs" />
     <None Include="shaders\textured.fs" />

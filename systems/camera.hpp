@@ -13,8 +13,5 @@ namespace Systems
 
 	private:
 		bool firstStep = true;
-
-		float prevProjectionHSize{};
-		glm::vec2 prevPosition{};
 	};
 }

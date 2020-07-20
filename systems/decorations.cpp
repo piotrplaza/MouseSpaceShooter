@@ -28,39 +28,53 @@ namespace Systems
 	void Decorations::updatePositionsBuffers()
 	{
 		Tools::UpdatePositionsBuffers(Globals::Components::backgroundDecorations, simpleBackgroundDecorationsBuffers,
-			texturedBackgroundDecorationsBuffers, GL_STATIC_DRAW);
+			texturedBackgroundDecorationsBuffers, customShadersBackgroundDecorationsBuffers, GL_STATIC_DRAW);
 		Tools::UpdatePositionsBuffers(Globals::Components::midgroundDecorations, simpleMidgroundDecorationsBuffers,
-			texturedMidgroundDecorationsBuffers, GL_STATIC_DRAW);
+			texturedMidgroundDecorationsBuffers, customShadersMidgroundDecorationsBuffers, GL_STATIC_DRAW);
 		Tools::UpdatePositionsBuffers(Globals::Components::foregroundDecorations, simpleForegroundDecorationsBuffers,
-			texturedForegroundDecorationsBuffers, GL_STATIC_DRAW);
+			texturedForegroundDecorationsBuffers, customShadersForegroundDecorationsBuffers, GL_STATIC_DRAW);
 	}
 
 	void Decorations::updateTexCoordsBuffers()
 	{
 		Tools::UpdateTexCoordBuffers(Globals::Components::backgroundDecorations, texturedBackgroundDecorationsBuffers,
-			GL_STATIC_DRAW);
+			customShadersBackgroundDecorationsBuffers, GL_STATIC_DRAW);
 		Tools::UpdateTexCoordBuffers(Globals::Components::midgroundDecorations, texturedMidgroundDecorationsBuffers,
-			GL_STATIC_DRAW);
+			customShadersMidgroundDecorationsBuffers, GL_STATIC_DRAW);
 		Tools::UpdateTexCoordBuffers(Globals::Components::foregroundDecorations, texturedForegroundDecorationsBuffers,
-			GL_STATIC_DRAW);
+			customShadersForegroundDecorationsBuffers, GL_STATIC_DRAW);
 	}
 
 	void Decorations::renderBackground() const
 	{
+		customShadersRender(customShadersBackgroundDecorationsBuffers);
 		texturedRender(texturedBackgroundDecorationsBuffers);
 		basicRender(simpleBackgroundDecorationsBuffers);
 	}
 
 	void Decorations::renderMidground() const
 	{
+		customShadersRender(customShadersMidgroundDecorationsBuffers);
 		texturedRender(texturedMidgroundDecorationsBuffers);
 		basicRender(simpleMidgroundDecorationsBuffers);
 	}
 
 	void Decorations::renderForeground() const
 	{
+		customShadersRender(customShadersForegroundDecorationsBuffers);
 		texturedRender(texturedForegroundDecorationsBuffers);
 		basicRender(simpleForegroundDecorationsBuffers);
+	}
+
+	void Decorations::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
+	{
+		for (const auto& currentBuffers : buffers)
+		{
+			glUseProgram_proxy(*currentBuffers.customShadersProgram);
+			if (currentBuffers.renderingSetup) currentBuffers.renderingSetup(*currentBuffers.customShadersProgram);
+			glBindVertexArray(currentBuffers.vertexArray);
+			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());
+		}
 	}
 
 	void Decorations::texturedRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const

@@ -31,6 +31,7 @@ namespace Systems
 		void updatePositionsBuffers();
 		void updateTexCoordsBuffers();
 
+		void customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const;
 		void texturedRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const;
 		void basicRender(const std::vector<Buffers::PosTexCoordBuffers>& buffer) const;
 
@@ -44,5 +45,9 @@ namespace Systems
 		std::vector<Buffers::PosTexCoordBuffers> texturedBackgroundDecorationsBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> texturedMidgroundDecorationsBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> texturedForegroundDecorationsBuffers;
+
+		std::vector<Buffers::PosTexCoordBuffers> customShadersBackgroundDecorationsBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> customShadersMidgroundDecorationsBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> customShadersForegroundDecorationsBuffers;
 	};
 }

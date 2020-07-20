@@ -24,6 +24,7 @@ namespace Buffers
 		std::optional<GLuint> texCoordBuffer;
 		std::optional<unsigned> texture;
 		std::function<void(Shaders::ProgramId)> renderingSetup;
+		std::optional<Shaders::ProgramId> customShadersProgram;
 
 		std::vector<glm::vec3> positionsCache;
 		std::vector<glm::vec2> texCoordCache;

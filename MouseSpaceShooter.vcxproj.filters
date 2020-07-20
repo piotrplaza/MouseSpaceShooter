@@ -180,6 +180,9 @@
     <ClInclude Include="buffers\posTexCoordBuffers.hpp">
       <Filter>src\buffers</Filter>
     </ClInclude>
+    <ClInclude Include="shaders\julia.hpp">
+      <Filter>src\shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.fs">
@@ -204,6 +207,12 @@
       <Filter>src\shaders</Filter>
     </None>
     <None Include="shaders\textured.vs">
+      <Filter>src\shaders</Filter>
+    </None>
+    <None Include="shaders\julia.fs">
+      <Filter>src\shaders</Filter>
+    </None>
+    <None Include="shaders\julia.vs">
       <Filter>src\shaders</Filter>
     </None>
   </ItemGroup>
