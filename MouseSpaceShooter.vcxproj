@@ -22,6 +22,8 @@
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
     <ClCompile Include="buffers\posTexCoordBuffers.cpp" />
     <ClCompile Include="globals.cpp" />
+    <ClCompile Include="levels\level.cpp" />
+    <ClCompile Include="levels\playground\playground.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ogl\oglProxy.cpp" />
     <ClCompile Include="ogl\shaders.cpp" />
@@ -53,6 +55,8 @@
     <ClInclude Include="components\textureDef.hpp" />
     <ClInclude Include="components\wall.hpp" />
     <ClInclude Include="globals.hpp" />
+    <ClInclude Include="levels\level.hpp" />
+    <ClInclude Include="levels\playground\playground.hpp" />
     <ClInclude Include="ogl\buffersHelpers.hpp" />
     <ClInclude Include="ogl\oglProxy.hpp" />
     <ClInclude Include="ogl\renderingHelpers.hpp" />

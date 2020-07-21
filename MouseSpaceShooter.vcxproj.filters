@@ -29,6 +29,12 @@
     <Filter Include="src\buffers">
       <UniqueIdentifier>{7278c980-8a19-4601-a473-b23ac7952f20}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels">
+      <UniqueIdentifier>{ef61fe63-b136-419d-81a8-fb83a1b8420d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\levels\playground">
+      <UniqueIdentifier>{829484f9-8e80-4125-8d94-7ce5ccd78b47}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -78,6 +84,12 @@
     </ClCompile>
     <ClCompile Include="buffers\posTexCoordBuffers.cpp">
       <Filter>src\buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\playground\playground.cpp">
+      <Filter>src\levels\playground</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\level.cpp">
+      <Filter>src\levels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -185,6 +197,12 @@
     </ClInclude>
     <ClInclude Include="components\graphicsSettings.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\playground\playground.hpp">
+      <Filter>src\levels\playground</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\level.hpp">
+      <Filter>src\levels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
