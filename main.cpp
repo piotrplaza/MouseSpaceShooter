@@ -27,7 +27,7 @@
 #include "tools/utility.hpp"
 
 const bool fullScreen = true;
-const bool console = true;
+const bool console = false;
 const glm::ivec2 windowRes = { 800, 800 };
 
 std::unique_ptr<Levels::Level> activeLevel;

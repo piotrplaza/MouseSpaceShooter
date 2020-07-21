@@ -12,6 +12,21 @@ inline glm::vec2 OrthoVec2(const glm::vec2& p1, const glm::vec2& p2, bool invert
 	else return glm::normalize(glm::vec2(d.y, -d.x));
 }
 
+inline glm::vec2 operator +(const glm::vec2& lhs, const glm::ivec2& rhs)
+{
+	return { lhs.x + rhs.x, lhs.y + rhs.y };
+}
+
+inline glm::vec2 operator *(const glm::ivec2& lhs, const glm::vec2& rhs)
+{
+	return { lhs.x * rhs.x, lhs.y * rhs.y };
+}
+
+inline glm::vec2 operator /(const glm::vec2& lhs, const glm::ivec2& rhs)
+{
+	return { lhs.x / rhs.x, lhs.y / rhs.y };
+}
+
 namespace Tools
 {
 	std::vector<glm::vec3> CreateRectanglePositions(const glm::vec2& position, const glm::vec2& hSize)
@@ -86,5 +101,25 @@ namespace Tools
 		}
 
 		return positions;
+	}
+
+	std::function<TextureFrameTransform(float time)> CreateTextureAnimation(
+		glm::ivec2 imageSize, glm::ivec2 startPosition, glm::ivec2 frameSize, glm::ivec2 framesGrid, glm::vec2 frameStep,
+		float frameTime, int numOfFrames, bool verticalLayout, bool backward, AnimationPolicy animationPolicy)
+	{
+		return[=,
+			numOfFrames = numOfFrames == -1 ? framesGrid.x * framesGrid.y : numOfFrames,
+			textureScale = imageSize / frameSize,
+			frameScale = glm::vec2(frameSize) / imageSize
+		](float time) -> TextureFrameTransform
+		{
+			int currentFrame = int(time / frameTime) % numOfFrames;
+			if (backward) currentFrame = numOfFrames - currentFrame - 1;
+			const glm::ivec2 currentFrameInGrid = verticalLayout
+				? glm::ivec2{ currentFrame / framesGrid.y, currentFrame % framesGrid.y }
+				: glm::ivec2{ currentFrame % framesGrid.x, currentFrame / framesGrid.x };
+			const glm::vec2 imageCoord = startPosition + currentFrameInGrid * frameStep;
+			return { -imageCoord / imageSize - frameScale * 0.5f, { -textureScale.x, textureScale.y } };
+		};
 	}
 }
