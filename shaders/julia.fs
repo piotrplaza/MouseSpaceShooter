@@ -34,7 +34,7 @@ vec2 julia(vec2 p)
 
 vec4 gradientColoring(vec2 fractalResult)
 {
-	return normalize(mix(minColor, maxColor, length(fractalResult)));
+	return mix(maxColor, minColor, min(length(fractalResult), 1.0));
 }
 
 void main()
