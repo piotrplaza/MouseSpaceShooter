@@ -16,6 +16,7 @@
 #include <components/grapple.hpp>
 #include <components/texture.hpp>
 #include <components/textureDef.hpp>
+#include <components/graphicsSettings.hpp>
 
 namespace Systems
 {
@@ -94,7 +95,7 @@ namespace Systems
 	{
 		glUseProgram_proxy(sceneCoordTexturedShadersProgram->program);
 		sceneCoordTexturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
-		sceneCoordTexturedShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
+		sceneCoordTexturedShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.texturedLevelColor);
 
 		for (const auto& [texture, texturedStaticWallBuffers] : texturesToStaticWallsBuffers)
 			Tools::TexturedRender(*sceneCoordTexturedShadersProgram, texturedStaticWallBuffers, texture);
@@ -108,7 +109,7 @@ namespace Systems
 	{
 		glUseProgram_proxy(texturedShadersProgram->program);
 		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
-		texturedShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
+		texturedShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.texturedLevelColor);
 
 		for (const auto& [texture, texturedDynamicWallBuffers] : texturesToDynamicWallsBuffers)
 			Tools::TexturedRender(*texturedShadersProgram, texturedDynamicWallBuffers, texture);
@@ -129,7 +130,7 @@ namespace Systems
 	{
 		glUseProgram_proxy(basicShadersProgram->program);
 		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
-		basicShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
+		basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.basicLevelColor);
 
 		glBindVertexArray(simpleStaticWallsBuffers->vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, simpleStaticWallsBuffers->positionsCache.size());

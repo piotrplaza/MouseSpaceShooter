@@ -16,6 +16,7 @@ namespace Components
 	struct Connection;
 	struct Camera;
 	struct Decoration;
+	struct GraphicsSettings;
 }
 
 namespace Systems
@@ -37,6 +38,7 @@ namespace Globals
 		extern ::Components::MVP& mvp;
 		extern ::Components::Physics& physics;
 		extern ::Components::Camera& camera;
+		extern ::Components::GraphicsSettings& graphicsSettings;
 
 		extern std::vector<::Components::TextureDef>& texturesDef;
 		extern std::vector<::Components::Texture>& textures;

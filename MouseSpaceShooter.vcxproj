@@ -42,6 +42,7 @@
     <ClInclude Include="components\camera.hpp" />
     <ClInclude Include="components\connection.hpp" />
     <ClInclude Include="components\decoration.hpp" />
+    <ClInclude Include="components\graphicsSettings.hpp" />
     <ClInclude Include="components\grapple.hpp" />
     <ClInclude Include="components\mouseState.hpp" />
     <ClInclude Include="components\mvp.hpp" />

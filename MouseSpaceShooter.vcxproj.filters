@@ -183,6 +183,9 @@
     <ClInclude Include="shaders\julia.hpp">
       <Filter>src\shaders</Filter>
     </ClInclude>
+    <ClInclude Include="components\graphicsSettings.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.fs">

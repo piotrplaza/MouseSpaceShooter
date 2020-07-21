@@ -13,6 +13,7 @@
 #include "components/connection.hpp"
 #include "components/camera.hpp"
 #include "components/decoration.hpp"
+#include "components/graphicsSettings.hpp"
 
 #include "systems/physics.hpp"
 #include "systems/textures.hpp"
@@ -28,6 +29,7 @@ namespace Components
 	static ::Components::MVP mvp;
 	static ::Components::Physics physics;
 	static ::Components::Camera camera;
+	static ::Components::GraphicsSettings graphicsSettings;
 
 	static std::vector<::Components::TextureDef> texturesDef;
 	static std::vector<::Components::Texture> textures;
@@ -50,6 +52,7 @@ namespace Globals
 		::Components::MVP& mvp = ::Components::mvp;
 		::Components::Physics& physics = ::Components::physics;
 		::Components::Camera& camera = ::Components::camera;
+		::Components::GraphicsSettings& graphicsSettings = ::Components::graphicsSettings;
 
 		std::vector<::Components::TextureDef>& texturesDef = ::Components::texturesDef;
 		std::vector<::Components::Texture>& textures = ::Components::textures;
