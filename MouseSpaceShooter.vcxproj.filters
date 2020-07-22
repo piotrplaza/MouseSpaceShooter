@@ -91,6 +91,9 @@
     <ClCompile Include="levels\level.cpp">
       <Filter>src\levels</Filter>
     </ClCompile>
+    <ClCompile Include="tools\animations.cpp">
+      <Filter>src\tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.hpp">
@@ -203,6 +206,12 @@
     </ClInclude>
     <ClInclude Include="levels\level.hpp">
       <Filter>src\levels</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\animations.hpp">
+      <Filter>src\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\glmHelpers.hpp">
+      <Filter>src\tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

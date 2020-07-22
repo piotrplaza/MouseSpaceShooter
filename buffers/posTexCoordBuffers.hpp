@@ -9,6 +9,8 @@
 
 #include <ogl/shaders.hpp>
 
+#include <tools/animations.hpp>
+
 namespace Buffers
 {
 	struct PosTexCoordBuffers
@@ -24,6 +26,7 @@ namespace Buffers
 		std::optional<GLuint> texCoordBuffer;
 		std::optional<unsigned> texture;
 		std::function<void(Shaders::ProgramId)> renderingSetup;
+		const Tools::TextureAnimationController* animationController = nullptr;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 
 		std::vector<glm::vec3> positionsCache;

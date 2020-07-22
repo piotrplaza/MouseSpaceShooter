@@ -12,6 +12,8 @@ namespace Levels
 		Playground();
 		~Playground();
 
+		void step() override;
+
 	private:
 		class Impl;
 		std::unique_ptr<Impl> impl;

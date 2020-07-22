@@ -148,6 +148,7 @@ namespace Tools
 
 			buffers.renderingSetup = component.renderingSetup;
 			buffers.texture = component.texture;
+			buffers.animationController = component.animationController.get();
 			buffers.customShadersProgram = component.customShadersProgram;
 			buffers.positionsCache.clear();
 			buffers.positionsCache.insert(buffers.positionsCache.end(), positionsCache.begin(), positionsCache.end());

@@ -1,7 +1,6 @@
 #include <memory>
 #include <stdexcept>
 #include <vector>
-#include <iostream>
 
 #include <windows.h>
 
@@ -26,8 +25,8 @@
 
 #include "tools/utility.hpp"
 
-const bool fullScreen = true;
-const bool console = false;
+const bool fullScreen = false;
+const bool console = true;
 const glm::ivec2 windowRes = { 800, 800 };
 
 std::unique_ptr<Levels::Level> activeLevel;
@@ -74,6 +73,8 @@ void RenderScene()
 
 void PrepareFrame()
 {
+	activeLevel->step();
+
 	Globals::Systems::AccessPlayers().step();
 	Globals::Systems::AccessLevel().step();
 	Globals::Systems::AccessCamera().step();
@@ -237,6 +238,20 @@ LRESULT CALLBACK WndProc(
 			break;
 		case WM_MBUTTONUP:
 			mouseState.mmb = false;
+			break;
+		case WM_XBUTTONDOWN:
+			switch (HIWORD(wParam))
+			{
+				case XBUTTON1: mouseState.xmb1 = true; break;
+				case XBUTTON2: mouseState.xmb2 = true; break;
+			}
+			break;
+		case WM_XBUTTONUP:
+			switch (HIWORD(wParam))
+			{
+				case XBUTTON1: mouseState.xmb1 = false; break;
+				case XBUTTON2: mouseState.xmb2 = false; break;
+			}
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);

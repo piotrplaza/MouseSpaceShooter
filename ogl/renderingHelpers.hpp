@@ -16,10 +16,22 @@ namespace Tools
 		const auto& textureDefComponent = texturesDef[texture];
 
 		shadersProgram.texture1Uniform.setValue(texture);
-		shadersProgram.textureTranslateUniform.setValue(textureDefComponent.translate);
-		shadersProgram.textureScaleUniform.setValue(
-			{ (float)textureComponent.width / textureComponent.height * textureDefComponent.scale.x, textureDefComponent.scale.y });
+
+		if (buffers.animationController)
+		{
+			const auto frameTransformation = buffers.animationController->getFrameTransformation();
+			shadersProgram.textureTranslateUniform.setValue(frameTransformation.translate);
+			shadersProgram.textureScaleUniform.setValue(frameTransformation.scale);
+		}
+		else
+		{
+			shadersProgram.textureTranslateUniform.setValue(textureDefComponent.translate);
+			shadersProgram.textureScaleUniform.setValue(
+				{ (float)textureComponent.width / textureComponent.height * textureDefComponent.scale.x, textureDefComponent.scale.y });
+		}
+
 		if (buffers.renderingSetup) buffers.renderingSetup(shadersProgram.program);
+
 		glBindVertexArray(buffers.vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, buffers.positionsCache.size());
 	}

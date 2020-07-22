@@ -34,6 +34,7 @@
     <ClCompile Include="systems\physics.cpp" />
     <ClCompile Include="systems\players.cpp" />
     <ClCompile Include="systems\textures.cpp" />
+    <ClCompile Include="tools\animations.cpp" />
     <ClCompile Include="tools\b2Helpers.cpp" />
     <ClCompile Include="tools\graphicsHelpers.cpp" />
     <ClCompile Include="tools\utility.cpp" />
@@ -73,7 +74,9 @@
     <ClInclude Include="systems\physics.hpp" />
     <ClInclude Include="systems\players.hpp" />
     <ClInclude Include="systems\textures.hpp" />
+    <ClInclude Include="tools\animations.hpp" />
     <ClInclude Include="tools\b2Helpers.hpp" />
+    <ClInclude Include="tools\glmHelpers.hpp" />
     <ClInclude Include="tools\graphicsHelpers.hpp" />
     <ClInclude Include="tools\utility.hpp" />
   </ItemGroup>

@@ -11,6 +11,7 @@
 #include <components/camera.hpp>
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
+#include <components/mouseState.hpp>
 
 #include <ogl/uniformControllers.hpp>
 
@@ -73,22 +74,22 @@ namespace Levels
 
 			foregroundDecorations.emplace_back(Tools::CreateRectanglePositions({ 0.0f, 0.0f }, { 0.5f, 0.5f }), flameAnimation1Texture);
 			foregroundDecorations.back().renderingSetup = [&,
-				modelUniform = Uniforms::UniformControllerMat4f(),
-				textureTranslateUniform = Uniforms::UniformController2f(),
-				textureScaleUniform = Uniforms::UniformController2f(),
-				flameAnimation = Tools::CreateTextureAnimation(
-					{ 500, 498 }, { 2, 0 }, { 61, 123 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, -1, false, true)
+				modelUniform = Uniforms::UniformControllerMat4f()
 			](Shaders::ProgramId program) mutable {
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-				if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2f(program, "textureTranslate");
-				if (!textureScaleUniform.isValid()) textureScaleUniform = Uniforms::UniformController2f(program, "textureScale");
-
 				modelUniform.setValue(glm::rotate(glm::translate(glm::scale(Tools::GetModelMatrix(*player1->body), { 3.0f, 2.0f, 1.0f }),
-					{ -0.7f, 0.0f, 0.0f }), glm::half_pi<float>() , {0.0f, 0.0f, 1.0f}));
+					{ -0.8f, 0.0f, 0.0f }), glm::half_pi<float>() , {0.0f, 0.0f, 1.0f}));
+				glBlendFunc(GL_ONE, GL_ONE);
+			};
 
-				const auto flameFrameTransform = flameAnimation(physics.simulationTime);
-				textureTranslateUniform.setValue(flameFrameTransform.translate);
-				textureScaleUniform.setValue(flameFrameTransform.scale);
+			foregroundDecorations.back().animationController.reset(new Tools::TextureAnimationController(
+				{ 500, 498 }, { 2, 0 }, { 61, 123 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, -1,
+				AnimationLayout::Horizontal, AnimationPlayback::Backward));
+			player1Thrust = foregroundDecorations.back().animationController.get();
+			player1Thrust->start();
+
+			foregroundDecorations.emplace_back().renderingSetup = [](auto) {
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			};
 		}
 
@@ -192,6 +193,13 @@ namespace Levels
 			};
 		}
 
+		void step()
+		{
+			if (Globals::Components::mouseState.xmb1) player1Thrust->pause();
+			else player1Thrust->resume();
+			if (Globals::Components::mouseState.xmb2) player1Thrust->start();
+		}
+
 	private:
 		Shaders::Programs::Julia juliaShaders;
 
@@ -202,6 +210,7 @@ namespace Levels
 		unsigned flameAnimation1Texture = 0;
 
 		Components::Player* player1 = nullptr;
+		Tools::TextureAnimationController* player1Thrust = nullptr;
 	};
 
 	Playground::Playground(): impl(std::make_unique<Impl>())
@@ -217,4 +226,9 @@ namespace Levels
 	}
 
 	Playground::~Playground() = default;
+
+	void Playground::step()
+	{
+		impl->step();
+	}
 }
