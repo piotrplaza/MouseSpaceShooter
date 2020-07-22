@@ -95,11 +95,4 @@ namespace Uniforms
 	private:
 		glm::mat4 cache{};
 	};
-
-	UniformController1i GetUniformController1i(Shaders::ProgramId programId, const std::string& uniformName);
-	UniformController1f GetUniformController1f(Shaders::ProgramId programId, const std::string& uniformName);
-	UniformController2f GetUniformController2f(Shaders::ProgramId programId, const std::string& uniformName);
-	UniformController3f GetUniformController3f(Shaders::ProgramId programId, const std::string& uniformName);
-	UniformController4f GetUniformController4f(Shaders::ProgramId programId, const std::string& uniformName);
-	UniformControllerMat4f GetUniformControllerMat4f(Shaders::ProgramId programId, const std::string& uniformName);
 }

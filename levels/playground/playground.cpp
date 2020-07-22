@@ -66,7 +66,7 @@ namespace Levels
 			player1->renderingSetup = [
 				colorUniform = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {
-				if (!colorUniform.isValid()) colorUniform = Uniforms::GetUniformController4f(program, "color");
+				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
 				const float fade = (glm::sin(Globals::Components::physics.simulationTime * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
 				colorUniform.setValue({ fade, 1.0f, fade, 1.0f });
 			};
@@ -79,9 +79,9 @@ namespace Levels
 				flameAnimation = Tools::CreateTextureAnimation(
 					{ 500, 498 }, { 2, 0 }, { 61, 123 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, -1, false, true)
 			](Shaders::ProgramId program) mutable {
-				if (!modelUniform.isValid()) modelUniform = Uniforms::GetUniformControllerMat4f(program, "model");
-				if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::GetUniformController2f(program, "textureTranslate");
-				if (!textureScaleUniform.isValid()) textureScaleUniform = Uniforms::GetUniformController2f(program, "textureScale");
+				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
+				if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2f(program, "textureTranslate");
+				if (!textureScaleUniform.isValid()) textureScaleUniform = Uniforms::UniformController2f(program, "textureScale");
 
 				modelUniform.setValue(glm::rotate(glm::translate(glm::scale(Tools::GetModelMatrix(*player1->body), { 3.0f, 2.0f, 1.0f }),
 					{ -0.7f, 0.0f, 0.0f }), glm::half_pi<float>() , {0.0f, 0.0f, 1.0f}));
@@ -104,10 +104,10 @@ namespace Levels
 				minColorUniform = Uniforms::UniformController4f(),
 				maxColorUniform = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {
-				if (!vpUniform.isValid()) vpUniform = Uniforms::GetUniformControllerMat4f(program, "vp");
-				if (!juliaCOffsetUniform.isValid()) juliaCOffsetUniform = Uniforms::GetUniformController2f(program, "juliaCOffset");
-				if (!minColorUniform.isValid()) minColorUniform = Uniforms::GetUniformController4f(program, "minColor");
-				if (!maxColorUniform.isValid()) maxColorUniform = Uniforms::GetUniformController4f(program, "maxColor");
+				if (!vpUniform.isValid()) vpUniform = Uniforms::UniformControllerMat4f(program, "vp");
+				if (!juliaCOffsetUniform.isValid()) juliaCOffsetUniform = Uniforms::UniformController2f(program, "juliaCOffset");
+				if (!minColorUniform.isValid()) minColorUniform = Uniforms::UniformController4f(program, "minColor");
+				if (!maxColorUniform.isValid()) maxColorUniform = Uniforms::UniformController4f(program, "maxColor");
 				vpUniform.setValue(glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(-camera.prevPosition * 0.005f, 0.0f)),
 					glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f));
 				juliaCOffsetUniform.setValue(player1->getPosition() * 0.00001f);
@@ -134,7 +134,7 @@ namespace Levels
 			staticWalls.back().renderingSetup = [
 				colorUniform = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {
-				if (!colorUniform.isValid()) colorUniform = Uniforms::GetUniformController4f(program, "color");
+				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
 				colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
 					(glm::sin(Globals::Components::physics.simulationTime * glm::two_pi<float>()) + 1.0f) / 2.0f });
 			};
@@ -154,7 +154,7 @@ namespace Levels
 			dynamicWalls.back().renderingSetup = [
 				colorUniform = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {
-				if (!colorUniform.isValid()) colorUniform = Uniforms::GetUniformController4f(program, "color");
+				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
 				colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
 					(glm::sin(Globals::Components::physics.simulationTime / 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
 			};
@@ -169,7 +169,7 @@ namespace Levels
 			grapples.back().renderingSetup = [
 				colorUniform = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {
-				if (!colorUniform.isValid()) colorUniform = Uniforms::GetUniformController4f(program, "color");
+				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
 				colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
 					(glm::sin(Globals::Components::physics.simulationTime / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
 			};
