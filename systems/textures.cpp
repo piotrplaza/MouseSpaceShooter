@@ -19,6 +19,8 @@ namespace Systems
 		using namespace Globals::Components;
 		using namespace Globals::Constants;
 
+		stbi_set_flip_vertically_on_load(true);
+
 		static_assert(maxTextureObjects <= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 		assert(texturesDef.size() <= maxTextureObjects);
 		

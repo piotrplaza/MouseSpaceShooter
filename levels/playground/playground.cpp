@@ -72,19 +72,25 @@ namespace Levels
 				colorUniform.setValue({ fade, 1.0f, fade, 1.0f });
 			};
 
-			foregroundDecorations.emplace_back(Tools::CreateRectanglePositions({ 0.0f, 0.0f }, { 0.5f, 0.5f }), flameAnimation1Texture);
+			foregroundDecorations.emplace_back(Tools::CreateRectanglePositions({ 0.0f, -0.5f }, { 0.5f, 0.5f }), flameAnimation1Texture);
 			foregroundDecorations.back().renderingSetup = [&,
-				modelUniform = Uniforms::UniformControllerMat4f()
+				modelUniform = Uniforms::UniformControllerMat4f(),
+				thrustScale = 1.0f
 			](Shaders::ProgramId program) mutable {
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-				modelUniform.setValue(glm::rotate(glm::translate(glm::scale(Tools::GetModelMatrix(*player1->body), { 3.0f, 2.0f, 1.0f }),
-					{ -0.8f, 0.0f, 0.0f }), glm::half_pi<float>() , {0.0f, 0.0f, 1.0f}));
+				modelUniform.setValue(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*player1->body), {-0.95f, 0.0f, 0.0f}),
+					-glm::half_pi<float>(), { 0.0f, 0.0f, 1.0f }), { std::min(thrustScale, 2.0f), thrustScale, 1.0f }));
+
+				if (player1->throttling && thrustScale < 10.0f) thrustScale *= 1.08f;
+				else thrustScale = 1.0f + (thrustScale - 1.0f) * 0.95f;
+
 				glBlendFunc(GL_ONE, GL_ONE);
 			};
 
 			foregroundDecorations.back().animationController.reset(new Tools::TextureAnimationController(
-				{ 500, 498 }, { 2, 0 }, { 61, 123 }, { 8, 4 }, { 62.5f, 124.9f }, 0.06f, -1,
-				AnimationLayout::Horizontal, AnimationPlayback::Backward));
+				{ 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
+				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
+				{ 0.0f, -0.5f }, { 1.0f, 1.0f }));
 			player1Thrust = foregroundDecorations.back().animationController.get();
 			player1Thrust->start();
 

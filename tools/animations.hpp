@@ -21,9 +21,9 @@ namespace Tools
 		};
 
 		TextureAnimationController(glm::ivec2 imageSize, glm::ivec2 startPosition, glm::ivec2 frameSize, glm::ivec2 framesGrid, glm::vec2 frameStep,
-			float frameTime, int numOfFrames = -1, AnimationLayout animationLayout = AnimationLayout::Horizontal,
+			float frameTime, int numOfFrames = 0, AnimationLayout animationLayout = AnimationLayout::Horizontal,
 			AnimationPlayback animationPlayback = AnimationPlayback::Forward, AnimationPolicy animationPolicy = AnimationPolicy::Repeat,
-			glm::vec2 scale = { 1.0f, 1.0f });
+			glm::vec2 translate = { 0.0f, 0.0f }, glm::vec2 scale = { 1.0f, 1.0f });
 
 		FrameTransformation getFrameTransformation() const;
 
@@ -38,7 +38,6 @@ namespace Tools
 	private:
 		glm::ivec2 imageSize;
 		glm::ivec2 startPosition;
-		glm::ivec2 frameSize;
 		glm::ivec2 framesGrid;
 		glm::vec2 frameStep;
 		float frameTime;
@@ -46,6 +45,7 @@ namespace Tools
 		AnimationLayout animationLayout;
 		AnimationPlayback animationPlayback;
 		AnimationPolicy animationPolicy;
+		glm::vec2 translate;
 		glm::vec2 scale;
 		glm::vec2 textureScale;
 		glm::vec2 frameScale;

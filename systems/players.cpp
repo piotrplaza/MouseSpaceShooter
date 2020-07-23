@@ -201,6 +201,8 @@ namespace Systems
 
 	void Players::throttle(bool active) const
 	{
+		player.throttling = active;
+
 		if (!active) return;
 
 		const float currentAngle = player.body->GetAngle();

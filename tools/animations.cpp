@@ -10,19 +10,19 @@ namespace Tools
 {
 	TextureAnimationController::TextureAnimationController(
 		glm::ivec2 imageSize, glm::ivec2 startPosition, glm::ivec2 frameSize, glm::ivec2 framesGrid, glm::vec2 frameStep, float frameTime,
-		int numOfFrames, AnimationLayout animationLayout, AnimationPlayback animationPlayback, AnimationPolicy animationPolicy, glm::vec2 scale):
+		int numOfFrames, AnimationLayout animationLayout, AnimationPlayback animationPlayback, AnimationPolicy animationPolicy, glm::vec2 translate, glm::vec2 scale):
 		imageSize(imageSize),
-		startPosition(startPosition),
-		frameSize(frameSize),
+		startPosition(startPosition.x, -startPosition.y),
 		framesGrid(framesGrid),
 		frameStep(frameStep),
 		frameTime(frameTime),
-		numOfFrames(numOfFrames == -1 ? framesGrid.x * framesGrid.y : numOfFrames),
+		numOfFrames(numOfFrames == 0 ? framesGrid.x * framesGrid.y : numOfFrames),
 		animationLayout(animationLayout),
 		animationPlayback(animationPlayback),
 		animationPolicy(animationPolicy),
+		translate(translate),
 		scale(scale),
-		textureScale(imageSize / frameSize),
+		textureScale(glm::vec2(imageSize) / frameSize),
 		frameScale(glm::vec2(frameSize) / imageSize)
 	{
 	}
@@ -42,7 +42,11 @@ namespace Tools
 			? glm::ivec2{ currentFrame / framesGrid.y, currentFrame % framesGrid.y }
 		: glm::ivec2{ currentFrame % framesGrid.x, currentFrame / framesGrid.x };
 		const glm::vec2 imageCoord = startPosition + currentFrameInGrid * frameStep;
-		return { -imageCoord / imageSize - frameScale * 0.5f, glm::vec2(-textureScale.x, textureScale.y) * scale };
+		const glm::vec2 frameTranslate =
+			glm::vec2(0.0f, -1.0f) - glm::vec2(imageCoord.x, -imageCoord.y) / imageSize
+			- glm::vec2(frameScale.x, -frameScale.y) * 0.5f + translate * frameScale;
+		const glm::vec2 frameScale = glm::vec2(textureScale.x, textureScale.y) * scale;
+		return { frameTranslate, frameScale };
 	}
 
 	void TextureAnimationController::start()

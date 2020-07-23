@@ -36,6 +36,8 @@ namespace Components
 		std::unique_ptr<b2Joint, b2JointDeleter> grappleJoint;
 		int connectedGrappleId = -1;
 		int weakConnectedGrappleId = -1;
+
+		bool throttling = false;
 		
 		void setPosition(const glm::vec2& position)
 		{
