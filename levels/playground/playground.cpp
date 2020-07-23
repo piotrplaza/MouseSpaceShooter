@@ -83,7 +83,7 @@ namespace Levels
 			};
 
 			foregroundDecorations.back().animationController.reset(new Tools::TextureAnimationController(
-				{ 500, 498 }, { 2, 0 }, { 61, 123 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, -1,
+				{ 500, 498 }, { 2, 0 }, { 61, 123 }, { 8, 4 }, { 62.5f, 124.9f }, 0.06f, -1,
 				AnimationLayout::Horizontal, AnimationPlayback::Backward));
 			player1Thrust = foregroundDecorations.back().animationController.get();
 			player1Thrust->start();
@@ -198,6 +198,8 @@ namespace Levels
 			if (Globals::Components::mouseState.xmb1) player1Thrust->pause();
 			else player1Thrust->resume();
 			if (Globals::Components::mouseState.xmb2) player1Thrust->start();
+
+			player1Thrust->setTimeScale(1.0f + Globals::Components::mouseState.wheel / 10.0f);
 		}
 
 	private:

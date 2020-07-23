@@ -29,13 +29,14 @@ namespace Tools
 
 	TextureAnimationController::FrameTransformation TextureAnimationController::getFrameTransformation() const
 	{
-		const auto animationTime = pauseTime
-			? *pauseTime - *startTime
-			: startTime
-			? Globals::Components::physics.simulationTime - *startTime
-			: 0.0f;
+		if (prevTime && !pauseTime)
+		{
+			animationTime += (Globals::Components::physics.simulationTime - *prevTime) * timeScale;
+			prevTime = Globals::Components::physics.simulationTime;
+		}
 
 		int currentFrame = int(animationTime / frameTime) % numOfFrames;
+		if (animationTime < 0.0f) currentFrame += numOfFrames - 1;
 		if (animationPlayback == AnimationPlayback::Backward) currentFrame = numOfFrames - currentFrame - 1;
 		const glm::ivec2 currentFrameInGrid = animationLayout == AnimationLayout::Vertical
 			? glm::ivec2{ currentFrame / framesGrid.y, currentFrame % framesGrid.y }
@@ -46,25 +47,36 @@ namespace Tools
 
 	void TextureAnimationController::start()
 	{
-		startTime = Globals::Components::physics.simulationTime;
+		animationTime = 0;
+		prevTime = Globals::Components::physics.simulationTime;
 		pauseTime = std::nullopt;
 	}
 
 	void TextureAnimationController::stop()
 	{
-		startTime = std::nullopt;
+		prevTime = std::nullopt;
 		pauseTime = std::nullopt;
 	}
 
 	void TextureAnimationController::pause()
 	{
-		if (!pauseTime && startTime) pauseTime = Globals::Components::physics.simulationTime;
+		if (!pauseTime && prevTime) pauseTime = Globals::Components::physics.simulationTime;
 	}
 
 	void TextureAnimationController::resume()
 	{
-		if (pauseTime && startTime)
-			*startTime += Globals::Components::physics.simulationTime - *pauseTime;
+		if (pauseTime && prevTime)
+			*prevTime += Globals::Components::physics.simulationTime - *pauseTime;
 		pauseTime = std::nullopt;
+	}
+
+	void TextureAnimationController::setTimeScale(float timeScale)
+	{
+		this->timeScale = timeScale;
+	}
+
+	float TextureAnimationController::getTimeScale() const
+	{
+		return timeScale;
 	}
 }

@@ -32,6 +32,9 @@ namespace Tools
 		void pause();
 		void resume();
 
+		void setTimeScale(float timeScale);
+		float getTimeScale() const;
+
 	private:
 		glm::ivec2 imageSize;
 		glm::ivec2 startPosition;
@@ -46,8 +49,11 @@ namespace Tools
 		glm::vec2 scale;
 		glm::vec2 textureScale;
 		glm::vec2 frameScale;
-
-		std::optional<float> startTime;
+		
 		std::optional<float> pauseTime;
+		float timeScale = 1.0f;
+
+		mutable std::optional<float> prevTime;
+		mutable float animationTime = 0.0f;
 	};
 }

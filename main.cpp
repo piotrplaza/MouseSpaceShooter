@@ -25,7 +25,7 @@
 
 #include "tools/utility.hpp"
 
-const bool fullScreen = false;
+const bool fullScreen = true;
 const bool console = true;
 const glm::ivec2 windowRes = { 800, 800 };
 
@@ -252,6 +252,10 @@ LRESULT CALLBACK WndProc(
 				case XBUTTON1: mouseState.xmb1 = false; break;
 				case XBUTTON2: mouseState.xmb2 = false; break;
 			}
+			break;
+		case WM_MOUSEWHEEL:
+			if ((int)wParam > 0) ++mouseState.wheel;
+			else if ((int)wParam < 0) --mouseState.wheel;
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
