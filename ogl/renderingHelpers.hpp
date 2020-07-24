@@ -1,3 +1,5 @@
+#include <functional>
+
 #include <GL/glew.h>
 
 #include <globals.hpp>
@@ -30,9 +32,14 @@ namespace Tools
 				{ (float)textureComponent.width / textureComponent.height * textureDefComponent.scale.x, textureDefComponent.scale.y });
 		}
 
-		if (buffers.renderingSetup) buffers.renderingSetup(shadersProgram.program);
+		std::function<void()> renderingTeardown;
+		if (buffers.renderingSetup)
+			renderingTeardown = buffers.renderingSetup(shadersProgram.program);
 
 		glBindVertexArray(buffers.vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, buffers.positionsCache.size());
+		
+		if (renderingTeardown)
+			renderingTeardown();
 	}
 }

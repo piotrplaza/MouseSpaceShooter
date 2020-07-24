@@ -16,6 +16,9 @@ namespace Buffers
 	struct PosTexCoordBuffers
 	{
 		PosTexCoordBuffers();
+		PosTexCoordBuffers(const PosTexCoordBuffers&) = delete;
+		PosTexCoordBuffers(PosTexCoordBuffers&&) noexcept;
+
 		~PosTexCoordBuffers();
 
 		void createTexCoordBuffer();
@@ -25,7 +28,7 @@ namespace Buffers
 
 		std::optional<GLuint> texCoordBuffer;
 		std::optional<unsigned> texture;
-		std::function<void(Shaders::ProgramId)> renderingSetup;
+		std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup;
 		const Tools::TextureAnimationController* animationController = nullptr;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 
@@ -33,5 +36,7 @@ namespace Buffers
 		std::vector<glm::vec2> texCoordCache;
 		size_t numOfAllocatedPositions = 0;
 		size_t numOfAllocatedTexCoord = 0;
+
+		bool expired = false;
 	};
 }

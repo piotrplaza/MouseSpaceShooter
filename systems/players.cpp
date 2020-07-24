@@ -140,9 +140,14 @@ namespace Systems
 
 		for (const auto& customSimplePlayerBuffers : customSimplePlayersBuffers)
 		{
-			customSimplePlayerBuffers.renderingSetup(basicShadersProgram->program);
+			std::function<void()> renderingTeardown =
+				customSimplePlayerBuffers.renderingSetup(basicShadersProgram->program);
+
 			glBindVertexArray(customSimplePlayerBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimplePlayerBuffers.positionsCache.size());
+
+			if (renderingTeardown)
+				renderingTeardown();
 		}
 	}
 

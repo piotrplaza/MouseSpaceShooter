@@ -12,8 +12,26 @@ namespace Buffers
 		glEnableVertexAttribArray(0);
 	}
 
+	PosTexCoordBuffers::PosTexCoordBuffers(PosTexCoordBuffers&& source) noexcept:
+		vertexArray(source.vertexArray),
+		positionBuffer(source.positionBuffer),
+		texCoordBuffer(source.texCoordBuffer),
+		texture(source.texture),
+		renderingSetup(std::move(source.renderingSetup)),
+		animationController(source.animationController),
+		customShadersProgram(source.customShadersProgram),
+		positionsCache(std::move(source.positionsCache)),
+		texCoordCache(std::move(source.texCoordCache)),
+		numOfAllocatedPositions(source.numOfAllocatedPositions),
+		numOfAllocatedTexCoord(source.numOfAllocatedTexCoord)
+	{
+		source.expired = true;
+	}
+
 	PosTexCoordBuffers::~PosTexCoordBuffers()
 	{
+		if (expired) return;
+
 		glDeleteBuffers(1, &positionBuffer);
 		if (texCoordBuffer) glDeleteBuffers(1, &*texCoordBuffer);
 		glDeleteVertexArrays(1, &vertexArray);

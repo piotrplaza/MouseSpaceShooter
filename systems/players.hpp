@@ -36,6 +36,8 @@ namespace Systems
 		struct ConnectionsBuffers
 		{
 			ConnectionsBuffers();
+			ConnectionsBuffers(const ConnectionsBuffers&) = delete;
+
 			~ConnectionsBuffers();
 
 			GLuint vertexArray;

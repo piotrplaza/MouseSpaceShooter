@@ -143,16 +143,26 @@ namespace Systems
 
 		for (const auto& customSimpleStaticWallBuffers : customSimpleStaticWallsBuffers)
 		{
-			customSimpleStaticWallBuffers.renderingSetup(basicShadersProgram->program);
+			std::function<void()> renderingTeardown =
+				customSimpleStaticWallBuffers.renderingSetup(basicShadersProgram->program);
+
 			glBindVertexArray(customSimpleStaticWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimpleStaticWallBuffers.positionsCache.size());
+
+			if (renderingTeardown)
+				renderingTeardown();
 		}
 
 		for (const auto& customSimpleGrappleBuffers : customSimpleGrapplesBuffers)
 		{
-			customSimpleGrappleBuffers.renderingSetup(basicShadersProgram->program);
+			std::function<void()> renderingTeardown =
+				customSimpleGrappleBuffers.renderingSetup(basicShadersProgram->program);
+
 			glBindVertexArray(customSimpleGrappleBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimpleGrappleBuffers.positionsCache.size());
+
+			if (renderingTeardown)
+				renderingTeardown();
 		}
 	}
 }

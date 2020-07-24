@@ -18,7 +18,7 @@ namespace Components
 	struct Decoration
 	{
 		Decoration(std::vector<glm::vec3> positions = {}, std::optional<unsigned> texture = std::nullopt,
-			std::function<void(Shaders::ProgramId)> renderingSetup = nullptr,
+			std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup = nullptr,
 			std::unique_ptr<Tools::TextureAnimationController> animationController = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			positions(std::move(positions)),
@@ -36,7 +36,7 @@ namespace Components
 
 		std::vector<glm::vec3> positions;
 		std::optional<unsigned> texture;
-		std::function<void(Shaders::ProgramId)> renderingSetup;
+		std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup;
 		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 	};

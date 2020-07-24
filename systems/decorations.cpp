@@ -71,9 +71,16 @@ namespace Systems
 		for (const auto& currentBuffers : buffers)
 		{
 			glUseProgram_proxy(*currentBuffers.customShadersProgram);
-			if (currentBuffers.renderingSetup) currentBuffers.renderingSetup(*currentBuffers.customShadersProgram);
+
+			std::function<void()> renderingTeardown;
+			if (currentBuffers.renderingSetup)
+				renderingTeardown = currentBuffers.renderingSetup(*currentBuffers.customShadersProgram);
+
 			glBindVertexArray(currentBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());
+
+			if (renderingTeardown)
+				renderingTeardown();
 		}
 	}
 
@@ -97,9 +104,15 @@ namespace Systems
 
 		for (const auto& currentBuffers : buffers)
 		{
-			if (currentBuffers.renderingSetup) currentBuffers.renderingSetup(basicShadersProgram->program);
+			std::function<void()> renderingTeardown;
+			if (currentBuffers.renderingSetup)
+				renderingTeardown = currentBuffers.renderingSetup(basicShadersProgram->program);
+
 			glBindVertexArray(currentBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());
+
+			if (renderingTeardown)
+				renderingTeardown();
 		}
 	}
 }

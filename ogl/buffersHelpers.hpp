@@ -44,6 +44,14 @@ namespace Tools
 					buffers.texCoordCache.data());
 			}
 		}
+
+		template <typename Buffers>
+		Buffers& ReuseOrEmplaceBack(std::vector<Buffers>& buffers, typename std::vector<Buffers>::iterator& it)
+		{
+			return it == buffers.end()
+				? buffers.emplace_back(), it = buffers.end(), buffers.back()
+				: *it++;
+		}
 	}
 
 	template <typename Component, typename Buffers>
@@ -66,37 +74,21 @@ namespace Tools
 				if (component.texture)
 				{
 					if (component.renderingSetup)
-					{
-						auto& buffers = customTexturedBuffersIt == customTexturedBuffers.end()
-							? customTexturedBuffers.emplace_back()
-							: *customTexturedBuffersIt++;
-						buffers.renderingSetup = component.renderingSetup;
-						buffers.texture = component.texture;
-						return buffers;
-					}
+						return Detail::ReuseOrEmplaceBack(customTexturedBuffers, customTexturedBuffersIt);
 					else
-					{
-						auto& buffers = texturesToBuffers[*component.texture];
-						buffers.texture = component.texture;
-						return buffers;
-					}
+						return texturesToBuffers[*component.texture];;
 				}
 				else
 				{
 					if (component.renderingSetup)
-					{
-						auto& buffers = customSimpleBuffersIt == customSimpleBuffers.end()
-							? customSimpleBuffers.emplace_back()
-							: *customSimpleBuffersIt++;
-						buffers.renderingSetup = component.renderingSetup;
-						return buffers;
-					}
+						return Detail::ReuseOrEmplaceBack(customSimpleBuffers, customSimpleBuffersIt);
 					else
-					{
 						return simpleBuffers;
-					}
 				}
 			}();
+
+			buffers.renderingSetup = component.renderingSetup;
+			buffers.texture = component.texture;
 
 			const auto& positionsCache = component.getTransformedPositionsCache();
 			buffers.positionsCache.insert(buffers.positionsCache.end(),
@@ -115,33 +107,18 @@ namespace Tools
 	{
 		auto simpleBuffersIt = simpleBuffers.begin();
 		auto texturedBuffersIt = texturedBuffers.begin();
-		auto customBuffersIt = customShadersBuffers.begin();
+		auto customShadersBuffersIt = customShadersBuffers.begin();
 
 		for (auto& component : components)
 		{
 			auto& buffers = [&]() -> auto&
 			{
 				if (component.customShadersProgram)
-				{
-					auto& buffers = customBuffersIt == customShadersBuffers.end()
-						? customShadersBuffers.emplace_back()
-						: *customBuffersIt++;
-					return buffers;
-				}
+					return Detail::ReuseOrEmplaceBack(customShadersBuffers, customShadersBuffersIt);
 				else if (component.texture)
-				{
-					auto& buffers = texturedBuffersIt == texturedBuffers.end()
-						? texturedBuffers.emplace_back()
-						: *texturedBuffersIt++;
-					return buffers;
-				}
+					return Detail::ReuseOrEmplaceBack(texturedBuffers, texturedBuffersIt);
 				else
-				{
-					auto& buffers = simpleBuffersIt == simpleBuffers.end()
-						? simpleBuffers.emplace_back()
-						: *simpleBuffersIt++;
-					return buffers;
-				}
+					return Detail::ReuseOrEmplaceBack(simpleBuffers, simpleBuffersIt);
 			}();
 
 			const auto& positionsCache = component.getPositionsCache();
@@ -174,15 +151,9 @@ namespace Tools
 				auto& buffers = [&]() -> auto&
 				{
 					if (component.renderingSetup)
-					{
-						return customTexturedBuffersIt == customTexturedBuffers.end()
-							? customTexturedBuffers.emplace_back()
-							: *customTexturedBuffersIt++;
-					}
+						return Detail::ReuseOrEmplaceBack(customTexturedBuffers, customTexturedBuffersIt);
 					else
-					{
 						return texturesToBuffers[*component.texture];
-					}
 				}();
 
 				buffers.texture = component.texture;
@@ -215,9 +186,7 @@ namespace Tools
 					: texturedBuffersIt;
 
 				const auto& positionsCache = component.getPositionsCache();
-				auto& buffers = relevantBuffersIt == relevantBuffers.end()
-					? relevantBuffers.emplace_back()
-					: *relevantBuffersIt++;
+				auto& buffers = Detail::ReuseOrEmplaceBack(relevantBuffers, relevantBuffersIt);
 
 				buffers.texture = component.texture;
 				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
