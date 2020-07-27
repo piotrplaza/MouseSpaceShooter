@@ -10,7 +10,7 @@ namespace Shaders
 		struct SceneCoordTextured
 		{
 			SceneCoordTextured():
-				program(Shaders::LinkProgram(Shaders::CompileShaders("shaders/sceneCoordTextured.vs", "shaders/sceneCoordTextured.fs"), { {0, "bPos"} })),
+				program(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/sceneCoordTextured.vs", "ogl/shaders/sceneCoordTextured.fs"), { {0, "bPos"} })),
 				modelUniform(program, "model"),
 				vpUniform(program, "vp"),
 				colorUniform(program, "color"),

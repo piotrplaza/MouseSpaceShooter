@@ -14,8 +14,7 @@
 #include <components/mouseState.hpp>
 
 #include <ogl/uniformControllers.hpp>
-
-#include <shaders/julia.hpp>
+#include <ogl/shaders/julia.hpp>
 
 #include <tools/graphicsHelpers.hpp>
 

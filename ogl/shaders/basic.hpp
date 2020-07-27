@@ -10,7 +10,7 @@ namespace Shaders
 		struct Basic
 		{
 			Basic():
-				program(Shaders::LinkProgram(Shaders::CompileShaders("shaders/basic.vs", "shaders/basic.fs"), { {0, "bPos"} })),
+				program(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/basic.vs", "ogl/shaders/basic.fs"), { {0, "bPos"} })),
 				modelUniform(program, "model"),
 				vpUniform(program, "vp"),
 				colorUniform(program, "color")

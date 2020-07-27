@@ -9,10 +9,9 @@
 #include <glm/vec3.hpp>
 
 #include <ogl/shaders.hpp>
-#include <shaders/basic.hpp>
-#include <shaders/textured.hpp>
-
-#include <buffers/posTexCoordBuffers.hpp>
+#include <ogl/shaders/basic.hpp>
+#include <ogl/shaders/textured.hpp>
+#include <ogl/buffers/posTexCoordBuffers.hpp>
 
 namespace Systems
 {

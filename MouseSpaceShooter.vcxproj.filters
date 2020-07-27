@@ -5,9 +5,6 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="src\shaders">
-      <UniqueIdentifier>{30f22744-b0df-4d96-a79d-41648fcbe4bc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\components">
       <UniqueIdentifier>{c7a6e6d3-fb44-42d3-b461-9bf81521a6c5}</UniqueIdentifier>
     </Filter>
@@ -26,14 +23,32 @@
     <Filter Include="src\ogl">
       <UniqueIdentifier>{0c6e7bbe-52e5-431e-aa9f-d82767a35b7b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\buffers">
-      <UniqueIdentifier>{7278c980-8a19-4601-a473-b23ac7952f20}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\levels">
       <UniqueIdentifier>{ef61fe63-b136-419d-81a8-fb83a1b8420d}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\levels\playground">
       <UniqueIdentifier>{829484f9-8e80-4125-8d94-7ce5ccd78b47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ogl\buffers">
+      <UniqueIdentifier>{7278c980-8a19-4601-a473-b23ac7952f20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ogl\shaders">
+      <UniqueIdentifier>{30f22744-b0df-4d96-a79d-41648fcbe4bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ogl\shaders\basic">
+      <UniqueIdentifier>{326dee5c-236d-4bf2-972c-294c63459962}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ogl\shaders\colored">
+      <UniqueIdentifier>{1bd18e09-f8a5-4e73-a5e7-3c46b30cd820}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ogl\shaders\julia">
+      <UniqueIdentifier>{fc5a1d40-ed16-4d60-9c7f-6bac933fc7a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ogl\shaders\sceneCoordTextured">
+      <UniqueIdentifier>{67242143-e044-4927-b1c4-3960bff48e49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ogl\shaders\textured">
+      <UniqueIdentifier>{a3c981c3-58ac-421a-b5d2-bc857b2d4e78}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -82,9 +97,6 @@
     <ClCompile Include="systems\decorations.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
-    <ClCompile Include="buffers\posTexCoordBuffers.cpp">
-      <Filter>src\buffers</Filter>
-    </ClCompile>
     <ClCompile Include="levels\playground\playground.cpp">
       <Filter>src\levels\playground</Filter>
     </ClCompile>
@@ -93,6 +105,9 @@
     </ClCompile>
     <ClCompile Include="tools\animations.cpp">
       <Filter>src\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="ogl\buffers\posTexCoordBuffers.cpp">
+      <Filter>src\ogl\buffers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -153,20 +168,8 @@
     <ClInclude Include="3rdParty\stb_image\stb_image.h">
       <Filter>src\3rdParty\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="shaders\basic.hpp">
-      <Filter>src\shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="shaders\colored.hpp">
-      <Filter>src\shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="shaders\sceneCoordTextured.hpp">
-      <Filter>src\shaders</Filter>
-    </ClInclude>
     <ClInclude Include="components\textureDef.hpp">
       <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="shaders\textured.hpp">
-      <Filter>src\shaders</Filter>
     </ClInclude>
     <ClInclude Include="ogl\oglProxy.hpp">
       <Filter>src\ogl</Filter>
@@ -192,12 +195,6 @@
     <ClInclude Include="systems\decorations.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
-    <ClInclude Include="buffers\posTexCoordBuffers.hpp">
-      <Filter>src\buffers</Filter>
-    </ClInclude>
-    <ClInclude Include="shaders\julia.hpp">
-      <Filter>src\shaders</Filter>
-    </ClInclude>
     <ClInclude Include="components\graphicsSettings.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -213,37 +210,55 @@
     <ClInclude Include="tools\glmHelpers.hpp">
       <Filter>src\tools</Filter>
     </ClInclude>
+    <ClInclude Include="ogl\buffers\posTexCoordBuffers.hpp">
+      <Filter>src\ogl\buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\shaders\basic.hpp">
+      <Filter>src\ogl\shaders\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\shaders\colored.hpp">
+      <Filter>src\ogl\shaders\colored</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\shaders\julia.hpp">
+      <Filter>src\ogl\shaders\julia</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\shaders\sceneCoordTextured.hpp">
+      <Filter>src\ogl\shaders\sceneCoordTextured</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\shaders\textured.hpp">
+      <Filter>src\ogl\shaders\textured</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\basic.fs">
-      <Filter>src\shaders</Filter>
+    <None Include="ogl\shaders\basic.fs">
+      <Filter>src\ogl\shaders\basic</Filter>
     </None>
-    <None Include="shaders\basic.vs">
-      <Filter>src\shaders</Filter>
+    <None Include="ogl\shaders\basic.vs">
+      <Filter>src\ogl\shaders\basic</Filter>
     </None>
-    <None Include="shaders\colored.fs">
-      <Filter>src\shaders</Filter>
+    <None Include="ogl\shaders\colored.fs">
+      <Filter>src\ogl\shaders\colored</Filter>
     </None>
-    <None Include="shaders\colored.vs">
-      <Filter>src\shaders</Filter>
+    <None Include="ogl\shaders\colored.vs">
+      <Filter>src\ogl\shaders\colored</Filter>
     </None>
-    <None Include="shaders\sceneCoordTextured.fs">
-      <Filter>src\shaders</Filter>
+    <None Include="ogl\shaders\julia.fs">
+      <Filter>src\ogl\shaders\julia</Filter>
     </None>
-    <None Include="shaders\sceneCoordTextured.vs">
-      <Filter>src\shaders</Filter>
+    <None Include="ogl\shaders\julia.vs">
+      <Filter>src\ogl\shaders\julia</Filter>
     </None>
-    <None Include="shaders\textured.fs">
-      <Filter>src\shaders</Filter>
+    <None Include="ogl\shaders\sceneCoordTextured.fs">
+      <Filter>src\ogl\shaders\sceneCoordTextured</Filter>
     </None>
-    <None Include="shaders\textured.vs">
-      <Filter>src\shaders</Filter>
+    <None Include="ogl\shaders\sceneCoordTextured.vs">
+      <Filter>src\ogl\shaders\sceneCoordTextured</Filter>
     </None>
-    <None Include="shaders\julia.fs">
-      <Filter>src\shaders</Filter>
+    <None Include="ogl\shaders\textured.vs">
+      <Filter>src\ogl\shaders\textured</Filter>
     </None>
-    <None Include="shaders\julia.vs">
-      <Filter>src\shaders</Filter>
+    <None Include="ogl\shaders\textured.fs">
+      <Filter>src\ogl\shaders\textured</Filter>
     </None>
   </ItemGroup>
 </Project>

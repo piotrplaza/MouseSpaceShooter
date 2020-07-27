@@ -11,11 +11,10 @@
 #include <glm/vec4.hpp>
 
 #include <ogl/shaders.hpp>
-#include <shaders/basic.hpp>
-#include <shaders/sceneCoordTextured.hpp>
-#include <shaders/textured.hpp>
-
-#include <buffers/posTexCoordBuffers.hpp>
+#include <ogl/shaders/basic.hpp>
+#include <ogl/shaders/sceneCoordTextured.hpp>
+#include <ogl/shaders/textured.hpp>
+#include <ogl/buffers/posTexCoordBuffers.hpp>
 
 namespace Components
 {

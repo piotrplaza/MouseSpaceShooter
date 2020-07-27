@@ -20,11 +20,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
-    <ClCompile Include="buffers\posTexCoordBuffers.cpp" />
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="levels\level.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ogl\buffers\posTexCoordBuffers.cpp" />
     <ClCompile Include="ogl\oglProxy.cpp" />
     <ClCompile Include="ogl\shaders.cpp" />
     <ClCompile Include="ogl\uniformControllers.cpp" />
@@ -41,7 +41,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdParty\stb_image\stb_image.h" />
-    <ClInclude Include="buffers\posTexCoordBuffers.hpp" />
     <ClInclude Include="components\camera.hpp" />
     <ClInclude Include="components\connection.hpp" />
     <ClInclude Include="components\decoration.hpp" />
@@ -59,15 +58,16 @@
     <ClInclude Include="levels\level.hpp" />
     <ClInclude Include="levels\playground\playground.hpp" />
     <ClInclude Include="ogl\buffersHelpers.hpp" />
+    <ClInclude Include="ogl\buffers\posTexCoordBuffers.hpp" />
     <ClInclude Include="ogl\oglProxy.hpp" />
     <ClInclude Include="ogl\renderingHelpers.hpp" />
     <ClInclude Include="ogl\shaders.hpp" />
+    <ClInclude Include="ogl\shaders\basic.hpp" />
+    <ClInclude Include="ogl\shaders\colored.hpp" />
+    <ClInclude Include="ogl\shaders\julia.hpp" />
+    <ClInclude Include="ogl\shaders\sceneCoordTextured.hpp" />
+    <ClInclude Include="ogl\shaders\textured.hpp" />
     <ClInclude Include="ogl\uniformControllers.hpp" />
-    <ClInclude Include="shaders\basic.hpp" />
-    <ClInclude Include="shaders\colored.hpp" />
-    <ClInclude Include="shaders\julia.hpp" />
-    <ClInclude Include="shaders\sceneCoordTextured.hpp" />
-    <ClInclude Include="shaders\textured.hpp" />
     <ClInclude Include="systems\camera.hpp" />
     <ClInclude Include="systems\decorations.hpp" />
     <ClInclude Include="systems\level.hpp" />
@@ -81,16 +81,16 @@
     <ClInclude Include="tools\utility.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\basic.fs" />
-    <None Include="shaders\basic.vs" />
-    <None Include="shaders\colored.fs" />
-    <None Include="shaders\colored.vs" />
-    <None Include="shaders\julia.fs" />
-    <None Include="shaders\julia.vs" />
-    <None Include="shaders\sceneCoordTextured.fs" />
-    <None Include="shaders\sceneCoordTextured.vs" />
-    <None Include="shaders\textured.fs" />
-    <None Include="shaders\textured.vs" />
+    <None Include="ogl\shaders\basic.fs" />
+    <None Include="ogl\shaders\basic.vs" />
+    <None Include="ogl\shaders\colored.fs" />
+    <None Include="ogl\shaders\colored.vs" />
+    <None Include="ogl\shaders\julia.fs" />
+    <None Include="ogl\shaders\julia.vs" />
+    <None Include="ogl\shaders\sceneCoordTextured.fs" />
+    <None Include="ogl\shaders\sceneCoordTextured.vs" />
+    <None Include="ogl\shaders\textured.fs" />
+    <None Include="ogl\shaders\textured.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -10,7 +10,7 @@ namespace Shaders
 		struct Textured
 		{
 			Textured() :
-				program(Shaders::LinkProgram(Shaders::CompileShaders("shaders/textured.vs", "shaders/textured.fs"), { {0, "bPos"}, {1, "bTexCoord"} })),
+				program(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/textured.vs", "ogl/shaders/textured.fs"), { {0, "bPos"}, {1, "bTexCoord"} })),
 				modelUniform(program, "model"),
 				vpUniform(program, "vp"),
 				colorUniform(program, "color"),

@@ -10,7 +10,7 @@ namespace Shaders
 		struct Julia
 		{
 			Julia():
-				program(Shaders::LinkProgram(Shaders::CompileShaders("shaders/julia.vs", "shaders/julia.fs"), { {0, "bPos"} })),
+				program(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/julia.vs", "ogl/shaders/julia.fs"), { {0, "bPos"} })),
 				vpUniform(program, "vp"),
 				juliaCOffsetUniform(program, "juliaCOffset"),
 				minColorUniform(program, "minColorUniform"),

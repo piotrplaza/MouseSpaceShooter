@@ -10,7 +10,7 @@ namespace Shaders
 		struct Colored
 		{
 			Colored():
-				program(Shaders::LinkProgram(Shaders::CompileShaders("shaders/colored.vs", "shaders/colored.fs"), { {0, "bPos"}, {1, "bColor"} })),
+				program(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/colored.vs", "ogl/shaders/colored.fs"), { {0, "bPos"}, {1, "bColor"} })),
 				modelUniform(program, "model"),
 				vpUniform(program, "vp"),
 				colorUniform(program, "color")
