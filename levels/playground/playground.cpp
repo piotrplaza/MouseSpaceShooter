@@ -53,6 +53,10 @@ namespace Levels
 			texturesDef.back().translate = glm::vec2(-0.5f);
 			texturesDef.back().scale = glm::vec2(4.0f);
 
+			weedTexture = texturesDef.size();
+			texturesDef.emplace_back("textures/weed.png");
+			texturesDef.back().minFilter = GL_LINEAR_MIPMAP_NEAREST;
+
 			flameAnimation1Texture = texturesDef.size();
 			texturesDef.emplace_back("textures/flame animation 1.jpg");
 		}
@@ -77,8 +81,8 @@ namespace Levels
 			{
 				auto& player1Thrust = player1Thrusts[i];
 
-				foregroundDecorations.emplace_back(Tools::CreateRectanglePositions({ 0.0f, -0.5f }, { 0.5f, 0.5f }), flameAnimation1Texture);
-				foregroundDecorations.back().renderingSetup = [&, i,
+				backgroundDecorations.emplace_back(Tools::CreateRectanglePositions({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimation1Texture);
+				backgroundDecorations.back().renderingSetup = [&, i,
 					modelUniform = Uniforms::UniformControllerMat4f(),
 					thrustScale = 1.0f
 				](Shaders::ProgramId program) mutable {
@@ -96,11 +100,11 @@ namespace Levels
 					return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
 				};
 
-				foregroundDecorations.back().animationController.reset(new Tools::TextureAnimationController(
+				backgroundDecorations.back().animationController.reset(new Tools::TextureAnimationController(
 					{ 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
 					AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
-					{ 0.0f, -0.5f }, { 1.0f, 1.0f }));
-				player1Thrust = foregroundDecorations.back().animationController.get();
+					{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
+				player1Thrust = backgroundDecorations.back().animationController.get();
 				player1Thrust->start();
 			}
 		}
@@ -155,6 +159,19 @@ namespace Levels
 
 				return nullptr;
 			};
+
+			foregroundDecorations.emplace_back(Tools::CreateLineOfRectanglesPositions({ 1.0f, 1.0f }, { { -levelHSize, -levelHSize }, { levelHSize, -levelHSize } },
+				{ 2.0f, 3.0f }, { 0.7f, 1.3f }, { 0.0f, glm::two_pi<float>() }), weedTexture);
+			foregroundDecorations.back().texCoord = Tools::CreateRectangleTexCoord();
+			foregroundDecorations.emplace_back(Tools::CreateLineOfRectanglesPositions({ 1.0f, 1.0f }, { { -levelHSize, levelHSize }, { levelHSize, levelHSize } },
+				{ 2.0f, 3.0f }, { 0.7f, 1.3f }, { 0.0f, glm::two_pi<float>() }), weedTexture);
+			foregroundDecorations.back().texCoord = Tools::CreateRectangleTexCoord();
+			foregroundDecorations.emplace_back(Tools::CreateLineOfRectanglesPositions({ 1.0f, 1.0f }, { { -levelHSize, -levelHSize }, { -levelHSize, levelHSize } },
+				{ 2.0f, 3.0f }, { 0.7f, 1.3f }, { 0.0f, glm::two_pi<float>() }), weedTexture);
+			foregroundDecorations.back().texCoord = Tools::CreateRectangleTexCoord();
+			foregroundDecorations.emplace_back(Tools::CreateLineOfRectanglesPositions({ 1.0f, 1.0f }, { { levelHSize, -levelHSize }, { levelHSize, levelHSize } },
+				{ 2.0f, 3.0f }, { 0.7f, 1.3f }, { 0.0f, glm::two_pi<float>() }), weedTexture);
+			foregroundDecorations.back().texCoord = Tools::CreateRectangleTexCoord();
 		}
 
 		void setDynamicWalls() const
@@ -233,6 +250,7 @@ namespace Levels
 		unsigned spaceRockTexture = 0;
 		unsigned woodTexture = 0;
 		unsigned orbTexture = 0;
+		unsigned weedTexture = 0;
 		unsigned flameAnimation1Texture = 0;
 
 		Components::Player* player1 = nullptr;

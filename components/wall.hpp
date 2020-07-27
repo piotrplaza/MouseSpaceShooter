@@ -67,18 +67,18 @@ namespace Components
 
 		std::vector<glm::vec3> getTransformedPositions() const
 		{
-			const auto modelMatrix = Tools::GetModelMatrix(*body);
-			auto transformedPositions = getPositions();
-
-			for (auto& position : transformedPositions) position = modelMatrix * glm::vec4(position, 1.0f);
-
-			return transformedPositions;
+			return Tools::Transform(getPositions(), Tools::GetModelMatrix(*body));
 		}
 
 		const std::vector<glm::vec2> getTexCoord() const
 		{
 			const auto positions = getPositions();
 			return std::vector<glm::vec2>(positions.begin(), positions.end());
+		}
+
+		bool isTextureRatioPreserved() const
+		{
+			return true;
 		}
 	};
 }

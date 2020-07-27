@@ -88,10 +88,12 @@ namespace Systems
 	{
 		glUseProgram_proxy(texturedShadersProgram->program);
 		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
-		texturedShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 		for (const auto& currentBuffers : buffers)
 		{
+			texturedShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
+			texturedShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
+
 			Tools::TexturedRender(*texturedShadersProgram, currentBuffers, *currentBuffers.texture);
 		}
 	}
@@ -100,10 +102,12 @@ namespace Systems
 	{
 		glUseProgram_proxy(basicShadersProgram->program);
 		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
-		basicShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 		for (const auto& currentBuffers : buffers)
 		{
+			basicShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
+			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
+
 			std::function<void()> renderingTeardown;
 			if (currentBuffers.renderingSetup)
 				renderingTeardown = currentBuffers.renderingSetup(basicShadersProgram->program);

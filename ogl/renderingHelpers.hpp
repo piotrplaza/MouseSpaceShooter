@@ -29,7 +29,8 @@ namespace Tools
 		{
 			shadersProgram.textureTranslateUniform.setValue(textureDefComponent.translate);
 			shadersProgram.textureScaleUniform.setValue(
-				{ (float)textureComponent.width / textureComponent.height * textureDefComponent.scale.x, textureDefComponent.scale.y });
+				{ (buffers.textureRatioPreserved ? (float)textureComponent.width / textureComponent.height : 1.0f)
+				* textureDefComponent.scale.x, textureDefComponent.scale.y });
 		}
 
 		std::function<void()> renderingTeardown;

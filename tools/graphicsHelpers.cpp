@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "utility.hpp"
 
@@ -28,6 +29,40 @@ namespace Tools
 		positions.push_back(diagonal2);
 		positions.push_back(diagonal1);
 		positions.emplace_back(position + hSize, 0.0f);
+
+		return positions;
+	}
+
+	std::vector<glm::vec2> CreateRectangleTexCoord()
+	{
+		return {
+			{ 0.0f, 0.0f },
+			{ 1.0f, 0.0f },
+			{ 0.0f, 1.0f },
+			{ 0.0f, 1.0f },
+			{ 1.0f, 0.0f },
+			{ 1.0f, 1.0f },
+		};
+	}
+
+	std::vector<glm::vec3> CreateLineOfRectanglesPositions(const glm::vec2& hSize, const std::pair<glm::vec2, glm::vec2>& positionsRange,
+		const glm::vec2& scaleRange, const glm::vec2& stepRange, const glm::vec2& angleRange)
+	{
+		const std::vector<glm::vec3> rectanglePositions = CreateRectanglePositions({ 0.0f, 0.0f }, hSize);
+		const glm::vec2 direction = glm::normalize(positionsRange.second - positionsRange.first);
+		const float lineLength = glm::distance(positionsRange.first, positionsRange.second);
+		std::vector<glm::vec3> positions;
+		glm::vec2 currentPosition = positionsRange.first;
+
+		do
+		{
+			const float scale = Tools::Random(scaleRange.x, scaleRange.y);
+			const glm::mat4 transformation = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(currentPosition, 0.0f)),
+				Tools::Random(angleRange.x, angleRange.y), glm::vec3(0.0f, 0.0f, 1.0f)), { scale, scale, 1.0f });
+			const std::vector<glm::vec3> transformedRectanglePositions = Tools::Transform(rectanglePositions, transformation);
+			positions.insert(positions.end(), transformedRectanglePositions.begin(), transformedRectanglePositions.end());
+			currentPosition += direction * Tools::Random(stepRange.x, stepRange.y);
+		} while (glm::distance(positionsRange.first, currentPosition) < lineLength);
 
 		return positions;
 	}
@@ -89,5 +124,13 @@ namespace Tools
 		}
 
 		return positions;
+	}
+
+	std::vector<glm::vec3> Transform(const std::vector<glm::vec3>& positions, const glm::mat4& transformation)
+	{
+		std::vector<glm::vec3> result(positions.begin(), positions.end());
+		for (auto& position: result) position = transformation * glm::vec4(position, 1.0f);
+
+		return result;
 	}
 }

@@ -159,6 +159,7 @@ namespace Tools
 				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
 				const auto& texCoord = component.getTexCoord();
 				buffers.texCoordCache.insert(buffers.texCoordCache.end(), texCoord.begin(), texCoord.end());
+				buffers.textureRatioPreserved = component.isTextureRatioPreserved();
 			}
 		}
 
@@ -189,6 +190,7 @@ namespace Tools
 				buffers.texture = component.texture;
 				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
 				buffers.texCoordCache = component.getTexCoord();
+				buffers.textureRatioPreserved = component.isTextureRatioPreserved();
 				Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
 			}
 		}

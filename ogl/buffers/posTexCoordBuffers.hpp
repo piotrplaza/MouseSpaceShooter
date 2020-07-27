@@ -37,6 +37,8 @@ namespace Buffers
 		size_t numOfAllocatedPositions = 0;
 		size_t numOfAllocatedTexCoord = 0;
 
+		bool textureRatioPreserved = false;
+
 		bool expired = false;
 	};
 }

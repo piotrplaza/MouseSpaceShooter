@@ -56,6 +56,11 @@ namespace Components
 			}
 		}
 
+		bool isTextureRatioPreserved() const
+		{
+			return texCoord.empty();
+		}
+
 		std::vector<glm::vec3> positions;
 		std::optional<unsigned> texture;
 		std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup;
