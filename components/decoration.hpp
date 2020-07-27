@@ -36,8 +36,24 @@ namespace Components
 
 		const std::vector<glm::vec2> getTexCoord() const
 		{
-			const auto positions = getPositions();
-			return std::vector<glm::vec2>(positions.begin(), positions.end());
+			if (texCoord.empty())
+			{
+				const auto positions = getPositions();
+				return std::vector<glm::vec2>(positions.begin(), positions.end());
+			}
+			else if (texCoord.size() < positions.size())
+			{
+				std::vector<glm::vec2> cyclicTexCoord;
+				cyclicTexCoord.reserve(positions.size());
+				for (size_t i = 0; i < positions.size(); ++i)
+					cyclicTexCoord.push_back(texCoord[i % texCoord.size()]);
+				return cyclicTexCoord;
+			}
+			else
+			{
+				assert(texCoord.size() == positions.size());
+				return texCoord;
+			}
 		}
 
 		std::vector<glm::vec3> positions;
@@ -45,5 +61,6 @@ namespace Components
 		std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup;
 		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;
+		std::vector<glm::vec2> texCoord;
 	};
 }
