@@ -22,34 +22,34 @@ namespace Components
 		int segmentsNum;
 		float frayFactor;
 
-		std::vector<glm::vec3> getPositionsCache() const
+		std::vector<glm::vec3> getPositions() const
 		{
-			std::vector<glm::vec3> positionsCache;
+			std::vector<glm::vec3> positions;
 
 			if (segmentsNum == 1)
 			{
-				positionsCache.clear();
-				positionsCache.reserve(2);
-				positionsCache.emplace_back(p1, 0.0f);
-				positionsCache.emplace_back(p2, 0.0f);
+				positions.clear();
+				positions.reserve(2);
+				positions.emplace_back(p1, 0.0f);
+				positions.emplace_back(p2, 0.0f);
 			}
 			else
 			{
-				positionsCache = Tools::CreateLightningPositions(p1, p2, segmentsNum, frayFactor);
+				positions = Tools::CreateLightningPositions(p1, p2, segmentsNum, frayFactor);
 			}
 
-			return positionsCache;
+			return positions;
 		}
 
-		std::vector<glm::vec4> getColorsCache() const
+		std::vector<glm::vec4> getColors() const
 		{
-			std::vector<glm::vec4> colorsCache;
+			std::vector<glm::vec4> colors;
 
-			colorsCache.clear();
-			colorsCache.reserve(segmentsNum * 2);
-			for (int i = 0; i < segmentsNum * 2; ++i) colorsCache.push_back(color);
+			colors.clear();
+			colors.reserve(segmentsNum * 2);
+			for (int i = 0; i < segmentsNum * 2; ++i) colors.push_back(color);
 
-			return colorsCache;
+			return colors;
 		}
 	};
 }

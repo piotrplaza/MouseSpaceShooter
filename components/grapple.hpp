@@ -34,7 +34,7 @@ namespace Components
 			return { body->GetWorldCenter().x, body->GetWorldCenter().y };
 		}
 
-		std::vector<glm::vec3> getPositionsCache() const
+		std::vector<glm::vec3> getPositions() const
 		{
 			using namespace Globals::Constants;
 
@@ -46,14 +46,20 @@ namespace Components
 			return Tools::CreateCirclePositions(ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity);
 		}
 
-		std::vector<glm::vec3> getTransformedPositionsCache() const
+		std::vector<glm::vec3> getTransformedPositions() const
 		{
 			const auto modelMatrix = Tools::GetModelMatrix(*body);
-			auto transformedPositionsCache = getPositionsCache();
+			auto transformedPositions = getPositions();
 
-			for (auto& position : transformedPositionsCache) position = modelMatrix * glm::vec4(position, 1.0f);
+			for (auto& position : transformedPositions) position = modelMatrix * glm::vec4(position, 1.0f);
 
-			return transformedPositionsCache;
+			return transformedPositions;
+		}
+
+		const std::vector<glm::vec2> getTexCoord() const
+		{
+			const auto positions = getPositions();
+			return std::vector<glm::vec2>(positions.begin(), positions.end());
 		}
 	};
 }

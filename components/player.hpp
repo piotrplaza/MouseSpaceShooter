@@ -55,7 +55,7 @@ namespace Components
 			body->SetAngularVelocity(0.0f);
 		}
 
-		glm::vec2 getPosition() const
+		glm::vec2 getCenter() const
 		{
 			return ToVec2<glm::vec2>(body->GetWorldCenter());
 		}
@@ -72,32 +72,38 @@ namespace Components
 				transform.q.GetAngle(), {0.0f, 0.0f, 1.0f});
 		}
 
-		std::vector<glm::vec3> getPositionsCache() const
+		std::vector<glm::vec3> getPositions() const
 		{
-			std::vector<glm::vec3> positionsCache;
+			std::vector<glm::vec3> positions;
 
 			const auto& fixture = *body->GetFixtureList();
 			assert(!fixture.GetNext());
 			assert(fixture.GetType() == b2Shape::e_polygon);
 			const auto& polygonShape = static_cast<const b2PolygonShape&>(*fixture.GetShape());
-			positionsCache.reserve(polygonShape.m_count);
+			positions.reserve(polygonShape.m_count);
 			for (int i = 0; i < polygonShape.m_count; ++i)
 			{
 				const auto& b2v = polygonShape.m_vertices[i];
-				positionsCache.emplace_back(b2v.x, b2v.y, 0.0f);
+				positions.emplace_back(b2v.x, b2v.y, 0.0f);
 			}
 
-			return positionsCache;
+			return positions;
 		}
 
-		std::vector<glm::vec3> getTransformedPositionsCache() const
+		std::vector<glm::vec3> getTransformedPositions() const
 		{
 			const auto modelMatrix = Tools::GetModelMatrix(*body);
-			auto transformedPositionsCache = getPositionsCache();
+			auto transformedPositions = getPositions();
 
-			for (auto& position : transformedPositionsCache) position = modelMatrix * glm::vec4(position, 1.0f);
+			for (auto& position : transformedPositions) position = modelMatrix * glm::vec4(position, 1.0f);
 
-			return transformedPositionsCache;
+			return transformedPositions;
+		}
+
+		const std::vector<glm::vec2> getTexCoord() const
+		{
+			const auto positions = getPositions();
+			return std::vector<glm::vec2>(positions.begin(), positions.end());
 		}
 	};
 }

@@ -90,9 +90,9 @@ namespace Tools
 			buffers.renderingSetup = component.renderingSetup;
 			buffers.texture = component.texture;
 
-			const auto& positionsCache = component.getTransformedPositionsCache();
+			const auto& transformedPositions = component.getTransformedPositions();
 			buffers.positionsCache.insert(buffers.positionsCache.end(),
-				positionsCache.begin(), positionsCache.end());
+				transformedPositions.begin(), transformedPositions.end());
 		}
 
 		Detail::AllocateOrUpdatePositionsData(simpleBuffers, bufferDataUsage);
@@ -121,14 +121,14 @@ namespace Tools
 					return Detail::ReuseOrEmplaceBack(simpleBuffers, simpleBuffersIt);
 			}();
 
-			const auto& positionsCache = component.getPositionsCache();
+			const auto& positions = component.getPositions();
 
 			buffers.renderingSetup = component.renderingSetup;
 			buffers.texture = component.texture;
 			buffers.animationController = component.animationController.get();
 			buffers.customShadersProgram = component.customShadersProgram;
 			buffers.positionsCache.clear();
-			buffers.positionsCache.insert(buffers.positionsCache.end(), positionsCache.begin(), positionsCache.end());
+			buffers.positionsCache.insert(buffers.positionsCache.end(), positions.begin(), positions.end());
 			Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
 		}
 	}
@@ -147,7 +147,6 @@ namespace Tools
 		{
 			if (component.texture)
 			{
-				const auto& positionsCache = component.getPositionsCache();
 				auto& buffers = [&]() -> auto&
 				{
 					if (component.renderingSetup)
@@ -158,8 +157,8 @@ namespace Tools
 
 				buffers.texture = component.texture;
 				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
-
-				buffers.texCoordCache.insert(buffers.texCoordCache.end(), positionsCache.begin(), positionsCache.end());
+				const auto& texCoord = component.getTexCoord();
+				buffers.texCoordCache.insert(buffers.texCoordCache.end(), texCoord.begin(), texCoord.end());
 			}
 		}
 
@@ -185,14 +184,11 @@ namespace Tools
 					? customShadersTexturedBuffersIt
 					: texturedBuffersIt;
 
-				const auto& positionsCache = component.getPositionsCache();
 				auto& buffers = Detail::ReuseOrEmplaceBack(relevantBuffers, relevantBuffersIt);
 
 				buffers.texture = component.texture;
 				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
-
-				buffers.texCoordCache.clear();
-				buffers.texCoordCache.insert(buffers.texCoordCache.end(), positionsCache.begin(), positionsCache.end());
+				buffers.texCoordCache = component.getTexCoord();
 				Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
 			}
 		}

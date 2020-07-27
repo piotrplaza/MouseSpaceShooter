@@ -29,9 +29,15 @@ namespace Components
 		{
 		}
 
-		const std::vector<glm::vec3>& getPositionsCache() const
+		const std::vector<glm::vec3>& getPositions() const
 		{
 			return positions;
+		}
+
+		const std::vector<glm::vec2> getTexCoord() const
+		{
+			const auto positions = getPositions();
+			return std::vector<glm::vec2>(positions.begin(), positions.end());
 		}
 
 		std::vector<glm::vec3> positions;

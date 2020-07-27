@@ -8,8 +8,8 @@ namespace Components
 {
 	struct Camera
 	{
-		std::function<glm::vec2()> targetPositionF;
-		std::function<float()> targetProjectionHSizeF;
+		std::function<glm::vec2()> targetPositionF = []() { return glm::vec2(0.0f, 0.0f); };
+		std::function<float()> targetProjectionHSizeF = []() { return 10.0f; };
 
 		float positionTransitionFactor = 1.0f;
 		float projectionTransitionFactor = 1.0f;

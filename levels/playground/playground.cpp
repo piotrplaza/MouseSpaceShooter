@@ -124,7 +124,7 @@ namespace Levels
 				if (!maxColorUniform.isValid()) maxColorUniform = Uniforms::UniformController4f(program, "maxColor");
 				vpUniform.setValue(glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(-camera.prevPosition * 0.005f, 0.0f)),
 					glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f));
-				juliaCOffsetUniform.setValue(player1->getPosition() * 0.00001f);
+				juliaCOffsetUniform.setValue(player1->getCenter() * 0.00001f);
 				minColorUniform.setValue({ 0.0f, 0.0f, 0.0f, 1.0f });
 				maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
 
@@ -210,7 +210,7 @@ namespace Levels
 			};
 			camera.targetPositionF = []() {
 				camera.positionTransitionFactor = 0.1f * physics.targetFrameTimeFactor;
-				return players.front().getPosition() + players.front().getVelocity() * 0.3f;
+				return players.front().getCenter() + players.front().getVelocity() * 0.3f;
 			};
 		}
 
