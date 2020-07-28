@@ -17,6 +17,7 @@
 #include <ogl/shaders/julia.hpp>
 
 #include <tools/graphicsHelpers.hpp>
+#include <tools/utility.hpp>
 
 namespace Levels
 {
@@ -29,6 +30,8 @@ namespace Levels
 
 			graphicsSettings.basicLevelColor = { 0.7f, 0.7f, 0.7f, 1.0f };
 			graphicsSettings.texturedLevelColor = { 0.7f, 0.7f, 0.7f, 1.0f };
+			graphicsSettings.basicDecorationsColor = { 0.7f, 0.7f, 0.7f, 1.0f };
+			graphicsSettings.texturedDecorationsColor = { 0.7f, 0.7f, 0.7f, 1.0f };
 		}
 
 		void setTextures()
@@ -42,10 +45,12 @@ namespace Levels
 
 			spaceRockTexture = texturesDef.size();
 			texturesDef.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT);
+			texturesDef.back().translate = glm::vec2(-0.35f, -0.5f);
 			texturesDef.back().scale = glm::vec2(20.0f);
 
 			woodTexture = texturesDef.size();
 			texturesDef.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
+			texturesDef.back().translate = glm::vec2(-0.35f, -0.5f);
 			texturesDef.back().scale = glm::vec2(16.0f);
 
 			orbTexture = texturesDef.size();
@@ -55,6 +60,10 @@ namespace Levels
 
 			weedTexture = texturesDef.size();
 			texturesDef.emplace_back("textures/weed.png");
+			texturesDef.back().minFilter = GL_LINEAR_MIPMAP_NEAREST;
+
+			roseTexture = texturesDef.size();
+			texturesDef.emplace_back("textures/rose.png");
 			texturesDef.back().minFilter = GL_LINEAR_MIPMAP_NEAREST;
 
 			flameAnimation1Texture = texturesDef.size();
@@ -81,7 +90,7 @@ namespace Levels
 			{
 				auto& player1Thrust = player1Thrusts[i];
 
-				backgroundDecorations.emplace_back(Tools::CreateRectanglePositions({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimation1Texture);
+				backgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimation1Texture);
 				backgroundDecorations.back().renderingSetup = [&, i,
 					modelUniform = Uniforms::UniformControllerMat4f(),
 					thrustScale = 1.0f
@@ -113,7 +122,7 @@ namespace Levels
 		{
 			using namespace Globals::Components;
 
-			auto& background = backgroundDecorations.emplace_back(Tools::CreateRectanglePositions({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
+			auto& background = backgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
 			background.customShadersProgram = juliaShaders.program;
 			background.renderingSetup = [&,
 				vpUniform = Uniforms::UniformControllerMat4f(),
@@ -149,29 +158,60 @@ namespace Levels
 				{ levelHSize + bordersHGauge * 2, bordersHGauge }), spaceRockTexture);
 			staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize + bordersHGauge },
 				{ levelHSize + bordersHGauge * 2, bordersHGauge }), spaceRockTexture);
-			staticWalls.emplace_back(Tools::CreateCircleBody({ 10.0f, 0.0f }, 2.0f), spaceRockTexture);
+			staticWalls.emplace_back(Tools::CreateCircleBody({ 30.0f, 0.0f }, 10.0f), spaceRockTexture);
 			staticWalls.back().renderingSetup = [
 				colorUniform = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {
 				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-				colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
-					(glm::sin(Globals::Components::physics.simulationTime * glm::two_pi<float>()) + 1.0f) / 2.0f });
+				colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.0f });
 
 				return nullptr;
 			};
 
-			foregroundDecorations.emplace_back(Tools::CreateLineOfRectanglesPositions({ 1.0f, 1.0f }, { { -levelHSize, -levelHSize }, { levelHSize, -levelHSize } },
-				{ 2.0f, 3.0f }, { 0.7f, 1.3f }, { 0.0f, glm::two_pi<float>() }), weedTexture);
-			foregroundDecorations.back().texCoord = Tools::CreateRectangleTexCoord();
-			foregroundDecorations.emplace_back(Tools::CreateLineOfRectanglesPositions({ 1.0f, 1.0f }, { { -levelHSize, levelHSize }, { levelHSize, levelHSize } },
-				{ 2.0f, 3.0f }, { 0.7f, 1.3f }, { 0.0f, glm::two_pi<float>() }), weedTexture);
-			foregroundDecorations.back().texCoord = Tools::CreateRectangleTexCoord();
-			foregroundDecorations.emplace_back(Tools::CreateLineOfRectanglesPositions({ 1.0f, 1.0f }, { { -levelHSize, -levelHSize }, { -levelHSize, levelHSize } },
-				{ 2.0f, 3.0f }, { 0.7f, 1.3f }, { 0.0f, glm::two_pi<float>() }), weedTexture);
-			foregroundDecorations.back().texCoord = Tools::CreateRectangleTexCoord();
-			foregroundDecorations.emplace_back(Tools::CreateLineOfRectanglesPositions({ 1.0f, 1.0f }, { { levelHSize, -levelHSize }, { levelHSize, levelHSize } },
-				{ 2.0f, 3.0f }, { 0.7f, 1.3f }, { 0.0f, glm::two_pi<float>() }), weedTexture);
-			foregroundDecorations.back().texCoord = Tools::CreateRectangleTexCoord();
+			foregroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { -levelHSize, -levelHSize }, { levelHSize, -levelHSize } },
+				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
+			foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+			foregroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { -levelHSize, levelHSize }, { levelHSize, levelHSize } },
+				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
+			foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+			foregroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { -levelHSize, -levelHSize }, { -levelHSize, levelHSize } },
+				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
+			foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+			foregroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { levelHSize, -levelHSize }, { levelHSize, levelHSize } },
+				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
+			foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+
+			foregroundDecorations.emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
+				[](float input)
+				{
+					return glm::vec2(30.0f + glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f);
+				},
+				[](float input)
+				{
+					return glm::vec2(input + 0.3f, input + 0.3f );
+				},
+				[](float input)
+				{
+					return Tools::Random(0.0f, glm::two_pi<float>());
+				},
+				[value = 0.0f]() mutable -> std::optional<float>
+				{
+					if (value > 1.0f) return std::nullopt;
+					float result = value;
+					value += 0.002f;
+					return result;
+				}
+				), roseTexture);
+			foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+			foregroundDecorations.back().renderingSetup = [
+				colorUniform = Uniforms::UniformController4f()
+			](Shaders::ProgramId program) mutable {
+				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
+				colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
+					(glm::sin(Globals::Components::physics.simulationTime * glm::two_pi<float>()) + 1.0f) / 2.0f + 0.5f });
+
+				return nullptr;
+			};
 		}
 
 		void setDynamicWalls() const
@@ -186,11 +226,11 @@ namespace Levels
 			wall2.GetFixtureList()->SetRestitution(0.5f);
 			Tools::PinBodies(wall1, wall2, { 5.0f, 0.0f });
 			dynamicWalls.back().renderingSetup = [
-				colorUniform = Uniforms::UniformController4f()
+				textureTranslateUniform = Uniforms::UniformController2f()
 			](Shaders::ProgramId program) mutable {
-				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-				colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
-					(glm::sin(Globals::Components::physics.simulationTime / 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
+				if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2f(program, "textureTranslate");
+				const float simulationTime = Globals::Components::physics.simulationTime;
+				textureTranslateUniform.setValue({ glm::cos(simulationTime * 0.1f), glm::sin(simulationTime * 0.1f) });
 
 				return nullptr;
 			};
@@ -251,6 +291,7 @@ namespace Levels
 		unsigned woodTexture = 0;
 		unsigned orbTexture = 0;
 		unsigned weedTexture = 0;
+		unsigned roseTexture = 0;
 		unsigned flameAnimation1Texture = 0;
 
 		Components::Player* player1 = nullptr;

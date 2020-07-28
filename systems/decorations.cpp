@@ -8,6 +8,7 @@
 
 #include <components/decoration.hpp>
 #include <components/mvp.hpp>
+#include <components/graphicsSettings.hpp>
 
 namespace Systems
 {
@@ -91,9 +92,8 @@ namespace Systems
 
 		for (const auto& currentBuffers : buffers)
 		{
-			texturedShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
+			texturedShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.texturedDecorationsColor);
 			texturedShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
-
 			Tools::TexturedRender(*texturedShadersProgram, currentBuffers, *currentBuffers.texture);
 		}
 	}
@@ -105,7 +105,7 @@ namespace Systems
 
 		for (const auto& currentBuffers : buffers)
 		{
-			basicShadersProgram->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 1.0f });
+			basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.basicDecorationsColor);
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown;

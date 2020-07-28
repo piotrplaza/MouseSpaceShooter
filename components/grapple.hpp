@@ -43,7 +43,7 @@ namespace Components
 			assert(fixture.GetType() == b2Shape::e_circle); //Temporary. TODO: Add other shapes.
 			const auto& circleShape = static_cast<const b2CircleShape&>(*fixture.GetShape());
 
-			return Tools::CreateCirclePositions(ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity);
+			return Tools::CreatePositionsOfCircle(ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity);
 		}
 
 		std::vector<glm::vec3> getTransformedPositions() const

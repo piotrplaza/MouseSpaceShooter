@@ -63,6 +63,9 @@ namespace Systems
 
 		for (auto& connection : Globals::Components::connections)
 		{
+			if (connection.segmentsNum > 1)
+				connection.segmentsNum = std::max((int)glm::distance(connection.p1, connection.p2) * 2, 2);
+
 			const auto positions = connection.getPositions();
 			connectionsBuffers->positionsCache.insert(connectionsBuffers->positionsCache.end(),
 				positions.begin(), positions.end());

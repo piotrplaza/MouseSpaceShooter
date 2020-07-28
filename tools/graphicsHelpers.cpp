@@ -6,7 +6,7 @@
 
 #include "utility.hpp"
 
-namespace
+namespace Detail
 {
 	inline glm::vec2 OrthoVec2(const glm::vec2& p1, const glm::vec2& p2, bool invert = false)
 	{
@@ -18,7 +18,7 @@ namespace
 
 namespace Tools
 {
-	std::vector<glm::vec3> CreateRectanglePositions(const glm::vec2& position, const glm::vec2& hSize)
+	std::vector<glm::vec3> CreatePositionsOfRectangle(const glm::vec2& position, const glm::vec2& hSize)
 	{
 		std::vector<glm::vec3> positions;
 		positions.reserve(6);
@@ -33,7 +33,7 @@ namespace Tools
 		return positions;
 	}
 
-	std::vector<glm::vec2> CreateRectangleTexCoord()
+	std::vector<glm::vec2> CreateTexCoordOfRectangle()
 	{
 		return {
 			{ 0.0f, 0.0f },
@@ -45,10 +45,10 @@ namespace Tools
 		};
 	}
 
-	std::vector<glm::vec3> CreateLineOfRectanglesPositions(const glm::vec2& hSize, const std::pair<glm::vec2, glm::vec2>& positionsRange,
-		const glm::vec2& scaleRange, const glm::vec2& stepRange, const glm::vec2& angleRange)
+	std::vector<glm::vec3> CreatePositionsOfLineOfRectangles(const glm::vec2& hSize, const std::pair<glm::vec2, glm::vec2>& positionsRange,
+		const glm::vec2& scaleRange, const glm::vec2& angleRange, const glm::vec2& stepRange)
 	{
-		const std::vector<glm::vec3> rectanglePositions = CreateRectanglePositions({ 0.0f, 0.0f }, hSize);
+		const std::vector<glm::vec3> rectanglePositions = CreatePositionsOfRectangle({ 0.0f, 0.0f }, hSize);
 		const glm::vec2 direction = glm::normalize(positionsRange.second - positionsRange.first);
 		const float lineLength = glm::distance(positionsRange.first, positionsRange.second);
 		std::vector<glm::vec3> positions;
@@ -67,7 +67,29 @@ namespace Tools
 		return positions;
 	}
 
-	std::vector<glm::vec3> CreateCirclePositions(const glm::vec2& position, float radius, int complexity,
+	std::vector<glm::vec3> CreatePositionsOfFunctionalRectangles(const glm::vec2& hSize, std::function<glm::vec2(float)> positionF,
+		std::function<glm::vec2(float)> scaleF, std::function<float(float)> angleF, std::function<std::optional<float>()> inputEmitter)
+	{
+		const std::vector<glm::vec3> rectanglePositions = CreatePositionsOfRectangle({ 0.0f, 0.0f }, hSize);
+		std::vector<glm::vec3> positions;
+		std::optional<float> input = inputEmitter();
+
+		while (input)
+		{
+			const glm::vec2 position = positionF(*input);
+			const glm::vec2 scale = scaleF(*input);
+			const float angle = angleF(*input);
+			const glm::mat4 transformation = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(position, 0.0f)),
+				angle, glm::vec3(0.0f, 0.0f, 1.0f)), { scale.x, scale.y, 1.0f });
+			const std::vector<glm::vec3> transformedRectanglePositions = Tools::Transform(rectanglePositions, transformation);
+			positions.insert(positions.end(), transformedRectanglePositions.begin(), transformedRectanglePositions.end());
+			input = inputEmitter();
+		};
+
+		return positions;
+	}
+
+	std::vector<glm::vec3> CreatePositionsOfCircle(const glm::vec2& position, float radius, int complexity,
 		const glm::mat4& modelMatrix)
 	{
 		std::vector<glm::vec3> positions;
@@ -90,7 +112,7 @@ namespace Tools
 		return positions;
 	}
 
-	std::vector<glm::vec3> CreateLightningPositions(const glm::vec2& p1, const glm::vec2& p2,
+	std::vector<glm::vec3> CreatePositionsOfLightning(const glm::vec2& p1, const glm::vec2& p2,
 		int segmentsNum, float frayFactor, float zValue)
 	{
 		std::vector<glm::vec3> positions;
@@ -99,7 +121,7 @@ namespace Tools
 		const glm::vec2 d = glm::normalize(p2 - p1);
 		const glm::vec2 step = (p2 - p1) / (float)segmentsNum;
 		const float stepLength = glm::length(step);
-		const glm::vec2 orthoD = OrthoVec2(p1, p2);
+		const glm::vec2 orthoD = Detail::OrthoVec2(p1, p2);
 		glm::vec2 currentPos = p1;
 
 		positions.emplace_back(currentPos, zValue);

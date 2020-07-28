@@ -24,32 +24,13 @@ namespace Components
 
 		std::vector<glm::vec3> getPositions() const
 		{
-			std::vector<glm::vec3> positions;
-
-			if (segmentsNum == 1)
-			{
-				positions.clear();
-				positions.reserve(2);
-				positions.emplace_back(p1, 0.0f);
-				positions.emplace_back(p2, 0.0f);
-			}
-			else
-			{
-				positions = Tools::CreateLightningPositions(p1, p2, segmentsNum, frayFactor);
-			}
-
-			return positions;
+			if (segmentsNum == 1) return { { p1, 0.0f }, { p2, 0.0f } };
+			else return Tools::CreatePositionsOfLightning(p1, p2, segmentsNum, frayFactor);
 		}
 
 		std::vector<glm::vec4> getColors() const
 		{
-			std::vector<glm::vec4> colors;
-
-			colors.clear();
-			colors.reserve(segmentsNum * 2);
-			for (int i = 0; i < segmentsNum * 2; ++i) colors.push_back(color);
-
-			return colors;
+			return std::vector<glm::vec4>(segmentsNum * 2, color);
 		}
 	};
 }
