@@ -63,56 +63,11 @@ namespace Levels
 			texturesDef.emplace_back("textures/rose.png");
 			texturesDef.back().minFilter = GL_LINEAR_MIPMAP_NEAREST;
 
+			fogTexture = texturesDef.size();
+			texturesDef.emplace_back("textures/fog.png");
+
 			flameAnimation1Texture = texturesDef.size();
 			texturesDef.emplace_back("textures/flame animation 1.jpg");
-		}
-
-		void setPlayers()
-		{
-			using namespace Globals::Components;
-
-			player1 = &players.emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), rocketPlaneTexture);
-			player1->setPosition({ -10.0f, 0.0f });
-			player1->renderingSetup = [
-				colorUniform = Uniforms::UniformController4f()
-			](Shaders::ProgramId program) mutable {
-				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-				const float fade = (glm::sin(Globals::Components::physics.simulationTime * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
-				colorUniform.setValue({ fade, 1.0f, fade, 1.0f });
-
-				return nullptr;
-			};
-
-			for (int i = 0; i < 2; ++i)
-			{
-				auto& player1Thrust = player1Thrusts[i];
-
-				backgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimation1Texture);
-				backgroundDecorations.back().renderingSetup = [&, i,
-					modelUniform = Uniforms::UniformControllerMat4f(),
-					thrustScale = 1.0f
-				](Shaders::ProgramId program) mutable {
-					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-					modelUniform.setValue(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*player1->body),
-						{ -0.9f, i == 0 ? -0.42f : 0.42f, 0.0f }),
-						-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
-						{ std::min(thrustScale * 0.5f, 0.7f), thrustScale, 1.0f }));
-
-					if (player1->throttling) thrustScale = std::min(thrustScale * 1.08f, 5.0f);
-					else thrustScale = 1.0f + (thrustScale - 1.0f) * 0.95f;
-
-					glBlendFunc(GL_ONE, GL_ONE);
-
-					return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
-				};
-
-				backgroundDecorations.back().animationController.reset(new Tools::TextureAnimationController(
-					{ 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
-					AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
-					{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
-				player1Thrust = backgroundDecorations.back().animationController.get();
-				player1Thrust->start();
-			}
 		}
 
 		void setBackground() const
@@ -131,14 +86,63 @@ namespace Levels
 				if (!juliaCOffsetUniform.isValid()) juliaCOffsetUniform = Uniforms::UniformController2f(program, "juliaCOffset");
 				if (!minColorUniform.isValid()) minColorUniform = Uniforms::UniformController4f(program, "minColor");
 				if (!maxColorUniform.isValid()) maxColorUniform = Uniforms::UniformController4f(program, "maxColor");
-				vpUniform.setValue(glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(-camera.prevPosition * 0.005f, 0.0f)),
-					glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f));
+				vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
+					glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f),
+					glm::vec3(-camera.prevPosition * 0.005f, 0.0f)));
 				juliaCOffsetUniform.setValue(player1->getCenter() * 0.00001f);
 				minColorUniform.setValue({ 0.0f, 0.0f, 0.0f, 1.0f });
 				maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
 
 				return nullptr;
 			};
+		}
+
+		void setPlayers()
+		{
+			using namespace Globals::Components;
+
+			player1 = &players.emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), rocketPlaneTexture);
+			player1->setPosition({ -10.0f, 0.0f });
+			player1->renderingSetup = [
+				colorUniform = Uniforms::UniformController4f()
+			](Shaders::ProgramId program) mutable {
+					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
+					const float fade = (glm::sin(Globals::Components::physics.simulationTime * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
+					colorUniform.setValue({ fade, 1.0f, fade, 1.0f });
+
+					return nullptr;
+				};
+
+				for (int i = 0; i < 2; ++i)
+				{
+					auto& player1Thrust = player1Thrusts[i];
+
+					backgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimation1Texture);
+					backgroundDecorations.back().renderingSetup = [&, i,
+						modelUniform = Uniforms::UniformControllerMat4f(),
+						thrustScale = 1.0f
+					](Shaders::ProgramId program) mutable {
+						if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
+						modelUniform.setValue(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*player1->body),
+							{ -0.9f, i == 0 ? -0.42f : 0.42f, 0.0f }),
+							-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
+							{ std::min(thrustScale * 0.5f, 0.7f), thrustScale, 1.0f }));
+
+						if (player1->throttling) thrustScale = std::min(thrustScale * 1.08f, 5.0f);
+						else thrustScale = 1.0f + (thrustScale - 1.0f) * 0.95f;
+
+						glBlendFunc(GL_ONE, GL_ONE);
+
+						return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
+					};
+
+					backgroundDecorations.back().animationController.reset(new Tools::TextureAnimationController(
+						{ 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
+						AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
+						{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
+					player1Thrust = backgroundDecorations.back().animationController.get();
+					player1Thrust->start();
+				}
 		}
 
 		void setDynamicWalls() const
@@ -162,9 +166,10 @@ namespace Levels
 				return nullptr;
 			};
 
-			for (const float posX : {-30.0f, 30.0f})
+			for (const float pos : {-30.0f, 30.0f})
 			{
-				dynamicWalls.emplace_back(Tools::CreateCircleBody({ posX, 0.0f }, 10.0f, b2_dynamicBody, 0.01f));
+				dynamicWalls.emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), woodTexture);
+				dynamicWalls.emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f), woodTexture);
 				dynamicWalls.back().renderingSetup = [
 					colorUniform = Uniforms::UniformController4f()
 				](Shaders::ProgramId program) mutable {
@@ -264,6 +269,27 @@ namespace Levels
 			};
 		}
 
+		void setForeground() const
+		{
+			using namespace Globals::Components;
+
+			foregroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 2.0f, 2.0f }), fogTexture);
+			foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+			foregroundDecorations.back().renderingSetup = [&,
+				vpUniform = Uniforms::UniformControllerMat4f(),
+				colorUniform = Uniforms::UniformController4f()
+			](Shaders::ProgramId program) mutable {
+				if (!vpUniform.isValid()) vpUniform = Uniforms::UniformControllerMat4f(program, "vp");
+				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
+				vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
+					glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f),
+					glm::vec3(-camera.prevPosition * 0.02f, 0.0f)));
+				colorUniform.setValue({1.0f, 1.0f, 1.0f, 0.2f});
+
+				return nullptr;
+			};
+		}
+
 		void setCamera() const
 		{
 			using namespace Globals::Components;
@@ -300,6 +326,7 @@ namespace Levels
 		unsigned orbTexture = 0;
 		unsigned weedTexture = 0;
 		unsigned roseTexture = 0;
+		unsigned fogTexture = 0;
 		unsigned flameAnimation1Texture = 0;
 
 		Components::Player* player1 = nullptr;
@@ -310,11 +337,12 @@ namespace Levels
 	{
 		impl->setGraphicsSettings();
 		impl->setTextures();
-		impl->setPlayers();
 		impl->setBackground();
+		impl->setPlayers();
 		impl->setDynamicWalls();
 		impl->setStaticWalls();
 		impl->setGrapples();
+		impl->setForeground();
 		impl->setCamera();
 	}
 
