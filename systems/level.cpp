@@ -179,6 +179,21 @@ namespace Systems
 				renderingTeardown();
 		}
 
+		for (const auto& customSimpleDynamicWallBuffers : customSimpleDynamicWallsBuffers)
+		{
+			basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
+			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
+
+			std::function<void()> renderingTeardown =
+				customSimpleDynamicWallBuffers.renderingSetup(basicShadersProgram->program);
+
+			glBindVertexArray(customSimpleDynamicWallBuffers.vertexArray);
+			glDrawArrays(GL_TRIANGLES, 0, customSimpleDynamicWallBuffers.positionsCache.size());
+
+			if (renderingTeardown)
+				renderingTeardown();
+		}
+
 		for (const auto& customSimpleGrappleBuffers : customSimpleGrapplesBuffers)
 		{
 			basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
