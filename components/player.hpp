@@ -66,13 +66,6 @@ namespace Components
 			return ToVec2<glm::vec2>(body->GetLinearVelocity());
 		}
 
-		glm::mat4 getModelMatrix() const
-		{
-			const auto& transform = body->GetTransform();
-			return glm::rotate(glm::translate(glm::mat4(1.0f), { transform.p.x, transform.p.y, 0.0f }),
-				transform.q.GetAngle(), {0.0f, 0.0f, 1.0f});
-		}
-
 		std::vector<glm::vec3> getPositions() const
 		{
 			std::vector<glm::vec3> positions;
@@ -93,13 +86,18 @@ namespace Components
 
 		std::vector<glm::vec3> getTransformedPositions() const
 		{
-			return Tools::Transform(getPositions(), Tools::GetModelMatrix(*body));
+			return Tools::Transform(getPositions(), getModelMatrix());
 		}
 
 		const std::vector<glm::vec2> getTexCoord() const
 		{
 			const auto positions = getPositions();
 			return std::vector<glm::vec2>(positions.begin(), positions.end());
+		}
+
+		glm::mat4 getModelMatrix() const
+		{
+			return Tools::GetModelMatrix(*body);
 		}
 
 		bool isTextureRatioPreserved() const

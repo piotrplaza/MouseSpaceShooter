@@ -92,7 +92,7 @@ namespace Systems
 
 		for (const auto& currentBuffers : buffers)
 		{
-			texturedShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.texturedDecorationsColor);
+			texturedShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
 			texturedShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 			Tools::TexturedRender(*texturedShadersProgram, currentBuffers, *currentBuffers.texture);
 		}
@@ -105,7 +105,7 @@ namespace Systems
 
 		for (const auto& currentBuffers : buffers)
 		{
-			basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.basicDecorationsColor);
+			basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown;

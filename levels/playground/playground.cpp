@@ -28,10 +28,7 @@ namespace Levels
 		{
 			using namespace Globals::Components;
 
-			graphicsSettings.basicLevelColor = { 0.7f, 0.7f, 0.7f, 1.0f };
-			graphicsSettings.texturedLevelColor = { 0.7f, 0.7f, 0.7f, 1.0f };
-			graphicsSettings.basicDecorationsColor = { 0.7f, 0.7f, 0.7f, 1.0f };
-			graphicsSettings.texturedDecorationsColor = { 0.7f, 0.7f, 0.7f, 1.0f };
+			graphicsSettings.defaultColor = { 0.7f, 0.7f, 0.7f, 1.0f };
 		}
 
 		void setTextures()
@@ -158,7 +155,7 @@ namespace Levels
 				{ levelHSize + bordersHGauge * 2, bordersHGauge }), spaceRockTexture);
 			staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize + bordersHGauge },
 				{ levelHSize + bordersHGauge * 2, bordersHGauge }), spaceRockTexture);
-			staticWalls.emplace_back(Tools::CreateCircleBody({ 30.0f, 0.0f }, 10.0f), spaceRockTexture);
+			staticWalls.emplace_back(Tools::CreateCircleBody({ 30.0f, 0.0f }, 10.0f));
 			staticWalls.back().renderingSetup = [
 				colorUniform = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {
@@ -182,20 +179,10 @@ namespace Levels
 			foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
 
 			foregroundDecorations.emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
-				[](float input)
-				{
-					return glm::vec2(30.0f + glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f);
-				},
-				[](float input)
-				{
-					return glm::vec2(input + 0.3f, input + 0.3f );
-				},
-				[](float input)
-				{
-					return Tools::Random(0.0f, glm::two_pi<float>());
-				},
-				[value = 0.0f]() mutable -> std::optional<float>
-				{
+				[](float input) { return glm::vec2(30.0f + glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
+				[](float input) { return glm::vec2(input + 0.3f, input + 0.3f ); },
+				[](float input) { return input * 600.0f; },
+				[value = 0.0f]() mutable -> std::optional<float> {
 					if (value > 1.0f) return std::nullopt;
 					float result = value;
 					value += 0.002f;
@@ -253,7 +240,18 @@ namespace Levels
 			};
 			grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f,
 				orbTexture);
-			grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f);
+			auto& grapple = grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f);
+
+			midgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.8f, 1.8f }), roseTexture);
+			midgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+			midgroundDecorations.back().renderingSetup = [&,
+				modelUniform = Uniforms::UniformControllerMat4f()
+			](Shaders::ProgramId program) mutable {
+				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
+				modelUniform.setValue(grapple.getModelMatrix());
+
+				return nullptr;
+			};
 		}
 
 		void setCamera() const
