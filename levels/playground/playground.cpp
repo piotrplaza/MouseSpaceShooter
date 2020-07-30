@@ -273,21 +273,27 @@ namespace Levels
 		{
 			using namespace Globals::Components;
 
-			foregroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 2.0f, 2.0f }), fogTexture);
-			foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
-			foregroundDecorations.back().renderingSetup = [&,
-				vpUniform = Uniforms::UniformControllerMat4f(),
-				colorUniform = Uniforms::UniformController4f()
-			](Shaders::ProgramId program) mutable {
-				if (!vpUniform.isValid()) vpUniform = Uniforms::UniformControllerMat4f(program, "vp");
-				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-				vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
-					glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f),
-					glm::vec3(-camera.prevPosition * 0.02f, 0.0f)));
-				colorUniform.setValue({1.0f, 1.0f, 1.0f, 0.2f});
+			for (int layer = 0; layer < 2; ++layer)
+			for (int posYI = -1; posYI <= 1; ++posYI)
+			for (int posXI = -1; posXI <= 1; ++posXI)
+			{
+				foregroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)), fogTexture);
+				foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+				foregroundDecorations.back().renderingSetup = [&,
+					vpUniform = Uniforms::UniformControllerMat4f(),
+					colorUniform = Uniforms::UniformController4f(),
+					layer
+				](Shaders::ProgramId program) mutable {
+					if (!vpUniform.isValid()) vpUniform = Uniforms::UniformControllerMat4f(program, "vp");
+					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
+					vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
+						glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f),
+						glm::vec3(-camera.prevPosition * (0.02f + layer * 0.02f), 0.0f)));
+					colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.02f });
 
-				return nullptr;
-			};
+					return nullptr;
+				};
+			}
 		}
 
 		void setCamera() const
