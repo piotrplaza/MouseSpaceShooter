@@ -169,7 +169,7 @@ namespace Levels
 			for (const float pos : {-30.0f, 30.0f})
 			{
 				dynamicWalls.emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), woodTexture);
-				dynamicWalls.emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f), woodTexture);
+				dynamicWalls.emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f));
 				dynamicWalls.back().renderingSetup = [
 					colorUniform = Uniforms::UniformController4f()
 				](Shaders::ProgramId program) mutable {

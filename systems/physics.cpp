@@ -18,7 +18,6 @@ namespace Systems
 #ifndef _DEBUG 
 			start = std::chrono::high_resolution_clock::now();
 #endif
-
 			firstStep = false;
 		}
 
@@ -32,7 +31,6 @@ namespace Systems
 		physics.simulationTime += targetFrameTime;
 		physics.targetFrameTimeFactor = 1.0f;
 #endif
-
 		physics.world.Step(physics.frameTime, 3, 8);
 	}
 }
