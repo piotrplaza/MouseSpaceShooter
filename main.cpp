@@ -13,7 +13,9 @@
 
 #include "components/mouseState.hpp"
 #include "components/screenInfo.hpp"
+#include "components/graphicsSettings.hpp"
 
+#include "systems/stateController.hpp"
 #include "systems/level.hpp"
 #include "systems/players.hpp"
 #include "systems/physics.hpp"
@@ -22,6 +24,7 @@
 
 #include "levels/level.hpp"
 #include "levels/playground/playground.hpp"
+#include "levels/rocketball/rocketball.hpp"
 
 #include "tools/utility.hpp"
 
@@ -41,12 +44,12 @@ void OGLInitialize()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glLineWidth(3.0f);
-	glClearColor(0, 0.03f, 0.1f, 1);
 }
 
 void CreateLevel()
 {
 	activeLevel = std::make_unique<Levels::Playground>();
+	//activeLevel = std::make_unique<Levels::Rocketball>();
 }
 
 void Initialize()
@@ -58,10 +61,15 @@ void Initialize()
 	CreateLevel();
 
 	Globals::Systems::Initialize();
+
+	Globals::Systems::AccessStateController().initializationFinalize();
 }
 
 void RenderScene()
 {
+	//glClearColor(0, 0.03f, 0.1f, 1);
+	const glm::vec4& clearColor = Globals::Components::graphicsSettings.clearColor;
+	glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Globals::Systems::AccessDecorations().renderBackground();
@@ -73,6 +81,8 @@ void RenderScene()
 
 void PrepareFrame()
 {
+	Globals::Systems::AccessStateController().frameSetup();
+
 	activeLevel->step();
 
 	Globals::Systems::AccessPlayers().step();
@@ -80,6 +90,8 @@ void PrepareFrame()
 	Globals::Systems::AccessCamera().step();
 
 	RenderScene();
+
+	Globals::Systems::AccessStateController().frameTeardown();
 
 	Globals::Systems::AccessPhysics().step();
 }

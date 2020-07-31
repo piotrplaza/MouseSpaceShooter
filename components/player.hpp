@@ -37,6 +37,7 @@ namespace Components
 		std::unique_ptr<b2Joint, b2JointDeleter> grappleJoint;
 		int connectedGrappleId = -1;
 		int weakConnectedGrappleId = -1;
+		glm::vec2 previousCenter{ 0.0f, 0.0f };
 
 		bool throttling = false;
 		

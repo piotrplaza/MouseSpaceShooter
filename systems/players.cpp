@@ -109,20 +109,12 @@ namespace Systems
 		const glm::ivec2 windowSpaceMouseDelta = mouseState.getMouseDelta();
 		const glm::vec2 mouseDelta = { windowSpaceMouseDelta.x, -windowSpaceMouseDelta.y };
 
-		if (firstStep)
-		{
-			playerPreviousPosition = player.getCenter();
-			firstStep = false;
-		}
-
 		turn(mouseDelta);
 		throttle(mouseState.rmb);
 		magneticHook(mouseState.lmb);
 
 		updatePlayersPositionsBuffers();
 		updateConnectionsGraphicsBuffers();
-
-		playerPreviousPosition = player.getCenter();
 	}
 
 	void Players::render() const
@@ -189,7 +181,7 @@ namespace Systems
 
 		if (player.grappleJoint)
 		{
-			const glm::vec2 stepVelocity = player.getCenter() - playerPreviousPosition;
+			const glm::vec2 stepVelocity = player.getCenter() - player.previousCenter;
 			const float stepVelocityLength = glm::length(stepVelocity);
 
 			if (stepVelocityLength > 0.0f)
@@ -231,7 +223,7 @@ namespace Systems
 		for (int i = 0; i < (int)grapples.size(); ++i)
 		{
 			const auto& grapple = grapples[i];
-			const float grappleDistance = glm::distance(player.getCenter(), grapple.getPosition());
+			const float grappleDistance = glm::distance(player.getCenter(), grapple.getCenter());
 
 			if (grappleDistance > grapple.influenceRadius) continue;
 
@@ -258,8 +250,8 @@ namespace Systems
 			if (grappleInRange == nearestGrappleId)
 			{
 				if (active && !player.grappleJoint &&
-					glm::distance(player.getCenter(), grapple.getPosition()) >=
-					glm::distance(playerPreviousPosition, grapple.getPosition()))
+					glm::distance(player.getCenter(), grapple.getCenter()) >=
+					glm::distance(player.previousCenter, grapple.previousCenter))
 				{
 					player.connectedGrappleId = grappleInRange;
 					player.weakConnectedGrappleId = -1;
@@ -271,32 +263,32 @@ namespace Systems
 					{
 						if (player.grappleJoint)
 						{
-							connections.emplace_back(player.getCenter(), grapple.getPosition(),
+							connections.emplace_back(player.getCenter(), grapple.getCenter(),
 								glm::vec4(0.0f, 1.0f, 0.0f, 0.2f), 1);
 						}
 						player.weakConnectedGrappleId = grappleInRange;
 					}
 					else
 					{
-						connections.emplace_back(player.getCenter(), grapple.getPosition(),
+						connections.emplace_back(player.getCenter(), grapple.getCenter(),
 							glm::vec4(0.0f, 1.0f, 0.0f, 0.2f), 1);
 					}
 				}
 			}
 			else if (player.connectedGrappleId != grappleInRange)
 			{
-				connections.emplace_back(player.getCenter(), grapple.getPosition(), glm::vec4(1.0f, 0.0f, 0.0f, 0.2f), 1);
+				connections.emplace_back(player.getCenter(), grapple.getCenter(), glm::vec4(1.0f, 0.0f, 0.0f, 0.2f), 1);
 			}
 		}
 
 		if (player.connectedGrappleId != -1)
 		{
-			connections.emplace_back(player.getCenter(), grapples[player.connectedGrappleId].getPosition(),
+			connections.emplace_back(player.getCenter(), grapples[player.connectedGrappleId].getCenter(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 0.7f), 20, 0.4f);
 		}
 		else if (player.weakConnectedGrappleId != -1)
 		{
-			connections.emplace_back(player.getCenter(), grapples[player.weakConnectedGrappleId].getPosition(),
+			connections.emplace_back(player.getCenter(), grapples[player.weakConnectedGrappleId].getCenter(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), 20, 0.1f);
 		}
 	}
@@ -314,7 +306,7 @@ namespace Systems
 		distanceJointDef.bodyB = grapple.body.get();
 		distanceJointDef.localAnchorA = distanceJointDef.bodyA->GetLocalCenter();
 		distanceJointDef.localAnchorB = distanceJointDef.bodyB->GetLocalCenter();
-		distanceJointDef.length = glm::distance(player.getCenter(), grapple.getPosition());
+		distanceJointDef.length = glm::distance(player.getCenter(), grapple.getCenter());
 		distanceJointDef.collideConnected = true;
 		player.grappleJoint.reset(physics.world.CreateJoint(&distanceJointDef));
 	}

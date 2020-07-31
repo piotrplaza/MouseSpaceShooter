@@ -300,13 +300,13 @@ namespace Levels
 		{
 			using namespace Globals::Components;
 
-			camera.targetProjectionHSizeF = []() {
+			camera.targetProjectionHSizeF = [&]() {
 				camera.projectionTransitionFactor = 0.1f * physics.targetFrameTimeFactor;
-				return 15.0f + glm::length(players.front().getVelocity()) * 0.2f;
+				return 15.0f + glm::length(player1->getVelocity()) * 0.2f;
 			};
-			camera.targetPositionF = []() {
+			camera.targetPositionF = [&]() {
 				camera.positionTransitionFactor = 0.1f * physics.targetFrameTimeFactor;
-				return players.front().getCenter() + players.front().getVelocity() * 0.3f;
+				return player1->getCenter() + player1->getVelocity() * 0.3f;
 			};
 		}
 

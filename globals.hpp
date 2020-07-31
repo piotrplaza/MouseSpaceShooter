@@ -21,6 +21,7 @@ namespace Components
 
 namespace Systems
 {
+	class StateController;
 	class Physics;
 	class Textures;
 	class Players;
@@ -56,6 +57,7 @@ namespace Globals
 	{
 		void Initialize();
 
+		::Systems::StateController& AccessStateController();
 		::Systems::Physics& AccessPhysics();
 		::Systems::Textures& AccessTextures();
 		::Systems::Players& AccessPlayers();

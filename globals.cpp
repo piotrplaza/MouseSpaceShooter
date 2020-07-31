@@ -15,6 +15,7 @@
 #include "components/decoration.hpp"
 #include "components/graphicsSettings.hpp"
 
+#include "systems/stateController.hpp"
 #include "systems/physics.hpp"
 #include "systems/textures.hpp"
 #include "systems/players.hpp"
@@ -68,6 +69,7 @@ namespace Globals
 
 	namespace Systems
 	{
+		std::unique_ptr<::Systems::StateController> stateController;
 		std::unique_ptr<::Systems::Physics> physics;
 		std::unique_ptr<::Systems::Textures> textures;
 		std::unique_ptr<::Systems::Players> players;
@@ -77,12 +79,18 @@ namespace Globals
 
 		void Initialize()
 		{
+			stateController = std::make_unique<::Systems::StateController>();
 			physics = std::make_unique<::Systems::Physics>();
 			textures = std::make_unique<::Systems::Textures>();
 			players = std::make_unique<::Systems::Players>();
 			level = std::make_unique<::Systems::Level>();
 			camera = std::make_unique<::Systems::Camera>();
 			decorations = std::make_unique<::Systems::Decorations>();
+		}
+
+		::Systems::StateController& AccessStateController()
+		{
+			return *stateController;
 		}
 
 		::Systems::Physics& AccessPhysics()

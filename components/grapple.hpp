@@ -29,9 +29,11 @@ namespace Components
 		std::optional<unsigned> texture;
 		std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup;
 
-		glm::vec2 getPosition() const
+		glm::vec2 previousCenter{ 0.0f, 0.0f };
+
+		glm::vec2 getCenter() const
 		{
-			return { body->GetWorldCenter().x, body->GetWorldCenter().y };
+			return ToVec2<glm::vec2>(body->GetWorldCenter());
 		}
 
 		std::vector<glm::vec3> getPositions() const

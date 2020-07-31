@@ -50,6 +50,9 @@
     <Filter Include="src\ogl\shaders\textured">
       <UniqueIdentifier>{a3c981c3-58ac-421a-b5d2-bc857b2d4e78}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\rocketball">
+      <UniqueIdentifier>{5cbff223-d591-4e6d-ba63-b063038b4334}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -108,6 +111,12 @@
     </ClCompile>
     <ClCompile Include="ogl\buffers\posTexCoordBuffers.cpp">
       <Filter>src\ogl\buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\rocketball\rocketball.cpp">
+      <Filter>src\levels\rocketball</Filter>
+    </ClCompile>
+    <ClCompile Include="systems\stateController.cpp">
+      <Filter>src\systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -227,6 +236,12 @@
     </ClInclude>
     <ClInclude Include="ogl\shaders\textured.hpp">
       <Filter>src\ogl\shaders\textured</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\rocketball\rocketball.hpp">
+      <Filter>src\levels\rocketball</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\stateController.hpp">
+      <Filter>src\systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

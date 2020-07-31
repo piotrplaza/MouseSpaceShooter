@@ -75,8 +75,5 @@ namespace Systems
 		std::vector<Buffers::PosTexCoordBuffers> customTexturedPlayersBuffers;
 
 		std::unique_ptr<ConnectionsBuffers> connectionsBuffers;
-
-		bool firstStep = true;
-		glm::vec2 playerPreviousPosition{ 0.0f, 0.0f };
 	};
 }
