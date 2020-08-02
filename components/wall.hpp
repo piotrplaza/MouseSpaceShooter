@@ -19,16 +19,19 @@ namespace Components
 	struct Wall
 	{
 		Wall(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt,
-			std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup = nullptr):
+			std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup = nullptr,
+			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
 			texture(texture),
-			renderingSetup(std::move(renderingSetup))
+			renderingSetup(std::move(renderingSetup)),
+			customShadersProgram(customShadersProgram)
 		{
 		}
 
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
 		std::optional<unsigned> texture;
 		std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup;
+		std::optional<Shaders::ProgramId> customShadersProgram;
 
 		std::vector<glm::vec3> getPositions() const
 		{

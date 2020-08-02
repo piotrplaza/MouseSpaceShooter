@@ -60,8 +60,9 @@ namespace Systems
 		void updateConnectionsGraphicsBuffers();
 
 		void basicRender() const;
-		void coloredRender() const;
 		void sceneCoordTexturedRender() const;
+		void customShadersRender() const;
+		void coloredRender() const;
 
 		Components::Player& player; //Temporary.
 
@@ -73,6 +74,7 @@ namespace Systems
 		std::unordered_map<unsigned, Buffers::PosTexCoordBuffers> texturesToPlayersBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customSimplePlayersBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customTexturedPlayersBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> customShadersPlayersBuffers;
 
 		std::unique_ptr<ConnectionsBuffers> connectionsBuffers;
 	};

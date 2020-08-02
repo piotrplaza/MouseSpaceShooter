@@ -43,21 +43,21 @@ namespace Systems
 	{
 		Tools::UpdateTransformedPositionsBuffers(Globals::Components::staticWalls,
 			*simpleStaticWallsBuffers, texturesToStaticWallsBuffers, customSimpleStaticWallsBuffers,
-			customTexturedStaticWallsBuffers, GL_STATIC_DRAW);
+			customTexturedStaticWallsBuffers, customShadersStaticWallsBuffers, GL_STATIC_DRAW);
 	}
 
 	void Level::updateDynamicWallsPositionsBuffers()
 	{
 		Tools::UpdateTransformedPositionsBuffers(Globals::Components::dynamicWalls,
 			*simpleDynamicWallsBuffers, texturesToDynamicWallsBuffers, customSimpleDynamicWallsBuffers,
-			customTexturedDynamicWallsBuffers, GL_DYNAMIC_DRAW);
+			customTexturedDynamicWallsBuffers, customShadersDynamicWallsBuffers, GL_DYNAMIC_DRAW);
 	}
 
 	void Level::updateGrapplesPositionsBuffers()
 	{
 		Tools::UpdateTransformedPositionsBuffers(Globals::Components::grapples,
 			*simpleGrapplesBuffers, texturesToGrapplesBuffers, customSimpleGrapplesBuffers,
-			customTexturedGrapplesBuffers, GL_DYNAMIC_DRAW);
+			customTexturedGrapplesBuffers, customShadersGrapplesBuffers, GL_DYNAMIC_DRAW);
 	}
 
 	void Level::updateTexCoordsBuffers()
@@ -69,13 +69,13 @@ namespace Systems
 	void Level::updateDynamicWallsTexCoordsBuffers()
 	{
 		Tools::UpdateTexCoordBuffers(Globals::Components::dynamicWalls, texturesToDynamicWallsBuffers,
-			customTexturedDynamicWallsBuffers, GL_STATIC_DRAW);
+			customTexturedDynamicWallsBuffers, customShadersDynamicWallsBuffers, GL_STATIC_DRAW);
 	}
 
 	void Level::updateGrapplesTexCoordsBuffers()
 	{
 		Tools::UpdateTexCoordBuffers(Globals::Components::grapples, texturesToGrapplesBuffers,
-			customTexturedGrapplesBuffers, GL_STATIC_DRAW);
+			customTexturedGrapplesBuffers, customShadersGrapplesBuffers, GL_STATIC_DRAW);
 	}
 
 	void Level::step()
@@ -86,9 +86,35 @@ namespace Systems
 
 	void Level::render() const
 	{
+		customShadersRender();
 		sceneCoordTexturedRender();
 		texturedRender();
 		basicRender();
+	}
+
+	void Level::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
+	{
+		for (const auto& currentBuffers : buffers)
+		{
+			glUseProgram_proxy(*currentBuffers.customShadersProgram);
+
+			std::function<void()> renderingTeardown;
+			if (currentBuffers.renderingSetup)
+				renderingTeardown = currentBuffers.renderingSetup(*currentBuffers.customShadersProgram);
+
+			glBindVertexArray(currentBuffers.vertexArray);
+			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());
+
+			if (renderingTeardown)
+				renderingTeardown();
+		}
+	}
+
+	void Level::customShadersRender() const
+	{
+		customShadersRender(customShadersDynamicWallsBuffers);
+		customShadersRender(customShadersStaticWallsBuffers);
+		customShadersRender(customShadersGrapplesBuffers);
 	}
 
 	void Level::sceneCoordTexturedRender() const

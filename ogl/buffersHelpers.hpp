@@ -57,21 +57,25 @@ namespace Tools
 	template <typename Component, typename Buffers>
 	inline void UpdateTransformedPositionsBuffers(const std::vector<Component>& components, Buffers& simpleBuffers,
 		std::unordered_map<unsigned, Buffers>& texturesToBuffers, std::vector<Buffers>& customSimpleBuffers,
-		std::vector<Buffers>& customTexturedBuffers, GLenum bufferDataUsage)
+		std::vector<Buffers>& customTexturedBuffers, std::vector<Buffers>& customShadersBuffers, GLenum bufferDataUsage)
 	{
 		simpleBuffers.positionsCache.clear();
 		for (auto& [texture, buffers] : texturesToBuffers) buffers.positionsCache.clear();
 		for (auto& buffers: customSimpleBuffers) buffers.positionsCache.clear();
 		for (auto& buffers: customTexturedBuffers) buffers.positionsCache.clear();
+		for (auto& buffers: customShadersBuffers) buffers.positionsCache.clear();
 
 		auto customSimpleBuffersIt = customSimpleBuffers.begin();
 		auto customTexturedBuffersIt = customTexturedBuffers.begin();
+		auto customShadersBuffersIt = customShadersBuffers.begin();
 
 		for (auto& component : components)
 		{
 			auto& buffers = [&]() -> auto&
 			{
-				if (component.texture)
+				if (component.customShadersProgram)
+					return Detail::ReuseOrEmplaceBack(customShadersBuffers, customShadersBuffersIt);
+				else if (component.texture)
 				{
 					if (component.renderingSetup)
 						return Detail::ReuseOrEmplaceBack(customTexturedBuffers, customTexturedBuffersIt);
@@ -89,6 +93,7 @@ namespace Tools
 
 			buffers.renderingSetup = component.renderingSetup;
 			buffers.texture = component.texture;
+			buffers.customShadersProgram = component.customShadersProgram;
 
 			const auto& transformedPositions = component.getTransformedPositions();
 			buffers.positionsCache.insert(buffers.positionsCache.end(),
@@ -99,6 +104,7 @@ namespace Tools
 		for (auto& [texture, buffers] : texturesToBuffers) Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
 		for (auto& buffers : customSimpleBuffers) Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
 		for (auto& buffers : customTexturedBuffers) Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
+		for (auto& buffers : customShadersBuffers) Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
 	}
 
 	template <typename Component, typename Buffers>
@@ -122,7 +128,6 @@ namespace Tools
 			}();
 
 			const auto& positions = component.getPositions();
-
 			buffers.renderingSetup = component.renderingSetup;
 			buffers.texture = component.texture;
 			buffers.animationController = component.animationController.get();
@@ -136,12 +141,14 @@ namespace Tools
 	template <typename Component, typename Buffers>
 	inline void UpdateTexCoordBuffers(const std::vector<Component>& components,
 		std::unordered_map<unsigned, Buffers>& texturesToBuffers, std::vector<Buffers>& customTexturedBuffers,
-		GLenum bufferDataUsage)
+		std::vector<Buffers>& customShadersTexturedBuffers, GLenum bufferDataUsage)
 	{
 		for (auto& [texture, buffers] : texturesToBuffers) buffers.texCoordCache.clear();
 		for (auto& buffers : customTexturedBuffers) buffers.texCoordCache.clear();
+		for (auto& buffers : customShadersTexturedBuffers) buffers.texCoordCache.clear();
 
 		auto customTexturedBuffersIt = customTexturedBuffers.begin();
+		auto customShadersBuffersIt = customShadersTexturedBuffers.begin();
 
 		for (auto& component : components)
 		{
@@ -149,13 +156,14 @@ namespace Tools
 			{
 				auto& buffers = [&]() -> auto&
 				{
-					if (component.renderingSetup)
+					if (component.customShadersProgram)
+						return Detail::ReuseOrEmplaceBack(customShadersTexturedBuffers, customShadersBuffersIt);
+					else if (component.renderingSetup)
 						return Detail::ReuseOrEmplaceBack(customTexturedBuffers, customTexturedBuffersIt);
 					else
 						return texturesToBuffers[*component.texture];
 				}();
 
-				buffers.texture = component.texture;
 				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
 				const auto& texCoord = component.getTexCoord();
 				buffers.texCoordCache.insert(buffers.texCoordCache.end(), texCoord.begin(), texCoord.end());
@@ -165,6 +173,7 @@ namespace Tools
 
 		for (auto& [texture, buffers] : texturesToBuffers) Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
 		for (auto& buffers : customTexturedBuffers) Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
+		for (auto& buffers : customShadersTexturedBuffers) Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
 	}
 
 	template <typename Component, typename Buffers>
@@ -186,8 +195,6 @@ namespace Tools
 					: texturedBuffersIt;
 
 				auto& buffers = Detail::ReuseOrEmplaceBack(relevantBuffers, relevantBuffersIt);
-
-				buffers.texture = component.texture;
 				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
 				buffers.texCoordCache = component.getTexCoord();
 				buffers.textureRatioPreserved = component.isTextureRatioPreserved();

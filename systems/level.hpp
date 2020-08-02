@@ -42,6 +42,8 @@ namespace Systems
 		void updateDynamicWallsTexCoordsBuffers();
 		void updateGrapplesTexCoordsBuffers();
 
+		void customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const;
+		void customShadersRender() const;
 		void sceneCoordTexturedRender() const;
 		void texturedRender() const;
 		void basicRender() const;
@@ -58,10 +60,13 @@ namespace Systems
 		std::vector<Buffers::PosTexCoordBuffers> customSimpleDynamicWallsBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customTexturedStaticWallsBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customTexturedDynamicWallsBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> customShadersStaticWallsBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> customShadersDynamicWallsBuffers;
 
 		std::unique_ptr<Buffers::PosTexCoordBuffers> simpleGrapplesBuffers;
 		std::unordered_map<unsigned, Buffers::PosTexCoordBuffers> texturesToGrapplesBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customSimpleGrapplesBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customTexturedGrapplesBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> customShadersGrapplesBuffers;
 	};
 }

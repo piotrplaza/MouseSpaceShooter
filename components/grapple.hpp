@@ -8,7 +8,8 @@
 
 #include <Box2D/Box2D.h>
 
-#include <globals.hpp>
+#include <ogl/shaders.hpp>
+
 #include <tools/graphicsHelpers.hpp>
 
 namespace Components
@@ -16,11 +17,13 @@ namespace Components
 	struct Grapple
 	{
 		Grapple(std::unique_ptr<b2Body, b2BodyDeleter> body, float influenceRadius, std::optional<unsigned> texture = std::nullopt,
-			std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup = nullptr):
+			std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup = nullptr,
+			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
 			influenceRadius(influenceRadius),
 			texture(texture),
-			renderingSetup(renderingSetup)
+			renderingSetup(std::move(renderingSetup)),
+			customShadersProgram(customShadersProgram)
 		{
 		}
 
@@ -28,6 +31,7 @@ namespace Components
 		float influenceRadius;
 		std::optional<unsigned> texture;
 		std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup;
+		std::optional<Shaders::ProgramId> customShadersProgram;
 
 		glm::vec2 previousCenter{ 0.0f, 0.0f };
 
