@@ -33,6 +33,8 @@ namespace Components
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
 		std::optional<unsigned> texture;
 		std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup;
+		bool connectIfApproaching = false;
+		float autoRotationFactor = 0.5f;
 
 		std::unique_ptr<b2Joint, b2JointDeleter> grappleJoint;
 		int connectedGrappleId = -1;

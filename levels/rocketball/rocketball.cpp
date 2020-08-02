@@ -70,6 +70,8 @@ namespace Levels
 
 			player1 = &players.emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), rocketPlaneTexture);
 			player1->setPosition({ -10.0f, 0.0f });
+			player1->connectIfApproaching = true;
+			player1->autoRotationFactor = 0.0f;
 			player1->renderingSetup = [
 				colorUniform = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {

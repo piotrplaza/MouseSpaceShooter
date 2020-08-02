@@ -194,7 +194,7 @@ namespace Systems
 				const float velocityDot = glm::dot(playerDirection, normalizedStepVelocity);
 
 				player.body->SetTransform(player.body->GetPosition(), playerAngle + velocityDot *
-					stepVelocityLength * Globals::Constants::playerAutoRotationFactor);
+					stepVelocityLength * player.autoRotationFactor);
 			}
 		}
 	}
@@ -250,8 +250,9 @@ namespace Systems
 			if (grappleInRange == nearestGrappleId)
 			{
 				if (active && !player.grappleJoint &&
-					glm::distance(player.getCenter(), grapple.getCenter()) >=
-					glm::distance(player.previousCenter, grapple.previousCenter))
+					(glm::distance(player.getCenter(), grapple.getCenter()) >=
+					glm::distance(player.previousCenter, grapple.previousCenter) || 
+					player.connectIfApproaching))
 				{
 					player.connectedGrappleId = grappleInRange;
 					player.weakConnectedGrappleId = -1;
