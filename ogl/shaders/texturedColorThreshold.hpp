@@ -7,16 +7,15 @@ namespace Shaders
 {
 	namespace Programs
 	{
-		struct SceneCoordTexturedAccessor
+		struct TexturedColorThresholdAccessor
 		{
-			SceneCoordTexturedAccessor(Shaders::ProgramId program):
+			TexturedColorThresholdAccessor(Shaders::ProgramId program):
 				program(program),
 				modelUniform(program, "model"),
 				vpUniform(program, "vp"),
 				colorUniform(program, "color"),
 				textureTranslateUniform(program, "textureTranslate"),
 				textureScaleUniform(program, "textureScale"),
-				textureCoordBasedOnModelTransformUniform(program, "textureCoordBasedOnModelTransform"),
 				texture1Uniform(program, "texture1")
 			{
 			}
@@ -27,21 +26,20 @@ namespace Shaders
 			Uniforms::UniformController4f colorUniform;
 			Uniforms::UniformController2f textureTranslateUniform;
 			Uniforms::UniformController2f textureScaleUniform;
-			Uniforms::UniformController1i textureCoordBasedOnModelTransformUniform;
 			Uniforms::UniformController1i texture1Uniform;
 		};
 
-		struct SceneCoordTextured: SceneCoordTexturedAccessor
+		struct TexturedColorThreshold: TexturedColorThresholdAccessor
 		{
-			SceneCoordTextured():
-				SceneCoordTexturedAccessor(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/sceneCoordTextured.vs",
-					"ogl/shaders/sceneCoordTextured.fs"), { {0, "bPos"} }))
+			TexturedColorThreshold():
+				TexturedColorThresholdAccessor(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/texturedColorThreshold.vs",
+					"ogl/shaders/texturedColorThreshold.fs"), { {0, "bPos"}, {1, "bTexCoord"} }))
 			{
 			}
 
-			SceneCoordTextured(const SceneCoordTextured&) = delete;
+			TexturedColorThreshold(const TexturedColorThreshold&) = delete;
 
-			~SceneCoordTextured()
+			~TexturedColorThreshold()
 			{
 				glDeleteProgram(program);
 			}

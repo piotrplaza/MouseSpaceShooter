@@ -7,20 +7,15 @@ namespace Shaders
 {
 	namespace Programs
 	{
-		struct Julia
+		struct JuliaAccessor
 		{
-			Julia():
-				program(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/julia.vs", "ogl/shaders/julia.fs"), { {0, "bPos"} })),
+			JuliaAccessor(Shaders::ProgramId program):
+				program(program),
 				vpUniform(program, "vp"),
 				juliaCOffsetUniform(program, "juliaCOffset"),
-				minColorUniform(program, "minColorUniform"),
-				maxColorUniform(program, "maxColorUniform")
+				minColorUniform(program, "minColor"),
+				maxColorUniform(program, "maxColor")
 			{
-			}
-
-			~Julia()
-			{
-				glDeleteProgram(program);
 			}
 
 			Shaders::ProgramId program;
@@ -28,6 +23,22 @@ namespace Shaders
 			Uniforms::UniformController2f juliaCOffsetUniform;
 			Uniforms::UniformController4f minColorUniform;
 			Uniforms::UniformController4f maxColorUniform;
+		};
+
+		struct Julia: JuliaAccessor
+		{
+			Julia():
+				JuliaAccessor(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/julia.vs",
+					"ogl/shaders/julia.fs"), { {0, "bPos"} }))
+			{
+			}
+
+			Julia(const Julia&) = delete;
+
+			~Julia()
+			{
+				glDeleteProgram(program);
+			}
 		};
 	}
 }

@@ -12,9 +12,13 @@
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/mouseState.hpp>
+#include <components/mvp.hpp>
 
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/julia.hpp>
+#include <ogl/shaders/texturedColorThreshold.hpp>
+#include <ogl/shaders/textured.hpp>
+#include <ogl/renderingHelpers.hpp>
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/utility.hpp>
@@ -70,28 +74,19 @@ namespace Levels
 			texturesDef.emplace_back("textures/flame animation 1.jpg");
 		}
 
-		void setBackground() const
+		void setBackground()
 		{
 			using namespace Globals::Components;
 
 			auto& background = backgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
 			background.customShadersProgram = juliaShaders.program;
-			background.renderingSetup = [&,
-				vpUniform = Uniforms::UniformControllerMat4f(),
-				juliaCOffsetUniform = Uniforms::UniformController2f(),
-				minColorUniform = Uniforms::UniformController4f(),
-				maxColorUniform = Uniforms::UniformController4f()
-			](Shaders::ProgramId program) mutable {
-				if (!vpUniform.isValid()) vpUniform = Uniforms::UniformControllerMat4f(program, "vp");
-				if (!juliaCOffsetUniform.isValid()) juliaCOffsetUniform = Uniforms::UniformController2f(program, "juliaCOffset");
-				if (!minColorUniform.isValid()) minColorUniform = Uniforms::UniformController4f(program, "minColor");
-				if (!maxColorUniform.isValid()) maxColorUniform = Uniforms::UniformController4f(program, "maxColor");
-				vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
+			background.renderingSetup = [this](auto) mutable {
+				juliaShaders.vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
 					glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f),
 					glm::vec3(-camera.prevPosition * 0.005f, 0.0f)));
-				juliaCOffsetUniform.setValue(player1->getCenter() * 0.00001f);
-				minColorUniform.setValue({ 0.0f, 0.0f, 0.0f, 1.0f });
-				maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
+				juliaShaders.juliaCOffsetUniform.setValue(player1->getCenter() * 0.00001f);
+				juliaShaders.minColorUniform.setValue({ 0.0f, 0.0f, 0.0f, 1.0f });
+				juliaShaders.maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
 
 				return nullptr;
 			};
@@ -145,7 +140,7 @@ namespace Levels
 				}
 		}
 
-		void setDynamicWalls() const
+		void setDynamicWalls()
 		{
 			using namespace Globals::Components;
 
@@ -168,7 +163,14 @@ namespace Levels
 
 			for (const float pos : {-30.0f, 30.0f})
 			{
-				dynamicWalls.emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), woodTexture);
+				dynamicWalls.emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), woodTexture,
+					[this](auto)
+					{
+						Tools::MVPInitialization(texturedColorThresholdShaders);
+						Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, woodTexture, true);
+						return nullptr;
+					},
+					texturedColorThresholdShaders.program);
 				dynamicWalls.emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f));
 				dynamicWalls.back().renderingSetup = [
 					colorUniform = Uniforms::UniformController4f()
@@ -191,15 +193,13 @@ namespace Levels
 				), roseTexture);
 				foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
 				foregroundDecorations.back().renderingSetup = [
-					colorUniform = Uniforms::UniformController4f(),
-					modelUniform = Uniforms::UniformControllerMat4f(),
+					texturedProgramAccessor = std::optional<Shaders::Programs::TexturedAccessor>(),
 					wallId = dynamicWalls.size() - 1
 				](Shaders::ProgramId program) mutable {
-					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-					colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
+					if (!texturedProgramAccessor) texturedProgramAccessor.emplace(program);
+					texturedProgramAccessor->colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
 						(glm::sin(Globals::Components::physics.simulationTime * glm::two_pi<float>()) + 1.0f) / 2.0f + 0.5f });
-					modelUniform.setValue(dynamicWalls[wallId].getModelMatrix());
+					texturedProgramAccessor->modelUniform.setValue(dynamicWalls[wallId].getModelMatrix());
 
 					return nullptr;
 				};
@@ -280,16 +280,14 @@ namespace Levels
 				foregroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)), fogTexture);
 				foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
 				foregroundDecorations.back().renderingSetup = [&,
-					vpUniform = Uniforms::UniformControllerMat4f(),
-					colorUniform = Uniforms::UniformController4f(),
+					texturedProgramAccessor = std::optional<Shaders::Programs::TexturedAccessor>(),
 					layer
 				](Shaders::ProgramId program) mutable {
-					if (!vpUniform.isValid()) vpUniform = Uniforms::UniformControllerMat4f(program, "vp");
-					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-					vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
+					if (!texturedProgramAccessor) texturedProgramAccessor.emplace(program);
+					texturedProgramAccessor->vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
 						glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f),
 						glm::vec3(-camera.prevPosition * (0.02f + layer * 0.02f), 0.0f)));
-					colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.02f });
+					texturedProgramAccessor->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.02f });
 
 					return nullptr;
 				};
@@ -325,6 +323,7 @@ namespace Levels
 
 	private:
 		Shaders::Programs::Julia juliaShaders;
+		Shaders::Programs::TexturedColorThreshold texturedColorThresholdShaders;
 
 		unsigned rocketPlaneTexture = 0;
 		unsigned spaceRockTexture = 0;

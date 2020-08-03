@@ -53,6 +53,9 @@
     <Filter Include="src\levels\rocketball">
       <UniqueIdentifier>{5cbff223-d591-4e6d-ba63-b063038b4334}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ogl\shaders\texturedColorThreshold">
+      <UniqueIdentifier>{ecbef966-6056-48cd-aef7-d6cc39c9cc82}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -243,6 +246,9 @@
     <ClInclude Include="systems\stateController.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
+    <ClInclude Include="ogl\shaders\texturedColorThreshold.hpp">
+      <Filter>src\ogl\shaders\texturedColorThreshold</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">
@@ -274,6 +280,12 @@
     </None>
     <None Include="ogl\shaders\textured.fs">
       <Filter>src\ogl\shaders\textured</Filter>
+    </None>
+    <None Include="ogl\shaders\texturedColorThreshold.fs">
+      <Filter>src\ogl\shaders\texturedColorThreshold</Filter>
+    </None>
+    <None Include="ogl\shaders\texturedColorThreshold.vs">
+      <Filter>src\ogl\shaders\texturedColorThreshold</Filter>
     </None>
   </ItemGroup>
 </Project>
