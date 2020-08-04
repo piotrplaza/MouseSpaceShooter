@@ -168,6 +168,9 @@ namespace Levels
 					{
 						Tools::MVPInitialization(texturedColorThresholdShaders);
 						Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, woodTexture, true);
+						const float simulationTime = Globals::Components::physics.simulationTime;
+						texturedColorThresholdShaders.invisibleColorUniform.setValue({ 0.5f, 0.5f, 0.5f });
+						texturedColorThresholdShaders.invisibleColorThresholdUniform.setValue((-glm::cos(simulationTime * 0.2f) + 1.0f) * 0.4f);
 						return nullptr;
 					},
 					texturedColorThresholdShaders.program);
