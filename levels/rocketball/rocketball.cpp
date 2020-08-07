@@ -99,8 +99,9 @@ namespace Levels
 							-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
 							{ std::min(thrustScale * 0.5f, 0.7f), thrustScale, 1.0f }));
 
-						if (player1->throttling) thrustScale = std::min(thrustScale * 1.08f, 5.0f);
-						else thrustScale = 1.0f + (thrustScale - 1.0f) * 0.95f;
+						const float targetFrameTimeFactor = Globals::Components::physics.targetFrameTimeFactor;
+						if (player1->throttling) thrustScale = std::min(thrustScale * (1.0f + targetFrameTimeFactor * 0.1f), 5.0f);
+						else thrustScale = 1.0f + (thrustScale - 1.0f) * (1.0f - targetFrameTimeFactor * 0.1f);
 
 						glBlendFunc(GL_ONE, GL_ONE);
 
@@ -140,7 +141,7 @@ namespace Levels
 		{
 			using namespace Globals::Components;
 
-			ball = &grapples.emplace_back(Tools::CreateCircleBody({ 0.0f, 0.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.5f), 15.0f,
+			ball = &grapples.emplace_back(Tools::CreateCircleBody({ 0.0f, 0.0f }, 2.0f, b2_dynamicBody, 0.02f, 0.5f), 15.0f,
 				orbTexture);
 		}
 

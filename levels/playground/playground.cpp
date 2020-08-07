@@ -125,8 +125,9 @@ namespace Levels
 							-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
 							{ std::min(thrustScale * 0.5f, 0.7f), thrustScale, 1.0f }));
 
-						if (player1->throttling) thrustScale = std::min(thrustScale * 1.08f, 5.0f);
-						else thrustScale = 1.0f + (thrustScale - 1.0f) * 0.95f;
+						const float targetFrameTimeFactor = Globals::Components::physics.targetFrameTimeFactor;
+						if (player1->throttling) thrustScale = std::min(thrustScale * (1.0f + targetFrameTimeFactor * 0.1f), 5.0f);
+						else thrustScale = 1.0f + (thrustScale - 1.0f) * (1.0f - targetFrameTimeFactor * 0.1f);
 
 						glBlendFunc(GL_ONE, GL_ONE);
 

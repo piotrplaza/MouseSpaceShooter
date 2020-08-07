@@ -236,7 +236,7 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <PropertyGroup Condition="'$(Language)'=='C++'">
-    <CAExcludePath>C:\libraries\box2d-2.4.0\Box2D;$(CAExcludePath)</CAExcludePath>
+    <CAExcludePath>C:\libraries\box2d-2.4.0\include;$(CAExcludePath)</CAExcludePath>
     <CAExcludePath>$(ProjectDir)\3rdParty;$(CAExcludePath)</CAExcludePath>
   </PropertyGroup>
 </Project>
