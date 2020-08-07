@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <limits>
+#include <algorithm>
 
 #include <GL/glew.h>
 

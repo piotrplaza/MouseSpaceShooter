@@ -1,5 +1,7 @@
 #include "rocketball.hpp"
 
+#include <algorithm>
+
 #include <globals.hpp>
 
 #include <components/screenInfo.hpp>

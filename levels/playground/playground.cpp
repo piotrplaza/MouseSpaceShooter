@@ -1,5 +1,7 @@
 #include "playground.hpp"
 
+#include <algorithm>
+
 #include <globals.hpp>
 
 #include <components/screenInfo.hpp>
