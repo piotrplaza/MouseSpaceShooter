@@ -121,6 +121,9 @@
     <ClCompile Include="systems\stateController.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
+    <ClCompile Include="ogl\oglHelpers.cpp">
+      <Filter>src\ogl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.hpp">
@@ -248,6 +251,9 @@
     </ClInclude>
     <ClInclude Include="ogl\shaders\texturedColorThreshold.hpp">
       <Filter>src\ogl\shaders\texturedColorThreshold</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\oglHelpers.hpp">
+      <Filter>src\ogl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

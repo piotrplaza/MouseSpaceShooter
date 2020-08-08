@@ -26,6 +26,7 @@
     <ClCompile Include="levels\rocketball\rocketball.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ogl\buffers\posTexCoordBuffers.cpp" />
+    <ClCompile Include="ogl\oglHelpers.cpp" />
     <ClCompile Include="ogl\oglProxy.cpp" />
     <ClCompile Include="ogl\shaders.cpp" />
     <ClCompile Include="ogl\uniformControllers.cpp" />
@@ -62,6 +63,7 @@
     <ClInclude Include="levels\rocketball\rocketball.hpp" />
     <ClInclude Include="ogl\buffersHelpers.hpp" />
     <ClInclude Include="ogl\buffers\posTexCoordBuffers.hpp" />
+    <ClInclude Include="ogl\oglHelpers.hpp" />
     <ClInclude Include="ogl\oglProxy.hpp" />
     <ClInclude Include="ogl\renderingHelpers.hpp" />
     <ClInclude Include="ogl\shaders.hpp" />

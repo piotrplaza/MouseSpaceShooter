@@ -28,6 +28,8 @@
 
 #include "tools/utility.hpp"
 
+#include "ogl/oglHelpers.hpp"
+
 const bool fullScreen = true;
 const bool console = true;
 const glm::ivec2 windowRes = { 800, 800 };
@@ -39,6 +41,7 @@ void OGLInitialize()
 	const GLenum glewInitResult = glewInit();
 	assert(GLEW_OK == glewInitResult);
 
+	Tools::VSync(true);
 	//glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
