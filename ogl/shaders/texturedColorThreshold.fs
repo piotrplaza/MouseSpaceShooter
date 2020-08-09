@@ -12,5 +12,8 @@ uniform float invisibleColorThreshold = 0.0;
 void main()
 {
 	vec4 baseColor = texture(texture1, vTexCoord) * color;
-	fColor = distance(vec3(baseColor), invisibleColor) < invisibleColorThreshold ? vec4(0.0) : baseColor;
+	vec4 alternateColor = vec4(vec3(1.0) - vec3(baseColor), 1.0);
+	fColor = distance(vec3(baseColor), invisibleColor) < length(vec3(1.0, 1.0, 1.0)) * invisibleColorThreshold
+	? alternateColor
+	: baseColor;
 }
