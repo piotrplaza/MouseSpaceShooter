@@ -57,6 +57,7 @@ namespace Levels
 
 			flameAnimation1Texture = texturesDef.size();
 			texturesDef.emplace_back("textures/flame animation 1.jpg");
+			texturesDef.back().minFilter = GL_LINEAR;
 		}
 
 		void setBackground() const
