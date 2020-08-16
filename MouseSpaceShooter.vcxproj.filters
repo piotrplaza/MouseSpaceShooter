@@ -56,6 +56,9 @@
     <Filter Include="src\ogl\shaders\texturedColorThreshold">
       <UniqueIdentifier>{ecbef966-6056-48cd-aef7-d6cc39c9cc82}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\race1">
+      <UniqueIdentifier>{76361db7-1f44-4baa-ac42-10597ad01e0d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -123,6 +126,12 @@
     </ClCompile>
     <ClCompile Include="ogl\oglHelpers.cpp">
       <Filter>src\ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\race1\race1.cpp">
+      <Filter>src\levels\race1</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\gameHelpers.cpp">
+      <Filter>src\tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -254,6 +263,12 @@
     </ClInclude>
     <ClInclude Include="ogl\oglHelpers.hpp">
       <Filter>src\ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\race1\race1.hpp">
+      <Filter>src\levels\race1</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\gameHelpers.hpp">
+      <Filter>src\tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

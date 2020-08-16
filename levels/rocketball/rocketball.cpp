@@ -19,6 +19,7 @@
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/utility.hpp>
+#include <tools/gameHelpers.hpp>
 
 namespace Levels
 {
@@ -68,53 +69,7 @@ namespace Levels
 
 		void setPlayers()
 		{
-			using namespace Globals::Components;
-
-			player1 = &players.emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), rocketPlaneTexture);
-			player1->setPosition({ -10.0f, 0.0f });
-			player1->connectIfApproaching = true;
-			player1->autoRotationFactor = 0.0f;
-			player1->renderingSetup = [
-				colorUniform = Uniforms::UniformController4f()
-			](Shaders::ProgramId program) mutable {
-					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-					const float fade = (glm::sin(Globals::Components::physics.simulationTime * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
-					colorUniform.setValue({ fade, 1.0f, fade, 1.0f });
-
-					return nullptr;
-				};
-
-				for (int i = 0; i < 2; ++i)
-				{
-					auto& player1Thrust = player1Thrusts[i];
-
-					backgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimation1Texture);
-					backgroundDecorations.back().renderingSetup = [&, i,
-						modelUniform = Uniforms::UniformControllerMat4f(),
-						thrustScale = 1.0f
-					](Shaders::ProgramId program) mutable {
-						if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-						modelUniform.setValue(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*player1->body),
-							{ -0.9f, i == 0 ? -0.42f : 0.42f, 0.0f }),
-							-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
-							{ std::min(thrustScale * 0.5f, 0.7f), thrustScale, 1.0f }));
-
-						const float targetFrameTimeFactor = Globals::Components::physics.targetFrameTimeFactor;
-						if (player1->throttling) thrustScale = std::min(thrustScale * (1.0f + targetFrameTimeFactor * 0.1f), 5.0f);
-						else thrustScale = 1.0f + (thrustScale - 1.0f) * (1.0f - targetFrameTimeFactor * 0.1f);
-
-						glBlendFunc(GL_ONE, GL_ONE);
-
-						return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
-					};
-
-					backgroundDecorations.back().animationController.reset(new Tools::TextureAnimationController(
-						{ 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
-						AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
-						{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
-					player1Thrust = backgroundDecorations.back().animationController.get();
-					player1Thrust->start();
-				}
+			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flameAnimation1Texture);
 		}
 
 		void setStaticWalls() const
@@ -149,13 +104,15 @@ namespace Levels
 		{
 			using namespace Globals::Components;
 
+			const auto& player = players[player1Handler.playerId];
+
 			camera.targetProjectionHSizeF = [&]() {
 				camera.projectionTransitionFactor = 0.1f * physics.targetFrameTimeFactor;
-				return 30.0f + glm::distance(player1->getCenter(), ball->getCenter()) * 0.3f;
+				return 30.0f + glm::distance(player.getCenter(), ball->getCenter()) * 0.3f;
 			};
 			camera.targetPositionF = [&]() {
 				camera.positionTransitionFactor = 0.1f * physics.targetFrameTimeFactor;
-				return (player1->getCenter() + ball->getCenter()) * 0.5f;
+				return (player.getCenter() + ball->getCenter()) * 0.5f;
 			};
 		}
 
@@ -170,9 +127,8 @@ namespace Levels
 		unsigned playFieldTexture = 0;
 		unsigned flameAnimation1Texture = 0;
 
-		Components::Player* player1 = nullptr;
+		Tools::PlayerPlaneHandler player1Handler;
 		Components::Grapple* ball = nullptr;
-		Tools::TextureAnimationController* player1Thrusts[2] = {};
 	};
 
 	Rocketball::Rocketball(): impl(std::make_unique<Impl>())

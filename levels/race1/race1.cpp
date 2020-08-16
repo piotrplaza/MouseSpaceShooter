@@ -1,4 +1,4 @@
-#include "playground.hpp"
+#include "race1.hpp"
 
 #include <algorithm>
 
@@ -28,7 +28,7 @@
 
 namespace Levels
 {
-	class Playground::Impl
+	class Race1::Impl
 	{
 	public:
 		void setGraphicsSettings() const
@@ -115,59 +115,59 @@ namespace Levels
 			dynamicWalls.back().renderingSetup = [
 				textureTranslateUniform = Uniforms::UniformController2f()
 			](Shaders::ProgramId program) mutable {
-				if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2f(program, "textureTranslate");
-				const float simulationTime = Globals::Components::physics.simulationTime;
-				textureTranslateUniform.setValue({ glm::cos(simulationTime * 0.1f), glm::sin(simulationTime * 0.1f) });
-
-				return nullptr;
-			};
-
-			for (const float pos : {-30.0f, 30.0f})
-			{
-				dynamicWalls.emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), woodTexture,
-					[this](auto)
-					{
-						Tools::MVPInitialization(texturedColorThresholdShaders);
-						Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, woodTexture, true);
-						const float simulationTime = Globals::Components::physics.simulationTime;
-						texturedColorThresholdShaders.invisibleColorUniform.setValue({ 1.0f, 1.0f, 1.0f });
-						texturedColorThresholdShaders.invisibleColorThresholdUniform.setValue((-glm::cos(simulationTime * 0.5f) + 1.0f) * 0.5f);
-						return nullptr;
-					},
-					texturedColorThresholdShaders.program);
-				dynamicWalls.emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f));
-				dynamicWalls.back().renderingSetup = [
-					colorUniform = Uniforms::UniformController4f()
-				](Shaders::ProgramId program) mutable {
-					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-					colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.0f });
+					if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2f(program, "textureTranslate");
+					const float simulationTime = Globals::Components::physics.simulationTime;
+					textureTranslateUniform.setValue({ glm::cos(simulationTime * 0.1f), glm::sin(simulationTime * 0.1f) });
 
 					return nullptr;
 				};
-				foregroundDecorations.emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
-					[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
-					[](float input) { return glm::vec2(input + 0.3f, input + 0.3f); },
-					[](float input) { return input * 600.0f; },
-					[value = 0.0f]() mutable->std::optional<float> {
-					if (value > 1.0f) return std::nullopt;
-					float result = value;
-					value += 0.002f;
-					return result;
+
+				for (const float pos : {-30.0f, 30.0f})
+				{
+					dynamicWalls.emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), woodTexture,
+						[this](auto)
+						{
+							Tools::MVPInitialization(texturedColorThresholdShaders);
+							Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, woodTexture, true);
+							const float simulationTime = Globals::Components::physics.simulationTime;
+							texturedColorThresholdShaders.invisibleColorUniform.setValue({ 1.0f, 1.0f, 1.0f });
+							texturedColorThresholdShaders.invisibleColorThresholdUniform.setValue((-glm::cos(simulationTime * 0.5f) + 1.0f) * 0.5f);
+							return nullptr;
+						},
+						texturedColorThresholdShaders.program);
+					dynamicWalls.emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f));
+					dynamicWalls.back().renderingSetup = [
+						colorUniform = Uniforms::UniformController4f()
+					](Shaders::ProgramId program) mutable {
+							if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
+							colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.0f });
+
+							return nullptr;
+						};
+						foregroundDecorations.emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
+							[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
+							[](float input) { return glm::vec2(input + 0.3f, input + 0.3f); },
+							[](float input) { return input * 600.0f; },
+							[value = 0.0f]() mutable->std::optional<float> {
+							if (value > 1.0f) return std::nullopt;
+							float result = value;
+							value += 0.002f;
+							return result;
+						}
+						), roseTexture);
+						foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+						foregroundDecorations.back().renderingSetup = [
+							texturedProgramAccessor = std::optional<Shaders::Programs::TexturedAccessor>(),
+								wallId = dynamicWalls.size() - 1
+						](Shaders::ProgramId program) mutable {
+								if (!texturedProgramAccessor) texturedProgramAccessor.emplace(program);
+								texturedProgramAccessor->colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
+									(glm::sin(Globals::Components::physics.simulationTime * glm::two_pi<float>()) + 1.0f) / 2.0f + 0.5f });
+								texturedProgramAccessor->modelUniform.setValue(dynamicWalls[wallId].getModelMatrix());
+
+								return nullptr;
+							};
 				}
-				), roseTexture);
-				foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
-				foregroundDecorations.back().renderingSetup = [
-					texturedProgramAccessor = std::optional<Shaders::Programs::TexturedAccessor>(),
-					wallId = dynamicWalls.size() - 1
-				](Shaders::ProgramId program) mutable {
-					if (!texturedProgramAccessor) texturedProgramAccessor.emplace(program);
-					texturedProgramAccessor->colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
-						(glm::sin(Globals::Components::physics.simulationTime * glm::two_pi<float>()) + 1.0f) / 2.0f + 0.5f });
-					texturedProgramAccessor->modelUniform.setValue(dynamicWalls[wallId].getModelMatrix());
-
-					return nullptr;
-				};
-			}
 		}
 
 		void setStaticWalls() const
@@ -211,26 +211,26 @@ namespace Levels
 			grapples.back().renderingSetup = [
 				colorUniform = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {
-				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-				colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
-					(glm::sin(Globals::Components::physics.simulationTime / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
+					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
+					colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
+						(glm::sin(Globals::Components::physics.simulationTime / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
 
-				return nullptr;
-			};
-			grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f,
-				orbTexture);
-			auto& grapple = grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f);
+					return nullptr;
+				};
+				grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f,
+					orbTexture);
+				auto& grapple = grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f);
 
-			midgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.8f, 1.8f }), roseTexture);
-			midgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
-			midgroundDecorations.back().renderingSetup = [&,
-				modelUniform = Uniforms::UniformControllerMat4f()
-			](Shaders::ProgramId program) mutable {
-				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-				modelUniform.setValue(grapple.getModelMatrix());
+				midgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.8f, 1.8f }), roseTexture);
+				midgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+				midgroundDecorations.back().renderingSetup = [&,
+					modelUniform = Uniforms::UniformControllerMat4f()
+				](Shaders::ProgramId program) mutable {
+					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
+					modelUniform.setValue(grapple.getModelMatrix());
 
-				return nullptr;
-			};
+					return nullptr;
+				};
 		}
 
 		void setForeground() const
@@ -238,24 +238,24 @@ namespace Levels
 			using namespace Globals::Components;
 
 			for (int layer = 0; layer < 2; ++layer)
-			for (int posYI = -1; posYI <= 1; ++posYI)
-			for (int posXI = -1; posXI <= 1; ++posXI)
-			{
-				foregroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)), fogTexture);
-				foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
-				foregroundDecorations.back().renderingSetup = [&,
-					texturedProgramAccessor = std::optional<Shaders::Programs::TexturedAccessor>(),
-					layer
-				](Shaders::ProgramId program) mutable {
-					if (!texturedProgramAccessor) texturedProgramAccessor.emplace(program);
-					texturedProgramAccessor->vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
-						glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f),
-						glm::vec3(-camera.prevPosition * (0.02f + layer * 0.02f), 0.0f)));
-					texturedProgramAccessor->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.02f });
+				for (int posYI = -1; posYI <= 1; ++posYI)
+					for (int posXI = -1; posXI <= 1; ++posXI)
+					{
+						foregroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)), fogTexture);
+						foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+						foregroundDecorations.back().renderingSetup = [&,
+							texturedProgramAccessor = std::optional<Shaders::Programs::TexturedAccessor>(),
+							layer
+						](Shaders::ProgramId program) mutable {
+							if (!texturedProgramAccessor) texturedProgramAccessor.emplace(program);
+							texturedProgramAccessor->vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
+								glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f),
+								glm::vec3(-camera.prevPosition * (0.02f + layer * 0.02f), 0.0f)));
+							texturedProgramAccessor->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.02f });
 
-					return nullptr;
-				};
-			}
+							return nullptr;
+						};
+					}
 		}
 
 		void setCamera() const
@@ -306,7 +306,7 @@ namespace Levels
 		Tools::PlayerPlaneHandler player1Handler;
 	};
 
-	Playground::Playground(): impl(std::make_unique<Impl>())
+	Race1::Race1() : impl(std::make_unique<Impl>())
 	{
 		impl->setGraphicsSettings();
 		impl->setTextures();
@@ -319,9 +319,9 @@ namespace Levels
 		impl->setCamera();
 	}
 
-	Playground::~Playground() = default;
+	Race1::~Race1() = default;
 
-	void Playground::step()
+	void Race1::step()
 	{
 		impl->step();
 	}

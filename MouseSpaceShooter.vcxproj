@@ -23,6 +23,7 @@
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="levels\level.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
+    <ClCompile Include="levels\race1\race1.cpp" />
     <ClCompile Include="levels\rocketball\rocketball.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ogl\buffers\posTexCoordBuffers.cpp" />
@@ -39,6 +40,7 @@
     <ClCompile Include="systems\textures.cpp" />
     <ClCompile Include="tools\animations.cpp" />
     <ClCompile Include="tools\b2Helpers.cpp" />
+    <ClCompile Include="tools\gameHelpers.cpp" />
     <ClCompile Include="tools\graphicsHelpers.cpp" />
     <ClCompile Include="tools\utility.cpp" />
   </ItemGroup>
@@ -60,6 +62,7 @@
     <ClInclude Include="globals.hpp" />
     <ClInclude Include="levels\level.hpp" />
     <ClInclude Include="levels\playground\playground.hpp" />
+    <ClInclude Include="levels\race1\race1.hpp" />
     <ClInclude Include="levels\rocketball\rocketball.hpp" />
     <ClInclude Include="ogl\buffersHelpers.hpp" />
     <ClInclude Include="ogl\buffers\posTexCoordBuffers.hpp" />
@@ -83,6 +86,7 @@
     <ClInclude Include="systems\textures.hpp" />
     <ClInclude Include="tools\animations.hpp" />
     <ClInclude Include="tools\b2Helpers.hpp" />
+    <ClInclude Include="tools\gameHelpers.hpp" />
     <ClInclude Include="tools\glmHelpers.hpp" />
     <ClInclude Include="tools\graphicsHelpers.hpp" />
     <ClInclude Include="tools\utility.hpp" />
