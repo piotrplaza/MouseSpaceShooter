@@ -26,10 +26,9 @@ namespace Systems
 		physics.frameTime = simulationTime - physics.simulationTime;
 		physics.simulationTime = simulationTime;
 #else
-		physics.frameTime = targetFrameTime;
+		physics.frameTime = debugFrameTime;
 		physics.simulationTime += physics.frameTime;
 #endif
-		physics.targetFrameTimeFactor = physics.frameTime * 60;
 
 		physics.world.Step(physics.frameTime, 3, 8);
 	}

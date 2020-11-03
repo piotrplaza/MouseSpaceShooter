@@ -108,11 +108,11 @@ namespace Levels
 			const auto& player = players[player1Handler.playerId];
 
 			camera.targetProjectionHSizeF = [&]() {
-				camera.projectionTransitionFactor = 0.1f * physics.targetFrameTimeFactor;
+				camera.projectionTransitionFactor = physics.frameTime * 6;
 				return 30.0f + glm::distance(player.getCenter(), ball->getCenter()) * 0.3f;
 			};
 			camera.targetPositionF = [&]() {
-				camera.positionTransitionFactor = 0.1f * physics.targetFrameTimeFactor;
+				camera.positionTransitionFactor = physics.frameTime * 6;
 				return (player.getCenter() + ball->getCenter()) * 0.5f;
 			};
 		}

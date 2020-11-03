@@ -10,6 +10,5 @@ namespace Components
 
 		float simulationTime = 0.0f;
 		float frameTime = 0.0f;
-		float targetFrameTimeFactor = 0.0f;
 	};
 }

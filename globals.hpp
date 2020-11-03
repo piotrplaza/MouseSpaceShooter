@@ -73,7 +73,7 @@ namespace Globals
 		constexpr float playerAngularDamping = 15.0f;
 
 		constexpr float mouseSensitivity = 0.01f;
-		constexpr float targetFrameTime = 1.0f / 60;
+		constexpr float debugFrameTime = 1.0f / 60;
 		constexpr int circleGraphicsComplexity = 60;
 		constexpr int maxTextureObjects = 100;
 	}
