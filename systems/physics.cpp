@@ -25,12 +25,12 @@ namespace Systems
 		const auto simulationTime = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
 		physics.frameTime = simulationTime - physics.simulationTime;
 		physics.simulationTime = simulationTime;
-		physics.targetFrameTimeFactor = physics.frameTime / targetFrameTime;
 #else
 		physics.frameTime = targetFrameTime;
-		physics.simulationTime += targetFrameTime;
-		physics.targetFrameTimeFactor = 1.0f;
+		physics.simulationTime += physics.frameTime;
 #endif
+		physics.targetFrameTimeFactor = physics.frameTime * 60;
+
 		physics.world.Step(physics.frameTime, 3, 8);
 	}
 }
