@@ -33,7 +33,7 @@
     <ClCompile Include="ogl\uniformControllers.cpp" />
     <ClCompile Include="systems\camera.cpp" />
     <ClCompile Include="systems\decorations.cpp" />
-    <ClCompile Include="systems\level.cpp" />
+    <ClCompile Include="systems\persistents.cpp" />
     <ClCompile Include="systems\physics.cpp" />
     <ClCompile Include="systems\players.cpp" />
     <ClCompile Include="systems\stateController.cpp" />
@@ -79,7 +79,7 @@
     <ClInclude Include="ogl\uniformControllers.hpp" />
     <ClInclude Include="systems\camera.hpp" />
     <ClInclude Include="systems\decorations.hpp" />
-    <ClInclude Include="systems\level.hpp" />
+    <ClInclude Include="systems\persistents.hpp" />
     <ClInclude Include="systems\physics.hpp" />
     <ClInclude Include="systems\players.hpp" />
     <ClInclude Include="systems\stateController.hpp" />

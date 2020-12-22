@@ -1,4 +1,4 @@
-#include "level.hpp"
+#include "Persistents.hpp"
 
 #include <GL/glew.h>
 
@@ -20,12 +20,12 @@
 
 namespace Systems
 {
-	Level::Level()
+	Persistents::Persistents()
 	{
 		initGraphics();
 	}
 
-	void Level::initGraphics()
+	void Persistents::initGraphics()
 	{
 		basicShadersProgram = std::make_unique<Shaders::Programs::Basic>();
 		sceneCoordTexturedShadersProgram = std::make_unique<Shaders::Programs::SceneCoordTextured>();
@@ -39,52 +39,52 @@ namespace Systems
 		updateTexCoordsBuffers();
 	}
 
-	void Level::updateStaticWallsPositionsBuffers()
+	void Persistents::updateStaticWallsPositionsBuffers()
 	{
 		Tools::UpdateTransformedPositionsBuffers(Globals::Components::staticWalls,
 			*simpleStaticWallsBuffers, texturesToStaticWallsBuffers, customSimpleStaticWallsBuffers,
 			customTexturedStaticWallsBuffers, customShadersStaticWallsBuffers, GL_STATIC_DRAW);
 	}
 
-	void Level::updateDynamicWallsPositionsBuffers()
+	void Persistents::updateDynamicWallsPositionsBuffers()
 	{
 		Tools::UpdateTransformedPositionsBuffers(Globals::Components::dynamicWalls,
 			*simpleDynamicWallsBuffers, texturesToDynamicWallsBuffers, customSimpleDynamicWallsBuffers,
 			customTexturedDynamicWallsBuffers, customShadersDynamicWallsBuffers, GL_DYNAMIC_DRAW);
 	}
 
-	void Level::updateGrapplesPositionsBuffers()
+	void Persistents::updateGrapplesPositionsBuffers()
 	{
 		Tools::UpdateTransformedPositionsBuffers(Globals::Components::grapples,
 			*simpleGrapplesBuffers, texturesToGrapplesBuffers, customSimpleGrapplesBuffers,
 			customTexturedGrapplesBuffers, customShadersGrapplesBuffers, GL_DYNAMIC_DRAW);
 	}
 
-	void Level::updateTexCoordsBuffers()
+	void Persistents::updateTexCoordsBuffers()
 	{
 		updateDynamicWallsTexCoordsBuffers();
 		updateGrapplesTexCoordsBuffers();
 	}
 
-	void Level::updateDynamicWallsTexCoordsBuffers()
+	void Persistents::updateDynamicWallsTexCoordsBuffers()
 	{
 		Tools::UpdateTexCoordBuffers(Globals::Components::dynamicWalls, texturesToDynamicWallsBuffers,
 			customTexturedDynamicWallsBuffers, customShadersDynamicWallsBuffers, GL_STATIC_DRAW);
 	}
 
-	void Level::updateGrapplesTexCoordsBuffers()
+	void Persistents::updateGrapplesTexCoordsBuffers()
 	{
 		Tools::UpdateTexCoordBuffers(Globals::Components::grapples, texturesToGrapplesBuffers,
 			customTexturedGrapplesBuffers, customShadersGrapplesBuffers, GL_STATIC_DRAW);
 	}
 
-	void Level::step()
+	void Persistents::step()
 	{
 		updateDynamicWallsPositionsBuffers();
 		updateGrapplesPositionsBuffers();
 	}
 
-	void Level::render() const
+	void Persistents::render() const
 	{
 		customShadersRender();
 		sceneCoordTexturedRender();
@@ -92,7 +92,7 @@ namespace Systems
 		basicRender();
 	}
 
-	void Level::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
+	void Persistents::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
 	{
 		for (const auto& currentBuffers : buffers)
 		{
@@ -110,14 +110,14 @@ namespace Systems
 		}
 	}
 
-	void Level::customShadersRender() const
+	void Persistents::customShadersRender() const
 	{
 		customShadersRender(customShadersDynamicWallsBuffers);
 		customShadersRender(customShadersStaticWallsBuffers);
 		customShadersRender(customShadersGrapplesBuffers);
 	}
 
-	void Level::sceneCoordTexturedRender() const
+	void Persistents::sceneCoordTexturedRender() const
 	{
 		glUseProgram_proxy(sceneCoordTexturedShadersProgram->program);
 		sceneCoordTexturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
@@ -138,7 +138,7 @@ namespace Systems
 		}
 	}
 
-	void Level::texturedRender() const
+	void Persistents::texturedRender() const
 	{
 		glUseProgram_proxy(texturedShadersProgram->program);
 		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
@@ -174,7 +174,7 @@ namespace Systems
 		}
 	}
 
-	void Level::basicRender() const
+	void Persistents::basicRender() const
 	{
 		glUseProgram_proxy(basicShadersProgram->program);
 		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());

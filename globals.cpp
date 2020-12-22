@@ -19,7 +19,7 @@
 #include "systems/physics.hpp"
 #include "systems/textures.hpp"
 #include "systems/players.hpp"
-#include "systems/level.hpp"
+#include "systems/persistents.hpp"
 #include "systems/camera.hpp"
 #include "systems/decorations.hpp"
 
@@ -73,7 +73,7 @@ namespace Globals
 		std::unique_ptr<::Systems::Physics> physics;
 		std::unique_ptr<::Systems::Textures> textures;
 		std::unique_ptr<::Systems::Players> players;
-		std::unique_ptr<::Systems::Level> level;
+		std::unique_ptr<::Systems::Persistents> persistents;
 		std::unique_ptr<::Systems::Camera> camera;
 		std::unique_ptr<::Systems::Decorations> decorations;
 
@@ -83,7 +83,7 @@ namespace Globals
 			physics = std::make_unique<::Systems::Physics>();
 			textures = std::make_unique<::Systems::Textures>();
 			players = std::make_unique<::Systems::Players>();
-			level = std::make_unique<::Systems::Level>();
+			persistents = std::make_unique<::Systems::Persistents>();
 			camera = std::make_unique<::Systems::Camera>();
 			decorations = std::make_unique<::Systems::Decorations>();
 		}
@@ -108,9 +108,9 @@ namespace Globals
 			return *players;
 		}
 
-		::Systems::Level& AccessLevel()
+		::Systems::Persistents& AccessPersistents()
 		{
-			return *level;
+			return *persistents;
 		}
 
 		::Systems::Camera& AccessCamera()

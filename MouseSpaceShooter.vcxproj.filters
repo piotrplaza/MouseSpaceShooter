@@ -67,9 +67,6 @@
     <ClCompile Include="globals.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="systems\level.cpp">
-      <Filter>src\systems</Filter>
-    </ClCompile>
     <ClCompile Include="systems\physics.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
@@ -133,6 +130,9 @@
     <ClCompile Include="tools\gameHelpers.cpp">
       <Filter>src\tools</Filter>
     </ClCompile>
+    <ClCompile Include="systems\persistents.cpp">
+      <Filter>src\systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.hpp">
@@ -152,9 +152,6 @@
     </ClInclude>
     <ClInclude Include="components\player.hpp">
       <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="systems\level.hpp">
-      <Filter>src\systems</Filter>
     </ClInclude>
     <ClInclude Include="systems\physics.hpp">
       <Filter>src\systems</Filter>
@@ -269,6 +266,9 @@
     </ClInclude>
     <ClInclude Include="tools\gameHelpers.hpp">
       <Filter>src\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\persistents.hpp">
+      <Filter>src\systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

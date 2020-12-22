@@ -23,10 +23,10 @@ namespace Components
 
 namespace Systems
 {
-	class Level
+	class Persistents
 	{
 	public:
-		Level();
+		Persistents();
 
 		void step();
 		void render() const;

@@ -25,7 +25,7 @@ namespace Systems
 	class Physics;
 	class Textures;
 	class Players;
-	class Level;
+	class Persistents;
 	class Camera;
 	class Decorations;
 }
@@ -61,7 +61,7 @@ namespace Globals
 		::Systems::Physics& AccessPhysics();
 		::Systems::Textures& AccessTextures();
 		::Systems::Players& AccessPlayers();
-		::Systems::Level& AccessLevel();
+		::Systems::Persistents& AccessPersistents();
 		::Systems::Camera& AccessCamera();
 		::Systems::Decorations& AccessDecorations();
 	}

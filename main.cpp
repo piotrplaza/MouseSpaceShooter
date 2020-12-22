@@ -17,7 +17,7 @@
 #include "components/graphicsSettings.hpp"
 
 #include "systems/stateController.hpp"
-#include "systems/level.hpp"
+#include "systems/persistents.hpp"
 #include "systems/players.hpp"
 #include "systems/physics.hpp"
 #include "systems/camera.hpp"
@@ -79,7 +79,7 @@ void RenderScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Globals::Systems::AccessDecorations().renderBackground();
-	Globals::Systems::AccessLevel().render();
+	Globals::Systems::AccessPersistents().render();
 	Globals::Systems::AccessDecorations().renderMidground();
 	Globals::Systems::AccessPlayers().render();
 	Globals::Systems::AccessDecorations().renderForeground();
@@ -92,7 +92,7 @@ void PrepareFrame()
 	activeLevel->step();
 
 	Globals::Systems::AccessPlayers().step();
-	Globals::Systems::AccessLevel().step();
+	Globals::Systems::AccessPersistents().step();
 	Globals::Systems::AccessCamera().step();
 
 	RenderScene();
