@@ -37,8 +37,7 @@ namespace Tools
 			playerPlaneHandler.backThrustsBackgroundDecorationIds[i] = backgroundDecorations.size();
 			auto& decoration = backgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture);
 
-			decoration.renderingSetup = [&, i,
-				modelUniform = Uniforms::UniformControllerMat4f(),
+			decoration.renderingSetup = [&, i, modelUniform = Uniforms::UniformControllerMat4f(),
 				thrustScale = 1.0f
 			](Shaders::ProgramId program) mutable {
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");

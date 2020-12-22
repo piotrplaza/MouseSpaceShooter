@@ -34,7 +34,7 @@ namespace Levels
 			graphicsSettings.defaultColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		}
 
-		void setTextures()
+		void loadTextures()
 		{
 			using namespace Globals::Components;
 
@@ -60,7 +60,7 @@ namespace Levels
 			texturesDef.back().minFilter = GL_LINEAR;
 		}
 
-		void setBackground() const
+		void createBackground() const
 		{
 			using namespace Globals::Components;
 
@@ -68,12 +68,12 @@ namespace Levels
 			backgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
 		}
 
-		void setPlayers()
+		void createPlayers()
 		{
 			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flameAnimation1Texture);
 		}
 
-		void setStaticWalls() const
+		void createStaticWalls() const
 		{
 			using namespace Globals::Components;
 
@@ -93,7 +93,7 @@ namespace Levels
 				{ levelHSize.x + bordersHGauge * 2, bordersHGauge }), woodTexture);
 		}
 
-		void setGrapples()
+		void createGrapples()
 		{
 			using namespace Globals::Components;
 
@@ -135,11 +135,11 @@ namespace Levels
 	Rocketball::Rocketball(): impl(std::make_unique<Impl>())
 	{
 		impl->setGraphicsSettings();
-		impl->setTextures();
-		impl->setBackground();
-		impl->setPlayers();
-		impl->setStaticWalls();
-		impl->setGrapples();
+		impl->loadTextures();
+		impl->createBackground();
+		impl->createPlayers();
+		impl->createStaticWalls();
+		impl->createGrapples();
 		impl->setCamera();
 	}
 

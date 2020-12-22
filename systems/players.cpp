@@ -324,7 +324,7 @@ namespace Systems
 		else if (player.weakConnectedGrappleId != -1)
 		{
 			connections.emplace_back(player.getCenter(), grapples[player.weakConnectedGrappleId].getCenter(),
-				glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), 20, 0.1f);
+				glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), 1);
 		}
 	}
 

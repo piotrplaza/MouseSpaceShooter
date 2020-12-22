@@ -38,7 +38,7 @@ namespace Levels
 			graphicsSettings.defaultColor = { 0.7f, 0.7f, 0.7f, 1.0f };
 		}
 
-		void setTextures()
+		void loadTextures()
 		{
 			using namespace Globals::Components;
 
@@ -78,7 +78,7 @@ namespace Levels
 			texturesDef.back().minFilter = GL_LINEAR;
 		}
 
-		void setBackground()
+		void createBackground()
 		{
 			using namespace Globals::Components;
 
@@ -97,12 +97,12 @@ namespace Levels
 			};
 		}
 
-		void setPlayers()
+		void createPlayers()
 		{
 			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flameAnimation1Texture);
 		}
 
-		void setDynamicWalls()
+		void createDynamicWalls()
 		{
 			using namespace Globals::Components;
 
@@ -171,7 +171,7 @@ namespace Levels
 			}
 		}
 
-		void setStaticWalls() const
+		void createStaticWalls() const
 		{
 			using namespace Globals::Components;
 
@@ -203,7 +203,7 @@ namespace Levels
 			foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
 		}
 
-		void setGrapples() const
+		void createGrapples() const
 		{
 			using namespace Globals::Components;
 
@@ -234,7 +234,7 @@ namespace Levels
 			};
 		}
 
-		void setForeground() const
+		void createForeground() const
 		{
 			using namespace Globals::Components;
 
@@ -282,8 +282,8 @@ namespace Levels
 			for (size_t backThrustsBackgroundDecorationId : player1Handler.backThrustsBackgroundDecorationIds)
 			{
 				assert(backThrustsBackgroundDecorationId < backgroundDecorations.size());
-				auto& player1ThrustAnimationController = backgroundDecorations[backThrustsBackgroundDecorationId].animationController;
-				//player1ThrustAnimationController->setTimeScale(1.0f + Globals::Components::mouseState.wheel / 10.0f);
+				auto& player1ThrustAnimationController = *backgroundDecorations[backThrustsBackgroundDecorationId].animationController;
+				//player1ThrustAnimationController.setTimeScale(1.0f + Globals::Components::mouseState.wheel / 10.0f);
 			}
 		}
 
@@ -306,13 +306,13 @@ namespace Levels
 	Playground::Playground(): impl(std::make_unique<Impl>())
 	{
 		impl->setGraphicsSettings();
-		impl->setTextures();
-		impl->setBackground();
-		impl->setPlayers();
-		impl->setDynamicWalls();
-		impl->setStaticWalls();
-		impl->setGrapples();
-		impl->setForeground();
+		impl->loadTextures();
+		impl->createBackground();
+		impl->createPlayers();
+		impl->createDynamicWalls();
+		impl->createStaticWalls();
+		impl->createGrapples();
+		impl->createForeground();
 		impl->setCamera();
 	}
 
