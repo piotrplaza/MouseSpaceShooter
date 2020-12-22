@@ -113,7 +113,7 @@ namespace Systems
 
 		turn(mouseDelta);
 		throttle(mouseState.rmb);
-		magneticHook(mouseState.lmb);
+		magneticHook(mouseState.mmb || mouseState.xmb1);
 
 		updatePlayersPositionsBuffers();
 		updateConnectionsGraphicsBuffers();
@@ -223,8 +223,7 @@ namespace Systems
 			{
 				const glm::vec2 normalizedStepVelocity = stepVelocity / stepVelocityLength;
 				const float playerAngle = player.body->GetAngle();
-				const float playerSideAngle = playerAngle + glm::half_pi<float>() *
-					(Globals::Components::mouseState.mmb ? -1.0f : 1.0f);
+				const float playerSideAngle = playerAngle + glm::half_pi<float>();
 				const glm::vec2 playerDirection = { std::cos(playerSideAngle), std::sin(playerSideAngle) };
 				const float velocityDot = glm::dot(playerDirection, normalizedStepVelocity);
 

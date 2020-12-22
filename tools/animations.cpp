@@ -31,7 +31,7 @@ namespace Tools
 	{
 		if (prevTime && !pauseTime)
 		{
-			animationTime += (Globals::Components::physics.simulationTime - *prevTime) * timeScale;
+			animationTime += (Globals::Components::physics.simulationTime - *prevTime) * getTimeScale();
 			prevTime = Globals::Components::physics.simulationTime;
 		}
 

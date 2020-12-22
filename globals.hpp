@@ -68,12 +68,12 @@ namespace Globals
 
 	namespace Constants
 	{
-		constexpr float playerForwardForce = 15.0f;
+		constexpr float playerForwardForce = 10.0f;
 		constexpr float playerLinearDamping = 0.1f;
 		constexpr float playerAngularDamping = 15.0f;
 
 		constexpr float mouseSensitivity = 0.01f;
-		constexpr float debugFrameTime = 1.0f / 60;
+		constexpr float debugFrameTime = 1.0f / 160;
 		constexpr int circleGraphicsComplexity = 60;
 		constexpr int maxTextureObjects = 100;
 	}

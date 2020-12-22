@@ -283,11 +283,7 @@ namespace Levels
 			{
 				assert(backThrustsBackgroundDecorationId < backgroundDecorations.size());
 				auto& player1ThrustAnimationController = backgroundDecorations[backThrustsBackgroundDecorationId].animationController;
-				if (Globals::Components::mouseState.xmb1) player1ThrustAnimationController->pause();
-				else player1ThrustAnimationController->resume();
-				if (Globals::Components::mouseState.xmb2) player1ThrustAnimationController->start();
-
-				player1ThrustAnimationController->setTimeScale(1.0f + Globals::Components::mouseState.wheel / 10.0f);
+				//player1ThrustAnimationController->setTimeScale(1.0f + Globals::Components::mouseState.wheel / 10.0f);
 			}
 		}
 

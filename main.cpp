@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <windows.h>
+#include <shellscalingapi.h>
 
 #include <GL/glew.h>
 #include <gl/gl.h>
@@ -289,6 +290,8 @@ int APIENTRY WinMain(
 {
 	const LPCTSTR lpszAppName = "OpenGL window";
 	const int winPosX = 10, winPosY = 10;
+
+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 
 	WNDCLASS wc;
 
