@@ -22,6 +22,7 @@
 #include "systems/physics.hpp"
 #include "systems/camera.hpp"
 #include "systems/decorations.hpp"
+#include "systems/variables.hpp"
 
 #include "levels/level.hpp"
 #include "levels/playground/playground.hpp"
@@ -82,6 +83,7 @@ void RenderScene()
 	Globals::Systems::AccessPersistents().render();
 	Globals::Systems::AccessDecorations().renderMidground();
 	Globals::Systems::AccessPlayers().render();
+	Globals::Systems::AccessVariables().render();
 	Globals::Systems::AccessDecorations().renderForeground();
 }
 
@@ -91,8 +93,9 @@ void PrepareFrame()
 
 	activeLevel->step();
 
-	Globals::Systems::AccessPlayers().step();
 	Globals::Systems::AccessPersistents().step();
+	Globals::Systems::AccessPlayers().step();
+	Globals::Systems::AccessVariables().step();
 	Globals::Systems::AccessCamera().step();
 
 	RenderScene();

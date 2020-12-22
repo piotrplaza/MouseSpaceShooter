@@ -1,4 +1,4 @@
-#include "Persistents.hpp"
+#include "persistents.hpp"
 
 #include <GL/glew.h>
 

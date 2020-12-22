@@ -133,6 +133,9 @@
     <ClCompile Include="systems\persistents.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
+    <ClCompile Include="systems\variables.cpp">
+      <Filter>src\systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.hpp">
@@ -268,6 +271,9 @@
       <Filter>src\tools</Filter>
     </ClInclude>
     <ClInclude Include="systems\persistents.hpp">
+      <Filter>src\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\variables.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
   </ItemGroup>

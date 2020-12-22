@@ -28,6 +28,7 @@ namespace Systems
 	class Persistents;
 	class Camera;
 	class Decorations;
+	class Variables;
 }
 
 namespace Globals
@@ -64,6 +65,7 @@ namespace Globals
 		::Systems::Persistents& AccessPersistents();
 		::Systems::Camera& AccessCamera();
 		::Systems::Decorations& AccessDecorations();
+		::Systems::Variables& AccessVariables();
 	}
 
 	namespace Constants
