@@ -8,6 +8,7 @@
 #include <stb_image/stb_image.h>
 
 #include <globals.hpp>
+#include <constants.hpp>
 
 #include <components/textureDef.hpp>
 #include <components/texture.hpp>
@@ -17,12 +18,11 @@ namespace Systems
 	Textures::Textures()
 	{
 		using namespace Globals::Components;
-		using namespace Globals::Constants;
 
 		stbi_set_flip_vertically_on_load(true);
 
-		static_assert(maxTextureObjects <= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-		assert(texturesDef.size() <= maxTextureObjects);
+		static_assert(Constants::maxTextureObjects <= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+		assert(texturesDef.size() <= Constants::maxTextureObjects);
 		
 		textures = std::vector<::Components::Texture>(texturesDef.size());
 		for (unsigned i = 0; i < texturesDef.size(); ++i)

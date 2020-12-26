@@ -15,6 +15,7 @@
 #include <tools/b2Helpers.hpp>
 
 #include <globals.hpp>
+#include <constants.hpp>
 
 #include <components/player.hpp>
 #include <components/physics.hpp>
@@ -211,7 +212,7 @@ namespace Systems
 			const glm::vec2 playerDirection = { std::cos(playerSideAngle), std::sin(playerSideAngle) };
 			const float controllerDot = glm::dot(playerDirection, controllerDelta);
 
-			player.body->SetTransform(player.body->GetPosition(), playerAngle + controllerDot * Globals::Constants::mouseSensitivity);
+			player.body->SetTransform(player.body->GetPosition(), playerAngle + controllerDot * Constants::mouseSensitivity);
 		}
 
 		if (player.grappleJoint)
@@ -241,7 +242,7 @@ namespace Systems
 
 		const float currentAngle = player.body->GetAngle();
 		player.body->ApplyForce(b2Vec2(glm::cos(currentAngle),
-			glm::sin(currentAngle)) * Globals::Constants::playerForwardForce, player.body->GetWorldCenter(), true);
+			glm::sin(currentAngle)) * Constants::playerForwardForce, player.body->GetWorldCenter(), true);
 	}
 
 	void Players::magneticHook(bool active) const

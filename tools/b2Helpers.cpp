@@ -3,8 +3,11 @@
 #include <glm/gtx/transform.hpp>
 
 #include "globals.hpp"
+#include "constants.hpp"
 
 #include "components/physics.hpp"
+
+#include <tools/graphicsHelpers.hpp>
 
 void b2BodyDeleter::operator()(b2Body * body) const
 {
@@ -21,7 +24,6 @@ namespace Tools
 	std::unique_ptr<b2Body, b2BodyDeleter> CreateTrianglePlayerBody(float size, float density, float spreadFactor)
 	{
 		using namespace Globals::Components;
-		using namespace Globals::Constants;
 
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;
@@ -44,8 +46,8 @@ namespace Tools
 		playerBody->CreateFixture(&fixtureDef);
 
 		playerBody->SetSleepingAllowed(false);
-		playerBody->SetLinearDamping(playerLinearDamping);
-		playerBody->SetAngularDamping(playerAngularDamping);
+		playerBody->SetLinearDamping(Constants::playerLinearDamping);
+		playerBody->SetAngularDamping(Constants::playerAngularDamping);
 
 		return playerBody;
 	}
@@ -113,5 +115,59 @@ namespace Tools
 		const auto& bodyTransform = body.GetTransform();
 		return glm::rotate(glm::translate(glm::mat4(1.0f), { bodyTransform.p.x, bodyTransform.p.y, 0.0f }),
 			bodyTransform.q.GetAngle(), { 0.0f, 0.0f, 1.0f });
+	}
+
+	std::vector<glm::vec3> GetPositions(const b2Body& body)
+	{
+		std::vector<glm::vec3> positions;
+
+		auto* fixture = body.GetFixtureList();
+		do
+		{
+			switch (fixture->GetType())
+			{
+			case b2Shape::e_polygon:
+			{
+				const auto& polygonShape = static_cast<const b2PolygonShape&>(*fixture->GetShape());
+				switch (polygonShape.m_count)
+				{
+				case 3:
+				{
+					positions.reserve(positions.size() + 3);
+					for (int i = 0; i < 3; ++i)
+					{
+						const auto& b2v = polygonShape.m_vertices[i];
+						positions.emplace_back(b2v.x, b2v.y, 0.0f);
+					}
+					break;
+				}
+				case 4:
+				{
+					positions.reserve(positions.size() + 6);
+					for (int i = 0; i < 6; ++i)
+					{
+						const auto& b2v = polygonShape.m_vertices[i < 3 ? i : (i - 1) % 4];
+						positions.emplace_back(b2v.x, b2v.y, 0.0f);
+					}
+					break;
+				}
+				default:
+					assert(!"unsupported vertices count");
+				}
+				break;
+			}
+			case b2Shape::e_circle:
+			{
+				const auto& circleShape = static_cast<const b2CircleShape&>(*fixture->GetShape());
+				Tools::AppendPositionsOfCircle(positions, ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, Constants::circleGraphicsComplexity);
+				break;
+			}
+			default:
+				assert(!"unsupported shape");
+			}
+		}
+		while (fixture = fixture->GetNext());
+
+		return positions;
 	}
 }

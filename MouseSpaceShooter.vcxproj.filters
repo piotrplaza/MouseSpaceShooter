@@ -276,6 +276,12 @@
     <ClInclude Include="systems\variables.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
+    <ClInclude Include="components\rocket.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="constants.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">

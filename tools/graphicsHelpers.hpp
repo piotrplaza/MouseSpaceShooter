@@ -17,6 +17,9 @@ namespace Tools
 	std::vector<glm::vec3> CreatePositionsOfFunctionalRectangles(const glm::vec2& hSize, std::function<glm::vec2(float)> positionF,
 		std::function<glm::vec2(float)> scaleF, std::function<float(float)> angleF, std::function<std::optional<float>()> inputEmitter);
 
+	void AppendPositionsOfCircle(std::vector<glm::vec3>& result, const glm::vec2& position, float radius, int complexity,
+		const glm::mat4& modelMatrix = glm::mat4(1.0f));
+
 	std::vector<glm::vec3> CreatePositionsOfCircle(const glm::vec2& position, float radius, int complexity,
 		const glm::mat4& modelMatrix = glm::mat4(1.0f));
 

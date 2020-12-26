@@ -89,11 +89,10 @@ namespace Tools
 		return positions;
 	}
 
-	std::vector<glm::vec3> CreatePositionsOfCircle(const glm::vec2& position, float radius, int complexity,
+	void AppendPositionsOfCircle(std::vector<glm::vec3>& result, const glm::vec2& position, float radius, int complexity,
 		const glm::mat4& modelMatrix)
 	{
-		std::vector<glm::vec3> positions;
-		positions.reserve(complexity * 3);
+		result.reserve(result.size() + complexity * 3);
 
 		const float radialStep = glm::two_pi<float>() / complexity;
 
@@ -102,13 +101,19 @@ namespace Tools
 			const float radialPosition = i * radialStep;
 			const float nextRadialPosition = (i + 1) * radialStep;
 
-			positions.push_back(modelMatrix * glm::vec4(position, 0.0f, 1.0f));
-			positions.push_back(modelMatrix * glm::vec4(position + glm::vec2(glm::cos(radialPosition),
+			result.push_back(modelMatrix * glm::vec4(position, 0.0f, 1.0f));
+			result.push_back(modelMatrix * glm::vec4(position + glm::vec2(glm::cos(radialPosition),
 				glm::sin(radialPosition)) * radius, 0.0f, 1.0f));
-			positions.push_back(modelMatrix * glm::vec4(position + glm::vec2(glm::cos(nextRadialPosition),
+			result.push_back(modelMatrix * glm::vec4(position + glm::vec2(glm::cos(nextRadialPosition),
 				glm::sin(nextRadialPosition)) * radius, 0.0f, 1.0f));
 		}
+	}
 
+	std::vector<glm::vec3> CreatePositionsOfCircle(const glm::vec2& position, float radius, int complexity,
+		const glm::mat4& modelMatrix)
+	{
+		std::vector<glm::vec3> positions;
+		AppendPositionsOfCircle(positions, position, radius, complexity, modelMatrix);
 		return positions;
 	}
 

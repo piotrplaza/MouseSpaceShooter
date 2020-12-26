@@ -11,6 +11,9 @@
 #include <ogl/shaders.hpp>
 
 #include <tools/graphicsHelpers.hpp>
+#include <tools/b2Helpers.hpp>
+
+#include <constants.hpp>
 
 namespace Components
 {
@@ -42,14 +45,7 @@ namespace Components
 
 		std::vector<glm::vec3> getPositions() const
 		{
-			using namespace Globals::Constants;
-
-			const auto& fixture = *body->GetFixtureList();
-			assert(!fixture.GetNext());
-			assert(fixture.GetType() == b2Shape::e_circle); //Temporary. TODO: Add other shapes.
-			const auto& circleShape = static_cast<const b2CircleShape&>(*fixture.GetShape());
-
-			return Tools::CreatePositionsOfCircle(ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity);
+			return Tools::GetPositions(*body);
 		}
 
 		std::vector<glm::vec3> getTransformedPositions() const

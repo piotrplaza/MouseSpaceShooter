@@ -1,6 +1,7 @@
 #include "physics.hpp"
 
 #include <globals.hpp>
+#include <constants.hpp>
 
 #include <components/physics.hpp>
 
@@ -11,7 +12,6 @@ namespace Systems
 	void Physics::step()
 	{
 		using namespace Globals::Components;
-		using namespace Globals::Constants;
 
 		if (firstStep)
 		{
@@ -26,7 +26,7 @@ namespace Systems
 		physics.frameTime = simulationTime - physics.simulationTime;
 		physics.simulationTime = simulationTime;
 #else
-		physics.frameTime = debugFrameTime;
+		physics.frameTime = Constants::debugFrameTime;
 		physics.simulationTime += physics.frameTime;
 #endif
 

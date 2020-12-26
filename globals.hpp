@@ -17,6 +17,7 @@ namespace Components
 	struct Camera;
 	struct Decoration;
 	struct GraphicsSettings;
+	struct Rocket;
 }
 
 namespace Systems
@@ -52,6 +53,7 @@ namespace Globals
 		extern std::vector<::Components::Decoration>& backgroundDecorations;
 		extern std::vector<::Components::Decoration>& midgroundDecorations;
 		extern std::vector<::Components::Decoration>& foregroundDecorations;
+		extern std::vector<::Components::Rocket>& rockets;
 	}
 
 	namespace Systems
@@ -66,17 +68,5 @@ namespace Globals
 		::Systems::Camera& AccessCamera();
 		::Systems::Decorations& AccessDecorations();
 		::Systems::Variables& AccessVariables();
-	}
-
-	namespace Constants
-	{
-		constexpr float playerForwardForce = 10.0f;
-		constexpr float playerLinearDamping = 0.1f;
-		constexpr float playerAngularDamping = 15.0f;
-
-		constexpr float mouseSensitivity = 0.01f;
-		constexpr float debugFrameTime = 1.0f / 160;
-		constexpr int circleGraphicsComplexity = 60;
-		constexpr int maxTextureObjects = 100;
 	}
 }
