@@ -29,6 +29,13 @@ namespace Components
 		{
 		}
 
+		std::vector<glm::vec3> positions;
+		std::optional<unsigned> texture;
+		std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup;
+		std::unique_ptr<Tools::TextureAnimationController> animationController;
+		std::optional<Shaders::ProgramId> customShadersProgram;
+		std::vector<glm::vec2> texCoord;
+
 		const std::vector<glm::vec3>& getPositions() const
 		{
 			return positions;
@@ -60,12 +67,5 @@ namespace Components
 		{
 			return texCoord.empty();
 		}
-
-		std::vector<glm::vec3> positions;
-		std::optional<unsigned> texture;
-		std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup;
-		std::unique_ptr<Tools::TextureAnimationController> animationController;
-		std::optional<Shaders::ProgramId> customShadersProgram;
-		std::vector<glm::vec2> texCoord;
 	};
 }

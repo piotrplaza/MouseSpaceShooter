@@ -96,6 +96,7 @@ namespace Systems
 	{
 		for (const auto& currentBuffers : buffers)
 		{
+			assert(currentBuffers.customShadersProgram);
 			glUseProgram_proxy(*currentBuffers.customShadersProgram);
 
 			std::function<void()> renderingTeardown;

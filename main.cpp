@@ -35,7 +35,7 @@
 
 const bool fullScreen = true;
 const bool console = true;
-const glm::ivec2 windowRes = { 800, 800 };
+const glm::ivec2 windowRes = { 1600, 1600 };
 
 std::unique_ptr<Levels::Level> activeLevel;
 

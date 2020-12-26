@@ -14,6 +14,7 @@
 #include "components/camera.hpp"
 #include "components/decoration.hpp"
 #include "components/graphicsSettings.hpp"
+#include "components/rocket.hpp"
 
 #include "systems/stateController.hpp"
 #include "systems/physics.hpp"
@@ -43,6 +44,7 @@ namespace Components
 	static std::vector<::Components::Decoration> backgroundDecorations;
 	static std::vector<::Components::Decoration> midgroundDecorations;
 	static std::vector<::Components::Decoration> foregroundDecorations;
+	static std::vector<::Components::Rocket> rockets;
 }
 
 namespace Globals
@@ -64,8 +66,9 @@ namespace Globals
 		std::vector<::Components::Grapple>& grapples = ::Components::grapples;
 		std::vector<::Components::Connection>& connections = ::Components::connections;
 		std::vector<::Components::Decoration>& backgroundDecorations = ::Components::backgroundDecorations;
-		std::vector<::Components::Decoration>& midgroundDecorations = ::Components::midgroundDecorations;;
-		std::vector<::Components::Decoration>& foregroundDecorations = ::Components::foregroundDecorations;;
+		std::vector<::Components::Decoration>& midgroundDecorations = ::Components::midgroundDecorations;
+		std::vector<::Components::Decoration>& foregroundDecorations = ::Components::foregroundDecorations;
+		std::vector<::Components::Rocket>& rockets = ::Components::rockets;
 	}
 
 	namespace Systems

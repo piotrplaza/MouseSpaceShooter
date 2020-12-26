@@ -2,9 +2,9 @@
 
 #ifndef GL_USE_PROGRAM_PROXY_OPTIMISATION_DISABLED
 
-static GLuint currentProgramId;
 void glUseProgram_proxy(GLuint id)
 {
+	static GLuint currentProgramId = 0;
 	if (id != currentProgramId)
 	{
 		glUseProgram(id);
