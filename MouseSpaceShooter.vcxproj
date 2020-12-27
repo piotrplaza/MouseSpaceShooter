@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
+    <ClCompile Include="componentBase.cpp" />
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="levels\level.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
@@ -47,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdParty\stb_image\stb_image.h" />
+    <ClInclude Include="componentBase.hpp" />
     <ClInclude Include="components\camera.hpp" />
     <ClInclude Include="components\connection.hpp" />
     <ClInclude Include="components\decoration.hpp" />

@@ -9,6 +9,8 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <componentBase.hpp>
+
 #include <ogl/shaders.hpp>
 
 #include <tools/b2Helpers.hpp>
@@ -16,7 +18,7 @@
 
 namespace Components
 {
-	struct Player
+	struct Player : ComponentBase
 	{
 		Player()
 		{

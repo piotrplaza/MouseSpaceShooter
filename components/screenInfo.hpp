@@ -2,9 +2,11 @@
 
 #include <glm/vec2.hpp>
 
+#include <componentBase.hpp>
+
 namespace Components
 {
-	struct ScreenInfo
+	struct ScreenInfo : ComponentBase
 	{
 		glm::ivec2 windowSize{ 0, 0 };
 		glm::ivec2 windowLocation{ 0, 0 };

@@ -4,11 +4,13 @@
 
 #include <glm/glm.hpp>
 
+#include <componentBase.hpp>
+
 #include <tools/graphicsHelpers.hpp>
 
 namespace Components
 {
-	struct Connection
+	struct Connection : ComponentBase
 	{
 		Connection(const glm::vec2& p1, const glm::vec2& p2, const glm::vec4& color, int segmentsNum = 1, float frayFactor = 0.5f)
 			: p1(p1), p2(p2), color(color), segmentsNum(segmentsNum), frayFactor(frayFactor)

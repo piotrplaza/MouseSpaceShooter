@@ -7,6 +7,8 @@
 
 #include <Box2D/Box2D.h>
 
+#include <componentBase.hpp>
+
 #include <ogl/shaders.hpp>
 
 #include <globals.hpp>
@@ -18,7 +20,7 @@
 
 namespace Components
 {
-	struct Wall
+	struct Wall : ComponentBase
 	{
 		Wall(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt,
 			std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup = nullptr,

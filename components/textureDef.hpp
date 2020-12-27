@@ -6,9 +6,11 @@
 
 #include <glm/vec2.hpp>
 
+#include <componentBase.hpp>
+
 namespace Components
 {
-	struct TextureDef
+	struct TextureDef : ComponentBase
 	{
 		TextureDef(std::string path, GLenum wrapMode = GL_CLAMP_TO_EDGE, GLenum minFilter = GL_LINEAR_MIPMAP_LINEAR,
 			GLenum magFilter = GL_LINEAR_MIPMAP_LINEAR):

@@ -4,9 +4,11 @@
 
 #include <glm/vec2.hpp>
 
+#include <componentBase.hpp>
+
 namespace Components
 {
-	struct Camera
+	struct Camera : ComponentBase
 	{
 		std::function<glm::vec2()> targetPositionF = []() { return glm::vec2(0.0f, 0.0f); };
 		std::function<float()> targetProjectionHSizeF = []() { return 10.0f; };

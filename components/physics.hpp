@@ -2,9 +2,11 @@
 
 #include <Box2D/Box2D.h>
 
+#include <componentBase.hpp>
+
 namespace Components
 {
-	struct Physics
+	struct Physics : ComponentBase
 	{
 		b2World world{ {0.0f, 0.0f} };
 

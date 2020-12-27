@@ -2,9 +2,11 @@
 
 #include <glm/mat4x4.hpp>
 
+#include <componentBase.hpp>
+
 namespace Components
 {
-	struct MVP
+	struct MVP : ComponentBase
 	{
 		glm::mat4 view{ 1.0f };
 		glm::mat4 projection{ 1.0f };

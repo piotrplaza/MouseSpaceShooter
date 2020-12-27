@@ -8,6 +8,8 @@
 
 #include <Box2D/Box2D.h>
 
+#include <componentBase.hpp>
+
 #include <ogl/shaders.hpp>
 
 #include <tools/graphicsHelpers.hpp>
@@ -17,7 +19,7 @@
 
 namespace Components
 {
-	struct Grapple
+	struct Grapple : ComponentBase
 	{
 		Grapple(std::unique_ptr<b2Body, b2BodyDeleter> body, float influenceRadius, std::optional<unsigned> texture = std::nullopt,
 			std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup = nullptr,

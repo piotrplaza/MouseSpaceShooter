@@ -9,13 +9,15 @@
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 
+#include <componentBase.hpp>
+
 #include <ogl/shaders.hpp>
 
 #include <tools/animations.hpp>
 
 namespace Components
 {
-	struct Decoration
+	struct Decoration : ComponentBase
 	{
 		Decoration(std::vector<glm::vec3> positions = {}, std::optional<unsigned> texture = std::nullopt,
 			std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup = nullptr,

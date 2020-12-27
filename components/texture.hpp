@@ -2,9 +2,11 @@
 
 #include <GL/glew.h>
 
+#include <componentBase.hpp>
+
 namespace Components
 {
-	struct Texture
+	struct Texture : ComponentBase
 	{
 		Texture()
 		{

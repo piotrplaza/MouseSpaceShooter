@@ -2,9 +2,11 @@
 
 #include <glm/vec2.hpp>
 
+#include <componentBase.hpp>
+
 namespace Components
 {
-	struct MouseState
+	struct MouseState : ComponentBase
 	{
 		bool lmb{ false };
 		bool rmb{ false };
