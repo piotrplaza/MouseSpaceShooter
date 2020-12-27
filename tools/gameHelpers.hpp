@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/vec2.hpp>
+
 namespace Tools
 {
 	struct PlayerPlaneHandler
@@ -9,4 +11,5 @@ namespace Tools
 	};
 
 	PlayerPlaneHandler CreatePlayerPlane(unsigned planeTexture, unsigned flameTexture);
+	void CreateRocket(glm::vec2 startPosition, float startAngle);
 }

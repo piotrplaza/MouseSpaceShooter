@@ -23,7 +23,7 @@
 #include "systems/persistents.hpp"
 #include "systems/camera.hpp"
 #include "systems/decorations.hpp"
-#include "systems/variables.hpp"
+#include "systems/temporaries.hpp"
 
 namespace Components
 {
@@ -80,7 +80,7 @@ namespace Globals
 		std::unique_ptr<::Systems::Persistents> persistents;
 		std::unique_ptr<::Systems::Camera> camera;
 		std::unique_ptr<::Systems::Decorations> decorations;
-		std::unique_ptr<::Systems::Variables> variables;
+		std::unique_ptr<::Systems::Temporaries> temporaries;
 
 		void Initialize()
 		{
@@ -91,7 +91,7 @@ namespace Globals
 			persistents = std::make_unique<::Systems::Persistents>();
 			camera = std::make_unique<::Systems::Camera>();
 			decorations = std::make_unique<::Systems::Decorations>();
-			variables = std::make_unique<::Systems::Variables>();
+			temporaries = std::make_unique<::Systems::Temporaries>();
 		}
 
 		::Systems::StateController& AccessStateController()
@@ -129,9 +129,9 @@ namespace Globals
 			return *decorations;
 		}
 
-		::Systems::Variables& AccessVariables()
+		::Systems::Temporaries& AccessTemporaries()
 		{
-			return *variables;
+			return *temporaries;
 		}
 	}
 }

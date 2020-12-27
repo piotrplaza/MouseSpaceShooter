@@ -1,4 +1,4 @@
-#include "variables.hpp"
+#include "temporaries.hpp"
 
 #include <glm/gtc/constants.hpp>
 
@@ -18,30 +18,30 @@
 
 namespace Systems
 {
-	Variables::Variables()
+	Temporaries::Temporaries()
 	{
 		initGraphics();
 	}
 
-	void Variables::initGraphics()
+	void Temporaries::initGraphics()
 	{
 		basicShadersProgram = std::make_unique<Shaders::Programs::Basic>();
 		texturedShadersProgram = std::make_unique<Shaders::Programs::Textured>();
 	}
 
-	void Variables::updatePositionsBuffers()
+	void Temporaries::updatePositionsBuffers()
 	{
 		Tools::UpdatePositionsBuffers(Globals::Components::rockets, simpleRocketsBuffers,
 			texturedRocketsBuffers, customShaderRocketsBuffers, GL_DYNAMIC_DRAW);
 	}
 
-	void Variables::updateTexCoordsBuffers()
+	void Temporaries::updateTexCoordsBuffers()
 	{
 		Tools::UpdateTexCoordBuffers(Globals::Components::rockets, texturedRocketsBuffers,
 			customShaderRocketsBuffers, GL_DYNAMIC_DRAW);
 	}
 
-	void Variables::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
+	void Temporaries::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
 	{
 		for (const auto& currentBuffers : buffers)
 		{
@@ -60,7 +60,7 @@ namespace Systems
 		}
 	}
 
-	void Variables::texturedRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
+	void Temporaries::texturedRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
 	{
 		glUseProgram_proxy(texturedShadersProgram->program);
 		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
@@ -73,7 +73,7 @@ namespace Systems
 		}
 	}
 
-	void Variables::basicRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
+	void Temporaries::basicRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
 	{
 		glUseProgram_proxy(basicShadersProgram->program);
 		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
@@ -95,7 +95,7 @@ namespace Systems
 		}
 	}
 
-	void Variables::step()
+	void Temporaries::step()
 	{
 		updatePositionsBuffers();
 		updateTexCoordsBuffers();
@@ -103,18 +103,22 @@ namespace Systems
 		static int counter = 0;
 		if (counter++ % 100 == 0)
 		{
-			Globals::Components::rockets.emplace_back(Tools::CreateBoxBody({ 0.0f, 0.0f }, { 0.5f, 0.5f }, Tools::Random(0.0f, glm::two_pi<float>()), b2_dynamicBody));
-			Globals::Components::rockets.back().renderingSetup = [modelUniform = Uniforms::UniformControllerMat4f(),
-				&body = *Globals::Components::rockets.back().body](Shaders::ProgramId program) mutable
+			const float randomAngle = Tools::Random(0.0f, glm::two_pi<float>());
+			Globals::Components::rockets.emplace_back(Tools::CreateBoxBody({ 0.0f, 0.0f }, { 0.5f, 0.5f }, randomAngle, b2_dynamicBody));
+			auto& body = *Globals::Components::rockets.back().body;
+			Globals::Components::rockets.back().renderingSetup = [modelUniform = Uniforms::UniformControllerMat4f(), &body](Shaders::ProgramId program) mutable
 			{
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
 				modelUniform.setValue(Tools::GetModelMatrix(body));
 				return nullptr;
 			};
+
+			const float impulse = 10;
+			body.ApplyLinearImpulseToCenter({ glm::cos(randomAngle) * impulse, glm::sin(randomAngle) * impulse }, true);
 		}
 	}
 
-	void Variables::render() const
+	void Temporaries::render() const
 	{
 		customShadersRender(customShaderRocketsBuffers);
 		texturedRender(texturedRocketsBuffers);

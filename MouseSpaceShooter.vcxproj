@@ -37,8 +37,8 @@
     <ClCompile Include="systems\physics.cpp" />
     <ClCompile Include="systems\players.cpp" />
     <ClCompile Include="systems\stateController.cpp" />
+    <ClCompile Include="systems\temporaries.cpp" />
     <ClCompile Include="systems\textures.cpp" />
-    <ClCompile Include="systems\variables.cpp" />
     <ClCompile Include="tools\animations.cpp" />
     <ClCompile Include="tools\b2Helpers.cpp" />
     <ClCompile Include="tools\gameHelpers.cpp" />
@@ -86,8 +86,8 @@
     <ClInclude Include="systems\physics.hpp" />
     <ClInclude Include="systems\players.hpp" />
     <ClInclude Include="systems\stateController.hpp" />
+    <ClInclude Include="systems\temporaries.hpp" />
     <ClInclude Include="systems\textures.hpp" />
-    <ClInclude Include="systems\variables.hpp" />
     <ClInclude Include="tools\animations.hpp" />
     <ClInclude Include="tools\b2Helpers.hpp" />
     <ClInclude Include="tools\gameHelpers.hpp" />

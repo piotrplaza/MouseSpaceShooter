@@ -5,10 +5,10 @@
 
 namespace Systems
 {
-	class Variables
+	class Temporaries
 	{
 	public:
-		Variables();
+		Temporaries();
 
 		void step();
 		void render() const;

@@ -5,6 +5,7 @@
 #include <components/player.hpp>
 #include <components/physics.hpp>
 #include <components/decoration.hpp>
+#include <components/rocket.hpp>
 
 #include <ogl/uniformControllers.hpp>
 
@@ -64,5 +65,10 @@ namespace Tools
 		}
 
 		return playerPlaneHandler;
+	}
+
+	void CreateRocket(glm::vec2 startPosition, float startAngle)
+	{
+
 	}
 }
