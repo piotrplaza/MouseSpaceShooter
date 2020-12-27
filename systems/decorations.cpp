@@ -76,7 +76,7 @@ namespace Systems
 
 			std::function<void()> renderingTeardown;
 			if (currentBuffers.renderingSetup)
-				renderingTeardown = currentBuffers.renderingSetup(*currentBuffers.customShadersProgram);
+				renderingTeardown = (*currentBuffers.renderingSetup)(*currentBuffers.customShadersProgram);
 
 			glBindVertexArray(currentBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());
@@ -111,7 +111,7 @@ namespace Systems
 
 			std::function<void()> renderingTeardown;
 			if (currentBuffers.renderingSetup)
-				renderingTeardown = currentBuffers.renderingSetup(basicShadersProgram->program);
+				renderingTeardown = (*currentBuffers.renderingSetup)(basicShadersProgram->program);
 
 			glBindVertexArray(currentBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());

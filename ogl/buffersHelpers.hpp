@@ -91,7 +91,7 @@ namespace Tools
 				}
 			}();
 
-			buffers.renderingSetup = component.renderingSetup;
+			buffers.renderingSetup = component.renderingSetup.get();
 			buffers.texture = component.texture;
 			buffers.customShadersProgram = component.customShadersProgram;
 
@@ -128,7 +128,7 @@ namespace Tools
 			}();
 
 			const auto& positions = component.getPositions();
-			buffers.renderingSetup = component.renderingSetup;
+			buffers.renderingSetup = component.renderingSetup.get();
 			buffers.texture = component.texture;
 			buffers.animationController = component.animationController.get();
 			buffers.customShadersProgram = component.customShadersProgram;

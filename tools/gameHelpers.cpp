@@ -23,22 +23,22 @@ namespace Tools
 
 		auto& player = players.emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), planeTexture);
 		player.setPosition({ -10.0f, 0.0f });
-		player.renderingSetup = [
+		player.renderingSetup = std::make_unique<Components::Player::RenderingSetup>([
 			colorUniform = Uniforms::UniformController4f()
 		](Shaders::ProgramId program) mutable {
 			if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-			const float fade = (glm::sin(Globals::Components::physics.simulationTime * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
+			const float fade = (glm::sin(physics.simulationTime * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
 			colorUniform.setValue({ fade, 1.0f, fade, 1.0f });
 
 			return nullptr;
-		};
+		});
 
 		for (int i = 0; i < 2; ++i)
 		{
 			playerPlaneHandler.backThrustsBackgroundDecorationIds[i] = backgroundDecorations.size();
 			auto& decoration = backgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture);
 
-			decoration.renderingSetup = [&, i, modelUniform = Uniforms::UniformControllerMat4f(),
+			decoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([&, i, modelUniform = Uniforms::UniformControllerMat4f(),
 				thrustScale = 1.0f
 			](Shaders::ProgramId program) mutable {
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
@@ -54,7 +54,7 @@ namespace Tools
 				glBlendFunc(GL_ONE, GL_ONE);
 
 				return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
-			};
+			});
 
 			decoration.animationController.reset(new Tools::TextureAnimationController(
 				{ 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,

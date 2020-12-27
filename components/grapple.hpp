@@ -21,8 +21,10 @@ namespace Components
 {
 	struct Grapple : ComponentBase
 	{
+		using RenderingSetup = std::function<std::function<void()>(Shaders::ProgramId)>;
+
 		Grapple(std::unique_ptr<b2Body, b2BodyDeleter> body, float influenceRadius, std::optional<unsigned> texture = std::nullopt,
-			std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup = nullptr,
+			std::unique_ptr<RenderingSetup> renderingSetup = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
 			influenceRadius(influenceRadius),
@@ -35,7 +37,7 @@ namespace Components
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
 		float influenceRadius;
 		std::optional<unsigned> texture;
-		std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup;
+		std::unique_ptr<RenderingSetup> renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 
 		glm::vec2 previousCenter{ 0.0f, 0.0f };

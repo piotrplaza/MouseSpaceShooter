@@ -101,7 +101,7 @@ namespace Systems
 
 			std::function<void()> renderingTeardown;
 			if (currentBuffers.renderingSetup)
-				renderingTeardown = currentBuffers.renderingSetup(*currentBuffers.customShadersProgram);
+				renderingTeardown = (*currentBuffers.renderingSetup)(*currentBuffers.customShadersProgram);
 
 			glBindVertexArray(currentBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());
@@ -197,7 +197,7 @@ namespace Systems
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				customSimpleStaticWallBuffers.renderingSetup(basicShadersProgram->program);
+				(*customSimpleStaticWallBuffers.renderingSetup)(basicShadersProgram->program);
 
 			glBindVertexArray(customSimpleStaticWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimpleStaticWallBuffers.positionsCache.size());
@@ -212,7 +212,7 @@ namespace Systems
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				customSimpleDynamicWallBuffers.renderingSetup(basicShadersProgram->program);
+				(*customSimpleDynamicWallBuffers.renderingSetup)(basicShadersProgram->program);
 
 			glBindVertexArray(customSimpleDynamicWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimpleDynamicWallBuffers.positionsCache.size());
@@ -227,7 +227,7 @@ namespace Systems
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				customSimpleGrappleBuffers.renderingSetup(basicShadersProgram->program);
+				(*customSimpleGrappleBuffers.renderingSetup)(basicShadersProgram->program);
 
 			glBindVertexArray(customSimpleGrappleBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimpleGrappleBuffers.positionsCache.size());

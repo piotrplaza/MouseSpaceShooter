@@ -20,12 +20,10 @@ namespace Components
 {
 	struct Player : ComponentBase
 	{
-		Player()
-		{
-		}
+		using RenderingSetup = std::function<std::function<void()>(Shaders::ProgramId)>;
 
 		Player(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt,
-			std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup = nullptr,
+			std::unique_ptr<RenderingSetup> renderingSetup = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
 			texture(texture),
@@ -36,7 +34,7 @@ namespace Components
 
 		std::unique_ptr<b2Body, b2BodyDeleter> body;
 		std::optional<unsigned> texture;
-		std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup;
+		std::unique_ptr<RenderingSetup> renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		bool connectIfApproaching = false;
 		float autoRotationFactor = 0.5f;

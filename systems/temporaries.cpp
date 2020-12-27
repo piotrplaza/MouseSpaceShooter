@@ -50,7 +50,7 @@ namespace Systems
 
 			std::function<void()> renderingTeardown;
 			if (currentBuffers.renderingSetup)
-				renderingTeardown = currentBuffers.renderingSetup(*currentBuffers.customShadersProgram);
+				renderingTeardown = (*currentBuffers.renderingSetup)(*currentBuffers.customShadersProgram);
 
 			glBindVertexArray(currentBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());
@@ -85,7 +85,7 @@ namespace Systems
 
 			std::function<void()> renderingTeardown;
 			if (currentBuffers.renderingSetup)
-				renderingTeardown = currentBuffers.renderingSetup(basicShadersProgram->program);
+				renderingTeardown = (*currentBuffers.renderingSetup)(basicShadersProgram->program);
 
 			glBindVertexArray(currentBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());
@@ -106,12 +106,13 @@ namespace Systems
 			const float randomAngle = Tools::Random(0.0f, glm::two_pi<float>());
 			Globals::Components::rockets.emplace_back(Tools::CreateBoxBody({ 0.0f, 0.0f }, { 0.5f, 0.5f }, randomAngle, b2_dynamicBody));
 			auto& body = *Globals::Components::rockets.back().body;
-			Globals::Components::rockets.back().renderingSetup = [modelUniform = Uniforms::UniformControllerMat4f(), &body](Shaders::ProgramId program) mutable
+			Globals::Components::rockets.back().renderingSetup = std::make_unique<Components::Rocket::RenderingSetup>(
+				[modelUniform = Uniforms::UniformControllerMat4f(), &body](Shaders::ProgramId program) mutable
 			{
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
 				modelUniform.setValue(Tools::GetModelMatrix(body));
 				return nullptr;
-			};
+			});
 
 			const float impulse = 10;
 			body.ApplyLinearImpulseToCenter({ glm::cos(randomAngle) * impulse, glm::sin(randomAngle) * impulse }, true);

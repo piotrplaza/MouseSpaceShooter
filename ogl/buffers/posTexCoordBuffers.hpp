@@ -28,7 +28,7 @@ namespace Buffers
 
 		std::optional<GLuint> texCoordBuffer;
 		std::optional<unsigned> texture;
-		std::function<std::function<void()>(Shaders::ProgramId)> renderingSetup;
+		const std::function<std::function<void()>(Shaders::ProgramId)>* renderingSetup = nullptr;
 		const Tools::TextureAnimationController* animationController = nullptr;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 

@@ -144,7 +144,7 @@ namespace Systems
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				customSimplePlayerBuffers.renderingSetup(basicShadersProgram->program);
+				(*customSimplePlayerBuffers.renderingSetup)(basicShadersProgram->program);
 
 			glBindVertexArray(customSimplePlayerBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimplePlayerBuffers.positionsCache.size());
@@ -183,7 +183,7 @@ namespace Systems
 
 			std::function<void()> renderingTeardown;
 			if (currentBuffers.renderingSetup)
-				renderingTeardown = currentBuffers.renderingSetup(*currentBuffers.customShadersProgram);
+				renderingTeardown = (*currentBuffers.renderingSetup)(*currentBuffers.customShadersProgram);
 
 			glBindVertexArray(currentBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());
