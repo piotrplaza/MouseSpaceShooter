@@ -67,8 +67,22 @@ namespace Tools
 		return playerPlaneHandler;
 	}
 
-	void CreateRocket(glm::vec2 startPosition, float startAngle)
+	void CreateRocket(glm::vec2 startPosition, float startAngle, glm::vec2 initialVelocity, unsigned rocketTexture)
 	{
+		Globals::Components::rockets.emplace_back(Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f));
+		auto& body = *Globals::Components::rockets.back().body;
+		body.SetLinearVelocity({ initialVelocity.x, initialVelocity.y });
+		Globals::Components::rockets.back().texture = rocketTexture;
+		Globals::Components::rockets.back().renderingSetup = std::make_unique<Components::Rocket::RenderingSetup>(
+			[modelUniform = Uniforms::UniformControllerMat4f(), &body](Shaders::ProgramId program) mutable
+		{
+			if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
+			modelUniform.setValue(Tools::GetModelMatrix(body));
 
+			const float force = 10;
+			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
+
+			return nullptr;
+		});
 	}
 }

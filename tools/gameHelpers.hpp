@@ -11,5 +11,5 @@ namespace Tools
 	};
 
 	PlayerPlaneHandler CreatePlayerPlane(unsigned planeTexture, unsigned flameTexture);
-	void CreateRocket(glm::vec2 startPosition, float startAngle);
+	void CreateRocket(glm::vec2 startPosition, float startAngle, glm::vec2 initialVelocity, unsigned rocketTexture);
 }

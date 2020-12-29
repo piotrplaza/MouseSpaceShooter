@@ -67,6 +67,11 @@ namespace Components
 			return ToVec2<glm::vec2>(body->GetWorldCenter());
 		}
 
+		float getAngle() const
+		{
+			return body->GetAngle();
+		}
+
 		glm::vec2 getVelocity() const
 		{
 			return ToVec2<glm::vec2>(body->GetLinearVelocity());

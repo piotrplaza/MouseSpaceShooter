@@ -285,6 +285,20 @@ namespace Levels
 				auto& player1ThrustAnimationController = *backgroundDecorations[backThrustsBackgroundDecorationId].animationController;
 				//player1ThrustAnimationController.setTimeScale(1.0f + Globals::Components::mouseState.wheel / 10.0f);
 			}
+
+			if (Globals::Components::mouseState.lmb)
+			{
+				if (rocketCounter++ % 20 == 0)
+				{
+					const float launchDistanceFromCenter = 1.5f;
+					const auto relativeLaunchPos = glm::vec2(glm::cos(Globals::Components::players[0].getAngle() + glm::half_pi<float>()),
+						glm::sin(Globals::Components::players[0].getAngle() + glm::half_pi<float>())) * (rocketFromLeft ? launchDistanceFromCenter : -launchDistanceFromCenter);
+					Tools::CreateRocket(Globals::Components::players[0].getCenter() + relativeLaunchPos,
+						Globals::Components::players[0].getAngle(), Globals::Components::players[0].getVelocity(), rocketPlaneTexture);
+					rocketFromLeft = !rocketFromLeft;
+				}
+			}
+			else rocketCounter = 0;
 		}
 
 	private:
@@ -301,6 +315,9 @@ namespace Levels
 		unsigned flameAnimation1Texture = 0;
 
 		Tools::PlayerPlaneHandler player1Handler;
+
+		int rocketCounter = 0;
+		bool rocketFromLeft = false;
 	};
 
 	Playground::Playground(): impl(std::make_unique<Impl>())

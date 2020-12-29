@@ -12,9 +12,11 @@
 #include <components/mvp.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/mouseState.hpp>
+#include <components/player.hpp>
 
 #include <tools/b2Helpers.hpp>
 #include <tools/utility.hpp>
+#include <tools/gameHelpers.hpp>
 
 namespace Systems
 {
@@ -99,24 +101,6 @@ namespace Systems
 	{
 		updatePositionsBuffers();
 		updateTexCoordsBuffers();
-
-		static int counter = 0;
-		if (counter++ % 100 == 0)
-		{
-			const float randomAngle = Tools::Random(0.0f, glm::two_pi<float>());
-			Globals::Components::rockets.emplace_back(Tools::CreateBoxBody({ 0.0f, 0.0f }, { 0.5f, 0.5f }, randomAngle, b2_dynamicBody));
-			auto& body = *Globals::Components::rockets.back().body;
-			Globals::Components::rockets.back().renderingSetup = std::make_unique<Components::Rocket::RenderingSetup>(
-				[modelUniform = Uniforms::UniformControllerMat4f(), &body](Shaders::ProgramId program) mutable
-			{
-				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-				modelUniform.setValue(Tools::GetModelMatrix(body));
-				return nullptr;
-			});
-
-			const float impulse = 10;
-			body.ApplyLinearImpulseToCenter({ glm::cos(randomAngle) * impulse, glm::sin(randomAngle) * impulse }, true);
-		}
 	}
 
 	void Temporaries::render() const
