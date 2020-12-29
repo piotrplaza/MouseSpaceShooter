@@ -100,6 +100,10 @@ namespace Tools
 				transformedPositions.begin(), transformedPositions.end());
 		}
 
+		customSimpleBuffers.resize(std::distance(customSimpleBuffers.begin(), customSimpleBuffersIt));
+		customTexturedBuffers.resize(std::distance(customTexturedBuffers.begin(), customTexturedBuffersIt));
+		customShadersBuffers.resize(std::distance(customShadersBuffers.begin(), customShadersBuffersIt));
+
 		Detail::AllocateOrUpdatePositionsData(simpleBuffers, bufferDataUsage);
 		for (auto& [texture, buffers] : texturesToBuffers) Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
 		for (auto& buffers : customSimpleBuffers) Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
@@ -136,6 +140,10 @@ namespace Tools
 			buffers.positionsCache.insert(buffers.positionsCache.end(), positions.begin(), positions.end());
 			Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
 		}
+
+		simpleBuffers.resize(std::distance(simpleBuffers.begin(), simpleBuffersIt));
+		texturedBuffers.resize(std::distance(texturedBuffers.begin(), texturedBuffersIt));
+		customShadersBuffers.resize(std::distance(customShadersBuffers.begin(), customShadersBuffersIt));
 	}
 
 	template <typename Component, typename Buffers>

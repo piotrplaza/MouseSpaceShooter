@@ -33,7 +33,7 @@
 
 #include "ogl/oglHelpers.hpp"
 
-const bool fullScreen = true;
+const bool fullScreen = false;
 const bool console = true;
 const glm::ivec2 windowRes = { 1600, 1600 };
 
@@ -93,9 +93,12 @@ void PrepareFrame()
 
 	activeLevel->step();
 
+	Globals::Systems::AccessDecorations().step();
 	Globals::Systems::AccessPersistents().step();
+	Globals::Systems::AccessDecorations().step();
 	Globals::Systems::AccessPlayers().step();
 	Globals::Systems::AccessTemporaries().step();
+	Globals::Systems::AccessDecorations().step();
 	Globals::Systems::AccessCamera().step();
 
 	RenderScene();

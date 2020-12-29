@@ -9,4 +9,5 @@ struct ComponentBase
 	ComponentBase();
 
 	const Id id;
+	bool changed = true;
 };

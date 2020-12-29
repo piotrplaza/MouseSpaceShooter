@@ -46,6 +46,12 @@ namespace Systems
 			customShadersForegroundDecorationsBuffers, GL_STATIC_DRAW);
 	}
 
+	void Decorations::step()
+	{
+		/*updatePositionsBuffers();
+		updateTexCoordsBuffers();*/
+	}
+
 	void Decorations::renderBackground() const
 	{
 		customShadersRender(customShadersBackgroundDecorationsBuffers);

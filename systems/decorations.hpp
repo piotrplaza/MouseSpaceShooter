@@ -20,6 +20,7 @@ namespace Systems
 	public:
 		Decorations();
 
+		void step();
 		void renderBackground() const;
 		void renderMidground() const;
 		void renderForeground() const;
