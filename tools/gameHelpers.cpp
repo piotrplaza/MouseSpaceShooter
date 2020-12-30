@@ -5,7 +5,7 @@
 #include <components/player.hpp>
 #include <components/physics.hpp>
 #include <components/decoration.hpp>
-#include <components/rocket.hpp>
+#include <components/missile.hpp>
 
 #include <ogl/uniformControllers.hpp>
 
@@ -67,22 +67,23 @@ namespace Tools
 		return playerPlaneHandler;
 	}
 
-	void CreateRocket(glm::vec2 startPosition, float startAngle, glm::vec2 initialVelocity, unsigned rocketTexture)
+	void CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 initialVelocity, unsigned missileTexture)
 	{
-		Globals::Components::rockets.emplace_back(Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f));
-		auto& body = *Globals::Components::rockets.back().body;
+		Globals::Components::missiles.emplace_back(Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f));
+		auto& body = *Globals::Components::missiles.back().body;
 		body.SetLinearVelocity({ initialVelocity.x, initialVelocity.y });
-		Globals::Components::rockets.back().texture = rocketTexture;
-		Globals::Components::rockets.back().renderingSetup = std::make_unique<Components::Rocket::RenderingSetup>(
+		Globals::Components::missiles.back().texture = missileTexture;
+		Globals::Components::missiles.back().renderingSetup = std::make_unique<Components::Missile::RenderingSetup>(
 			[modelUniform = Uniforms::UniformControllerMat4f(), &body](Shaders::ProgramId program) mutable
 		{
 			if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
 			modelUniform.setValue(Tools::GetModelMatrix(body));
 
-			const float force = 10;
-			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
-
 			return nullptr;
 		});
+		Globals::Components::missiles.back().step = [&body, force]()
+		{
+			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
+		};
 	}
 }

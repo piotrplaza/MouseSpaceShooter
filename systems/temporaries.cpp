@@ -8,7 +8,7 @@
 
 #include <globals.hpp>
 
-#include <components/rocket.hpp>
+#include <components/missile.hpp>
 #include <components/mvp.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/mouseState.hpp>
@@ -33,13 +33,13 @@ namespace Systems
 
 	void Temporaries::updatePositionsBuffers()
 	{
-		Tools::UpdatePositionsBuffers(Globals::Components::rockets, simpleRocketsBuffers,
+		Tools::UpdatePositionsBuffers(Globals::Components::missiles, simpleRocketsBuffers,
 			texturedRocketsBuffers, customShaderRocketsBuffers, GL_DYNAMIC_DRAW);
 	}
 
 	void Temporaries::updateTexCoordsBuffers()
 	{
-		Tools::UpdateTexCoordBuffers(Globals::Components::rockets, texturedRocketsBuffers,
+		Tools::UpdateTexCoordBuffers(Globals::Components::missiles, texturedRocketsBuffers,
 			customShaderRocketsBuffers, GL_DYNAMIC_DRAW);
 	}
 
@@ -99,6 +99,10 @@ namespace Systems
 
 	void Temporaries::step()
 	{
+		for (const auto& rocket : Globals::Components::missiles)
+			if (rocket.step)
+				rocket.step();
+
 		updatePositionsBuffers();
 		updateTexCoordsBuffers();
 	}

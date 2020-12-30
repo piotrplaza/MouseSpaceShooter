@@ -17,7 +17,7 @@ namespace Components
 	struct Camera;
 	struct Decoration;
 	struct GraphicsSettings;
-	struct Rocket;
+	struct Missile;
 }
 
 namespace Systems
@@ -53,7 +53,7 @@ namespace Globals
 		extern std::vector<::Components::Decoration>& backgroundDecorations;
 		extern std::vector<::Components::Decoration>& midgroundDecorations;
 		extern std::vector<::Components::Decoration>& foregroundDecorations;
-		extern std::vector<::Components::Rocket>& rockets;
+		extern std::vector<::Components::Missile>& missiles;
 	}
 
 	namespace Systems

@@ -76,6 +76,18 @@ namespace Levels
 			flameAnimation1Texture = texturesDef.size();
 			texturesDef.emplace_back("textures/flame animation 1.jpg");
 			texturesDef.back().minFilter = GL_LINEAR;
+
+			missile1Texture = texturesDef.size();
+			texturesDef.emplace_back("textures/missile1.png");
+			texturesDef.back().minFilter = GL_LINEAR;
+			texturesDef.back().translate = glm::vec2(-0.6f, -0.5f);
+			texturesDef.back().scale = glm::vec2(0.3f, 0.4f);
+
+			missile2Texture = texturesDef.size();
+			texturesDef.emplace_back("textures/missile2.png");
+			texturesDef.back().minFilter = GL_LINEAR;
+			texturesDef.back().translate = glm::vec2(-0.5f, -0.5f);
+			texturesDef.back().scale = glm::vec2(0.4f, 0.45f);
 		}
 
 		void createBackground()
@@ -100,6 +112,16 @@ namespace Levels
 		void createPlayers()
 		{
 			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flameAnimation1Texture);
+		}
+
+		void launchMissile()
+		{
+			const float launchDistanceFromCenter = 1.2f;
+			const auto relativeLaunchPos = glm::vec2(glm::cos(Globals::Components::players[0].getAngle() + glm::half_pi<float>()),
+				glm::sin(Globals::Components::players[0].getAngle() + glm::half_pi<float>())) * (missileFromLeft ? launchDistanceFromCenter : -launchDistanceFromCenter);
+			Tools::CreateMissile(Globals::Components::players[0].getCenter() + relativeLaunchPos,
+				Globals::Components::players[0].getAngle(), 5.0f, Globals::Components::players[0].getVelocity(), missile2Texture);
+			missileFromLeft = !missileFromLeft;
 		}
 
 		void createDynamicWalls()
@@ -288,17 +310,14 @@ namespace Levels
 
 			if (Globals::Components::mouseState.lmb)
 			{
-				if (rocketCounter++ % 20 == 0)
+				if (timeToLaunchMissile <= 0.0f)
 				{
-					const float launchDistanceFromCenter = 1.5f;
-					const auto relativeLaunchPos = glm::vec2(glm::cos(Globals::Components::players[0].getAngle() + glm::half_pi<float>()),
-						glm::sin(Globals::Components::players[0].getAngle() + glm::half_pi<float>())) * (rocketFromLeft ? launchDistanceFromCenter : -launchDistanceFromCenter);
-					Tools::CreateRocket(Globals::Components::players[0].getCenter() + relativeLaunchPos,
-						Globals::Components::players[0].getAngle(), Globals::Components::players[0].getVelocity(), rocketPlaneTexture);
-					rocketFromLeft = !rocketFromLeft;
+					launchMissile();
+					timeToLaunchMissile = 0.1f;
 				}
+				else timeToLaunchMissile -= Globals::Components::physics.frameTime;
 			}
-			else rocketCounter = 0;
+			else timeToLaunchMissile = 0.0f;
 		}
 
 	private:
@@ -313,11 +332,13 @@ namespace Levels
 		unsigned roseTexture = 0;
 		unsigned fogTexture = 0;
 		unsigned flameAnimation1Texture = 0;
+		unsigned missile1Texture = 0;
+		unsigned missile2Texture = 0;
 
 		Tools::PlayerPlaneHandler player1Handler;
 
-		int rocketCounter = 0;
-		bool rocketFromLeft = false;
+		float timeToLaunchMissile = 0.0f;
+		bool missileFromLeft = false;
 	};
 
 	Playground::Playground(): impl(std::make_unique<Impl>())

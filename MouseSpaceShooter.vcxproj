@@ -54,11 +54,11 @@
     <ClInclude Include="components\decoration.hpp" />
     <ClInclude Include="components\graphicsSettings.hpp" />
     <ClInclude Include="components\grapple.hpp" />
+    <ClInclude Include="components\missile.hpp" />
     <ClInclude Include="components\mouseState.hpp" />
     <ClInclude Include="components\mvp.hpp" />
     <ClInclude Include="components\physics.hpp" />
     <ClInclude Include="components\player.hpp" />
-    <ClInclude Include="components\rocket.hpp" />
     <ClInclude Include="components\screenInfo.hpp" />
     <ClInclude Include="components\texture.hpp" />
     <ClInclude Include="components\textureDef.hpp" />

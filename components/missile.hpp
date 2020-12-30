@@ -19,11 +19,11 @@
 
 namespace Components
 {
-	struct Rocket : ComponentBase
+	struct Missile : ComponentBase
 	{
 		using RenderingSetup = std::function<std::function<void()>(Shaders::ProgramId)>;
 
-		Rocket(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt,
+		Missile(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt,
 			std::unique_ptr<RenderingSetup> renderingSetup = nullptr,
 			std::unique_ptr<Tools::TextureAnimationController> animationController = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
@@ -40,6 +40,7 @@ namespace Components
 		std::unique_ptr<RenderingSetup> renderingSetup;
 		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;
+		std::function<void()> step;
 
 		glm::vec2 getCenter() const
 		{
