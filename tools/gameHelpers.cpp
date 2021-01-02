@@ -69,11 +69,12 @@ namespace Tools
 
 	void CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 initialVelocity, unsigned missileTexture)
 	{
-		Globals::Components::missiles.emplace_back(Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f));
-		auto& body = *Globals::Components::missiles.back().body;
+		auto &missile = Globals::Components::missiles.emplace(ComponentIdGenerator::instance().current(),
+			Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f)).first->second;
+		auto& body = *missile.body;
 		body.SetLinearVelocity({ initialVelocity.x, initialVelocity.y });
-		Globals::Components::missiles.back().texture = missileTexture;
-		Globals::Components::missiles.back().renderingSetup = std::make_unique<Components::Missile::RenderingSetup>(
+		missile.texture = missileTexture;
+		missile.renderingSetup = std::make_unique<Components::Missile::RenderingSetup>(
 			[modelUniform = Uniforms::UniformControllerMat4f(), &body](Shaders::ProgramId program) mutable
 		{
 			if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
@@ -81,7 +82,7 @@ namespace Tools
 
 			return nullptr;
 		});
-		Globals::Components::missiles.back().step = [&body, force]()
+		missile.step = [&body, force]()
 		{
 			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
 		};

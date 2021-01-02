@@ -31,21 +31,15 @@ namespace Systems
 		texturedShadersProgram = std::make_unique<Shaders::Programs::Textured>();
 	}
 
-	void Temporaries::updatePositionsBuffers()
+	void Temporaries::updatePosAndTexCoordBuffers()
 	{
-		Tools::UpdatePositionsBuffers(Globals::Components::missiles, simpleRocketsBuffers,
+		Tools::UpdatePosTexCoordBuffers(Globals::Components::missiles, simpleRocketsBuffers,
 			texturedRocketsBuffers, customShaderRocketsBuffers, GL_DYNAMIC_DRAW);
 	}
 
-	void Temporaries::updateTexCoordsBuffers()
+	void Temporaries::customShadersRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffers) const
 	{
-		Tools::UpdateTexCoordBuffers(Globals::Components::missiles, texturedRocketsBuffers,
-			customShaderRocketsBuffers, GL_DYNAMIC_DRAW);
-	}
-
-	void Temporaries::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
-	{
-		for (const auto& currentBuffers : buffers)
+		for (const auto& [id, currentBuffers] : buffers)
 		{
 			assert(currentBuffers.customShadersProgram);
 			glUseProgram_proxy(*currentBuffers.customShadersProgram);
@@ -62,12 +56,12 @@ namespace Systems
 		}
 	}
 
-	void Temporaries::texturedRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
+	void Temporaries::texturedRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffers) const
 	{
 		glUseProgram_proxy(texturedShadersProgram->program);
 		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
-		for (const auto& currentBuffers : buffers)
+		for (const auto& [id, currentBuffers] : buffers)
 		{
 			texturedShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
 			texturedShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
@@ -75,12 +69,12 @@ namespace Systems
 		}
 	}
 
-	void Temporaries::basicRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
+	void Temporaries::basicRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffers) const
 	{
 		glUseProgram_proxy(basicShadersProgram->program);
 		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
-		for (const auto& currentBuffers : buffers)
+		for (const auto& [id, currentBuffers] : buffers)
 		{
 			basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
@@ -99,12 +93,11 @@ namespace Systems
 
 	void Temporaries::step()
 	{
-		for (const auto& rocket : Globals::Components::missiles)
-			if (rocket.step)
-				rocket.step();
+		for (const auto& [id, missile] : Globals::Components::missiles)
+			if (missile.step)
+				missile.step();
 
-		updatePositionsBuffers();
-		updateTexCoordsBuffers();
+		updatePosAndTexCoordBuffers();
 	}
 
 	void Temporaries::render() const

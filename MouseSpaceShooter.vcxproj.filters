@@ -139,6 +139,9 @@
     <ClCompile Include="componentBase.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="componentId.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.hpp">
@@ -287,6 +290,9 @@
     </ClInclude>
     <ClInclude Include="components\missile.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="componentId.hpp">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

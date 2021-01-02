@@ -1,5 +1,6 @@
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 #include "components/mouseState.hpp"
 #include "components/screenInfo.hpp"
@@ -44,7 +45,7 @@ namespace Components
 	static std::vector<::Components::Decoration> backgroundDecorations;
 	static std::vector<::Components::Decoration> midgroundDecorations;
 	static std::vector<::Components::Decoration> foregroundDecorations;
-	static std::vector<::Components::Missile> missiles;
+	static std::unordered_map<::ComponentId, ::Components::Missile> missiles;
 }
 
 namespace Globals
@@ -68,7 +69,7 @@ namespace Globals
 		std::vector<::Components::Decoration>& backgroundDecorations = ::Components::backgroundDecorations;
 		std::vector<::Components::Decoration>& midgroundDecorations = ::Components::midgroundDecorations;
 		std::vector<::Components::Decoration>& foregroundDecorations = ::Components::foregroundDecorations;
-		std::vector<::Components::Missile>& missiles = ::Components::missiles;
+		std::unordered_map<::ComponentId, ::Components::Missile>& missiles = ::Components::missiles;
 	}
 
 	namespace Systems

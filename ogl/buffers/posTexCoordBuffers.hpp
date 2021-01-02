@@ -37,6 +37,8 @@ namespace Buffers
 		size_t numOfAllocatedPositions = 0;
 		size_t numOfAllocatedTexCoord = 0;
 
+		GLenum bufferDataUsage = GL_STATIC_DRAW;
+
 		bool textureRatioPreserved = false;
 
 		bool expired = false;

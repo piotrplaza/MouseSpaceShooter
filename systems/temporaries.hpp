@@ -1,7 +1,11 @@
+#include <unordered_map>
+
 #include <ogl/shaders.hpp>
 #include <ogl/shaders/basic.hpp>
 #include <ogl/shaders/textured.hpp>
 #include <ogl/buffers/posTexCoordBuffers.hpp>
+
+#include <componentId.hpp>
 
 namespace Systems
 {
@@ -16,18 +20,17 @@ namespace Systems
 	private:
 		void initGraphics();
 
-		void updatePositionsBuffers();
-		void updateTexCoordsBuffers();
+		void updatePosAndTexCoordBuffers();
 
-		void customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const;
-		void texturedRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const;
-		void basicRender(const std::vector<Buffers::PosTexCoordBuffers>& buffer) const;
+		void customShadersRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffers) const;
+		void texturedRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffers) const;
+		void basicRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffer) const;
 
 		std::unique_ptr<Shaders::Programs::Basic> basicShadersProgram;
 		std::unique_ptr<Shaders::Programs::Textured> texturedShadersProgram;
 
-		std::vector<Buffers::PosTexCoordBuffers> simpleRocketsBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> texturedRocketsBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> customShaderRocketsBuffers;
+		std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers> simpleRocketsBuffers;
+		std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers> texturedRocketsBuffers;
+		std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers> customShaderRocketsBuffers;
 	};
 }

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
+
+#include "componentId.hpp"
 
 namespace Components
 {
@@ -53,7 +56,7 @@ namespace Globals
 		extern std::vector<::Components::Decoration>& backgroundDecorations;
 		extern std::vector<::Components::Decoration>& midgroundDecorations;
 		extern std::vector<::Components::Decoration>& foregroundDecorations;
-		extern std::vector<::Components::Missile>& missiles;
+		extern std::unordered_map<::ComponentId, ::Components::Missile>& missiles;
 	}
 
 	namespace Systems

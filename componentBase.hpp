@@ -1,13 +1,18 @@
 #pragma once
 
+#include "componentId.hpp"
+
+enum class ComponentState {Current, Changed, Deleted};
+
 struct ComponentBase
 {
-	using Id = unsigned long;
-
-	static void ReleaseId(Id id);
+	static void ReleaseId(ComponentId id)
+	{
+		ComponentIdGenerator::instance().release(id);
+	}
 
 	ComponentBase();
 
-	const Id id;
-	bool changed = true;
+	const ComponentId id;
+	ComponentState state = ComponentState::Changed;
 };

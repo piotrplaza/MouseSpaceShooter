@@ -3,6 +3,9 @@
 
 #include <GL/glew.h>
 
+#include <componentId.hpp>
+#include <componentBase.hpp>
+
 namespace Tools
 {
 	namespace Detail
@@ -11,7 +14,7 @@ namespace Tools
 		void AllocateOrUpdatePositionsData(Buffers& buffers, GLenum bufferDataUsage)
 		{
 			glBindBuffer(GL_ARRAY_BUFFER, buffers.positionBuffer);
-			if (buffers.numOfAllocatedPositions < buffers.positionsCache.size())
+			if (buffers.numOfAllocatedPositions < buffers.positionsCache.size() || buffers.bufferDataUsage != bufferDataUsage)
 			{
 				glBufferData(GL_ARRAY_BUFFER, buffers.positionsCache.size()
 					* sizeof(buffers.positionsCache.front()),
@@ -24,13 +27,14 @@ namespace Tools
 					* sizeof(buffers.positionsCache.front()),
 					buffers.positionsCache.data());
 			}
+			buffers.bufferDataUsage = bufferDataUsage;
 		}
 
 		template <typename Buffers>
 		void AllocateOrUpdateTexCoordData(Buffers& buffers, GLenum bufferDataUsage)
 		{
 			glBindBuffer(GL_ARRAY_BUFFER, *buffers.texCoordBuffer);
-			if (buffers.numOfAllocatedTexCoord < buffers.texCoordCache.size())
+			if (buffers.numOfAllocatedTexCoord < buffers.texCoordCache.size() || buffers.bufferDataUsage != bufferDataUsage)
 			{
 				glBufferData(GL_ARRAY_BUFFER, buffers.texCoordCache.size()
 					* sizeof(buffers.texCoordCache.front()),
@@ -43,6 +47,7 @@ namespace Tools
 					* sizeof(buffers.texCoordCache.front()),
 					buffers.texCoordCache.data());
 			}
+			buffers.bufferDataUsage = bufferDataUsage;
 		}
 
 		template <typename Buffers>
@@ -191,7 +196,7 @@ namespace Tools
 		auto texturedBuffersIt = texturedBuffers.begin();
 		auto customShadersTexturedBuffersIt = customShadersTexturedBuffers.begin();
 
-		for (auto& component : components)
+		for (const auto& component : components)
 		{
 			if (component.texture)
 			{
@@ -208,6 +213,64 @@ namespace Tools
 				buffers.textureRatioPreserved = component.isTextureRatioPreserved();
 				Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
 			}
+		}
+	}
+
+	template <typename Component, typename Buffers>
+	inline void UpdatePosTexCoordBuffers(std::unordered_map<ComponentId, Component>& components, std::unordered_map<ComponentId, Buffers>& simpleBuffers,
+		std::unordered_map<ComponentId, Buffers>& texturedBuffers, std::unordered_map<ComponentId, Buffers>& customShadersBuffers, GLenum bufferDataUsage)
+	{
+		auto componentIt = components.begin();
+		while(componentIt != components.end())
+		{
+			auto& [id, component] = *componentIt;
+
+			if (component.state == ComponentState::Current) continue;
+			else if (component.state == ComponentState::Deleted)
+			{
+				auto& mapOfBuffers = [&]() -> auto&
+				{
+					if (component.customShadersProgram)
+						return customShadersBuffers;
+					else if (component.texture)
+						return texturedBuffers;
+					else
+						return simpleBuffers;
+				}();
+
+				mapOfBuffers.erase(id);
+				componentIt = components.erase(componentIt);
+				continue;
+			}
+
+			auto& buffers = [&]() -> auto&
+			{
+				if (component.customShadersProgram)
+					return customShadersBuffers[id];
+				else if (component.texture)
+					return texturedBuffers[id];
+				else
+					return simpleBuffers[id];
+			}();
+
+			const auto& positions = component.getPositions();
+			buffers.renderingSetup = component.renderingSetup.get();
+			buffers.texture = component.texture;
+			buffers.animationController = component.animationController.get();
+			buffers.customShadersProgram = component.customShadersProgram;
+			buffers.positionsCache.clear();
+			buffers.positionsCache.insert(buffers.positionsCache.end(), positions.begin(), positions.end());
+			Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
+
+			if (component.texture)
+			{
+				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
+				buffers.texCoordCache = component.getTexCoord();
+				buffers.textureRatioPreserved = component.isTextureRatioPreserved();
+				Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
+			}
+
+			++componentIt;
 		}
 	}
 }
