@@ -21,7 +21,7 @@
 #include "systems/physics.hpp"
 #include "systems/textures.hpp"
 #include "systems/players.hpp"
-#include "systems/persistents.hpp"
+#include "systems/walls.hpp"
 #include "systems/camera.hpp"
 #include "systems/decorations.hpp"
 #include "systems/temporaries.hpp"
@@ -78,7 +78,7 @@ namespace Globals
 		std::unique_ptr<::Systems::Physics> physics;
 		std::unique_ptr<::Systems::Textures> textures;
 		std::unique_ptr<::Systems::Players> players;
-		std::unique_ptr<::Systems::Persistents> persistents;
+		std::unique_ptr<::Systems::Walls> walls;
 		std::unique_ptr<::Systems::Camera> camera;
 		std::unique_ptr<::Systems::Decorations> decorations;
 		std::unique_ptr<::Systems::Temporaries> temporaries;
@@ -89,7 +89,7 @@ namespace Globals
 			physics = std::make_unique<::Systems::Physics>();
 			textures = std::make_unique<::Systems::Textures>();
 			players = std::make_unique<::Systems::Players>();
-			persistents = std::make_unique<::Systems::Persistents>();
+			walls = std::make_unique<::Systems::Walls>();
 			camera = std::make_unique<::Systems::Camera>();
 			decorations = std::make_unique<::Systems::Decorations>();
 			temporaries = std::make_unique<::Systems::Temporaries>();
@@ -115,9 +115,9 @@ namespace Globals
 			return *players;
 		}
 
-		::Systems::Persistents& AccessPersistents()
+		::Systems::Walls& AccessWalls()
 		{
-			return *persistents;
+			return *walls;
 		}
 
 		::Systems::Camera& AccessCamera()

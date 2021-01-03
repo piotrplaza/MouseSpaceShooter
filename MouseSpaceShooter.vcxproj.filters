@@ -130,9 +130,6 @@
     <ClCompile Include="tools\gameHelpers.cpp">
       <Filter>src\tools</Filter>
     </ClCompile>
-    <ClCompile Include="systems\persistents.cpp">
-      <Filter>src\systems</Filter>
-    </ClCompile>
     <ClCompile Include="systems\temporaries.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
@@ -141,6 +138,9 @@
     </ClCompile>
     <ClCompile Include="componentId.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="systems\walls.cpp">
+      <Filter>src\systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -276,9 +276,6 @@
     <ClInclude Include="tools\gameHelpers.hpp">
       <Filter>src\tools</Filter>
     </ClInclude>
-    <ClInclude Include="systems\persistents.hpp">
-      <Filter>src\systems</Filter>
-    </ClInclude>
     <ClInclude Include="constants.hpp">
       <Filter>src</Filter>
     </ClInclude>
@@ -293,6 +290,9 @@
     </ClInclude>
     <ClInclude Include="componentId.hpp">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\walls.hpp">
+      <Filter>src\systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

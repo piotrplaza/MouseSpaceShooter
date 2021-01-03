@@ -289,11 +289,11 @@ namespace Levels
 
 			camera.targetProjectionHSizeF = [&]() {
 				camera.projectionTransitionFactor = physics.frameTime * 6;
-				return 15.0f + glm::length(player.getVelocity()) * 0.2f;
+				return 20.0f + glm::length(player.getVelocity()) * 0.2f;
 			};
 			camera.targetPositionF = [&]() {
 				camera.positionTransitionFactor = physics.frameTime * 6;
-				return player.getCenter() + player.getVelocity() * 0.3f;
+				return player.getCenter() + glm::vec2(glm::cos(player.getAngle()), glm::sin(player.getAngle())) * 5.0f + player.getVelocity() * 0.4f;
 			};
 		}
 

@@ -29,7 +29,7 @@ namespace Systems
 	class Physics;
 	class Textures;
 	class Players;
-	class Persistents;
+	class Walls;
 	class Camera;
 	class Decorations;
 	class Temporaries;
@@ -67,7 +67,7 @@ namespace Globals
 		::Systems::Physics& AccessPhysics();
 		::Systems::Textures& AccessTextures();
 		::Systems::Players& AccessPlayers();
-		::Systems::Persistents& AccessPersistents();
+		::Systems::Walls& AccessWalls();
 		::Systems::Camera& AccessCamera();
 		::Systems::Decorations& AccessDecorations();
 		::Systems::Temporaries& AccessTemporaries();

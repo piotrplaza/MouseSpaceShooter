@@ -72,6 +72,7 @@ namespace Tools
 		auto &missile = Globals::Components::missiles.emplace(ComponentIdGenerator::instance().current(),
 			Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f)).first->second;
 		auto& body = *missile.body;
+		//body.SetBullet(true);
 		body.SetLinearVelocity({ initialVelocity.x, initialVelocity.y });
 		missile.texture = missileTexture;
 		missile.renderingSetup = std::make_unique<Components::Missile::RenderingSetup>(
