@@ -43,8 +43,11 @@ namespace Components
 	static std::vector<::Components::Grapple> grapples;
 	static std::vector<::Components::Connection> connections;
 	static std::vector<::Components::Decoration> backgroundDecorations;
+	static std::unordered_map<::ComponentId, ::Components::Decoration> temporaryBackgroundDecorations;
 	static std::vector<::Components::Decoration> midgroundDecorations;
+	static std::unordered_map<::ComponentId, ::Components::Decoration> temporaryMidgroundDecorations;
 	static std::vector<::Components::Decoration> foregroundDecorations;
+	static std::unordered_map<::ComponentId, ::Components::Decoration> temporaryForegroundDecorations;
 	static std::unordered_map<::ComponentId, ::Components::Missile> missiles;
 }
 
@@ -67,8 +70,11 @@ namespace Globals
 		std::vector<::Components::Grapple>& grapples = ::Components::grapples;
 		std::vector<::Components::Connection>& connections = ::Components::connections;
 		std::vector<::Components::Decoration>& backgroundDecorations = ::Components::backgroundDecorations;
+		std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryBackgroundDecorations = ::Components::temporaryBackgroundDecorations;
 		std::vector<::Components::Decoration>& midgroundDecorations = ::Components::midgroundDecorations;
+		std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryMidgroundDecorations = ::Components::temporaryMidgroundDecorations;
 		std::vector<::Components::Decoration>& foregroundDecorations = ::Components::foregroundDecorations;
+		std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryForegroundDecorations = ::Components::temporaryForegroundDecorations;
 		std::unordered_map<::ComponentId, ::Components::Missile>& missiles = ::Components::missiles;
 	}
 

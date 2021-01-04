@@ -36,7 +36,7 @@ namespace Systems
 		simpleGrapplesBuffers = std::make_unique<Buffers::PosTexCoordBuffers>();
 
 		updateStaticWallsPositionsBuffers();
-		updateTexCoordsBuffers();
+		updatePersistentTexCoordsBuffers();
 	}
 
 	void Walls::updateStaticWallsPositionsBuffers()
@@ -60,7 +60,7 @@ namespace Systems
 			customTexturedGrapplesBuffers, customShadersGrapplesBuffers, GL_DYNAMIC_DRAW);
 	}
 
-	void Walls::updateTexCoordsBuffers()
+	void Walls::updatePersistentTexCoordsBuffers()
 	{
 		updateDynamicWallsTexCoordsBuffers();
 		updateGrapplesTexCoordsBuffers();

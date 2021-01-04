@@ -39,6 +39,7 @@ namespace Components
 		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::vector<glm::vec2> texCoord;
+		std::function<void()> step;
 
 		const std::vector<glm::vec3>& getPositions() const
 		{

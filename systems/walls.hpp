@@ -38,7 +38,7 @@ namespace Systems
 		void updateDynamicWallsPositionsBuffers();
 		void updateGrapplesPositionsBuffers();
 
-		void updateTexCoordsBuffers();
+		void updatePersistentTexCoordsBuffers();
 		void updateDynamicWallsTexCoordsBuffers();
 		void updateGrapplesTexCoordsBuffers();
 

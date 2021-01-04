@@ -54,8 +54,11 @@ namespace Globals
 		extern std::vector<::Components::Grapple>& grapples;
 		extern std::vector<::Components::Connection>& connections;
 		extern std::vector<::Components::Decoration>& backgroundDecorations;
+		extern std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryBackgroundDecorations;
 		extern std::vector<::Components::Decoration>& midgroundDecorations;
+		extern std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryMidgroundDecorations;
 		extern std::vector<::Components::Decoration>& foregroundDecorations;
+		extern std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryForegroundDecorations;
 		extern std::unordered_map<::ComponentId, ::Components::Missile>& missiles;
 	}
 
