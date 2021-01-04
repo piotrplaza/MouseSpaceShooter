@@ -120,7 +120,7 @@ namespace Levels
 			const auto relativeLaunchPos = glm::vec2(glm::cos(Globals::Components::players[0].getAngle() + glm::half_pi<float>()),
 				glm::sin(Globals::Components::players[0].getAngle() + glm::half_pi<float>())) * (missileFromLeft ? launchDistanceFromCenter : -launchDistanceFromCenter);
 			Tools::CreateMissile(Globals::Components::players[0].getCenter() + relativeLaunchPos,
-				Globals::Components::players[0].getAngle(), 5.0f, Globals::Components::players[0].getVelocity(), missile2Texture);
+				Globals::Components::players[0].getAngle(), 5.0f, Globals::Components::players[0].getVelocity(), missile2Texture, flameAnimation1Texture);
 			missileFromLeft = !missileFromLeft;
 		}
 

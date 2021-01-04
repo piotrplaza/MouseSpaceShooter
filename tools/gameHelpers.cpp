@@ -67,9 +67,11 @@ namespace Tools
 		return playerPlaneHandler;
 	}
 
-	void CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 initialVelocity, unsigned missileTexture)
+	void CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimationTexture)
 	{
-		auto &missile = Globals::Components::missiles.emplace(ComponentIdGenerator::instance().current(),
+		using namespace Globals::Components;
+
+		auto &missile = missiles.emplace(ComponentIdGenerator::instance().current(),
 			Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f)).first->second;
 		auto& body = *missile.body;
 		//body.SetBullet(true);
@@ -87,5 +89,31 @@ namespace Tools
 		{
 			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
 		};
+
+		auto& decoration = temporaryBackgroundDecorations.emplace(ComponentIdGenerator::instance().current(),
+			::Components::Decoration(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture)).first->second;
+		decoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([&, modelUniform = Uniforms::UniformControllerMat4f(),
+			thrustScale = 0.1f
+		](Shaders::ProgramId program) mutable {
+			if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
+			modelUniform.setValue(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*missile.body),
+				{ -0.65f, 0.0f, 0.0f }),
+				-glm::half_pi<float>() + 0.0f, { 0.0f, 0.0f, 1.0f }),
+				{ std::min(thrustScale * 0.2f, 0.4f), thrustScale, 1.0f }));
+
+			const float targetFrameTimeFactor = physics.frameTime * 10;
+			thrustScale = std::min(thrustScale * (1.0f + targetFrameTimeFactor), 3.0f);
+
+			glBlendFunc(GL_ONE, GL_ONE);
+
+			return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
+		});
+
+		decoration.animationController.reset(new Tools::TextureAnimationController(
+			{ 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
+			AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
+			{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
+
+		decoration.animationController->start();
 	}
 }
