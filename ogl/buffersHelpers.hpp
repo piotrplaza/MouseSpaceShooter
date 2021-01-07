@@ -225,7 +225,11 @@ namespace Tools
 		{
 			auto& [id, component] = *componentIt;
 
-			if (component.state == ComponentState::Current) continue;
+			if (component.state == ComponentState::Current)
+			{
+				++componentIt;
+				continue;
+			}
 			else if (component.state == ComponentState::Deleted)
 			{
 				auto& mapOfBuffers = [&]() -> auto&
@@ -260,6 +264,7 @@ namespace Tools
 			buffers.customShadersProgram = component.customShadersProgram;
 			buffers.positionsCache.clear();
 			buffers.positionsCache.insert(buffers.positionsCache.end(), positions.begin(), positions.end());
+
 			Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
 
 			if (component.texture)
@@ -270,6 +275,7 @@ namespace Tools
 				Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
 			}
 
+			component.state = ComponentState::Current;
 			++componentIt;
 		}
 	}

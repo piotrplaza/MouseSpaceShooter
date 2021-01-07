@@ -4,7 +4,7 @@ namespace Buffers
 {
 	PosTexCoordBuffers::PosTexCoordBuffers()
 	{
-		glCreateVertexArrays(1, &vertexArray);
+		glGenVertexArrays(1, &vertexArray);
 		glBindVertexArray(vertexArray);
 		glGenBuffers(1, &positionBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);

@@ -74,7 +74,6 @@ void Initialize()
 
 void RenderScene()
 {
-	//glClearColor(0, 0.03f, 0.1f, 1);
 	const glm::vec4& clearColor = Globals::Components::graphicsSettings.clearColor;
 	glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -149,30 +148,7 @@ void ChangeWindowLocation(glm::ivec2 location)
 	screenInfo.windowCenterInScreenSpace = { location + screenInfo.windowSize / 2 };
 }
 
-void SetDCPixelFormat(HDC hDC)
-{
-	const PIXELFORMATDESCRIPTOR pfd =
-	{
-		sizeof(PIXELFORMATDESCRIPTOR),
-		1,
-		PFD_DRAW_TO_WINDOW |
-		PFD_SUPPORT_OPENGL |
-		PFD_DOUBLEBUFFER,
-		PFD_TYPE_RGBA,
-		24,
-		0, 0, 0, 0, 0, 0,
-		0, 0,
-		0, 0, 0, 0,
-		32,
-		0,
-		0,
-		PFD_MAIN_PLANE,
-		0,
-		0, 0, 0
-	};
-	const int pixelFormt = ChoosePixelFormat(hDC, &pfd);
-	SetPixelFormat(hDC, pixelFormt, &pfd);
-}
+void SetDCPixelFormat(HDC hDC);
 
 static bool keys[256];
 static bool quit;
@@ -285,6 +261,29 @@ LRESULT CALLBACK WndProc(
 	return 0l;
 }
 
+void SetDCPixelFormat(HDC hDC)
+{
+	const PIXELFORMATDESCRIPTOR pfd =
+	{
+		sizeof(PIXELFORMATDESCRIPTOR),
+		1,
+		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+		PFD_TYPE_RGBA,
+		32,
+		0, 0, 0, 0, 0, 0,
+		0, 0,
+		0, 0, 0, 0,
+		24,
+		8,
+		0,
+		PFD_MAIN_PLANE,
+		0,
+		0, 0, 0
+	};
+	const int pixelFormt = ChoosePixelFormat(hDC, &pfd);
+	SetPixelFormat(hDC, pixelFormt, &pfd);
+}
+
 int APIENTRY WinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -357,6 +356,8 @@ int APIENTRY WinMain(
 			HandleKeyboard(keys);
 			HandleMouse();
 			PrepareFrame();
+
+			glFinish(); //Not sure why, but it helps with stuttering in some scenarios, e.g. if missile was launched (release + lower display refresh rate => bigger stuttering without it).
 			SwapBuffers(hDC);
 		}
 	}
