@@ -1,14 +1,9 @@
 #pragma once
 
 #include <memory>
-#include <optional>
-#include <functional>
 #include <vector>
 #include <unordered_map>
 
-#include <glm/vec3.hpp>
-
-#include <ogl/shaders.hpp>
 #include <ogl/shaders/basic.hpp>
 #include <ogl/shaders/textured.hpp>
 #include <ogl/buffers/posTexCoordBuffers.hpp>

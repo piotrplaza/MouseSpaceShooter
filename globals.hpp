@@ -33,6 +33,7 @@ namespace Systems
 	class Camera;
 	class Decorations;
 	class Temporaries;
+	class Cleaner;
 }
 
 namespace Globals
@@ -74,5 +75,6 @@ namespace Globals
 		::Systems::Camera& AccessCamera();
 		::Systems::Decorations& AccessDecorations();
 		::Systems::Temporaries& AccessTemporaries();
+		::Systems::Cleaner& AccessCleaner();
 	}
 }

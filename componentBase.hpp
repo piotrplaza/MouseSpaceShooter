@@ -1,6 +1,6 @@
 #pragma once
 
-enum class ComponentState {Current, Changed, Deleted};
+enum class ComponentState {Ongoing, Changed, Outdated};
 
 struct ComponentBase
 {

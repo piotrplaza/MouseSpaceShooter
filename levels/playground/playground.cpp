@@ -1,6 +1,7 @@
 #include "playground.hpp"
 
 #include <algorithm>
+#include <unordered_map>
 
 #include <globals.hpp>
 
@@ -15,6 +16,7 @@
 #include <components/graphicsSettings.hpp>
 #include <components/mouseState.hpp>
 #include <components/mvp.hpp>
+#include <components/missile.hpp>
 
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/julia.hpp>
@@ -119,8 +121,12 @@ namespace Levels
 			const float launchDistanceFromCenter = 1.2f;
 			const auto relativeLaunchPos = glm::vec2(glm::cos(Globals::Components::players[0].getAngle() + glm::half_pi<float>()),
 				glm::sin(Globals::Components::players[0].getAngle() + glm::half_pi<float>())) * (missileFromLeft ? launchDistanceFromCenter : -launchDistanceFromCenter);
-			Tools::CreateMissile(Globals::Components::players[0].getCenter() + relativeLaunchPos,
+
+			const auto missileHandler = Tools::CreateMissile(Globals::Components::players[0].getCenter() + relativeLaunchPos,
 				Globals::Components::players[0].getAngle(), 5.0f, Globals::Components::players[0].getVelocity(), missile2Texture, flameAnimation1Texture);
+
+			missilesToThrusts[missileHandler.missileId] = missileHandler.backThrustId;
+
 			missileFromLeft = !missileFromLeft;
 		}
 
@@ -301,13 +307,6 @@ namespace Levels
 		{
 			using namespace Globals::Components;
 
-			for (size_t backThrustsBackgroundDecorationId : player1Handler.backThrustsBackgroundDecorationIds)
-			{
-				assert(backThrustsBackgroundDecorationId < backgroundDecorations.size());
-				auto& player1ThrustAnimationController = *backgroundDecorations[backThrustsBackgroundDecorationId].animationController;
-				//player1ThrustAnimationController.setTimeScale(1.0f + Globals::Components::mouseState.wheel / 10.0f);
-			}
-
 			if (Globals::Components::mouseState.lmb)
 			{
 				if (timeToLaunchMissile <= 0.0f)
@@ -318,6 +317,25 @@ namespace Levels
 				else timeToLaunchMissile -= Globals::Components::physics.frameTime;
 			}
 			else timeToLaunchMissile = 0.0f;
+
+			{
+				auto it = missilesToThrusts.begin();
+				while (it != missilesToThrusts.end())
+				{
+					auto findIt = missiles.find(it->first);
+					assert(findIt != missiles.end());
+					auto& missile = findIt->second;
+					auto* contactEdge = missile.body->GetContactList();
+					if (contactEdge && contactEdge->contact && contactEdge->contact->IsTouching() && contactEdge->other != players[0].body.get())
+					{
+						missile.state = ComponentState::Outdated;
+						temporaryBackgroundDecorations[it->second].state = ComponentState::Outdated;
+						it = missilesToThrusts.erase(it);
+					}
+					else
+						++it;
+				}
+			}
 		}
 
 	private:
@@ -339,6 +357,8 @@ namespace Levels
 
 		float timeToLaunchMissile = 0.0f;
 		bool missileFromLeft = false;
+
+		std::unordered_map<ComponentId, ComponentId> missilesToThrusts;
 	};
 
 	Playground::Playground(): impl(std::make_unique<Impl>())

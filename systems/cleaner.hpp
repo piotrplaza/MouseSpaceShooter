@@ -1,15 +1,14 @@
 #pragma once
 
+#include <glm/vec2.hpp>
+
 namespace Systems
 {
-	class Camera
+	class Cleaner
 	{
 	public:
-		Camera();
+		Cleaner();
 
 		void step();
-
-	private:
-		bool firstStep = true;
 	};
 }

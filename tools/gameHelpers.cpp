@@ -34,7 +34,7 @@ namespace Tools
 
 		for (int i = 0; i < 2; ++i)
 		{
-			playerPlaneHandler.backThrustsBackgroundDecorationIds[i] = backgroundDecorations.size();
+			playerPlaneHandler.backThrustsIds[i] = backgroundDecorations.size();
 			auto& decoration = backgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture);
 
 			decoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([&, i, modelUniform = Uniforms::UniformControllerMat4f(),
@@ -73,8 +73,8 @@ namespace Tools
 		MissileHandler missileHandler;
 
 		missileHandler.missileId = ComponentIdGenerator::instance().current();
-		auto &missile = missiles.emplace(ComponentIdGenerator::instance().current(),
-			Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f)).first->second;
+		auto &missile = missiles.emplace(CreateIdComponent<Components::Missile>(
+			Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f))).first->second;
 		auto& body = *missile.body;
 		//body.SetBullet(true);
 		body.SetLinearVelocity({ initialVelocity.x, initialVelocity.y });
@@ -92,9 +92,9 @@ namespace Tools
 			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
 		};
 
-		missileHandler.backThrustTemporaryBackgroundDecoration = ComponentIdGenerator::instance().current();
-		auto& decoration = temporaryBackgroundDecorations.emplace(ComponentIdGenerator::instance().acquire(),
-			::Components::Decoration(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture)).first->second;
+		missileHandler.backThrustId = ComponentIdGenerator::instance().current();
+		auto& decoration = temporaryBackgroundDecorations.emplace(CreateIdComponent<Components::Decoration>(
+			Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture)).first->second;
 		decoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([&, modelUniform = Uniforms::UniformControllerMat4f(),
 			thrustScale = 0.1f
 		](Shaders::ProgramId program) mutable {

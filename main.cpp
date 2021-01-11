@@ -23,6 +23,7 @@
 #include "systems/camera.hpp"
 #include "systems/decorations.hpp"
 #include "systems/temporaries.hpp"
+#include "systems/cleaner.hpp"
 
 #include "levels/level.hpp"
 #include "levels/playground/playground.hpp"
@@ -33,7 +34,7 @@
 
 #include "ogl/oglHelpers.hpp"
 
-const bool fullScreen = false;
+const bool fullScreen = true;
 const bool console = true;
 const glm::ivec2 windowRes = { 1600, 1600 };
 
@@ -103,6 +104,8 @@ void PrepareFrame()
 	RenderScene();
 
 	Globals::Systems::AccessStateController().frameTeardown();
+
+	Globals::Systems::AccessCleaner().step();
 }
 
 void HandleKeyboard(bool const* const keys)

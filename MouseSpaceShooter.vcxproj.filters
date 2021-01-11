@@ -139,6 +139,9 @@
     <ClCompile Include="systems\walls.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
+    <ClCompile Include="systems\cleaner.cpp">
+      <Filter>src\systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.hpp">
@@ -293,6 +296,9 @@
     </ClInclude>
     <ClInclude Include="idGenerator.hpp">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\cleaner.hpp">
+      <Filter>src\systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

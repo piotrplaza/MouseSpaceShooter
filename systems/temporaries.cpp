@@ -1,7 +1,5 @@
 #include "temporaries.hpp"
 
-#include <glm/gtc/constants.hpp>
-
 #include <ogl/oglProxy.hpp>
 #include <ogl/buffersHelpers.hpp>
 #include <ogl/renderingHelpers.hpp>
@@ -9,14 +7,9 @@
 #include <globals.hpp>
 
 #include <components/missile.hpp>
+#include <components/decoration.hpp>
 #include <components/mvp.hpp>
 #include <components/graphicsSettings.hpp>
-#include <components/mouseState.hpp>
-#include <components/player.hpp>
-
-#include <tools/b2Helpers.hpp>
-#include <tools/utility.hpp>
-#include <tools/gameHelpers.hpp>
 
 namespace Systems
 {
@@ -93,7 +86,7 @@ namespace Systems
 
 	void Temporaries::step()
 	{
-		for (const auto& [id, missile] : Globals::Components::missiles)
+		for (auto& [id, missile] : Globals::Components::missiles)
 			if (missile.step)
 				missile.step();
 

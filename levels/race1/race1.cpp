@@ -279,7 +279,7 @@ namespace Levels
 		{
 			using namespace Globals::Components;
 
-			for (size_t backThrustsBackgroundDecorationId : player1Handler.backThrustsBackgroundDecorationIds)
+			for (size_t backThrustsBackgroundDecorationId : player1Handler.backThrustsIds)
 			{
 				assert(backThrustsBackgroundDecorationId < backgroundDecorations.size());
 				auto& player1ThrustAnimationController = *backgroundDecorations[backThrustsBackgroundDecorationId].animationController;

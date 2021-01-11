@@ -33,6 +33,7 @@
     <ClCompile Include="ogl\shaders.cpp" />
     <ClCompile Include="ogl\uniformControllers.cpp" />
     <ClCompile Include="systems\camera.cpp" />
+    <ClCompile Include="systems\cleaner.cpp" />
     <ClCompile Include="systems\decorations.cpp" />
     <ClCompile Include="systems\physics.cpp" />
     <ClCompile Include="systems\players.cpp" />
@@ -85,6 +86,7 @@
     <ClInclude Include="ogl\shaders\texturedColorThreshold.hpp" />
     <ClInclude Include="ogl\uniformControllers.hpp" />
     <ClInclude Include="systems\camera.hpp" />
+    <ClInclude Include="systems\cleaner.hpp" />
     <ClInclude Include="systems\decorations.hpp" />
     <ClInclude Include="systems\physics.hpp" />
     <ClInclude Include="systems\players.hpp" />

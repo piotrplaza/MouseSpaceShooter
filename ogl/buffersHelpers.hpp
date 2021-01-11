@@ -220,17 +220,11 @@ namespace Tools
 	inline void UpdatePosTexCoordBuffers(std::unordered_map<ComponentId, Component>& components, std::unordered_map<ComponentId, Buffers>& simpleBuffers,
 		std::unordered_map<ComponentId, Buffers>& texturedBuffers, std::unordered_map<ComponentId, Buffers>& customShadersBuffers, GLenum bufferDataUsage)
 	{
-		auto componentIt = components.begin();
-		while(componentIt != components.end())
+		for(auto& [id, component] : components)
 		{
-			auto& [id, component] = *componentIt;
-
-			if (component.state == ComponentState::Current)
-			{
-				++componentIt;
+			if (component.state == ComponentState::Ongoing)
 				continue;
-			}
-			else if (component.state == ComponentState::Deleted)
+			else
 			{
 				auto& mapOfBuffers = [&]() -> auto&
 				{
@@ -242,41 +236,31 @@ namespace Tools
 						return simpleBuffers;
 				}();
 
-				mapOfBuffers.erase(id);
-				componentIt = components.erase(componentIt);
-				continue;
+				if (component.state == ComponentState::Outdated)
+				{
+					mapOfBuffers.erase(id);
+					continue;
+				}
+
+				auto& buffers = mapOfBuffers[id];
+				buffers.renderingSetup = component.renderingSetup.get();
+				buffers.texture = component.texture;
+				buffers.animationController = component.animationController.get();
+				buffers.customShadersProgram = component.customShadersProgram;
+				buffers.positionsCache = component.getPositions();
+
+				Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
+
+				if (component.texture)
+				{
+					if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
+					buffers.texCoordCache = component.getTexCoord();
+					buffers.textureRatioPreserved = component.isTextureRatioPreserved();
+					Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
+				}
+
+				component.state = ComponentState::Ongoing;
 			}
-
-			auto& buffers = [&]() -> auto&
-			{
-				if (component.customShadersProgram)
-					return customShadersBuffers[id];
-				else if (component.texture)
-					return texturedBuffers[id];
-				else
-					return simpleBuffers[id];
-			}();
-
-			const auto& positions = component.getPositions();
-			buffers.renderingSetup = component.renderingSetup.get();
-			buffers.texture = component.texture;
-			buffers.animationController = component.animationController.get();
-			buffers.customShadersProgram = component.customShadersProgram;
-			buffers.positionsCache.clear();
-			buffers.positionsCache.insert(buffers.positionsCache.end(), positions.begin(), positions.end());
-
-			Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
-
-			if (component.texture)
-			{
-				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
-				buffers.texCoordCache = component.getTexCoord();
-				buffers.textureRatioPreserved = component.isTextureRatioPreserved();
-				Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
-			}
-
-			component.state = ComponentState::Current;
-			++componentIt;
 		}
 	}
 }

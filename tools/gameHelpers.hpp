@@ -2,18 +2,20 @@
 
 #include <glm/vec2.hpp>
 
+#include <componentId.hpp>
+
 namespace Tools
 {
 	struct PlayerPlaneHandler
 	{
 		size_t playerId = 0;
-		size_t backThrustsBackgroundDecorationIds[2] = {};
+		size_t backThrustsIds[2] = {};
 	};
 
 	struct MissileHandler
 	{
-		size_t missileId = 0;
-		size_t backThrustTemporaryBackgroundDecoration = 0;
+		ComponentId missileId = 0;
+		ComponentId backThrustId = 0;
 	};
 
 	PlayerPlaneHandler CreatePlayerPlane(unsigned planeTexture, unsigned flameAnimationTexture);

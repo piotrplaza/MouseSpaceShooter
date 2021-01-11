@@ -25,6 +25,7 @@
 #include "systems/camera.hpp"
 #include "systems/decorations.hpp"
 #include "systems/temporaries.hpp"
+#include "systems/cleaner.hpp"
 
 namespace Components
 {
@@ -88,6 +89,7 @@ namespace Globals
 		std::unique_ptr<::Systems::Camera> camera;
 		std::unique_ptr<::Systems::Decorations> decorations;
 		std::unique_ptr<::Systems::Temporaries> temporaries;
+		std::unique_ptr<::Systems::Cleaner> cleaner;
 
 		void Initialize()
 		{
@@ -99,6 +101,7 @@ namespace Globals
 			camera = std::make_unique<::Systems::Camera>();
 			decorations = std::make_unique<::Systems::Decorations>();
 			temporaries = std::make_unique<::Systems::Temporaries>();
+			cleaner = std::make_unique<::Systems::Cleaner>();
 		}
 
 		::Systems::StateController& AccessStateController()
@@ -139,6 +142,11 @@ namespace Globals
 		::Systems::Temporaries& AccessTemporaries()
 		{
 			return *temporaries;
+		}
+
+		::Systems::Cleaner& AccessCleaner()
+		{
+			return *cleaner;
 		}
 	}
 }
