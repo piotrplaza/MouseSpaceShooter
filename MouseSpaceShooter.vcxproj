@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
-    <ClCompile Include="componentBase.cpp" />
     <ClCompile Include="componentId.cpp" />
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="levels\level.cpp" />
@@ -67,6 +66,7 @@
     <ClInclude Include="components\wall.hpp" />
     <ClInclude Include="constants.hpp" />
     <ClInclude Include="globals.hpp" />
+    <ClInclude Include="idGenerator.hpp" />
     <ClInclude Include="levels\level.hpp" />
     <ClInclude Include="levels\playground\playground.hpp" />
     <ClInclude Include="levels\race1\race1.hpp" />

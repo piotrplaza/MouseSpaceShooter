@@ -33,7 +33,7 @@
 
 #include "ogl/oglHelpers.hpp"
 
-const bool fullScreen = true;
+const bool fullScreen = false;
 const bool console = true;
 const glm::ivec2 windowRes = { 1600, 1600 };
 
@@ -90,19 +90,19 @@ void PrepareFrame()
 {
 	Globals::Systems::AccessStateController().frameSetup();
 
+	Globals::Systems::AccessPhysics().step();
+
 	activeLevel->step();
 
-	Globals::Systems::AccessWalls().step();
 	Globals::Systems::AccessPlayers().step();
 	Globals::Systems::AccessTemporaries().step();
+	Globals::Systems::AccessWalls().step();
 	Globals::Systems::AccessDecorations().step();
 	Globals::Systems::AccessCamera().step();
 
 	RenderScene();
 
 	Globals::Systems::AccessStateController().frameTeardown();
-
-	Globals::Systems::AccessPhysics().step();
 }
 
 void HandleKeyboard(bool const* const keys)

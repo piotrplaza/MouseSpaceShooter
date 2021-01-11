@@ -133,9 +133,6 @@
     <ClCompile Include="systems\temporaries.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
-    <ClCompile Include="componentBase.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="componentId.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -293,6 +290,9 @@
     </ClInclude>
     <ClInclude Include="systems\walls.hpp">
       <Filter>src\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="idGenerator.hpp">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

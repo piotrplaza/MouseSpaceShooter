@@ -20,7 +20,6 @@ namespace Tools
 		PlayerPlaneHandler playerPlaneHandler;
 
 		playerPlaneHandler.playerId = players.size();
-
 		auto& player = players.emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), planeTexture);
 		player.setPosition({ -10.0f, 0.0f });
 		player.renderingSetup = std::make_unique<Components::Player::RenderingSetup>([
@@ -67,10 +66,13 @@ namespace Tools
 		return playerPlaneHandler;
 	}
 
-	void CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimationTexture)
+	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimationTexture)
 	{
 		using namespace Globals::Components;
 
+		MissileHandler missileHandler;
+
+		missileHandler.missileId = ComponentIdGenerator::instance().current();
 		auto &missile = missiles.emplace(ComponentIdGenerator::instance().current(),
 			Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f)).first->second;
 		auto& body = *missile.body;
@@ -90,7 +92,8 @@ namespace Tools
 			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
 		};
 
-		auto& decoration = temporaryBackgroundDecorations.emplace(ComponentIdGenerator::instance().current(),
+		missileHandler.backThrustTemporaryBackgroundDecoration = ComponentIdGenerator::instance().current();
+		auto& decoration = temporaryBackgroundDecorations.emplace(ComponentIdGenerator::instance().acquire(),
 			::Components::Decoration(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture)).first->second;
 		decoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([&, modelUniform = Uniforms::UniformControllerMat4f(),
 			thrustScale = 0.1f
@@ -115,5 +118,7 @@ namespace Tools
 			{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
 
 		decoration.animationController->start();
+
+		return missileHandler;
 	}
 }
