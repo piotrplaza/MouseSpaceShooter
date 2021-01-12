@@ -16,8 +16,6 @@
 #include <tools/b2Helpers.hpp>
 #include <tools/graphicsHelpers.hpp>
 
-#include <constants.hpp>
-
 namespace Components
 {
 	struct Wall : ComponentBase

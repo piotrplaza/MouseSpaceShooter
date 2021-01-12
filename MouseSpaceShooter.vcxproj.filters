@@ -276,9 +276,6 @@
     <ClInclude Include="tools\gameHelpers.hpp">
       <Filter>src\tools</Filter>
     </ClInclude>
-    <ClInclude Include="constants.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="systems\temporaries.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>

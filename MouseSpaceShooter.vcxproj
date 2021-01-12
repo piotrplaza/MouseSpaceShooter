@@ -65,7 +65,6 @@
     <ClInclude Include="components\texture.hpp" />
     <ClInclude Include="components\textureDef.hpp" />
     <ClInclude Include="components\wall.hpp" />
-    <ClInclude Include="constants.hpp" />
     <ClInclude Include="globals.hpp" />
     <ClInclude Include="idGenerator.hpp" />
     <ClInclude Include="levels\level.hpp" />

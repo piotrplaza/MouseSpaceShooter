@@ -15,8 +15,6 @@
 #include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>
 
-#include <constants.hpp>
-
 namespace Components
 {
 	struct Grapple : ComponentBase

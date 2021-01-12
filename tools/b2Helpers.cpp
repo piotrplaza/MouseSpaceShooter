@@ -2,12 +2,18 @@
 
 #include <glm/gtx/transform.hpp>
 
-#include "globals.hpp"
-#include "constants.hpp"
+#include <globals.hpp>
 
-#include "components/physics.hpp"
+#include <components/physics.hpp>
 
 #include <tools/graphicsHelpers.hpp>
+
+namespace
+{
+	constexpr float playerLinearDamping = 0.1f;
+	constexpr float playerAngularDamping = 15.0f;
+	constexpr int circleGraphicsComplexity = 60;
+}
 
 void b2BodyDeleter::operator()(b2Body * body) const
 {
@@ -46,8 +52,8 @@ namespace Tools
 		playerBody->CreateFixture(&fixtureDef);
 
 		playerBody->SetSleepingAllowed(false);
-		playerBody->SetLinearDamping(Constants::playerLinearDamping);
-		playerBody->SetAngularDamping(Constants::playerAngularDamping);
+		playerBody->SetLinearDamping(playerLinearDamping);
+		playerBody->SetAngularDamping(playerAngularDamping);
 
 		return playerBody;
 	}
@@ -159,7 +165,7 @@ namespace Tools
 			case b2Shape::e_circle:
 			{
 				const auto& circleShape = static_cast<const b2CircleShape&>(*fixture->GetShape());
-				Tools::AppendPositionsOfCircle(positions, ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, Constants::circleGraphicsComplexity);
+				Tools::AppendPositionsOfCircle(positions, ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity);
 				break;
 			}
 			default:

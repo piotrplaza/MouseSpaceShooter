@@ -1,9 +1,13 @@
 #include "physics.hpp"
 
 #include <globals.hpp>
-#include <constants.hpp>
 
 #include <components/physics.hpp>
+
+namespace
+{
+	constexpr float debugFrameTime = 1.0f / 160;
+}
 
 namespace Systems
 {
@@ -26,7 +30,7 @@ namespace Systems
 		physics.frameTime = simulationTime - physics.simulationTime;
 		physics.simulationTime = simulationTime;
 #else
-		physics.frameTime = Constants::debugFrameTime;
+		physics.frameTime = debugFrameTime;
 		physics.simulationTime += physics.frameTime;
 #endif
 

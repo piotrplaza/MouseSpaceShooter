@@ -15,7 +15,6 @@
 #include <tools/b2Helpers.hpp>
 
 #include <globals.hpp>
-#include <constants.hpp>
 
 #include <components/player.hpp>
 #include <components/physics.hpp>
@@ -26,6 +25,12 @@
 #include <components/texture.hpp>
 #include <components/textureDef.hpp>
 #include <components/graphicsSettings.hpp>
+
+namespace
+{
+	constexpr float playerForwardForce = 10.0f;
+	constexpr float mouseSensitivity = 0.01f;
+}
 
 namespace Systems
 {
@@ -205,6 +210,8 @@ namespace Systems
 
 	void Players::turn(glm::vec2 controllerDelta) const
 	{
+		using namespace Globals::Components;
+
 		if (glm::length(controllerDelta) > 0)
 		{
 			const float playerAngle = player.body->GetAngle();
@@ -212,12 +219,13 @@ namespace Systems
 			const glm::vec2 playerDirection = { std::cos(playerSideAngle), std::sin(playerSideAngle) };
 			const float controllerDot = glm::dot(playerDirection, controllerDelta);
 
-			player.body->SetTransform(player.body->GetPosition(), playerAngle + controllerDot * Constants::mouseSensitivity);
+			player.body->SetTransform(player.body->GetPosition(), playerAngle + controllerDot * mouseSensitivity);
 		}
 
 		if (player.grappleJoint)
 		{
-			const glm::vec2 stepVelocity = player.getCenter() - player.previousCenter;
+			const auto& grapple = grapples[player.connectedGrappleId];
+			const glm::vec2 stepVelocity = (player.getCenter() - player.previousCenter) - (grapple.getCenter() - grapple.previousCenter);
 			const float stepVelocityLength = glm::length(stepVelocity);
 
 			if (stepVelocityLength > 0.0f)
@@ -242,7 +250,7 @@ namespace Systems
 
 		const float currentAngle = player.body->GetAngle();
 		player.body->ApplyForce(b2Vec2(glm::cos(currentAngle),
-			glm::sin(currentAngle)) * Constants::playerForwardForce, player.body->GetWorldCenter(), true);
+			glm::sin(currentAngle)) * playerForwardForce, player.body->GetWorldCenter(), true);
 	}
 
 	void Players::magneticHook(bool active) const

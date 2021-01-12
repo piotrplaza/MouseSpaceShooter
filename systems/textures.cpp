@@ -8,10 +8,14 @@
 #include <stb_image/stb_image.h>
 
 #include <globals.hpp>
-#include <constants.hpp>
 
 #include <components/textureDef.hpp>
 #include <components/texture.hpp>
+
+namespace
+{
+	constexpr int maxTextureObjects = 100;
+}
 
 namespace Systems
 {
@@ -21,8 +25,8 @@ namespace Systems
 
 		stbi_set_flip_vertically_on_load(true);
 
-		static_assert(Constants::maxTextureObjects <= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-		assert(texturesDef.size() <= Constants::maxTextureObjects);
+		static_assert(maxTextureObjects <= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+		assert(texturesDef.size() <= maxTextureObjects);
 		
 		textures = std::vector<::Components::Texture>(texturesDef.size());
 		for (unsigned i = 0; i < texturesDef.size(); ++i)

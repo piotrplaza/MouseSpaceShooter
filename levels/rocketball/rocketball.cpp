@@ -70,7 +70,10 @@ namespace Levels
 
 		void createPlayers()
 		{
+			using namespace Globals::Components;
+
 			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flameAnimation1Texture);
+			players[0].connectIfApproaching = true;
 		}
 
 		void createStaticWalls() const
