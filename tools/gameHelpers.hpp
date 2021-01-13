@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include <glm/vec2.hpp>
 
 #include <componentId.hpp>
@@ -16,6 +18,7 @@ namespace Tools
 	{
 		ComponentId missileId = 0;
 		ComponentId backThrustId = 0;
+		std::function<void()> erase;
 	};
 
 	PlayerPlaneHandler CreatePlayerPlane(unsigned planeTexture, unsigned flameAnimationTexture);

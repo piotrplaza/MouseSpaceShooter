@@ -122,10 +122,9 @@ namespace Levels
 			const auto relativeLaunchPos = glm::vec2(glm::cos(Globals::Components::players[0].getAngle() + glm::half_pi<float>()),
 				glm::sin(Globals::Components::players[0].getAngle() + glm::half_pi<float>())) * (missileFromLeft ? launchDistanceFromCenter : -launchDistanceFromCenter);
 
-			const auto missileHandler = Tools::CreateMissile(Globals::Components::players[0].getCenter() + relativeLaunchPos,
+			auto missileHandler = Tools::CreateMissile(Globals::Components::players[0].getCenter() + relativeLaunchPos,
 				Globals::Components::players[0].getAngle(), 5.0f, Globals::Components::players[0].getVelocity(), missile2Texture, flameAnimation1Texture);
-
-			missilesToThrusts[missileHandler.missileId] = missileHandler.backThrustId;
+			missilesToHandlers[missileHandler.missileId] = std::move(missileHandler);
 
 			missileFromLeft = !missileFromLeft;
 		}
@@ -307,20 +306,20 @@ namespace Levels
 		{
 			using namespace Globals::Components;
 
-			if (Globals::Components::mouseState.lmb)
+			if (mouseState.lmb)
 			{
 				if (timeToLaunchMissile <= 0.0f)
 				{
 					launchMissile();
 					timeToLaunchMissile = 0.1f;
 				}
-				else timeToLaunchMissile -= Globals::Components::physics.frameTime;
+				else timeToLaunchMissile -= physics.frameTime;
 			}
 			else timeToLaunchMissile = 0.0f;
 
 			{
-				auto it = missilesToThrusts.begin();
-				while (it != missilesToThrusts.end())
+				auto it = missilesToHandlers.begin();
+				while (it != missilesToHandlers.end())
 				{
 					auto findIt = missiles.find(it->first);
 					assert(findIt != missiles.end());
@@ -328,9 +327,8 @@ namespace Levels
 					auto* contactEdge = missile.body->GetContactList();
 					if (contactEdge && contactEdge->contact && contactEdge->contact->IsTouching() && contactEdge->other != players[0].body.get())
 					{
-						missile.state = ComponentState::Outdated;
-						temporaryBackgroundDecorations[it->second].state = ComponentState::Outdated;
-						it = missilesToThrusts.erase(it);
+						it->second.erase();
+						it = missilesToHandlers.erase(it);
 					}
 					else
 						++it;
@@ -358,7 +356,7 @@ namespace Levels
 		float timeToLaunchMissile = 0.0f;
 		bool missileFromLeft = false;
 
-		std::unordered_map<ComponentId, ComponentId> missilesToThrusts;
+		std::unordered_map<ComponentId, Tools::MissileHandler> missilesToHandlers;
 	};
 
 	Playground::Playground(): impl(std::make_unique<Impl>())

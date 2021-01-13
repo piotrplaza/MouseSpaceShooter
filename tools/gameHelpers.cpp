@@ -1,5 +1,7 @@
 #include "gameHelpers.hpp"
 
+#include <cassert>
+
 #include <globals.hpp>
 
 #include <components/player.hpp>
@@ -118,6 +120,16 @@ namespace Tools
 			{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
 
 		decoration.animationController->start();
+
+		missileHandler.erase = [missileId = missileHandler.missileId, backThrustId = missileHandler.backThrustId]()
+		{
+			auto missileIt = missiles.find(missileId);
+			assert(missileIt != missiles.end());
+			missileIt->second.state = ComponentState::Outdated;
+			auto thrustIt = temporaryBackgroundDecorations.find(backThrustId);
+			assert(thrustIt != temporaryBackgroundDecorations.end());
+			thrustIt->second.state = ComponentState::Outdated;
+		};
 
 		return missileHandler;
 	}
