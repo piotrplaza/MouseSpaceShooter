@@ -37,4 +37,5 @@ namespace Tools
 	void PinBodies(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected = false);
 	glm::mat4 GetModelMatrix(const b2Body& body);
 	std::vector<glm::vec3> GetPositions(const b2Body& body);
+	void SetCollisionFilteringBits(b2Body& body, unsigned short categoryBits, unsigned short maskBits);
 }

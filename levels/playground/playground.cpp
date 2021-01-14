@@ -325,7 +325,7 @@ namespace Levels
 					assert(findIt != missiles.end());
 					auto& missile = findIt->second;
 					auto* contactEdge = missile.body->GetContactList();
-					if (contactEdge && contactEdge->contact && contactEdge->contact->IsTouching() && contactEdge->other != players[0].body.get())
+					if (contactEdge && contactEdge->contact && contactEdge->contact->IsTouching())
 					{
 						it->second.erase();
 						it = missilesToHandlers.erase(it);

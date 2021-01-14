@@ -12,6 +12,9 @@
 #include <ogl/uniformControllers.hpp>
 
 #include <tools/animations.hpp>
+#include <tools/b2Helpers.hpp>
+
+#include <collisionBits.hpp>
 
 namespace Tools
 {
@@ -23,6 +26,7 @@ namespace Tools
 
 		playerPlaneHandler.playerId = players.size();
 		auto& player = players.emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), planeTexture);
+		SetCollisionFilteringBits(*player.body, CollisionBits::playerBit, CollisionBits::all);
 		player.setPosition({ -10.0f, 0.0f });
 		player.renderingSetup = std::make_unique<Components::Player::RenderingSetup>([
 			colorUniform = Uniforms::UniformController4f()
@@ -78,7 +82,8 @@ namespace Tools
 		auto &missile = missiles.emplace(CreateIdComponent<Components::Missile>(
 			Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f))).first->second;
 		auto& body = *missile.body;
-		//body.SetBullet(true);
+		SetCollisionFilteringBits(body, CollisionBits::missileBit, CollisionBits::all - CollisionBits::missileBit - CollisionBits::playerBit);
+		body.SetBullet(true);
 		body.SetLinearVelocity({ initialVelocity.x, initialVelocity.y });
 		missile.texture = missileTexture;
 		missile.renderingSetup = std::make_unique<Components::Missile::RenderingSetup>(
@@ -89,8 +94,13 @@ namespace Tools
 
 			return nullptr;
 		});
-		missile.step = [&body, force]()
+		missile.step = [&body, force, launchTime = physics.simulationTime, fullCollisions = false]() mutable
 		{
+			if (!fullCollisions && (physics.simulationTime - launchTime) > 0.5f)
+			{
+				SetCollisionFilteringBits(body, CollisionBits::missileBit, CollisionBits::all);
+				fullCollisions = true;
+			}
 			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
 		};
 

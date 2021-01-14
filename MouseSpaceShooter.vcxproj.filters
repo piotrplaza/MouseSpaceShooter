@@ -297,6 +297,9 @@
     <ClInclude Include="systems\cleaner.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
+    <ClInclude Include="collisionBits.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">

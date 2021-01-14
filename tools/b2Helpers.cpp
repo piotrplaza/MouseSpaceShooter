@@ -176,4 +176,18 @@ namespace Tools
 
 		return positions;
 	}
+
+	void SetCollisionFilteringBits(b2Body& body, unsigned short categoryBits, unsigned short maskBits)
+	{
+		auto* fixture = body.GetFixtureList();
+		while (fixture)
+		{
+			auto filterData = fixture->GetFilterData();
+			filterData.categoryBits = categoryBits;
+			filterData.maskBits = maskBits;
+			fixture->SetFilterData(filterData);
+
+			fixture = fixture->GetNext();
+		}
+	}
 }

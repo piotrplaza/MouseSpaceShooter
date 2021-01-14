@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdParty\stb_image\stb_image.h" />
+    <ClInclude Include="collisionBits.hpp" />
     <ClInclude Include="componentBase.hpp" />
     <ClInclude Include="componentId.hpp" />
     <ClInclude Include="components\camera.hpp" />
