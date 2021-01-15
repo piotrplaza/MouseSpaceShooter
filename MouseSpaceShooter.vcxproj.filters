@@ -300,6 +300,9 @@
     <ClInclude Include="collisionBits.hpp">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="ogl\shaders\programBase.hpp">
+      <Filter>src\ogl\shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">

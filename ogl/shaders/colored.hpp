@@ -1,23 +1,23 @@
 #pragma once
 
-#include <ogl/shaders.hpp>
-#include <ogl/uniformControllers.hpp>
+#include "programBase.hpp"
 
 namespace Shaders
 {
 	namespace Programs
 	{
-		struct ColoredAccessor
+		struct ColoredAccessor : ProgramBase
 		{
+			using ProgramBase::ProgramBase;
+
 			ColoredAccessor(Shaders::ProgramId program):
-				program(program),
+				ProgramBase(program),
 				modelUniform(program, "model"),
 				vpUniform(program, "vp"),
 				colorUniform(program, "color")
 			{
 			}
 
-			Shaders::ProgramId program;
 			Uniforms::UniformControllerMat4f modelUniform;
 			Uniforms::UniformControllerMat4f vpUniform;
 			Uniforms::UniformController4f colorUniform;

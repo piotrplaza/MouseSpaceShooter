@@ -92,7 +92,6 @@ namespace Levels
 				juliaShaders.juliaCOffsetUniform.setValue(player.getCenter() * 0.00001f);
 				juliaShaders.minColorUniform.setValue({ 0.0f, 0.0f, 0.0f, 1.0f });
 				juliaShaders.maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
-
 				return nullptr;
 			});
 		}
@@ -119,7 +118,6 @@ namespace Levels
 				if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2f(program, "textureTranslate");
 				const float simulationTime = Globals::Components::physics.simulationTime;
 				textureTranslateUniform.setValue({ glm::cos(simulationTime * 0.1f), glm::sin(simulationTime * 0.1f) });
-
 				return nullptr;
 			});
 
@@ -142,7 +140,6 @@ namespace Levels
 				](Shaders::ProgramId program) mutable {
 					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
 					colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.0f });
-
 					return nullptr;
 				});
 				foregroundDecorations.emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
@@ -165,7 +162,6 @@ namespace Levels
 					texturedProgramAccessor->colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
 						(glm::sin(Globals::Components::physics.simulationTime * glm::two_pi<float>()) + 1.0f) / 2.0f + 0.5f });
 					texturedProgramAccessor->modelUniform.setValue(dynamicWalls[wallId].getModelMatrix());
-
 					return nullptr;
 				});
 			}
@@ -215,7 +211,6 @@ namespace Levels
 				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
 				colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
 					(glm::sin(Globals::Components::physics.simulationTime / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
-
 				return nullptr;
 			});
 			grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f,
@@ -229,7 +224,6 @@ namespace Levels
 			](Shaders::ProgramId program) mutable {
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
 				modelUniform.setValue(grapple.getModelMatrix());
-
 				return nullptr;
 			});
 		}
@@ -253,7 +247,6 @@ namespace Levels
 								glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f),
 								glm::vec3(-camera.prevPosition * (0.02f + layer * 0.02f), 0.0f)));
 							texturedProgramAccessor->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.02f });
-
 							return nullptr;
 						});
 					}

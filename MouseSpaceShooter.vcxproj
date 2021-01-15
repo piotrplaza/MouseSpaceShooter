@@ -81,6 +81,7 @@
     <ClInclude Include="ogl\shaders\basic.hpp" />
     <ClInclude Include="ogl\shaders\colored.hpp" />
     <ClInclude Include="ogl\shaders\julia.hpp" />
+    <ClInclude Include="ogl\shaders\programBase.hpp" />
     <ClInclude Include="ogl\shaders\sceneCoordTextured.hpp" />
     <ClInclude Include="ogl\shaders\textured.hpp" />
     <ClInclude Include="ogl\shaders\texturedColorThreshold.hpp" />

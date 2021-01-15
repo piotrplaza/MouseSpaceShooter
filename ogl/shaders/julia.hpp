@@ -1,16 +1,17 @@
 #pragma once
 
-#include <ogl/shaders.hpp>
-#include <ogl/uniformControllers.hpp>
+#include "programBase.hpp"
 
 namespace Shaders
 {
 	namespace Programs
 	{
-		struct JuliaAccessor
+		struct JuliaAccessor : ProgramBase
 		{
+			using ProgramBase::ProgramBase;
+
 			JuliaAccessor(Shaders::ProgramId program):
-				program(program),
+				ProgramBase(program),
 				vpUniform(program, "vp"),
 				juliaCOffsetUniform(program, "juliaCOffset"),
 				minColorUniform(program, "minColor"),
@@ -18,7 +19,6 @@ namespace Shaders
 			{
 			}
 
-			Shaders::ProgramId program;
 			Uniforms::UniformControllerMat4f vpUniform;
 			Uniforms::UniformController2f juliaCOffsetUniform;
 			Uniforms::UniformController4f minColorUniform;

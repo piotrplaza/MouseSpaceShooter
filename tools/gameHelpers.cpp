@@ -34,7 +34,6 @@ namespace Tools
 			if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
 			const float fade = (glm::sin(physics.simulationTime * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
 			colorUniform.setValue({ fade, 1.0f, fade, 1.0f });
-
 			return nullptr;
 		});
 
@@ -91,7 +90,6 @@ namespace Tools
 		{
 			if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
 			modelUniform.setValue(Tools::GetModelMatrix(body));
-
 			return nullptr;
 		});
 		missile.step = [&body, force, launchTime = physics.simulationTime, fullCollisions = false]() mutable
