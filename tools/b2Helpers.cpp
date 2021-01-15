@@ -8,6 +8,10 @@
 
 #include <tools/graphicsHelpers.hpp>
 
+#include <collisionBits.hpp>
+
+#include <bodyUserData.hpp>
+
 namespace
 {
 	constexpr float playerLinearDamping = 0.1f;
@@ -17,7 +21,10 @@ namespace
 
 void b2BodyDeleter::operator()(b2Body * body) const
 {
-		body->GetWorld()->DestroyBody(body);
+	auto* bodyUserData = static_cast<BodyUserData*>(body->GetUserData());
+	delete bodyUserData;
+	body->SetUserData(nullptr);
+	body->GetWorld()->DestroyBody(body);
 }
 
 void b2JointDeleter::operator()(b2Joint* joint) const
@@ -36,7 +43,7 @@ namespace Tools
 		bodyDef.position.Set(0.0f, 0.0f);
 		bodyDef.angle = 0.0f;
 		bodyDef.bullet = true;
-		std::unique_ptr<b2Body, b2BodyDeleter> playerBody(physics.world.CreateBody(&bodyDef));
+		std::unique_ptr<b2Body, b2BodyDeleter> body(physics.world.CreateBody(&bodyDef));
 
 		b2FixtureDef fixtureDef;
 		const b2Vec2 playerTriangle[3] = {
@@ -49,13 +56,15 @@ namespace Tools
 		fixtureDef.shape = &polygonShape;
 		fixtureDef.density = density;
 		fixtureDef.restitution = 0.1f;
-		playerBody->CreateFixture(&fixtureDef);
+		body->CreateFixture(&fixtureDef);
 
-		playerBody->SetSleepingAllowed(false);
-		playerBody->SetLinearDamping(playerLinearDamping);
-		playerBody->SetAngularDamping(playerAngularDamping);
+		body->SetSleepingAllowed(false);
+		body->SetLinearDamping(playerLinearDamping);
+		body->SetAngularDamping(playerAngularDamping);
 
-		return playerBody;
+		body->SetUserData(new BodyUserData);
+
+		return body;
 	}
 
 	std::unique_ptr<b2Body, b2BodyDeleter> CreateBoxBody(glm::vec2 position, glm::vec2 hSize, float angle,
@@ -76,7 +85,10 @@ namespace Tools
 		fixtureDef.density = density;
 		fixtureDef.restitution = restitution;
 		fixtureDef.friction = friction;
+		fixtureDef.filter.categoryBits = CollisionBits::wallBit;
 		body->CreateFixture(&fixtureDef);
+
+		body->SetUserData(new BodyUserData);
 
 		return body;
 	}
@@ -98,7 +110,10 @@ namespace Tools
 		fixtureDef.density = density;
 		fixtureDef.restitution = restitution;
 		fixtureDef.friction = friction;
+		fixtureDef.filter.categoryBits = CollisionBits::wallBit;
 		body->CreateFixture(&fixtureDef);
+
+		body->SetUserData(new BodyUserData);
 
 		return body;
 	}
@@ -189,5 +204,20 @@ namespace Tools
 
 			fixture = fixture->GetNext();
 		}
+	}
+
+	std::pair<const b2Fixture*, const b2Fixture*> Sort(const b2Fixture* fixtureA, const b2Fixture* fixtureB)
+	{
+		return fixtureA > fixtureB ? std::make_pair(fixtureB, fixtureA) : std::make_pair(fixtureA, fixtureB);
+	}
+
+	std::pair<const unsigned short, const unsigned short> Sort(const unsigned short collisionObjectA, const unsigned short collisionObjectB)
+	{
+		return collisionObjectA > collisionObjectB ? std::make_pair(collisionObjectB, collisionObjectA) : std::make_pair(collisionObjectA, collisionObjectB);
+	}
+
+	BodyUserData& AccessUserData(const b2Body& body)
+	{
+		return *static_cast<BodyUserData*>(body.GetUserData());
 	}
 }

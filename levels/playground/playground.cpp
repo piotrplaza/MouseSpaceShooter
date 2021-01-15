@@ -17,6 +17,7 @@
 #include <components/mouseState.hpp>
 #include <components/mvp.hpp>
 #include <components/missile.hpp>
+#include <components/collisionHandler.hpp>
 
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/basic.hpp>
@@ -28,6 +29,11 @@
 #include <tools/graphicsHelpers.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
+
+#include <collisionBits.hpp>
+
+#include <iostream>
+using namespace std;
 
 namespace Levels
 {
@@ -303,6 +309,17 @@ namespace Levels
 			};
 		}
 
+		void setCollisionCallbacks() const
+		{
+			using namespace Globals::Components;
+
+			beginCollisionHandlers.emplace(CreateIdComponent<Components::CollisionHandler>(CollisionBits::missileBit, CollisionBits::all, [](auto, auto)
+				{
+					static int i = 0;
+					cout << i++ << endl;
+				}));
+		}
+
 		void step()
 		{
 			using namespace Globals::Components;
@@ -317,24 +334,6 @@ namespace Levels
 				else timeToLaunchMissile -= physics.frameTime;
 			}
 			else timeToLaunchMissile = 0.0f;
-
-			{
-				auto it = missilesToHandlers.begin();
-				while (it != missilesToHandlers.end())
-				{
-					auto findIt = missiles.find(it->first);
-					assert(findIt != missiles.end());
-					auto& missile = findIt->second;
-					auto* contactEdge = missile.body->GetContactList();
-					if (contactEdge && contactEdge->contact && contactEdge->contact->IsTouching())
-					{
-						it->second.erase();
-						it = missilesToHandlers.erase(it);
-					}
-					else
-						++it;
-				}
-			}
 		}
 
 	private:
@@ -371,6 +370,7 @@ namespace Levels
 		impl->createGrapples();
 		impl->createForeground();
 		impl->setCamera();
+		impl->setCollisionCallbacks();
 	}
 
 	Playground::~Playground() = default;

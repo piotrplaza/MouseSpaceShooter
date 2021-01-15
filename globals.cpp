@@ -16,6 +16,7 @@
 #include "components/decoration.hpp"
 #include "components/graphicsSettings.hpp"
 #include "components/missile.hpp"
+#include "components/collisionHandler.hpp"
 
 #include "systems/stateController.hpp"
 #include "systems/physics.hpp"
@@ -50,6 +51,8 @@ namespace Components
 	static std::vector<::Components::Decoration> foregroundDecorations;
 	static std::unordered_map<::ComponentId, ::Components::Decoration> temporaryForegroundDecorations;
 	static std::unordered_map<::ComponentId, ::Components::Missile> missiles;
+	static std::unordered_map<::ComponentId, ::Components::CollisionHandler> beginCollisionHandlers;
+	static std::unordered_map<::ComponentId, ::Components::CollisionHandler> endCollisionHandlers;
 }
 
 namespace Globals
@@ -77,6 +80,8 @@ namespace Globals
 		std::vector<::Components::Decoration>& foregroundDecorations = ::Components::foregroundDecorations;
 		std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryForegroundDecorations = ::Components::temporaryForegroundDecorations;
 		std::unordered_map<::ComponentId, ::Components::Missile>& missiles = ::Components::missiles;
+		std::unordered_map<::ComponentId, ::Components::CollisionHandler>& beginCollisionHandlers = ::Components::beginCollisionHandlers;
+		std::unordered_map<::ComponentId, ::Components::CollisionHandler>& endCollisionHandlers = ::Components::endCollisionHandlers;
 	}
 
 	namespace Systems

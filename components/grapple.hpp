@@ -15,6 +15,8 @@
 #include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>
 
+#include <bodyUserData.hpp>
+
 namespace Components
 {
 	struct Grapple : ComponentBase
@@ -30,6 +32,7 @@ namespace Components
 			renderingSetup(std::move(renderingSetup)),
 			customShadersProgram(customShadersProgram)
 		{
+			Tools::AccessUserData(*this->body).componentId = componentId;
 		}
 
 		std::unique_ptr<b2Body, b2BodyDeleter> body;

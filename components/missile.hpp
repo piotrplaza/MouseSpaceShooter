@@ -15,6 +15,8 @@
 #include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>
 
+#include <bodyUserData.hpp>
+
 namespace Components
 {
 	struct Missile : ComponentBase
@@ -31,6 +33,7 @@ namespace Components
 			animationController(std::move(animationController)),
 			customShadersProgram(customShadersProgram)
 		{
+			Tools::AccessUserData(*this->body).componentId = componentId;
 		}
 
 		std::unique_ptr<b2Body, b2BodyDeleter> body;

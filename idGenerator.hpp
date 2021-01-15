@@ -4,7 +4,7 @@
 #include <limits>
 #include <cassert>
 
-template <typename Id>
+template <typename Id, Id firstId = 0>
 class IdGenerator
 {
 public:
@@ -50,8 +50,8 @@ public:
 private:
 	IdGenerator() = default;
 
-	static IdGenerator<Id> instance_;
+	static IdGenerator<Id, firstId> instance_;
 
-	Id counter = 0;
+	Id counter = firstId;
 	std::vector<Id> releasedIds;
 };

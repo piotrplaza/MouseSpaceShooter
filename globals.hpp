@@ -21,6 +21,7 @@ namespace Components
 	struct Decoration;
 	struct GraphicsSettings;
 	struct Missile;
+	struct CollisionHandler;
 }
 
 namespace Systems
@@ -61,6 +62,8 @@ namespace Globals
 		extern std::vector<::Components::Decoration>& foregroundDecorations;
 		extern std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryForegroundDecorations;
 		extern std::unordered_map<::ComponentId, ::Components::Missile>& missiles;
+		extern std::unordered_map<::ComponentId, ::Components::CollisionHandler>& beginCollisionHandlers;
+		extern std::unordered_map<::ComponentId, ::Components::CollisionHandler>& endCollisionHandlers;
 	}
 
 	namespace Systems

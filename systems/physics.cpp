@@ -3,15 +3,44 @@
 #include <globals.hpp>
 
 #include <components/physics.hpp>
+#include <components/collisionHandler.hpp>
 
 namespace
 {
 	constexpr float debugFrameTime = 1.0f / 160;
+
+	class ContactListener : public b2ContactListener
+	{
+		void BeginContact(b2Contact* contact) override
+		{
+			using namespace Globals::Components;
+
+			for (auto& beginCollisionHandler : beginCollisionHandlers)
+			{
+				beginCollisionHandler.second.handler(*contact->GetFixtureA(), *contact->GetFixtureB());
+			}
+		}
+
+		void EndContact(b2Contact* contact) override
+		{
+			using namespace Globals::Components;
+
+			for (auto& endCollisionHandler : endCollisionHandlers)
+			{
+				endCollisionHandler.second.handler(*contact->GetFixtureA(), *contact->GetFixtureB());
+			}
+		}
+	} contactListener;
 }
 
 namespace Systems
 {
-	Physics::Physics() = default;
+	Physics::Physics()
+	{
+		using namespace Globals::Components;
+
+		physics.world.SetContactListener(&contactListener);
+	}
 
 	void Physics::step()
 	{

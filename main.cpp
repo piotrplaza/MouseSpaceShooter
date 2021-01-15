@@ -34,7 +34,7 @@
 
 #include "ogl/oglHelpers.hpp"
 
-const bool fullScreen = true;
+const bool fullScreen = false;
 const bool console = true;
 const glm::ivec2 windowRes = { 1600, 1600 };
 
