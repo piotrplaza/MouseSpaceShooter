@@ -309,14 +309,24 @@ namespace Levels
 			};
 		}
 
-		void setCollisionCallbacks() const
+		void setCollisionCallbacks()
 		{
 			using namespace Globals::Components;
 
-			beginCollisionHandlers.emplace(CreateIdComponent<Components::CollisionHandler>(CollisionBits::missileBit, CollisionBits::all, [](auto, auto)
+			beginCollisionHandlers.emplace(CreateIdComponent<Components::CollisionHandler>(CollisionBits::missileBit, CollisionBits::all,
+				[this](const auto& fixtureA, const auto& fixtureB)
 				{
-					static int i = 0;
-					cout << i++ << endl;
+					for (const auto* fixture : { &fixtureA, &fixtureB })
+						if (fixture->GetFilterData().categoryBits == CollisionBits::missileBit)
+						{
+							static int i = 0;
+							cout << i++ << endl;
+							const auto componentId = Tools::AccessUserData(*fixture->GetBody()).componentId;
+							auto findIt = missilesToHandlers.find(componentId);
+							assert(findIt != missilesToHandlers.end());
+							findIt->second.erase();
+							missilesToHandlers.erase(findIt);
+						}
 				}));
 		}
 

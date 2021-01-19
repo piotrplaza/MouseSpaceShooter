@@ -2,6 +2,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include "componentId.hpp"
+
 #include "components/mouseState.hpp"
 #include "components/screenInfo.hpp"
 #include "components/mvp.hpp"
@@ -27,6 +29,8 @@
 #include "systems/decorations.hpp"
 #include "systems/temporaries.hpp"
 #include "systems/cleaner.hpp"
+
+ComponentIdGenerator ComponentIdGenerator::instance_;
 
 namespace Components
 {
