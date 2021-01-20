@@ -71,13 +71,48 @@ namespace Tools
 		return playerPlaneHandler;
 	}
 
+	MissileHandler::MissileHandler() = default;
+
+	MissileHandler::MissileHandler(ComponentId missileId, ComponentId backThrustId):
+		missileId(missileId),
+		backThrustId(backThrustId)
+	{
+	}
+
+	MissileHandler::~MissileHandler()
+	{
+		if (!valid) return;
+
+		using namespace Globals::Components;
+
+		auto missileIt = missiles.find(missileId);
+		assert(missileIt != missiles.end());
+		missileIt->second.state = ComponentState::Outdated;
+		auto thrustIt = temporaryBackgroundDecorations.find(backThrustId);
+		assert(thrustIt != temporaryBackgroundDecorations.end());
+		thrustIt->second.state = ComponentState::Outdated;
+	}
+
+	MissileHandler::MissileHandler(MissileHandler&& other) noexcept:
+		missileId(other.missileId),
+		backThrustId(other.backThrustId)
+	{
+		other.valid = false;
+	}
+
+	MissileHandler& MissileHandler::operator=(MissileHandler&& other) noexcept
+	{
+		missileId = other.missileId;
+		backThrustId = other.backThrustId;
+		other.valid = false;
+		return *this;
+	}
+
 	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimationTexture)
 	{
 		using namespace Globals::Components;
 
-		MissileHandler missileHandler;
-
-		missileHandler.missileId = ComponentIdGenerator::instance().current();
+		const auto missileId = ComponentIdGenerator::instance().current();
 		auto &missile = missiles.emplace(CreateIdComponent<Components::Missile>(
 			Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f))).first->second;
 		auto& body = *missile.body;
@@ -102,7 +137,7 @@ namespace Tools
 			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
 		};
 
-		missileHandler.backThrustId = ComponentIdGenerator::instance().current();
+		const auto backThrustId = ComponentIdGenerator::instance().current();
 		auto& decoration = temporaryBackgroundDecorations.emplace(CreateIdComponent<Components::Decoration>(
 			Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture)).first->second;
 		decoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([&, modelUniform = Uniforms::UniformControllerMat4f(),
@@ -129,16 +164,6 @@ namespace Tools
 
 		decoration.animationController->start();
 
-		missileHandler.erase = [missileId = missileHandler.missileId, backThrustId = missileHandler.backThrustId]()
-		{
-			auto missileIt = missiles.find(missileId);
-			assert(missileIt != missiles.end());
-			missileIt->second.state = ComponentState::Outdated;
-			auto thrustIt = temporaryBackgroundDecorations.find(backThrustId);
-			assert(thrustIt != temporaryBackgroundDecorations.end());
-			thrustIt->second.state = ComponentState::Outdated;
-		};
-
-		return missileHandler;
+		return { missileId, backThrustId };
 	}
 }

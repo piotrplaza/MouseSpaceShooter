@@ -16,9 +16,17 @@ namespace Tools
 
 	struct MissileHandler
 	{
+		MissileHandler();
+		MissileHandler(ComponentId missileId, ComponentId backThrustId);
+		~MissileHandler();
+		MissileHandler(MissileHandler&& other) noexcept;
+		MissileHandler& operator=(MissileHandler&& other) noexcept;
+
 		ComponentId missileId = 0;
 		ComponentId backThrustId = 0;
-		std::function<void()> erase;
+
+	private:
+		bool valid = true;
 	};
 
 	PlayerPlaneHandler CreatePlayerPlane(unsigned planeTexture, unsigned flameAnimationTexture);

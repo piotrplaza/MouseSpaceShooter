@@ -12,20 +12,20 @@ namespace Buffers
 		glEnableVertexAttribArray(0);
 	}
 
-	PosTexCoordBuffers::PosTexCoordBuffers(PosTexCoordBuffers&& source) noexcept:
-		vertexArray(source.vertexArray),
-		positionBuffer(source.positionBuffer),
-		texCoordBuffer(source.texCoordBuffer),
-		texture(source.texture),
-		renderingSetup(std::move(source.renderingSetup)),
-		animationController(source.animationController),
-		customShadersProgram(source.customShadersProgram),
-		positionsCache(std::move(source.positionsCache)),
-		texCoordCache(std::move(source.texCoordCache)),
-		numOfAllocatedPositions(source.numOfAllocatedPositions),
-		numOfAllocatedTexCoord(source.numOfAllocatedTexCoord)
+	PosTexCoordBuffers::PosTexCoordBuffers(PosTexCoordBuffers&& other) noexcept:
+		vertexArray(other.vertexArray),
+		positionBuffer(other.positionBuffer),
+		texCoordBuffer(other.texCoordBuffer),
+		texture(other.texture),
+		renderingSetup(std::move(other.renderingSetup)),
+		animationController(other.animationController),
+		customShadersProgram(other.customShadersProgram),
+		positionsCache(std::move(other.positionsCache)),
+		texCoordCache(std::move(other.texCoordCache)),
+		numOfAllocatedPositions(other.numOfAllocatedPositions),
+		numOfAllocatedTexCoord(other.numOfAllocatedTexCoord)
 	{
-		source.expired = true;
+		other.expired = true;
 	}
 
 	PosTexCoordBuffers::~PosTexCoordBuffers()

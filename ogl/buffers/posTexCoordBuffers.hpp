@@ -17,7 +17,7 @@ namespace Buffers
 	{
 		PosTexCoordBuffers();
 		PosTexCoordBuffers(const PosTexCoordBuffers&) = delete;
-		PosTexCoordBuffers(PosTexCoordBuffers&&) noexcept;
+		PosTexCoordBuffers(PosTexCoordBuffers&& other) noexcept;
 
 		~PosTexCoordBuffers();
 

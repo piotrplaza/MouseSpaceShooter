@@ -32,9 +32,6 @@
 
 #include <collisionBits.hpp>
 
-#include <iostream>
-using namespace std;
-
 namespace Levels
 {
 	class Playground::Impl
@@ -130,7 +127,7 @@ namespace Levels
 
 			auto missileHandler = Tools::CreateMissile(Globals::Components::players[0].getCenter() + relativeLaunchPos,
 				Globals::Components::players[0].getAngle(), 5.0f, Globals::Components::players[0].getVelocity(), missile2Texture, flameAnimation1Texture);
-			missilesToHandlers[missileHandler.missileId] = std::move(missileHandler);
+			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 
 			missileFromLeft = !missileFromLeft;
 		}
@@ -319,13 +316,7 @@ namespace Levels
 					for (const auto* fixture : { &fixtureA, &fixtureB })
 						if (fixture->GetFilterData().categoryBits == CollisionBits::missileBit)
 						{
-							static int i = 0;
-							cout << i++ << endl;
-							const auto componentId = Tools::AccessUserData(*fixture->GetBody()).componentId;
-							auto findIt = missilesToHandlers.find(componentId);
-							assert(findIt != missilesToHandlers.end());
-							findIt->second.erase();
-							missilesToHandlers.erase(findIt);
+							missilesToHandlers.erase(Tools::AccessUserData(*fixture->GetBody()).componentId);
 						}
 				}));
 		}
