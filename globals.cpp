@@ -13,7 +13,6 @@
 #include "components/player.hpp"
 #include "components/wall.hpp"
 #include "components/grapple.hpp"
-#include "components/connection.hpp"
 #include "components/camera.hpp"
 #include "components/decoration.hpp"
 #include "components/graphicsSettings.hpp"
@@ -47,7 +46,6 @@ namespace Components
 	static std::vector<::Components::Wall> staticWalls;
 	static std::vector<::Components::Wall> dynamicWalls;
 	static std::vector<::Components::Grapple> grapples;
-	static std::vector<::Components::Connection> connections;
 	static std::vector<::Components::Decoration> backgroundDecorations;
 	static std::unordered_map<::ComponentId, ::Components::Decoration> temporaryBackgroundDecorations;
 	static std::vector<::Components::Decoration> midgroundDecorations;
@@ -76,7 +74,6 @@ namespace Globals
 		std::vector<::Components::Wall>& staticWalls = ::Components::staticWalls;
 		std::vector<::Components::Wall>& dynamicWalls = ::Components::dynamicWalls;
 		std::vector<::Components::Grapple>& grapples = ::Components::grapples;
-		std::vector<::Components::Connection>& connections = ::Components::connections;
 		std::vector<::Components::Decoration>& backgroundDecorations = ::Components::backgroundDecorations;
 		std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryBackgroundDecorations = ::Components::temporaryBackgroundDecorations;
 		std::vector<::Components::Decoration>& midgroundDecorations = ::Components::midgroundDecorations;

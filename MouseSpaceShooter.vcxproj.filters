@@ -177,9 +177,6 @@
     <ClInclude Include="tools\graphicsHelpers.hpp">
       <Filter>src\tools</Filter>
     </ClInclude>
-    <ClInclude Include="components\connection.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="systems\camera.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>

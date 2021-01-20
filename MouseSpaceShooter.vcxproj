@@ -54,7 +54,6 @@
     <ClInclude Include="componentId.hpp" />
     <ClInclude Include="components\camera.hpp" />
     <ClInclude Include="components\collisionHandler.hpp" />
-    <ClInclude Include="components\connection.hpp" />
     <ClInclude Include="components\decoration.hpp" />
     <ClInclude Include="components\graphicsSettings.hpp" />
     <ClInclude Include="components\grapple.hpp" />

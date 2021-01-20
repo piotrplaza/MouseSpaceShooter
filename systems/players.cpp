@@ -13,6 +13,7 @@
 #include <ogl/renderingHelpers.hpp>
 
 #include <tools/b2Helpers.hpp>
+#include <tools/graphicsHelpers.hpp>
 
 #include <globals.hpp>
 
@@ -21,7 +22,6 @@
 #include <components/mvp.hpp>
 #include <components/mouseState.hpp>
 #include <components/grapple.hpp>
-#include <components/connection.hpp>
 #include <components/texture.hpp>
 #include <components/textureDef.hpp>
 #include <components/graphicsSettings.hpp>
@@ -69,7 +69,7 @@ namespace Systems
 		connectionsBuffers->positionsCache.clear();
 		connectionsBuffers->colorsCache.clear();
 
-		for (auto& connection : Globals::Components::connections)
+		for (auto& connection : connections)
 		{
 			if (connection.segmentsNum > 1)
 				connection.segmentsNum = std::max((int)glm::distance(connection.p1, connection.p2) * 2, 2);
@@ -253,7 +253,7 @@ namespace Systems
 			glm::sin(currentAngle)) * playerForwardForce, player.body->GetWorldCenter(), true);
 	}
 
-	void Players::magneticHook(bool active) const
+	void Players::magneticHook(bool active)
 	{
 		using namespace Globals::Components;
 
@@ -374,5 +374,16 @@ namespace Systems
 		glDeleteBuffers(1, &positionBuffer);
 		glDeleteBuffers(1, &colorBuffer);
 		glDeleteVertexArrays(1, &vertexArray);
+	}
+
+	std::vector<glm::vec3> Players::Connection::getPositions() const
+	{
+		if (segmentsNum == 1) return { { p1, 0.0f }, { p2, 0.0f } };
+		else return Tools::CreatePositionsOfLightning(p1, p2, segmentsNum, frayFactor);
+	}
+
+	std::vector<glm::vec4> Players::Connection::getColors() const
+	{
+		return std::vector<glm::vec4>(segmentsNum * 2, color);
 	}
 }

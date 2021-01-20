@@ -16,7 +16,6 @@ namespace Components
 	struct Player;
 	struct Wall;
 	struct Grapple;
-	struct Connection;
 	struct Camera;
 	struct Decoration;
 	struct GraphicsSettings;
@@ -54,7 +53,6 @@ namespace Globals
 		extern std::vector<::Components::Wall>& staticWalls;
 		extern std::vector<::Components::Wall>& dynamicWalls;
 		extern std::vector<::Components::Grapple>& grapples;
-		extern std::vector<::Components::Connection>& connections;
 		extern std::vector<::Components::Decoration>& backgroundDecorations;
 		extern std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryBackgroundDecorations;
 		extern std::vector<::Components::Decoration>& midgroundDecorations;
