@@ -139,6 +139,9 @@
     <ClCompile Include="systems\cleaner.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
+    <ClCompile Include="systems\deferredActions.cpp">
+      <Filter>src\systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.hpp">
@@ -302,6 +305,12 @@
     </ClInclude>
     <ClInclude Include="componentBase.hpp">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="components\shockwave.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\deferredActions.hpp">
+      <Filter>src\systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

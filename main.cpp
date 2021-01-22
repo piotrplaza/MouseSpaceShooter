@@ -24,6 +24,7 @@
 #include "systems/decorations.hpp"
 #include "systems/temporaries.hpp"
 #include "systems/cleaner.hpp"
+#include "systems/deferredActions.hpp"
 
 #include "levels/level.hpp"
 #include "levels/playground/playground.hpp"
@@ -33,6 +34,9 @@
 #include "tools/utility.hpp"
 
 #include "ogl/oglHelpers.hpp"
+
+#include <globals.hpp>
+#include <components/shockwave.hpp>
 
 const bool fullScreen = true;
 const bool console = true;
@@ -85,6 +89,15 @@ void RenderScene()
 	Globals::Systems::AccessPlayers().render();
 	Globals::Systems::AccessTemporaries().render();
 	Globals::Systems::AccessDecorations().renderForeground();
+
+	glPointSize(10);
+	for (const auto& shockwave : Globals::Components::shockwaves)
+	for (const auto& particle : shockwave.second.particles)
+	{
+		glBegin(GL_POINTS);
+		glVertex2fv(&particle->GetWorldCenter().x);
+		glEnd();
+	}
 }
 
 void PrepareFrame()
@@ -92,6 +105,7 @@ void PrepareFrame()
 	Globals::Systems::AccessStateController().frameSetup();
 
 	Globals::Systems::AccessPhysics().step();
+	Globals::Systems::AccessDeferredActions().step();
 
 	activeLevel->step();
 
@@ -211,10 +225,12 @@ LRESULT CALLBACK WndProc(
 			ShowCursor(false);
 			focus = true;
 			resetMousePositionRequired = true;
+			Globals::Systems::AccessPhysics().resume();
 			break;
 		case WM_KILLFOCUS:
 			ShowCursor(true);
 			focus = false;
+			Globals::Systems::AccessPhysics().pause();
 			break;
 		case WM_KEYDOWN:
 			keys[wParam] = true;

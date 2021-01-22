@@ -5,6 +5,8 @@
 
 #include <globals.hpp>
 
+#include <systems/deferredActions.hpp>
+
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
 #include <components/textureDef.hpp>
@@ -18,6 +20,7 @@
 #include <components/mvp.hpp>
 #include <components/missile.hpp>
 #include <components/collisionHandler.hpp>
+#include <components/shockwave.hpp>
 
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/basic.hpp>
@@ -316,6 +319,18 @@ namespace Levels
 					for (const auto* fixture : { &fixtureA, &fixtureB })
 						if (fixture->GetFilterData().categoryBits == CollisionBits::missileBit)
 						{
+							Globals::Systems::AccessDeferredActions().addDeferredAction([fixture]()
+								{
+									const auto componentId = ComponentIdGenerator::instance().current();
+									shockwaves.emplace(CreateIdComponent<Components::Shockwave>(ToVec2<glm::vec2>(fixture->GetBody()->GetPosition())));
+									Globals::Systems::AccessDeferredActions().addDeferredAction([startTime = physics.simulationTime, componentId]()
+										{
+											if (physics.simulationTime - startTime < 1.0f) return true;
+											shockwaves.erase(componentId);
+											return false;
+										});
+									return false;
+								});
 							missilesToHandlers.erase(Tools::AccessUserData(*fixture->GetBody()).componentId);
 						}
 				}));

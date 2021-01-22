@@ -23,7 +23,7 @@ namespace Components
 	{
 		using RenderingSetup = std::function<std::function<void()>(Shaders::ProgramId)>;
 
-		Missile(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt,
+		Missile(Body body, std::optional<unsigned> texture = std::nullopt,
 			std::unique_ptr<RenderingSetup> renderingSetup = nullptr,
 			std::unique_ptr<Tools::TextureAnimationController> animationController = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
@@ -36,7 +36,7 @@ namespace Components
 			Tools::AccessUserData(*this->body).componentId = componentId;
 		}
 
-		std::unique_ptr<b2Body, b2BodyDeleter> body;
+		Body body;
 		std::optional<unsigned> texture;
 		std::unique_ptr<RenderingSetup> renderingSetup;
 		std::unique_ptr<Tools::TextureAnimationController> animationController;

@@ -13,21 +13,19 @@ namespace
 	{
 		void BeginContact(b2Contact* contact) override
 		{
-			using namespace Globals::Components;
-
-			for (auto& beginCollisionHandler : beginCollisionHandlers)
-			{
-				beginCollisionHandler.second.handler(*contact->GetFixtureA(), *contact->GetFixtureB());
-			}
+			Contact(contact, Globals::Components::beginCollisionHandlers);
 		}
 
 		void EndContact(b2Contact* contact) override
 		{
-			using namespace Globals::Components;
+			Contact(contact, Globals::Components::endCollisionHandlers);
+		}
 
-			for (auto& endCollisionHandler : endCollisionHandlers)
+		void Contact(b2Contact* contact, std::unordered_map<::ComponentId, ::Components::CollisionHandler>& collisionHandlers)
+		{
+			for (auto& collisionHandler : collisionHandlers)
 			{
-				endCollisionHandler.second.handler(*contact->GetFixtureA(), *contact->GetFixtureB());
+				collisionHandler.second.handler(*contact->GetFixtureA(), *contact->GetFixtureB());
 			}
 		}
 	} contactListener;
@@ -49,13 +47,13 @@ namespace Systems
 		if (firstStep)
 		{
 #ifndef _DEBUG 
-			start = std::chrono::high_resolution_clock::now();
+			startPoint = std::chrono::high_resolution_clock::now();
 #endif
 			firstStep = false;
 		}
 
 #ifndef _DEBUG 
-		const auto simulationTime = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
+		const auto simulationTime = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - startPoint).count() - pauseTime;
 		physics.frameTime = simulationTime - physics.simulationTime;
 		physics.simulationTime = simulationTime;
 #else
@@ -64,5 +62,20 @@ namespace Systems
 #endif
 
 		physics.world.Step(physics.frameTime, 3, 8);
+	}
+
+	void Physics::pause()
+	{
+		if (!pausePoint)
+			pausePoint = std::chrono::high_resolution_clock::now();
+	}
+
+	void Physics::resume()
+	{
+		if (pausePoint)
+		{
+			pauseTime += std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - *pausePoint).count();
+			pausePoint.reset();
+		}
 	}
 }

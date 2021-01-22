@@ -21,6 +21,7 @@ namespace Components
 	struct GraphicsSettings;
 	struct Missile;
 	struct CollisionHandler;
+	struct Shockwave;
 }
 
 namespace Systems
@@ -34,6 +35,7 @@ namespace Systems
 	class Decorations;
 	class Temporaries;
 	class Cleaner;
+	class DeferredActions;
 }
 
 namespace Globals
@@ -62,6 +64,7 @@ namespace Globals
 		extern std::unordered_map<::ComponentId, ::Components::Missile>& missiles;
 		extern std::unordered_map<::ComponentId, ::Components::CollisionHandler>& beginCollisionHandlers;
 		extern std::unordered_map<::ComponentId, ::Components::CollisionHandler>& endCollisionHandlers;
+		extern std::unordered_map<::ComponentId, ::Components::Shockwave>& shockwaves;
 	}
 
 	namespace Systems
@@ -77,5 +80,6 @@ namespace Globals
 		::Systems::Decorations& AccessDecorations();
 		::Systems::Temporaries& AccessTemporaries();
 		::Systems::Cleaner& AccessCleaner();
+		::Systems::DeferredActions& AccessDeferredActions();
 	}
 }

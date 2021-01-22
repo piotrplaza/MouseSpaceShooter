@@ -11,8 +11,6 @@
 
 #include <ogl/shaders.hpp>
 
-#include <globals.hpp>
-
 #include <tools/b2Helpers.hpp>
 #include <tools/graphicsHelpers.hpp>
 
@@ -24,7 +22,7 @@ namespace Components
 	{
 		using RenderingSetup = std::function<std::function<void()>(Shaders::ProgramId)>;
 
-		Wall(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt,
+		Wall(Body body, std::optional<unsigned> texture = std::nullopt,
 			std::unique_ptr<RenderingSetup> renderingSetup = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
@@ -35,7 +33,7 @@ namespace Components
 			Tools::AccessUserData(*this->body).componentId = componentId;
 		}
 
-		std::unique_ptr<b2Body, b2BodyDeleter> body;
+		Body body;
 		std::optional<unsigned> texture;
 		std::unique_ptr<RenderingSetup> renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;

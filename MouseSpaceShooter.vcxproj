@@ -34,6 +34,7 @@
     <ClCompile Include="systems\camera.cpp" />
     <ClCompile Include="systems\cleaner.cpp" />
     <ClCompile Include="systems\decorations.cpp" />
+    <ClCompile Include="systems\deferredActions.cpp" />
     <ClCompile Include="systems\physics.cpp" />
     <ClCompile Include="systems\players.cpp" />
     <ClCompile Include="systems\stateController.cpp" />
@@ -63,6 +64,7 @@
     <ClInclude Include="components\physics.hpp" />
     <ClInclude Include="components\player.hpp" />
     <ClInclude Include="components\screenInfo.hpp" />
+    <ClInclude Include="components\shockwave.hpp" />
     <ClInclude Include="components\texture.hpp" />
     <ClInclude Include="components\textureDef.hpp" />
     <ClInclude Include="components\wall.hpp" />
@@ -89,6 +91,7 @@
     <ClInclude Include="systems\camera.hpp" />
     <ClInclude Include="systems\cleaner.hpp" />
     <ClInclude Include="systems\decorations.hpp" />
+    <ClInclude Include="systems\deferredActions.hpp" />
     <ClInclude Include="systems\physics.hpp" />
     <ClInclude Include="systems\players.hpp" />
     <ClInclude Include="systems\stateController.hpp" />

@@ -34,7 +34,7 @@ void b2JointDeleter::operator()(b2Joint* joint) const
 
 namespace Tools
 {
-	std::unique_ptr<b2Body, b2BodyDeleter> CreateTrianglePlayerBody(float size, float density, float spreadFactor)
+	Body CreateTrianglePlayerBody(float size, float density, float spreadFactor)
 	{
 		using namespace Globals::Components;
 
@@ -43,7 +43,7 @@ namespace Tools
 		bodyDef.position.Set(0.0f, 0.0f);
 		bodyDef.angle = 0.0f;
 		bodyDef.bullet = true;
-		std::unique_ptr<b2Body, b2BodyDeleter> body(physics.world.CreateBody(&bodyDef));
+		Body body(physics.world.CreateBody(&bodyDef));
 
 		b2FixtureDef fixtureDef;
 		const b2Vec2 playerTriangle[3] = {
@@ -67,7 +67,7 @@ namespace Tools
 		return body;
 	}
 
-	std::unique_ptr<b2Body, b2BodyDeleter> CreateBoxBody(glm::vec2 position, glm::vec2 hSize, float angle,
+	Body CreateBoxBody(glm::vec2 position, glm::vec2 hSize, float angle,
 		b2BodyType bodyType, float density, float restitution, float friction)
 	{
 		using namespace Globals::Components;
@@ -76,7 +76,7 @@ namespace Tools
 		bodyDef.type = bodyType;
 		bodyDef.position.Set(position.x, position.y);
 		bodyDef.angle = angle;
-		std::unique_ptr<b2Body, b2BodyDeleter> body(physics.world.CreateBody(&bodyDef));
+		Body body(physics.world.CreateBody(&bodyDef));
 
 		b2FixtureDef fixtureDef;
 		b2PolygonShape polygonShape;
@@ -93,7 +93,7 @@ namespace Tools
 		return body;
 	}
 
-	std::unique_ptr<b2Body, b2BodyDeleter> CreateCircleBody(glm::vec2 position, float radius,
+	Body CreateCircleBody(glm::vec2 position, float radius,
 		b2BodyType bodyType, float density, float restitution, float friction)
 	{
 		using namespace Globals::Components;
@@ -101,7 +101,7 @@ namespace Tools
 		b2BodyDef bodyDef;
 		bodyDef.type = bodyType;
 		bodyDef.position.Set(position.x, position.y);
-		std::unique_ptr<b2Body, b2BodyDeleter> body(physics.world.CreateBody(&bodyDef));
+		Body body(physics.world.CreateBody(&bodyDef));
 
 		b2FixtureDef fixtureDef;
 		b2CircleShape circleShape;

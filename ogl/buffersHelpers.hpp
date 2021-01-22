@@ -85,7 +85,7 @@ namespace Tools
 					if (component.renderingSetup)
 						return Detail::ReuseOrEmplaceBack(customTexturedBuffers, customTexturedBuffersIt);
 					else
-						return texturesToBuffers[*component.texture];;
+						return texturesToBuffers[*component.texture];
 				}
 				else
 				{

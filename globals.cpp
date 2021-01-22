@@ -18,6 +18,7 @@
 #include "components/graphicsSettings.hpp"
 #include "components/missile.hpp"
 #include "components/collisionHandler.hpp"
+#include "components/shockwave.hpp"
 
 #include "systems/stateController.hpp"
 #include "systems/physics.hpp"
@@ -28,6 +29,7 @@
 #include "systems/decorations.hpp"
 #include "systems/temporaries.hpp"
 #include "systems/cleaner.hpp"
+#include "systems/deferredActions.hpp"
 
 ComponentIdGenerator ComponentIdGenerator::instance_;
 
@@ -55,6 +57,7 @@ namespace Components
 	static std::unordered_map<::ComponentId, ::Components::Missile> missiles;
 	static std::unordered_map<::ComponentId, ::Components::CollisionHandler> beginCollisionHandlers;
 	static std::unordered_map<::ComponentId, ::Components::CollisionHandler> endCollisionHandlers;
+	static std::unordered_map<::ComponentId, ::Components::Shockwave> shockwaves;
 }
 
 namespace Globals
@@ -83,6 +86,7 @@ namespace Globals
 		std::unordered_map<::ComponentId, ::Components::Missile>& missiles = ::Components::missiles;
 		std::unordered_map<::ComponentId, ::Components::CollisionHandler>& beginCollisionHandlers = ::Components::beginCollisionHandlers;
 		std::unordered_map<::ComponentId, ::Components::CollisionHandler>& endCollisionHandlers = ::Components::endCollisionHandlers;
+		std::unordered_map<::ComponentId, ::Components::Shockwave>& shockwaves = ::Components::shockwaves;
 	}
 
 	namespace Systems
@@ -96,6 +100,7 @@ namespace Globals
 		std::unique_ptr<::Systems::Decorations> decorations;
 		std::unique_ptr<::Systems::Temporaries> temporaries;
 		std::unique_ptr<::Systems::Cleaner> cleaner;
+		std::unique_ptr<::Systems::DeferredActions> deferredActions;
 
 		void Initialize()
 		{
@@ -108,6 +113,7 @@ namespace Globals
 			decorations = std::make_unique<::Systems::Decorations>();
 			temporaries = std::make_unique<::Systems::Temporaries>();
 			cleaner = std::make_unique<::Systems::Cleaner>();
+			deferredActions = std::make_unique<::Systems::DeferredActions>();
 		}
 
 		::Systems::StateController& AccessStateController()
@@ -153,6 +159,11 @@ namespace Globals
 		::Systems::Cleaner& AccessCleaner()
 		{
 			return *cleaner;
+		}
+
+		::Systems::DeferredActions& AccessDeferredActions()
+		{
+			return *deferredActions;
 		}
 	}
 }

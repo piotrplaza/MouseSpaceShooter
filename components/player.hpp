@@ -24,7 +24,7 @@ namespace Components
 	{
 		using RenderingSetup = std::function<std::function<void()>(Shaders::ProgramId)>;
 
-		Player(std::unique_ptr<b2Body, b2BodyDeleter> body, std::optional<unsigned> texture = std::nullopt,
+		Player(Body body, std::optional<unsigned> texture = std::nullopt,
 			std::unique_ptr<RenderingSetup> renderingSetup = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
@@ -35,7 +35,7 @@ namespace Components
 			Tools::AccessUserData(*this->body).componentId = componentId;
 		}
 
-		std::unique_ptr<b2Body, b2BodyDeleter> body;
+		Body body;
 		std::optional<unsigned> texture;
 		std::unique_ptr<RenderingSetup> renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;

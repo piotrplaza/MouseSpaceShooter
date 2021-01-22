@@ -23,7 +23,7 @@ namespace Components
 	{
 		using RenderingSetup = std::function<std::function<void()>(Shaders::ProgramId)>;
 
-		Grapple(std::unique_ptr<b2Body, b2BodyDeleter> body, float influenceRadius, std::optional<unsigned> texture = std::nullopt,
+		Grapple(Body body, float influenceRadius, std::optional<unsigned> texture = std::nullopt,
 			std::unique_ptr<RenderingSetup> renderingSetup = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
@@ -35,7 +35,7 @@ namespace Components
 			Tools::AccessUserData(*this->body).componentId = componentId;
 		}
 
-		std::unique_ptr<b2Body, b2BodyDeleter> body;
+		Body body;
 		float influenceRadius;
 		std::optional<unsigned> texture;
 		std::unique_ptr<RenderingSetup> renderingSetup;
