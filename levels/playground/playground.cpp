@@ -319,11 +319,11 @@ namespace Levels
 					for (const auto* fixture : { &fixtureA, &fixtureB })
 						if (fixture->GetFilterData().categoryBits == CollisionBits::missileBit)
 						{
-							Globals::Systems::AccessDeferredActions().addDeferredAction([fixture]()
+							Globals::Systems::DeferredActions().addDeferredAction([fixture]()
 								{
 									const auto componentId = ComponentIdGenerator::instance().current();
 									shockwaves.emplace(CreateIdComponent<Components::Shockwave>(ToVec2<glm::vec2>(fixture->GetBody()->GetPosition())));
-									Globals::Systems::AccessDeferredActions().addDeferredAction([startTime = physics.simulationTime, componentId]()
+									Globals::Systems::DeferredActions().addDeferredAction([startTime = physics.simulationTime, componentId]()
 										{
 											if (physics.simulationTime - startTime < 1.0f) return true;
 											shockwaves.erase(componentId);

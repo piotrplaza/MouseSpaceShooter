@@ -71,15 +71,15 @@ namespace Globals
 	{
 		void Initialize();
 
-		::Systems::StateController& AccessStateController();
-		::Systems::Physics& AccessPhysics();
-		::Systems::Textures& AccessTextures();
-		::Systems::Players& AccessPlayers();
-		::Systems::Walls& AccessWalls();
-		::Systems::Camera& AccessCamera();
-		::Systems::Decorations& AccessDecorations();
-		::Systems::Temporaries& AccessTemporaries();
-		::Systems::Cleaner& AccessCleaner();
-		::Systems::DeferredActions& AccessDeferredActions();
+		::Systems::StateController& StateController();
+		::Systems::Physics& Physics();
+		::Systems::Textures& Textures();
+		::Systems::Players& Players();
+		::Systems::Walls& Walls();
+		::Systems::Camera& Camera();
+		::Systems::Decorations& Decorations();
+		::Systems::Temporaries& Temporaries();
+		::Systems::Cleaner& Cleaner();
+		::Systems::DeferredActions& DeferredActions();
 	}
 }

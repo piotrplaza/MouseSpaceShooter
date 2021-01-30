@@ -116,52 +116,52 @@ namespace Globals
 			deferredActions = std::make_unique<::Systems::DeferredActions>();
 		}
 
-		::Systems::StateController& AccessStateController()
+		::Systems::StateController& StateController()
 		{
 			return *stateController;
 		}
 
-		::Systems::Physics& AccessPhysics()
+		::Systems::Physics& Physics()
 		{
 			return *physics;
 		}
 
-		::Systems::Textures& AccessTextures()
+		::Systems::Textures& Textures()
 		{
 			return *textures;
 		}
 
-		::Systems::Players& AccessPlayers()
+		::Systems::Players& Players()
 		{
 			return *players;
 		}
 
-		::Systems::Walls& AccessWalls()
+		::Systems::Walls& Walls()
 		{
 			return *walls;
 		}
 
-		::Systems::Camera& AccessCamera()
+		::Systems::Camera& Camera()
 		{
 			return *camera;
 		}
 
-		::Systems::Decorations& AccessDecorations()
+		::Systems::Decorations& Decorations()
 		{
 			return *decorations;
 		}
 
-		::Systems::Temporaries& AccessTemporaries()
+		::Systems::Temporaries& Temporaries()
 		{
 			return *temporaries;
 		}
 
-		::Systems::Cleaner& AccessCleaner()
+		::Systems::Cleaner& Cleaner()
 		{
 			return *cleaner;
 		}
 
-		::Systems::DeferredActions& AccessDeferredActions()
+		::Systems::DeferredActions& DeferredActions()
 		{
 			return *deferredActions;
 		}

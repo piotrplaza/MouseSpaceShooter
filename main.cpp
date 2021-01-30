@@ -74,7 +74,7 @@ void Initialize()
 
 	Globals::Systems::Initialize();
 
-	Globals::Systems::AccessStateController().initializationFinalize();
+	Globals::Systems::StateController().initializationFinalize();
 }
 
 void RenderScene()
@@ -83,12 +83,12 @@ void RenderScene()
 	glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	Globals::Systems::AccessDecorations().renderBackground();
-	Globals::Systems::AccessWalls().render();
-	Globals::Systems::AccessDecorations().renderMidground();
-	Globals::Systems::AccessPlayers().render();
-	Globals::Systems::AccessTemporaries().render();
-	Globals::Systems::AccessDecorations().renderForeground();
+	Globals::Systems::Decorations().renderBackground();
+	Globals::Systems::Walls().render();
+	Globals::Systems::Decorations().renderMidground();
+	Globals::Systems::Players().render();
+	Globals::Systems::Temporaries().render();
+	Globals::Systems::Decorations().renderForeground();
 
 	glPointSize(10);
 	for (const auto& shockwave : Globals::Components::shockwaves)
@@ -102,24 +102,24 @@ void RenderScene()
 
 void PrepareFrame()
 {
-	Globals::Systems::AccessStateController().frameSetup();
+	Globals::Systems::StateController().frameSetup();
 
-	Globals::Systems::AccessPhysics().step();
-	Globals::Systems::AccessDeferredActions().step();
+	Globals::Systems::Physics().step();
+	Globals::Systems::DeferredActions().step();
 
 	activeLevel->step();
 
-	Globals::Systems::AccessPlayers().step();
-	Globals::Systems::AccessTemporaries().step();
-	Globals::Systems::AccessWalls().step();
-	Globals::Systems::AccessDecorations().step();
-	Globals::Systems::AccessCamera().step();
+	Globals::Systems::Players().step();
+	Globals::Systems::Temporaries().step();
+	Globals::Systems::Walls().step();
+	Globals::Systems::Decorations().step();
+	Globals::Systems::Camera().step();
 
 	RenderScene();
 
-	Globals::Systems::AccessStateController().frameTeardown();
+	Globals::Systems::StateController().frameTeardown();
 
-	Globals::Systems::AccessCleaner().step();
+	Globals::Systems::Cleaner().step();
 }
 
 void HandleKeyboard(bool const* const keys)
@@ -225,12 +225,12 @@ LRESULT CALLBACK WndProc(
 			ShowCursor(false);
 			focus = true;
 			resetMousePositionRequired = true;
-			Globals::Systems::AccessPhysics().resume();
+			Globals::Systems::Physics().resume();
 			break;
 		case WM_KILLFOCUS:
 			ShowCursor(true);
 			focus = false;
-			Globals::Systems::AccessPhysics().pause();
+			Globals::Systems::Physics().pause();
 			break;
 		case WM_KEYDOWN:
 			keys[wParam] = true;
