@@ -38,6 +38,7 @@ namespace Components
 
 		Body body;
 		std::optional<unsigned> texture;
+		static constexpr GLenum bufferDataUsage = GL_STATIC_DRAW;
 		std::unique_ptr<RenderingSetup> renderingSetup;
 		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;

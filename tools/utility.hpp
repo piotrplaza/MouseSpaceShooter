@@ -12,4 +12,6 @@ namespace Tools
 
 	void RandomInit();
 	float Random(float min, float max);
+	unsigned StableRandom(unsigned seed);
+	float StableRandom(float min, float max, unsigned seed);
 }

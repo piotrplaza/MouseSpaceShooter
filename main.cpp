@@ -90,14 +90,14 @@ void RenderScene()
 	Globals::Systems::Temporaries().render();
 	Globals::Systems::Decorations().renderForeground();
 
-	glPointSize(10);
+	/*glPointSize(10);
 	for (const auto& shockwave : Globals::Components::shockwaves)
 	for (const auto& particle : shockwave.second.particles)
 	{
 		glBegin(GL_POINTS);
 		glVertex2fv(&particle->GetWorldCenter().x);
 		glEnd();
-	}
+	}*/
 }
 
 void PrepareFrame()

@@ -18,17 +18,25 @@ namespace Detail
 
 namespace Tools
 {
-	std::vector<glm::vec3> CreatePositionsOfRectangle(const glm::vec2& position, const glm::vec2& hSize)
+	std::vector<glm::vec3> CreatePositionsOfRectangle(const glm::vec2& position, const glm::vec2& hSize, float angle)
 	{
 		std::vector<glm::vec3> positions;
 		positions.reserve(6);
 
-		positions.emplace_back(position - hSize, 0.0f);
-		const auto& diagonal1 = positions.emplace_back(position.x + hSize.x, position.y - hSize.y, 0.0f);
-		const auto& diagonal2 = positions.emplace_back(position.x - hSize.x, position.y + hSize.y, 0.0f);
+		positions.emplace_back(-hSize, 0.0f);
+		const auto& diagonal1 = positions.emplace_back(hSize.x, -hSize.y, 0.0f);
+		const auto& diagonal2 = positions.emplace_back(-hSize.x, hSize.y, 0.0f);
 		positions.push_back(diagonal2);
 		positions.push_back(diagonal1);
-		positions.emplace_back(position + hSize, 0.0f);
+		positions.emplace_back(hSize, 0.0f);
+
+		if (angle != 0.0f)
+		{
+			glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), angle, { 0.0f, 0.0f, 1.0f });
+			for (auto& localPosition : positions) localPosition = rotMat * glm::vec4(localPosition, 1.0f);
+		}
+
+		for (auto& localPosition : positions) localPosition += glm::vec3(position, 0.0f);
 
 		return positions;
 	}

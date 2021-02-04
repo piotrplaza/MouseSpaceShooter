@@ -49,11 +49,11 @@ namespace Systems
 	void Decorations::updateTemporaryPosAndTexCoordBuffers()
 	{
 		Tools::UpdatePosTexCoordBuffers(Globals::Components::temporaryBackgroundDecorations, temporaryBuffers.simpleBackgroundDecorations,
-			temporaryBuffers.texturedBackgroundDecorations, temporaryBuffers.customShadersBackgroundDecorations, GL_STATIC_DRAW);
+			temporaryBuffers.texturedBackgroundDecorations, temporaryBuffers.customShadersBackgroundDecorations);
 		Tools::UpdatePosTexCoordBuffers(Globals::Components::temporaryMidgroundDecorations, temporaryBuffers.simpleMidgroundDecorations,
-			temporaryBuffers.texturedMidgroundDecorations, temporaryBuffers.customShadersMidgroundDecorations, GL_STATIC_DRAW);
+			temporaryBuffers.texturedMidgroundDecorations, temporaryBuffers.customShadersMidgroundDecorations);
 		Tools::UpdatePosTexCoordBuffers(Globals::Components::temporaryForegroundDecorations, temporaryBuffers.simpleForegroundDecorations,
-			temporaryBuffers.texturedForegroundDecorations, temporaryBuffers.customShadersForegroundDecorations, GL_STATIC_DRAW);
+			temporaryBuffers.texturedForegroundDecorations, temporaryBuffers.customShadersForegroundDecorations);
 	}
 
 	void Decorations::step()

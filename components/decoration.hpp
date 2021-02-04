@@ -35,6 +35,7 @@ namespace Components
 
 		std::vector<glm::vec3> positions;
 		std::optional<unsigned> texture;
+		GLenum bufferDataUsage = GL_STATIC_DRAW;
 		std::unique_ptr<RenderingSetup> renderingSetup;
 		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;

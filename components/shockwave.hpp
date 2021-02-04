@@ -19,8 +19,9 @@ namespace Components
 {
 	struct Shockwave : ComponentBase
 	{
-		Shockwave(glm::vec2 center, int numOfParticles = 100, float initVelocity = 100.0f, float particlesRadius = 0.5f, float particlesDensity = 0.01f,
-			float particlesLinearDamping = 3.0f, bool particlesAsBullets = false)
+		Shockwave(glm::vec2 center, int numOfParticles = 50, float initVelocity = 100.0f, float particlesRadius = 2.0f, float particlesDensity = 0.002f,
+			float particlesLinearDamping = 3.0f, bool particlesAsBullets = false):
+			center(center)
 		{
 			float angle = Tools::Random(0.0f, glm::two_pi<float>());
 			const float angleStep = glm::two_pi<float>() / numOfParticles;
@@ -36,6 +37,18 @@ namespace Components
 			}
 		}
 
+		const glm::vec2 center;
 		std::vector<Body> particles;
+
+		void disable()
+		{
+			for (auto& particle : particles)
+				particle->SetEnabled(false);
+		}
+
+		bool isEnabled()
+		{
+			return particles[0]->IsEnabled();
+		}
 	};
 }

@@ -4,15 +4,20 @@
 
 #include <globals.hpp>
 
+#include <systems/deferredActions.hpp>
+
 #include <components/player.hpp>
 #include <components/physics.hpp>
 #include <components/decoration.hpp>
 #include <components/missile.hpp>
+#include <components/shockwave.hpp>
 
 #include <ogl/uniformControllers.hpp>
+#include <ogl/shaders/textured.hpp>
 
 #include <tools/animations.hpp>
 #include <tools/b2Helpers.hpp>
+#include <tools/utility.hpp>
 
 #include <collisionBits.hpp>
 
@@ -165,5 +170,53 @@ namespace Tools
 		decoration.animationController->start();
 
 		return { missileId, backThrustId };
+	}
+
+	void CreateExplosion(glm::vec2 center, unsigned explosionTexture, float explosionDuration, int particlesPerDecoration)
+	{
+		using namespace Globals::Components;
+
+		Globals::Systems::DeferredActions().addDeferredAction([=]() {
+			auto& shockwave = shockwaves.emplace(CreateIdComponent<Components::Shockwave>(center)).first->second;
+			auto& explosionDecoration = temporaryForegroundDecorations.emplace(CreateIdComponent<Components::Decoration>(
+				std::vector<glm::vec3>{}, explosionTexture)).first->second;
+			explosionDecoration.texCoord = Tools::CreateTexCoordOfRectangle();
+			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
+			explosionDecoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>(
+				[=, texturedProgram = Shaders::Programs::TexturedAccessor(), startTime = physics.simulationTime](Shaders::ProgramId program) mutable
+			{
+				if (!texturedProgram.isValid()) texturedProgram = program;
+				const float elapsed = physics.simulationTime - startTime;
+				texturedProgram.colorUniform.setValue(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / explosionDuration, 2.0f)),
+					glm::pow(((explosionDuration - elapsed) / explosionDuration) * 0.5f, 2.0f)));
+				return nullptr;
+			});
+			Globals::Systems::DeferredActions().addDeferredAction([=, startTime = physics.simulationTime, seedOfset = std::rand(), &shockwave, &explosionDecoration]() {
+				const float elapsed = physics.simulationTime - startTime;
+
+				if (elapsed > explosionDuration)
+				{
+					shockwave.state = ComponentState::Outdated;
+					explosionDecoration.state = ComponentState::Outdated;
+					return false;
+				}
+
+				explosionDecoration.positions.clear();
+				for (size_t i = 0; i < shockwave.particles.size(); ++i)
+				{
+					if (i % particlesPerDecoration != 0) continue;
+					auto& particle = shockwave.particles[i];
+					const auto newPositions = Tools::CreatePositionsOfRectangle(
+						shockwave.center + (ToVec2<glm::vec2>(particle->GetWorldCenter()) - shockwave.center) * 0.5f,
+						glm::vec2(1.0f + elapsed * 20.0f), Tools::StableRandom(0.0f, glm::two_pi<float>(), seedOfset + i));
+					explosionDecoration.positions.insert(explosionDecoration.positions.end(), newPositions.begin(), newPositions.end());
+				}
+				explosionDecoration.state = ComponentState::Changed;
+
+				return true;
+			});
+
+			return false;
+			});
 	}
 }

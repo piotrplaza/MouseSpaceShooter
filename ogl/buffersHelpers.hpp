@@ -218,7 +218,7 @@ namespace Tools
 
 	template <typename Component, typename Buffers>
 	inline void UpdatePosTexCoordBuffers(std::unordered_map<ComponentId, Component>& components, std::unordered_map<ComponentId, Buffers>& simpleBuffers,
-		std::unordered_map<ComponentId, Buffers>& texturedBuffers, std::unordered_map<ComponentId, Buffers>& customShadersBuffers, GLenum bufferDataUsage)
+		std::unordered_map<ComponentId, Buffers>& texturedBuffers, std::unordered_map<ComponentId, Buffers>& customShadersBuffers)
 	{
 		for(auto& [id, component] : components)
 		{
@@ -249,14 +249,14 @@ namespace Tools
 				buffers.customShadersProgram = component.customShadersProgram;
 				buffers.positionsCache = component.getPositions();
 
-				Detail::AllocateOrUpdatePositionsData(buffers, bufferDataUsage);
+				Detail::AllocateOrUpdatePositionsData(buffers, component.bufferDataUsage);
 
 				if (component.texture)
 				{
 					if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
 					buffers.texCoordCache = component.getTexCoord();
 					buffers.textureRatioPreserved = component.isTextureRatioPreserved();
-					Detail::AllocateOrUpdateTexCoordData(buffers, bufferDataUsage);
+					Detail::AllocateOrUpdateTexCoordData(buffers, component.bufferDataUsage);
 				}
 
 				component.state = ComponentState::Ongoing;

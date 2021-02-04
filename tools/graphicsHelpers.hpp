@@ -10,7 +10,7 @@
 
 namespace Tools
 {
-	std::vector<glm::vec3> CreatePositionsOfRectangle(const glm::vec2& position, const glm::vec2& hSize);
+	std::vector<glm::vec3> CreatePositionsOfRectangle(const glm::vec2& position, const glm::vec2& hSize, float angle = 0.0f);
 	std::vector<glm::vec2> CreateTexCoordOfRectangle();
 	std::vector<glm::vec3> CreatePositionsOfLineOfRectangles(const glm::vec2& hSize, const std::pair<glm::vec2, glm::vec2>& positionsRange,
 		const glm::vec2& scaleRange, const glm::vec2& angleRange, const glm::vec2& stepRange);

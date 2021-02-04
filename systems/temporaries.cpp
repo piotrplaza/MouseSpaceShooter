@@ -27,7 +27,7 @@ namespace Systems
 	void Temporaries::updatePosAndTexCoordBuffers()
 	{
 		Tools::UpdatePosTexCoordBuffers(Globals::Components::missiles, simpleRocketsBuffers,
-			texturedRocketsBuffers, customShaderRocketsBuffers, GL_STATIC_DRAW);
+			texturedRocketsBuffers, customShaderRocketsBuffers);
 	}
 
 	void Temporaries::customShadersRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffers) const

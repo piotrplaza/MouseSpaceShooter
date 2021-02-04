@@ -7,6 +7,7 @@
 #include <ios>
 #include <cstdlib>
 #include <ctime>
+#include <climits>
 
 namespace Tools
 {
@@ -51,5 +52,19 @@ namespace Tools
 	float Random(float min, float max)
 	{
 		return (float)std::rand() / RAND_MAX * (max - min) + min;
+	}
+
+	unsigned StableRandom(unsigned seed)
+	{
+		unsigned i = (seed ^ 12345391u) * 2654435769u;
+		i ^= (i << 6u) ^ (i >> 26u);
+		i *= 2654435769u;
+		i += (i << 5u) ^ (i >> 12u);
+		return i;
+	}
+
+	float StableRandom(float min, float max, unsigned seed)
+	{
+		return (float)StableRandom(seed) / UINT_MAX * (max - min) + min;
 	}
 }

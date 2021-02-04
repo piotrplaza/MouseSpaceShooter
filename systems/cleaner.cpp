@@ -6,6 +6,7 @@
 
 #include <components/decoration.hpp>
 #include <components/missile.hpp>
+#include <components/shockwave.hpp>
 
 template <typename ComponentsMap>
 inline void RemoveOutdatedComponents(ComponentsMap& components)
@@ -35,5 +36,6 @@ namespace Systems
 		RemoveOutdatedComponents(temporaryMidgroundDecorations);
 		RemoveOutdatedComponents(temporaryForegroundDecorations);
 		RemoveOutdatedComponents(missiles);
+		RemoveOutdatedComponents(shockwaves);
 	}
 }

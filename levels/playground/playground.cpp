@@ -97,6 +97,9 @@ namespace Levels
 			texturesDef.back().minFilter = GL_LINEAR;
 			texturesDef.back().translate = glm::vec2(-0.5f, -0.5f);
 			texturesDef.back().scale = glm::vec2(0.4f, 0.45f);
+
+			explosionTexture = texturesDef.size();
+			texturesDef.emplace_back("textures/explosion.png");
 		}
 
 		void createBackground()
@@ -115,6 +118,32 @@ namespace Levels
 				juliaShaders.maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
 				return nullptr;
 			});
+		}
+
+		void createForeground() const
+		{
+			using namespace Globals::Components;
+
+			for (int layer = 0; layer < 2; ++layer)
+			for (int posYI = -1; posYI <= 1; ++posYI)
+			for (int posXI = -1; posXI <= 1; ++posXI)
+			{
+				foregroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)), fogTexture);
+				foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+				foregroundDecorations.back().renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([&,
+					texturedProgram = Shaders::Programs::TexturedAccessor(),
+					layer
+				](Shaders::ProgramId program) mutable {
+					if (!texturedProgram.isValid()) texturedProgram = program;
+					texturedProgram.vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
+						glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f),
+						glm::vec3(-camera.prevPosition * (0.02f + layer * 0.02f), 0.0f)));
+					texturedProgram.colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.02f });
+					return [texturedProgram]() mutable {
+						texturedProgram.vpUniform.setValue(mvp.getVP());
+					};
+				});
+			}
 		}
 
 		void createPlayers()
@@ -269,30 +298,6 @@ namespace Levels
 			});
 		}
 
-		void createForeground() const
-		{
-			using namespace Globals::Components;
-
-			for (int layer = 0; layer < 2; ++layer)
-			for (int posYI = -1; posYI <= 1; ++posYI)
-			for (int posXI = -1; posXI <= 1; ++posXI)
-			{
-				foregroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)), fogTexture);
-				foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
-				foregroundDecorations.back().renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([&,
-					texturedProgram = Shaders::Programs::TexturedAccessor(),
-					layer
-				](Shaders::ProgramId program) mutable {
-					if (!texturedProgram.isValid()) texturedProgram = program;
-					texturedProgram.vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
-						glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f),
-						glm::vec3(-camera.prevPosition * (0.02f + layer * 0.02f), 0.0f)));
-					texturedProgram.colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.02f });
-					return nullptr;
-				});
-			}
-		}
-
 		void setCamera() const
 		{
 			using namespace Globals::Components;
@@ -313,27 +318,16 @@ namespace Levels
 		{
 			using namespace Globals::Components;
 
-			beginCollisionHandlers.emplace(CreateIdComponent<Components::CollisionHandler>(CollisionBits::missileBit, CollisionBits::all,
-				[this](const auto& fixtureA, const auto& fixtureB)
+			beginCollisionHandlers.emplace(CreateIdComponent<Components::CollisionHandler>(CollisionBits::missileBit, CollisionBits::all, [this](const auto& fixtureA, const auto& fixtureB) {
+				for (const auto* fixture : { &fixtureA, &fixtureB })
+				if (fixture->GetFilterData().categoryBits == CollisionBits::missileBit)
 				{
-					for (const auto* fixture : { &fixtureA, &fixtureB })
-						if (fixture->GetFilterData().categoryBits == CollisionBits::missileBit)
-						{
-							Globals::Systems::DeferredActions().addDeferredAction([fixture]()
-								{
-									const auto componentId = ComponentIdGenerator::instance().current();
-									shockwaves.emplace(CreateIdComponent<Components::Shockwave>(ToVec2<glm::vec2>(fixture->GetBody()->GetPosition())));
-									Globals::Systems::DeferredActions().addDeferredAction([startTime = physics.simulationTime, componentId]()
-										{
-											if (physics.simulationTime - startTime < 1.0f) return true;
-											shockwaves.erase(componentId);
-											return false;
-										});
-									return false;
-								});
-							missilesToHandlers.erase(Tools::AccessUserData(*fixture->GetBody()).componentId);
-						}
-				}));
+					const auto& body = *fixture->GetBody();
+
+					missilesToHandlers.erase(Tools::AccessUserData(body).componentId);
+					Tools::CreateExplosion(ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture, 2.0f, 5);
+				}
+			}));
 		}
 
 		void step()
@@ -366,6 +360,7 @@ namespace Levels
 		unsigned flameAnimation1Texture = 0;
 		unsigned missile1Texture = 0;
 		unsigned missile2Texture = 0;
+		unsigned explosionTexture = 0;
 
 		Tools::PlayerPlaneHandler player1Handler;
 
