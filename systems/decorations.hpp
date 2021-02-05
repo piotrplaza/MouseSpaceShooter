@@ -40,34 +40,23 @@ namespace Systems
 		std::unique_ptr<Shaders::Programs::Basic> basicShadersProgram;
 		std::unique_ptr<Shaders::Programs::Textured> texturedShadersProgram;
 
-		struct
+		template <typename BufferType>
+		struct DecorationBuffers
 		{
-			std::vector<Buffers::PosTexCoordBuffers> simpleBackgroundDecorations;
-			std::vector<Buffers::PosTexCoordBuffers> simpleMidgroundDecorations;
-			std::vector<Buffers::PosTexCoordBuffers> simpleForegroundDecorations;
+			BufferType simpleBackgroundDecorations;
+			BufferType simpleMidgroundDecorations;
+			BufferType simpleForegroundDecorations;
 
-			std::vector<Buffers::PosTexCoordBuffers> texturedBackgroundDecorations;
-			std::vector<Buffers::PosTexCoordBuffers> texturedMidgroundDecorations;
-			std::vector<Buffers::PosTexCoordBuffers> texturedForegroundDecorations;
+			BufferType texturedBackgroundDecorations;
+			BufferType texturedMidgroundDecorations;
+			BufferType texturedForegroundDecorations;
 
-			std::vector<Buffers::PosTexCoordBuffers> customShadersBackgroundDecorations;
-			std::vector<Buffers::PosTexCoordBuffers> customShadersMidgroundDecorations;
-			std::vector<Buffers::PosTexCoordBuffers> customShadersForegroundDecorations;
-		} persistentBuffers;
-
-		struct
-		{
-			std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers> simpleBackgroundDecorations;
-			std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers> simpleMidgroundDecorations;
-			std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers> simpleForegroundDecorations;
-
-			std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers> texturedBackgroundDecorations;
-			std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers> texturedMidgroundDecorations;
-			std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers> texturedForegroundDecorations;
-
-			std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers> customShadersBackgroundDecorations;
-			std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers> customShadersMidgroundDecorations;
-			std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers> customShadersForegroundDecorations;
-		} temporaryBuffers;
+			BufferType customShadersBackgroundDecorations;
+			BufferType customShadersMidgroundDecorations;
+			BufferType customShadersForegroundDecorations;
+		};
+		
+		DecorationBuffers<std::vector<Buffers::PosTexCoordBuffers>> persistentBuffers;
+		DecorationBuffers<std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>> temporaryBuffers;
 	};
 }
