@@ -318,16 +318,15 @@ namespace Levels
 		{
 			using namespace Globals::Components;
 
-			beginCollisionHandlers.emplace(CreateIdComponent<Components::CollisionHandler>(CollisionBits::missileBit, CollisionBits::all, [this](const auto& fixtureA, const auto& fixtureB) {
+			EmplaceIdComponent(beginCollisionHandlers, CollisionBits::missileBit, CollisionBits::all, [this](const auto& fixtureA, const auto& fixtureB) {
 				for (const auto* fixture : { &fixtureA, &fixtureB })
 				if (fixture->GetFilterData().categoryBits == CollisionBits::missileBit)
 				{
 					const auto& body = *fixture->GetBody();
-
 					missilesToHandlers.erase(Tools::AccessUserData(body).componentId);
 					Tools::CreateExplosion(ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture, 2.0f, 5);
 				}
-			}));
+			});
 		}
 
 		void step()

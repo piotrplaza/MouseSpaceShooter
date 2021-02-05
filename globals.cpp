@@ -19,6 +19,7 @@
 #include "components/missile.hpp"
 #include "components/collisionHandler.hpp"
 #include "components/shockwave.hpp"
+#include "components/light.hpp"
 
 #include "systems/stateController.hpp"
 #include "systems/physics.hpp"
@@ -58,6 +59,7 @@ namespace Components
 	static std::unordered_map<::ComponentId, ::Components::CollisionHandler> beginCollisionHandlers;
 	static std::unordered_map<::ComponentId, ::Components::CollisionHandler> endCollisionHandlers;
 	static std::unordered_map<::ComponentId, ::Components::Shockwave> shockwaves;
+	static std::unordered_map<::ComponentId, ::Components::Light> lights;
 }
 
 namespace Globals
@@ -87,6 +89,7 @@ namespace Globals
 		std::unordered_map<::ComponentId, ::Components::CollisionHandler>& beginCollisionHandlers = ::Components::beginCollisionHandlers;
 		std::unordered_map<::ComponentId, ::Components::CollisionHandler>& endCollisionHandlers = ::Components::endCollisionHandlers;
 		std::unordered_map<::ComponentId, ::Components::Shockwave>& shockwaves = ::Components::shockwaves;
+		std::unordered_map<::ComponentId, ::Components::Light>& lights = ::Components::lights;
 	}
 
 	namespace Systems

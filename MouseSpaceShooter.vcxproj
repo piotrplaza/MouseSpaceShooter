@@ -58,6 +58,7 @@
     <ClInclude Include="components\decoration.hpp" />
     <ClInclude Include="components\graphicsSettings.hpp" />
     <ClInclude Include="components\grapple.hpp" />
+    <ClInclude Include="components\light.hpp" />
     <ClInclude Include="components\missile.hpp" />
     <ClInclude Include="components\mouseState.hpp" />
     <ClInclude Include="components\mvp.hpp" />

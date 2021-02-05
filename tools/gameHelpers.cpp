@@ -118,8 +118,7 @@ namespace Tools
 		using namespace Globals::Components;
 
 		const auto missileId = ComponentIdGenerator::instance().current();
-		auto &missile = missiles.emplace(CreateIdComponent<Components::Missile>(
-			Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f))).first->second;
+		auto& missile = EmplaceIdComponent(missiles, Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f));
 		auto& body = *missile.body;
 		SetCollisionFilteringBits(body, CollisionBits::missileBit, CollisionBits::all - CollisionBits::missileBit - CollisionBits::playerBit);
 		body.SetBullet(true);
@@ -143,8 +142,7 @@ namespace Tools
 		};
 
 		const auto backThrustId = ComponentIdGenerator::instance().current();
-		auto& decoration = temporaryBackgroundDecorations.emplace(CreateIdComponent<Components::Decoration>(
-			Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture)).first->second;
+		auto& decoration = EmplaceIdComponent(temporaryBackgroundDecorations, Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture);
 		decoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([&, modelUniform = Uniforms::UniformControllerMat4f(),
 			thrustScale = 0.1f
 		](Shaders::ProgramId program) mutable {
@@ -177,9 +175,8 @@ namespace Tools
 		using namespace Globals::Components;
 
 		Globals::Systems::DeferredActions().addDeferredAction([=]() {
-			auto& shockwave = shockwaves.emplace(CreateIdComponent<Components::Shockwave>(center)).first->second;
-			auto& explosionDecoration = temporaryForegroundDecorations.emplace(CreateIdComponent<Components::Decoration>(
-				std::vector<glm::vec3>{}, explosionTexture)).first->second;
+			auto& shockwave = EmplaceIdComponent(shockwaves, center);
+			auto& explosionDecoration = EmplaceIdComponent(temporaryForegroundDecorations, std::vector<glm::vec3>{}, explosionTexture);
 			explosionDecoration.texCoord = Tools::CreateTexCoordOfRectangle();
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 			explosionDecoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>(

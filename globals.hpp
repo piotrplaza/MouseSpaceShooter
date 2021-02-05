@@ -22,6 +22,7 @@ namespace Components
 	struct Missile;
 	struct CollisionHandler;
 	struct Shockwave;
+	struct Light;
 }
 
 namespace Systems
@@ -65,6 +66,7 @@ namespace Globals
 		extern std::unordered_map<::ComponentId, ::Components::CollisionHandler>& beginCollisionHandlers;
 		extern std::unordered_map<::ComponentId, ::Components::CollisionHandler>& endCollisionHandlers;
 		extern std::unordered_map<::ComponentId, ::Components::Shockwave>& shockwaves;
+		extern std::unordered_map<::ComponentId, ::Components::Light>& lights;
 	}
 
 	namespace Systems
