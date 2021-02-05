@@ -324,7 +324,7 @@ namespace Levels
 				{
 					const auto& body = *fixture->GetBody();
 					missilesToHandlers.erase(Tools::AccessUserData(body).componentId);
-					Tools::CreateExplosion(ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture, 2.0f, 5);
+					Tools::CreateExplosion(ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture);
 				}
 			});
 		}

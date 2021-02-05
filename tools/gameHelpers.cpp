@@ -184,9 +184,11 @@ namespace Tools
 			{
 				if (!texturedProgram.isValid()) texturedProgram = program;
 				const float elapsed = physics.simulationTime - startTime;
-				texturedProgram.colorUniform.setValue(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / explosionDuration, 2.0f)),
-					glm::pow(((explosionDuration - elapsed) / explosionDuration) * 0.5f, 2.0f)));
-				return nullptr;
+				texturedProgram.colorUniform.setValue(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (explosionDuration * 2.0f), 10.0f)), 1.0f));
+
+				glBlendFunc(GL_ONE, GL_ONE);
+
+				return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
 			});
 			Globals::Systems::DeferredActions().addDeferredAction([=, startTime = physics.simulationTime, seedOfset = std::rand(), &shockwave, &explosionDecoration]() {
 				const float elapsed = physics.simulationTime - startTime;
