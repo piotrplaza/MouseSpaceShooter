@@ -38,7 +38,7 @@
 #include <globals.hpp>
 #include <components/shockwave.hpp>
 
-const bool fullScreen = false;
+const bool fullScreen = true;
 const bool console = true;
 const glm::ivec2 windowRes = { 1600, 1600 };
 
