@@ -117,8 +117,7 @@ namespace Tools
 	{
 		using namespace Globals::Components;
 
-		const auto missileId = ComponentIdGenerator::instance().current();
-		auto& missile = EmplaceIdComponent(missiles, Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f));
+		auto& missile = EmplaceIdComponent(missiles, { Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f) });
 		auto& body = *missile.body;
 		SetCollisionFilteringBits(body, CollisionBits::missileBit, CollisionBits::all - CollisionBits::missileBit - CollisionBits::playerBit);
 		body.SetBullet(true);
@@ -141,8 +140,7 @@ namespace Tools
 			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
 		};
 
-		const auto backThrustId = ComponentIdGenerator::instance().current();
-		auto& decoration = EmplaceIdComponent(temporaryBackgroundDecorations, Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture);
+		auto& decoration = EmplaceIdComponent(temporaryBackgroundDecorations, { Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture });
 		decoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([&, modelUniform = Uniforms::UniformControllerMat4f(),
 			thrustScale = 0.1f
 		](Shaders::ProgramId program) mutable {
@@ -167,7 +165,7 @@ namespace Tools
 
 		decoration.animationController->start();
 
-		return { missileId, backThrustId };
+		return { missile.componentId, decoration.componentId };
 	}
 
 	void CreateExplosion(glm::vec2 center, unsigned explosionTexture, float explosionDuration, int particlesPerDecoration)
@@ -176,7 +174,7 @@ namespace Tools
 
 		Globals::Systems::DeferredActions().addDeferredAction([=]() {
 			auto& shockwave = EmplaceIdComponent(shockwaves, center);
-			auto& explosionDecoration = EmplaceIdComponent(temporaryForegroundDecorations, std::vector<glm::vec3>{}, explosionTexture);
+			auto& explosionDecoration = EmplaceIdComponent(temporaryForegroundDecorations, { std::vector<glm::vec3>{}, explosionTexture });
 			explosionDecoration.texCoord = Tools::CreateTexCoordOfRectangle();
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 			explosionDecoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>(

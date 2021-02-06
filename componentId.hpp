@@ -7,9 +7,9 @@
 using ComponentId = unsigned long;
 using ComponentIdGenerator = IdGenerator<ComponentId, 1>;
 
-template <typename Container, typename ...ComponentArgs>
-typename Container::mapped_type& EmplaceIdComponent(Container& container, ComponentArgs&&... componentArgs)
+template <typename Container>
+typename Container::mapped_type& EmplaceIdComponent(Container& container, typename Container::mapped_type&& component)
 {
-	const auto componentId = ComponentIdGenerator::instance().current();
-	return container.emplace(componentId, Container::mapped_type(std::forward<ComponentArgs>(componentArgs)...)).first->second;
+	const auto componentId = component.componentId;
+	return container.emplace(componentId, std::forward<typename Container::mapped_type>(component)).first->second;
 }
