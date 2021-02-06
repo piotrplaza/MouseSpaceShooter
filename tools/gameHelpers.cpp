@@ -60,7 +60,7 @@ namespace Tools
 				if (player.throttling) thrustScale = std::min(thrustScale * (1.0f + targetFrameTimeFactor), 5.0f);
 				else thrustScale = 1.0f + (thrustScale - 1.0f) * (1.0f - targetFrameTimeFactor);
 
-				glBlendFunc(GL_ONE, GL_ONE);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 				return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
 			});
@@ -153,7 +153,7 @@ namespace Tools
 			const float targetFrameTimeFactor = physics.frameTime * 10;
 			thrustScale = std::min(thrustScale * (1.0f + targetFrameTimeFactor), 3.0f);
 
-			glBlendFunc(GL_ONE, GL_ONE);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 			return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
 		});
@@ -184,7 +184,7 @@ namespace Tools
 				const float elapsed = physics.simulationTime - startTime;
 				texturedProgram.colorUniform.setValue(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (explosionDuration * 2.0f), 10.0f)), 1.0f));
 
-				glBlendFunc(GL_ONE, GL_ONE);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 				return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
 			});
