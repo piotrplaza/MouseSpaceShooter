@@ -199,13 +199,16 @@ namespace Tools
 				}
 
 				explosionDecoration.positions.clear();
+				const auto newPositions = Tools::CreatePositionsOfRectangle(shockwave.center, glm::vec2(1.0f + elapsed * 20.0f),
+					Tools::StableRandom(0.0f, glm::two_pi<float>(), seedOfset));
+				explosionDecoration.positions.insert(explosionDecoration.positions.end(), newPositions.begin(), newPositions.end());
 				for (size_t i = 0; i < shockwave.particles.size(); ++i)
 				{
 					if (i % particlesPerDecoration != 0) continue;
 					auto& particle = shockwave.particles[i];
 					const auto newPositions = Tools::CreatePositionsOfRectangle(
 						shockwave.center + (ToVec2<glm::vec2>(particle->GetWorldCenter()) - shockwave.center) * 0.5f,
-						glm::vec2(1.0f + elapsed * 20.0f), Tools::StableRandom(0.0f, glm::two_pi<float>(), seedOfset + i));
+						glm::vec2(1.0f + elapsed * 20.0f), Tools::StableRandom(0.0f, glm::two_pi<float>(), seedOfset + i + 1));
 					explosionDecoration.positions.insert(explosionDecoration.positions.end(), newPositions.begin(), newPositions.end());
 				}
 				explosionDecoration.state = ComponentState::Changed;
