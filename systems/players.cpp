@@ -55,13 +55,13 @@ namespace Systems
 	{
 		Tools::UpdateTransformedPositionsBuffers(Globals::Components::players,
 			*simplePlayersBuffers, texturesToPlayersBuffers, customSimplePlayersBuffers,
-			customTexturedPlayersBuffers, customShadersPlayersBuffers, GL_DYNAMIC_DRAW);
+			customTexturedPlayersBuffers, customShadersPlayersBuffers);
 	}
 
 	void Players::updatePlayersTexCoordBuffers()
 	{
 		Tools::UpdateTexCoordBuffers(Globals::Components::players, texturesToPlayersBuffers,
-			customTexturedPlayersBuffers, customShadersPlayersBuffers, GL_STATIC_DRAW);
+			customTexturedPlayersBuffers, customShadersPlayersBuffers);
 	}
 
 	void Players::updateConnectionsGraphicsBuffers()
@@ -128,9 +128,9 @@ namespace Systems
 	void Players::render() const
 	{
 		basicRender();
+		coloredRender();
 		sceneCoordTexturedRender();
 		customShadersRender();
-		coloredRender();
 	}
 
 	void Players::basicRender() const

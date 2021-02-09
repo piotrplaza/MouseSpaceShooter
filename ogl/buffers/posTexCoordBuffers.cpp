@@ -23,7 +23,10 @@ namespace Buffers
 		positionsCache(std::move(other.positionsCache)),
 		texCoordCache(std::move(other.texCoordCache)),
 		numOfAllocatedPositions(other.numOfAllocatedPositions),
-		numOfAllocatedTexCoord(other.numOfAllocatedTexCoord)
+		numOfAllocatedTexCoord(other.numOfAllocatedTexCoord),
+		drawMode(other.drawMode),
+		bufferDataUsage(other.bufferDataUsage),
+		allocatedBufferDataUsage(std::move(other.allocatedBufferDataUsage))
 	{
 		other.expired = true;
 	}

@@ -38,11 +38,13 @@ namespace Components
 
 		Body body;
 		std::optional<unsigned> texture;
-		static constexpr GLenum bufferDataUsage = GL_STATIC_DRAW;
 		std::unique_ptr<RenderingSetup> renderingSetup;
 		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::function<void()> step;
+
+		static constexpr GLenum drawMode = GL_TRIANGLES;
+		static constexpr GLenum bufferDataUsage = GL_STATIC_DRAW;
 
 		glm::vec2 getCenter() const
 		{

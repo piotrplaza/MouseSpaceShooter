@@ -95,8 +95,8 @@ namespace Systems
 
 	void Temporaries::render() const
 	{
-		customShadersRender(customShaderRocketsBuffers);
-		texturedRender(texturedRocketsBuffers);
 		basicRender(simpleRocketsBuffers);
+		texturedRender(texturedRocketsBuffers);
+		customShadersRender(customShaderRocketsBuffers);
 	}
 }

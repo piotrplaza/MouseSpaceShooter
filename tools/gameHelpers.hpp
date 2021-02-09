@@ -6,6 +6,8 @@
 
 #include <componentId.hpp>
 
+#include <ogl/shaders/particles.hpp>
+
 namespace Tools
 {
 	struct PlayerPlaneHandler
@@ -31,5 +33,5 @@ namespace Tools
 
 	PlayerPlaneHandler CreatePlayerPlane(unsigned planeTexture, unsigned flameAnimationTexture);
 	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimationTexture);
-	void CreateExplosion(glm::vec2 center, unsigned explosionTexture, float explosionDuration = 1.0f, int particlesPerDecoration = 5);
+	void CreateExplosion(Shaders::Programs::ParticlesAccessor particlesProgram, glm::vec2 center, unsigned explosionTexture, float explosionDuration = 1.0f, int numOfParticles = 50, int particlesPerDecoration = 5);
 }

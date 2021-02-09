@@ -84,6 +84,7 @@
     <ClInclude Include="ogl\shaders\basic.hpp" />
     <ClInclude Include="ogl\shaders\colored.hpp" />
     <ClInclude Include="ogl\shaders\julia.hpp" />
+    <ClInclude Include="ogl\shaders\particles.hpp" />
     <ClInclude Include="ogl\shaders\programBase.hpp" />
     <ClInclude Include="ogl\shaders\sceneCoordTextured.hpp" />
     <ClInclude Include="ogl\shaders\textured.hpp" />
@@ -113,6 +114,9 @@
     <None Include="ogl\shaders\colored.vs" />
     <None Include="ogl\shaders\julia.fs" />
     <None Include="ogl\shaders\julia.vs" />
+    <None Include="ogl\shaders\particles.fs" />
+    <None Include="ogl\shaders\particles.gs" />
+    <None Include="ogl\shaders\particles.vs" />
     <None Include="ogl\shaders\sceneCoordTextured.fs" />
     <None Include="ogl\shaders\sceneCoordTextured.vs" />
     <None Include="ogl\shaders\textured.fs" />

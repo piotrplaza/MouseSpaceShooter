@@ -37,7 +37,9 @@ namespace Buffers
 		size_t numOfAllocatedPositions = 0;
 		size_t numOfAllocatedTexCoord = 0;
 
+		GLenum drawMode = GL_TRIANGLES;
 		GLenum bufferDataUsage = GL_STATIC_DRAW;
+		std::optional<GLenum> allocatedBufferDataUsage;
 
 		bool textureRatioPreserved = false;
 

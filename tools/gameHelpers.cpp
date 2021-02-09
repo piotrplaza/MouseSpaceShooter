@@ -11,6 +11,7 @@
 #include <components/decoration.hpp>
 #include <components/missile.hpp>
 #include <components/shockwave.hpp>
+#include <components/mvp.hpp>
 
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/textured.hpp>
@@ -168,27 +169,30 @@ namespace Tools
 		return { missile.componentId, decoration.componentId };
 	}
 
-	void CreateExplosion(glm::vec2 center, unsigned explosionTexture, float explosionDuration, int particlesPerDecoration)
+	void CreateExplosion(Shaders::Programs::ParticlesAccessor particlesProgram, glm::vec2 center, unsigned explosionTexture, float explosionDuration, int numOfParticles, int particlesPerDecoration)
 	{
 		using namespace Globals::Components;
 
 		Globals::Systems::DeferredActions().addDeferredAction([=]() {
-			auto& shockwave = EmplaceIdComponent(shockwaves, center);
-			auto& explosionDecoration = EmplaceIdComponent(temporaryForegroundDecorations, { std::vector<glm::vec3>{}, explosionTexture });
-			explosionDecoration.texCoord = Tools::CreateTexCoordOfRectangle();
+			auto& shockwave = EmplaceIdComponent(shockwaves, { center, numOfParticles });
+			auto& explosionDecoration = EmplaceIdComponent(temporaryForegroundDecorations, { std::vector<glm::vec3>{} });
+			explosionDecoration.customShadersProgram = particlesProgram.program;
+			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 			explosionDecoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>(
-				[=, texturedProgram = Shaders::Programs::TexturedAccessor(), startTime = physics.simulationTime](Shaders::ProgramId program) mutable
+				[=, startTime = physics.simulationTime](Shaders::ProgramId program) mutable
 			{
-				if (!texturedProgram.isValid()) texturedProgram = program;
+				particlesProgram.vpUniform.setValue(mvp.getVP());
+				particlesProgram.texture1Uniform.setValue(explosionTexture);
+
 				const float elapsed = physics.simulationTime - startTime;
-				texturedProgram.colorUniform.setValue(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (explosionDuration * 2.0f), 10.0f)), 1.0f));
+				particlesProgram.colorUniform.setValue(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (explosionDuration * 2.0f), 10.0f)), 1.0f));
 
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 				return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
 			});
-			Globals::Systems::DeferredActions().addDeferredAction([=, startTime = physics.simulationTime, seedOfset = std::rand(), &shockwave, &explosionDecoration]() {
+			Globals::Systems::DeferredActions().addDeferredAction([=, startTime = physics.simulationTime, &shockwave, &explosionDecoration]() {
 				const float elapsed = physics.simulationTime - startTime;
 
 				if (elapsed > explosionDuration)
@@ -199,17 +203,14 @@ namespace Tools
 				}
 
 				explosionDecoration.positions.clear();
-				const auto newPositions = Tools::CreatePositionsOfRectangle(shockwave.center, glm::vec2(1.0f + elapsed * 20.0f),
-					Tools::StableRandom(0.0f, glm::two_pi<float>(), seedOfset));
-				explosionDecoration.positions.insert(explosionDecoration.positions.end(), newPositions.begin(), newPositions.end());
+				explosionDecoration.positions.push_back(glm::vec3(shockwave.center, 1.0f));
 				for (size_t i = 0; i < shockwave.particles.size(); ++i)
 				{
 					if (i % particlesPerDecoration != 0) continue;
-					auto& particle = shockwave.particles[i];
-					const auto newPositions = Tools::CreatePositionsOfRectangle(
-						shockwave.center + (ToVec2<glm::vec2>(particle->GetWorldCenter()) - shockwave.center) * 0.5f,
-						glm::vec2(1.0f + elapsed * 20.0f), Tools::StableRandom(0.0f, glm::two_pi<float>(), seedOfset + i + 1));
-					explosionDecoration.positions.insert(explosionDecoration.positions.end(), newPositions.begin(), newPositions.end());
+					const auto& particle = shockwave.particles[i];
+					const glm::vec2 position = shockwave.center + (ToVec2<glm::vec2>(particle->GetWorldCenter()) - shockwave.center) * 0.5f;
+					const float scale = 1.0f + elapsed * 20.0f;
+					explosionDecoration.positions.push_back(glm::vec3(position, scale));
 				}
 				explosionDecoration.state = ComponentState::Changed;
 

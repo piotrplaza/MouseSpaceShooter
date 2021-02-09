@@ -59,6 +59,9 @@
     <Filter Include="src\levels\race1">
       <UniqueIdentifier>{76361db7-1f44-4baa-ac42-10597ad01e0d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ogl\shaders\particles">
+      <UniqueIdentifier>{92adb1c3-7dba-4c44-81d7-e0c84a0acc32}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -315,6 +318,9 @@
     <ClInclude Include="components\light.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
+    <ClInclude Include="ogl\shaders\particles.hpp">
+      <Filter>src\ogl\shaders\particles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">
@@ -352,6 +358,15 @@
     </None>
     <None Include="ogl\shaders\texturedColorThreshold.vs">
       <Filter>src\ogl\shaders\texturedColorThreshold</Filter>
+    </None>
+    <None Include="ogl\shaders\particles.fs">
+      <Filter>src\ogl\shaders\particles</Filter>
+    </None>
+    <None Include="ogl\shaders\particles.gs">
+      <Filter>src\ogl\shaders\particles</Filter>
+    </None>
+    <None Include="ogl\shaders\particles.vs">
+      <Filter>src\ogl\shaders\particles</Filter>
     </None>
   </ItemGroup>
 </Project>

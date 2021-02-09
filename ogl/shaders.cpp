@@ -11,8 +11,48 @@ namespace Shaders
 	static const std::unordered_map< ShaderType, std::string> shaderTypesToNames =
 	{
 		{GL_VERTEX_SHADER, "vertex shader"},
+		{GL_GEOMETRY_SHADER, "geometry shader"},
 		{GL_FRAGMENT_SHADER, "fragment shader"}
 	};
+
+	VertexFragmentShaders::VertexFragmentShaders(ShaderId vertexShader, ShaderId fragmentShader):
+		vertexShader(vertexShader),
+		fragmentShader(fragmentShader)
+	{
+	}
+
+	void VertexFragmentShaders::attach(ProgramId program) const
+	{
+		glAttachShader(program, vertexShader);
+		glAttachShader(program, fragmentShader);
+	}
+
+	void VertexFragmentShaders::detach(ProgramId program) const
+	{
+		glDetachShader(program, vertexShader);
+		glDetachShader(program, fragmentShader);
+	}
+
+	VertexGeometryFragmentShaders::VertexGeometryFragmentShaders(ShaderId vertexShader, ShaderId geometryShader, ShaderId fragmentShader):
+		vertexShader(vertexShader),
+		geometryShader(geometryShader),
+		fragmentShader(fragmentShader)
+	{
+	}
+
+	void VertexGeometryFragmentShaders::attach(ProgramId program) const
+	{
+		glAttachShader(program, vertexShader);
+		glAttachShader(program, geometryShader);
+		glAttachShader(program, fragmentShader);
+	}
+
+	void VertexGeometryFragmentShaders::detach(ProgramId program) const
+	{
+		glDetachShader(program, vertexShader);
+		glDetachShader(program, geometryShader);
+		glDetachShader(program, fragmentShader);
+	}
 
 	ShaderId CompileShader(const std::string& path, ShaderType shaderType)
 	{
@@ -53,18 +93,21 @@ namespace Shaders
 		}
 	}
 
-	VertexAndFragmentShader CompileShaders(const std::string& vsPath, const std::string& fsPath)
+	VertexFragmentShaders CompileShaders(const std::string& vsPath, const std::string& fsPath)
 	{
 		return { CompileShader(vsPath, GL_VERTEX_SHADER), CompileShader(fsPath, GL_FRAGMENT_SHADER) };
 	}
 
-	ProgramId LinkProgram(const VertexAndFragmentShader& shaders,
-		const std::map<AttribLocation, std::string>& attribLocationsToNames)
+	VertexGeometryFragmentShaders CompileShaders(const std::string& vsPath, const std::string& gsPath, const std::string& fsPath)
+	{
+		return { CompileShader(vsPath, GL_VERTEX_SHADER), CompileShader(gsPath, GL_GEOMETRY_SHADER), CompileShader(fsPath, GL_FRAGMENT_SHADER) };
+	}
+
+	ProgramId LinkProgram(const ShadersBase& shaders, const std::map<AttribLocation, std::string>& attribLocationsToNames)
 	{
 		ProgramId program = glCreateProgram();
 
-		glAttachShader(program, shaders.vertexShader);
-		glAttachShader(program, shaders.fragmentShader);
+		shaders.attach(program);
 
 		for (const auto& attribLocationAndName : attribLocationsToNames)
 		{
@@ -84,8 +127,7 @@ namespace Shaders
 			throw std::runtime_error("Unable to link program.\n"s + programInfoLog);
 		}
 
-		glDetachShader(program, shaders.vertexShader);
-		glDetachShader(program, shaders.fragmentShader);
+		shaders.detach(program);
 
 		return program;
 	}

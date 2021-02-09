@@ -35,12 +35,15 @@ namespace Components
 
 		std::vector<glm::vec3> positions;
 		std::optional<unsigned> texture;
-		GLenum bufferDataUsage = GL_STATIC_DRAW;
 		std::unique_ptr<RenderingSetup> renderingSetup;
 		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::vector<glm::vec2> texCoord;
 		std::function<void()> step;
+		std::vector<float> genericBuffer;
+
+		GLenum drawMode = GL_TRIANGLES;
+		GLenum bufferDataUsage = GL_STATIC_DRAW;
 
 		const std::vector<glm::vec3>& getPositions() const
 		{

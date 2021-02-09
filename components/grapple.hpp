@@ -43,6 +43,9 @@ namespace Components
 
 		glm::vec2 previousCenter{ 0.0f, 0.0f };
 
+		GLenum drawMode = GL_TRIANGLES;
+		GLenum bufferDataUsage = GL_STATIC_DRAW;
+
 		glm::vec2 getCenter() const
 		{
 			return ToVec2<glm::vec2>(body->GetWorldCenter());

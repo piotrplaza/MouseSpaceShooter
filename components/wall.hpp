@@ -38,6 +38,9 @@ namespace Components
 		std::unique_ptr<RenderingSetup> renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 
+		GLenum drawMode = GL_TRIANGLES;
+		GLenum bufferDataUsage = GL_STATIC_DRAW;
+
 		std::vector<glm::vec3> getPositions() const
 		{
 			return Tools::GetPositions(*body);

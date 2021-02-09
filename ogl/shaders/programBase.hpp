@@ -11,7 +11,7 @@ namespace Shaders
 			program(0)
 		{}
 
-		ProgramBase(Shaders::ProgramId program) :
+		ProgramBase(ProgramId program) :
 			program(program)
 		{}
 
@@ -20,6 +20,11 @@ namespace Shaders
 			return program != 0;
 		}
 
-		Shaders::ProgramId program;
+		operator ProgramId()
+		{
+			return program;
+		}
+
+		ProgramId program;
 	};
 }

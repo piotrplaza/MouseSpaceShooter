@@ -27,6 +27,7 @@
 #include <ogl/shaders/julia.hpp>
 #include <ogl/shaders/texturedColorThreshold.hpp>
 #include <ogl/shaders/textured.hpp>
+#include <ogl/shaders/particles.hpp>
 #include <ogl/renderingHelpers.hpp>
 
 #include <tools/graphicsHelpers.hpp>
@@ -324,7 +325,7 @@ namespace Levels
 				{
 					const auto& body = *fixture->GetBody();
 					missilesToHandlers.erase(Tools::AccessUserData(body).componentId);
-					Tools::CreateExplosion(ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture);
+					Tools::CreateExplosion(particlesShaders, ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture);
 				}
 			} });
 		}
@@ -348,6 +349,7 @@ namespace Levels
 	private:
 		Shaders::Programs::Julia juliaShaders;
 		Shaders::Programs::TexturedColorThreshold texturedColorThresholdShaders;
+		Shaders::Programs::Particles particlesShaders;
 
 		unsigned rocketPlaneTexture = 0;
 		unsigned spaceRockTexture = 0;

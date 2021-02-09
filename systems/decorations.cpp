@@ -29,21 +29,21 @@ namespace Systems
 	void Decorations::updatePersistentPositionsBuffers()
 	{
 		Tools::UpdatePositionsBuffers(Globals::Components::backgroundDecorations, persistentBuffers.simpleBackgroundDecorations,
-			persistentBuffers.texturedBackgroundDecorations, persistentBuffers.customShadersBackgroundDecorations, GL_STATIC_DRAW);
+			persistentBuffers.texturedBackgroundDecorations, persistentBuffers.customShadersBackgroundDecorations);
 		Tools::UpdatePositionsBuffers(Globals::Components::midgroundDecorations, persistentBuffers.simpleMidgroundDecorations,
-			persistentBuffers.texturedMidgroundDecorations, persistentBuffers.customShadersMidgroundDecorations, GL_STATIC_DRAW);
+			persistentBuffers.texturedMidgroundDecorations, persistentBuffers.customShadersMidgroundDecorations);
 		Tools::UpdatePositionsBuffers(Globals::Components::foregroundDecorations, persistentBuffers.simpleForegroundDecorations,
-			persistentBuffers.texturedForegroundDecorations, persistentBuffers.customShadersForegroundDecorations, GL_STATIC_DRAW);
+			persistentBuffers.texturedForegroundDecorations, persistentBuffers.customShadersForegroundDecorations);
 	}
 
 	void Decorations::updatePersistentTexCoordsBuffers()
 	{
 		Tools::UpdateTexCoordBuffers(Globals::Components::backgroundDecorations, persistentBuffers.texturedBackgroundDecorations,
-			persistentBuffers.customShadersBackgroundDecorations, GL_STATIC_DRAW);
+			persistentBuffers.customShadersBackgroundDecorations);
 		Tools::UpdateTexCoordBuffers(Globals::Components::midgroundDecorations, persistentBuffers.texturedMidgroundDecorations,
-			persistentBuffers.customShadersMidgroundDecorations, GL_STATIC_DRAW);
+			persistentBuffers.customShadersMidgroundDecorations);
 		Tools::UpdateTexCoordBuffers(Globals::Components::foregroundDecorations, persistentBuffers.texturedForegroundDecorations,
-			persistentBuffers.customShadersForegroundDecorations, GL_STATIC_DRAW);
+			persistentBuffers.customShadersForegroundDecorations);
 	}
 
 	void Decorations::updateTemporaryPosAndTexCoordBuffers()
@@ -74,22 +74,22 @@ namespace Systems
 	void Decorations::renderBackground() const
 	{
 		customShadersRender(persistentBuffers.customShadersBackgroundDecorations, temporaryBuffers.customShadersBackgroundDecorations);
-		texturedRender(persistentBuffers.texturedBackgroundDecorations, temporaryBuffers.texturedBackgroundDecorations);
 		basicRender(persistentBuffers.simpleBackgroundDecorations, temporaryBuffers.simpleBackgroundDecorations);
+		texturedRender(persistentBuffers.texturedBackgroundDecorations, temporaryBuffers.texturedBackgroundDecorations);
 	}
 
 	void Decorations::renderMidground() const
 	{
-		customShadersRender(persistentBuffers.customShadersMidgroundDecorations, temporaryBuffers.customShadersMidgroundDecorations);
-		texturedRender(persistentBuffers.texturedMidgroundDecorations, temporaryBuffers.texturedMidgroundDecorations);
 		basicRender(persistentBuffers.simpleMidgroundDecorations, temporaryBuffers.simpleMidgroundDecorations);
+		texturedRender(persistentBuffers.texturedMidgroundDecorations, temporaryBuffers.texturedMidgroundDecorations);
+		customShadersRender(persistentBuffers.customShadersMidgroundDecorations, temporaryBuffers.customShadersMidgroundDecorations);
 	}
 
 	void Decorations::renderForeground() const
 	{
-		customShadersRender(persistentBuffers.customShadersForegroundDecorations, temporaryBuffers.customShadersForegroundDecorations);
-		texturedRender(persistentBuffers.texturedForegroundDecorations, temporaryBuffers.texturedForegroundDecorations);
 		basicRender(persistentBuffers.simpleForegroundDecorations, temporaryBuffers.simpleForegroundDecorations);
+		texturedRender(persistentBuffers.texturedForegroundDecorations, temporaryBuffers.texturedForegroundDecorations);
+		customShadersRender(persistentBuffers.customShadersForegroundDecorations, temporaryBuffers.customShadersForegroundDecorations);
 	}
 
 	void Decorations::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
@@ -105,7 +105,7 @@ namespace Systems
 				renderingTeardown = (*buffers.renderingSetup)(*buffers.customShadersProgram);
 
 			glBindVertexArray(buffers.vertexArray);
-			glDrawArrays(GL_TRIANGLES, 0, buffers.positionsCache.size());
+			glDrawArrays(buffers.drawMode, 0, buffers.positionsCache.size());
 
 			if (renderingTeardown)
 				renderingTeardown();

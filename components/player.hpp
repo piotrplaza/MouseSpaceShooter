@@ -48,6 +48,9 @@ namespace Components
 		glm::vec2 previousCenter{ 0.0f, 0.0f };
 
 		bool throttling = false;
+
+		GLenum drawMode = GL_TRIANGLES;
+		GLenum bufferDataUsage = GL_DYNAMIC_DRAW;
 		
 		void setPosition(const glm::vec2& position)
 		{

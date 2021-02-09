@@ -43,21 +43,21 @@ namespace Systems
 	{
 		Tools::UpdateTransformedPositionsBuffers(Globals::Components::staticWalls,
 			*simpleStaticWallsBuffers, texturesToStaticWallsBuffers, customSimpleStaticWallsBuffers,
-			customTexturedStaticWallsBuffers, customShadersStaticWallsBuffers, GL_STATIC_DRAW);
+			customTexturedStaticWallsBuffers, customShadersStaticWallsBuffers);
 	}
 
 	void Walls::updateDynamicWallsPositionsBuffers()
 	{
 		Tools::UpdateTransformedPositionsBuffers(Globals::Components::dynamicWalls,
 			*simpleDynamicWallsBuffers, texturesToDynamicWallsBuffers, customSimpleDynamicWallsBuffers,
-			customTexturedDynamicWallsBuffers, customShadersDynamicWallsBuffers, GL_DYNAMIC_DRAW);
+			customTexturedDynamicWallsBuffers, customShadersDynamicWallsBuffers);
 	}
 
 	void Walls::updateGrapplesPositionsBuffers()
 	{
 		Tools::UpdateTransformedPositionsBuffers(Globals::Components::grapples,
 			*simpleGrapplesBuffers, texturesToGrapplesBuffers, customSimpleGrapplesBuffers,
-			customTexturedGrapplesBuffers, customShadersGrapplesBuffers, GL_DYNAMIC_DRAW);
+			customTexturedGrapplesBuffers, customShadersGrapplesBuffers);
 	}
 
 	void Walls::updatePersistentTexCoordsBuffers()
@@ -69,13 +69,13 @@ namespace Systems
 	void Walls::updateDynamicWallsTexCoordsBuffers()
 	{
 		Tools::UpdateTexCoordBuffers(Globals::Components::dynamicWalls, texturesToDynamicWallsBuffers,
-			customTexturedDynamicWallsBuffers, customShadersDynamicWallsBuffers, GL_STATIC_DRAW);
+			customTexturedDynamicWallsBuffers, customShadersDynamicWallsBuffers);
 	}
 
 	void Walls::updateGrapplesTexCoordsBuffers()
 	{
 		Tools::UpdateTexCoordBuffers(Globals::Components::grapples, texturesToGrapplesBuffers,
-			customTexturedGrapplesBuffers, customShadersGrapplesBuffers, GL_STATIC_DRAW);
+			customTexturedGrapplesBuffers, customShadersGrapplesBuffers);
 	}
 
 	void Walls::step()
@@ -86,10 +86,10 @@ namespace Systems
 
 	void Walls::render() const
 	{
-		customShadersRender();
-		sceneCoordTexturedRender();
-		texturedRender();
 		basicRender();
+		texturedRender();
+		sceneCoordTexturedRender();
+		customShadersRender();
 	}
 
 	void Walls::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
