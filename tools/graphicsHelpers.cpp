@@ -18,17 +18,17 @@ namespace Detail
 
 namespace Tools
 {
-	std::vector<glm::vec3> CreatePositionsOfRectangle(const glm::vec2& position, const glm::vec2& hSize, float angle)
+	std::vector<glm::vec3> CreatePositionsOfRectangle(const glm::vec2& position, const glm::vec2& hSize, float angle, float z)
 	{
 		std::vector<glm::vec3> positions;
 		positions.reserve(6);
 
-		positions.emplace_back(-hSize, 0.0f);
-		const auto& diagonal1 = positions.emplace_back(hSize.x, -hSize.y, 0.0f);
-		const auto& diagonal2 = positions.emplace_back(-hSize.x, hSize.y, 0.0f);
+		positions.emplace_back(-hSize, z);
+		const auto& diagonal1 = positions.emplace_back(hSize.x, -hSize.y, z);
+		const auto& diagonal2 = positions.emplace_back(-hSize.x, hSize.y, z);
 		positions.push_back(diagonal2);
 		positions.push_back(diagonal1);
-		positions.emplace_back(hSize, 0.0f);
+		positions.emplace_back(hSize, z);
 
 		if (angle != 0.0f)
 		{
@@ -36,7 +36,7 @@ namespace Tools
 			for (auto& localPosition : positions) localPosition = rotMat * glm::vec4(localPosition, 1.0f);
 		}
 
-		for (auto& localPosition : positions) localPosition += glm::vec3(position, 0.0f);
+		for (auto& localPosition : positions) localPosition += glm::vec3(position, z);
 
 		return positions;
 	}
@@ -54,9 +54,9 @@ namespace Tools
 	}
 
 	std::vector<glm::vec3> CreatePositionsOfLineOfRectangles(const glm::vec2& hSize, const std::pair<glm::vec2, glm::vec2>& positionsRange,
-		const glm::vec2& scaleRange, const glm::vec2& angleRange, const glm::vec2& stepRange)
+		const glm::vec2& scaleRange, const glm::vec2& angleRange, const glm::vec2& stepRange, float z)
 	{
-		const std::vector<glm::vec3> rectanglePositions = CreatePositionsOfRectangle({ 0.0f, 0.0f }, hSize);
+		const std::vector<glm::vec3> rectanglePositions = CreatePositionsOfRectangle({ 0.0f, 0.0f }, hSize, 0.0f, z);
 		const glm::vec2 direction = glm::normalize(positionsRange.second - positionsRange.first);
 		const float lineLength = glm::distance(positionsRange.first, positionsRange.second);
 		std::vector<glm::vec3> positions;
@@ -65,7 +65,7 @@ namespace Tools
 		do
 		{
 			const float scale = Tools::Random(scaleRange.x, scaleRange.y);
-			const glm::mat4 transformation = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(currentPosition, 0.0f)),
+			const glm::mat4 transformation = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(currentPosition, z)),
 				Tools::Random(angleRange.x, angleRange.y), glm::vec3(0.0f, 0.0f, 1.0f)), { scale, scale, 1.0f });
 			const std::vector<glm::vec3> transformedRectanglePositions = Tools::Transform(rectanglePositions, transformation);
 			positions.insert(positions.end(), transformedRectanglePositions.begin(), transformedRectanglePositions.end());
@@ -76,9 +76,9 @@ namespace Tools
 	}
 
 	std::vector<glm::vec3> CreatePositionsOfFunctionalRectangles(const glm::vec2& hSize, std::function<glm::vec2(float)> positionF,
-		std::function<glm::vec2(float)> scaleF, std::function<float(float)> angleF, std::function<std::optional<float>()> inputEmitter)
+		std::function<glm::vec2(float)> scaleF, std::function<float(float)> angleF, std::function<std::optional<float>()> inputEmitter, float z)
 	{
-		const std::vector<glm::vec3> rectanglePositions = CreatePositionsOfRectangle({ 0.0f, 0.0f }, hSize);
+		const std::vector<glm::vec3> rectanglePositions = CreatePositionsOfRectangle({ 0.0f, 0.0f }, hSize, 0.0f, z);
 		std::vector<glm::vec3> positions;
 		std::optional<float> input = inputEmitter();
 
@@ -87,7 +87,7 @@ namespace Tools
 			const glm::vec2 position = positionF(*input);
 			const glm::vec2 scale = scaleF(*input);
 			const float angle = angleF(*input);
-			const glm::mat4 transformation = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(position, 0.0f)),
+			const glm::mat4 transformation = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(position, z)),
 				angle, glm::vec3(0.0f, 0.0f, 1.0f)), { scale.x, scale.y, 1.0f });
 			const std::vector<glm::vec3> transformedRectanglePositions = Tools::Transform(rectanglePositions, transformation);
 			positions.insert(positions.end(), transformedRectanglePositions.begin(), transformedRectanglePositions.end());
@@ -98,7 +98,7 @@ namespace Tools
 	}
 
 	void AppendPositionsOfCircle(std::vector<glm::vec3>& result, const glm::vec2& position, float radius, int complexity,
-		const glm::mat4& modelMatrix)
+		const glm::mat4& modelMatrix, float z)
 	{
 		result.reserve(result.size() + complexity * 3);
 
@@ -109,24 +109,24 @@ namespace Tools
 			const float radialPosition = i * radialStep;
 			const float nextRadialPosition = (i + 1) * radialStep;
 
-			result.push_back(modelMatrix * glm::vec4(position, 0.0f, 1.0f));
+			result.push_back(modelMatrix * glm::vec4(position,z, 1.0f));
 			result.push_back(modelMatrix * glm::vec4(position + glm::vec2(glm::cos(radialPosition),
-				glm::sin(radialPosition)) * radius, 0.0f, 1.0f));
+				glm::sin(radialPosition)) * radius, z, 1.0f));
 			result.push_back(modelMatrix * glm::vec4(position + glm::vec2(glm::cos(nextRadialPosition),
-				glm::sin(nextRadialPosition)) * radius, 0.0f, 1.0f));
+				glm::sin(nextRadialPosition)) * radius, z, 1.0f));
 		}
 	}
 
 	std::vector<glm::vec3> CreatePositionsOfCircle(const glm::vec2& position, float radius, int complexity,
-		const glm::mat4& modelMatrix)
+		const glm::mat4& modelMatrix, float z)
 	{
 		std::vector<glm::vec3> positions;
-		AppendPositionsOfCircle(positions, position, radius, complexity, modelMatrix);
+		AppendPositionsOfCircle(positions, position, radius, complexity, modelMatrix, z);
 		return positions;
 	}
 
 	std::vector<glm::vec3> CreatePositionsOfLightning(const glm::vec2& p1, const glm::vec2& p2,
-		int segmentsNum, float frayFactor, float zValue)
+		int segmentsNum, float frayFactor, float z)
 	{
 		std::vector<glm::vec3> positions;
 		positions.reserve(segmentsNum * 2);
@@ -137,7 +137,7 @@ namespace Tools
 		const glm::vec2 orthoD = Detail::OrthoVec2(p1, p2);
 		glm::vec2 currentPos = p1;
 
-		positions.emplace_back(currentPos, zValue);
+		positions.emplace_back(currentPos, z);
 		for (int i = 0; i < segmentsNum; ++i)
 		{
 			const float variationStep = stepLength * Random(-frayFactor, frayFactor);
@@ -145,7 +145,7 @@ namespace Tools
 			currentPos += step;
 			currentPos += orthoD * variationStep;
 
-			positions.emplace_back(currentPos, zValue);
+			positions.emplace_back(currentPos, z);
 			if (i != segmentsNum - 1) positions.push_back(positions.back());
 		}
 
