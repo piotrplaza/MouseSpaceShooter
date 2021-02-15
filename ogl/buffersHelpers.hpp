@@ -6,9 +6,6 @@
 #include <componentId.hpp>
 #include <componentBase.hpp>
 
-#include <globals.hpp>
-#include <components/decoration.hpp>
-
 namespace Tools
 {
 	namespace Detail
@@ -241,51 +238,44 @@ namespace Tools
 		{
 			if (component.state == ComponentState::Ongoing)
 				continue;
-			else
+
+			auto& mapOfBuffers = [&]() -> auto&
 			{
-				if ((char*)&components == (char*)&Globals::Components::temporaryForegroundDecorations)
-				{
-					int tmp = 0;
-				}
+				if (component.customShadersProgram)
+					return customShadersBuffers;
+				else if (component.texture)
+					return texturedBuffers;
+				else
+					return simpleBuffers;
+			}();
 
-				auto& mapOfBuffers = [&]() -> auto&
-				{
-					if (component.customShadersProgram)
-						return customShadersBuffers;
-					else if (component.texture)
-						return texturedBuffers;
-					else
-						return simpleBuffers;
-				}();
-
-				if (component.state == ComponentState::Outdated)
-				{
-					mapOfBuffers.erase(id);
-					continue;
-				}
-
-				auto& buffers = mapOfBuffers[id];
-				buffers.renderingSetup = component.renderingSetup.get();
-				buffers.texture = component.texture;
-				buffers.animationController = component.animationController.get();
-				buffers.customShadersProgram = component.customShadersProgram;
-				buffers.positionsCache = component.getPositions();
-
-				buffers.drawMode = component.drawMode;
-				buffers.bufferDataUsage = component.bufferDataUsage;
-
-				Detail::AllocateOrUpdatePositionsData(buffers);
-
-				if (component.texture)
-				{
-					if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
-					buffers.texCoordCache = component.getTexCoord();
-					buffers.textureRatioPreserved = component.isTextureRatioPreserved();
-					Detail::AllocateOrUpdateTexCoordData(buffers);
-				}
-
-				component.state = ComponentState::Ongoing;
+			if (component.state == ComponentState::Outdated)
+			{
+				mapOfBuffers.erase(id);
+				continue;
 			}
+
+			auto& buffers = mapOfBuffers[id];
+			buffers.renderingSetup = component.renderingSetup.get();
+			buffers.texture = component.texture;
+			buffers.animationController = component.animationController.get();
+			buffers.customShadersProgram = component.customShadersProgram;
+			buffers.positionsCache = component.getPositions();
+
+			buffers.drawMode = component.drawMode;
+			buffers.bufferDataUsage = component.bufferDataUsage;
+
+			Detail::AllocateOrUpdatePositionsData(buffers);
+
+			if (component.texture)
+			{
+				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
+				buffers.texCoordCache = component.getTexCoord();
+				buffers.textureRatioPreserved = component.isTextureRatioPreserved();
+				Detail::AllocateOrUpdateTexCoordData(buffers);
+			}
+
+			component.state = ComponentState::Ongoing;
 		}
 	}
 }

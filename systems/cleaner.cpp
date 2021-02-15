@@ -33,7 +33,8 @@ namespace Systems
 		using namespace Globals::Components;
 
 		RemoveOutdatedComponents(temporaryBackgroundDecorations);
-		RemoveOutdatedComponents(temporaryMidgroundDecorations);
+		RemoveOutdatedComponents(temporaryFarMidgroundDecorations);
+		RemoveOutdatedComponents(temporaryNearMidgroundDecorations);
 		RemoveOutdatedComponents(temporaryForegroundDecorations);
 		RemoveOutdatedComponents(missiles);
 		RemoveOutdatedComponents(shockwaves);

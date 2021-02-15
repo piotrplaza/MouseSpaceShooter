@@ -142,7 +142,7 @@ namespace Levels
 					colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.0f });
 					return nullptr;
 				});
-				foregroundDecorations.emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
+				nearMidgroundDecorations.emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
 					[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
 					[](float input) { return glm::vec2(input + 0.3f, input + 0.3f); },
 					[](float input) { return input * 600.0f; },
@@ -153,8 +153,8 @@ namespace Levels
 					return result;
 				}
 				), roseTexture);
-				foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
-				foregroundDecorations.back().renderingSetup = std::make_unique<Components::Wall::RenderingSetup>([
+				nearMidgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+				nearMidgroundDecorations.back().renderingSetup = std::make_unique<Components::Wall::RenderingSetup>([
 					texturedProgramAccessor = std::optional<Shaders::Programs::TexturedAccessor>(),
 						wallId = dynamicWalls.size() - 1
 				](Shaders::ProgramId program) mutable {
@@ -176,27 +176,27 @@ namespace Levels
 
 			staticWalls.emplace_back(Tools::CreateBoxBody({ -levelHSize - bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), spaceRockTexture);
-			foregroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { -levelHSize, -levelHSize }, { levelHSize, -levelHSize } },
+			nearMidgroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { -levelHSize, -levelHSize }, { levelHSize, -levelHSize } },
 				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
-			foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+			nearMidgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
 
 			staticWalls.emplace_back(Tools::CreateBoxBody({ levelHSize + bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), spaceRockTexture);
-			foregroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { -levelHSize, levelHSize }, { levelHSize, levelHSize } },
+			nearMidgroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { -levelHSize, levelHSize }, { levelHSize, levelHSize } },
 				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
-			foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+			nearMidgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
 
 			staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize - bordersHGauge },
 				{ levelHSize + bordersHGauge * 2, bordersHGauge }), spaceRockTexture);
-			foregroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { -levelHSize, -levelHSize }, { -levelHSize, levelHSize } },
+			nearMidgroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { -levelHSize, -levelHSize }, { -levelHSize, levelHSize } },
 				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
-			foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+			nearMidgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
 
 			staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize + bordersHGauge },
 				{ levelHSize + bordersHGauge * 2, bordersHGauge }), spaceRockTexture);
-			foregroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { levelHSize, -levelHSize }, { levelHSize, levelHSize } },
+			nearMidgroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { levelHSize, -levelHSize }, { levelHSize, levelHSize } },
 				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
-			foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+			nearMidgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
 		}
 
 		void createGrapples() const
@@ -217,9 +217,9 @@ namespace Levels
 				orbTexture);
 			auto& grapple = grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f);
 
-			midgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.8f, 1.8f }), roseTexture);
-			midgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
-			midgroundDecorations.back().renderingSetup = std::make_unique<Components::Wall::RenderingSetup>([&,
+			farMidgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.8f, 1.8f }), roseTexture);
+			farMidgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+			farMidgroundDecorations.back().renderingSetup = std::make_unique<Components::Wall::RenderingSetup>([&,
 				modelUniform = Uniforms::UniformControllerMat4f()
 			](Shaders::ProgramId program) mutable {
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");

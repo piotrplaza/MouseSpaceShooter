@@ -19,7 +19,8 @@ namespace Systems
 
 		void step();
 		void renderBackground() const;
-		void renderMidground() const;
+		void renderFarMidground() const;
+		void renderNearMidground() const;
 		void renderForeground() const;
 
 	private:
@@ -44,15 +45,18 @@ namespace Systems
 		struct DecorationBuffers
 		{
 			BufferType simpleBackgroundDecorations;
-			BufferType simpleMidgroundDecorations;
+			BufferType simpleFarMidgroundDecorations;
+			BufferType simpleNearMidgroundDecorations;
 			BufferType simpleForegroundDecorations;
 
 			BufferType texturedBackgroundDecorations;
-			BufferType texturedMidgroundDecorations;
+			BufferType texturedFarMidgroundDecorations;
+			BufferType texturedNearMidgroundDecorations;
 			BufferType texturedForegroundDecorations;
 
 			BufferType customShadersBackgroundDecorations;
-			BufferType customShadersMidgroundDecorations;
+			BufferType customShadersFarMidgroundDecorations;
+			BufferType customShadersNearMidgroundDecorations;
 			BufferType customShadersForegroundDecorations;
 		};
 		

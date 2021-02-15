@@ -84,10 +84,11 @@ void RenderScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Globals::Systems::Decorations().renderBackground();
+	Globals::Systems::Decorations().renderFarMidground();
 	Globals::Systems::Walls().render();
-	Globals::Systems::Decorations().renderMidground();
 	Globals::Systems::Players().render();
 	Globals::Systems::Temporaries().render();
+	Globals::Systems::Decorations().renderNearMidground();
 	Globals::Systems::Decorations().renderForeground();
 
 	/*glPointSize(10);

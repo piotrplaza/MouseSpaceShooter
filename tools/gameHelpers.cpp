@@ -45,8 +45,8 @@ namespace Tools
 
 		for (int i = 0; i < 2; ++i)
 		{
-			playerPlaneHandler.backThrustsIds[i] = midgroundDecorations.size();
-			auto& decoration = midgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture);
+			playerPlaneHandler.backThrustsIds[i] = farMidgroundDecorations.size();
+			auto& decoration = farMidgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture);
 
 			decoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([&, i, modelUniform = Uniforms::UniformControllerMat4f(),
 				thrustScale = 1.0f
@@ -94,8 +94,8 @@ namespace Tools
 		auto missileIt = missiles.find(missileId);
 		assert(missileIt != missiles.end());
 		missileIt->second.state = ComponentState::Outdated;
-		auto thrustIt = temporaryMidgroundDecorations.find(backThrustId);
-		assert(thrustIt != temporaryMidgroundDecorations.end());
+		auto thrustIt = temporaryFarMidgroundDecorations.find(backThrustId);
+		assert(thrustIt != temporaryFarMidgroundDecorations.end());
 		thrustIt->second.state = ComponentState::Outdated;
 	}
 
@@ -141,7 +141,7 @@ namespace Tools
 			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
 		};
 
-		auto& decoration = EmplaceIdComponent(temporaryMidgroundDecorations, { Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture });
+		auto& decoration = EmplaceIdComponent(temporaryFarMidgroundDecorations, { Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture });
 		decoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([&, modelUniform = Uniforms::UniformControllerMat4f(),
 			thrustScale = 0.1f
 		](Shaders::ProgramId program) mutable {
@@ -175,7 +175,7 @@ namespace Tools
 
 		Globals::Systems::DeferredActions().addDeferredAction([=]() {
 			auto& shockwave = EmplaceIdComponent(shockwaves, { center, numOfParticles });
-			auto& explosionDecoration = EmplaceIdComponent(temporaryForegroundDecorations, { std::vector<glm::vec3>{} });
+			auto& explosionDecoration = EmplaceIdComponent(temporaryNearMidgroundDecorations, { std::vector<glm::vec3>{} });
 			explosionDecoration.customShadersProgram = particlesProgram.program;
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
@@ -204,13 +204,13 @@ namespace Tools
 				}
 
 				explosionDecoration.positions.clear();
-				explosionDecoration.positions.push_back(glm::vec3(shockwave.center, scale));
+				explosionDecoration.positions.emplace_back(shockwave.center, scale);
 				for (size_t i = 0; i < shockwave.particles.size(); ++i)
 				{
 					if (i % particlesPerDecoration != 0) continue;
 					const auto& particle = shockwave.particles[i];
 					const glm::vec2 position = shockwave.center + (ToVec2<glm::vec2>(particle->GetWorldCenter()) - shockwave.center) * 0.5f;
-					explosionDecoration.positions.push_back(glm::vec3(position, scale));
+					explosionDecoration.positions.emplace_back(position, scale);
 				}
 				explosionDecoration.state = ComponentState::Changed;
 
