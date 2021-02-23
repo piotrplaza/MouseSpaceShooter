@@ -12,9 +12,12 @@
 #include <components/missile.hpp>
 #include <components/shockwave.hpp>
 #include <components/mvp.hpp>
+#include <components/camera.hpp>
+#include <components/screenInfo.hpp>
 
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/textured.hpp>
+#include <ogl/shaders/julia.hpp>
 
 #include <tools/animations.hpp>
 #include <tools/b2Helpers.hpp>
@@ -218,6 +221,46 @@ namespace Tools
 			});
 
 			return false;
+			});
+	}
+
+	void CreateFogForeground(int numOfLayers, float alphaPerLayer, unsigned fogTexture)
+	{
+		using namespace Globals::Components;
+
+		for (int layer = 0; layer < numOfLayers; ++layer)
+		for (int posYI = -1; posYI <= 1; ++posYI)
+		for (int posXI = -1; posXI <= 1; ++posXI)
+		{
+			foregroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)), fogTexture);
+			foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+			foregroundDecorations.back().renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([=, texturedProgram = Shaders::Programs::TexturedAccessor()
+			](Shaders::ProgramId program) mutable {
+				if (!texturedProgram.isValid()) texturedProgram = program;
+				texturedProgram.vpUniform.setValue(glm::translate(glm::scale(mvp.getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
+					glm::vec3(-camera.prevPosition * (0.002f + layer * 0.002f), 0.0f)));
+				texturedProgram.colorUniform.setValue({ 1.0f, 1.0f, 1.0f, alphaPerLayer });
+				return [texturedProgram]() mutable {
+					texturedProgram.vpUniform.setValue(mvp.getVP());
+				};
+			});
+		}
+	}
+
+	void CreateJuliaBackground(Shaders::Programs::Julia& juliaShaders, std::function<glm::vec2()> juliaCOffset)
+	{
+		using namespace Globals::Components;
+
+		auto& background = backgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
+		background.customShadersProgram = juliaShaders.program;
+		background.renderingSetup = std::make_unique<std::function<std::function<void()>(Shaders::ProgramId)>>([=, &juliaShaders](auto) mutable {
+			juliaShaders.vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
+				glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f),
+				glm::vec3(-camera.prevPosition * 0.005f, 0.0f)));
+			juliaShaders.juliaCOffsetUniform.setValue(juliaCOffset());
+			juliaShaders.minColorUniform.setValue({ 0.0f, 0.0f, 0.0f, 1.0f });
+			juliaShaders.maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
+			return nullptr;
 			});
 	}
 }

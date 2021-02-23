@@ -99,6 +99,25 @@ void RenderScene()
 		glVertex2fv(&particle->GetWorldCenter().x);
 		glEnd();
 	}*/
+
+	/*static bool first = true;
+	static const GLuint list = glGenLists(1);
+	if (first)
+	{
+		glNewList(list, GL_COMPILE);
+			const float r = 1.0f;
+			glBegin(GL_TRIANGLES);
+			for (int i = 0; i < 10000; ++i)
+				for (int j = 0; j < 3; ++j)
+				{
+					const float angle = Tools::Random(0.0f, glm::two_pi<float>());
+					glVertex2f(glm::cos(angle) * r, glm::sin(angle) * r);
+				}
+			glEnd();
+		glEndList();
+		first = false;
+	}
+	glCallList(list);*/
 }
 
 void PrepareFrame()

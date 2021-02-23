@@ -82,18 +82,12 @@ namespace Levels
 		{
 			using namespace Globals::Components;
 
-			auto& background = backgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
-			background.customShadersProgram = juliaShaders.program;
-			background.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([this](auto) mutable {
-				const auto& player = players[player1Handler.playerId];
-				juliaShaders.vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
-					glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f),
-					glm::vec3(-camera.prevPosition * 0.005f, 0.0f)));
-				juliaShaders.juliaCOffsetUniform.setValue(player.getCenter() * 0.00001f);
-				juliaShaders.minColorUniform.setValue({ 0.0f, 0.0f, 0.0f, 1.0f });
-				juliaShaders.maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
-				return nullptr;
-			});
+			Tools::CreateJuliaBackground(juliaShaders, []() { return players[0].getCenter() * 0.0001f; });
+		}
+
+		void createForeground() const
+		{
+			Tools::CreateFogForeground(2, 0.02f, fogTexture);
 		}
 
 		void createPlayers()
@@ -228,30 +222,6 @@ namespace Levels
 			});
 		}
 
-		void createForeground() const
-		{
-			using namespace Globals::Components;
-
-			for (int layer = 0; layer < 2; ++layer)
-				for (int posYI = -1; posYI <= 1; ++posYI)
-					for (int posXI = -1; posXI <= 1; ++posXI)
-					{
-						foregroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)), fogTexture);
-						foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
-						foregroundDecorations.back().renderingSetup = std::make_unique<Components::Wall::RenderingSetup>([&,
-							texturedProgramAccessor = std::optional<Shaders::Programs::TexturedAccessor>(),
-							layer
-						](Shaders::ProgramId program) mutable {
-							if (!texturedProgramAccessor) texturedProgramAccessor.emplace(program);
-							texturedProgramAccessor->vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
-								glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f),
-								glm::vec3(-camera.prevPosition * (0.02f + layer * 0.02f), 0.0f)));
-							texturedProgramAccessor->colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.02f });
-							return nullptr;
-						});
-					}
-		}
-
 		void setCamera() const
 		{
 			using namespace Globals::Components;
@@ -274,8 +244,8 @@ namespace Levels
 
 			for (size_t backThrustsBackgroundDecorationId : player1Handler.backThrustsIds)
 			{
-				assert(backThrustsBackgroundDecorationId < backgroundDecorations.size());
-				auto& player1ThrustAnimationController = *backgroundDecorations[backThrustsBackgroundDecorationId].animationController;
+				assert(backThrustsBackgroundDecorationId < farMidgroundDecorations.size());
+				auto& player1ThrustAnimationController = *farMidgroundDecorations[backThrustsBackgroundDecorationId].animationController;
 				//player1ThrustAnimationController.setTimeScale(1.0f + Globals::Components::mouseState.wheel / 10.0f);
 			}
 		}
