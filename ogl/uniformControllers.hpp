@@ -9,6 +9,8 @@
 
 #include "shaders.hpp"
 
+; //Visual C++ bug workaround
+
 namespace Uniforms
 {
 	class UniformController
