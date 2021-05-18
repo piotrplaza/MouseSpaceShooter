@@ -12,6 +12,7 @@
 #include <componentBase.hpp>
 
 #include <ogl/shaders.hpp>
+#include <ogl/renderingSetup.hpp>
 
 #include <tools/animations.hpp>
 
@@ -19,10 +20,8 @@ namespace Components
 {
 	struct Decoration : ComponentBase
 	{
-		using RenderingSetup = std::function<std::function<void()>(Shaders::ProgramId)>;
-
 		Decoration(std::vector<glm::vec3> positions = {}, std::optional<unsigned> texture = std::nullopt,
-			std::unique_ptr<RenderingSetup> renderingSetup = nullptr,
+			Tools::UniqueRenderingSetup renderingSetup = nullptr,
 			std::unique_ptr<Tools::TextureAnimationController> animationController = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			positions(std::move(positions)),
@@ -35,7 +34,7 @@ namespace Components
 
 		std::vector<glm::vec3> positions;
 		std::optional<unsigned> texture;
-		std::unique_ptr<RenderingSetup> renderingSetup;
+		Tools::UniqueRenderingSetup renderingSetup;
 		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::vector<glm::vec2> texCoord;

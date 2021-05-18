@@ -80,6 +80,7 @@
     <ClInclude Include="ogl\oglHelpers.hpp" />
     <ClInclude Include="ogl\oglProxy.hpp" />
     <ClInclude Include="ogl\renderingHelpers.hpp" />
+    <ClInclude Include="ogl\renderingSetup.hpp" />
     <ClInclude Include="ogl\shaders.hpp" />
     <ClInclude Include="ogl\shaders\basic.hpp" />
     <ClInclude Include="ogl\shaders\colored.hpp" />

@@ -11,6 +11,7 @@
 #include <componentBase.hpp>
 
 #include <ogl/shaders.hpp>
+#include <ogl/renderingSetup.hpp>
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>
@@ -21,10 +22,8 @@ namespace Components
 {
 	struct Missile : ComponentBase
 	{
-		using RenderingSetup = std::function<std::function<void()>(Shaders::ProgramId)>;
-
 		Missile(Body body, std::optional<unsigned> texture = std::nullopt,
-			std::unique_ptr<RenderingSetup> renderingSetup = nullptr,
+			Tools::UniqueRenderingSetup renderingSetup = nullptr,
 			std::unique_ptr<Tools::TextureAnimationController> animationController = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
@@ -38,7 +37,7 @@ namespace Components
 
 		Body body;
 		std::optional<unsigned> texture;
-		std::unique_ptr<RenderingSetup> renderingSetup;
+		Tools::UniqueRenderingSetup renderingSetup;
 		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::function<void()> step;

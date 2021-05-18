@@ -144,7 +144,7 @@ namespace Levels
 			wall1.GetFixtureList()->SetRestitution(0.5f);
 			wall2.GetFixtureList()->SetRestitution(0.5f);
 			Tools::PinBodies(wall1, wall2, { 5.0f, 0.0f });
-			dynamicWalls.back().renderingSetup = std::make_unique<Components::Wall::RenderingSetup>([
+			dynamicWalls.back().renderingSetup = Tools::MakeUniqueRenderingSetup([
 				textureTranslateUniform = Uniforms::UniformController2f()
 			](Shaders::ProgramId program) mutable {
 				if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2f(program, "textureTranslate");
@@ -156,7 +156,7 @@ namespace Levels
 			for (const float pos : {-30.0f, 30.0f})
 			{
 				dynamicWalls.emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), woodTexture,
-					std::make_unique<Components::Wall::RenderingSetup>([this](auto)
+					Tools::MakeUniqueRenderingSetup([this](auto)
 					{
 						Tools::MVPInitialization(texturedColorThresholdShaders);
 						Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, woodTexture, true);
@@ -167,7 +167,7 @@ namespace Levels
 					}),
 					texturedColorThresholdShaders.program);
 				dynamicWalls.emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f));
-				dynamicWalls.back().renderingSetup = std::make_unique<Components::Wall::RenderingSetup>([
+				dynamicWalls.back().renderingSetup = Tools::MakeUniqueRenderingSetup([
 					basicProgram = Shaders::Programs::BasicAccessor()
 				](Shaders::ProgramId program) mutable {
 					if (!basicProgram.isValid()) basicProgram = program;
@@ -186,7 +186,7 @@ namespace Levels
 				}
 				), roseTexture);
 				nearMidgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
-				nearMidgroundDecorations.back().renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([
+				nearMidgroundDecorations.back().renderingSetup = Tools::MakeUniqueRenderingSetup([
 					texturedProgram = Shaders::Programs::TexturedAccessor(),
 					wallId = dynamicWalls.size() - 1
 				](Shaders::ProgramId program) mutable {
@@ -237,7 +237,7 @@ namespace Levels
 
 			grapples.emplace_back(Tools::CreateCircleBody({ 0.0f, 10.0f }, 1.0f), 15.0f, orbTexture);
 			grapples.emplace_back(Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f, orbTexture);
-			grapples.back().renderingSetup = std::make_unique<Components::Grapple::RenderingSetup>([
+			grapples.back().renderingSetup = Tools::MakeUniqueRenderingSetup([
 				colorUniform = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {
 				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
@@ -248,7 +248,7 @@ namespace Levels
 			grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f,
 				orbTexture);
 			auto& grapple = grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f);
-			grapple.renderingSetup = std::make_unique<Components::Grapple::RenderingSetup>([
+			grapple.renderingSetup = Tools::MakeUniqueRenderingSetup([
 				colorUniform = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {
 				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
@@ -258,7 +258,7 @@ namespace Levels
 
 			farMidgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 2.2f, 2.2f }), roseTexture);
 			farMidgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
-			farMidgroundDecorations.back().renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([&,
+			farMidgroundDecorations.back().renderingSetup = Tools::MakeUniqueRenderingSetup([&,
 				modelUniform = Uniforms::UniformControllerMat4f()
 			](Shaders::ProgramId program) mutable {
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");

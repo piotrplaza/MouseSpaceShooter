@@ -12,6 +12,7 @@
 #include <componentBase.hpp>
 
 #include <ogl/shaders.hpp>
+#include <ogl/renderingSetup.hpp>
 
 #include <tools/b2Helpers.hpp>
 #include <tools/graphicsHelpers.hpp>
@@ -22,10 +23,8 @@ namespace Components
 {
 	struct Player : ComponentBase
 	{
-		using RenderingSetup = std::function<std::function<void()>(Shaders::ProgramId)>;
-
 		Player(Body body, std::optional<unsigned> texture = std::nullopt,
-			std::unique_ptr<RenderingSetup> renderingSetup = nullptr,
+			Tools::UniqueRenderingSetup renderingSetup = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
 			texture(texture),
@@ -37,7 +36,7 @@ namespace Components
 
 		Body body;
 		std::optional<unsigned> texture;
-		std::unique_ptr<RenderingSetup> renderingSetup;
+		Tools::UniqueRenderingSetup renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		bool connectIfApproaching = false;
 		float autoRotationFactor = 0.5f;

@@ -37,7 +37,7 @@ namespace Tools
 		auto& player = players.emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), planeTexture);
 		SetCollisionFilteringBits(*player.body, CollisionBits::playerBit, CollisionBits::all);
 		player.setPosition({ -10.0f, 0.0f });
-		player.renderingSetup = std::make_unique<Components::Player::RenderingSetup>([
+		player.renderingSetup = Tools::MakeUniqueRenderingSetup([
 			colorUniform = Uniforms::UniformController4f()
 		](Shaders::ProgramId program) mutable {
 			if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
@@ -51,7 +51,7 @@ namespace Tools
 			playerPlaneHandler.backThrustsIds[i] = farMidgroundDecorations.size();
 			auto& decoration = farMidgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture);
 
-			decoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([&, i, modelUniform = Uniforms::UniformControllerMat4f(),
+			decoration.renderingSetup = Tools::MakeUniqueRenderingSetup([&, i, modelUniform = Uniforms::UniformControllerMat4f(),
 				thrustScale = 1.0f
 			](Shaders::ProgramId program) mutable {
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
@@ -127,7 +127,7 @@ namespace Tools
 		body.SetBullet(true);
 		body.SetLinearVelocity({ initialVelocity.x, initialVelocity.y });
 		missile.texture = missileTexture;
-		missile.renderingSetup = std::make_unique<Components::Missile::RenderingSetup>(
+		missile.renderingSetup = Tools::MakeUniqueRenderingSetup(
 			[modelUniform = Uniforms::UniformControllerMat4f(), &body](Shaders::ProgramId program) mutable
 		{
 			if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
@@ -145,7 +145,7 @@ namespace Tools
 		};
 
 		auto& decoration = EmplaceIdComponent(temporaryFarMidgroundDecorations, { Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture });
-		decoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([&, modelUniform = Uniforms::UniformControllerMat4f(),
+		decoration.renderingSetup = Tools::MakeUniqueRenderingSetup([&, modelUniform = Uniforms::UniformControllerMat4f(),
 			thrustScale = 0.1f
 		](Shaders::ProgramId program) mutable {
 			if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
@@ -178,11 +178,11 @@ namespace Tools
 
 		Globals::Systems::DeferredActions().addDeferredAction([=]() {
 			auto& shockwave = EmplaceIdComponent(shockwaves, { center, numOfParticles });
-			auto& explosionDecoration = EmplaceIdComponent(temporaryNearMidgroundDecorations, { std::vector<glm::vec3>{} });
+			auto& explosionDecoration = EmplaceIdComponent(temporaryNearMidgroundDecorations, {});
 			explosionDecoration.customShadersProgram = particlesProgram.program;
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
-			explosionDecoration.renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>(
+			explosionDecoration.renderingSetup = Tools::MakeUniqueRenderingSetup(
 				[=, startTime = physics.simulationTime](Shaders::ProgramId program) mutable
 			{
 				particlesProgram.vpUniform.setValue(mvp.getVP());
@@ -234,7 +234,7 @@ namespace Tools
 		{
 			foregroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)), fogTexture);
 			foregroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
-			foregroundDecorations.back().renderingSetup = std::make_unique<Components::Decoration::RenderingSetup>([=, texturedProgram = Shaders::Programs::TexturedAccessor()
+			foregroundDecorations.back().renderingSetup = Tools::MakeUniqueRenderingSetup([=, texturedProgram = Shaders::Programs::TexturedAccessor()
 			](Shaders::ProgramId program) mutable {
 				if (!texturedProgram.isValid()) texturedProgram = program;
 				texturedProgram.vpUniform.setValue(glm::translate(glm::scale(mvp.getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),

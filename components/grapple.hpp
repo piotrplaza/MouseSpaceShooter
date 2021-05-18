@@ -11,6 +11,7 @@
 #include <componentBase.hpp>
 
 #include <ogl/shaders.hpp>
+#include <ogl/renderingSetup.hpp>
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>
@@ -21,10 +22,8 @@ namespace Components
 {
 	struct Grapple : ComponentBase
 	{
-		using RenderingSetup = std::function<std::function<void()>(Shaders::ProgramId)>;
-
 		Grapple(Body body, float influenceRadius, std::optional<unsigned> texture = std::nullopt,
-			std::unique_ptr<RenderingSetup> renderingSetup = nullptr,
+			Tools::UniqueRenderingSetup renderingSetup = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
 			influenceRadius(influenceRadius),
@@ -38,7 +37,7 @@ namespace Components
 		Body body;
 		float influenceRadius;
 		std::optional<unsigned> texture;
-		std::unique_ptr<RenderingSetup> renderingSetup;
+		Tools::UniqueRenderingSetup renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 
 		glm::vec2 previousCenter{ 0.0f, 0.0f };

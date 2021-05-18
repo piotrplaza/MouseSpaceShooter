@@ -321,6 +321,9 @@
     <ClInclude Include="ogl\shaders\particles.hpp">
       <Filter>src\ogl\shaders\particles</Filter>
     </ClInclude>
+    <ClInclude Include="ogl\renderingSetup.hpp">
+      <Filter>src\ogl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">

@@ -31,7 +31,7 @@ namespace Shaders
 		{
 			Particles() :
 				ParticlesAccessor(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/particles.vs",
-					"ogl/shaders/particles.gs", "ogl/shaders/particles.fs"), { {0, "bPos"}, {1, "bAngle"} }))
+					"ogl/shaders/particles.gs", "ogl/shaders/particles.fs"), { {0, "bPos"} }))
 			{
 			}
 
