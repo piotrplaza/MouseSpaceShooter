@@ -21,7 +21,7 @@ namespace Tools
 		};
 
 		TextureAnimationController(glm::ivec2 imageSize, glm::ivec2 startPosition, glm::ivec2 frameSize, glm::ivec2 framesGrid, glm::vec2 frameStep,
-			float frameTime, int numOfFrames = 0, AnimationLayout animationLayout = AnimationLayout::Horizontal,
+			float frameDuration, int numOfFrames = 0, AnimationLayout animationLayout = AnimationLayout::Horizontal,
 			AnimationPlayback animationPlayback = AnimationPlayback::Forward, AnimationPolicy animationPolicy = AnimationPolicy::Repeat,
 			glm::vec2 translate = { 0.0f, 0.0f }, glm::vec2 scale = { 1.0f, 1.0f });
 
@@ -32,15 +32,15 @@ namespace Tools
 		void pause();
 		void resume();
 
-		void setTimeScale(float timeScale);
-		float getTimeScale() const;
+		void setDurationScale(float durationScale);
+		float getDurationScale() const;
 
 	private:
 		glm::ivec2 imageSize;
 		glm::ivec2 startPosition;
 		glm::ivec2 framesGrid;
 		glm::vec2 frameStep;
-		float frameTime;
+		float frameDuration;
 		int numOfFrames;
 		AnimationLayout animationLayout;
 		AnimationPlayback animationPlayback;
@@ -50,10 +50,10 @@ namespace Tools
 		glm::vec2 textureScale;
 		glm::vec2 frameScale;
 		
-		std::optional<float> pauseTime;
-		float timeScale = 1.0f;
+		std::optional<float> pauseDuration;
+		float durationScale = 1.0f;
 
-		mutable std::optional<float> prevTime;
-		mutable float animationTime = 0.0f;
+		mutable std::optional<float> prevDuration;
+		mutable float animationDuration = 0.0f;
 	};
 }

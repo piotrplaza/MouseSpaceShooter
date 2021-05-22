@@ -41,7 +41,7 @@ namespace Tools
 			colorUniform = Uniforms::UniformController4f()
 		](Shaders::ProgramId program) mutable {
 			if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-			const float fade = (glm::sin(physics.simulationTime * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
+			const float fade = (glm::sin(physics.simulationDuration * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
 			colorUniform.setValue({ fade, 1.0f, fade, 1.0f });
 			return nullptr;
 		});
@@ -60,9 +60,9 @@ namespace Tools
 					-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
 					{ std::min(thrustScale * 0.5f, 0.7f), thrustScale, 1.0f }));
 
-				const float targetFrameTimeFactor = physics.frameTime * 6;
-				if (player.throttling) thrustScale = std::min(thrustScale * (1.0f + targetFrameTimeFactor), 5.0f);
-				else thrustScale = 1.0f + (thrustScale - 1.0f) * (1.0f - targetFrameTimeFactor);
+				const float targetFrameDurationFactor = physics.frameDuration * 6;
+				if (player.throttling) thrustScale = std::min(thrustScale * (1.0f + targetFrameDurationFactor), 5.0f);
+				else thrustScale = 1.0f + (thrustScale - 1.0f) * (1.0f - targetFrameDurationFactor);
 
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -134,9 +134,9 @@ namespace Tools
 			modelUniform.setValue(Tools::GetModelMatrix(body));
 			return nullptr;
 		});
-		missile.step = [&body, force, launchTime = physics.simulationTime, fullCollisions = false]() mutable
+		missile.step = [&body, force, launchTime = physics.simulationDuration, fullCollisions = false]() mutable
 		{
-			if (!fullCollisions && (physics.simulationTime - launchTime) > 0.5f)
+			if (!fullCollisions && (physics.simulationDuration - launchTime) > 0.5f)
 			{
 				SetCollisionFilteringBits(body, CollisionBits::missileBit, CollisionBits::all);
 				fullCollisions = true;
@@ -154,8 +154,8 @@ namespace Tools
 				-glm::half_pi<float>() + 0.0f, { 0.0f, 0.0f, 1.0f }),
 				{ std::min(thrustScale * 0.2f, 0.4f), thrustScale, 1.0f }));
 
-			const float targetFrameTimeFactor = physics.frameTime * 10;
-			thrustScale = std::min(thrustScale * (1.0f + targetFrameTimeFactor), 3.0f);
+			const float targetFrameDurationFactor = physics.frameDuration * 10;
+			thrustScale = std::min(thrustScale * (1.0f + targetFrameDurationFactor), 3.0f);
 
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -183,20 +183,20 @@ namespace Tools
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 			explosionDecoration.renderingSetup = Tools::MakeUniqueRenderingSetup(
-				[=, startTime = physics.simulationTime](Shaders::ProgramId program) mutable
+				[=, startTime = physics.simulationDuration](Shaders::ProgramId program) mutable
 			{
 				particlesProgram.vpUniform.setValue(mvp.getVP());
 				particlesProgram.texture1Uniform.setValue(explosionTexture);
 
-				const float elapsed = physics.simulationTime - startTime;
+				const float elapsed = physics.simulationDuration - startTime;
 				particlesProgram.colorUniform.setValue(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (explosionDuration * 2.0f), 10.0f)), 1.0f));
 
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 				return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
 			});
-			Globals::Systems::DeferredActions().addDeferredAction([=, startTime = physics.simulationTime, &shockwave, &explosionDecoration]() {
-				const float elapsed = physics.simulationTime - startTime;
+			Globals::Systems::DeferredActions().addDeferredAction([=, startTime = physics.simulationDuration, &shockwave, &explosionDecoration]() {
+				const float elapsed = physics.simulationDuration - startTime;
 				const float scale = 1.0f + elapsed * 20.0f;
 
 				if (elapsed > explosionDuration)

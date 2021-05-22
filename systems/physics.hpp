@@ -16,9 +16,9 @@ namespace Systems
 
 	private:
 		bool firstStep = true;
-		float pauseTime = 0.0f;
+		float pauseDuration = 0.0f;
 
-		std::chrono::high_resolution_clock::time_point startPoint;
-		std::optional<std::chrono::high_resolution_clock::time_point> pausePoint;
+		std::chrono::high_resolution_clock::time_point startTime;
+		std::optional<std::chrono::high_resolution_clock::time_point> pauseTime;
 	};
 }

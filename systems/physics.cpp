@@ -7,7 +7,7 @@
 
 namespace
 {
-	constexpr float debugFrameTime = 1.0f / 160;
+	constexpr float debugFrameDuration = 1.0f / 160;
 
 	class ContactListener : public b2ContactListener
 	{
@@ -47,35 +47,35 @@ namespace Systems
 		if (firstStep)
 		{
 #ifndef _DEBUG 
-			startPoint = std::chrono::high_resolution_clock::now();
+			startTime = std::chrono::high_resolution_clock::now();
 #endif
 			firstStep = false;
 		}
 
 #ifndef _DEBUG 
-		const auto simulationTime = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - startPoint).count() - pauseTime;
-		physics.frameTime = simulationTime - physics.simulationTime;
-		physics.simulationTime = simulationTime;
+		const auto simulationDuration = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - startTime).count() - pauseDuration;
+		physics.frameDuration = simulationDuration - physics.simulationDuration;
+		physics.simulationDuration = simulationDuration;
 #else
-		physics.frameTime = debugFrameTime;
-		physics.simulationTime += physics.frameTime;
+		physics.frameDuration = debugFrameDuration;
+		physics.simulationDuration += physics.frameDuration;
 #endif
 
-		physics.world.Step(physics.frameTime, 3, 8);
+		physics.world.Step(physics.frameDuration, 3, 8);
 	}
 
 	void Physics::pause()
 	{
-		if (!pausePoint)
-			pausePoint = std::chrono::high_resolution_clock::now();
+		if (!pauseTime)
+			pauseTime = std::chrono::high_resolution_clock::now();
 	}
 
 	void Physics::resume()
 	{
-		if (pausePoint)
+		if (pauseTime)
 		{
-			pauseTime += std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - *pausePoint).count();
-			pausePoint.reset();
+			pauseDuration += std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - *pauseTime).count();
+			pauseTime.reset();
 		}
 	}
 }

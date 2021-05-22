@@ -148,8 +148,8 @@ namespace Levels
 				textureTranslateUniform = Uniforms::UniformController2f()
 			](Shaders::ProgramId program) mutable {
 				if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2f(program, "textureTranslate");
-				const float simulationTime = Globals::Components::physics.simulationTime;
-				textureTranslateUniform.setValue({ glm::cos(simulationTime * 0.1f), glm::sin(simulationTime * 0.1f) });
+				const float simulationDuration = Globals::Components::physics.simulationDuration;
+				textureTranslateUniform.setValue({ glm::cos(simulationDuration * 0.1f), glm::sin(simulationDuration * 0.1f) });
 				return nullptr;
 			});
 
@@ -160,9 +160,9 @@ namespace Levels
 					{
 						Tools::MVPInitialization(texturedColorThresholdShaders);
 						Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, woodTexture, true);
-						const float simulationTime = Globals::Components::physics.simulationTime;
+						const float simulationDuration = Globals::Components::physics.simulationDuration;
 						texturedColorThresholdShaders.invisibleColorUniform.setValue({ 1.0f, 1.0f, 1.0f });
-						texturedColorThresholdShaders.invisibleColorThresholdUniform.setValue((-glm::cos(simulationTime * 0.5f) + 1.0f) * 0.5f);
+						texturedColorThresholdShaders.invisibleColorThresholdUniform.setValue((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
 						return nullptr;
 					}),
 					texturedColorThresholdShaders.program);
@@ -192,7 +192,7 @@ namespace Levels
 				](Shaders::ProgramId program) mutable {
 					if (!texturedProgram.isValid()) texturedProgram = program;
 					texturedProgram.colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
-						(glm::sin(Globals::Components::physics.simulationTime * glm::two_pi<float>()) + 1.0f) / 2.0f + 0.5f });
+						(glm::sin(Globals::Components::physics.simulationDuration * glm::two_pi<float>()) + 1.0f) / 2.0f + 0.5f });
 					texturedProgram.modelUniform.setValue(dynamicWalls[wallId].getModelMatrix());
 					return nullptr;
 				});
@@ -242,7 +242,7 @@ namespace Levels
 			](Shaders::ProgramId program) mutable {
 				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
 				colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
-					(glm::sin(Globals::Components::physics.simulationTime / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
+					(glm::sin(Globals::Components::physics.simulationDuration / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
 				return nullptr;
 			});
 			grapples.emplace_back(Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f,
@@ -274,11 +274,11 @@ namespace Levels
 			const auto& player = players[player1Handler.playerId];
 
 			camera.targetProjectionHSizeF = [&]() {
-				camera.projectionTransitionFactor = physics.frameTime * 6;
+				camera.projectionTransitionFactor = physics.frameDuration * 6;
 				return projectionHSizeBase + glm::length(player.getVelocity()) * 0.2f;
 			};
 			camera.targetPositionF = [&]() {
-				camera.positionTransitionFactor = physics.frameTime * 6;
+				camera.positionTransitionFactor = physics.frameDuration * 6;
 				return player.getCenter() + glm::vec2(glm::cos(player.getAngle()), glm::sin(player.getAngle())) * 5.0f + player.getVelocity() * 0.4f;
 			};
 		}
@@ -304,14 +304,14 @@ namespace Levels
 
 			if (mouseState.lmb)
 			{
-				if (timeToLaunchMissile <= 0.0f)
+				if (durationToLaunchMissile <= 0.0f)
 				{
 					launchMissile();
-					timeToLaunchMissile = 0.1f;
+					durationToLaunchMissile = 0.1f;
 				}
-				else timeToLaunchMissile -= physics.frameTime;
+				else durationToLaunchMissile -= physics.frameDuration;
 			}
-			else timeToLaunchMissile = 0.0f;
+			else durationToLaunchMissile = 0.0f;
 
 			projectionHSizeBase = std::clamp(projectionHSizeBase + (prevWheel - mouseState.wheel) * 5.0f, 5.0f, 100.0f);
 			prevWheel = mouseState.wheel;
@@ -336,7 +336,7 @@ namespace Levels
 
 		Tools::PlayerPlaneHandler player1Handler;
 
-		float timeToLaunchMissile = 0.0f;
+		float durationToLaunchMissile = 0.0f;
 		bool missileFromLeft = false;
 
 		int prevWheel = 0;

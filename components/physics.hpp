@@ -10,7 +10,7 @@ namespace Components
 	{
 		b2World world{ {0.0f, 0.0f} };
 
-		float simulationTime = 0.0f;
-		float frameTime = 0.0f;
+		float simulationDuration = 0.0f;
+		float frameDuration = 0.0f;
 	};
 }

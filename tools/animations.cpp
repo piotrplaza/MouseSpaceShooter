@@ -9,13 +9,13 @@
 namespace Tools
 {
 	TextureAnimationController::TextureAnimationController(
-		glm::ivec2 imageSize, glm::ivec2 startPosition, glm::ivec2 frameSize, glm::ivec2 framesGrid, glm::vec2 frameStep, float frameTime,
+		glm::ivec2 imageSize, glm::ivec2 startPosition, glm::ivec2 frameSize, glm::ivec2 framesGrid, glm::vec2 frameStep, float frameDuration,
 		int numOfFrames, AnimationLayout animationLayout, AnimationPlayback animationPlayback, AnimationPolicy animationPolicy, glm::vec2 translate, glm::vec2 scale):
 		imageSize(imageSize),
 		startPosition(startPosition.x, -startPosition.y),
 		framesGrid(framesGrid),
 		frameStep(frameStep),
-		frameTime(frameTime),
+		frameDuration(frameDuration),
 		numOfFrames(numOfFrames == 0 ? framesGrid.x * framesGrid.y : numOfFrames),
 		animationLayout(animationLayout),
 		animationPlayback(animationPlayback),
@@ -29,14 +29,14 @@ namespace Tools
 
 	TextureAnimationController::FrameTransformation TextureAnimationController::getFrameTransformation() const
 	{
-		if (prevTime && !pauseTime)
+		if (prevDuration && !pauseDuration)
 		{
-			animationTime += (Globals::Components::physics.simulationTime - *prevTime) * getTimeScale();
-			prevTime = Globals::Components::physics.simulationTime;
+			animationDuration += (Globals::Components::physics.simulationDuration - *prevDuration) * getDurationScale();
+			prevDuration = Globals::Components::physics.simulationDuration;
 		}
 
-		int currentFrame = int(animationTime / frameTime) % numOfFrames;
-		if (animationTime < 0.0f) currentFrame += numOfFrames - 1;
+		int currentFrame = int(animationDuration / frameDuration) % numOfFrames;
+		if (animationDuration < 0.0f) currentFrame += numOfFrames - 1;
 		if (animationPlayback == AnimationPlayback::Backward) currentFrame = numOfFrames - currentFrame - 1;
 		const glm::ivec2 currentFrameInGrid = animationLayout == AnimationLayout::Vertical
 			? glm::ivec2{ currentFrame / framesGrid.y, currentFrame % framesGrid.y }
@@ -51,36 +51,36 @@ namespace Tools
 
 	void TextureAnimationController::start()
 	{
-		animationTime = 0;
-		prevTime = Globals::Components::physics.simulationTime;
-		pauseTime = std::nullopt;
+		animationDuration = 0;
+		prevDuration = Globals::Components::physics.simulationDuration;
+		pauseDuration = std::nullopt;
 	}
 
 	void TextureAnimationController::stop()
 	{
-		prevTime = std::nullopt;
-		pauseTime = std::nullopt;
+		prevDuration = std::nullopt;
+		pauseDuration = std::nullopt;
 	}
 
 	void TextureAnimationController::pause()
 	{
-		if (!pauseTime && prevTime) pauseTime = Globals::Components::physics.simulationTime;
+		if (!pauseDuration && prevDuration) pauseDuration = Globals::Components::physics.simulationDuration;
 	}
 
 	void TextureAnimationController::resume()
 	{
-		if (pauseTime && prevTime)
-			*prevTime += Globals::Components::physics.simulationTime - *pauseTime;
-		pauseTime = std::nullopt;
+		if (pauseDuration && prevDuration)
+			*prevDuration += Globals::Components::physics.simulationDuration - *pauseDuration;
+		pauseDuration = std::nullopt;
 	}
 
-	void TextureAnimationController::setTimeScale(float timeScale)
+	void TextureAnimationController::setDurationScale(float durationScale)
 	{
-		this->timeScale = timeScale;
+		this->durationScale = durationScale;
 	}
 
-	float TextureAnimationController::getTimeScale() const
+	float TextureAnimationController::getDurationScale() const
 	{
-		return timeScale;
+		return durationScale;
 	}
 }
