@@ -33,6 +33,20 @@ namespace Uniforms
 		return cache;
 	}
 
+	void UniformController2i::setValue(glm::ivec2 value)
+	{
+		assert(isValid());
+		cache = value;
+		glUseProgram_proxy(programId);
+		glUniform2i(uniformId, value.x, value.y);
+	}
+
+	glm::ivec2 UniformController2i::getValue() const
+	{
+		assert(isValid());
+		return cache;
+	}
+
 	void UniformController1f::setValue(float value)
 	{
 		assert(isValid());

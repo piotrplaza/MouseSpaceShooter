@@ -38,6 +38,18 @@ namespace Uniforms
 		int cache{};
 	};
 
+	class UniformController2i : public UniformController
+	{
+	public:
+		using UniformController::UniformController;
+
+		void setValue(glm::ivec2 value);
+		glm::ivec2 getValue() const;
+
+	private:
+		glm::ivec2 cache{};
+	};
+
 	class UniformController1f : public UniformController
 	{
 	public:
