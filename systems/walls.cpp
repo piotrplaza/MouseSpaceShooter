@@ -120,7 +120,7 @@ namespace Systems
 
 	void Walls::sceneCoordTexturedRender() const
 	{
-		glUseProgram_proxy(sceneCoordTexturedShadersProgram->program);
+		glUseProgram_proxy(sceneCoordTexturedShadersProgram->getProgramId());
 		sceneCoordTexturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
 		for (const auto& [texture, texturedStaticWallBuffers] : texturesToStaticWallsBuffers)
@@ -141,7 +141,7 @@ namespace Systems
 
 	void Walls::texturedRender() const
 	{
-		glUseProgram_proxy(texturedShadersProgram->program);
+		glUseProgram_proxy(texturedShadersProgram->getProgramId());
 		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
 		for (const auto& [texture, texturedDynamicWallBuffers] : texturesToDynamicWallsBuffers)
@@ -177,7 +177,7 @@ namespace Systems
 
 	void Walls::basicRender() const
 	{
-		glUseProgram_proxy(basicShadersProgram->program);
+		glUseProgram_proxy(basicShadersProgram->getProgramId());
 		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 		basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
 		basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
@@ -197,7 +197,7 @@ namespace Systems
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				(*customSimpleStaticWallBuffers.renderingSetup)(basicShadersProgram->program);
+				(*customSimpleStaticWallBuffers.renderingSetup)(basicShadersProgram->getProgramId());
 
 			glBindVertexArray(customSimpleStaticWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimpleStaticWallBuffers.positionsCache.size());
@@ -212,7 +212,7 @@ namespace Systems
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				(*customSimpleDynamicWallBuffers.renderingSetup)(basicShadersProgram->program);
+				(*customSimpleDynamicWallBuffers.renderingSetup)(basicShadersProgram->getProgramId());
 
 			glBindVertexArray(customSimpleDynamicWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimpleDynamicWallBuffers.positionsCache.size());
@@ -227,7 +227,7 @@ namespace Systems
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				(*customSimpleGrappleBuffers.renderingSetup)(basicShadersProgram->program);
+				(*customSimpleGrappleBuffers.renderingSetup)(basicShadersProgram->getProgramId());
 
 			glBindVertexArray(customSimpleGrappleBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimpleGrappleBuffers.positionsCache.size());

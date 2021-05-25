@@ -10,7 +10,7 @@ namespace Shaders
 		{
 			using ProgramBase::ProgramBase;
 
-			JuliaAccessor(Shaders::ProgramId program):
+			JuliaAccessor(ProgramId program):
 				ProgramBase(program),
 				vpUniform(program, "vp"),
 				juliaCOffsetUniform(program, "juliaCOffset"),
@@ -28,7 +28,7 @@ namespace Shaders
 		struct Julia: JuliaAccessor
 		{
 			Julia():
-				JuliaAccessor(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/julia.vs",
+				JuliaAccessor(LinkProgram(CompileShaders("ogl/shaders/julia.vs",
 					"ogl/shaders/julia.fs"), { {0, "bPos"} }))
 			{
 			}
@@ -37,7 +37,7 @@ namespace Shaders
 
 			~Julia()
 			{
-				glDeleteProgram(program);
+				glDeleteProgram(getProgramId());
 			}
 		};
 	}

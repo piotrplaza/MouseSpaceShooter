@@ -10,7 +10,7 @@ namespace Shaders
 		{
 			using ProgramBase::ProgramBase;
 
-			ParticlesAccessor(Shaders::ProgramId program) :
+			ParticlesAccessor(ProgramId program) :
 				ProgramBase(program),
 				vpUniform(program, "vp"),
 				colorUniform(program, "color"),
@@ -30,7 +30,7 @@ namespace Shaders
 		struct Particles : ParticlesAccessor
 		{
 			Particles() :
-				ParticlesAccessor(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/particles.vs",
+				ParticlesAccessor(LinkProgram(CompileShaders("ogl/shaders/particles.vs",
 					"ogl/shaders/particles.gs", "ogl/shaders/particles.fs"), { {0, "bPos"} }))
 			{
 			}
@@ -39,7 +39,7 @@ namespace Shaders
 
 			~Particles()
 			{
-				glDeleteProgram(program);
+				glDeleteProgram(getProgramId());
 			}
 		};
 	}

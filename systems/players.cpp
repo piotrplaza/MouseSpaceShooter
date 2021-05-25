@@ -135,7 +135,7 @@ namespace Systems
 
 	void Players::basicRender() const
 	{
-		glUseProgram_proxy(basicShadersProgram->program);
+		glUseProgram_proxy(basicShadersProgram->getProgramId());
 		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 		basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
 		basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
@@ -149,7 +149,7 @@ namespace Systems
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				(*customSimplePlayerBuffers.renderingSetup)(basicShadersProgram->program);
+				(*customSimplePlayerBuffers.renderingSetup)(basicShadersProgram->getProgramId());
 
 			glBindVertexArray(customSimplePlayerBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimplePlayerBuffers.positionsCache.size());
@@ -161,7 +161,7 @@ namespace Systems
 
 	void Players::sceneCoordTexturedRender() const
 	{
-		glUseProgram_proxy(texturedShadersProgram->program);
+		glUseProgram_proxy(texturedShadersProgram->getProgramId());
 		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
 		for (const auto& [texture, texturedPlayerBuffers] : texturesToPlayersBuffers)
@@ -200,7 +200,7 @@ namespace Systems
 
 	void Players::coloredRender() const
 	{
-		glUseProgram_proxy(coloredShadersProgram->program);
+		glUseProgram_proxy(coloredShadersProgram->getProgramId());
 		coloredShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 		coloredShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
 		coloredShadersProgram->modelUniform.setValue(glm::mat4(1.0f));

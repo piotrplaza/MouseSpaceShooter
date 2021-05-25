@@ -127,7 +127,7 @@ namespace Levels
 						texturedColorThresholdShaders.invisibleColorThresholdUniform.setValue((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
 						return nullptr;
 					}),
-					texturedColorThresholdShaders.program);
+					texturedColorThresholdShaders.getProgramId());
 				dynamicWalls.emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f));
 				dynamicWalls.back().renderingSetup = Tools::MakeUniqueRenderingSetup([
 					colorUniform = Uniforms::UniformController4f()

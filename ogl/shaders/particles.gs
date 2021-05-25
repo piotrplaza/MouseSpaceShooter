@@ -26,7 +26,7 @@ mat4 rotationMatrix(vec3 axis, float angle)
 
 void main()
 {
-    const vec4 position = vec4(gl_in[0].gl_Position.xy, 1.0, 1.0);
+    const vec4 position = vec4(gl_in[0].gl_Position.xy, 0.0, 1.0);
     const float hSize = 1.0 * gl_in[0].gl_Position.z;
     const mat4 rotMat = rotationMatrix(vec3(0.0, 0.0, 1.0), vAngle[0]);
 

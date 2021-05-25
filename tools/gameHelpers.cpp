@@ -179,7 +179,7 @@ namespace Tools
 		Globals::Systems::DeferredActions().addDeferredAction([=]() {
 			auto& shockwave = EmplaceIdComponent(shockwaves, { center, numOfParticles });
 			auto& explosionDecoration = EmplaceIdComponent(temporaryNearMidgroundDecorations, {});
-			explosionDecoration.customShadersProgram = particlesProgram.program;
+			explosionDecoration.customShadersProgram = particlesProgram.getProgramId();
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 			explosionDecoration.renderingSetup = Tools::MakeUniqueRenderingSetup(
@@ -252,7 +252,7 @@ namespace Tools
 		using namespace Globals::Components;
 
 		auto& background = backgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
-		background.customShadersProgram = juliaShaders.program;
+		background.customShadersProgram = juliaShaders.getProgramId();
 		background.renderingSetup = std::make_unique<std::function<std::function<void()>(Shaders::ProgramId)>>([=, &juliaShaders](auto) mutable {
 			juliaShaders.vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
 				glm::vec3((float)screenInfo.windowSize.y / screenInfo.windowSize.x, 1.0f, 1.0f) * 1.5f),

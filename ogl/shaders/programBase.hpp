@@ -5,8 +5,9 @@
 
 namespace Shaders
 {
-	struct ProgramBase
+	class ProgramBase
 	{
+	public:
 		ProgramBase() :
 			program(0)
 		{}
@@ -15,16 +16,22 @@ namespace Shaders
 			program(program)
 		{}
 
+		operator ProgramId() const
+		{
+			return program;
+		}
+
+		ProgramId getProgramId() const
+		{
+			return program;
+		}
+
 		bool isValid() const
 		{
 			return program != 0;
 		}
 
-		operator ProgramId()
-		{
-			return program;
-		}
-
+	private:
 		ProgramId program;
 	};
 }

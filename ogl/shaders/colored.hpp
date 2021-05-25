@@ -10,7 +10,7 @@ namespace Shaders
 		{
 			using ProgramBase::ProgramBase;
 
-			ColoredAccessor(Shaders::ProgramId program):
+			ColoredAccessor(ProgramId program):
 				ProgramBase(program),
 				modelUniform(program, "model"),
 				vpUniform(program, "vp"),
@@ -26,7 +26,7 @@ namespace Shaders
 		struct Colored: ColoredAccessor
 		{
 			Colored():
-				ColoredAccessor(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/colored.vs",
+				ColoredAccessor(LinkProgram(CompileShaders("ogl/shaders/colored.vs",
 					"ogl/shaders/colored.fs"), { {0, "bPos"}, {1, "bColor"} }))
 			{
 			}
@@ -35,7 +35,7 @@ namespace Shaders
 
 			~Colored()
 			{
-				glDeleteProgram(program);
+				glDeleteProgram(getProgramId());
 			}
 		};
 	}

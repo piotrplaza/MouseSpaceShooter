@@ -51,7 +51,7 @@ namespace Systems
 
 	void Temporaries::texturedRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffers) const
 	{
-		glUseProgram_proxy(texturedShadersProgram->program);
+		glUseProgram_proxy(texturedShadersProgram->getProgramId());
 		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
 		for (const auto& [id, currentBuffers] : buffers)
@@ -64,7 +64,7 @@ namespace Systems
 
 	void Temporaries::basicRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffers) const
 	{
-		glUseProgram_proxy(basicShadersProgram->program);
+		glUseProgram_proxy(basicShadersProgram->getProgramId());
 		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
 		for (const auto& [id, currentBuffers] : buffers)
@@ -74,7 +74,7 @@ namespace Systems
 
 			std::function<void()> renderingTeardown;
 			if (currentBuffers.renderingSetup)
-				renderingTeardown = (*currentBuffers.renderingSetup)(basicShadersProgram->program);
+				renderingTeardown = (*currentBuffers.renderingSetup)(basicShadersProgram->getProgramId());
 
 			glBindVertexArray(currentBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());

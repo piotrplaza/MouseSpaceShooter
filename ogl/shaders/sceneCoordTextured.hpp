@@ -10,7 +10,7 @@ namespace Shaders
 		{
 			using ProgramBase::ProgramBase;
 
-			SceneCoordTexturedAccessor(Shaders::ProgramId program):
+			SceneCoordTexturedAccessor(ProgramId program):
 				ProgramBase(program),
 				modelUniform(program, "model"),
 				vpUniform(program, "vp"),
@@ -34,7 +34,7 @@ namespace Shaders
 		struct SceneCoordTextured: SceneCoordTexturedAccessor
 		{
 			SceneCoordTextured():
-				SceneCoordTexturedAccessor(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/sceneCoordTextured.vs",
+				SceneCoordTexturedAccessor(LinkProgram(CompileShaders("ogl/shaders/sceneCoordTextured.vs",
 					"ogl/shaders/sceneCoordTextured.fs"), { {0, "bPos"} }))
 			{
 			}
@@ -43,7 +43,7 @@ namespace Shaders
 
 			~SceneCoordTextured()
 			{
-				glDeleteProgram(program);
+				glDeleteProgram(getProgramId());
 			}
 		};
 	}

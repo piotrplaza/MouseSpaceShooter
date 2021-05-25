@@ -10,7 +10,7 @@ namespace Shaders
 		{
 			using ProgramBase::ProgramBase;
 
-			TexturedColorThresholdAccessor(Shaders::ProgramId program):
+			TexturedColorThresholdAccessor(ProgramId program):
 				ProgramBase(program),
 				modelUniform(program, "model"),
 				vpUniform(program, "vp"),
@@ -36,7 +36,7 @@ namespace Shaders
 		struct TexturedColorThreshold: TexturedColorThresholdAccessor
 		{
 			TexturedColorThreshold():
-				TexturedColorThresholdAccessor(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/texturedColorThreshold.vs",
+				TexturedColorThresholdAccessor(LinkProgram(CompileShaders("ogl/shaders/texturedColorThreshold.vs",
 					"ogl/shaders/texturedColorThreshold.fs"), { {0, "bPos"}, {1, "bTexCoord"} }))
 			{
 			}
@@ -45,7 +45,7 @@ namespace Shaders
 
 			~TexturedColorThreshold()
 			{
-				glDeleteProgram(program);
+				glDeleteProgram(getProgramId());
 			}
 		};
 	}

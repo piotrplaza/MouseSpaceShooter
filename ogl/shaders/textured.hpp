@@ -10,7 +10,7 @@ namespace Shaders
 		{
 			using ProgramBase::ProgramBase;
 
-			TexturedAccessor(Shaders::ProgramId program):
+			TexturedAccessor(ProgramId program):
 				ProgramBase(program),
 				modelUniform(program, "model"),
 				vpUniform(program, "vp"),
@@ -32,7 +32,7 @@ namespace Shaders
 		struct Textured: TexturedAccessor
 		{
 			Textured():
-				TexturedAccessor(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/textured.vs",
+				TexturedAccessor(LinkProgram(CompileShaders("ogl/shaders/textured.vs",
 					"ogl/shaders/textured.fs"), { {0, "bPos"}, {1, "bTexCoord"} }))
 			{
 			}
@@ -41,7 +41,7 @@ namespace Shaders
 
 			~Textured()
 			{
-				glDeleteProgram(program);
+				glDeleteProgram(getProgramId());
 			}
 		};
 	}

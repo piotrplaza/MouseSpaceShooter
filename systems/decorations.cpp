@@ -135,7 +135,7 @@ namespace Systems
 	void Decorations::texturedRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
 		const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const
 	{
-		glUseProgram_proxy(texturedShadersProgram->program);
+		glUseProgram_proxy(texturedShadersProgram->getProgramId());
 		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
 		auto render = [&](const auto& buffers)
@@ -155,7 +155,7 @@ namespace Systems
 	void Decorations::basicRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
 		const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const
 	{
-		glUseProgram_proxy(basicShadersProgram->program);
+		glUseProgram_proxy(basicShadersProgram->getProgramId());
 		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
 		auto render = [&](const auto& buffers)
@@ -165,7 +165,7 @@ namespace Systems
 
 			std::function<void()> renderingTeardown;
 			if (buffers.renderingSetup)
-				renderingTeardown = (*buffers.renderingSetup)(basicShadersProgram->program);
+				renderingTeardown = (*buffers.renderingSetup)(basicShadersProgram->getProgramId());
 
 			glBindVertexArray(buffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, buffers.positionsCache.size());

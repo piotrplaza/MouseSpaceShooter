@@ -10,7 +10,7 @@ namespace Shaders
 		{
 			using ProgramBase::ProgramBase;
 
-			BasicAccessor(Shaders::ProgramId program) :
+			BasicAccessor(ProgramId program) :
 				ProgramBase(program),
 				modelUniform(program, "model"),
 				vpUniform(program, "vp"),
@@ -26,7 +26,7 @@ namespace Shaders
 		struct Basic: BasicAccessor
 		{
 			Basic():
-				BasicAccessor(Shaders::LinkProgram(Shaders::CompileShaders("ogl/shaders/basic.vs",
+				BasicAccessor(LinkProgram(CompileShaders("ogl/shaders/basic.vs",
 					"ogl/shaders/basic.fs"), { {0, "bPos"} }))
 			{
 			}
@@ -35,7 +35,7 @@ namespace Shaders
 
 			~Basic()
 			{
-				glDeleteProgram(program);
+				glDeleteProgram(getProgramId());
 			}
 		};
 	}
