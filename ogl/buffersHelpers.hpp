@@ -261,6 +261,7 @@ namespace Tools
 			buffers.animationController = component.animationController.get();
 			buffers.customShadersProgram = component.customShadersProgram;
 			buffers.positionsCache = component.getPositions();
+			buffers.lowRes = component.lowRes;
 
 			buffers.drawMode = component.drawMode;
 			buffers.bufferDataUsage = component.bufferDataUsage;

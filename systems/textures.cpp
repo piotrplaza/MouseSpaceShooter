@@ -11,6 +11,7 @@
 
 #include <components/textureDef.hpp>
 #include <components/texture.hpp>
+#include <components/lowResBuffers.hpp>
 
 namespace
 {
@@ -28,7 +29,7 @@ namespace Systems
 		static_assert(maxTextureObjects <= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 		assert(texturesDef.size() <= maxTextureObjects);
 		
-		textures = std::vector<::Components::Texture>(texturesDef.size());
+		textures = std::vector<::Components::Texture>(texturesDef.size() + 1 /*low res screenbuffer texture*/);
 		for (unsigned i = 0; i < texturesDef.size(); ++i)
 		{
 			auto& textureDef = texturesDef[i];
@@ -36,6 +37,8 @@ namespace Systems
 			texture.textureUnit = GL_TEXTURE0 + i;
 			loadAndConfigureTexture(textureDef, texture);
 		}
+
+		createLowResFramebufferTexture();
 	}
 
 	void Textures::loadAndConfigureTexture(const Components::TextureDef& textureDef, Components::Texture& texture)
@@ -46,15 +49,15 @@ namespace Systems
 		auto& textureCache = pathsToTexturesCache[textureDef.path];
 		if (!textureCache.bytes)
 		{
-			textureCache.bytes.reset(stbi_load(textureDef.path.c_str(), &textureCache.width, &textureCache.height, &textureCache.bitDepth, 0));
+			textureCache.bytes.reset(stbi_load(textureDef.path.c_str(), &textureCache.size.x, &textureCache.size.y, &textureCache.bitDepth, 0));
 			if (!textureCache.bytes)
 			{
 				assert(!"Unable to load image.");
 				throw std::runtime_error("Unable to load image \"" + textureDef.path + "\".");
 			}
 		}
-		texture.width = textureCache.width;
-		texture.height = textureCache.height;
+		texture.size.x = textureCache.size.x;
+		texture.size.y = textureCache.size.y;
 		texture.bitDepth = textureCache.bitDepth;
 
 		const GLint format = texture.bitDepth == 4 ? GL_RGBA : texture.bitDepth == 3 ? GL_RGB : texture.bitDepth == 2 ? GL_RG : GL_RED;
@@ -66,7 +69,7 @@ namespace Systems
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, textureDef.magFilter);
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, texture.width, texture.height, 0, format, GL_UNSIGNED_BYTE, textureCache.bytes.get());
+		glTexImage2D(GL_TEXTURE_2D, 0, format, texture.size.x, texture.size.y, 0, format, GL_UNSIGNED_BYTE, textureCache.bytes.get());
 
 		if (textureDef.minFilter == GL_LINEAR_MIPMAP_LINEAR ||
 			textureDef.minFilter == GL_LINEAR_MIPMAP_NEAREST ||
@@ -75,5 +78,19 @@ namespace Systems
 		{
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
+	}
+
+	void Textures::createLowResFramebufferTexture() const
+	{
+		using namespace Globals::Components;
+
+		lowResBuffers.textureUnit = GL_TEXTURE0 + textures.size() - 1;
+		textures.back().textureUnit = lowResBuffers.textureUnit;
+		glActiveTexture(lowResBuffers.textureUnit);
+
+		glGenTextures(1, &lowResBuffers.textureObject);
+		glBindTexture(GL_TEXTURE_2D, lowResBuffers.textureObject);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 }

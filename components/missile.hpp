@@ -41,6 +41,7 @@ namespace Components
 		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::function<void()> step;
+		bool lowRes = false;
 
 		static constexpr GLenum drawMode = GL_TRIANGLES;
 		static constexpr GLenum bufferDataUsage = GL_STATIC_DRAW;

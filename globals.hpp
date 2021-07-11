@@ -23,6 +23,7 @@ namespace Components
 	struct CollisionHandler;
 	struct Shockwave;
 	struct Light;
+	struct LowResBuffers;
 }
 
 namespace Systems
@@ -49,6 +50,7 @@ namespace Globals
 		extern ::Components::Physics& physics;
 		extern ::Components::Camera& camera;
 		extern ::Components::GraphicsSettings& graphicsSettings;
+		extern ::Components::LowResBuffers& lowResBuffers;
 
 		extern std::vector<::Components::TextureDef>& texturesDef;
 		extern std::vector<::Components::Texture>& textures;

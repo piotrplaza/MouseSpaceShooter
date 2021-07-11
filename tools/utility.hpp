@@ -8,6 +8,7 @@ namespace Tools
 
 	glm::vec2 GetNormalizedMousePosition();
 	void SetMousePos(glm::ivec2 mousePos);
+	glm::ivec2 GetMousePos();
 	void SetMouseCursorVisibility(bool visibility);
 
 	void RandomInit();

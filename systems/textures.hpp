@@ -2,6 +2,8 @@
 #include <string>
 #include <unordered_map>
 
+#include <glm/vec2.hpp>
+
 namespace Components
 {
 	struct TextureDef;
@@ -19,12 +21,12 @@ namespace Systems
 		struct TextureCache
 		{
 			std::unique_ptr<unsigned char[]> bytes;
-			int width = 0;
-			int height = 0;
+			glm::ivec2 size = {0, 0};
 			int bitDepth = 0;
 		};
 
 		void loadAndConfigureTexture(const Components::TextureDef& textureDef, Components::Texture& texture);
+		void createLowResFramebufferTexture() const;
 
 		std::unordered_map<std::string, TextureCache> pathsToTexturesCache;
 	};

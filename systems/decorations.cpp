@@ -3,12 +3,15 @@
 #include <ogl/oglProxy.hpp>
 #include <ogl/buffersHelpers.hpp>
 #include <ogl/renderingHelpers.hpp>
+#include <ogl/oglHelpers.hpp>
 
 #include <globals.hpp>
 
 #include <components/decoration.hpp>
 #include <components/mvp.hpp>
 #include <components/graphicsSettings.hpp>
+#include <components/screenInfo.hpp>
+#include <components/lowResBuffers.hpp>
 
 namespace Systems
 {
@@ -109,8 +112,13 @@ namespace Systems
 	void Decorations::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
 		const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const
 	{
-		auto render = [](const auto& buffers)
+		bool anyLowRes = false;
+
+		auto render = [&](const auto& buffers)
 		{
+			Tools::ConditionalScopedFramebuffer csfb(buffers.lowRes, Globals::Components::lowResBuffers.fbo,
+				Globals::Components::lowResBuffers.size, Globals::Components::screenInfo.windowSize);
+
 			assert(buffers.customShadersProgram);
 			glUseProgram_proxy(*buffers.customShadersProgram);
 
@@ -119,10 +127,13 @@ namespace Systems
 				renderingTeardown = (*buffers.renderingSetup)(*buffers.customShadersProgram);
 
 			glBindVertexArray(buffers.vertexArray);
+
 			glDrawArrays(buffers.drawMode, 0, buffers.positionsCache.size());
 
 			if (renderingTeardown)
 				renderingTeardown();
+
+			anyLowRes = anyLowRes || buffers.lowRes;
 		};
 
 		for (const auto& buffers : persistentBuffers)
@@ -130,6 +141,9 @@ namespace Systems
 
 		for (const auto& [id, buffers] : temporaryBuffers)
 			render(buffers);
+
+		if (anyLowRes)
+			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.textureUnit - GL_TEXTURE0);
 	}
 
 	void Decorations::texturedRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
@@ -138,11 +152,19 @@ namespace Systems
 		glUseProgram_proxy(texturedShadersProgram->getProgramId());
 		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
+		bool anyLowRes = false;
+
 		auto render = [&](const auto& buffers)
 		{
+			Tools::ConditionalScopedFramebuffer csfb(buffers.lowRes, Globals::Components::lowResBuffers.fbo,
+				Globals::Components::lowResBuffers.size, Globals::Components::screenInfo.windowSize);
+
 			texturedShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
 			texturedShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
+
 			Tools::TexturedRender(*texturedShadersProgram, buffers, *buffers.texture);
+
+			anyLowRes = anyLowRes || buffers.lowRes;
 		};
 
 		for (const auto& buffers : persistentBuffers)
@@ -150,6 +172,9 @@ namespace Systems
 
 		for (const auto& [id, buffers] : temporaryBuffers)
 			render(buffers);
+
+		if (anyLowRes)
+			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.textureUnit - GL_TEXTURE0);
 	}
 
 	void Decorations::basicRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
@@ -158,8 +183,13 @@ namespace Systems
 		glUseProgram_proxy(basicShadersProgram->getProgramId());
 		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
+		bool anyLowRes = false;
+
 		auto render = [&](const auto& buffers)
 		{
+			Tools::ConditionalScopedFramebuffer csfb(buffers.lowRes, Globals::Components::lowResBuffers.fbo,
+				Globals::Components::lowResBuffers.size, Globals::Components::screenInfo.windowSize);
+
 			basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
@@ -172,6 +202,8 @@ namespace Systems
 
 			if (renderingTeardown)
 				renderingTeardown();
+
+			anyLowRes = anyLowRes || buffers.lowRes;
 		};
 
 		for (const auto& buffers : persistentBuffers)
@@ -179,5 +211,8 @@ namespace Systems
 
 		for (const auto& [id, buffers] : temporaryBuffers)
 			render(buffers);
+
+		if (anyLowRes)
+			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.textureUnit - GL_TEXTURE0);
 	}
 }

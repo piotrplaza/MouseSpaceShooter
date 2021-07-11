@@ -324,6 +324,9 @@
     <ClInclude Include="ogl\renderingSetup.hpp">
       <Filter>src\ogl</Filter>
     </ClInclude>
+    <ClInclude Include="components\lowResBuffers.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">

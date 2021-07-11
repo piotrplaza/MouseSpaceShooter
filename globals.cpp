@@ -20,6 +20,7 @@
 #include "components/collisionHandler.hpp"
 #include "components/shockwave.hpp"
 #include "components/light.hpp"
+#include "components/lowResBuffers.hpp"
 
 #include "systems/stateController.hpp"
 #include "systems/physics.hpp"
@@ -42,6 +43,7 @@ namespace Components
 	static ::Components::Physics physics;
 	static ::Components::Camera camera;
 	static ::Components::GraphicsSettings graphicsSettings;
+	static ::Components::LowResBuffers lowResBuffers;
 
 	static std::vector<::Components::TextureDef> texturesDef;
 	static std::vector<::Components::Texture> textures;
@@ -74,6 +76,7 @@ namespace Globals
 		::Components::Physics& physics = ::Components::physics;
 		::Components::Camera& camera = ::Components::camera;
 		::Components::GraphicsSettings& graphicsSettings = ::Components::graphicsSettings;
+		::Components::LowResBuffers& lowResBuffers = ::Components::lowResBuffers;
 
 		std::vector<::Components::TextureDef>& texturesDef = ::Components::texturesDef;
 		std::vector<::Components::Texture>& textures = ::Components::textures;

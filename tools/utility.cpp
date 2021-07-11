@@ -39,6 +39,13 @@ namespace Tools
 		SetCursorPos(mousePos.x, mousePos.y);
 	}
 
+	glm::ivec2 GetMousePos()
+	{
+		POINT mousePos;
+		GetCursorPos(&mousePos);
+		return { mousePos.x, mousePos.y };
+	}
+
 	void SetMouseCursorVisibility(bool visibility)
 	{
 		ShowCursor(visibility);

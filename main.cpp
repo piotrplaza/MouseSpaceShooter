@@ -15,6 +15,7 @@
 #include "components/mouseState.hpp"
 #include "components/screenInfo.hpp"
 #include "components/graphicsSettings.hpp"
+#include "components/lowResBuffers.hpp"
 
 #include "systems/stateController.hpp"
 #include "systems/walls.hpp"
@@ -30,8 +31,6 @@
 #include "levels/playground/playground.hpp"
 #include "levels/rocketball/rocketball.hpp"
 #include "levels/race1/race1.hpp"
-
-#include "tools/utility.hpp"
 
 #include "ogl/oglHelpers.hpp"
 
@@ -79,6 +78,15 @@ void Initialize()
 
 void RenderScene()
 {
+	using namespace Globals::Components;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, lowResBuffers.fbo);
+	glViewport(0, 0, lowResBuffers.size.x, lowResBuffers.size.y);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, screenInfo.windowSize.x, screenInfo.windowSize.y);
 	const glm::vec4& clearColor = Globals::Components::graphicsSettings.clearColor;
 	glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -142,49 +150,6 @@ void PrepareFrame()
 	Globals::Systems::Cleaner().step();
 }
 
-void HandleKeyboard(bool const* const keys)
-{
-}
-
-void ResetMousePosition()
-{
-	using namespace Globals::Components;
-
-	Tools::SetMousePos(screenInfo.windowCenterInScreenSpace);
-	mouseState.position = screenInfo.windowCenterInScreenSpace;
-}
-
-void HandleMouse()
-{
-	using namespace Globals::Components;
-
-	POINT mousePos;
-	GetCursorPos(&mousePos);
-	const auto prevPosition = mouseState.position;
-	mouseState.position = { mousePos.x, mousePos.y };
-	mouseState.delta = mouseState.position - prevPosition;
-	
-	ResetMousePosition();
-}
-
-void ChangeWindowSize(glm::ivec2 size)
-{
-	using namespace Globals::Components;
-
-	screenInfo.windowSize = size;
-	screenInfo.windowCenterInScreenSpace = { screenInfo.windowLocation + screenInfo.windowSize / 2 };
-
-	glViewport(0, 0, size.x, size.y);
-}
-
-void ChangeWindowLocation(glm::ivec2 location)
-{
-	using namespace Globals::Components;
-
-	screenInfo.windowLocation = location;
-	screenInfo.windowCenterInScreenSpace = { location + screenInfo.windowSize / 2 };
-}
-
 void SetDCPixelFormat(HDC hDC);
 
 static bool keys[256];
@@ -232,13 +197,13 @@ LRESULT CALLBACK WndProc(
 		case WM_SIZE:
 		{
 			const glm::ivec2 size{ LOWORD(lParam), HIWORD(lParam) };
-			ChangeWindowSize(size);
+			Globals::Systems::StateController().changeWindowSize(size);
 			break;
 		}
 		case WM_MOVE:
 		{
 			const glm::ivec2 location{ LOWORD(lParam), HIWORD(lParam) };
-			ChangeWindowLocation(location);
+			Globals::Systems::StateController().changeWindowLocation(location);
 			break;
 		}
 		case WM_SETFOCUS:
@@ -389,11 +354,11 @@ int APIENTRY WinMain(
 		{
 			if (resetMousePositionRequired)
 			{
-				ResetMousePosition();
+				Globals::Systems::StateController().resetMousePosition();
 				resetMousePositionRequired = false;
 			}
-			HandleKeyboard(keys);
-			HandleMouse();
+			Globals::Systems::StateController().handleKeyboard(keys);
+			Globals::Systems::StateController().handleMousePosition();
 			PrepareFrame();
 
 			glFinish(); //Not sure why, but it helps with stuttering in some scenarios, e.g. if missile was launched (release + lower display refresh rate => bigger stuttering without it).

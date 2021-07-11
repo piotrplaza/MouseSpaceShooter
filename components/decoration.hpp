@@ -39,7 +39,8 @@ namespace Components
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::vector<glm::vec2> texCoord;
 		std::function<void()> step;
-		std::vector<float> genericBuffer;
+		bool lowRes = false;
+		//std::vector<float> genericBuffer;
 
 		GLenum drawMode = GL_TRIANGLES;
 		GLenum bufferDataUsage = GL_STATIC_DRAW;

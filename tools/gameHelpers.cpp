@@ -180,6 +180,7 @@ namespace Tools
 			auto& shockwave = EmplaceIdComponent(shockwaves, { center, numOfParticles });
 			auto& explosionDecoration = EmplaceIdComponent(temporaryNearMidgroundDecorations, {});
 			explosionDecoration.customShadersProgram = particlesProgram.getProgramId();
+			explosionDecoration.lowRes = true;
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 			explosionDecoration.renderingSetup = Tools::MakeUniqueRenderingSetup(
