@@ -119,6 +119,13 @@ namespace Systems
 			Tools::ConditionalScopedFramebuffer csfb(buffers.lowRes, Globals::Components::lowResBuffers.fbo,
 				Globals::Components::lowResBuffers.size, Globals::Components::screenInfo.windowSize);
 
+			if (!anyLowRes && buffers.lowRes)
+			{
+				anyLowRes = true;
+				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			}
+
 			assert(buffers.customShadersProgram);
 			glUseProgram_proxy(*buffers.customShadersProgram);
 
@@ -132,8 +139,6 @@ namespace Systems
 
 			if (renderingTeardown)
 				renderingTeardown();
-
-			anyLowRes = anyLowRes || buffers.lowRes;
 		};
 
 		for (const auto& buffers : persistentBuffers)
@@ -159,12 +164,17 @@ namespace Systems
 			Tools::ConditionalScopedFramebuffer csfb(buffers.lowRes, Globals::Components::lowResBuffers.fbo,
 				Globals::Components::lowResBuffers.size, Globals::Components::screenInfo.windowSize);
 
+			if (!anyLowRes && buffers.lowRes)
+			{
+				anyLowRes = true;
+				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			}
+
 			texturedShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
 			texturedShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 			Tools::TexturedRender(*texturedShadersProgram, buffers, *buffers.texture);
-
-			anyLowRes = anyLowRes || buffers.lowRes;
 		};
 
 		for (const auto& buffers : persistentBuffers)
@@ -190,6 +200,13 @@ namespace Systems
 			Tools::ConditionalScopedFramebuffer csfb(buffers.lowRes, Globals::Components::lowResBuffers.fbo,
 				Globals::Components::lowResBuffers.size, Globals::Components::screenInfo.windowSize);
 
+			if (!anyLowRes && buffers.lowRes)
+			{
+				anyLowRes = true;
+				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			}
+
 			basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
@@ -202,8 +219,6 @@ namespace Systems
 
 			if (renderingTeardown)
 				renderingTeardown();
-
-			anyLowRes = anyLowRes || buffers.lowRes;
 		};
 
 		for (const auto& buffers : persistentBuffers)

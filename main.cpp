@@ -80,11 +80,6 @@ void RenderScene()
 {
 	using namespace Globals::Components;
 
-	glBindFramebuffer(GL_FRAMEBUFFER, lowResBuffers.fbo);
-	glViewport(0, 0, lowResBuffers.size.x, lowResBuffers.size.y);
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, screenInfo.windowSize.x, screenInfo.windowSize.y);
 	const glm::vec4& clearColor = Globals::Components::graphicsSettings.clearColor;
