@@ -245,6 +245,7 @@ namespace Tools
 					texturedProgram.vpUniform.setValue(mvp.getVP());
 				};
 			});
+			foregroundDecorations.back().lowRes = true;
 		}
 	}
 
@@ -263,5 +264,6 @@ namespace Tools
 			juliaShaders.maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
 			return nullptr;
 			});
+		background.lowRes = true;
 	}
 }

@@ -39,6 +39,7 @@ namespace Components
 		std::optional<unsigned> texture;
 		Tools::UniqueRenderingSetup renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
+		bool lowRes = false;
 
 		glm::vec2 previousCenter{ 0.0f, 0.0f };
 

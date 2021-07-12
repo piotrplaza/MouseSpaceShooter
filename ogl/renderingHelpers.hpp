@@ -110,7 +110,7 @@ namespace Tools
 		shadersProgram.textureScaleUniform.setValue(glm::vec2(1.0f));
 		shadersProgram.texture1Uniform.setValue(texture);
 
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glBlendFunc(GL_ONE, GL_ONE);
 		glDrawArrays(GL_TRIANGLES, 0, numOfVertices);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}

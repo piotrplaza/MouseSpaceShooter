@@ -99,6 +99,7 @@ namespace Tools
 			buffers.renderingSetup = component.renderingSetup.get();
 			buffers.texture = component.texture;
 			buffers.customShadersProgram = component.customShadersProgram;
+			buffers.lowRes = component.lowRes;
 
 			buffers.drawMode = component.drawMode;
 			buffers.bufferDataUsage = component.bufferDataUsage;
@@ -146,6 +147,7 @@ namespace Tools
 			buffers.customShadersProgram = component.customShadersProgram;
 			buffers.positionsCache.clear();
 			buffers.positionsCache.insert(buffers.positionsCache.end(), positions.begin(), positions.end());
+			buffers.lowRes = component.lowRes;
 
 			buffers.drawMode = component.drawMode;
 			buffers.bufferDataUsage = component.bufferDataUsage;

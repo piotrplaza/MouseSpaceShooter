@@ -14,7 +14,7 @@
 
 namespace
 {
-	constexpr int lowResDivisor = 4;
+	constexpr int lowResDivisor = 2;
 }
 
 namespace Systems

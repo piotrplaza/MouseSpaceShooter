@@ -38,6 +38,8 @@ namespace Components
 		std::optional<unsigned> texture;
 		Tools::UniqueRenderingSetup renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
+		bool lowRes = false;
+
 		bool connectIfApproaching = false;
 		float autoRotationFactor = 0.5f;
 

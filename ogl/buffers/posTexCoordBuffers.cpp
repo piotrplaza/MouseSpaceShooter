@@ -20,6 +20,7 @@ namespace Buffers
 		renderingSetup(std::move(other.renderingSetup)),
 		animationController(other.animationController),
 		customShadersProgram(other.customShadersProgram),
+		lowRes(other.lowRes),
 		positionsCache(std::move(other.positionsCache)),
 		texCoordCache(std::move(other.texCoordCache)),
 		numOfAllocatedPositions(other.numOfAllocatedPositions),

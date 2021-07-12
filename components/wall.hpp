@@ -36,6 +36,7 @@ namespace Components
 		std::optional<unsigned> texture;
 		Tools::UniqueRenderingSetup renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
+		bool lowRes = false;
 
 		GLenum drawMode = GL_TRIANGLES;
 		GLenum bufferDataUsage = GL_STATIC_DRAW;
