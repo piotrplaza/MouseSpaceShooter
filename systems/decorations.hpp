@@ -20,6 +20,7 @@ namespace Systems
 		void step();
 		void renderBackground() const;
 		void renderFarMidground() const;
+		void renderMidground() const;
 		void renderNearMidground() const;
 		void renderForeground() const;
 
@@ -46,16 +47,19 @@ namespace Systems
 		{
 			BufferType simpleBackgroundDecorations;
 			BufferType simpleFarMidgroundDecorations;
+			BufferType simpleMidgroundDecorations;
 			BufferType simpleNearMidgroundDecorations;
 			BufferType simpleForegroundDecorations;
 
 			BufferType texturedBackgroundDecorations;
 			BufferType texturedFarMidgroundDecorations;
+			BufferType texturedMidgroundDecorations;
 			BufferType texturedNearMidgroundDecorations;
 			BufferType texturedForegroundDecorations;
 
 			BufferType customShadersBackgroundDecorations;
 			BufferType customShadersFarMidgroundDecorations;
+			BufferType customShadersMidgroundDecorations;
 			BufferType customShadersNearMidgroundDecorations;
 			BufferType customShadersForegroundDecorations;
 		};

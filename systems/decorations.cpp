@@ -35,6 +35,8 @@ namespace Systems
 			persistentBuffers.texturedBackgroundDecorations, persistentBuffers.customShadersBackgroundDecorations);
 		Tools::UpdatePositionsBuffers(Globals::Components::farMidgroundDecorations, persistentBuffers.simpleFarMidgroundDecorations,
 			persistentBuffers.texturedFarMidgroundDecorations, persistentBuffers.customShadersFarMidgroundDecorations);
+		Tools::UpdatePositionsBuffers(Globals::Components::midgroundDecorations, persistentBuffers.simpleMidgroundDecorations,
+			persistentBuffers.texturedMidgroundDecorations, persistentBuffers.customShadersMidgroundDecorations);
 		Tools::UpdatePositionsBuffers(Globals::Components::nearMidgroundDecorations, persistentBuffers.simpleNearMidgroundDecorations,
 			persistentBuffers.texturedNearMidgroundDecorations, persistentBuffers.customShadersNearMidgroundDecorations);
 		Tools::UpdatePositionsBuffers(Globals::Components::foregroundDecorations, persistentBuffers.simpleForegroundDecorations,
@@ -47,6 +49,8 @@ namespace Systems
 			persistentBuffers.customShadersBackgroundDecorations);
 		Tools::UpdateTexCoordBuffers(Globals::Components::farMidgroundDecorations, persistentBuffers.texturedFarMidgroundDecorations,
 			persistentBuffers.customShadersFarMidgroundDecorations);
+		Tools::UpdateTexCoordBuffers(Globals::Components::midgroundDecorations, persistentBuffers.texturedMidgroundDecorations,
+			persistentBuffers.customShadersMidgroundDecorations);
 		Tools::UpdateTexCoordBuffers(Globals::Components::nearMidgroundDecorations, persistentBuffers.texturedNearMidgroundDecorations,
 			persistentBuffers.customShadersNearMidgroundDecorations);
 		Tools::UpdateTexCoordBuffers(Globals::Components::foregroundDecorations, persistentBuffers.texturedForegroundDecorations,
@@ -59,6 +63,8 @@ namespace Systems
 			temporaryBuffers.texturedBackgroundDecorations, temporaryBuffers.customShadersBackgroundDecorations);
 		Tools::UpdatePosTexCoordBuffers(Globals::Components::temporaryFarMidgroundDecorations, temporaryBuffers.simpleFarMidgroundDecorations,
 			temporaryBuffers.texturedFarMidgroundDecorations, temporaryBuffers.customShadersFarMidgroundDecorations);
+		Tools::UpdatePosTexCoordBuffers(Globals::Components::temporaryMidgroundDecorations, temporaryBuffers.simpleMidgroundDecorations,
+			temporaryBuffers.texturedMidgroundDecorations, temporaryBuffers.customShadersMidgroundDecorations);
 		Tools::UpdatePosTexCoordBuffers(Globals::Components::temporaryNearMidgroundDecorations, temporaryBuffers.simpleNearMidgroundDecorations,
 			temporaryBuffers.texturedNearMidgroundDecorations, temporaryBuffers.customShadersNearMidgroundDecorations);
 		Tools::UpdatePosTexCoordBuffers(Globals::Components::temporaryForegroundDecorations, temporaryBuffers.simpleForegroundDecorations,
@@ -93,6 +99,13 @@ namespace Systems
 		basicRender(persistentBuffers.simpleFarMidgroundDecorations, temporaryBuffers.simpleFarMidgroundDecorations);
 		texturedRender(persistentBuffers.texturedFarMidgroundDecorations, temporaryBuffers.texturedFarMidgroundDecorations);
 		customShadersRender(persistentBuffers.customShadersFarMidgroundDecorations, temporaryBuffers.customShadersFarMidgroundDecorations);
+	}
+
+	void Decorations::renderMidground() const
+	{
+		basicRender(persistentBuffers.simpleMidgroundDecorations, temporaryBuffers.simpleMidgroundDecorations);
+		texturedRender(persistentBuffers.texturedMidgroundDecorations, temporaryBuffers.texturedMidgroundDecorations);
+		customShadersRender(persistentBuffers.customShadersMidgroundDecorations, temporaryBuffers.customShadersMidgroundDecorations);
 	}
 
 	void Decorations::renderNearMidground() const
@@ -157,7 +170,11 @@ namespace Systems
 			render(buffers);
 
 		if (anyLowLinear)
+		{
+			glBlendFunc(GL_ONE, GL_ONE);
 			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.lowLinear.textureUnit - GL_TEXTURE0);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
 
 		if (anyPixelArt)
 			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.pixelArt.textureUnit - GL_TEXTURE0);
@@ -205,7 +222,11 @@ namespace Systems
 			render(buffers);
 
 		if (anyLowLinear)
+		{
+			glBlendFunc(GL_ONE, GL_ONE);
 			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.lowLinear.textureUnit - GL_TEXTURE0);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
 
 		if (anyPixelArt)
 			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.pixelArt.textureUnit - GL_TEXTURE0);
@@ -261,7 +282,11 @@ namespace Systems
 			render(buffers);
 
 		if (anyLowLinear)
+		{
+			glBlendFunc(GL_ONE, GL_ONE);
 			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.lowLinear.textureUnit - GL_TEXTURE0);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
 
 		if (anyPixelArt)
 			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.pixelArt.textureUnit - GL_TEXTURE0);

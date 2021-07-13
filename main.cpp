@@ -91,6 +91,7 @@ void RenderScene()
 	Globals::Systems::Walls().render();
 	Globals::Systems::Players().render();
 	Globals::Systems::Temporaries().render();
+	Globals::Systems::Decorations().renderMidground();
 	Globals::Systems::Decorations().renderNearMidground();
 	Globals::Systems::Decorations().renderForeground();
 

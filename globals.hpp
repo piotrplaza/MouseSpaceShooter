@@ -62,6 +62,8 @@ namespace Globals
 		extern std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryBackgroundDecorations;
 		extern std::vector<::Components::Decoration>& farMidgroundDecorations;
 		extern std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryFarMidgroundDecorations;
+		extern std::vector<::Components::Decoration>& midgroundDecorations;
+		extern std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryMidgroundDecorations;
 		extern std::vector<::Components::Decoration>& nearMidgroundDecorations;
 		extern std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryNearMidgroundDecorations;
 		extern std::vector<::Components::Decoration>& foregroundDecorations;

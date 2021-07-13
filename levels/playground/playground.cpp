@@ -174,7 +174,7 @@ namespace Levels
 					basicProgram.colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.0f });
 					return nullptr;
 				});
-				nearMidgroundDecorations.emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
+				midgroundDecorations.emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
 					[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
 					[](float input) { return glm::vec2(input + 0.3f, input + 0.3f); },
 					[](float input) { return input * 600.0f; },
@@ -185,8 +185,8 @@ namespace Levels
 					return result;
 				}
 				), roseTexture);
-				nearMidgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
-				nearMidgroundDecorations.back().renderingSetup = Tools::MakeUniqueRenderingSetup([
+				midgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+				midgroundDecorations.back().renderingSetup = Tools::MakeUniqueRenderingSetup([
 					texturedProgram = Shaders::Programs::TexturedAccessor(),
 					wallId = dynamicWalls.size() - 1
 				](Shaders::ProgramId program) mutable {
@@ -197,7 +197,7 @@ namespace Levels
 					return nullptr;
 				});
 			}
-			nearMidgroundDecorations.back().resolutionMode = ResolutionMode::PixelArt;
+			midgroundDecorations.back().resolutionMode = ResolutionMode::PixelArt;
 		}
 
 		void createStaticWalls() const
