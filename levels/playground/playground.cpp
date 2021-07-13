@@ -197,6 +197,7 @@ namespace Levels
 					return nullptr;
 				});
 			}
+			nearMidgroundDecorations.back().resolutionMode = ResolutionMode::PixelArt;
 		}
 
 		void createStaticWalls() const

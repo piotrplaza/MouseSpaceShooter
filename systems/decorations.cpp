@@ -112,16 +112,25 @@ namespace Systems
 	void Decorations::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
 		const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const
 	{
-		bool anyLowRes = false;
+		bool anyLowLinear = false;
+		bool anyPixelArt = false;
 
 		auto render = [&](const auto& buffers)
 		{
-			Tools::ConditionalScopedFramebuffer csfb(buffers.lowRes, Globals::Components::lowResBuffers.fbo,
-				Globals::Components::lowResBuffers.size, Globals::Components::screenInfo.windowSize);
+			const auto& lowResSubBuffers = Globals::Components::lowResBuffers.getSubBuffers(buffers.resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
+				lowResSubBuffers.size, Globals::Components::screenInfo.windowSize);
 
-			if (!anyLowRes && buffers.lowRes)
+			if (!anyLowLinear && buffers.resolutionMode == ResolutionMode::LowLinear)
 			{
-				anyLowRes = true;
+				anyLowLinear = true;
+				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			}
+
+			if (!anyPixelArt && buffers.resolutionMode == ResolutionMode::PixelArt)
+			{
+				anyPixelArt = true;
 				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			}
@@ -147,8 +156,11 @@ namespace Systems
 		for (const auto& [id, buffers] : temporaryBuffers)
 			render(buffers);
 
-		if (anyLowRes)
-			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.textureUnit - GL_TEXTURE0);
+		if (anyLowLinear)
+			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.lowLinear.textureUnit - GL_TEXTURE0);
+
+		if (anyPixelArt)
+			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.pixelArt.textureUnit - GL_TEXTURE0);
 	}
 
 	void Decorations::texturedRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
@@ -157,16 +169,25 @@ namespace Systems
 		glUseProgram_proxy(texturedShadersProgram->getProgramId());
 		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
-		bool anyLowRes = false;
+		bool anyLowLinear = false;
+		bool anyPixelArt = false;
 
 		auto render = [&](const auto& buffers)
 		{
-			Tools::ConditionalScopedFramebuffer csfb(buffers.lowRes, Globals::Components::lowResBuffers.fbo,
-				Globals::Components::lowResBuffers.size, Globals::Components::screenInfo.windowSize);
+			const auto& lowResSubBuffers = Globals::Components::lowResBuffers.getSubBuffers(buffers.resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
+				lowResSubBuffers.size, Globals::Components::screenInfo.windowSize);
 
-			if (!anyLowRes && buffers.lowRes)
+			if (!anyLowLinear && buffers.resolutionMode == ResolutionMode::LowLinear)
 			{
-				anyLowRes = true;
+				anyLowLinear = true;
+				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			}
+
+			if (!anyPixelArt && buffers.resolutionMode == ResolutionMode::PixelArt)
+			{
+				anyPixelArt = true;
 				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			}
@@ -183,8 +204,11 @@ namespace Systems
 		for (const auto& [id, buffers] : temporaryBuffers)
 			render(buffers);
 
-		if (anyLowRes)
-			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.textureUnit - GL_TEXTURE0);
+		if (anyLowLinear)
+			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.lowLinear.textureUnit - GL_TEXTURE0);
+
+		if (anyPixelArt)
+			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.pixelArt.textureUnit - GL_TEXTURE0);
 	}
 
 	void Decorations::basicRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
@@ -193,16 +217,25 @@ namespace Systems
 		glUseProgram_proxy(basicShadersProgram->getProgramId());
 		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
-		bool anyLowRes = false;
+		bool anyLowLinear = false;
+		bool anyPixelArt = false;
 
 		auto render = [&](const auto& buffers)
 		{
-			Tools::ConditionalScopedFramebuffer csfb(buffers.lowRes, Globals::Components::lowResBuffers.fbo,
-				Globals::Components::lowResBuffers.size, Globals::Components::screenInfo.windowSize);
+			const auto& lowResSubBuffers = Globals::Components::lowResBuffers.getSubBuffers(buffers.resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
+				lowResSubBuffers.size, Globals::Components::screenInfo.windowSize);
 
-			if (!anyLowRes && buffers.lowRes)
+			if (!anyLowLinear && buffers.resolutionMode == ResolutionMode::LowLinear)
 			{
-				anyLowRes = true;
+				anyLowLinear = true;
+				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			}
+
+			if (!anyPixelArt && buffers.resolutionMode == ResolutionMode::PixelArt)
+			{
+				anyPixelArt = true;
 				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			}
@@ -227,7 +260,10 @@ namespace Systems
 		for (const auto& [id, buffers] : temporaryBuffers)
 			render(buffers);
 
-		if (anyLowRes)
-			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.textureUnit - GL_TEXTURE0);
+		if (anyLowLinear)
+			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.lowLinear.textureUnit - GL_TEXTURE0);
+
+		if (anyPixelArt)
+			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.pixelArt.textureUnit - GL_TEXTURE0);
 	}
 }

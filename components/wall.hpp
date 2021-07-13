@@ -9,6 +9,8 @@
 
 #include <componentBase.hpp>
 
+#include <commonTypes/resolutionMode.hpp>
+
 #include <ogl/shaders.hpp>
 #include <ogl/renderingSetup.hpp>
 
@@ -36,7 +38,7 @@ namespace Components
 		std::optional<unsigned> texture;
 		Tools::UniqueRenderingSetup renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
-		bool lowRes = false;
+		ResolutionMode resolutionMode = ResolutionMode::Normal;
 
 		GLenum drawMode = GL_TRIANGLES;
 		GLenum bufferDataUsage = GL_STATIC_DRAW;

@@ -11,6 +11,8 @@
 
 #include <tools/animations.hpp>
 
+#include <commonTypes/resolutionMode.hpp>
+
 namespace Buffers
 {
 	struct PosTexCoordBuffers
@@ -31,7 +33,7 @@ namespace Buffers
 		const std::function<std::function<void()>(Shaders::ProgramId)>* renderingSetup = nullptr;
 		const Tools::TextureAnimationController* animationController = nullptr;
 		std::optional<Shaders::ProgramId> customShadersProgram;
-		bool lowRes = false;
+		ResolutionMode resolutionMode = ResolutionMode::Normal;
 
 		std::vector<glm::vec3> positionsCache;
 		std::vector<glm::vec2> texCoordCache;

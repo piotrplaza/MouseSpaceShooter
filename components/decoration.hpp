@@ -11,6 +11,8 @@
 
 #include <componentBase.hpp>
 
+#include <commonTypes/resolutionMode.hpp>
+
 #include <ogl/shaders.hpp>
 #include <ogl/renderingSetup.hpp>
 
@@ -39,7 +41,7 @@ namespace Components
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::vector<glm::vec2> texCoord;
 		std::function<void()> step;
-		bool lowRes = false;
+		ResolutionMode resolutionMode = ResolutionMode::Normal;
 		//std::vector<float> genericBuffer;
 
 		GLenum drawMode = GL_TRIANGLES;

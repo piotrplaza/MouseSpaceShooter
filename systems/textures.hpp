@@ -26,7 +26,7 @@ namespace Systems
 		};
 
 		void loadAndConfigureTexture(const Components::TextureDef& textureDef, Components::Texture& texture);
-		void createLowResFramebufferTexture() const;
+		void createLowResFramebuffersTextures() const;
 
 		std::unordered_map<std::string, TextureCache> pathsToTexturesCache;
 	};

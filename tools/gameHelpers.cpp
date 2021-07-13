@@ -25,6 +25,8 @@
 
 #include <collisionBits.hpp>
 
+#include <commonTypes/resolutionMode.hpp>
+
 namespace Tools
 {
 	PlayerPlaneHandler CreatePlayerPlane(unsigned planeTexture, unsigned flameAnimationTexture)
@@ -180,7 +182,7 @@ namespace Tools
 			auto& shockwave = EmplaceIdComponent(shockwaves, { center, numOfParticles });
 			auto& explosionDecoration = EmplaceIdComponent(temporaryNearMidgroundDecorations, {});
 			explosionDecoration.customShadersProgram = particlesProgram.getProgramId();
-			explosionDecoration.lowRes = true;
+			explosionDecoration.resolutionMode = ResolutionMode::LowLinear;
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 			explosionDecoration.renderingSetup = Tools::MakeUniqueRenderingSetup(
@@ -245,7 +247,7 @@ namespace Tools
 					texturedProgram.vpUniform.setValue(mvp.getVP());
 				};
 			});
-			foregroundDecorations.back().lowRes = true;
+			foregroundDecorations.back().resolutionMode = ResolutionMode::LowLinear;
 		}
 	}
 
@@ -264,6 +266,6 @@ namespace Tools
 			juliaShaders.maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
 			return nullptr;
 			});
-		background.lowRes = true;
+		background.resolutionMode = ResolutionMode::LowLinear;
 	}
 }

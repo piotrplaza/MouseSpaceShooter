@@ -10,6 +10,8 @@
 
 #include <componentBase.hpp>
 
+#include <commonTypes/resolutionMode.hpp>
+
 #include <ogl/shaders.hpp>
 #include <ogl/renderingSetup.hpp>
 
@@ -41,7 +43,7 @@ namespace Components
 		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::function<void()> step;
-		bool lowRes = false;
+		ResolutionMode resolutionMode = ResolutionMode::Normal;
 
 		static constexpr GLenum drawMode = GL_TRIANGLES;
 		static constexpr GLenum bufferDataUsage = GL_STATIC_DRAW;

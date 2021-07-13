@@ -62,6 +62,9 @@
     <Filter Include="src\ogl\shaders\particles">
       <UniqueIdentifier>{92adb1c3-7dba-4c44-81d7-e0c84a0acc32}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\commonTypes">
+      <UniqueIdentifier>{63186fb2-8de8-482a-a71f-800c739e5cc1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -326,6 +329,9 @@
     </ClInclude>
     <ClInclude Include="components\lowResBuffers.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="commonTypes\resolutionMode.hpp">
+      <Filter>src\commonTypes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

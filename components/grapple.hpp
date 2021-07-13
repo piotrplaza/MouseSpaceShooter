@@ -10,6 +10,8 @@
 
 #include <componentBase.hpp>
 
+#include <commonTypes/resolutionMode.hpp>
+
 #include <ogl/shaders.hpp>
 #include <ogl/renderingSetup.hpp>
 
@@ -39,7 +41,7 @@ namespace Components
 		std::optional<unsigned> texture;
 		Tools::UniqueRenderingSetup renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
-		bool lowRes = false;
+		ResolutionMode resolutionMode = ResolutionMode::Normal;
 
 		glm::vec2 previousCenter{ 0.0f, 0.0f };
 
