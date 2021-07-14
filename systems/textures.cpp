@@ -97,8 +97,13 @@ namespace Systems
 			++counter;
 		};
 
-		createLowResFramebufferTexture(lowResBuffers.lowerLinear, GL_LINEAR);
-		createLowResFramebufferTexture(lowResBuffers.lowestLinear, GL_LINEAR);
-		createLowResFramebufferTexture(lowResBuffers.pixelArt, GL_NEAREST);
+		createLowResFramebufferTexture(lowResBuffers.lowerLinearBlend0, GL_LINEAR);
+		createLowResFramebufferTexture(lowResBuffers.lowerLinearBlend1, GL_LINEAR);
+		createLowResFramebufferTexture(lowResBuffers.lowestLinearBlend0, GL_LINEAR);
+		createLowResFramebufferTexture(lowResBuffers.lowestLinearBlend1, GL_LINEAR);
+		createLowResFramebufferTexture(lowResBuffers.pixelArtBlend0, GL_NEAREST);
+		createLowResFramebufferTexture(lowResBuffers.pixelArtBlend1, GL_NEAREST);
+		createLowResFramebufferTexture(lowResBuffers.lowPixelArtBlend0, GL_NEAREST);
+		createLowResFramebufferTexture(lowResBuffers.lowPixelArtBlend1, GL_NEAREST);
 	}
 }

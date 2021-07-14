@@ -222,24 +222,4 @@ namespace Systems
 		for (const auto& [id, buffers] : temporaryBuffers)
 			render(buffers);
 	}
-
-	void Decorations::renderTexturesFramebuffers(bool lowerLinear, bool lowestLinear, bool pixelArt) const
-	{
-		if (lowerLinear)
-		{
-			glBlendFunc(GL_ONE, GL_ONE);
-			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.lowerLinear.textureUnit - GL_TEXTURE0);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		}
-
-		if (lowestLinear)
-		{
-			glBlendFunc(GL_ONE, GL_ONE);
-			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.lowestLinear.textureUnit - GL_TEXTURE0);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		}
-
-		if (pixelArt)
-			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.pixelArt.textureUnit - GL_TEXTURE0);
-	}
 }

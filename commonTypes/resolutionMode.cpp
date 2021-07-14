@@ -13,22 +13,45 @@ TexturesFramebuffersRenderer::TexturesFramebuffersRenderer(Shaders::Programs::Te
 
 TexturesFramebuffersRenderer::~TexturesFramebuffersRenderer()
 {
-	if (lowerLinear)
+	if (lowPixelArtBlend0)
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::lowResBuffers.lowPixelArtBlend0.textureUnit - GL_TEXTURE0);
+
+	if (pixelArtBlend0)
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::lowResBuffers.pixelArtBlend0.textureUnit - GL_TEXTURE0);
+
+	if (lowestLinearBlend0)
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::lowResBuffers.lowestLinearBlend0.textureUnit - GL_TEXTURE0);
+
+	if (lowerLinearBlend0)
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::lowResBuffers.lowerLinearBlend0.textureUnit - GL_TEXTURE0);
+
+	if (lowPixelArtBlend1)
 	{
 		glBlendFunc(GL_ONE, GL_ONE);
-		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::lowResBuffers.lowerLinear.textureUnit - GL_TEXTURE0);
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::lowResBuffers.lowPixelArtBlend1.textureUnit - GL_TEXTURE0);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
-	if (lowestLinear)
+	if (pixelArtBlend1)
 	{
 		glBlendFunc(GL_ONE, GL_ONE);
-		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::lowResBuffers.lowestLinear.textureUnit - GL_TEXTURE0);
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::lowResBuffers.pixelArtBlend1.textureUnit - GL_TEXTURE0);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
-	if (pixelArt)
-		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::lowResBuffers.pixelArt.textureUnit - GL_TEXTURE0);
+	if (lowestLinearBlend1)
+	{
+		glBlendFunc(GL_ONE, GL_ONE);
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::lowResBuffers.lowestLinearBlend1.textureUnit - GL_TEXTURE0);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	if (lowerLinearBlend1)
+	{
+		glBlendFunc(GL_ONE, GL_ONE);
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::lowResBuffers.lowerLinearBlend1.textureUnit - GL_TEXTURE0);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 }
 
 void TexturesFramebuffersRenderer::clearIfFirstOfMode(ResolutionMode resolutionMode)
@@ -41,26 +64,66 @@ void TexturesFramebuffersRenderer::clearIfFirstOfMode(ResolutionMode resolutionM
 
 	switch (resolutionMode)
 	{
-	case ResolutionMode::LowerLinear:
-		if (!lowerLinear)
+	case ResolutionMode::LowerLinearBlend0:
+		if (!lowerLinearBlend0)
 		{
-			lowerLinear = true;
+			lowerLinearBlend0 = true;
 			clrbuf();
 		}
 		return;
 
-	case ResolutionMode::LowestLinear:
-		if (!lowestLinear)
+	case ResolutionMode::LowerLinearBlend1:
+		if (!lowerLinearBlend1)
 		{
-			lowestLinear = true;
+			lowerLinearBlend1 = true;
 			clrbuf();
 		}
 		return;
 
-	case ResolutionMode::PixelArt:
-		if (!pixelArt)
+	case ResolutionMode::LowestLinearBlend0:
+		if (!lowestLinearBlend0)
 		{
-			pixelArt = true;
+			lowestLinearBlend0 = true;
+			clrbuf();
+		}
+		return;
+
+	case ResolutionMode::LowestLinearBlend1:
+		if (!lowestLinearBlend1)
+		{
+			lowestLinearBlend1 = true;
+			clrbuf();
+		}
+		return;
+
+	case ResolutionMode::PixelArtBlend0:
+		if (!pixelArtBlend0)
+		{
+			pixelArtBlend0 = true;
+			clrbuf();
+		}
+		return;
+
+	case ResolutionMode::PixelArtBlend1:
+		if (!pixelArtBlend1)
+		{
+			pixelArtBlend1 = true;
+			clrbuf();
+		}
+		return;
+
+	case ResolutionMode::LowPixelArtBlend0:
+		if (!lowPixelArtBlend0)
+		{
+			lowPixelArtBlend0 = true;
+			clrbuf();
+		}
+		return;
+
+	case ResolutionMode::LowPixelArtBlend1:
+		if (!lowPixelArtBlend1)
+		{
+			lowPixelArtBlend1 = true;
 			clrbuf();
 		}
 		return;

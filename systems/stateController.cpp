@@ -17,6 +17,7 @@ namespace
 	constexpr int lowerResDivisor = 2;
 	constexpr int lowestResDivisor = 4;
 	constexpr int pixelArtShorterDim = 100;
+	constexpr int lowPixelArtShorterDim = 30;
 }
 
 namespace Systems
@@ -73,9 +74,18 @@ namespace Systems
 			? glm::ivec2((int)(pixelArtShorterDim * (float)size.x / size.y), pixelArtShorterDim)
 			: glm::ivec2(pixelArtShorterDim, (int)(pixelArtShorterDim * (float)size.y / size.x));
 
-		setTextureFramebufferSize(lowResBuffers.lowerLinear, size / lowerResDivisor);
-		setTextureFramebufferSize(lowResBuffers.lowestLinear, size / lowestResDivisor);
-		setTextureFramebufferSize(lowResBuffers.pixelArt, pixelArtTextureFramebufferSize);
+		const glm::ivec2 lowPixelArtTextureFramebufferSize = size.x > size.y
+			? glm::ivec2((int)(lowPixelArtShorterDim * (float)size.x / size.y), lowPixelArtShorterDim)
+			: glm::ivec2(lowPixelArtShorterDim, (int)(lowPixelArtShorterDim * (float)size.y / size.x));
+
+		setTextureFramebufferSize(lowResBuffers.lowerLinearBlend0, size / lowerResDivisor);
+		setTextureFramebufferSize(lowResBuffers.lowerLinearBlend1, size / lowerResDivisor);
+		setTextureFramebufferSize(lowResBuffers.lowestLinearBlend0, size / lowestResDivisor);
+		setTextureFramebufferSize(lowResBuffers.lowestLinearBlend1, size / lowestResDivisor);
+		setTextureFramebufferSize(lowResBuffers.pixelArtBlend0, pixelArtTextureFramebufferSize);
+		setTextureFramebufferSize(lowResBuffers.pixelArtBlend1, pixelArtTextureFramebufferSize);
+		setTextureFramebufferSize(lowResBuffers.lowPixelArtBlend0, lowPixelArtTextureFramebufferSize);
+		setTextureFramebufferSize(lowResBuffers.lowPixelArtBlend1, lowPixelArtTextureFramebufferSize);
 	}
 
 	void StateController::changeWindowLocation(glm::ivec2 location) const
@@ -120,9 +130,14 @@ namespace Systems
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, subBuffers.textureObject, 0);
 		};
 
-		createTextureFramebuffer(lowResBuffers.lowerLinear);
-		createTextureFramebuffer(lowResBuffers.lowestLinear);
-		createTextureFramebuffer(lowResBuffers.pixelArt);
+		createTextureFramebuffer(lowResBuffers.lowerLinearBlend0);
+		createTextureFramebuffer(lowResBuffers.lowerLinearBlend1);
+		createTextureFramebuffer(lowResBuffers.lowestLinearBlend0);
+		createTextureFramebuffer(lowResBuffers.lowestLinearBlend1);
+		createTextureFramebuffer(lowResBuffers.pixelArtBlend0);
+		createTextureFramebuffer(lowResBuffers.pixelArtBlend1);
+		createTextureFramebuffer(lowResBuffers.lowPixelArtBlend0);
+		createTextureFramebuffer(lowResBuffers.lowPixelArtBlend1);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}

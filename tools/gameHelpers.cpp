@@ -25,8 +25,6 @@
 
 #include <collisionBits.hpp>
 
-#include <commonTypes/resolutionMode.hpp>
-
 namespace Tools
 {
 	PlayerPlaneHandler CreatePlayerPlane(unsigned planeTexture, unsigned flameAnimationTexture)
@@ -174,7 +172,7 @@ namespace Tools
 		return { missile.componentId, decoration.componentId };
 	}
 
-	void CreateExplosion(Shaders::Programs::ParticlesAccessor particlesProgram, glm::vec2 center, unsigned explosionTexture, float explosionDuration, int numOfParticles, int particlesPerDecoration)
+	void CreateExplosion(Shaders::Programs::ParticlesAccessor particlesProgram, glm::vec2 center, unsigned explosionTexture, float explosionDuration, int numOfParticles, int particlesPerDecoration, ResolutionMode resolutionMode)
 	{
 		using namespace Globals::Components;
 
@@ -182,7 +180,7 @@ namespace Tools
 			auto& shockwave = EmplaceIdComponent(shockwaves, { center, numOfParticles });
 			auto& explosionDecoration = EmplaceIdComponent(temporaryNearMidgroundDecorations, {});
 			explosionDecoration.customShadersProgram = particlesProgram.getProgramId();
-			explosionDecoration.resolutionMode = ResolutionMode::LowestLinear;
+			explosionDecoration.resolutionMode = resolutionMode;
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 			explosionDecoration.renderingSetup = Tools::MakeUniqueRenderingSetup(
@@ -247,7 +245,7 @@ namespace Tools
 					texturedProgram.vpUniform.setValue(mvp.getVP());
 				};
 			});
-			foregroundDecorations.back().resolutionMode = ResolutionMode::LowestLinear;
+			foregroundDecorations.back().resolutionMode = ResolutionMode::LowestLinearBlend1;
 		}
 	}
 
@@ -266,6 +264,6 @@ namespace Tools
 			juliaShaders.maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
 			return nullptr;
 			});
-		background.resolutionMode = ResolutionMode::LowerLinear;
+		background.resolutionMode = ResolutionMode::LowerLinearBlend1;
 	}
 }

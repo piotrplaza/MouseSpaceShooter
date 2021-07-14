@@ -28,9 +28,14 @@ namespace Components
 
 		LowResBuffers() :
 			dummy(*this),
-			lowerLinear(*this),
-			lowestLinear(*this),
-			pixelArt(*this)
+			lowerLinearBlend0(*this),
+			lowerLinearBlend1(*this),
+			lowestLinearBlend0(*this),
+			lowestLinearBlend1(*this),
+			pixelArtBlend0(*this),
+			pixelArtBlend1(*this),
+			lowPixelArtBlend0(*this),
+			lowPixelArtBlend1(*this)
 		{
 		}
 
@@ -40,12 +45,22 @@ namespace Components
 			{
 			case ResolutionMode::Normal:
 				return dummy;
-			case ResolutionMode::LowerLinear:
-				return lowerLinear;
-			case ResolutionMode::LowestLinear:
-				return lowestLinear;
-			case ResolutionMode::PixelArt:
-				return pixelArt;
+			case ResolutionMode::LowerLinearBlend0:
+				return lowerLinearBlend0;
+			case ResolutionMode::LowerLinearBlend1:
+				return lowerLinearBlend1;
+			case ResolutionMode::LowestLinearBlend0:
+				return lowestLinearBlend0;
+			case ResolutionMode::LowestLinearBlend1:
+				return lowestLinearBlend1;
+			case ResolutionMode::PixelArtBlend0:
+				return pixelArtBlend0;
+			case ResolutionMode::PixelArtBlend1:
+				return pixelArtBlend1;
+			case ResolutionMode::LowPixelArtBlend0:
+				return lowPixelArtBlend0;
+			case ResolutionMode::LowPixelArtBlend1:
+				return lowPixelArtBlend1;
 			default:
 				assert(!"unsupported resolution mode");
 				return dummy;
@@ -55,8 +70,13 @@ namespace Components
 		int instances = -1;
 
 		SubBuffers dummy;
-		SubBuffers lowerLinear;
-		SubBuffers lowestLinear;
-		SubBuffers pixelArt;
+		SubBuffers lowerLinearBlend0;
+		SubBuffers lowerLinearBlend1;
+		SubBuffers lowestLinearBlend0;
+		SubBuffers lowestLinearBlend1;
+		SubBuffers pixelArtBlend0;
+		SubBuffers pixelArtBlend1;
+		SubBuffers lowPixelArtBlend0;
+		SubBuffers lowPixelArtBlend1;
 	};
 }

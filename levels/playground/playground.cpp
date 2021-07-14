@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <unordered_map>
+#include <unordered_set>
 
 #include <globals.hpp>
 
@@ -196,7 +197,8 @@ namespace Levels
 					return nullptr;
 				});
 			}
-			midgroundDecorations.back().resolutionMode = ResolutionMode::PixelArt;
+			midgroundDecorations.back().resolutionMode = ResolutionMode::PixelArtBlend0;
+			lowResBodies.insert(dynamicWalls.back().body.get());
 		}
 
 		void createStaticWalls() const
@@ -208,25 +210,25 @@ namespace Levels
 
 			staticWalls.emplace_back(Tools::CreateBoxBody({ -levelHSize - bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), spaceRockTexture);
-			nearMidgroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { -levelHSize, -levelHSize }, { levelHSize, -levelHSize } },
+			nearMidgroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f }, { { -levelHSize, -levelHSize }, { levelHSize, -levelHSize } },
 				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
 			nearMidgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
 
 			staticWalls.emplace_back(Tools::CreateBoxBody({ levelHSize + bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), spaceRockTexture);
-			nearMidgroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { -levelHSize, levelHSize }, { levelHSize, levelHSize } },
+			nearMidgroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f }, { { -levelHSize, levelHSize }, { levelHSize, levelHSize } },
 				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
 			nearMidgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
 
 			staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize - bordersHGauge },
 				{ levelHSize + bordersHGauge * 2, bordersHGauge }), spaceRockTexture);
-			nearMidgroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { -levelHSize, -levelHSize }, { -levelHSize, levelHSize } },
+			nearMidgroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f }, { { -levelHSize, -levelHSize }, { -levelHSize, levelHSize } },
 				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
 			nearMidgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
 
 			staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize + bordersHGauge },
 				{ levelHSize + bordersHGauge * 2, bordersHGauge }), spaceRockTexture);
-			nearMidgroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { levelHSize, -levelHSize }, { levelHSize, levelHSize } },
+			nearMidgroundDecorations.emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f }, { { levelHSize, -levelHSize }, { levelHSize, levelHSize } },
 				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
 			nearMidgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
 		}
@@ -291,9 +293,11 @@ namespace Levels
 				for (const auto* fixture : { &fixtureA, &fixtureB })
 				if (fixture->GetFilterData().categoryBits == CollisionBits::missileBit)
 				{
+					const auto& otherFixture = fixture == &fixtureA ? fixtureB : fixtureA;
 					const auto& body = *fixture->GetBody();
 					missilesToHandlers.erase(Tools::AccessUserData(body).componentId);
-					Tools::CreateExplosion(particlesShaders, ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture);
+					Tools::CreateExplosion(particlesShaders, ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture, 1.0f, 64, 4,
+						lowResBodies.count(otherFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1);
 				}
 			} });
 		}
@@ -343,6 +347,7 @@ namespace Levels
 		float projectionHSizeBase = 20.0f;
 
 		std::unordered_map<ComponentId, Tools::MissileHandler> missilesToHandlers;
+		std::unordered_set<const b2Body*> lowResBodies;
 	};
 
 	Playground::Playground(): impl(std::make_unique<Impl>())
