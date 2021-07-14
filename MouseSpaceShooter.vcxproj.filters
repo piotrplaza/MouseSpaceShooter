@@ -148,6 +148,9 @@
     <ClCompile Include="systems\deferredActions.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
+    <ClCompile Include="commonTypes\resolutionMode.cpp">
+      <Filter>src\commonTypes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.hpp">

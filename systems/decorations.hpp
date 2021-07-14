@@ -39,6 +39,8 @@ namespace Systems
 		void basicRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
 			const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const;
 
+		void renderTexturesFramebuffers(bool lowerLinear, bool lowestLinear, bool pixelArt) const;
+
 		std::unique_ptr<Shaders::Programs::Basic> basicShadersProgram;
 		std::unique_ptr<Shaders::Programs::Textured> texturedShadersProgram;
 

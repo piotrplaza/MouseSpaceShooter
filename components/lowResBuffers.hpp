@@ -14,12 +14,25 @@ namespace Components
 	{
 		struct SubBuffers
 		{
-			unsigned fbo;
-			unsigned textureUnit;
-			unsigned textureObject;
+			SubBuffers(LowResBuffers& lowResBuffers)
+			{
+				++lowResBuffers.instances;
+			}
+
+			unsigned fbo = 0;
+			unsigned textureUnit = 0;
+			unsigned textureObject = 0;
 
 			glm::ivec2 size = { 0, 0 };
 		};
+
+		LowResBuffers() :
+			dummy(*this),
+			lowerLinear(*this),
+			lowestLinear(*this),
+			pixelArt(*this)
+		{
+		}
 
 		const SubBuffers& getSubBuffers(ResolutionMode resolutionMode) const
 		{
@@ -27,8 +40,10 @@ namespace Components
 			{
 			case ResolutionMode::Normal:
 				return dummy;
-			case ResolutionMode::LowLinear:
-				return lowLinear;
+			case ResolutionMode::LowerLinear:
+				return lowerLinear;
+			case ResolutionMode::LowestLinear:
+				return lowestLinear;
 			case ResolutionMode::PixelArt:
 				return pixelArt;
 			default:
@@ -37,8 +52,11 @@ namespace Components
 			}
 		}
 
+		int instances = -1;
+
 		SubBuffers dummy;
-		SubBuffers lowLinear;
+		SubBuffers lowerLinear;
+		SubBuffers lowestLinear;
 		SubBuffers pixelArt;
 	};
 }

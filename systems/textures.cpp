@@ -29,7 +29,7 @@ namespace Systems
 		static_assert(maxTextureObjects <= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 		assert(texturesDef.size() <= maxTextureObjects);
 		
-		textures = std::vector<::Components::Texture>(texturesDef.size() + 2 /*low linear and pixel art screenbuffer textures*/);
+		textures = std::vector<Components::Texture>(texturesDef.size() + Globals::Components::lowResBuffers.instances);
 		for (unsigned i = 0; i < texturesDef.size(); ++i)
 		{
 			auto& textureDef = texturesDef[i];
@@ -84,20 +84,21 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		lowResBuffers.lowLinear.textureUnit = GL_TEXTURE0 + textures.size() - 2;
-		textures.back().textureUnit = lowResBuffers.lowLinear.textureUnit;
-		glActiveTexture(lowResBuffers.lowLinear.textureUnit);
-		glGenTextures(1, &lowResBuffers.lowLinear.textureObject);
-		glBindTexture(GL_TEXTURE_2D, lowResBuffers.lowLinear.textureObject);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		auto createLowResFramebufferTexture = [counter = 1](Components::LowResBuffers::SubBuffers& subBuffers,
+			GLint textureMagFilter) mutable
+		{
+			subBuffers.textureUnit = GL_TEXTURE0 + textures.size() - counter;
+			std::prev(textures.end(), counter)->textureUnit = subBuffers.textureUnit;
+			glActiveTexture(subBuffers.textureUnit);
+			glGenTextures(1, &subBuffers.textureObject);
+			glBindTexture(GL_TEXTURE_2D, subBuffers.textureObject);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, textureMagFilter);
+			++counter;
+		};
 
-		lowResBuffers.pixelArt.textureUnit = GL_TEXTURE0 + textures.size() - 1;
-		std::prev(textures.end(), 2)->textureUnit = lowResBuffers.pixelArt.textureUnit;
-		glActiveTexture(lowResBuffers.pixelArt.textureUnit);
-		glGenTextures(1, &lowResBuffers.pixelArt.textureObject);
-		glBindTexture(GL_TEXTURE_2D, lowResBuffers.pixelArt.textureObject);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		createLowResFramebufferTexture(lowResBuffers.lowerLinear, GL_LINEAR);
+		createLowResFramebufferTexture(lowResBuffers.lowestLinear, GL_LINEAR);
+		createLowResFramebufferTexture(lowResBuffers.pixelArt, GL_NEAREST);
 	}
 }

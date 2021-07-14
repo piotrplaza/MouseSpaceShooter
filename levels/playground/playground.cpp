@@ -183,8 +183,7 @@ namespace Levels
 					float result = value;
 					value += 0.002f;
 					return result;
-				}
-				), roseTexture);
+				}), roseTexture);
 				midgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
 				midgroundDecorations.back().renderingSetup = Tools::MakeUniqueRenderingSetup([
 					texturedProgram = Shaders::Programs::TexturedAccessor(),

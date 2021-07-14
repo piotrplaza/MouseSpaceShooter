@@ -11,7 +11,7 @@
 #include <components/mvp.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/screenInfo.hpp>
-#include <components/lowResBuffers.hpp>
+#include <components/lowResBuffers.hpp> 
 
 namespace Systems
 {
@@ -125,8 +125,7 @@ namespace Systems
 	void Decorations::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
 		const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const
 	{
-		bool anyLowLinear = false;
-		bool anyPixelArt = false;
+		TexturesFramebuffersRenderer texturesFramebuffersRenderer(*texturedShadersProgram);
 
 		auto render = [&](const auto& buffers)
 		{
@@ -134,19 +133,7 @@ namespace Systems
 			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
 				lowResSubBuffers.size, Globals::Components::screenInfo.windowSize);
 
-			if (!anyLowLinear && buffers.resolutionMode == ResolutionMode::LowLinear)
-			{
-				anyLowLinear = true;
-				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			}
-
-			if (!anyPixelArt && buffers.resolutionMode == ResolutionMode::PixelArt)
-			{
-				anyPixelArt = true;
-				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			}
+			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
 			assert(buffers.customShadersProgram);
 			glUseProgram_proxy(*buffers.customShadersProgram);
@@ -168,16 +155,6 @@ namespace Systems
 
 		for (const auto& [id, buffers] : temporaryBuffers)
 			render(buffers);
-
-		if (anyLowLinear)
-		{
-			glBlendFunc(GL_ONE, GL_ONE);
-			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.lowLinear.textureUnit - GL_TEXTURE0);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		}
-
-		if (anyPixelArt)
-			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.pixelArt.textureUnit - GL_TEXTURE0);
 	}
 
 	void Decorations::texturedRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
@@ -186,8 +163,7 @@ namespace Systems
 		glUseProgram_proxy(texturedShadersProgram->getProgramId());
 		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
-		bool anyLowLinear = false;
-		bool anyPixelArt = false;
+		TexturesFramebuffersRenderer texturesFramebuffersRenderer(*texturedShadersProgram);
 
 		auto render = [&](const auto& buffers)
 		{
@@ -195,19 +171,7 @@ namespace Systems
 			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
 				lowResSubBuffers.size, Globals::Components::screenInfo.windowSize);
 
-			if (!anyLowLinear && buffers.resolutionMode == ResolutionMode::LowLinear)
-			{
-				anyLowLinear = true;
-				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			}
-
-			if (!anyPixelArt && buffers.resolutionMode == ResolutionMode::PixelArt)
-			{
-				anyPixelArt = true;
-				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			}
+			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
 			texturedShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
 			texturedShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
@@ -220,16 +184,6 @@ namespace Systems
 
 		for (const auto& [id, buffers] : temporaryBuffers)
 			render(buffers);
-
-		if (anyLowLinear)
-		{
-			glBlendFunc(GL_ONE, GL_ONE);
-			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.lowLinear.textureUnit - GL_TEXTURE0);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		}
-
-		if (anyPixelArt)
-			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.pixelArt.textureUnit - GL_TEXTURE0);
 	}
 
 	void Decorations::basicRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
@@ -238,8 +192,7 @@ namespace Systems
 		glUseProgram_proxy(basicShadersProgram->getProgramId());
 		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
 
-		bool anyLowLinear = false;
-		bool anyPixelArt = false;
+		TexturesFramebuffersRenderer texturesFramebuffersRenderer(*texturedShadersProgram);
 
 		auto render = [&](const auto& buffers)
 		{
@@ -247,19 +200,7 @@ namespace Systems
 			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
 				lowResSubBuffers.size, Globals::Components::screenInfo.windowSize);
 
-			if (!anyLowLinear && buffers.resolutionMode == ResolutionMode::LowLinear)
-			{
-				anyLowLinear = true;
-				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			}
-
-			if (!anyPixelArt && buffers.resolutionMode == ResolutionMode::PixelArt)
-			{
-				anyPixelArt = true;
-				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			}
+			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
 			basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
@@ -280,15 +221,25 @@ namespace Systems
 
 		for (const auto& [id, buffers] : temporaryBuffers)
 			render(buffers);
+	}
 
-		if (anyLowLinear)
+	void Decorations::renderTexturesFramebuffers(bool lowerLinear, bool lowestLinear, bool pixelArt) const
+	{
+		if (lowerLinear)
 		{
 			glBlendFunc(GL_ONE, GL_ONE);
-			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.lowLinear.textureUnit - GL_TEXTURE0);
+			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.lowerLinear.textureUnit - GL_TEXTURE0);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
 
-		if (anyPixelArt)
+		if (lowestLinear)
+		{
+			glBlendFunc(GL_ONE, GL_ONE);
+			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.lowestLinear.textureUnit - GL_TEXTURE0);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+
+		if (pixelArt)
 			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::lowResBuffers.pixelArt.textureUnit - GL_TEXTURE0);
 	}
 }
