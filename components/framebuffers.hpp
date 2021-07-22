@@ -10,11 +10,11 @@
 
 namespace Components
 {
-	struct LowResBuffers : ComponentBase
+	struct Framebuffers : ComponentBase
 	{
 		struct SubBuffers
 		{
-			SubBuffers(LowResBuffers& lowResBuffers)
+			SubBuffers(Framebuffers& lowResBuffers)
 			{
 				++lowResBuffers.instances;
 			}
@@ -26,8 +26,9 @@ namespace Components
 			glm::ivec2 size = { 0, 0 };
 		};
 
-		LowResBuffers() :
+		Framebuffers() :
 			dummy(*this),
+			main(*this),
 			lowerLinearBlend0(*this),
 			lowerLinearBlend1(*this),
 			lowestLinearBlend0(*this),
@@ -70,6 +71,7 @@ namespace Components
 		int instances = -1;
 
 		SubBuffers dummy;
+		SubBuffers main;
 		SubBuffers lowerLinearBlend0;
 		SubBuffers lowerLinearBlend1;
 		SubBuffers lowestLinearBlend0;

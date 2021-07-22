@@ -11,7 +11,7 @@
 
 #include <components/textureDef.hpp>
 #include <components/texture.hpp>
-#include <components/lowResBuffers.hpp>
+#include <components/framebuffers.hpp>
 
 namespace
 {
@@ -29,7 +29,7 @@ namespace Systems
 		static_assert(maxTextureObjects <= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 		assert(texturesDef.size() <= maxTextureObjects);
 		
-		textures = std::vector<Components::Texture>(texturesDef.size() + Globals::Components::lowResBuffers.instances);
+		textures = std::vector<Components::Texture>(texturesDef.size() + Globals::Components::framebuffers.instances);
 		for (unsigned i = 0; i < texturesDef.size(); ++i)
 		{
 			auto& textureDef = texturesDef[i];
@@ -84,7 +84,7 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		auto createLowResFramebufferTexture = [counter = 1](Components::LowResBuffers::SubBuffers& subBuffers,
+		auto createLowResFramebufferTexture = [counter = 1](Components::Framebuffers::SubBuffers& subBuffers,
 			GLint textureMagFilter) mutable
 		{
 			subBuffers.textureUnit = GL_TEXTURE0 + textures.size() - counter;
@@ -97,13 +97,14 @@ namespace Systems
 			++counter;
 		};
 
-		createLowResFramebufferTexture(lowResBuffers.lowerLinearBlend0, GL_LINEAR);
-		createLowResFramebufferTexture(lowResBuffers.lowerLinearBlend1, GL_LINEAR);
-		createLowResFramebufferTexture(lowResBuffers.lowestLinearBlend0, GL_LINEAR);
-		createLowResFramebufferTexture(lowResBuffers.lowestLinearBlend1, GL_LINEAR);
-		createLowResFramebufferTexture(lowResBuffers.pixelArtBlend0, GL_NEAREST);
-		createLowResFramebufferTexture(lowResBuffers.pixelArtBlend1, GL_NEAREST);
-		createLowResFramebufferTexture(lowResBuffers.lowPixelArtBlend0, GL_NEAREST);
-		createLowResFramebufferTexture(lowResBuffers.lowPixelArtBlend1, GL_NEAREST);
+		createLowResFramebufferTexture(framebuffers.main, GL_LINEAR);
+		createLowResFramebufferTexture(framebuffers.lowerLinearBlend0, GL_LINEAR);
+		createLowResFramebufferTexture(framebuffers.lowerLinearBlend1, GL_LINEAR);
+		createLowResFramebufferTexture(framebuffers.lowestLinearBlend0, GL_LINEAR);
+		createLowResFramebufferTexture(framebuffers.lowestLinearBlend1, GL_LINEAR);
+		createLowResFramebufferTexture(framebuffers.pixelArtBlend0, GL_NEAREST);
+		createLowResFramebufferTexture(framebuffers.pixelArtBlend1, GL_NEAREST);
+		createLowResFramebufferTexture(framebuffers.lowPixelArtBlend0, GL_NEAREST);
+		createLowResFramebufferTexture(framebuffers.lowPixelArtBlend1, GL_NEAREST);
 	}
 }

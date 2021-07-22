@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <optional>
+#include <array>
 
 #include <GL/glew.h>
 
@@ -70,7 +71,7 @@ namespace Tools
 	}
 
 	template <typename ShadersPrograms>
-	inline void TexturedScreenRender(ShadersPrograms& shadersProgram, unsigned texture)
+	inline void TexturedScreenRender(ShadersPrograms& shadersProgram, unsigned texture, std::function<void()> customSetup = nullptr, std::function<std::array<glm::vec3, 6>()> customSize = nullptr)
 	{
 		const int numOfVertices = 6;
 
@@ -96,7 +97,10 @@ namespace Tools
 
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, &positions);
+		if (customSize)
+			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, &customSize()[0]);
+		else
+			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, &positions);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, &texCoords);
 		glEnableVertexAttribArray(1);
@@ -109,6 +113,9 @@ namespace Tools
 		shadersProgram.textureTranslateUniform.setValue(glm::vec2(0.0f));
 		shadersProgram.textureScaleUniform.setValue(glm::vec2(1.0f));
 		shadersProgram.texture1Uniform.setValue(texture);
+
+		if (customSetup)
+			customSetup();
 
 		glDrawArrays(GL_TRIANGLES, 0, numOfVertices);
 	}

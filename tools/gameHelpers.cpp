@@ -49,7 +49,8 @@ namespace Tools
 		for (int i = 0; i < 2; ++i)
 		{
 			playerPlaneHandler.backThrustsIds[i] = farMidgroundDecorations.size();
-			auto& decoration = farMidgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture);
+			auto& decoration = farMidgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }),
+				flameAnimationTexture);
 
 			decoration.renderingSetup = Tools::MakeUniqueRenderingSetup([&, i, modelUniform = Uniforms::UniformControllerMat4f(),
 				thrustScale = 1.0f
@@ -117,7 +118,8 @@ namespace Tools
 		return *this;
 	}
 
-	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimationTexture)
+	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 initialVelocity,
+		unsigned missileTexture, unsigned flameAnimationTexture)
 	{
 		using namespace Globals::Components;
 
@@ -144,7 +146,8 @@ namespace Tools
 			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
 		};
 
-		auto& decoration = EmplaceIdComponent(temporaryFarMidgroundDecorations, { Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }), flameAnimationTexture });
+		auto& decoration = EmplaceIdComponent(temporaryFarMidgroundDecorations, { Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }),
+			flameAnimationTexture });
 		decoration.renderingSetup = Tools::MakeUniqueRenderingSetup([&, modelUniform = Uniforms::UniformControllerMat4f(),
 			thrustScale = 0.1f
 		](Shaders::ProgramId program) mutable {
@@ -169,10 +172,11 @@ namespace Tools
 
 		decoration.animationController->start();
 
-		return { missile.componentId, decoration.componentId };
+		return { missile.getComponentId(), decoration.getComponentId() };
 	}
 
-	void CreateExplosion(Shaders::Programs::ParticlesAccessor particlesProgram, glm::vec2 center, unsigned explosionTexture, float explosionDuration, int numOfParticles, int particlesPerDecoration, ResolutionMode resolutionMode)
+	void CreateExplosion(Shaders::Programs::ParticlesAccessor particlesProgram, glm::vec2 center, unsigned explosionTexture,
+		float explosionDuration, int numOfParticles, int particlesPerDecoration, ResolutionMode resolutionMode)
 	{
 		using namespace Globals::Components;
 
@@ -225,7 +229,8 @@ namespace Tools
 			});
 	}
 
-	void CreateFogForeground(int numOfLayers, float alphaPerLayer, unsigned fogTexture)
+	void CreateFogForeground(int numOfLayers, float alphaPerLayer, unsigned fogTexture,
+		std::function<glm::vec4()> fColor)
 	{
 		using namespace Globals::Components;
 
@@ -240,9 +245,13 @@ namespace Tools
 				if (!texturedProgram.isValid()) texturedProgram = program;
 				texturedProgram.vpUniform.setValue(glm::translate(glm::scale(mvp.getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
 					glm::vec3(-camera.prevPosition * (0.002f + layer * 0.002f), 0.0f)));
-				texturedProgram.colorUniform.setValue({ 1.0f, 1.0f, 1.0f, alphaPerLayer });
+				texturedProgram.colorUniform.setValue(fColor() * glm::vec4(1.0f, 1.0f, 1.0f, alphaPerLayer));
+
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
 				return [texturedProgram]() mutable {
 					texturedProgram.vpUniform.setValue(mvp.getVP());
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				};
 			});
 			foregroundDecorations.back().resolutionMode = ResolutionMode::LowestLinearBlend1;

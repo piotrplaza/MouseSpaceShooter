@@ -20,7 +20,8 @@
 #include "components/collisionHandler.hpp"
 #include "components/shockwave.hpp"
 #include "components/light.hpp"
-#include "components/lowResBuffers.hpp"
+#include "components/framebuffers.hpp"
+#include "components/functor.hpp"
 
 #include "systems/stateController.hpp"
 #include "systems/physics.hpp"
@@ -32,6 +33,7 @@
 #include "systems/temporaries.hpp"
 #include "systems/cleaner.hpp"
 #include "systems/deferredActions.hpp"
+#include "systems/renderingController.hpp"
 
 ComponentIdGenerator ComponentIdGenerator::instance_;
 
@@ -43,7 +45,7 @@ namespace Components
 	static ::Components::Physics physics;
 	static ::Components::Camera camera;
 	static ::Components::GraphicsSettings graphicsSettings;
-	static ::Components::LowResBuffers lowResBuffers;
+	static ::Components::Framebuffers framebuffers;
 
 	static std::vector<::Components::TextureDef> texturesDef;
 	static std::vector<::Components::Texture> textures;
@@ -66,6 +68,8 @@ namespace Components
 	static std::unordered_map<::ComponentId, ::Components::CollisionHandler> endCollisionHandlers;
 	static std::unordered_map<::ComponentId, ::Components::Shockwave> shockwaves;
 	static std::unordered_map<::ComponentId, ::Components::Light> lights;
+	static std::unordered_map<::ComponentId, ::Components::Functor> frameSetups;
+	static std::unordered_map<::ComponentId, ::Components::Functor> frameTeardowns;
 }
 
 namespace Globals
@@ -78,7 +82,7 @@ namespace Globals
 		::Components::Physics& physics = ::Components::physics;
 		::Components::Camera& camera = ::Components::camera;
 		::Components::GraphicsSettings& graphicsSettings = ::Components::graphicsSettings;
-		::Components::LowResBuffers& lowResBuffers = ::Components::lowResBuffers;
+		::Components::Framebuffers& framebuffers = ::Components::framebuffers;
 
 		std::vector<::Components::TextureDef>& texturesDef = ::Components::texturesDef;
 		std::vector<::Components::Texture>& textures = ::Components::textures;
@@ -101,6 +105,45 @@ namespace Globals
 		std::unordered_map<::ComponentId, ::Components::CollisionHandler>& endCollisionHandlers = ::Components::endCollisionHandlers;
 		std::unordered_map<::ComponentId, ::Components::Shockwave>& shockwaves = ::Components::shockwaves;
 		std::unordered_map<::ComponentId, ::Components::Light>& lights = ::Components::lights;
+		std::unordered_map<::ComponentId, ::Components::Functor>& frameSetups = ::Components::frameSetups;
+		std::unordered_map<::ComponentId, ::Components::Functor>& frameTeardowns = ::Components::frameTeardowns;
+
+		void Reset()
+		{
+			ComponentIdGenerator::reset();
+
+			mouseState = ::Components::MouseState();
+			screenInfo = ::Components::ScreenInfo();
+			mvp = ::Components::MVP();
+			physics = ::Components::Physics();
+			camera = ::Components::Camera();
+			graphicsSettings = ::Components::GraphicsSettings();
+			framebuffers = ::Components::Framebuffers();
+
+			texturesDef.clear();
+			textures.clear();
+			players.clear();
+			staticWalls.clear();
+			dynamicWalls.clear();
+			grapples.clear();
+			backgroundDecorations.clear();
+			temporaryBackgroundDecorations.clear();
+			farMidgroundDecorations.clear();
+			temporaryFarMidgroundDecorations.clear();
+			midgroundDecorations.clear();
+			temporaryMidgroundDecorations.clear();
+			nearMidgroundDecorations.clear();
+			temporaryNearMidgroundDecorations.clear();
+			foregroundDecorations.clear();
+			temporaryForegroundDecorations.clear();
+			missiles.clear();
+			beginCollisionHandlers.clear();
+			endCollisionHandlers.clear();
+			shockwaves.clear();
+			lights.clear();
+			frameSetups.clear();
+			frameTeardowns.clear();
+		}
 	}
 
 	namespace Systems
@@ -115,6 +158,7 @@ namespace Globals
 		std::unique_ptr<::Systems::Temporaries> temporaries;
 		std::unique_ptr<::Systems::Cleaner> cleaner;
 		std::unique_ptr<::Systems::DeferredActions> deferredActions;
+		std::unique_ptr<::Systems::RenderingController> renderingController;
 
 		void Initialize()
 		{
@@ -128,6 +172,7 @@ namespace Globals
 			temporaries = std::make_unique<::Systems::Temporaries>();
 			cleaner = std::make_unique<::Systems::Cleaner>();
 			deferredActions = std::make_unique<::Systems::DeferredActions>();
+			renderingController = std::make_unique<::Systems::RenderingController>();
 		}
 
 		::Systems::StateController& StateController()
@@ -178,6 +223,11 @@ namespace Globals
 		::Systems::DeferredActions& DeferredActions()
 		{
 			return *deferredActions;
+		}
+
+		::Systems::RenderingController& RenderingController()
+		{
+			return *renderingController;
 		}
 	}
 }

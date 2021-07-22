@@ -22,6 +22,7 @@
 #include <components/missile.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/shockwave.hpp>
+#include <components/functor.hpp>
 
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/basic.hpp>
@@ -42,6 +43,13 @@ namespace Levels
 	class Playground::Impl
 	{
 	public:
+		void setPhysicsSettings() const
+		{
+			using namespace Globals::Components;
+
+			physics = Components::Physics({ 0.0f, 0.0f });
+		}
+
 		void setGraphicsSettings() const
 		{
 			using namespace Globals::Components;
@@ -113,7 +121,25 @@ namespace Levels
 
 		void createForeground() const
 		{
-			Tools::CreateFogForeground(2, 0.02f, fogTexture);
+			using namespace Globals::Components;
+
+			Tools::CreateFogForeground(2, 0.03f, fogTexture, [&, fogAlphaFactor = 1.0f, fogTargetAlphaFactor = 1.0f]() mutable {
+				if (explosionFrame)
+				{
+					const float maxAlphaFactor = 3.0f;
+					fogTargetAlphaFactor = fogTargetAlphaFactor < maxAlphaFactor
+						? fogTargetAlphaFactor + physics.frameDuration * 10.0f
+						: maxAlphaFactor;
+				}
+				else
+				{
+					fogTargetAlphaFactor = fogTargetAlphaFactor > 1.0f
+						? fogTargetAlphaFactor - physics.frameDuration * 0.2f
+						: 1.0f;
+				}
+				fogAlphaFactor += (fogTargetAlphaFactor - fogAlphaFactor) * physics.frameDuration;
+				return glm::vec4(1.0f, 1.0f, 1.0f, fogAlphaFactor);
+				});
 		}
 
 		void createPlayers()
@@ -298,8 +324,20 @@ namespace Levels
 					missilesToHandlers.erase(Tools::AccessUserData(body).componentId);
 					Tools::CreateExplosion(particlesShaders, ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture, 1.0f, 64, 4,
 						lowResBodies.count(otherFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1);
+
+					explosionFrame = true;
 				}
 			} });
+		}
+
+		void setFramesRoutines()
+		{
+			using namespace Globals::Components;
+
+			EmplaceIdComponent(frameSetups, { [&]()
+				{
+					explosionFrame = false;
+				} });
 		}
 
 		void step()
@@ -346,12 +384,16 @@ namespace Levels
 		int prevWheel = 0;
 		float projectionHSizeBase = 20.0f;
 
+		bool explosionFrame = false;
+
 		std::unordered_map<ComponentId, Tools::MissileHandler> missilesToHandlers;
 		std::unordered_set<const b2Body*> lowResBodies;
 	};
 
-	Playground::Playground(): impl(std::make_unique<Impl>())
+	Playground::Playground():
+		impl(std::make_unique<Impl>())
 	{
+		impl->setPhysicsSettings();
 		impl->setGraphicsSettings();
 		impl->loadTextures();
 		impl->createBackground();
@@ -362,6 +404,7 @@ namespace Levels
 		impl->createForeground();
 		impl->setCamera();
 		impl->setCollisionCallbacks();
+		impl->setFramesRoutines();
 	}
 
 	Playground::~Playground() = default;

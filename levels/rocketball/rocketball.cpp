@@ -26,6 +26,13 @@ namespace Levels
 	class Rocketball::Impl
 	{
 	public:
+		void setPhysicsSettings() const
+		{
+			using namespace Globals::Components;
+
+			physics = Components::Physics({ 0.0f, 0.0f });
+		}
+
 		void setGraphicsSettings() const
 		{
 			using namespace Globals::Components;
@@ -135,8 +142,10 @@ namespace Levels
 		Components::Grapple* ball = nullptr;
 	};
 
-	Rocketball::Rocketball(): impl(std::make_unique<Impl>())
+	Rocketball::Rocketball():
+		impl(std::make_unique<Impl>())
 	{
+		impl->setPhysicsSettings();
 		impl->setGraphicsSettings();
 		impl->loadTextures();
 		impl->createBackground();

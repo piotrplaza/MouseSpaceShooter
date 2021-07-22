@@ -13,6 +13,11 @@ public:
 		return instance_;
 	}
 
+	static void reset()
+	{
+		instance_ = IdGenerator<Id, firstId>();
+	}
+
 	Id acquire()
 	{
 		if (counter < std::numeric_limits<Id>::max())
@@ -45,7 +50,6 @@ public:
 	{
 		releasedIds.push_back(id);
 	}
-
 
 private:
 	IdGenerator() = default;

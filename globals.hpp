@@ -23,7 +23,8 @@ namespace Components
 	struct CollisionHandler;
 	struct Shockwave;
 	struct Light;
-	struct LowResBuffers;
+	struct Framebuffers;
+	struct Functor;
 }
 
 namespace Systems
@@ -38,6 +39,7 @@ namespace Systems
 	class Temporaries;
 	class Cleaner;
 	class DeferredActions;
+	class RenderingController;
 }
 
 namespace Globals
@@ -50,7 +52,7 @@ namespace Globals
 		extern ::Components::Physics& physics;
 		extern ::Components::Camera& camera;
 		extern ::Components::GraphicsSettings& graphicsSettings;
-		extern ::Components::LowResBuffers& lowResBuffers;
+		extern ::Components::Framebuffers& framebuffers;
 
 		extern std::vector<::Components::TextureDef>& texturesDef;
 		extern std::vector<::Components::Texture>& textures;
@@ -73,6 +75,10 @@ namespace Globals
 		extern std::unordered_map<::ComponentId, ::Components::CollisionHandler>& endCollisionHandlers;
 		extern std::unordered_map<::ComponentId, ::Components::Shockwave>& shockwaves;
 		extern std::unordered_map<::ComponentId, ::Components::Light>& lights;
+		extern std::unordered_map<::ComponentId, ::Components::Functor>& frameSetups;
+		extern std::unordered_map<::ComponentId, ::Components::Functor>& frameTeardowns;
+
+		void Reset();
 	}
 
 	namespace Systems
@@ -89,5 +95,6 @@ namespace Globals
 		::Systems::Temporaries& Temporaries();
 		::Systems::Cleaner& Cleaner();
 		::Systems::DeferredActions& DeferredActions();
+		::Systems::RenderingController& RenderingController();
 	}
 }

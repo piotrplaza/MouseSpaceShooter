@@ -18,6 +18,6 @@ namespace Systems
 		void handleKeyboard(bool const* const keys) const;
 
 	private:
-		void createLowResFramebuffers() const;
+		void createFramebuffers() const;
 	};
 }

@@ -31,6 +31,13 @@ namespace Levels
 	class Race1::Impl
 	{
 	public:
+		void setPhysicsSettings() const
+		{
+			using namespace Globals::Components;
+
+			physics = Components::Physics({ 0.0f, 0.0f });
+		}
+
 		void setGraphicsSettings() const
 		{
 			using namespace Globals::Components;
@@ -266,8 +273,10 @@ namespace Levels
 		Tools::PlayerPlaneHandler player1Handler;
 	};
 
-	Race1::Race1() : impl(std::make_unique<Impl>())
+	Race1::Race1():
+		impl(std::make_unique<Impl>())
 	{
+		impl->setPhysicsSettings();
 		impl->setGraphicsSettings();
 		impl->loadTextures();
 		impl->createBackground();

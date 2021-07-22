@@ -5,8 +5,9 @@
 
 namespace Tools
 {
-	ConditionalScopedFramebuffer::ConditionalScopedFramebuffer(bool cond, unsigned fbo, glm::ivec2 localFbViewportSize, glm::ivec2 defaultFbViewportSize):
+	ConditionalScopedFramebuffer::ConditionalScopedFramebuffer(bool cond, unsigned fbo, glm::ivec2 localFbViewportSize, unsigned defaultFBO, glm::ivec2 defaultFbViewportSize):
 		cond(cond),
+		defaultFBO(defaultFBO),
 		defaultFbViewportSize(defaultFbViewportSize)
 	{
 		if (!cond)
@@ -21,7 +22,7 @@ namespace Tools
 		if (!cond)
 			return;
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO);
 		glViewport(0, 0, defaultFbViewportSize.x, defaultFbViewportSize.y);
 	}
 

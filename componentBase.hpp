@@ -25,6 +25,14 @@ struct ComponentBase
 		std::cout << componentId << std::endl;
 	}
 #endif
-	const ComponentId componentId = ComponentIdGenerator::instance().acquire();
+
+	ComponentId getComponentId() const
+	{
+		return componentId;
+	}
+
 	ComponentState state = ComponentState::Changed;
+
+private:
+	ComponentId componentId = ComponentIdGenerator::instance().acquire();
 };

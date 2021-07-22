@@ -11,7 +11,7 @@
 #include <components/mvp.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/screenInfo.hpp>
-#include <components/lowResBuffers.hpp> 
+#include <components/framebuffers.hpp> 
 
 namespace Systems
 {
@@ -129,9 +129,9 @@ namespace Systems
 
 		auto render = [&](const auto& buffers)
 		{
-			const auto& lowResSubBuffers = Globals::Components::lowResBuffers.getSubBuffers(buffers.resolutionMode);
+			const auto& lowResSubBuffers = Globals::Components::framebuffers.getSubBuffers(buffers.resolutionMode);
 			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
-				lowResSubBuffers.size, Globals::Components::screenInfo.windowSize);
+				lowResSubBuffers.size, Globals::Components::framebuffers.main.fbo, Globals::Components::framebuffers.main.size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
@@ -167,9 +167,9 @@ namespace Systems
 
 		auto render = [&](const auto& buffers)
 		{
-			const auto& lowResSubBuffers = Globals::Components::lowResBuffers.getSubBuffers(buffers.resolutionMode);
+			const auto& lowResSubBuffers = Globals::Components::framebuffers.getSubBuffers(buffers.resolutionMode);
 			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
-				lowResSubBuffers.size, Globals::Components::screenInfo.windowSize);
+				lowResSubBuffers.size, Globals::Components::framebuffers.main.fbo, Globals::Components::framebuffers.main.size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
@@ -196,9 +196,9 @@ namespace Systems
 
 		auto render = [&](const auto& buffers)
 		{
-			const auto& lowResSubBuffers = Globals::Components::lowResBuffers.getSubBuffers(buffers.resolutionMode);
+			const auto& lowResSubBuffers = Globals::Components::framebuffers.getSubBuffers(buffers.resolutionMode);
 			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
-				lowResSubBuffers.size, Globals::Components::screenInfo.windowSize);
+				lowResSubBuffers.size, Globals::Components::framebuffers.main.fbo, Globals::Components::framebuffers.main.size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 

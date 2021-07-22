@@ -13,9 +13,6 @@
 #include "globals.hpp"
 
 #include "components/mouseState.hpp"
-#include "components/screenInfo.hpp"
-#include "components/graphicsSettings.hpp"
-#include "components/lowResBuffers.hpp"
 
 #include "systems/stateController.hpp"
 #include "systems/walls.hpp"
@@ -26,6 +23,7 @@
 #include "systems/temporaries.hpp"
 #include "systems/cleaner.hpp"
 #include "systems/deferredActions.hpp"
+#include "systems/renderingController.hpp"
 
 #include "levels/level.hpp"
 #include "levels/playground/playground.hpp"
@@ -34,12 +32,11 @@
 
 #include "ogl/oglHelpers.hpp"
 
-#include <globals.hpp>
-#include <components/shockwave.hpp>
+#include <tools/utility.hpp>
 
 const bool fullScreen = true;
 const bool console = true;
-const glm::ivec2 windowRes = { 1600, 1600 };
+const glm::ivec2 windowRes = { 1920, 1080 };
 
 std::unique_ptr<Levels::Level> activeLevel;
 
@@ -69,59 +66,10 @@ void Initialize()
 	Tools::RandomInit();
 	OGLInitialize();
 
+	Globals::Components::Reset();
 	CreateLevel();
-
 	Globals::Systems::Initialize();
-
 	Globals::Systems::StateController().initializationFinalize();
-}
-
-void RenderScene()
-{
-	using namespace Globals::Components;
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, screenInfo.windowSize.x, screenInfo.windowSize.y);
-	const glm::vec4& clearColor = Globals::Components::graphicsSettings.clearColor;
-	glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	Globals::Systems::Decorations().renderBackground();
-	Globals::Systems::Decorations().renderFarMidground();
-	Globals::Systems::Walls().render();
-	Globals::Systems::Players().render();
-	Globals::Systems::Temporaries().render();
-	Globals::Systems::Decorations().renderMidground();
-	Globals::Systems::Decorations().renderNearMidground();
-	Globals::Systems::Decorations().renderForeground();
-
-	/*glPointSize(10);
-	for (const auto& shockwave : Globals::Components::shockwaves)
-	for (const auto& particle : shockwave.second.particles)
-	{
-		glBegin(GL_POINTS);
-		glVertex2fv(&particle->GetWorldCenter().x);
-		glEnd();
-	}*/
-
-	/*static bool first = true;
-	static const GLuint list = glGenLists(1);
-	if (first)
-	{
-		glNewList(list, GL_COMPILE);
-			const float r = 1.0f;
-			glBegin(GL_TRIANGLES);
-			for (int i = 0; i < 10000; ++i)
-				for (int j = 0; j < 3; ++j)
-				{
-					const float angle = Tools::Random(0.0f, glm::two_pi<float>());
-					glVertex2f(glm::cos(angle) * r, glm::sin(angle) * r);
-				}
-			glEnd();
-		glEndList();
-		first = false;
-	}
-	glCallList(list);*/
 }
 
 void PrepareFrame()
@@ -131,15 +79,15 @@ void PrepareFrame()
 	Globals::Systems::Physics().step();
 	Globals::Systems::DeferredActions().step();
 
-	activeLevel->step();
-
 	Globals::Systems::Players().step();
 	Globals::Systems::Temporaries().step();
 	Globals::Systems::Walls().step();
 	Globals::Systems::Decorations().step();
 	Globals::Systems::Camera().step();
 
-	RenderScene();
+	activeLevel->step();
+
+	Globals::Systems::RenderingController().render();
 
 	Globals::Systems::StateController().frameTeardown();
 

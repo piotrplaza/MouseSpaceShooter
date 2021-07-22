@@ -34,7 +34,7 @@ namespace Components
 			animationController(std::move(animationController)),
 			customShadersProgram(customShadersProgram)
 		{
-			Tools::AccessUserData(*this->body).componentId = componentId;
+			Tools::AccessUserData(*this->body).componentId = getComponentId();
 		}
 
 		Body body;

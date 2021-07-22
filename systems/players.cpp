@@ -352,7 +352,7 @@ namespace Systems
 		distanceJointDef.localAnchorB = distanceJointDef.bodyB->GetLocalCenter();
 		distanceJointDef.length = glm::distance(player.getCenter(), grapple.getCenter());
 		distanceJointDef.collideConnected = true;
-		player.grappleJoint.reset(physics.world.CreateJoint(&distanceJointDef));
+		player.grappleJoint.reset(physics.world->CreateJoint(&distanceJointDef));
 	}
 
 	Players::ConnectionsBuffers::ConnectionsBuffers()

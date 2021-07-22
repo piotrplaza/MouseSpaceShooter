@@ -9,8 +9,9 @@
 #include <components/screenInfo.hpp>
 #include <components/mouseState.hpp>
 #include <components/graphicsSettings.hpp>
-#include <components/lowResBuffers.hpp>
+#include <components/framebuffers.hpp>
 #include <components/texture.hpp>
+#include <components/functor.hpp>
 
 namespace
 {
@@ -35,16 +36,23 @@ namespace Systems
 		for (auto& grapple : grapples)
 			grapple.previousCenter = grapple.getCenter();
 
-		createLowResFramebuffers();
+		createFramebuffers();
 	}
 
 	void StateController::frameSetup() const
 	{
+		using namespace Globals::Components;
+
+		for (auto& [id, frameSetup] : frameSetups)
+			frameSetup();
 	}
 
 	void StateController::frameTeardown() const
 	{
 		using namespace Globals::Components;
+
+		for (auto& [id, frameTeardown] : frameTeardowns)
+			frameTeardown();
 
 		for (auto& player : players)
 			player.previousCenter = player.getCenter();
@@ -60,7 +68,7 @@ namespace Systems
 		screenInfo.windowSize = size;
 		screenInfo.windowCenterInScreenSpace = { screenInfo.windowLocation + screenInfo.windowSize / 2 };
 
-		auto setTextureFramebufferSize = [&](Components::LowResBuffers::SubBuffers& subBuffers, glm::ivec2 size)
+		auto setTextureFramebufferSize = [&](Components::Framebuffers::SubBuffers& subBuffers, glm::ivec2 size)
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, subBuffers.fbo);
 			glBindTexture(GL_TEXTURE_2D, subBuffers.textureObject);
@@ -78,14 +86,15 @@ namespace Systems
 			? glm::ivec2((int)(lowPixelArtShorterDim * (float)size.x / size.y), lowPixelArtShorterDim)
 			: glm::ivec2(lowPixelArtShorterDim, (int)(lowPixelArtShorterDim * (float)size.y / size.x));
 
-		setTextureFramebufferSize(lowResBuffers.lowerLinearBlend0, size / lowerResDivisor);
-		setTextureFramebufferSize(lowResBuffers.lowerLinearBlend1, size / lowerResDivisor);
-		setTextureFramebufferSize(lowResBuffers.lowestLinearBlend0, size / lowestResDivisor);
-		setTextureFramebufferSize(lowResBuffers.lowestLinearBlend1, size / lowestResDivisor);
-		setTextureFramebufferSize(lowResBuffers.pixelArtBlend0, pixelArtTextureFramebufferSize);
-		setTextureFramebufferSize(lowResBuffers.pixelArtBlend1, pixelArtTextureFramebufferSize);
-		setTextureFramebufferSize(lowResBuffers.lowPixelArtBlend0, lowPixelArtTextureFramebufferSize);
-		setTextureFramebufferSize(lowResBuffers.lowPixelArtBlend1, lowPixelArtTextureFramebufferSize);
+		setTextureFramebufferSize(framebuffers.main, size);
+		setTextureFramebufferSize(framebuffers.lowerLinearBlend0, size / lowerResDivisor);
+		setTextureFramebufferSize(framebuffers.lowerLinearBlend1, size / lowerResDivisor);
+		setTextureFramebufferSize(framebuffers.lowestLinearBlend0, size / lowestResDivisor);
+		setTextureFramebufferSize(framebuffers.lowestLinearBlend1, size / lowestResDivisor);
+		setTextureFramebufferSize(framebuffers.pixelArtBlend0, pixelArtTextureFramebufferSize);
+		setTextureFramebufferSize(framebuffers.pixelArtBlend1, pixelArtTextureFramebufferSize);
+		setTextureFramebufferSize(framebuffers.lowPixelArtBlend0, lowPixelArtTextureFramebufferSize);
+		setTextureFramebufferSize(framebuffers.lowPixelArtBlend1, lowPixelArtTextureFramebufferSize);
 	}
 
 	void StateController::changeWindowLocation(glm::ivec2 location) const
@@ -119,26 +128,25 @@ namespace Systems
 	{
 	}
 
-	void StateController::createLowResFramebuffers() const
+	void StateController::createFramebuffers() const
 	{
 		using namespace Globals::Components;
 
-		auto createTextureFramebuffer = [](Components::LowResBuffers::SubBuffers& subBuffers)
+		auto createTextureFramebuffer = [](Components::Framebuffers::SubBuffers& subBuffers)
 		{
 			glGenFramebuffers(1, &subBuffers.fbo);
 			glBindFramebuffer(GL_FRAMEBUFFER, subBuffers.fbo);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, subBuffers.textureObject, 0);
 		};
 
-		createTextureFramebuffer(lowResBuffers.lowerLinearBlend0);
-		createTextureFramebuffer(lowResBuffers.lowerLinearBlend1);
-		createTextureFramebuffer(lowResBuffers.lowestLinearBlend0);
-		createTextureFramebuffer(lowResBuffers.lowestLinearBlend1);
-		createTextureFramebuffer(lowResBuffers.pixelArtBlend0);
-		createTextureFramebuffer(lowResBuffers.pixelArtBlend1);
-		createTextureFramebuffer(lowResBuffers.lowPixelArtBlend0);
-		createTextureFramebuffer(lowResBuffers.lowPixelArtBlend1);
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		createTextureFramebuffer(framebuffers.main);
+		createTextureFramebuffer(framebuffers.lowerLinearBlend0);
+		createTextureFramebuffer(framebuffers.lowerLinearBlend1);
+		createTextureFramebuffer(framebuffers.lowestLinearBlend0);
+		createTextureFramebuffer(framebuffers.lowestLinearBlend1);
+		createTextureFramebuffer(framebuffers.pixelArtBlend0);
+		createTextureFramebuffer(framebuffers.pixelArtBlend1);
+		createTextureFramebuffer(framebuffers.lowPixelArtBlend0);
+		createTextureFramebuffer(framebuffers.lowPixelArtBlend1);
 	}
 }

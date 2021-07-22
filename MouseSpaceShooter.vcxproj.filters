@@ -151,6 +151,9 @@
     <ClCompile Include="commonTypes\resolutionMode.cpp">
       <Filter>src\commonTypes</Filter>
     </ClCompile>
+    <ClCompile Include="systems\renderingController.cpp">
+      <Filter>src\systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.hpp">
@@ -330,11 +333,17 @@
     <ClInclude Include="ogl\renderingSetup.hpp">
       <Filter>src\ogl</Filter>
     </ClInclude>
-    <ClInclude Include="components\lowResBuffers.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="commonTypes\resolutionMode.hpp">
       <Filter>src\commonTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\renderingController.hpp">
+      <Filter>src\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="components\framebuffers.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\functor.hpp">
+      <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

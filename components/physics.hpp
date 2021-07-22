@@ -1,6 +1,10 @@
 #pragma once
 
+#include <memory>
+
 #include <Box2D/Box2D.h>
+
+#include <glm/vec2.hpp>
 
 #include <componentBase.hpp>
 
@@ -8,7 +12,16 @@ namespace Components
 {
 	struct Physics : ComponentBase
 	{
-		b2World world{ {0.0f, 0.0f} };
+		Physics()
+		{
+		}
+
+		Physics(glm::vec2 gravity)
+		{
+			world = std::make_unique<b2World>(b2Vec2(gravity.x, gravity.y));
+		}
+
+		std::unique_ptr<b2World> world;
 
 		float simulationDuration = 0.0f;
 		float frameDuration = 0.0f;

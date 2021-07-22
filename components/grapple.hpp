@@ -33,7 +33,7 @@ namespace Components
 			renderingSetup(std::move(renderingSetup)),
 			customShadersProgram(customShadersProgram)
 		{
-			Tools::AccessUserData(*this->body).componentId = componentId;
+			Tools::AccessUserData(*this->body).componentId = getComponentId();
 		}
 
 		Body body;

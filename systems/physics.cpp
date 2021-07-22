@@ -37,7 +37,7 @@ namespace Systems
 	{
 		using namespace Globals::Components;
 
-		physics.world.SetContactListener(&contactListener);
+		physics.world->SetContactListener(&contactListener);
 	}
 
 	void Physics::step()
@@ -61,7 +61,7 @@ namespace Systems
 		physics.simulationDuration += physics.frameDuration;
 #endif
 
-		physics.world.Step(physics.frameDuration, 3, 8);
+		physics.world->Step(physics.frameDuration, 3, 8);
 	}
 
 	void Physics::pause()

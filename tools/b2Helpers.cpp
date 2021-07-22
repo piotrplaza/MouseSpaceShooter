@@ -43,7 +43,7 @@ namespace Tools
 		bodyDef.position.Set(0.0f, 0.0f);
 		bodyDef.angle = 0.0f;
 		bodyDef.bullet = true;
-		Body body(physics.world.CreateBody(&bodyDef));
+		Body body(physics.world->CreateBody(&bodyDef));
 
 		b2FixtureDef fixtureDef;
 		const b2Vec2 playerTriangle[3] = {
@@ -76,7 +76,7 @@ namespace Tools
 		bodyDef.type = bodyType;
 		bodyDef.position.Set(position.x, position.y);
 		bodyDef.angle = angle;
-		Body body(physics.world.CreateBody(&bodyDef));
+		Body body(physics.world->CreateBody(&bodyDef));
 
 		b2FixtureDef fixtureDef;
 		b2PolygonShape polygonShape;
@@ -101,7 +101,7 @@ namespace Tools
 		b2BodyDef bodyDef;
 		bodyDef.type = bodyType;
 		bodyDef.position.Set(position.x, position.y);
-		Body body(physics.world.CreateBody(&bodyDef));
+		Body body(physics.world->CreateBody(&bodyDef));
 
 		b2FixtureDef fixtureDef;
 		b2CircleShape circleShape;
@@ -128,7 +128,7 @@ namespace Tools
 		revoluteJointDef.localAnchorA = body1.GetLocalPoint({ pinPoint.x, pinPoint.y });
 		revoluteJointDef.localAnchorB = body2.GetLocalPoint({ pinPoint.x, pinPoint.y });
 		revoluteJointDef.collideConnected = collideConnected;
-		physics.world.CreateJoint(&revoluteJointDef);
+		physics.world->CreateJoint(&revoluteJointDef);
 	}
 
 	glm::mat4 GetModelMatrix(const b2Body& body)
