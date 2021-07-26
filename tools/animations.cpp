@@ -31,8 +31,8 @@ namespace Tools
 	{
 		if (prevDuration && !pauseDuration)
 		{
-			animationDuration += (Globals::Components::physics.simulationDuration - *prevDuration) * getDurationScale();
-			prevDuration = Globals::Components::physics.simulationDuration;
+			animationDuration += (Globals::Components().physics().simulationDuration - *prevDuration) * getDurationScale();
+			prevDuration = Globals::Components().physics().simulationDuration;
 		}
 
 		int currentFrame = int(animationDuration / frameDuration) % numOfFrames;
@@ -52,7 +52,7 @@ namespace Tools
 	void TextureAnimationController::start()
 	{
 		animationDuration = 0;
-		prevDuration = Globals::Components::physics.simulationDuration;
+		prevDuration = Globals::Components().physics().simulationDuration;
 		pauseDuration = std::nullopt;
 	}
 
@@ -64,13 +64,13 @@ namespace Tools
 
 	void TextureAnimationController::pause()
 	{
-		if (!pauseDuration && prevDuration) pauseDuration = Globals::Components::physics.simulationDuration;
+		if (!pauseDuration && prevDuration) pauseDuration = Globals::Components().physics().simulationDuration;
 	}
 
 	void TextureAnimationController::resume()
 	{
 		if (pauseDuration && prevDuration)
-			*prevDuration += Globals::Components::physics.simulationDuration - *pauseDuration;
+			*prevDuration += Globals::Components().physics().simulationDuration - *pauseDuration;
 		pauseDuration = std::nullopt;
 	}
 

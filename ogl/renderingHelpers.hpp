@@ -20,15 +20,15 @@ namespace Tools
 	template <typename ShadersProgram>
 	inline void MVPInitialization(ShadersProgram& shadersProgram, std::optional<glm::mat4> modelMatrix = std::nullopt)
 	{
-		shadersProgram.vpUniform.setValue(Globals::Components::mvp.getVP());
+		shadersProgram.vpUniform.setValue(Globals::Components().mvp().getVP());
 		shadersProgram.modelUniform.setValue(modelMatrix ? *modelMatrix : glm::mat4(1.0f));
 	}
 
 	template <typename ShadersProgram>
 	inline void StaticTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned texture, bool textureRatioPreserved)
 	{
-		const auto& textureComponent = Globals::Components::textures[texture];
-		const auto& textureDefComponent = Globals::Components::texturesDef[texture];
+		const auto& textureComponent = Globals::Components().textures()[texture];
+		const auto& textureDefComponent = Globals::Components().texturesDef()[texture];
 
 		shadersProgram.texture1Uniform.setValue(texture);
 		shadersProgram.textureTranslateUniform.setValue(textureDefComponent.translate);
@@ -41,8 +41,8 @@ namespace Tools
 	inline void AnimatedTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned texture,
 		const AnimationController& animationController)
 	{
-		const auto& textureComponent = Globals::Components::textures[texture];
-		const auto& textureDefComponent = Globals::Components::texturesDef[texture];
+		const auto& textureComponent = Globals::Components().textures()[texture];
+		const auto& textureDefComponent = Globals::Components().texturesDef()[texture];
 
 		shadersProgram.texture1Uniform.setValue(texture);
 		const auto frameTransformation = animationController.getFrameTransformation();

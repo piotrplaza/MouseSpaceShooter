@@ -26,7 +26,7 @@ namespace Systems
 
 	void Temporaries::updatePosAndTexCoordBuffers()
 	{
-		Tools::UpdatePosTexCoordBuffers(Globals::Components::missiles, simpleRocketsBuffers,
+		Tools::UpdatePosTexCoordBuffers(Globals::Components().missiles(), simpleRocketsBuffers,
 			texturedRocketsBuffers, customShaderRocketsBuffers);
 	}
 
@@ -52,11 +52,11 @@ namespace Systems
 	void Temporaries::texturedRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffers) const
 	{
 		glUseProgram_proxy(texturedShadersProgram->getProgramId());
-		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
+		texturedShadersProgram->vpUniform.setValue(Globals::Components().mvp().getVP());
 
 		for (const auto& [id, currentBuffers] : buffers)
 		{
-			texturedShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
+			texturedShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 			texturedShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 			Tools::TexturedRender(*texturedShadersProgram, currentBuffers, *currentBuffers.texture);
 		}
@@ -65,11 +65,11 @@ namespace Systems
 	void Temporaries::basicRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffers) const
 	{
 		glUseProgram_proxy(basicShadersProgram->getProgramId());
-		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
+		basicShadersProgram->vpUniform.setValue(Globals::Components().mvp().getVP());
 
 		for (const auto& [id, currentBuffers] : buffers)
 		{
-			basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
+			basicShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown;
@@ -86,7 +86,7 @@ namespace Systems
 
 	void Temporaries::step()
 	{
-		for (auto& [id, missile] : Globals::Components::missiles)
+		for (auto& [id, missile] : Globals::Components().missiles())
 			if (missile.step)
 				missile.step();
 

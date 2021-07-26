@@ -13,12 +13,12 @@ namespace
 	{
 		void BeginContact(b2Contact* contact) override
 		{
-			Contact(contact, Globals::Components::beginCollisionHandlers);
+			Contact(contact, Globals::Components().beginCollisionHandlers());
 		}
 
 		void EndContact(b2Contact* contact) override
 		{
-			Contact(contact, Globals::Components::endCollisionHandlers);
+			Contact(contact, Globals::Components().endCollisionHandlers());
 		}
 
 		void Contact(b2Contact* contact, std::unordered_map<::ComponentId, ::Components::CollisionHandler>& collisionHandlers)
@@ -35,14 +35,12 @@ namespace Systems
 {
 	Physics::Physics()
 	{
-		using namespace Globals::Components;
-
-		physics.world->SetContactListener(&contactListener);
+		Globals::Components().physics().world->SetContactListener(&contactListener);
 	}
 
 	void Physics::step()
 	{
-		using namespace Globals::Components;
+		auto& physics = Globals::Components().physics();
 
 		if (firstStep)
 		{

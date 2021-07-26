@@ -16,7 +16,9 @@ namespace Systems
 
 	void Camera::step()
 	{
-		using namespace Globals::Components;
+		const auto& screenInfo = Globals::Components().screenInfo();
+		auto& camera = Globals::Components().camera();
+		auto& mvp = Globals::Components().mvp();
 
 		const float windowWidthRatio = screenInfo.windowSize.x > screenInfo.windowSize.y
 			? (float)screenInfo.windowSize.x / screenInfo.windowSize.y

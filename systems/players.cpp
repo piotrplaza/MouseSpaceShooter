@@ -34,7 +34,7 @@ namespace
 
 namespace Systems
 {
-	Players::Players() : player(Globals::Components::players.front())
+	Players::Players() : player(Globals::Components().players().front())
 	{
 		initGraphics();
 	}
@@ -53,14 +53,14 @@ namespace Systems
 
 	void Players::updatePlayersPositionsBuffers()
 	{
-		Tools::UpdateTransformedPositionsBuffers(Globals::Components::players,
+		Tools::UpdateTransformedPositionsBuffers(Globals::Components().players(),
 			*simplePlayersBuffers, texturesToPlayersBuffers, customSimplePlayersBuffers,
 			customTexturedPlayersBuffers, customShadersPlayersBuffers);
 	}
 
 	void Players::updatePlayersTexCoordBuffers()
 	{
-		Tools::UpdateTexCoordBuffers(Globals::Components::players, texturesToPlayersBuffers,
+		Tools::UpdateTexCoordBuffers(Globals::Components().players(), texturesToPlayersBuffers,
 			customTexturedPlayersBuffers, customShadersPlayersBuffers);
 	}
 
@@ -112,14 +112,12 @@ namespace Systems
 
 	void Players::step()
 	{
-		using namespace Globals::Components;
-
-		const glm::ivec2 windowSpaceMouseDelta = mouseState.getMouseDelta();
+		const glm::ivec2 windowSpaceMouseDelta = Globals::Components().mouseState().getMouseDelta();
 		const glm::vec2 mouseDelta = { windowSpaceMouseDelta.x, -windowSpaceMouseDelta.y };
 
 		turn(mouseDelta);
-		throttle(mouseState.rmb);
-		magneticHook(mouseState.mmb || mouseState.xmb1);
+		throttle(Globals::Components().mouseState().rmb);
+		magneticHook(Globals::Components().mouseState().mmb || Globals::Components().mouseState().xmb1);
 
 		updatePlayersPositionsBuffers();
 		updateConnectionsGraphicsBuffers();
@@ -136,8 +134,8 @@ namespace Systems
 	void Players::basicRender() const
 	{
 		glUseProgram_proxy(basicShadersProgram->getProgramId());
-		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
-		basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
+		basicShadersProgram->vpUniform.setValue(Globals::Components().mvp().getVP());
+		basicShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 		basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 		glBindVertexArray(simplePlayersBuffers->positionBuffer);
@@ -145,7 +143,7 @@ namespace Systems
 
 		for (const auto& customSimplePlayerBuffers : customSimplePlayersBuffers)
 		{
-			basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
+			basicShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
@@ -162,18 +160,18 @@ namespace Systems
 	void Players::sceneCoordTexturedRender() const
 	{
 		glUseProgram_proxy(texturedShadersProgram->getProgramId());
-		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
+		texturedShadersProgram->vpUniform.setValue(Globals::Components().mvp().getVP());
 
 		for (const auto& [texture, texturedPlayerBuffers] : texturesToPlayersBuffers)
 		{
-			texturedShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
+			texturedShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 			texturedShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 			Tools::TexturedRender(*texturedShadersProgram, texturedPlayerBuffers, texture);
 		}
 
 		for (const auto& customTexturedPlayerBuffers : customTexturedPlayersBuffers)
 		{
-			texturedShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
+			texturedShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 			texturedShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 			Tools::TexturedRender(*texturedShadersProgram, customTexturedPlayerBuffers,
 				*customTexturedPlayerBuffers.texture);
@@ -201,8 +199,8 @@ namespace Systems
 	void Players::coloredRender() const
 	{
 		glUseProgram_proxy(coloredShadersProgram->getProgramId());
-		coloredShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
-		coloredShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
+		coloredShadersProgram->vpUniform.setValue(Globals::Components().mvp().getVP());
+		coloredShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 		coloredShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 		glBindVertexArray(connectionsBuffers->vertexArray);
 		glDrawArrays(GL_LINES, 0, connectionsBuffers->positionsCache.size());
@@ -210,8 +208,6 @@ namespace Systems
 
 	void Players::turn(glm::vec2 controllerDelta) const
 	{
-		using namespace Globals::Components;
-
 		if (glm::length(controllerDelta) > 0)
 		{
 			const float playerAngle = player.body->GetAngle();
@@ -224,7 +220,7 @@ namespace Systems
 
 		if (player.grappleJoint)
 		{
-			const auto& grapple = grapples[player.connectedGrappleId];
+			const auto& grapple = Globals::Components().grapples()[player.connectedGrappleId];
 			const glm::vec2 stepVelocity = (player.getCenter() - player.previousCenter) - (grapple.getCenter() - grapple.previousCenter);
 			const float stepVelocityLength = glm::length(stepVelocity);
 
@@ -255,17 +251,15 @@ namespace Systems
 
 	void Players::magneticHook(bool active)
 	{
-		using namespace Globals::Components;
-
 		connections.clear();
 
 		int nearestGrappleId = -1;
 		float nearestGrappleDistance = std::numeric_limits<float>::infinity();
 		std::vector<int> grapplesInRange;
 
-		for (int i = 0; i < (int)grapples.size(); ++i)
+		for (int i = 0; i < (int)Globals::Components().grapples().size(); ++i)
 		{
-			const auto& grapple = grapples[i];
+			const auto& grapple = Globals::Components().grapples()[i];
 			const float grappleDistance = glm::distance(player.getCenter(), grapple.getCenter());
 
 			if (grappleDistance > grapple.influenceRadius) continue;
@@ -288,7 +282,7 @@ namespace Systems
 
 		for (const int grappleInRange : grapplesInRange)
 		{
-			const auto& grapple = grapples[grappleInRange];
+			const auto& grapple = Globals::Components().grapples()[grappleInRange];
 
 			if (grappleInRange == nearestGrappleId)
 			{
@@ -327,23 +321,21 @@ namespace Systems
 
 		if (player.connectedGrappleId != -1)
 		{
-			connections.emplace_back(player.getCenter(), grapples[player.connectedGrappleId].getCenter(),
+			connections.emplace_back(player.getCenter(), Globals::Components().grapples()[player.connectedGrappleId].getCenter(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 0.7f), 20, 0.4f);
 		}
 		else if (player.weakConnectedGrappleId != -1)
 		{
-			connections.emplace_back(player.getCenter(), grapples[player.weakConnectedGrappleId].getCenter(),
+			connections.emplace_back(player.getCenter(), Globals::Components().grapples()[player.weakConnectedGrappleId].getCenter(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), 1);
 		}
 	}
 
 	void Players::createGrappleJoint() const
 	{
-		using namespace Globals::Components;
-
 		assert(player.connectedGrappleId != -1);
 
-		const auto& grapple = grapples[player.connectedGrappleId];
+		const auto& grapple = Globals::Components().grapples()[player.connectedGrappleId];
 
 		b2DistanceJointDef distanceJointDef;
 		distanceJointDef.bodyA = player.body.get();
@@ -352,7 +344,7 @@ namespace Systems
 		distanceJointDef.localAnchorB = distanceJointDef.bodyB->GetLocalCenter();
 		distanceJointDef.length = glm::distance(player.getCenter(), grapple.getCenter());
 		distanceJointDef.collideConnected = true;
-		player.grappleJoint.reset(physics.world->CreateJoint(&distanceJointDef));
+		player.grappleJoint.reset(Globals::Components().physics().world->CreateJoint(&distanceJointDef));
 	}
 
 	Players::ConnectionsBuffers::ConnectionsBuffers()

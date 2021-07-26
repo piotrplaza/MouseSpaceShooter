@@ -16,52 +16,52 @@ TexturesFramebuffersRenderer::~TexturesFramebuffersRenderer()
 	if (lowPixelArtBlend0)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::framebuffers.lowPixelArtBlend0.textureUnit - GL_TEXTURE0);
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components().framebuffers().lowPixelArtBlend0.textureUnit - GL_TEXTURE0);
 	}
 
 	if (pixelArtBlend0)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::framebuffers.pixelArtBlend0.textureUnit - GL_TEXTURE0);
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components().framebuffers().pixelArtBlend0.textureUnit - GL_TEXTURE0);
 	}
 
 	if (lowestLinearBlend0)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::framebuffers.lowestLinearBlend0.textureUnit - GL_TEXTURE0);
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components().framebuffers().lowestLinearBlend0.textureUnit - GL_TEXTURE0);
 	}
 
 	if (lowerLinearBlend0)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::framebuffers.lowerLinearBlend0.textureUnit - GL_TEXTURE0);
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components().framebuffers().lowerLinearBlend0.textureUnit - GL_TEXTURE0);
 	}
 
 	if (lowPixelArtBlend1)
 	{
 		glBlendFunc(GL_ONE, GL_ONE);
-		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::framebuffers.lowPixelArtBlend1.textureUnit - GL_TEXTURE0);
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components().framebuffers().lowPixelArtBlend1.textureUnit - GL_TEXTURE0);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	if (pixelArtBlend1)
 	{
 		glBlendFunc(GL_ONE, GL_ONE);
-		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::framebuffers.pixelArtBlend1.textureUnit - GL_TEXTURE0);
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components().framebuffers().pixelArtBlend1.textureUnit - GL_TEXTURE0);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	if (lowestLinearBlend1)
 	{
 		glBlendFunc(GL_ONE, GL_ONE);
-		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::framebuffers.lowestLinearBlend1.textureUnit - GL_TEXTURE0);
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components().framebuffers().lowestLinearBlend1.textureUnit - GL_TEXTURE0);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	if (lowerLinearBlend1)
 	{
 		glBlendFunc(GL_ONE, GL_ONE);
-		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components::framebuffers.lowerLinearBlend1.textureUnit - GL_TEXTURE0);
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components().framebuffers().lowerLinearBlend1.textureUnit - GL_TEXTURE0);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 }

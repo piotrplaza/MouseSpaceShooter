@@ -66,32 +66,32 @@ void Initialize()
 	Tools::RandomInit();
 	OGLInitialize();
 
-	Globals::Components::Reset();
+	Globals::InitializeComponents();
 	CreateLevel();
-	Globals::Systems::Initialize();
-	Globals::Systems::StateController().initializationFinalize();
+	Globals::InitializeSystems();
+	Globals::Systems().stateController().initializationFinalize();
 }
 
 void PrepareFrame()
 {
-	Globals::Systems::StateController().frameSetup();
+	Globals::Systems().stateController().frameSetup();
 
-	Globals::Systems::Physics().step();
-	Globals::Systems::DeferredActions().step();
+	Globals::Systems().physics().step();
+	Globals::Systems().deferredActions().step();
 
-	Globals::Systems::Players().step();
-	Globals::Systems::Temporaries().step();
-	Globals::Systems::Walls().step();
-	Globals::Systems::Decorations().step();
-	Globals::Systems::Camera().step();
+	Globals::Systems().players().step();
+	Globals::Systems().temporaries().step();
+	Globals::Systems().walls().step();
+	Globals::Systems().decorations().step();
+	Globals::Systems().camera().step();
 
 	activeLevel->step();
 
-	Globals::Systems::RenderingController().render();
+	Globals::Systems().renderingController().render();
 
-	Globals::Systems::StateController().frameTeardown();
+	Globals::Systems().stateController().frameTeardown();
 
-	Globals::Systems::Cleaner().step();
+	Globals::Systems().cleaner().step();
 }
 
 void SetDCPixelFormat(HDC hDC);
@@ -108,8 +108,6 @@ LRESULT CALLBACK WndProc(
 	WPARAM wParam,
 	LPARAM lParam)
 {
-	using namespace Globals::Components;
-
 	static HGLRC hRC;
 
 	switch(message)
@@ -141,25 +139,25 @@ LRESULT CALLBACK WndProc(
 		case WM_SIZE:
 		{
 			const glm::ivec2 size{ LOWORD(lParam), HIWORD(lParam) };
-			Globals::Systems::StateController().changeWindowSize(size);
+			Globals::Systems().stateController().changeWindowSize(size);
 			break;
 		}
 		case WM_MOVE:
 		{
 			const glm::ivec2 location{ LOWORD(lParam), HIWORD(lParam) };
-			Globals::Systems::StateController().changeWindowLocation(location);
+			Globals::Systems().stateController().changeWindowLocation(location);
 			break;
 		}
 		case WM_SETFOCUS:
 			ShowCursor(false);
 			focus = true;
 			resetMousePositionRequired = true;
-			Globals::Systems::Physics().resume();
+			Globals::Systems().physics().resume();
 			break;
 		case WM_KILLFOCUS:
 			ShowCursor(true);
 			focus = false;
-			Globals::Systems::Physics().pause();
+			Globals::Systems().physics().pause();
 			break;
 		case WM_KEYDOWN:
 			keys[wParam] = true;
@@ -168,40 +166,40 @@ LRESULT CALLBACK WndProc(
 			keys[wParam] = false;
 			break;
 		case WM_RBUTTONDOWN:
-			mouseState.rmb = true;
+			Globals::Components().mouseState().rmb = true;
 			break;
 		case WM_RBUTTONUP:
-			mouseState.rmb = false;
+			Globals::Components().mouseState().rmb = false;
 			break;
 		case WM_LBUTTONDOWN:
-			mouseState.lmb = true;
+			Globals::Components().mouseState().lmb = true;
 			break;
 		case WM_LBUTTONUP:
-			mouseState.lmb = false;
+			Globals::Components().mouseState().lmb = false;
 			break;
 		case WM_MBUTTONDOWN:
-			mouseState.mmb = true;
+			Globals::Components().mouseState().mmb = true;
 			break;
 		case WM_MBUTTONUP:
-			mouseState.mmb = false;
+			Globals::Components().mouseState().mmb = false;
 			break;
 		case WM_XBUTTONDOWN:
 			switch (HIWORD(wParam))
 			{
-				case XBUTTON1: mouseState.xmb1 = true; break;
-				case XBUTTON2: mouseState.xmb2 = true; break;
+				case XBUTTON1: Globals::Components().mouseState().xmb1 = true; break;
+				case XBUTTON2: Globals::Components().mouseState().xmb2 = true; break;
 			}
 			break;
 		case WM_XBUTTONUP:
 			switch (HIWORD(wParam))
 			{
-				case XBUTTON1: mouseState.xmb1 = false; break;
-				case XBUTTON2: mouseState.xmb2 = false; break;
+				case XBUTTON1: Globals::Components().mouseState().xmb1 = false; break;
+				case XBUTTON2: Globals::Components().mouseState().xmb2 = false; break;
 			}
 			break;
 		case WM_MOUSEWHEEL:
-			if ((int)wParam > 0) ++mouseState.wheel;
-			else if ((int)wParam < 0) --mouseState.wheel;
+			if ((int)wParam > 0) ++Globals::Components().mouseState().wheel;
+			else if ((int)wParam < 0) --Globals::Components().mouseState().wheel;
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -298,11 +296,11 @@ int APIENTRY WinMain(
 		{
 			if (resetMousePositionRequired)
 			{
-				Globals::Systems::StateController().resetMousePosition();
+				Globals::Systems().stateController().resetMousePosition();
 				resetMousePositionRequired = false;
 			}
-			Globals::Systems::StateController().handleKeyboard(keys);
-			Globals::Systems::StateController().handleMousePosition();
+			Globals::Systems().stateController().handleKeyboard(keys);
+			Globals::Systems().stateController().handleMousePosition();
 			PrepareFrame();
 
 			glFinish(); //Not sure why, but it helps with stuttering in some scenarios, e.g. if missile was launched (release + lower display refresh rate => bigger stuttering without it).

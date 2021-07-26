@@ -28,22 +28,18 @@ namespace Levels
 	public:
 		void setPhysicsSettings() const
 		{
-			using namespace Globals::Components;
-
-			physics = Components::Physics({ 0.0f, 0.0f });
+			Globals::Components().physics() = Components::Physics({ 0.0f, 0.0f });
 		}
 
 		void setGraphicsSettings() const
 		{
-			using namespace Globals::Components;
-
-			graphicsSettings.clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-			graphicsSettings.defaultColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+			Globals::Components().graphicsSettings().clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+			Globals::Components().graphicsSettings().defaultColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		}
 
 		void loadTextures()
 		{
-			using namespace Globals::Components;
+			auto& texturesDef = Globals::Components().texturesDef();
 
 			rocketPlaneTexture = texturesDef.size();
 			texturesDef.emplace_back("textures/rocket plane.png");
@@ -69,60 +65,50 @@ namespace Levels
 
 		void createBackground() const
 		{
-			using namespace Globals::Components;
-
-			backgroundDecorations.emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 100.0f, 60.0f }), playFieldTexture);
-			backgroundDecorations.back().texCoord = Tools::CreateTexCoordOfRectangle();
+			Globals::Components().backgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 100.0f, 60.0f }), playFieldTexture);
+			Globals::Components().backgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
 		}
 
 		void createPlayers()
 		{
-			using namespace Globals::Components;
-
 			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flameAnimation1Texture);
-			players[0].connectIfApproaching = true;
+			Globals::Components().players()[0].connectIfApproaching = true;
 		}
 
 		void createStaticWalls() const
 		{
-			using namespace Globals::Components;
-
 			const glm::vec2 levelHSize = { 100.0f, 60.0f };
 			const float bordersHGauge = 50.0f;
 
-			staticWalls.emplace_back(Tools::CreateBoxBody({ -levelHSize.x - bordersHGauge, 0.0f },
+			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ -levelHSize.x - bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize.y + bordersHGauge * 2 }), woodTexture);
 
-			staticWalls.emplace_back(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge, 0.0f },
+			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize.y + bordersHGauge * 2 }), woodTexture);
 
-			staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize.y - bordersHGauge },
+			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize.y - bordersHGauge },
 				{ levelHSize.x + bordersHGauge * 2, bordersHGauge }), woodTexture);
 
-			staticWalls.emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize.y + bordersHGauge },
+			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize.y + bordersHGauge },
 				{ levelHSize.x + bordersHGauge * 2, bordersHGauge }), woodTexture);
 		}
 
 		void createGrapples()
 		{
-			using namespace Globals::Components;
-
-			ball = &grapples.emplace_back(Tools::CreateCircleBody({ 0.0f, 0.0f }, 2.0f, b2_dynamicBody, 0.02f, 0.5f), 15.0f,
+			ball = &Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ 0.0f, 0.0f }, 2.0f, b2_dynamicBody, 0.02f, 0.5f), 15.0f,
 				orbTexture);
 		}
 
 		void setCamera() const
 		{
-			using namespace Globals::Components;
+			const auto& player = Globals::Components().players()[player1Handler.playerId];
 
-			const auto& player = players[player1Handler.playerId];
-
-			camera.targetProjectionHSizeF = [&]() {
-				camera.projectionTransitionFactor = physics.frameDuration * 6;
+			Globals::Components().camera().targetProjectionHSizeF = [&]() {
+				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
 				return 30.0f + glm::distance(player.getCenter(), ball->getCenter()) * 0.3f;
 			};
-			camera.targetPositionF = [&]() {
-				camera.positionTransitionFactor = physics.frameDuration * 6;
+			Globals::Components().camera().targetPositionF = [&]() {
+				Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
 				return (player.getCenter() + ball->getCenter()) * 0.5f;
 			};
 		}

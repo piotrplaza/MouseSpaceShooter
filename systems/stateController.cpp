@@ -28,12 +28,10 @@ namespace Systems
 
 	void StateController::initializationFinalize() const
 	{
-		using namespace Globals::Components;
-
-		for (auto& player : players)
+		for (auto& player : Globals::Components().players())
 			player.previousCenter = player.getCenter();
 
-		for (auto& grapple : grapples)
+		for (auto& grapple : Globals::Components().grapples())
 			grapple.previousCenter = grapple.getCenter();
 
 		createFramebuffers();
@@ -41,29 +39,26 @@ namespace Systems
 
 	void StateController::frameSetup() const
 	{
-		using namespace Globals::Components;
-
-		for (auto& [id, frameSetup] : frameSetups)
+		for (auto& [id, frameSetup] : Globals::Components().frameSetups())
 			frameSetup();
 	}
 
 	void StateController::frameTeardown() const
 	{
-		using namespace Globals::Components;
-
-		for (auto& [id, frameTeardown] : frameTeardowns)
+		for (auto& [id, frameTeardown] : Globals::Components().frameTeardowns())
 			frameTeardown();
 
-		for (auto& player : players)
+		for (auto& player : Globals::Components().players())
 			player.previousCenter = player.getCenter();
 
-		for (auto& grapple : grapples)
+		for (auto& grapple : Globals::Components().grapples())
 			grapple.previousCenter = grapple.getCenter();
 	}
 
 	void StateController::changeWindowSize(glm::ivec2 size) const
 	{
-		using namespace Globals::Components;
+		auto& screenInfo = Globals::Components().screenInfo();
+		auto& framebuffers = Globals::Components().framebuffers();
 
 		screenInfo.windowSize = size;
 		screenInfo.windowCenterInScreenSpace = { screenInfo.windowLocation + screenInfo.windowSize / 2 };
@@ -73,7 +68,7 @@ namespace Systems
 			glBindFramebuffer(GL_FRAMEBUFFER, subBuffers.fbo);
 			glBindTexture(GL_TEXTURE_2D, subBuffers.textureObject);
 			subBuffers.size = size;
-			textures[subBuffers.textureUnit - GL_TEXTURE0].size = subBuffers.size;
+			Globals::Components().textures()[subBuffers.textureUnit - GL_TEXTURE0].size = subBuffers.size;
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, subBuffers.size.x, subBuffers.size.y, 0, GL_RGBA, GL_FLOAT, nullptr);
 			assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 		};
@@ -99,7 +94,7 @@ namespace Systems
 
 	void StateController::changeWindowLocation(glm::ivec2 location) const
 	{
-		using namespace Globals::Components;
+		auto& screenInfo = Globals::Components().screenInfo();
 
 		screenInfo.windowLocation = location;
 		screenInfo.windowCenterInScreenSpace = { location + screenInfo.windowSize / 2 };
@@ -107,15 +102,13 @@ namespace Systems
 
 	void StateController::resetMousePosition() const
 	{
-		using namespace Globals::Components;
-
-		Tools::SetMousePos(screenInfo.windowCenterInScreenSpace);
-		mouseState.position = screenInfo.windowCenterInScreenSpace;
+		Tools::SetMousePos(Globals::Components().screenInfo().windowCenterInScreenSpace);
+		Globals::Components().mouseState().position = Globals::Components().screenInfo().windowCenterInScreenSpace;
 	}
 
 	void StateController::handleMousePosition() const
 	{
-		using namespace Globals::Components;
+		auto& mouseState = Globals::Components().mouseState();
 
 		const auto prevPosition = mouseState.position;
 		mouseState.position = Tools::GetMousePos();
@@ -130,7 +123,7 @@ namespace Systems
 
 	void StateController::createFramebuffers() const
 	{
-		using namespace Globals::Components;
+		auto& framebuffers = Globals::Components().framebuffers();
 
 		auto createTextureFramebuffer = [](Components::Framebuffers::SubBuffers& subBuffers)
 		{

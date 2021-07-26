@@ -36,14 +36,12 @@ namespace Tools
 {
 	Body CreateTrianglePlayerBody(float size, float density, float spreadFactor)
 	{
-		using namespace Globals::Components;
-
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;
 		bodyDef.position.Set(0.0f, 0.0f);
 		bodyDef.angle = 0.0f;
 		bodyDef.bullet = true;
-		Body body(physics.world->CreateBody(&bodyDef));
+		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
 
 		b2FixtureDef fixtureDef;
 		const b2Vec2 playerTriangle[3] = {
@@ -70,13 +68,11 @@ namespace Tools
 	Body CreateBoxBody(glm::vec2 position, glm::vec2 hSize, float angle,
 		b2BodyType bodyType, float density, float restitution, float friction)
 	{
-		using namespace Globals::Components;
-
 		b2BodyDef bodyDef;
 		bodyDef.type = bodyType;
 		bodyDef.position.Set(position.x, position.y);
 		bodyDef.angle = angle;
-		Body body(physics.world->CreateBody(&bodyDef));
+		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
 
 		b2FixtureDef fixtureDef;
 		b2PolygonShape polygonShape;
@@ -96,12 +92,10 @@ namespace Tools
 	Body CreateCircleBody(glm::vec2 position, float radius,
 		b2BodyType bodyType, float density, float restitution, float friction)
 	{
-		using namespace Globals::Components;
-
 		b2BodyDef bodyDef;
 		bodyDef.type = bodyType;
 		bodyDef.position.Set(position.x, position.y);
-		Body body(physics.world->CreateBody(&bodyDef));
+		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
 
 		b2FixtureDef fixtureDef;
 		b2CircleShape circleShape;
@@ -120,15 +114,13 @@ namespace Tools
 
 	void PinBodies(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected)
 	{
-		using namespace Globals::Components;
-
 		b2RevoluteJointDef revoluteJointDef;
 		revoluteJointDef.bodyA = &body1;
 		revoluteJointDef.bodyB = &body2;
 		revoluteJointDef.localAnchorA = body1.GetLocalPoint({ pinPoint.x, pinPoint.y });
 		revoluteJointDef.localAnchorB = body2.GetLocalPoint({ pinPoint.x, pinPoint.y });
 		revoluteJointDef.collideConnected = collideConnected;
-		physics.world->CreateJoint(&revoluteJointDef);
+		Globals::Components().physics().world->CreateJoint(&revoluteJointDef);
 	}
 
 	glm::mat4 GetModelMatrix(const b2Body& body)

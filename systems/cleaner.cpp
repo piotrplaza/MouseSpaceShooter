@@ -16,7 +16,7 @@ inline void RemoveOutdatedComponents(ComponentsMap& components)
 	{
 		if (it->second.state == ComponentState::Outdated)
 		{
-			ComponentIdGenerator::instance().release(it->first);
+			ComponentIdGenerator().release(it->first);
 			it = components.erase(it);
 		}
 		else
@@ -30,13 +30,11 @@ namespace Systems
 
 	void Cleaner::step()
 	{
-		using namespace Globals::Components;
-
-		RemoveOutdatedComponents(temporaryBackgroundDecorations);
-		RemoveOutdatedComponents(temporaryFarMidgroundDecorations);
-		RemoveOutdatedComponents(temporaryNearMidgroundDecorations);
-		RemoveOutdatedComponents(temporaryForegroundDecorations);
-		RemoveOutdatedComponents(missiles);
-		RemoveOutdatedComponents(shockwaves);
+		RemoveOutdatedComponents(Globals::Components().temporaryBackgroundDecorations());
+		RemoveOutdatedComponents(Globals::Components().temporaryFarMidgroundDecorations());
+		RemoveOutdatedComponents(Globals::Components().temporaryNearMidgroundDecorations());
+		RemoveOutdatedComponents(Globals::Components().temporaryForegroundDecorations());
+		RemoveOutdatedComponents(Globals::Components().missiles());
+		RemoveOutdatedComponents(Globals::Components().shockwaves());
 	}
 }

@@ -31,53 +31,53 @@ namespace Systems
 
 	void Decorations::updatePersistentPositionsBuffers()
 	{
-		Tools::UpdatePositionsBuffers(Globals::Components::backgroundDecorations, persistentBuffers.simpleBackgroundDecorations,
+		Tools::UpdatePositionsBuffers(Globals::Components().backgroundDecorations(), persistentBuffers.simpleBackgroundDecorations,
 			persistentBuffers.texturedBackgroundDecorations, persistentBuffers.customShadersBackgroundDecorations);
-		Tools::UpdatePositionsBuffers(Globals::Components::farMidgroundDecorations, persistentBuffers.simpleFarMidgroundDecorations,
+		Tools::UpdatePositionsBuffers(Globals::Components().farMidgroundDecorations(), persistentBuffers.simpleFarMidgroundDecorations,
 			persistentBuffers.texturedFarMidgroundDecorations, persistentBuffers.customShadersFarMidgroundDecorations);
-		Tools::UpdatePositionsBuffers(Globals::Components::midgroundDecorations, persistentBuffers.simpleMidgroundDecorations,
+		Tools::UpdatePositionsBuffers(Globals::Components().midgroundDecorations(), persistentBuffers.simpleMidgroundDecorations,
 			persistentBuffers.texturedMidgroundDecorations, persistentBuffers.customShadersMidgroundDecorations);
-		Tools::UpdatePositionsBuffers(Globals::Components::nearMidgroundDecorations, persistentBuffers.simpleNearMidgroundDecorations,
+		Tools::UpdatePositionsBuffers(Globals::Components().nearMidgroundDecorations(), persistentBuffers.simpleNearMidgroundDecorations,
 			persistentBuffers.texturedNearMidgroundDecorations, persistentBuffers.customShadersNearMidgroundDecorations);
-		Tools::UpdatePositionsBuffers(Globals::Components::foregroundDecorations, persistentBuffers.simpleForegroundDecorations,
+		Tools::UpdatePositionsBuffers(Globals::Components().foregroundDecorations(), persistentBuffers.simpleForegroundDecorations,
 			persistentBuffers.texturedForegroundDecorations, persistentBuffers.customShadersForegroundDecorations);
 	}
 
 	void Decorations::updatePersistentTexCoordsBuffers()
 	{
-		Tools::UpdateTexCoordBuffers(Globals::Components::backgroundDecorations, persistentBuffers.texturedBackgroundDecorations,
+		Tools::UpdateTexCoordBuffers(Globals::Components().backgroundDecorations(), persistentBuffers.texturedBackgroundDecorations,
 			persistentBuffers.customShadersBackgroundDecorations);
-		Tools::UpdateTexCoordBuffers(Globals::Components::farMidgroundDecorations, persistentBuffers.texturedFarMidgroundDecorations,
+		Tools::UpdateTexCoordBuffers(Globals::Components().farMidgroundDecorations(), persistentBuffers.texturedFarMidgroundDecorations,
 			persistentBuffers.customShadersFarMidgroundDecorations);
-		Tools::UpdateTexCoordBuffers(Globals::Components::midgroundDecorations, persistentBuffers.texturedMidgroundDecorations,
+		Tools::UpdateTexCoordBuffers(Globals::Components().midgroundDecorations(), persistentBuffers.texturedMidgroundDecorations,
 			persistentBuffers.customShadersMidgroundDecorations);
-		Tools::UpdateTexCoordBuffers(Globals::Components::nearMidgroundDecorations, persistentBuffers.texturedNearMidgroundDecorations,
+		Tools::UpdateTexCoordBuffers(Globals::Components().nearMidgroundDecorations(), persistentBuffers.texturedNearMidgroundDecorations,
 			persistentBuffers.customShadersNearMidgroundDecorations);
-		Tools::UpdateTexCoordBuffers(Globals::Components::foregroundDecorations, persistentBuffers.texturedForegroundDecorations,
+		Tools::UpdateTexCoordBuffers(Globals::Components().foregroundDecorations(), persistentBuffers.texturedForegroundDecorations,
 			persistentBuffers.customShadersForegroundDecorations);
 	}
 
 	void Decorations::updateTemporaryPosAndTexCoordBuffers()
 	{
-		Tools::UpdatePosTexCoordBuffers(Globals::Components::temporaryBackgroundDecorations, temporaryBuffers.simpleBackgroundDecorations,
+		Tools::UpdatePosTexCoordBuffers(Globals::Components().temporaryBackgroundDecorations(), temporaryBuffers.simpleBackgroundDecorations,
 			temporaryBuffers.texturedBackgroundDecorations, temporaryBuffers.customShadersBackgroundDecorations);
-		Tools::UpdatePosTexCoordBuffers(Globals::Components::temporaryFarMidgroundDecorations, temporaryBuffers.simpleFarMidgroundDecorations,
+		Tools::UpdatePosTexCoordBuffers(Globals::Components().temporaryFarMidgroundDecorations(), temporaryBuffers.simpleFarMidgroundDecorations,
 			temporaryBuffers.texturedFarMidgroundDecorations, temporaryBuffers.customShadersFarMidgroundDecorations);
-		Tools::UpdatePosTexCoordBuffers(Globals::Components::temporaryMidgroundDecorations, temporaryBuffers.simpleMidgroundDecorations,
+		Tools::UpdatePosTexCoordBuffers(Globals::Components().temporaryMidgroundDecorations(), temporaryBuffers.simpleMidgroundDecorations,
 			temporaryBuffers.texturedMidgroundDecorations, temporaryBuffers.customShadersMidgroundDecorations);
-		Tools::UpdatePosTexCoordBuffers(Globals::Components::temporaryNearMidgroundDecorations, temporaryBuffers.simpleNearMidgroundDecorations,
+		Tools::UpdatePosTexCoordBuffers(Globals::Components().temporaryNearMidgroundDecorations(), temporaryBuffers.simpleNearMidgroundDecorations,
 			temporaryBuffers.texturedNearMidgroundDecorations, temporaryBuffers.customShadersNearMidgroundDecorations);
-		Tools::UpdatePosTexCoordBuffers(Globals::Components::temporaryForegroundDecorations, temporaryBuffers.simpleForegroundDecorations,
+		Tools::UpdatePosTexCoordBuffers(Globals::Components().temporaryForegroundDecorations(), temporaryBuffers.simpleForegroundDecorations,
 			temporaryBuffers.texturedForegroundDecorations, temporaryBuffers.customShadersForegroundDecorations);
 	}
 
 	void Decorations::step()
 	{
 		for (const auto* temporaryDecoration : { 
-			&Globals::Components::temporaryBackgroundDecorations, 
-			&Globals::Components::temporaryFarMidgroundDecorations,
-			&Globals::Components::temporaryNearMidgroundDecorations,
-			&Globals::Components::temporaryForegroundDecorations })
+			&Globals::Components().temporaryBackgroundDecorations(),
+			&Globals::Components().temporaryFarMidgroundDecorations(),
+			&Globals::Components().temporaryNearMidgroundDecorations(),
+			&Globals::Components().temporaryForegroundDecorations() })
 		{
 			for (const auto& [id, decoration] : *temporaryDecoration)
 				if (decoration.step)
@@ -129,9 +129,9 @@ namespace Systems
 
 		auto render = [&](const auto& buffers)
 		{
-			const auto& lowResSubBuffers = Globals::Components::framebuffers.getSubBuffers(buffers.resolutionMode);
+			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.resolutionMode);
 			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
-				lowResSubBuffers.size, Globals::Components::framebuffers.main.fbo, Globals::Components::framebuffers.main.size);
+				lowResSubBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
@@ -161,19 +161,19 @@ namespace Systems
 		const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const
 	{
 		glUseProgram_proxy(texturedShadersProgram->getProgramId());
-		texturedShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
+		texturedShadersProgram->vpUniform.setValue(Globals::Components().mvp().getVP());
 
 		TexturesFramebuffersRenderer texturesFramebuffersRenderer(*texturedShadersProgram);
 
 		auto render = [&](const auto& buffers)
 		{
-			const auto& lowResSubBuffers = Globals::Components::framebuffers.getSubBuffers(buffers.resolutionMode);
+			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.resolutionMode);
 			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
-				lowResSubBuffers.size, Globals::Components::framebuffers.main.fbo, Globals::Components::framebuffers.main.size);
+				lowResSubBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
-			texturedShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
+			texturedShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 			texturedShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 			Tools::TexturedRender(*texturedShadersProgram, buffers, *buffers.texture);
@@ -190,19 +190,19 @@ namespace Systems
 		const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const
 	{
 		glUseProgram_proxy(basicShadersProgram->getProgramId());
-		basicShadersProgram->vpUniform.setValue(Globals::Components::mvp.getVP());
+		basicShadersProgram->vpUniform.setValue(Globals::Components().mvp().getVP());
 
 		TexturesFramebuffersRenderer texturesFramebuffersRenderer(*texturedShadersProgram);
 
 		auto render = [&](const auto& buffers)
 		{
-			const auto& lowResSubBuffers = Globals::Components::framebuffers.getSubBuffers(buffers.resolutionMode);
+			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.resolutionMode);
 			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
-				lowResSubBuffers.size, Globals::Components::framebuffers.main.fbo, Globals::Components::framebuffers.main.size);
+				lowResSubBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
-			basicShadersProgram->colorUniform.setValue(Globals::Components::graphicsSettings.defaultColor);
+			basicShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown;

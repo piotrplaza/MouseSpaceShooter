@@ -1,6 +1,6 @@
 #pragma once
 
-#include <componentId.hpp>
+#include "globals.hpp"
 
 //#define PRINT_COMPONENT_ID
 
@@ -34,5 +34,6 @@ struct ComponentBase
 	ComponentState state = ComponentState::Changed;
 
 private:
-	ComponentId componentId = ComponentIdGenerator::instance().acquire();
+	
+	ComponentId componentId = Globals::ComponentIdGenerator().acquire();
 };

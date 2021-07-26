@@ -29,36 +29,35 @@ namespace Systems
 
 	void RenderingController::initGraphics()
 	{
-		using namespace Globals::Components;
-
 		texturedShadersProgram = std::make_unique<Shaders::Programs::Textured>();
 	}
 
 	void RenderingController::render()
 	{
-		using namespace Globals::Components;
+		const auto& screenInfo = Globals::Components().screenInfo();
+		auto& framebuffers = Globals::Components().framebuffers();
 
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.main.fbo);
 			glViewport(0, 0, framebuffers.main.size.x, framebuffers.main.size.y);
-			const glm::vec4& clearColor = graphicsSettings.clearColor;
+			const glm::vec4& clearColor = Globals::Components().graphicsSettings().clearColor;
 			glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			Globals::Systems::Decorations().renderBackground();
-			Globals::Systems::Decorations().renderFarMidground();
-			Globals::Systems::Walls().render();
-			Globals::Systems::Players().render();
-			Globals::Systems::Temporaries().render();
-			Globals::Systems::Decorations().renderMidground();
-			Globals::Systems::Decorations().renderNearMidground();
-			Globals::Systems::Decorations().renderForeground();
+			Globals::Systems().decorations().renderBackground();
+			Globals::Systems().decorations().renderFarMidground();
+			Globals::Systems().walls().render();
+			Globals::Systems().players().render();
+			Globals::Systems().temporaries().render();
+			Globals::Systems().decorations().renderMidground();
+			Globals::Systems().decorations().renderNearMidground();
+			Globals::Systems().decorations().renderForeground();
 		}
 
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glViewport(0, 0, screenInfo.windowSize.x, screenInfo.windowSize.y);
-			const glm::vec4& clearColor = graphicsSettings.clearColor;
+			const glm::vec4& clearColor = Globals::Components().graphicsSettings().clearColor;
 			glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -68,13 +67,13 @@ namespace Systems
 			model = glm::scale(model, { (float)screenInfo.windowSize.x / screenInfo.windowSize.y, 1.0f, 1.0f });
 
 			glDisable(GL_BLEND);
-			Tools::TexturedScreenRender(*texturedShadersProgram, Globals::Components::framebuffers.main.textureUnit - GL_TEXTURE0, [&]()
+			Tools::TexturedScreenRender(*texturedShadersProgram, framebuffers.main.textureUnit - GL_TEXTURE0, [&]()
 				{
 					texturedShadersProgram->vpUniform.setValue(vp);
 					texturedShadersProgram->modelUniform.setValue(model);
-				}, []()
+				}, [&]()
 				{
-					const float quakeIntensity = 0.005f * shockwaves.size();
+					const float quakeIntensity = 0.005f * Globals::Components().shockwaves().size();
 					const glm::vec2 quakeIntensityXY = screenInfo.windowSize.x > screenInfo.windowSize.y
 						? glm::vec2(quakeIntensity, quakeIntensity * (float)screenInfo.windowSize.x / screenInfo.windowSize.y)
 						: glm::vec2(quakeIntensity * (float)screenInfo.windowSize.y / screenInfo.windowSize.x, quakeIntensity);
@@ -89,9 +88,9 @@ namespace Systems
 				});
 			glEnable(GL_BLEND);
 
-			const float angleDelta = physics.frameDuration * 2.0f;
+			const float angleDelta = Globals::Components().physics().frameDuration * 2.0f;
 
-			if (angle == 0.0f && mouseState.xmb2)
+			if (angle == 0.0f && Globals::Components().mouseState().xmb2)
 			{
 				angle = angleDelta;
 			}

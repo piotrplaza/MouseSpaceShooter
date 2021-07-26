@@ -1,8 +1,8 @@
+#include "globals.hpp"
+
 #include <memory>
 #include <vector>
 #include <unordered_map>
-
-#include "componentId.hpp"
 
 #include "components/mouseState.hpp"
 #include "components/screenInfo.hpp"
@@ -35,199 +35,244 @@
 #include "systems/deferredActions.hpp"
 #include "systems/renderingController.hpp"
 
-ComponentIdGenerator ComponentIdGenerator::instance_;
-
-namespace Components
-{
-	static ::Components::MouseState mouseState;
-	static ::Components::ScreenInfo screenInfo;
-	static ::Components::MVP mvp;
-	static ::Components::Physics physics;
-	static ::Components::Camera camera;
-	static ::Components::GraphicsSettings graphicsSettings;
-	static ::Components::Framebuffers framebuffers;
-
-	static std::vector<::Components::TextureDef> texturesDef;
-	static std::vector<::Components::Texture> textures;
-	static std::vector<::Components::Player> players;
-	static std::vector<::Components::Wall> staticWalls;
-	static std::vector<::Components::Wall> dynamicWalls;
-	static std::vector<::Components::Grapple> grapples;
-	static std::vector<::Components::Decoration> backgroundDecorations;
-	static std::unordered_map<::ComponentId, ::Components::Decoration> temporaryBackgroundDecorations;
-	static std::vector<::Components::Decoration> farMidgroundDecorations;
-	static std::unordered_map<::ComponentId, ::Components::Decoration> temporaryFarMidgroundDecorations;
-	static std::vector<::Components::Decoration> midgroundDecorations;
-	static std::unordered_map<::ComponentId, ::Components::Decoration> temporaryMidgroundDecorations;
-	static std::vector<::Components::Decoration> nearMidgroundDecorations;
-	static std::unordered_map<::ComponentId, ::Components::Decoration> temporaryNearMidgroundDecorations;
-	static std::vector<::Components::Decoration> foregroundDecorations;
-	static std::unordered_map<::ComponentId, ::Components::Decoration> temporaryForegroundDecorations;
-	static std::unordered_map<::ComponentId, ::Components::Missile> missiles;
-	static std::unordered_map<::ComponentId, ::Components::CollisionHandler> beginCollisionHandlers;
-	static std::unordered_map<::ComponentId, ::Components::CollisionHandler> endCollisionHandlers;
-	static std::unordered_map<::ComponentId, ::Components::Shockwave> shockwaves;
-	static std::unordered_map<::ComponentId, ::Components::Light> lights;
-	static std::unordered_map<::ComponentId, ::Components::Functor> frameSetups;
-	static std::unordered_map<::ComponentId, ::Components::Functor> frameTeardowns;
-}
-
 namespace Globals
 {
-	namespace Components
+	static std::unique_ptr<::ComponentIdGenerator> componentIdGenerator;
+	static std::unique_ptr<class Systems> systems;
+	static std::unique_ptr<class Components> components;
+
+
+	::Components::MouseState& Components::mouseState()
 	{
-		::Components::MouseState& mouseState = ::Components::mouseState;
-		::Components::ScreenInfo& screenInfo = ::Components::screenInfo;
-		::Components::MVP& mvp = ::Components::mvp;
-		::Components::Physics& physics = ::Components::physics;
-		::Components::Camera& camera = ::Components::camera;
-		::Components::GraphicsSettings& graphicsSettings = ::Components::graphicsSettings;
-		::Components::Framebuffers& framebuffers = ::Components::framebuffers;
-
-		std::vector<::Components::TextureDef>& texturesDef = ::Components::texturesDef;
-		std::vector<::Components::Texture>& textures = ::Components::textures;
-		std::vector<::Components::Player>& players = ::Components::players;
-		std::vector<::Components::Wall>& staticWalls = ::Components::staticWalls;
-		std::vector<::Components::Wall>& dynamicWalls = ::Components::dynamicWalls;
-		std::vector<::Components::Grapple>& grapples = ::Components::grapples;
-		std::vector<::Components::Decoration>& backgroundDecorations = ::Components::backgroundDecorations;
-		std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryBackgroundDecorations = ::Components::temporaryBackgroundDecorations;
-		std::vector<::Components::Decoration>& farMidgroundDecorations = ::Components::farMidgroundDecorations;
-		std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryFarMidgroundDecorations = ::Components::temporaryFarMidgroundDecorations;
-		std::vector<::Components::Decoration>& midgroundDecorations = ::Components::midgroundDecorations;
-		std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryMidgroundDecorations = ::Components::temporaryMidgroundDecorations;
-		std::vector<::Components::Decoration>& nearMidgroundDecorations = ::Components::nearMidgroundDecorations;
-		std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryNearMidgroundDecorations = ::Components::temporaryNearMidgroundDecorations;
-		std::vector<::Components::Decoration>& foregroundDecorations = ::Components::foregroundDecorations;
-		std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryForegroundDecorations = ::Components::temporaryForegroundDecorations;
-		std::unordered_map<::ComponentId, ::Components::Missile>& missiles = ::Components::missiles;
-		std::unordered_map<::ComponentId, ::Components::CollisionHandler>& beginCollisionHandlers = ::Components::beginCollisionHandlers;
-		std::unordered_map<::ComponentId, ::Components::CollisionHandler>& endCollisionHandlers = ::Components::endCollisionHandlers;
-		std::unordered_map<::ComponentId, ::Components::Shockwave>& shockwaves = ::Components::shockwaves;
-		std::unordered_map<::ComponentId, ::Components::Light>& lights = ::Components::lights;
-		std::unordered_map<::ComponentId, ::Components::Functor>& frameSetups = ::Components::frameSetups;
-		std::unordered_map<::ComponentId, ::Components::Functor>& frameTeardowns = ::Components::frameTeardowns;
-
-		void Reset()
-		{
-			ComponentIdGenerator::reset();
-
-			mouseState = ::Components::MouseState();
-			screenInfo = ::Components::ScreenInfo();
-			mvp = ::Components::MVP();
-			physics = ::Components::Physics();
-			camera = ::Components::Camera();
-			graphicsSettings = ::Components::GraphicsSettings();
-			framebuffers = ::Components::Framebuffers();
-
-			texturesDef.clear();
-			textures.clear();
-			players.clear();
-			staticWalls.clear();
-			dynamicWalls.clear();
-			grapples.clear();
-			backgroundDecorations.clear();
-			temporaryBackgroundDecorations.clear();
-			farMidgroundDecorations.clear();
-			temporaryFarMidgroundDecorations.clear();
-			midgroundDecorations.clear();
-			temporaryMidgroundDecorations.clear();
-			nearMidgroundDecorations.clear();
-			temporaryNearMidgroundDecorations.clear();
-			foregroundDecorations.clear();
-			temporaryForegroundDecorations.clear();
-			missiles.clear();
-			beginCollisionHandlers.clear();
-			endCollisionHandlers.clear();
-			shockwaves.clear();
-			lights.clear();
-			frameSetups.clear();
-			frameTeardowns.clear();
-		}
+		return *mouseState_;
 	}
 
-	namespace Systems
+	::Components::ScreenInfo& Components::screenInfo()
 	{
-		std::unique_ptr<::Systems::StateController> stateController;
-		std::unique_ptr<::Systems::Physics> physics;
-		std::unique_ptr<::Systems::Textures> textures;
-		std::unique_ptr<::Systems::Players> players;
-		std::unique_ptr<::Systems::Walls> walls;
-		std::unique_ptr<::Systems::Camera> camera;
-		std::unique_ptr<::Systems::Decorations> decorations;
-		std::unique_ptr<::Systems::Temporaries> temporaries;
-		std::unique_ptr<::Systems::Cleaner> cleaner;
-		std::unique_ptr<::Systems::DeferredActions> deferredActions;
-		std::unique_ptr<::Systems::RenderingController> renderingController;
+		return *screenInfo_;
+	}
 
-		void Initialize()
-		{
-			stateController = std::make_unique<::Systems::StateController>();
-			physics = std::make_unique<::Systems::Physics>();
-			textures = std::make_unique<::Systems::Textures>();
-			players = std::make_unique<::Systems::Players>();
-			walls = std::make_unique<::Systems::Walls>();
-			camera = std::make_unique<::Systems::Camera>();
-			decorations = std::make_unique<::Systems::Decorations>();
-			temporaries = std::make_unique<::Systems::Temporaries>();
-			cleaner = std::make_unique<::Systems::Cleaner>();
-			deferredActions = std::make_unique<::Systems::DeferredActions>();
-			renderingController = std::make_unique<::Systems::RenderingController>();
-		}
+	::Components::MVP& Components::mvp()
+	{
+		return *mvp_;
+	}
 
-		::Systems::StateController& StateController()
-		{
-			return *stateController;
-		}
+	::Components::Physics& Components::physics()
+	{
+		return *physics_;
+	}
 
-		::Systems::Physics& Physics()
-		{
-			return *physics;
-		}
+	::Components::Camera& Components::camera()
+	{
+		return *camera_;
+	}
 
-		::Systems::Textures& Textures()
-		{
-			return *textures;
-		}
+	::Components::GraphicsSettings& Components::graphicsSettings()
+	{
+		return *graphicsSettings_;
+	}
 
-		::Systems::Players& Players()
-		{
-			return *players;
-		}
+	::Components::Framebuffers& Components::framebuffers()
+	{
+		return *framebuffers_;
+	}
 
-		::Systems::Walls& Walls()
-		{
-			return *walls;
-		}
 
-		::Systems::Camera& Camera()
-		{
-			return *camera;
-		}
+	std::vector<::Components::TextureDef>& Components::texturesDef()
+	{
+		return texturesDef_;
+	}
 
-		::Systems::Decorations& Decorations()
-		{
-			return *decorations;
-		}
+	std::vector<::Components::Texture>& Components::textures()
+	{
+		return textures_;
+	}
 
-		::Systems::Temporaries& Temporaries()
-		{
-			return *temporaries;
-		}
+	std::vector<::Components::Player>& Components::players()
+	{
+		return players_;
+	}
 
-		::Systems::Cleaner& Cleaner()
-		{
-			return *cleaner;
-		}
+	std::vector<::Components::Wall>& Components::staticWalls()
+	{
+		return staticWalls_;
+	}
 
-		::Systems::DeferredActions& DeferredActions()
-		{
-			return *deferredActions;
-		}
+	std::vector<::Components::Wall>& Components::dynamicWalls()
+	{
+		return dynamicWalls_;
+	}
 
-		::Systems::RenderingController& RenderingController()
-		{
-			return *renderingController;
-		}
+	std::vector<::Components::Grapple>& Components::grapples()
+	{
+		return grapples_;
+	}
+
+	std::vector<::Components::Decoration>& Components::backgroundDecorations()
+	{
+		return backgroundDecorations_;
+	}
+
+	std::unordered_map<::ComponentId, ::Components::Decoration>& Components::temporaryBackgroundDecorations()
+	{
+		return temporaryBackgroundDecorations_;
+	}
+
+	std::vector<::Components::Decoration>& Components::farMidgroundDecorations()
+	{
+		return farMidgroundDecorations_;
+	}
+
+	std::unordered_map<::ComponentId, ::Components::Decoration>& Components::temporaryFarMidgroundDecorations()
+	{
+		return temporaryFarMidgroundDecorations_;
+	}
+
+	std::vector<::Components::Decoration>& Components::midgroundDecorations()
+	{
+		return midgroundDecorations_;
+	}
+
+	std::unordered_map<::ComponentId, ::Components::Decoration>& Components::temporaryMidgroundDecorations()
+	{
+		return temporaryMidgroundDecorations_;
+	}
+
+	std::vector<::Components::Decoration>& Components::nearMidgroundDecorations()
+	{
+		return nearMidgroundDecorations_;
+	}
+
+	std::unordered_map<::ComponentId, ::Components::Decoration>& Components::temporaryNearMidgroundDecorations()
+	{
+		return temporaryNearMidgroundDecorations_;
+	}
+
+	std::vector<::Components::Decoration>& Components::foregroundDecorations()
+	{
+		return foregroundDecorations_;
+	}
+
+	std::unordered_map<::ComponentId, ::Components::Decoration>& Components::temporaryForegroundDecorations()
+	{
+		return temporaryForegroundDecorations_;
+	}
+
+	std::unordered_map<::ComponentId, ::Components::Missile>& Components::missiles()
+	{
+		return missiles_;
+	}
+
+	std::unordered_map<::ComponentId, ::Components::CollisionHandler>& Components::beginCollisionHandlers()
+	{
+		return beginCollisionHandlers_;
+	}
+
+	std::unordered_map<::ComponentId, ::Components::CollisionHandler>& Components::endCollisionHandlers()
+	{
+		return endCollisionHandlers_;
+	}
+
+	std::unordered_map<::ComponentId, ::Components::Shockwave>& Components::shockwaves()
+	{
+		return shockwaves_;
+	}
+
+	std::unordered_map<::ComponentId, ::Components::Light>& Components::lights()
+	{
+		return lights_;
+	}
+
+	std::unordered_map<::ComponentId, ::Components::Functor>& Components::frameSetups()
+	{
+		return frameSetups_;
+	}
+
+	std::unordered_map<::ComponentId, ::Components::Functor>& Components::frameTeardowns()
+	{
+		return frameTeardowns_;
+	}
+
+
+	::Systems::StateController& Systems::stateController()
+	{
+		return *stateController_;
+	}
+
+	::Systems::Physics& Systems::physics()
+	{
+		return *physics_;
+	}
+
+	::Systems::Textures& Systems::textures()
+	{
+		return *textures_;
+	}
+
+	::Systems::Players& Systems::players()
+	{
+		return *players_;
+	}
+
+	::Systems::Walls& Systems::walls()
+	{
+		return *walls_;
+	}
+
+	::Systems::Camera& Systems::camera()
+	{
+		return *camera_;
+	}
+
+	::Systems::Decorations& Systems::decorations()
+	{
+		return *decorations_;
+	}
+
+	::Systems::Temporaries& Systems::temporaries()
+	{
+		return *temporaries_;
+	}
+
+	::Systems::Cleaner& Systems::cleaner()
+	{
+		return *cleaner_;
+	}
+
+	::Systems::DeferredActions& Systems::deferredActions()
+	{
+		return *deferredActions_;
+	}
+
+	::Systems::RenderingController& Systems::renderingController()
+	{
+		return *renderingController_;
+	}
+
+
+	void InitializeComponents()
+	{
+		componentIdGenerator = std::make_unique<::ComponentIdGenerator>();
+		components = std::make_unique<class Components>();
+	}
+
+	void InitializeSystems()
+	{
+		systems = std::make_unique<class Systems>();
+	}
+
+	::ComponentIdGenerator& ComponentIdGenerator()
+	{
+		return *componentIdGenerator;
+	}
+
+	class Components& Components()
+	{
+		return *components;
+	}
+
+	class Systems& Systems()
+	{
+		return *systems;
 	}
 }

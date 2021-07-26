@@ -8,14 +8,8 @@ template <typename Id, Id firstId = 0>
 class IdGenerator
 {
 public:
-	static IdGenerator& instance()
+	IdGenerator()
 	{
-		return instance_;
-	}
-
-	static void reset()
-	{
-		instance_ = IdGenerator<Id, firstId>();
 	}
 
 	Id acquire()
@@ -52,10 +46,6 @@ public:
 	}
 
 private:
-	IdGenerator() = default;
-
-	static IdGenerator<Id, firstId> instance_;
-
 	Id counter = firstId;
 	std::vector<Id> releasedIds;
 };

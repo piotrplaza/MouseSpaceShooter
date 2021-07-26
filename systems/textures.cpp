@@ -22,18 +22,16 @@ namespace Systems
 {
 	Textures::Textures()
 	{
-		using namespace Globals::Components;
-
 		stbi_set_flip_vertically_on_load(true);
 
 		static_assert(maxTextureObjects <= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-		assert(texturesDef.size() <= maxTextureObjects);
+		assert(Globals::Components().texturesDef().size() <= maxTextureObjects);
 		
-		textures = std::vector<Components::Texture>(texturesDef.size() + Globals::Components::framebuffers.instances);
-		for (unsigned i = 0; i < texturesDef.size(); ++i)
+		Globals::Components().textures() = std::vector<Components::Texture>(Globals::Components().texturesDef().size() + Globals::Components().framebuffers().instances);
+		for (unsigned i = 0; i < Globals::Components().texturesDef().size(); ++i)
 		{
-			auto& textureDef = texturesDef[i];
-			auto& texture = textures[i];
+			auto& textureDef = Globals::Components().texturesDef()[i];
+			auto& texture = Globals::Components().textures()[i];
 			texture.textureUnit = GL_TEXTURE0 + i;
 			loadAndConfigureTexture(textureDef, texture);
 		}
@@ -82,13 +80,13 @@ namespace Systems
 
 	void Textures::createLowResFramebuffersTextures() const
 	{
-		using namespace Globals::Components;
+		auto& framebuffers = Globals::Components().framebuffers();
 
 		auto createLowResFramebufferTexture = [counter = 1](Components::Framebuffers::SubBuffers& subBuffers,
 			GLint textureMagFilter) mutable
 		{
-			subBuffers.textureUnit = GL_TEXTURE0 + textures.size() - counter;
-			std::prev(textures.end(), counter)->textureUnit = subBuffers.textureUnit;
+			subBuffers.textureUnit = GL_TEXTURE0 + Globals::Components().textures().size() - counter;
+			std::prev(Globals::Components().textures().end(), counter)->textureUnit = subBuffers.textureUnit;
 			glActiveTexture(subBuffers.textureUnit);
 			glGenTextures(1, &subBuffers.textureObject);
 			glBindTexture(GL_TEXTURE_2D, subBuffers.textureObject);
