@@ -22,6 +22,7 @@
 #include "components/light.hpp"
 #include "components/framebuffers.hpp"
 #include "components/functor.hpp"
+#include "components/mainFramebufferRenderer.hpp"
 
 #include "systems/stateController.hpp"
 #include "systems/physics.hpp"
@@ -75,6 +76,11 @@ namespace Globals
 	::Components::Framebuffers& Components::framebuffers()
 	{
 		return *framebuffers_;
+	}
+
+	::Components::MainFramebufferRenderer& Components::mainFramebufferRenderer()
+	{
+		return *mainFramebufferRenderer_;
 	}
 
 

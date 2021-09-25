@@ -26,6 +26,7 @@ namespace Components
 	struct Light;
 	struct Framebuffers;
 	struct Functor;
+	struct MainFramebufferRenderer;
 }
 
 namespace Systems
@@ -55,6 +56,7 @@ namespace Globals
 		::Components::Camera& camera();
 		::Components::GraphicsSettings& graphicsSettings();
 		::Components::Framebuffers& framebuffers();
+		::Components::MainFramebufferRenderer& mainFramebufferRenderer();
 
 		std::vector<::Components::TextureDef>& texturesDef();
 		std::vector<::Components::Texture>& textures();
@@ -88,6 +90,7 @@ namespace Globals
 		std::unique_ptr<::Components::Camera> camera_ = std::make_unique<::Components::Camera>();
 		std::unique_ptr<::Components::GraphicsSettings> graphicsSettings_ = std::make_unique<::Components::GraphicsSettings>();
 		std::unique_ptr<::Components::Framebuffers> framebuffers_ = std::make_unique<::Components::Framebuffers>();
+		std::unique_ptr<::Components::MainFramebufferRenderer> mainFramebufferRenderer_ = std::make_unique<::Components::MainFramebufferRenderer>();
 
 		std::vector<::Components::TextureDef> texturesDef_;
 		std::vector<::Components::Texture> textures_;

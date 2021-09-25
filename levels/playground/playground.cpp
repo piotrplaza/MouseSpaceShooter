@@ -115,10 +115,10 @@ namespace Levels
 
 		void createForeground() const
 		{
-			Tools::CreateFogForeground(2, 0.03f, fogTexture, [&, fogAlphaFactor = 1.0f, fogTargetAlphaFactor = 1.0f]() mutable {
+			Tools::CreateFogForeground(2, 0.02f, fogTexture, [&, fogAlphaFactor = 1.0f, fogTargetAlphaFactor = 1.0f]() mutable {
 				if (explosionFrame)
 				{
-					const float maxAlphaFactor = 3.0f;
+					const float maxAlphaFactor = 1.5f;
 					fogTargetAlphaFactor = fogTargetAlphaFactor < maxAlphaFactor
 						? fogTargetAlphaFactor + Globals::Components().physics().frameDuration * 10.0f
 						: maxAlphaFactor;
