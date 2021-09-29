@@ -5,6 +5,9 @@
 #include <ogl/renderingHelpers.hpp>
 #include <ogl/oglHelpers.hpp>
 
+#include <ogl/shaders/basic.hpp>
+#include <ogl/shaders/textured.hpp>
+
 #include <globals.hpp>
 
 #include <components/decoration.hpp>
@@ -22,9 +25,6 @@ namespace Systems
 
 	void Decorations::initGraphics()
 	{
-		basicShadersProgram = std::make_unique<Shaders::Programs::Basic>();
-		texturedShadersProgram = std::make_unique<Shaders::Programs::Textured>();
-
 		updatePersistentPositionsBuffers();
 		updatePersistentTexCoordsBuffers();
 	}
@@ -125,7 +125,7 @@ namespace Systems
 	void Decorations::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
 		const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const
 	{
-		TexturesFramebuffersRenderer texturesFramebuffersRenderer(*texturedShadersProgram);
+		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
 		auto render = [&](const auto& buffers)
 		{
@@ -160,10 +160,10 @@ namespace Systems
 	void Decorations::texturedRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
 		const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const
 	{
-		glUseProgram_proxy(texturedShadersProgram->getProgramId());
-		texturedShadersProgram->vpUniform.setValue(Globals::Components().mvp().getVP());
+		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
+		Globals::Shaders().textured().vpUniform.setValue(Globals::Components().mvp().getVP());
 
-		TexturesFramebuffersRenderer texturesFramebuffersRenderer(*texturedShadersProgram);
+		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
 		auto render = [&](const auto& buffers)
 		{
@@ -173,10 +173,10 @@ namespace Systems
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
-			texturedShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
-			texturedShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
+			Globals::Shaders().textured().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
+			Globals::Shaders().textured().modelUniform.setValue(glm::mat4(1.0f));
 
-			Tools::TexturedRender(*texturedShadersProgram, buffers, *buffers.texture);
+			Tools::TexturedRender(Globals::Shaders().textured(), buffers, *buffers.texture);
 		};
 
 		for (const auto& buffers : persistentBuffers)
@@ -189,10 +189,10 @@ namespace Systems
 	void Decorations::basicRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
 		const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const
 	{
-		glUseProgram_proxy(basicShadersProgram->getProgramId());
-		basicShadersProgram->vpUniform.setValue(Globals::Components().mvp().getVP());
+		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
+		Globals::Shaders().basic().vpUniform.setValue(Globals::Components().mvp().getVP());
 
-		TexturesFramebuffersRenderer texturesFramebuffersRenderer(*texturedShadersProgram);
+		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
 		auto render = [&](const auto& buffers)
 		{
@@ -202,12 +202,12 @@ namespace Systems
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
-			basicShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
-			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
+			Globals::Shaders().basic().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
+			Globals::Shaders().basic().modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown;
 			if (buffers.renderingSetup)
-				renderingTeardown = (*buffers.renderingSetup)(basicShadersProgram->getProgramId());
+				renderingTeardown = (*buffers.renderingSetup)(Globals::Shaders().basic().getProgramId());
 
 			glBindVertexArray(buffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, buffers.positionsCache.size());

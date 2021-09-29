@@ -66,6 +66,7 @@ void Initialize()
 	Tools::RandomInit();
 	OGLInitialize();
 
+	Globals::InitializeShaders();
 	Globals::InitializeComponents();
 	CreateLevel();
 	Globals::InitializeSystems();

@@ -12,6 +12,10 @@
 #include <ogl/buffersHelpers.hpp>
 #include <ogl/renderingHelpers.hpp>
 
+#include <ogl/shaders/basic.hpp>
+#include <ogl/shaders/textured.hpp>
+#include <ogl/shaders/colored.hpp>
+
 #include <tools/b2Helpers.hpp>
 #include <tools/graphicsHelpers.hpp>
 
@@ -41,10 +45,6 @@ namespace Systems
 
 	void Players::initGraphics()
 	{
-		basicShadersProgram = std::make_unique<Shaders::Programs::Basic>();
-		texturedShadersProgram = std::make_unique<Shaders::Programs::Textured>();
-		coloredShadersProgram = std::make_unique<Shaders::Programs::Colored>();
-
 		simplePlayersBuffers = std::make_unique<Buffers::PosTexCoordBuffers>();
 		connectionsBuffers = std::make_unique<ConnectionsBuffers>();
 
@@ -133,21 +133,21 @@ namespace Systems
 
 	void Players::basicRender() const
 	{
-		glUseProgram_proxy(basicShadersProgram->getProgramId());
-		basicShadersProgram->vpUniform.setValue(Globals::Components().mvp().getVP());
-		basicShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
-		basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
+		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
+		Globals::Shaders().basic().vpUniform.setValue(Globals::Components().mvp().getVP());
+		Globals::Shaders().basic().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
+		Globals::Shaders().basic().modelUniform.setValue(glm::mat4(1.0f));
 
 		glBindVertexArray(simplePlayersBuffers->positionBuffer);
 		glDrawArrays(GL_TRIANGLES, 0, simplePlayersBuffers->positionsCache.size());
 
 		for (const auto& customSimplePlayerBuffers : customSimplePlayersBuffers)
 		{
-			basicShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
-			basicShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
+			Globals::Shaders().basic().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
+			Globals::Shaders().basic().modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				(*customSimplePlayerBuffers.renderingSetup)(basicShadersProgram->getProgramId());
+				(*customSimplePlayerBuffers.renderingSetup)(Globals::Shaders().basic().getProgramId());
 
 			glBindVertexArray(customSimplePlayerBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimplePlayerBuffers.positionsCache.size());
@@ -159,21 +159,21 @@ namespace Systems
 
 	void Players::sceneCoordTexturedRender() const
 	{
-		glUseProgram_proxy(texturedShadersProgram->getProgramId());
-		texturedShadersProgram->vpUniform.setValue(Globals::Components().mvp().getVP());
+		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
+		Globals::Shaders().textured().vpUniform.setValue(Globals::Components().mvp().getVP());
 
 		for (const auto& [texture, texturedPlayerBuffers] : texturesToPlayersBuffers)
 		{
-			texturedShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
-			texturedShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
-			Tools::TexturedRender(*texturedShadersProgram, texturedPlayerBuffers, texture);
+			Globals::Shaders().textured().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
+			Globals::Shaders().textured().modelUniform.setValue(glm::mat4(1.0f));
+			Tools::TexturedRender(Globals::Shaders().textured(), texturedPlayerBuffers, texture);
 		}
 
 		for (const auto& customTexturedPlayerBuffers : customTexturedPlayersBuffers)
 		{
-			texturedShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
-			texturedShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
-			Tools::TexturedRender(*texturedShadersProgram, customTexturedPlayerBuffers,
+			Globals::Shaders().textured().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
+			Globals::Shaders().textured().modelUniform.setValue(glm::mat4(1.0f));
+			Tools::TexturedRender(Globals::Shaders().textured(), customTexturedPlayerBuffers,
 				*customTexturedPlayerBuffers.texture);
 		}
 	}
@@ -198,10 +198,10 @@ namespace Systems
 
 	void Players::coloredRender() const
 	{
-		glUseProgram_proxy(coloredShadersProgram->getProgramId());
-		coloredShadersProgram->vpUniform.setValue(Globals::Components().mvp().getVP());
-		coloredShadersProgram->colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
-		coloredShadersProgram->modelUniform.setValue(glm::mat4(1.0f));
+		glUseProgram_proxy(Globals::Shaders().colored().getProgramId());
+		Globals::Shaders().colored().vpUniform.setValue(Globals::Components().mvp().getVP());
+		Globals::Shaders().colored().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
+		Globals::Shaders().colored().modelUniform.setValue(glm::mat4(1.0f));
 		glBindVertexArray(connectionsBuffers->vertexArray);
 		glDrawArrays(GL_LINES, 0, connectionsBuffers->positionsCache.size());
 	}

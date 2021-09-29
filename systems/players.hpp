@@ -10,10 +10,6 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
-#include <ogl/shaders.hpp>
-#include <ogl/shaders/basic.hpp>
-#include <ogl/shaders/textured.hpp>
-#include <ogl/shaders/colored.hpp>
 #include <ogl/buffers/posTexCoordBuffers.hpp>
 
 namespace Components
@@ -83,10 +79,6 @@ namespace Systems
 		void coloredRender() const;
 
 		Components::Player& player; //Temporary.
-
-		std::unique_ptr<Shaders::Programs::Basic> basicShadersProgram;
-		std::unique_ptr<Shaders::Programs::Textured> texturedShadersProgram;
-		std::unique_ptr<Shaders::Programs::Colored> coloredShadersProgram;
 
 		std::unique_ptr<Buffers::PosTexCoordBuffers> simplePlayersBuffers;
 		std::unordered_map<unsigned, Buffers::PosTexCoordBuffers> texturesToPlayersBuffers;

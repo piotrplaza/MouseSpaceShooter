@@ -23,6 +23,7 @@
 #include <components/collisionHandler.hpp>
 #include <components/shockwave.hpp>
 #include <components/functor.hpp>
+#include <components/mainFramebufferRenderer.hpp>
 
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/basic.hpp>

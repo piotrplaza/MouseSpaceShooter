@@ -4,8 +4,6 @@
 #include <vector>
 #include <unordered_map>
 
-#include <ogl/shaders/basic.hpp>
-#include <ogl/shaders/textured.hpp>
 #include <ogl/buffers/posTexCoordBuffers.hpp>
 
 #include <componentId.hpp>
@@ -38,9 +36,6 @@ namespace Systems
 			const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const;
 		void basicRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
 			const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const;
-
-		std::unique_ptr<Shaders::Programs::Basic> basicShadersProgram;
-		std::unique_ptr<Shaders::Programs::Textured> texturedShadersProgram;
 
 		template <typename BufferType>
 		struct DecorationBuffers

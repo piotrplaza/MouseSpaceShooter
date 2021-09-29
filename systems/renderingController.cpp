@@ -14,6 +14,8 @@
 
 #include <ogl/renderingHelpers.hpp>
 
+#include <ogl/shaders/textured.hpp>
+
 namespace Systems
 {
 	RenderingController::RenderingController()
@@ -23,8 +25,7 @@ namespace Systems
 
 	void RenderingController::initGraphics()
 	{
-		texturedShadersProgram = std::make_unique<Shaders::Programs::Textured>();
-		Globals::Components().mainFramebufferRenderer().renderer = Tools::StandardFullscreenRenderer(*texturedShadersProgram);
+		Globals::Components().mainFramebufferRenderer().renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured());
 	}
 
 	void RenderingController::render()

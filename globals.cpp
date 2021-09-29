@@ -4,6 +4,14 @@
 #include <vector>
 #include <unordered_map>
 
+#include "ogl/shaders/basic.hpp"
+#include "ogl/shaders/colored.hpp"
+#include "ogl/shaders/julia.hpp"
+#include "ogl/shaders/particles.hpp"
+#include "ogl/shaders/sceneCoordTextured.hpp"
+#include "ogl/shaders/textured.hpp"
+#include "ogl/shaders/texturedColorThreshold.hpp"
+
 #include "components/mouseState.hpp"
 #include "components/screenInfo.hpp"
 #include "components/mvp.hpp"
@@ -38,9 +46,46 @@
 
 namespace Globals
 {
+	static std::unique_ptr<class Shaders> shaders;
 	static std::unique_ptr<::ComponentIdGenerator> componentIdGenerator;
 	static std::unique_ptr<class Systems> systems;
 	static std::unique_ptr<class Components> components;
+
+
+	::Shaders::Programs::Basic& Shaders::basic()
+	{
+		return *basic_;
+	}
+
+	::Shaders::Programs::Colored& Shaders::colored()
+	{
+		return *colored_;
+	}
+
+	::Shaders::Programs::Julia& Shaders::julia()
+	{
+		return *julia_;
+	}
+
+	::Shaders::Programs::Particles& Shaders::particles()
+	{
+		return *particles_;
+	}
+
+	::Shaders::Programs::SceneCoordTextured& Shaders::sceneCoordTextured()
+	{
+		return *sceneCoordTextured_;
+	}
+
+	::Shaders::Programs::Textured& Shaders::textured()
+	{
+		return *textured_;
+	}
+
+	::Shaders::Programs::TexturedColorThreshold& Shaders::texturedColorThreshold()
+	{
+		return *texturedColorThreshold_;
+	}
 
 
 	::Components::MouseState& Components::mouseState()
@@ -256,6 +301,11 @@ namespace Globals
 	}
 
 
+	void InitializeShaders()
+	{
+		shaders = std::make_unique<class Shaders>();
+	}
+
 	void InitializeComponents()
 	{
 		componentIdGenerator = std::make_unique<::ComponentIdGenerator>();
@@ -265,6 +315,12 @@ namespace Globals
 	void InitializeSystems()
 	{
 		systems = std::make_unique<class Systems>();
+	}
+
+
+	class Shaders& Shaders()
+	{
+		return *shaders;
 	}
 
 	::ComponentIdGenerator& ComponentIdGenerator()

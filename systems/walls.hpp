@@ -4,9 +4,6 @@
 #include <vector>
 #include <unordered_map>
 
-#include <ogl/shaders/basic.hpp>
-#include <ogl/shaders/sceneCoordTextured.hpp>
-#include <ogl/shaders/textured.hpp>
 #include <ogl/buffers/posTexCoordBuffers.hpp>
 
 namespace Components
@@ -40,10 +37,6 @@ namespace Systems
 		void sceneCoordTexturedRender() const;
 		void texturedRender() const;
 		void basicRender() const;
-
-		std::unique_ptr<Shaders::Programs::Basic> basicShadersProgram;
-		std::unique_ptr<Shaders::Programs::SceneCoordTextured> sceneCoordTexturedShadersProgram;
-		std::unique_ptr<Shaders::Programs::Textured> texturedShadersProgram;
 
 		std::unique_ptr<Buffers::PosTexCoordBuffers> simpleStaticWallsBuffers;
 		std::unique_ptr<Buffers::PosTexCoordBuffers> simpleDynamicWallsBuffers;
