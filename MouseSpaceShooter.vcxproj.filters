@@ -198,17 +198,11 @@
     <ClInclude Include="components\camera.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
-    <ClInclude Include="components\texture.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="systems\textures.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
     <ClInclude Include="3rdParty\stb_image\stb_image.h">
       <Filter>src\3rdParty\stb_image</Filter>
-    </ClInclude>
-    <ClInclude Include="components\textureDef.hpp">
-      <Filter>src\components</Filter>
     </ClInclude>
     <ClInclude Include="ogl\oglProxy.hpp">
       <Filter>src\ogl</Filter>
@@ -346,6 +340,9 @@
       <Filter>src\components</Filter>
     </ClInclude>
     <ClInclude Include="components\mainFramebufferRenderer.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\texture.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>

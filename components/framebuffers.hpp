@@ -14,31 +14,12 @@ namespace Components
 	{
 		struct SubBuffers
 		{
-			SubBuffers(Framebuffers& lowResBuffers)
-			{
-				++lowResBuffers.instances;
-			}
-
 			unsigned fbo = 0;
 			unsigned textureUnit = 0;
 			unsigned textureObject = 0;
 
 			glm::ivec2 size = { 0, 0 };
 		};
-
-		Framebuffers() :
-			dummy(*this),
-			main(*this),
-			lowerLinearBlend0(*this),
-			lowerLinearBlend1(*this),
-			lowestLinearBlend0(*this),
-			lowestLinearBlend1(*this),
-			pixelArtBlend0(*this),
-			pixelArtBlend1(*this),
-			lowPixelArtBlend0(*this),
-			lowPixelArtBlend1(*this)
-		{
-		}
 
 		const SubBuffers& getSubBuffers(ResolutionMode resolutionMode) const
 		{
@@ -67,8 +48,6 @@ namespace Components
 				return dummy;
 			}
 		}
-
-		int instances = -1;
 
 		SubBuffers dummy;
 		SubBuffers main;

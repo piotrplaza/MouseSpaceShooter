@@ -6,7 +6,7 @@
 
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
-#include <components/textureDef.hpp>
+#include <components/texture.hpp>
 #include <components/player.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
@@ -39,28 +39,28 @@ namespace Levels
 
 		void loadTextures()
 		{
-			auto& texturesDef = Globals::Components().texturesDef();
+			auto& textures = Globals::Components().textures();
 
-			rocketPlaneTexture = texturesDef.size();
-			texturesDef.emplace_back("textures/rocket plane.png");
-			texturesDef.back().translate = glm::vec2(-0.35f, -0.5f);
-			texturesDef.back().scale = glm::vec2(1.7f);
+			rocketPlaneTexture = textures.size();
+			textures.emplace_back("textures/rocket plane.png");
+			textures.back().translate = glm::vec2(-0.35f, -0.5f);
+			textures.back().scale = glm::vec2(1.7f);
 
-			woodTexture = texturesDef.size();
-			texturesDef.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
-			texturesDef.back().scale = glm::vec2(50.0f);
+			woodTexture = textures.size();
+			textures.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
+			textures.back().scale = glm::vec2(50.0f);
 
-			orbTexture = texturesDef.size();
-			texturesDef.emplace_back("textures/orb.png");
-			texturesDef.back().translate = glm::vec2(-0.5f);
-			texturesDef.back().scale = glm::vec2(4.0f);
+			orbTexture = textures.size();
+			textures.emplace_back("textures/orb.png");
+			textures.back().translate = glm::vec2(-0.5f);
+			textures.back().scale = glm::vec2(4.0f);
 
-			playFieldTexture = texturesDef.size();
-			texturesDef.emplace_back("textures/play field.jpg");
+			playFieldTexture = textures.size();
+			textures.emplace_back("textures/play field.jpg");
 
-			flameAnimation1Texture = texturesDef.size();
-			texturesDef.emplace_back("textures/flame animation 1.jpg");
-			texturesDef.back().minFilter = GL_LINEAR;
+			flameAnimation1Texture = textures.size();
+			textures.emplace_back("textures/flame animation 1.jpg");
+			textures.back().minFilter = GL_LINEAR;
 		}
 
 		void createBackground() const

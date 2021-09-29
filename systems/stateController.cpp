@@ -68,7 +68,7 @@ namespace Systems
 			glBindFramebuffer(GL_FRAMEBUFFER, subBuffers.fbo);
 			glBindTexture(GL_TEXTURE_2D, subBuffers.textureObject);
 			subBuffers.size = size;
-			Globals::Components().textures()[subBuffers.textureUnit - GL_TEXTURE0].size = subBuffers.size;
+			Globals::Components().textures()[subBuffers.textureUnit - GL_TEXTURE0].loaded.size = subBuffers.size;
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, subBuffers.size.x, subBuffers.size.y, 0, GL_RGBA, GL_FLOAT, nullptr);
 			assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 		};

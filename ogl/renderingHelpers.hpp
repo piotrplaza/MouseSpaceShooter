@@ -11,7 +11,6 @@
 
 #include <globals.hpp>
 #include <components/texture.hpp>
-#include <components/textureDef.hpp>
 #include <components/mvp.hpp>
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
@@ -34,13 +33,12 @@ namespace Tools
 	inline void StaticTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned texture, bool textureRatioPreserved)
 	{
 		const auto& textureComponent = Globals::Components().textures()[texture];
-		const auto& textureDefComponent = Globals::Components().texturesDef()[texture];
 
 		shadersProgram.texture1Uniform.setValue(texture);
-		shadersProgram.textureTranslateUniform.setValue(textureDefComponent.translate);
+		shadersProgram.textureTranslateUniform.setValue(textureComponent.translate);
 		shadersProgram.textureScaleUniform.setValue(
-			{ (textureRatioPreserved ? (float)textureComponent.size.x / textureComponent.size.y : 1.0f)
-			* textureDefComponent.scale.x, textureDefComponent.scale.y });
+			{ (textureRatioPreserved ? (float)textureComponent.loaded.size.x / textureComponent.loaded.size.y : 1.0f)
+			* textureComponent.scale.x, textureComponent.scale.y });
 	}
 
 	template <typename ShadersProgram, typename AnimationController>
@@ -48,13 +46,11 @@ namespace Tools
 		const AnimationController& animationController)
 	{
 		const auto& textureComponent = Globals::Components().textures()[texture];
-		const auto& textureDefComponent = Globals::Components().texturesDef()[texture];
 
 		shadersProgram.texture1Uniform.setValue(texture);
 		const auto frameTransformation = animationController.getFrameTransformation();
 		shadersProgram.textureTranslateUniform.setValue(frameTransformation.translate);
 		shadersProgram.textureScaleUniform.setValue(frameTransformation.scale);
-
 	}
 
 	template <typename ShadersProgram, typename Buffers>

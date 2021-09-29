@@ -16,7 +16,6 @@
 #include "components/screenInfo.hpp"
 #include "components/mvp.hpp"
 #include "components/physics.hpp"
-#include "components/textureDef.hpp"
 #include "components/texture.hpp"
 #include "components/player.hpp"
 #include "components/wall.hpp"
@@ -128,11 +127,6 @@ namespace Globals
 		return *mainFramebufferRenderer_;
 	}
 
-
-	std::vector<::Components::TextureDef>& Components::texturesDef()
-	{
-		return texturesDef_;
-	}
 
 	std::vector<::Components::Texture>& Components::textures()
 	{

@@ -73,7 +73,6 @@
     <ClInclude Include="components\screenInfo.hpp" />
     <ClInclude Include="components\shockwave.hpp" />
     <ClInclude Include="components\texture.hpp" />
-    <ClInclude Include="components\textureDef.hpp" />
     <ClInclude Include="components\wall.hpp" />
     <ClInclude Include="globals.hpp" />
     <ClInclude Include="idGenerator.hpp" />

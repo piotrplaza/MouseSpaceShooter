@@ -10,7 +10,6 @@
 
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
-#include <components/textureDef.hpp>
 #include <components/player.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
@@ -56,57 +55,57 @@ namespace Levels
 
 		void loadTextures()
 		{
-			auto& texturesDef = Globals::Components().texturesDef();
+			auto& textures = Globals::Components().textures();
 
-			rocketPlaneTexture = texturesDef.size();
-			texturesDef.emplace_back("textures/rocket plane.png");
-			texturesDef.back().translate = glm::vec2(-0.35f, -0.5f);
-			texturesDef.back().scale = glm::vec2(1.7f);
+			rocketPlaneTexture = textures.size();
+			textures.emplace_back("textures/rocket plane.png");
+			textures.back().translate = glm::vec2(-0.35f, -0.5f);
+			textures.back().scale = glm::vec2(1.7f);
 
-			spaceRockTexture = texturesDef.size();
-			texturesDef.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT);
-			texturesDef.back().translate = glm::vec2(-0.35f, -0.5f);
-			texturesDef.back().scale = glm::vec2(20.0f);
+			spaceRockTexture = textures.size();
+			textures.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT);
+			textures.back().translate = glm::vec2(-0.35f, -0.5f);
+			textures.back().scale = glm::vec2(20.0f);
 
-			woodTexture = texturesDef.size();
-			texturesDef.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
-			texturesDef.back().translate = glm::vec2(-0.35f, -0.5f);
-			texturesDef.back().scale = glm::vec2(16.0f);
+			woodTexture = textures.size();
+			textures.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
+			textures.back().translate = glm::vec2(-0.35f, -0.5f);
+			textures.back().scale = glm::vec2(16.0f);
 
-			orbTexture = texturesDef.size();
-			texturesDef.emplace_back("textures/orb.png");
-			texturesDef.back().translate = glm::vec2(-0.5f);
-			texturesDef.back().scale = glm::vec2(4.0f);
+			orbTexture = textures.size();
+			textures.emplace_back("textures/orb.png");
+			textures.back().translate = glm::vec2(-0.5f);
+			textures.back().scale = glm::vec2(4.0f);
 
-			weedTexture = texturesDef.size();
-			texturesDef.emplace_back("textures/weed.png");
-			texturesDef.back().minFilter = GL_LINEAR_MIPMAP_NEAREST;
+			weedTexture = textures.size();
+			textures.emplace_back("textures/weed.png");
+			textures.back().minFilter = GL_LINEAR_MIPMAP_NEAREST;
 
-			roseTexture = texturesDef.size();
-			texturesDef.emplace_back("textures/rose.png");
-			texturesDef.back().minFilter = GL_LINEAR_MIPMAP_NEAREST;
+			roseTexture = textures.size();
+			textures.emplace_back("textures/rose.png");
+			textures.back().minFilter = GL_LINEAR_MIPMAP_NEAREST;
 
-			fogTexture = texturesDef.size();
-			texturesDef.emplace_back("textures/fog.png");
+			fogTexture = textures.size();
+			textures.emplace_back("textures/fog.png");
 
-			flameAnimation1Texture = texturesDef.size();
-			texturesDef.emplace_back("textures/flame animation 1.jpg");
-			texturesDef.back().minFilter = GL_LINEAR;
+			flameAnimation1Texture = textures.size();
+			textures.emplace_back("textures/flame animation 1.jpg");
+			textures.back().minFilter = GL_LINEAR;
 
-			missile1Texture = texturesDef.size();
-			texturesDef.emplace_back("textures/missile1.png");
-			texturesDef.back().minFilter = GL_LINEAR;
-			texturesDef.back().translate = glm::vec2(-0.6f, -0.5f);
-			texturesDef.back().scale = glm::vec2(0.3f, 0.4f);
+			missile1Texture = textures.size();
+			textures.emplace_back("textures/missile1.png");
+			textures.back().minFilter = GL_LINEAR;
+			textures.back().translate = glm::vec2(-0.6f, -0.5f);
+			textures.back().scale = glm::vec2(0.3f, 0.4f);
 
-			missile2Texture = texturesDef.size();
-			texturesDef.emplace_back("textures/missile2.png");
-			texturesDef.back().minFilter = GL_LINEAR;
-			texturesDef.back().translate = glm::vec2(-0.5f, -0.5f);
-			texturesDef.back().scale = glm::vec2(0.4f, 0.45f);
+			missile2Texture = textures.size();
+			textures.emplace_back("textures/missile2.png");
+			textures.back().minFilter = GL_LINEAR;
+			textures.back().translate = glm::vec2(-0.5f, -0.5f);
+			textures.back().scale = glm::vec2(0.4f, 0.45f);
 
-			explosionTexture = texturesDef.size();
-			texturesDef.emplace_back("textures/explosion.png");
+			explosionTexture = textures.size();
+			textures.emplace_back("textures/explosion.png");
 		}
 
 		void createBackground()

@@ -23,7 +23,6 @@ namespace Components
 	struct ScreenInfo;
 	struct MVP;
 	struct Physics;
-	struct TextureDef;
 	struct Texture;
 	struct Player;
 	struct Wall;
@@ -90,7 +89,6 @@ namespace Globals
 		::Components::Framebuffers& framebuffers();
 		::Components::MainFramebufferRenderer& mainFramebufferRenderer();
 
-		std::vector<::Components::TextureDef>& texturesDef();
 		std::vector<::Components::Texture>& textures();
 		std::vector<::Components::Player>& players();
 		std::vector<::Components::Wall>& staticWalls();
@@ -124,7 +122,6 @@ namespace Globals
 		std::unique_ptr<::Components::Framebuffers> framebuffers_ = std::make_unique<::Components::Framebuffers>();
 		std::unique_ptr<::Components::MainFramebufferRenderer> mainFramebufferRenderer_ = std::make_unique<::Components::MainFramebufferRenderer>();
 
-		std::vector<::Components::TextureDef> texturesDef_;
 		std::vector<::Components::Texture> textures_;
 		std::vector<::Components::Player> players_;
 		std::vector<::Components::Wall> staticWalls_;

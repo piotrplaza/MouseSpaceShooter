@@ -34,6 +34,5 @@ struct ComponentBase
 	ComponentState state = ComponentState::Changed;
 
 private:
-	
 	ComponentId componentId = Globals::ComponentIdGenerator().acquire();
 };

@@ -6,7 +6,7 @@
 
 namespace Components
 {
-	struct TextureDef;
+	struct Texture;
 	struct Texture;
 }
 
@@ -25,7 +25,7 @@ namespace Systems
 			int bitDepth = 0;
 		};
 
-		void loadAndConfigureTexture(const Components::TextureDef& textureDef, Components::Texture& texture);
+		void loadAndConfigureTexture(Components::Texture& texture);
 		void createLowResFramebuffersTextures() const;
 
 		std::unordered_map<std::string, TextureCache> pathsToTexturesCache;

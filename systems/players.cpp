@@ -27,7 +27,6 @@
 #include <components/mouseState.hpp>
 #include <components/grapple.hpp>
 #include <components/texture.hpp>
-#include <components/textureDef.hpp>
 #include <components/graphicsSettings.hpp>
 
 namespace
