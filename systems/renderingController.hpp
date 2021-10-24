@@ -7,9 +7,10 @@ namespace Systems
 	public:
 		RenderingController();
 
-		void render();
+		void initializationFinalize() const;
+		void render() const;
 
 	private:
-		void initGraphics();
+		void initGraphics() const;
 	};
 }

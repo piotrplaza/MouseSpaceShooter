@@ -18,17 +18,14 @@
 
 namespace Systems
 {
-	RenderingController::RenderingController()
+	RenderingController::RenderingController() = default;
+
+	void RenderingController::initializationFinalize() const
 	{
 		initGraphics();
 	}
 
-	void RenderingController::initGraphics()
-	{
-		Globals::Components().mainFramebufferRenderer().renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured());
-	}
-
-	void RenderingController::render()
+	void RenderingController::render() const
 	{
 		const auto& screenInfo = Globals::Components().screenInfo();
 		auto& framebuffers = Globals::Components().framebuffers();
@@ -54,5 +51,10 @@ namespace Systems
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		Globals::Components().mainFramebufferRenderer().renderer(framebuffers.main.textureUnit - GL_TEXTURE0);
+	}
+
+	void RenderingController::initGraphics() const
+	{
+		Globals::Components().mainFramebufferRenderer().renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured());
 	}
 }

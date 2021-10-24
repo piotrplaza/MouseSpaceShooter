@@ -15,7 +15,9 @@ namespace Systems
 	public:
 		Decorations();
 
+		void initializationFinalize();
 		void step();
+
 		void renderBackground() const;
 		void renderFarMidground() const;
 		void renderMidground() const;

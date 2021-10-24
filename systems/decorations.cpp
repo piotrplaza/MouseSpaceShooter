@@ -18,57 +18,11 @@
 
 namespace Systems
 {
-	Decorations::Decorations()
+	Decorations::Decorations() = default;
+
+	void Decorations::initializationFinalize()
 	{
 		initGraphics();
-	}
-
-	void Decorations::initGraphics()
-	{
-		updatePersistentPositionsBuffers();
-		updatePersistentTexCoordsBuffers();
-	}
-
-	void Decorations::updatePersistentPositionsBuffers()
-	{
-		Tools::UpdatePositionsBuffers(Globals::Components().backgroundDecorations(), persistentBuffers.simpleBackgroundDecorations,
-			persistentBuffers.texturedBackgroundDecorations, persistentBuffers.customShadersBackgroundDecorations);
-		Tools::UpdatePositionsBuffers(Globals::Components().farMidgroundDecorations(), persistentBuffers.simpleFarMidgroundDecorations,
-			persistentBuffers.texturedFarMidgroundDecorations, persistentBuffers.customShadersFarMidgroundDecorations);
-		Tools::UpdatePositionsBuffers(Globals::Components().midgroundDecorations(), persistentBuffers.simpleMidgroundDecorations,
-			persistentBuffers.texturedMidgroundDecorations, persistentBuffers.customShadersMidgroundDecorations);
-		Tools::UpdatePositionsBuffers(Globals::Components().nearMidgroundDecorations(), persistentBuffers.simpleNearMidgroundDecorations,
-			persistentBuffers.texturedNearMidgroundDecorations, persistentBuffers.customShadersNearMidgroundDecorations);
-		Tools::UpdatePositionsBuffers(Globals::Components().foregroundDecorations(), persistentBuffers.simpleForegroundDecorations,
-			persistentBuffers.texturedForegroundDecorations, persistentBuffers.customShadersForegroundDecorations);
-	}
-
-	void Decorations::updatePersistentTexCoordsBuffers()
-	{
-		Tools::UpdateTexCoordBuffers(Globals::Components().backgroundDecorations(), persistentBuffers.texturedBackgroundDecorations,
-			persistentBuffers.customShadersBackgroundDecorations);
-		Tools::UpdateTexCoordBuffers(Globals::Components().farMidgroundDecorations(), persistentBuffers.texturedFarMidgroundDecorations,
-			persistentBuffers.customShadersFarMidgroundDecorations);
-		Tools::UpdateTexCoordBuffers(Globals::Components().midgroundDecorations(), persistentBuffers.texturedMidgroundDecorations,
-			persistentBuffers.customShadersMidgroundDecorations);
-		Tools::UpdateTexCoordBuffers(Globals::Components().nearMidgroundDecorations(), persistentBuffers.texturedNearMidgroundDecorations,
-			persistentBuffers.customShadersNearMidgroundDecorations);
-		Tools::UpdateTexCoordBuffers(Globals::Components().foregroundDecorations(), persistentBuffers.texturedForegroundDecorations,
-			persistentBuffers.customShadersForegroundDecorations);
-	}
-
-	void Decorations::updateTemporaryPosAndTexCoordBuffers()
-	{
-		Tools::UpdatePosTexCoordBuffers(Globals::Components().temporaryBackgroundDecorations(), temporaryBuffers.simpleBackgroundDecorations,
-			temporaryBuffers.texturedBackgroundDecorations, temporaryBuffers.customShadersBackgroundDecorations);
-		Tools::UpdatePosTexCoordBuffers(Globals::Components().temporaryFarMidgroundDecorations(), temporaryBuffers.simpleFarMidgroundDecorations,
-			temporaryBuffers.texturedFarMidgroundDecorations, temporaryBuffers.customShadersFarMidgroundDecorations);
-		Tools::UpdatePosTexCoordBuffers(Globals::Components().temporaryMidgroundDecorations(), temporaryBuffers.simpleMidgroundDecorations,
-			temporaryBuffers.texturedMidgroundDecorations, temporaryBuffers.customShadersMidgroundDecorations);
-		Tools::UpdatePosTexCoordBuffers(Globals::Components().temporaryNearMidgroundDecorations(), temporaryBuffers.simpleNearMidgroundDecorations,
-			temporaryBuffers.texturedNearMidgroundDecorations, temporaryBuffers.customShadersNearMidgroundDecorations);
-		Tools::UpdatePosTexCoordBuffers(Globals::Components().temporaryForegroundDecorations(), temporaryBuffers.simpleForegroundDecorations,
-			temporaryBuffers.texturedForegroundDecorations, temporaryBuffers.customShadersForegroundDecorations);
 	}
 
 	void Decorations::step()
@@ -120,6 +74,54 @@ namespace Systems
 		basicRender(persistentBuffers.simpleForegroundDecorations, temporaryBuffers.simpleForegroundDecorations);
 		texturedRender(persistentBuffers.texturedForegroundDecorations, temporaryBuffers.texturedForegroundDecorations);
 		customShadersRender(persistentBuffers.customShadersForegroundDecorations, temporaryBuffers.customShadersForegroundDecorations);
+	}
+
+	void Decorations::initGraphics()
+	{
+		updatePersistentPositionsBuffers();
+		updatePersistentTexCoordsBuffers();
+	}
+
+	void Decorations::updatePersistentPositionsBuffers()
+	{
+		Tools::UpdatePositionsBuffers(Globals::Components().backgroundDecorations(), persistentBuffers.simpleBackgroundDecorations,
+			persistentBuffers.texturedBackgroundDecorations, persistentBuffers.customShadersBackgroundDecorations);
+		Tools::UpdatePositionsBuffers(Globals::Components().farMidgroundDecorations(), persistentBuffers.simpleFarMidgroundDecorations,
+			persistentBuffers.texturedFarMidgroundDecorations, persistentBuffers.customShadersFarMidgroundDecorations);
+		Tools::UpdatePositionsBuffers(Globals::Components().midgroundDecorations(), persistentBuffers.simpleMidgroundDecorations,
+			persistentBuffers.texturedMidgroundDecorations, persistentBuffers.customShadersMidgroundDecorations);
+		Tools::UpdatePositionsBuffers(Globals::Components().nearMidgroundDecorations(), persistentBuffers.simpleNearMidgroundDecorations,
+			persistentBuffers.texturedNearMidgroundDecorations, persistentBuffers.customShadersNearMidgroundDecorations);
+		Tools::UpdatePositionsBuffers(Globals::Components().foregroundDecorations(), persistentBuffers.simpleForegroundDecorations,
+			persistentBuffers.texturedForegroundDecorations, persistentBuffers.customShadersForegroundDecorations);
+	}
+
+	void Decorations::updatePersistentTexCoordsBuffers()
+	{
+		Tools::UpdateTexCoordBuffers(Globals::Components().backgroundDecorations(), persistentBuffers.texturedBackgroundDecorations,
+			persistentBuffers.customShadersBackgroundDecorations);
+		Tools::UpdateTexCoordBuffers(Globals::Components().farMidgroundDecorations(), persistentBuffers.texturedFarMidgroundDecorations,
+			persistentBuffers.customShadersFarMidgroundDecorations);
+		Tools::UpdateTexCoordBuffers(Globals::Components().midgroundDecorations(), persistentBuffers.texturedMidgroundDecorations,
+			persistentBuffers.customShadersMidgroundDecorations);
+		Tools::UpdateTexCoordBuffers(Globals::Components().nearMidgroundDecorations(), persistentBuffers.texturedNearMidgroundDecorations,
+			persistentBuffers.customShadersNearMidgroundDecorations);
+		Tools::UpdateTexCoordBuffers(Globals::Components().foregroundDecorations(), persistentBuffers.texturedForegroundDecorations,
+			persistentBuffers.customShadersForegroundDecorations);
+	}
+
+	void Decorations::updateTemporaryPosAndTexCoordBuffers()
+	{
+		Tools::UpdatePosTexCoordBuffers(Globals::Components().temporaryBackgroundDecorations(), temporaryBuffers.simpleBackgroundDecorations,
+			temporaryBuffers.texturedBackgroundDecorations, temporaryBuffers.customShadersBackgroundDecorations);
+		Tools::UpdatePosTexCoordBuffers(Globals::Components().temporaryFarMidgroundDecorations(), temporaryBuffers.simpleFarMidgroundDecorations,
+			temporaryBuffers.texturedFarMidgroundDecorations, temporaryBuffers.customShadersFarMidgroundDecorations);
+		Tools::UpdatePosTexCoordBuffers(Globals::Components().temporaryMidgroundDecorations(), temporaryBuffers.simpleMidgroundDecorations,
+			temporaryBuffers.texturedMidgroundDecorations, temporaryBuffers.customShadersMidgroundDecorations);
+		Tools::UpdatePosTexCoordBuffers(Globals::Components().temporaryNearMidgroundDecorations(), temporaryBuffers.simpleNearMidgroundDecorations,
+			temporaryBuffers.texturedNearMidgroundDecorations, temporaryBuffers.customShadersNearMidgroundDecorations);
+		Tools::UpdatePosTexCoordBuffers(Globals::Components().temporaryForegroundDecorations(), temporaryBuffers.simpleForegroundDecorations,
+			temporaryBuffers.texturedForegroundDecorations, temporaryBuffers.customShadersForegroundDecorations);
 	}
 
 	void Decorations::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,

@@ -24,6 +24,7 @@ namespace Systems
 	public:
 		Players();
 
+		void initializationFinalize();
 		void step();
 		void render() const;
 
@@ -64,10 +65,10 @@ namespace Systems
 
 		void initGraphics();
 
-		void turn(glm::vec2 controllerDelta) const;
-		void throttle(bool active) const;
-		void magneticHook(bool active);
-		void createGrappleJoint() const;
+		void turn(Components::Player& player, glm::vec2 controllerDelta) const;
+		void throttle(Components::Player& player, bool active) const;
+		void magneticHook(Components::Player& player, bool active);
+		void createGrappleJoint(Components::Player& player) const;
 
 		void updatePlayersPositionsBuffers();
 		void updatePlayersTexCoordBuffers();
@@ -77,8 +78,6 @@ namespace Systems
 		void sceneCoordTexturedRender() const;
 		void customShadersRender() const;
 		void coloredRender() const;
-
-		Components::Player& player; //Temporary.
 
 		std::unique_ptr<Buffers::PosTexCoordBuffers> simplePlayersBuffers;
 		std::unordered_map<unsigned, Buffers::PosTexCoordBuffers> texturesToPlayersBuffers;

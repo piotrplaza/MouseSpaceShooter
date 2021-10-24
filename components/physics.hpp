@@ -14,11 +14,7 @@ namespace Components
 	{
 		Physics()
 		{
-		}
-
-		Physics(glm::vec2 gravity)
-		{
-			world = std::make_unique<b2World>(b2Vec2(gravity.x, gravity.y));
+			world = std::make_unique<b2World>(b2Vec2(0.0f, 0.0f));
 		}
 
 		std::unique_ptr<b2World> world;

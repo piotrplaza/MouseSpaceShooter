@@ -37,9 +37,35 @@ namespace
 
 namespace Systems
 {
-	Players::Players() : player(Globals::Components().players().front())
+	Players::Players() = default;
+
+	void Players::initializationFinalize()
 	{
 		initGraphics();
+	}
+
+	void Players::step()
+	{
+		for (auto& player : Globals::Components().players())
+		{
+			const glm::ivec2 windowSpaceMouseDelta = Globals::Components().mouseState().getMouseDelta();
+			const glm::vec2 mouseDelta = { windowSpaceMouseDelta.x, -windowSpaceMouseDelta.y };
+
+			turn(player, mouseDelta);
+			throttle(player, Globals::Components().mouseState().rmb);
+			magneticHook(player, Globals::Components().mouseState().mmb || Globals::Components().mouseState().xmb1);
+
+			updatePlayersPositionsBuffers();
+			updateConnectionsGraphicsBuffers();
+		}
+	}
+
+	void Players::render() const
+	{
+		basicRender();
+		coloredRender();
+		sceneCoordTexturedRender();
+		customShadersRender();
 	}
 
 	void Players::initGraphics()
@@ -107,27 +133,6 @@ namespace Systems
 		}
 
 		assert(connectionsBuffers->positionsCache.size() == connectionsBuffers->colorsCache.size());
-	}
-
-	void Players::step()
-	{
-		const glm::ivec2 windowSpaceMouseDelta = Globals::Components().mouseState().getMouseDelta();
-		const glm::vec2 mouseDelta = { windowSpaceMouseDelta.x, -windowSpaceMouseDelta.y };
-
-		turn(mouseDelta);
-		throttle(Globals::Components().mouseState().rmb);
-		magneticHook(Globals::Components().mouseState().mmb || Globals::Components().mouseState().xmb1);
-
-		updatePlayersPositionsBuffers();
-		updateConnectionsGraphicsBuffers();
-	}
-
-	void Players::render() const
-	{
-		basicRender();
-		coloredRender();
-		sceneCoordTexturedRender();
-		customShadersRender();
 	}
 
 	void Players::basicRender() const
@@ -205,7 +210,7 @@ namespace Systems
 		glDrawArrays(GL_LINES, 0, connectionsBuffers->positionsCache.size());
 	}
 
-	void Players::turn(glm::vec2 controllerDelta) const
+	void Players::turn(Components::Player& player, glm::vec2 controllerDelta) const
 	{
 		if (glm::length(controllerDelta) > 0)
 		{
@@ -237,7 +242,7 @@ namespace Systems
 		}
 	}
 
-	void Players::throttle(bool active) const
+	void Players::throttle(Components::Player& player, bool active) const
 	{
 		player.throttling = active;
 
@@ -248,7 +253,7 @@ namespace Systems
 			glm::sin(currentAngle)) * playerForwardForce, player.body->GetWorldCenter(), true);
 	}
 
-	void Players::magneticHook(bool active)
+	void Players::magneticHook(Components::Player& player, bool active)
 	{
 		connections.clear();
 
@@ -292,7 +297,7 @@ namespace Systems
 				{
 					player.connectedGrappleId = grappleInRange;
 					player.weakConnectedGrappleId = -1;
-					createGrappleJoint();
+					createGrappleJoint(player);
 				}
 				else if(player.connectedGrappleId != grappleInRange)
 				{
@@ -330,7 +335,7 @@ namespace Systems
 		}
 	}
 
-	void Players::createGrappleJoint() const
+	void Players::createGrappleJoint(Components::Player& player) const
 	{
 		assert(player.connectedGrappleId != -1);
 

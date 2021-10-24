@@ -2,9 +2,7 @@
 
 namespace Systems
 {
-	DeferredActions::DeferredActions()
-	{
-	}
+	DeferredActions::DeferredActions() = default;
 
 	void DeferredActions::addDeferredAction(std::function<bool()> deferredAction)
 	{

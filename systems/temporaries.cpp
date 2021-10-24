@@ -18,6 +18,22 @@ namespace Systems
 {
 	Temporaries::Temporaries() = default;
 
+	void Temporaries::step()
+	{
+		for (auto& [id, missile] : Globals::Components().missiles())
+			if (missile.step)
+				missile.step();
+
+		updatePosAndTexCoordBuffers();
+	}
+
+	void Temporaries::render() const
+	{
+		basicRender(simpleRocketsBuffers);
+		texturedRender(texturedRocketsBuffers);
+		customShadersRender(customShaderRocketsBuffers);
+	}
+
 	void Temporaries::updatePosAndTexCoordBuffers()
 	{
 		Tools::UpdatePosTexCoordBuffers(Globals::Components().missiles(), simpleRocketsBuffers,
@@ -76,21 +92,5 @@ namespace Systems
 			if (renderingTeardown)
 				renderingTeardown();
 		}
-	}
-
-	void Temporaries::step()
-	{
-		for (auto& [id, missile] : Globals::Components().missiles())
-			if (missile.step)
-				missile.step();
-
-		updatePosAndTexCoordBuffers();
-	}
-
-	void Temporaries::render() const
-	{
-		basicRender(simpleRocketsBuffers);
-		texturedRender(texturedRocketsBuffers);
-		customShadersRender(customShaderRocketsBuffers);
 	}
 }

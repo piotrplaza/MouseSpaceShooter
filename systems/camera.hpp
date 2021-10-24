@@ -7,9 +7,7 @@ namespace Systems
 	public:
 		Camera();
 
-		void step();
-
-	private:
-		bool firstStep = true;
+		void initializationFinalize() const;
+		void step() const;
 	};
 }

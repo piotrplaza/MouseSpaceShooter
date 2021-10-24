@@ -16,8 +16,5 @@ namespace Systems
 		void resetMousePosition() const;
 		void handleMousePosition() const;
 		void handleKeyboard(bool const* const keys) const;
-
-	private:
-		void createFramebuffers() const;
 	};
 }

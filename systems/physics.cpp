@@ -7,7 +7,7 @@
 
 namespace
 {
-	constexpr float debugFrameDuration = 1.0f / 160;
+	constexpr float debugFrameDuration = 1.0f / 144;
 
 	class ContactListener : public b2ContactListener
 	{
@@ -33,22 +33,19 @@ namespace
 
 namespace Systems
 {
-	Physics::Physics()
+	Physics::Physics() = default;
+
+	void Physics::initializationFinalize()
 	{
 		Globals::Components().physics().world->SetContactListener(&contactListener);
+#ifndef _DEBUG 
+		startTime = std::chrono::high_resolution_clock::now();
+#endif
 	}
 
 	void Physics::step()
 	{
 		auto& physics = Globals::Components().physics();
-
-		if (firstStep)
-		{
-#ifndef _DEBUG 
-			startTime = std::chrono::high_resolution_clock::now();
-#endif
-			firstStep = false;
-		}
 
 #ifndef _DEBUG 
 		const auto simulationDuration = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - startTime).count() - pauseDuration;

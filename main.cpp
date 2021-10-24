@@ -24,6 +24,7 @@
 #include "systems/cleaner.hpp"
 #include "systems/deferredActions.hpp"
 #include "systems/renderingController.hpp"
+#include "systems/textures.hpp"
 
 #include "levels/level.hpp"
 #include "levels/playground/playground.hpp"
@@ -68,8 +69,16 @@ void Initialize()
 
 	Globals::InitializeShaders();
 	Globals::InitializeComponents();
-	CreateLevel();
 	Globals::InitializeSystems();
+
+	CreateLevel();
+
+	Globals::Systems().textures().initializationFinalize();
+	Globals::Systems().physics().initializationFinalize();
+	Globals::Systems().players().initializationFinalize();
+	Globals::Systems().walls().initializationFinalize();
+	Globals::Systems().decorations().initializationFinalize();
+	Globals::Systems().camera().initializationFinalize();
 	Globals::Systems().stateController().initializationFinalize();
 }
 
@@ -79,7 +88,6 @@ void PrepareFrame()
 
 	Globals::Systems().physics().step();
 	Globals::Systems().deferredActions().step();
-
 	Globals::Systems().players().step();
 	Globals::Systems().temporaries().step();
 	Globals::Systems().walls().step();

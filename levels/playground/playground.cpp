@@ -43,14 +43,10 @@ namespace Levels
 	class Playground::Impl
 	{
 	public:
-		void setPhysicsSettings() const
-		{
-			Globals::Components().physics() = Components::Physics({ 0.0f, 0.0f });
-		}
-
 		void setGraphicsSettings() const
 		{
 			Globals::Components().graphicsSettings().defaultColor = { 0.7f, 0.7f, 0.7f, 1.0f };
+			Globals::Components().mainFramebufferRenderer().renderer = Tools::Demo3DRotatedFullscreenRenderer(Globals::Shaders().textured());
 		}
 
 		void loadTextures()
@@ -161,7 +157,7 @@ namespace Levels
 			wall1.GetFixtureList()->SetRestitution(0.5f);
 			wall2.GetFixtureList()->SetRestitution(0.5f);
 			Tools::PinBodies(wall1, wall2, { 5.0f, 0.0f });
-			Globals::Components().dynamicWalls().back().renderingSetup = Tools::MakeUniqueRenderingSetup([
+			std::prev(Globals::Components().dynamicWalls().end(), 2)->renderingSetup = Tools::MakeUniqueRenderingSetup([
 				textureTranslateUniform = Uniforms::UniformController2f()
 			](Shaders::ProgramId program) mutable {
 				if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2f(program, "textureTranslate");
@@ -169,6 +165,23 @@ namespace Levels
 				textureTranslateUniform.setValue({ glm::cos(simulationDuration * 0.1f), glm::sin(simulationDuration * 0.1f) });
 				return nullptr;
 			});
+
+			for (int i = 1; i <= 2; ++i)
+			{
+				Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 0.4f, 0.4f },
+					{ { -0.5f, -5.0f }, { 0.5f, -5.0f }, { 0.5f, 5.0f }, { -0.5f, 5.0f}, { -0.5f, -5.0f } },
+					{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }), roseTexture);
+				Globals::Components().midgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
+				Globals::Components().midgroundDecorations().back().renderingSetup = Tools::MakeUniqueRenderingSetup([
+					texturedProgram = Shaders::Programs::TexturedAccessor(),
+						wallId = Globals::Components().dynamicWalls().size() - i
+				](Shaders::ProgramId program) mutable {
+						if (!texturedProgram.isValid()) texturedProgram = program;
+						texturedProgram.modelUniform.setValue(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
+						return nullptr;
+					});
+			}
+
 
 			for (const float pos : {-30.0f, 30.0f})
 			{
@@ -224,25 +237,15 @@ namespace Levels
 
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ -levelHSize - bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), spaceRockTexture);
-			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f }, { { -levelHSize, -levelHSize }, { levelHSize, -levelHSize } },
-				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
-			Globals::Components().nearMidgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
-
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ levelHSize + bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), spaceRockTexture);
-			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f }, { { -levelHSize, levelHSize }, { levelHSize, levelHSize } },
-				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
-			Globals::Components().nearMidgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
-
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize - bordersHGauge },
 				{ levelHSize + bordersHGauge * 2, bordersHGauge }), spaceRockTexture);
-			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f }, { { -levelHSize, -levelHSize }, { -levelHSize, levelHSize } },
-				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
-			Globals::Components().nearMidgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
-
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize + bordersHGauge },
 				{ levelHSize + bordersHGauge * 2, bordersHGauge }), spaceRockTexture);
-			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f }, { { levelHSize, -levelHSize }, { levelHSize, levelHSize } },
+
+			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f },
+				{ { -levelHSize, -levelHSize }, { levelHSize, -levelHSize }, { levelHSize, levelHSize }, { -levelHSize, levelHSize }, { -levelHSize, -levelHSize } },
 				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), weedTexture);
 			Globals::Components().nearMidgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
 		}
@@ -371,7 +374,6 @@ namespace Levels
 	Playground::Playground():
 		impl(std::make_unique<Impl>())
 	{
-		impl->setPhysicsSettings();
 		impl->setGraphicsSettings();
 		impl->loadTextures();
 		impl->createBackground();

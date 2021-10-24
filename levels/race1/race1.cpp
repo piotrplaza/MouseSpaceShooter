@@ -30,11 +30,6 @@ namespace Levels
 	class Race1::Impl
 	{
 	public:
-		void setPhysicsSettings() const
-		{
-			Globals::Components().physics() = Components::Physics({ 0.0f, 0.0f });
-		}
-
 		void setGraphicsSettings() const
 		{
 			Globals::Components().graphicsSettings().defaultColor = { 0.7f, 0.7f, 0.7f, 1.0f };
@@ -259,7 +254,6 @@ namespace Levels
 	Race1::Race1():
 		impl(std::make_unique<Impl>())
 	{
-		impl->setPhysicsSettings();
 		impl->setGraphicsSettings();
 		impl->loadTextures();
 		impl->createBackground();

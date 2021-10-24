@@ -17,6 +17,8 @@ namespace Systems
 	public:
 		Textures();
 
+		void initializationFinalize();
+
 	private:
 		struct TextureCache
 		{
@@ -26,7 +28,7 @@ namespace Systems
 		};
 
 		void loadAndConfigureTexture(Components::Texture& texture);
-		void createLowResFramebuffersTextures() const;
+		void createTextureFramebuffers() const;
 
 		std::unordered_map<std::string, TextureCache> pathsToTexturesCache;
 	};

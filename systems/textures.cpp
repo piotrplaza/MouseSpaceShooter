@@ -21,19 +21,27 @@ namespace Systems
 {
 	Textures::Textures()
 	{
-		stbi_set_flip_vertically_on_load(true);
-
 		static_assert(maxTextureObjects <= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+		stbi_set_flip_vertically_on_load(true);
+	}
+
+	void Textures::initializationFinalize()
+	{
 		assert(Globals::Components().textures().size() <= maxTextureObjects);
 
 		for (unsigned i = 0; i < Globals::Components().textures().size(); ++i)
 		{
 			auto& texture = Globals::Components().textures()[i];
-			texture.loaded.textureUnit = GL_TEXTURE0 + i;
-			loadAndConfigureTexture(texture);
+
+			if (texture.state == ComponentState::Changed)
+			{
+				texture.loaded.textureUnit = GL_TEXTURE0 + i;
+				loadAndConfigureTexture(texture);
+				texture.state = ComponentState::Ongoing;
+			}
 		}
 
-		createLowResFramebuffersTextures();
+		createTextureFramebuffers();
 	}
 
 	void Textures::loadAndConfigureTexture(Components::Texture& texture)
@@ -76,11 +84,9 @@ namespace Systems
 		}
 	}
 
-	void Textures::createLowResFramebuffersTextures() const
+	void Textures::createTextureFramebuffers() const
 	{
-		auto& framebuffers = Globals::Components().framebuffers();
-
-		auto createLowResFramebufferTexture = [](Components::Framebuffers::SubBuffers& subBuffers,
+		auto createTextureFramebuffer = [](Components::Framebuffers::SubBuffers& subBuffers,
 			GLint textureMagFilter)
 		{
 			const unsigned textureUnit = GL_TEXTURE0 + Globals::Components().textures().size();
@@ -96,16 +102,22 @@ namespace Systems
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture.wrapMode);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture.minFilter);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texture.magFilter);
+
+			glGenFramebuffers(1, &subBuffers.fbo);
+			glBindFramebuffer(GL_FRAMEBUFFER, subBuffers.fbo);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, subBuffers.textureObject, 0);
 		};
 
-		createLowResFramebufferTexture(framebuffers.main, GL_LINEAR);
-		createLowResFramebufferTexture(framebuffers.lowerLinearBlend0, GL_LINEAR);
-		createLowResFramebufferTexture(framebuffers.lowerLinearBlend1, GL_LINEAR);
-		createLowResFramebufferTexture(framebuffers.lowestLinearBlend0, GL_LINEAR);
-		createLowResFramebufferTexture(framebuffers.lowestLinearBlend1, GL_LINEAR);
-		createLowResFramebufferTexture(framebuffers.pixelArtBlend0, GL_NEAREST);
-		createLowResFramebufferTexture(framebuffers.pixelArtBlend1, GL_NEAREST);
-		createLowResFramebufferTexture(framebuffers.lowPixelArtBlend0, GL_NEAREST);
-		createLowResFramebufferTexture(framebuffers.lowPixelArtBlend1, GL_NEAREST);
+		auto& framebuffers = Globals::Components().framebuffers();
+
+		createTextureFramebuffer(framebuffers.main, GL_LINEAR);
+		createTextureFramebuffer(framebuffers.lowerLinearBlend0, GL_LINEAR);
+		createTextureFramebuffer(framebuffers.lowerLinearBlend1, GL_LINEAR);
+		createTextureFramebuffer(framebuffers.lowestLinearBlend0, GL_LINEAR);
+		createTextureFramebuffer(framebuffers.lowestLinearBlend1, GL_LINEAR);
+		createTextureFramebuffer(framebuffers.pixelArtBlend0, GL_NEAREST);
+		createTextureFramebuffer(framebuffers.pixelArtBlend1, GL_NEAREST);
+		createTextureFramebuffer(framebuffers.lowPixelArtBlend0, GL_NEAREST);
+		createTextureFramebuffer(framebuffers.lowPixelArtBlend1, GL_NEAREST);
 	}
 }

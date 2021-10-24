@@ -7,6 +7,6 @@ namespace Systems
 	public:
 		Cleaner();
 
-		void step();
+		void step() const;
 	};
 }

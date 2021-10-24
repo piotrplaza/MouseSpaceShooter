@@ -33,8 +33,6 @@ namespace Systems
 
 		for (auto& grapple : Globals::Components().grapples())
 			grapple.previousCenter = grapple.getCenter();
-
-		createFramebuffers();
 	}
 
 	void StateController::frameSetup() const
@@ -119,27 +117,5 @@ namespace Systems
 
 	void StateController::handleKeyboard(bool const* const keys) const
 	{
-	}
-
-	void StateController::createFramebuffers() const
-	{
-		auto& framebuffers = Globals::Components().framebuffers();
-
-		auto createTextureFramebuffer = [](Components::Framebuffers::SubBuffers& subBuffers)
-		{
-			glGenFramebuffers(1, &subBuffers.fbo);
-			glBindFramebuffer(GL_FRAMEBUFFER, subBuffers.fbo);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, subBuffers.textureObject, 0);
-		};
-
-		createTextureFramebuffer(framebuffers.main);
-		createTextureFramebuffer(framebuffers.lowerLinearBlend0);
-		createTextureFramebuffer(framebuffers.lowerLinearBlend1);
-		createTextureFramebuffer(framebuffers.lowestLinearBlend0);
-		createTextureFramebuffer(framebuffers.lowestLinearBlend1);
-		createTextureFramebuffer(framebuffers.pixelArtBlend0);
-		createTextureFramebuffer(framebuffers.pixelArtBlend1);
-		createTextureFramebuffer(framebuffers.lowPixelArtBlend0);
-		createTextureFramebuffer(framebuffers.lowPixelArtBlend1);
 	}
 }

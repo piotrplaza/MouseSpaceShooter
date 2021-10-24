@@ -53,24 +53,32 @@ namespace Tools
 		};
 	}
 
-	std::vector<glm::vec3> CreatePositionsOfLineOfRectangles(const glm::vec2& hSize, const std::pair<glm::vec2, glm::vec2>& positionsRange,
+	std::vector<glm::vec3> CreatePositionsOfLineOfRectangles(const glm::vec2& hSize, const std::vector<glm::vec2>& positionsRanges,
 		const glm::vec2& scaleRange, const glm::vec2& angleRange, const glm::vec2& stepRange, float z)
 	{
-		const std::vector<glm::vec3> rectanglePositions = CreatePositionsOfRectangle({ 0.0f, 0.0f }, hSize, 0.0f, z);
-		const glm::vec2 direction = glm::normalize(positionsRange.second - positionsRange.first);
-		const float lineLength = glm::distance(positionsRange.first, positionsRange.second);
-		std::vector<glm::vec3> positions;
-		glm::vec2 currentPosition = positionsRange.first;
+		assert(positionsRanges.size() > 1);
 
-		do
+		std::vector<glm::vec3> positions;
+
+		for (auto it = positionsRanges.begin(); it != std::prev(positionsRanges.end()); ++it)
 		{
-			const float scale = Tools::Random(scaleRange.x, scaleRange.y);
-			const glm::mat4 transformation = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(currentPosition, z)),
-				Tools::Random(angleRange.x, angleRange.y), glm::vec3(0.0f, 0.0f, 1.0f)), { scale, scale, 1.0f });
-			const std::vector<glm::vec3> transformedRectanglePositions = Tools::Transform(rectanglePositions, transformation);
-			positions.insert(positions.end(), transformedRectanglePositions.begin(), transformedRectanglePositions.end());
-			currentPosition += direction * Tools::Random(stepRange.x, stepRange.y);
-		} while (glm::distance(positionsRange.first, currentPosition) < lineLength);
+			const auto& currentControlPos = *it;
+			const auto& nextControlPos = *std::next(it);
+			const std::vector<glm::vec3> rectanglePositions = CreatePositionsOfRectangle({ 0.0f, 0.0f }, hSize, 0.0f, z);
+			const glm::vec2 direction = glm::normalize(nextControlPos - currentControlPos);
+			const float lineLength = glm::distance(currentControlPos, nextControlPos);
+			glm::vec2 currentPos = currentControlPos;
+
+			do
+			{
+				const float scale = Tools::Random(scaleRange.x, scaleRange.y);
+				const glm::mat4 transformation = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(currentPos, z)),
+					Tools::Random(angleRange.x, angleRange.y), glm::vec3(0.0f, 0.0f, 1.0f)), { scale, scale, 1.0f });
+				const std::vector<glm::vec3> transformedRectanglePositions = Tools::Transform(rectanglePositions, transformation);
+				positions.insert(positions.end(), transformedRectanglePositions.begin(), transformedRectanglePositions.end());
+				currentPos += direction * Tools::Random(stepRange.x, stepRange.y);
+			} while (glm::distance(currentControlPos, currentPos) < lineLength);
+		}
 
 		return positions;
 	}

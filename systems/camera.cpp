@@ -14,7 +14,17 @@ namespace Systems
 {
 	Camera::Camera() = default;
 
-	void Camera::step()
+	void Camera::initializationFinalize() const
+	{
+		auto& camera = Globals::Components().camera();
+		const float targetProjectionHSize = camera.targetProjectionHSizeF();
+		const glm::vec2 targetPosition = camera.targetPositionF();
+
+		camera.prevProjectionHSize = targetProjectionHSize;
+		camera.prevPosition = targetPosition;
+	}
+
+	void Camera::step() const
 	{
 		const auto& screenInfo = Globals::Components().screenInfo();
 		auto& camera = Globals::Components().camera();
@@ -28,13 +38,6 @@ namespace Systems
 			: 1.0f;
 		const float targetProjectionHSize = camera.targetProjectionHSizeF();
 		const glm::vec2 targetPosition = camera.targetPositionF();
-
-		if (firstStep)
-		{
-			camera.prevProjectionHSize = targetProjectionHSize;
-			camera.prevPosition = targetPosition;
-			firstStep = false;
-		}
 
 		const float projectionHSize = camera.prevProjectionHSize + (targetProjectionHSize - camera.prevProjectionHSize)
 			* std::clamp(camera.projectionTransitionFactor, 0.0f, 1.0f);

@@ -28,6 +28,8 @@ namespace Components
 		{
 			loaded.textureUnit = textureUnit;
 			loaded.textureObject = textureObject;
+
+			state = ComponentState::Ongoing;
 		}
 
 		std::string path;

@@ -28,7 +28,7 @@ namespace Systems
 {
 	Cleaner::Cleaner() = default;
 
-	void Cleaner::step()
+	void Cleaner::step() const
 	{
 		RemoveOutdatedComponents(Globals::Components().temporaryBackgroundDecorations());
 		RemoveOutdatedComponents(Globals::Components().temporaryFarMidgroundDecorations());

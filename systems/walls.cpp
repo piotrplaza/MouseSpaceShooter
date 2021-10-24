@@ -23,9 +23,25 @@
 
 namespace Systems
 {
-	Walls::Walls()
+	Walls::Walls() = default;
+
+	void Walls::initializationFinalize()
 	{
 		initGraphics();
+	}
+
+	void Walls::step()
+	{
+		updateDynamicWallsPositionsBuffers();
+		updateGrapplesPositionsBuffers();
+	}
+
+	void Walls::render() const
+	{
+		basicRender();
+		texturedRender();
+		sceneCoordTexturedRender();
+		customShadersRender();
 	}
 
 	void Walls::initGraphics()
@@ -75,20 +91,6 @@ namespace Systems
 	{
 		Tools::UpdateTexCoordBuffers(Globals::Components().grapples(), texturesToGrapplesBuffers,
 			customTexturedGrapplesBuffers, customShadersGrapplesBuffers);
-	}
-
-	void Walls::step()
-	{
-		updateDynamicWallsPositionsBuffers();
-		updateGrapplesPositionsBuffers();
-	}
-
-	void Walls::render() const
-	{
-		basicRender();
-		texturedRender();
-		sceneCoordTexturedRender();
-		customShadersRender();
 	}
 
 	void Walls::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const

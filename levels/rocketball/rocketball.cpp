@@ -26,11 +26,6 @@ namespace Levels
 	class Rocketball::Impl
 	{
 	public:
-		void setPhysicsSettings() const
-		{
-			Globals::Components().physics() = Components::Physics({ 0.0f, 0.0f });
-		}
-
 		void setGraphicsSettings() const
 		{
 			Globals::Components().graphicsSettings().clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -131,7 +126,6 @@ namespace Levels
 	Rocketball::Rocketball():
 		impl(std::make_unique<Impl>())
 	{
-		impl->setPhysicsSettings();
 		impl->setGraphicsSettings();
 		impl->loadTextures();
 		impl->createBackground();
