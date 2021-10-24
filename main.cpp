@@ -79,6 +79,7 @@ void Initialize()
 	Globals::Systems().walls().initializationFinalize();
 	Globals::Systems().decorations().initializationFinalize();
 	Globals::Systems().camera().initializationFinalize();
+	Globals::Systems().renderingController().initializationFinalize();
 	Globals::Systems().stateController().initializationFinalize();
 }
 
