@@ -39,7 +39,7 @@ namespace Systems
 {
 	Players::Players() = default;
 
-	void Players::initializationFinalize()
+	void Players::postInit()
 	{
 		initGraphics();
 	}

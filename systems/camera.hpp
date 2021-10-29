@@ -7,7 +7,7 @@ namespace Systems
 	public:
 		Camera();
 
-		void initializationFinalize() const;
+		void postInit() const;
 		void step() const;
 	};
 }

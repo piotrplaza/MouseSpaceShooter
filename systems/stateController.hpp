@@ -8,7 +8,7 @@ namespace Systems
 		StateController();
 		~StateController();
 
-		void initializationFinalize() const;
+		void postInit() const;
 		void frameSetup() const;
 		void frameTeardown() const;
 		void changeWindowSize(glm::ivec2 size) const;

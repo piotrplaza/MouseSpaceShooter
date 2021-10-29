@@ -26,7 +26,7 @@ namespace Systems
 	StateController::StateController() = default;
 	StateController::~StateController() = default;
 
-	void StateController::initializationFinalize() const
+	void StateController::postInit() const
 	{
 		for (auto& player : Globals::Components().players())
 			player.previousCenter = player.getCenter();

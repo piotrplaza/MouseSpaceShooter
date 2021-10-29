@@ -35,7 +35,7 @@ namespace Systems
 {
 	Physics::Physics() = default;
 
-	void Physics::initializationFinalize()
+	void Physics::postInit()
 	{
 		Globals::Components().physics().world->SetContactListener(&contactListener);
 #ifndef _DEBUG 

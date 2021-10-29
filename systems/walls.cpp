@@ -25,7 +25,7 @@ namespace Systems
 {
 	Walls::Walls() = default;
 
-	void Walls::initializationFinalize()
+	void Walls::postInit()
 	{
 		initGraphics();
 	}

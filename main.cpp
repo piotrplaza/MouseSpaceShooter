@@ -73,14 +73,14 @@ void Initialize()
 
 	CreateLevel();
 
-	Globals::Systems().textures().initializationFinalize();
-	Globals::Systems().physics().initializationFinalize();
-	Globals::Systems().players().initializationFinalize();
-	Globals::Systems().walls().initializationFinalize();
-	Globals::Systems().decorations().initializationFinalize();
-	Globals::Systems().camera().initializationFinalize();
-	Globals::Systems().renderingController().initializationFinalize();
-	Globals::Systems().stateController().initializationFinalize();
+	Globals::Systems().textures().postInit();
+	Globals::Systems().physics().postInit();
+	Globals::Systems().players().postInit();
+	Globals::Systems().walls().postInit();
+	Globals::Systems().decorations().postInit();
+	Globals::Systems().camera().postInit();
+	Globals::Systems().renderingController().postInit();
+	Globals::Systems().stateController().postInit();
 }
 
 void PrepareFrame()

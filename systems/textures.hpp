@@ -17,7 +17,7 @@ namespace Systems
 	public:
 		Textures();
 
-		void initializationFinalize();
+		void postInit();
 
 	private:
 		struct TextureCache

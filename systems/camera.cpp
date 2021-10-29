@@ -14,7 +14,7 @@ namespace Systems
 {
 	Camera::Camera() = default;
 
-	void Camera::initializationFinalize() const
+	void Camera::postInit() const
 	{
 		auto& camera = Globals::Components().camera();
 		const float targetProjectionHSize = camera.targetProjectionHSizeF();

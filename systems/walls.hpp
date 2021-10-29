@@ -18,7 +18,7 @@ namespace Systems
 	public:
 		Walls();
 
-		void initializationFinalize();
+		void postInit();
 		void step();
 		void render() const;
 

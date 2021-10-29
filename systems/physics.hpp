@@ -10,7 +10,7 @@ namespace Systems
 	public:
 		Physics();
 
-		void initializationFinalize();
+		void postInit();
 		void step();
 		void pause();
 		void resume();

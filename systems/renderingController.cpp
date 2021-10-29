@@ -20,7 +20,7 @@ namespace Systems
 {
 	RenderingController::RenderingController() = default;
 
-	void RenderingController::initializationFinalize() const
+	void RenderingController::postInit() const
 	{
 		initGraphics();
 	}

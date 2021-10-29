@@ -7,7 +7,7 @@ namespace Systems
 	public:
 		RenderingController();
 
-		void initializationFinalize() const;
+		void postInit() const;
 		void render() const;
 
 	private:

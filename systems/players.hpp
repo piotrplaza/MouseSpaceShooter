@@ -24,7 +24,7 @@ namespace Systems
 	public:
 		Players();
 
-		void initializationFinalize();
+		void postInit();
 		void step();
 		void render() const;
 

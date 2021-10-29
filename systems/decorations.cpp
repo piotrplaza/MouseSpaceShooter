@@ -20,7 +20,7 @@ namespace Systems
 {
 	Decorations::Decorations() = default;
 
-	void Decorations::initializationFinalize()
+	void Decorations::postInit()
 	{
 		initGraphics();
 	}
