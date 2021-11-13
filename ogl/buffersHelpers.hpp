@@ -1,10 +1,13 @@
 #include <vector>
 #include <unordered_map>
+#include <variant>
 
 #include <GL/glew.h>
 
 #include <componentId.hpp>
 #include <componentBase.hpp>
+
+#include <commonTypes/blendingTexture.hpp>
 
 namespace Tools
 {
@@ -61,7 +64,7 @@ namespace Tools
 
 	template <typename Component, typename Buffers>
 	inline void UpdateTransformedPositionsBuffers(const std::vector<Component>& components, Buffers& simpleBuffers,
-		std::unordered_map<unsigned, Buffers>& texturesToBuffers, std::vector<Buffers>& customSimpleBuffers,
+		std::unordered_map<std::variant<std::monostate, unsigned, BlendingTexture>, Buffers>& texturesToBuffers, std::vector<Buffers>& customSimpleBuffers,
 		std::vector<Buffers>& customTexturedBuffers, std::vector<Buffers>& customShadersBuffers)
 	{
 		simpleBuffers.positionsCache.clear();
@@ -80,12 +83,12 @@ namespace Tools
 			{
 				if (component.customShadersProgram)
 					return Detail::ReuseOrEmplaceBack(customShadersBuffers, customShadersBuffersIt);
-				else if (component.texture)
+				else if (!std::holds_alternative<std::monostate>(component.texture))
 				{
 					if (component.renderingSetup)
 						return Detail::ReuseOrEmplaceBack(customTexturedBuffers, customTexturedBuffersIt);
 					else
-						return texturesToBuffers[*component.texture];
+						return texturesToBuffers[component.texture];
 				}
 				else
 				{
@@ -134,7 +137,7 @@ namespace Tools
 			{
 				if (component.customShadersProgram)
 					return Detail::ReuseOrEmplaceBack(customShadersBuffers, customShadersBuffersIt);
-				else if (component.texture)
+				else if (!std::holds_alternative<std::monostate>(component.texture))
 					return Detail::ReuseOrEmplaceBack(texturedBuffers, texturedBuffersIt);
 				else
 					return Detail::ReuseOrEmplaceBack(simpleBuffers, simpleBuffersIt);
@@ -162,7 +165,7 @@ namespace Tools
 
 	template <typename Component, typename Buffers>
 	inline void UpdateTexCoordBuffers(const std::vector<Component>& components,
-		std::unordered_map<unsigned, Buffers>& texturesToBuffers, std::vector<Buffers>& customTexturedBuffers,
+		std::unordered_map<std::variant<std::monostate, unsigned, BlendingTexture>, Buffers>& texturesToBuffers, std::vector<Buffers>& customTexturedBuffers,
 		std::vector<Buffers>& customShadersTexturedBuffers)
 	{
 		for (auto& [texture, buffers] : texturesToBuffers) buffers.texCoordCache.clear();
@@ -174,7 +177,7 @@ namespace Tools
 
 		for (auto& component : components)
 		{
-			if (component.texture)
+			if (!std::holds_alternative<std::monostate>(component.texture))
 			{
 				auto& buffers = [&]() -> auto&
 				{
@@ -183,7 +186,7 @@ namespace Tools
 					else if (component.renderingSetup)
 						return Detail::ReuseOrEmplaceBack(customTexturedBuffers, customTexturedBuffersIt);
 					else
-						return texturesToBuffers[*component.texture];
+						return texturesToBuffers[component.texture];
 				}();
 
 				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
@@ -210,7 +213,7 @@ namespace Tools
 
 		for (const auto& component : components)
 		{
-			if (component.texture)
+			if (!std::holds_alternative<std::monostate>(component.texture))
 			{
 				auto& relevantBuffers = component.customShadersProgram
 					? customShadersTexturedBuffers
@@ -245,7 +248,7 @@ namespace Tools
 			{
 				if (component.customShadersProgram)
 					return customShadersBuffers;
-				else if (component.texture)
+				else if (!std::holds_alternative<std::monostate>(component.texture))
 					return texturedBuffers;
 				else
 					return simpleBuffers;
@@ -270,7 +273,7 @@ namespace Tools
 
 			Detail::AllocateOrUpdatePositionsData(buffers);
 
-			if (component.texture)
+			if (!std::holds_alternative<std::monostate>(component.texture))
 			{
 				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
 				buffers.texCoordCache = component.getTexCoord();

@@ -136,7 +136,7 @@ namespace Systems
 			Globals::Shaders().sceneCoordTextured().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 			Globals::Shaders().sceneCoordTextured().modelUniform.setValue(glm::mat4(1.0f));
 			Tools::TexturedRender(Globals::Shaders().sceneCoordTextured(), customTexturedStaticWallBuffers,
-				*customTexturedStaticWallBuffers.texture);
+				customTexturedStaticWallBuffers.texture);
 		}
 	}
 
@@ -164,7 +164,7 @@ namespace Systems
 			Globals::Shaders().textured().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 			Globals::Shaders().textured().modelUniform.setValue(glm::mat4(1.0f));
 			Tools::TexturedRender(Globals::Shaders().textured(), customTexturedDynamicWallBuffers,
-				*customTexturedDynamicWallBuffers.texture);
+				customTexturedDynamicWallBuffers.texture);
 		}
 
 		for (const auto& customTextureGrappleBuffers : customTexturedGrapplesBuffers)
@@ -172,7 +172,7 @@ namespace Systems
 			Globals::Shaders().textured().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 			Globals::Shaders().textured().modelUniform.setValue(glm::mat4(1.0f));
 			Tools::TexturedRender(Globals::Shaders().textured(), customTextureGrappleBuffers,
-				*customTextureGrappleBuffers.texture);
+				customTextureGrappleBuffers.texture);
 		}
 	}
 

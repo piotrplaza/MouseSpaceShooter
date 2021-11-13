@@ -3,6 +3,7 @@
 #include <optional>
 #include <functional>
 #include <vector>
+#include <variant>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -12,6 +13,7 @@
 #include <tools/animations.hpp>
 
 #include <commonTypes/resolutionMode.hpp>
+#include <commonTypes/blendingTexture.hpp>
 
 namespace Buffers
 {
@@ -29,7 +31,7 @@ namespace Buffers
 		GLuint positionBuffer;
 
 		std::optional<GLuint> texCoordBuffer;
-		std::optional<unsigned> texture;
+		std::variant<std::monostate, unsigned, BlendingTexture> texture;
 		const std::function<std::function<void()>(Shaders::ProgramId)>* renderingSetup = nullptr;
 		const Tools::TextureAnimationController* animationController = nullptr;
 		std::optional<Shaders::ProgramId> customShadersProgram;

@@ -3,6 +3,7 @@
 #include <functional>
 #include <optional>
 #include <array>
+#include <variant>
 
 #include <GL/glew.h>
 
@@ -19,6 +20,8 @@
 #include <ogl/oglProxy.hpp>
 
 #include <tools/utility.hpp>
+
+#include <commonTypes/blendingTexture.hpp>
 
 namespace Tools
 {
@@ -53,13 +56,73 @@ namespace Tools
 		shadersProgram.textureScaleUniform.setValue(frameTransformation.scale);
 	}
 
+	template <typename ShadersProgram>
+	class StaticTexturedRenderInitializationVisitor
+	{
+	public:
+		StaticTexturedRenderInitializationVisitor(ShadersProgram& shadersProgram, bool textureRatioPreserved):
+			shadersProgram(shadersProgram),
+			textureRatioPreserved(textureRatioPreserved)
+		{
+		}
+
+		void operator ()(unsigned texture)
+		{
+			StaticTexturedRenderInitialization(shadersProgram, texture, textureRatioPreserved);
+		}
+
+		void operator ()(const BlendingTexture& blendingTexture)
+		{
+			assert(!"Unsupported yet.");
+		}
+
+		void operator ()(std::monostate)
+		{
+			assert(!"Wrong variant state.");
+		}
+
+	private:
+		ShadersProgram& shadersProgram;
+		bool textureRatioPreserved;
+	};
+
+	template <typename ShadersProgram, typename AnimationController>
+	class AnimatedTexturedRenderInitializationVisitor
+	{
+	public:
+		AnimatedTexturedRenderInitializationVisitor(ShadersProgram& shadersProgram, const AnimationController& animationController):
+			shadersProgram(shadersProgram),
+			animationController(animationController)
+		{
+		}
+
+		void operator ()(unsigned texture)
+		{
+			AnimatedTexturedRenderInitialization(shadersProgram, texture, animationController);
+		}
+
+		void operator ()(const BlendingTexture& blendingTexture)
+		{
+			assert(!"Unsupported yet.");
+		}
+
+		void operator ()(std::monostate)
+		{
+			assert(!"Wrong variant state.");
+		}
+
+	private:
+		ShadersProgram& shadersProgram;
+		const AnimationController& animationController;
+	};
+
 	template <typename ShadersProgram, typename Buffers>
-	inline void TexturedRender(ShadersProgram& shadersProgram, const Buffers& buffers, unsigned texture)
+	inline void TexturedRender(ShadersProgram& shadersProgram, const Buffers& buffers, const std::variant<std::monostate, unsigned, BlendingTexture>& texture)
 	{
 		if (buffers.animationController)
-			AnimatedTexturedRenderInitialization(shadersProgram, texture, *buffers.animationController);
+			std::visit(AnimatedTexturedRenderInitializationVisitor{ shadersProgram, *buffers.animationController }, texture);
 		else
-			StaticTexturedRenderInitialization(shadersProgram, texture, buffers.textureRatioPreserved);
+			std::visit(StaticTexturedRenderInitializationVisitor{ shadersProgram, buffers.textureRatioPreserved }, texture);
 
 		std::function<void()> renderingTeardown;
 		if (buffers.renderingSetup)

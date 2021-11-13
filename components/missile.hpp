@@ -24,7 +24,8 @@ namespace Components
 {
 	struct Missile : ComponentBase
 	{
-		Missile(Body body, std::optional<unsigned> texture = std::nullopt,
+		Missile(Body body,
+			std::variant<std::monostate, unsigned, BlendingTexture> texture = std::monostate{},
 			Tools::UniqueRenderingSetup renderingSetup = nullptr,
 			std::unique_ptr<Tools::TextureAnimationController> animationController = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
@@ -38,7 +39,7 @@ namespace Components
 		}
 
 		Body body;
-		std::optional<unsigned> texture;
+		std::variant<std::monostate, unsigned, BlendingTexture> texture;
 		Tools::UniqueRenderingSetup renderingSetup;
 		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;

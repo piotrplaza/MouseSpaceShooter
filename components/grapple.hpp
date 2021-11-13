@@ -3,6 +3,7 @@
 #include <vector>
 #include <optional>
 #include <functional>
+#include <variant>
 
 #include <glm/glm.hpp>
 
@@ -11,6 +12,7 @@
 #include <componentBase.hpp>
 
 #include <commonTypes/resolutionMode.hpp>
+#include <commonTypes/blendingTexture.hpp>
 
 #include <ogl/shaders.hpp>
 #include <ogl/renderingSetup.hpp>
@@ -24,7 +26,8 @@ namespace Components
 {
 	struct Grapple : ComponentBase
 	{
-		Grapple(Body body, float influenceRadius, std::optional<unsigned> texture = std::nullopt,
+		Grapple(Body body, float influenceRadius,
+			std::variant<std::monostate, unsigned, BlendingTexture> texture = std::monostate{},
 			Tools::UniqueRenderingSetup renderingSetup = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
@@ -38,7 +41,7 @@ namespace Components
 
 		Body body;
 		float influenceRadius;
-		std::optional<unsigned> texture;
+		std::variant<std::monostate, unsigned, BlendingTexture> texture;
 		Tools::UniqueRenderingSetup renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;

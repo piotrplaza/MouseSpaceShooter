@@ -4,6 +4,7 @@
 #include <vector>
 #include <functional>
 #include <optional>
+#include <variant>
 
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -12,6 +13,7 @@
 #include <componentBase.hpp>
 
 #include <commonTypes/resolutionMode.hpp>
+#include <commonTypes/blendingTexture.hpp>
 
 #include <ogl/shaders.hpp>
 #include <ogl/renderingSetup.hpp>
@@ -22,7 +24,8 @@ namespace Components
 {
 	struct Decoration : ComponentBase
 	{
-		Decoration(std::vector<glm::vec3> positions = {}, std::optional<unsigned> texture = std::nullopt,
+		Decoration(std::vector<glm::vec3> positions = {},
+			std::variant<std::monostate, unsigned, BlendingTexture> texture = std::monostate{},
 			Tools::UniqueRenderingSetup renderingSetup = nullptr,
 			std::unique_ptr<Tools::TextureAnimationController> animationController = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
@@ -35,7 +38,7 @@ namespace Components
 		}
 
 		std::vector<glm::vec3> positions;
-		std::optional<unsigned> texture;
+		std::variant<std::monostate, unsigned, BlendingTexture> texture;
 		Tools::UniqueRenderingSetup renderingSetup;
 		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;

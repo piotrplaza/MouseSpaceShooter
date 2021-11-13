@@ -5,12 +5,15 @@
 #include <optional>
 #include <vector>
 #include <unordered_map>
+#include <variant>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
 #include <ogl/buffers/posTexCoordBuffers.hpp>
+
+#include <commonTypes/blendingTexture.hpp>
 
 namespace Components
 {
@@ -80,7 +83,7 @@ namespace Systems
 		void coloredRender() const;
 
 		std::unique_ptr<Buffers::PosTexCoordBuffers> simplePlayersBuffers;
-		std::unordered_map<unsigned, Buffers::PosTexCoordBuffers> texturesToPlayersBuffers;
+		std::unordered_map<std::variant<std::monostate, unsigned, BlendingTexture>, Buffers::PosTexCoordBuffers> texturesToPlayersBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customSimplePlayersBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customTexturedPlayersBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customShadersPlayersBuffers;

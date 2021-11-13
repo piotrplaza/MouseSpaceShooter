@@ -3,8 +3,11 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
+#include <variant>
 
 #include <ogl/buffers/posTexCoordBuffers.hpp>
+
+#include <commonTypes/blendingTexture.hpp>
 
 namespace Components
 {
@@ -41,8 +44,8 @@ namespace Systems
 
 		std::unique_ptr<Buffers::PosTexCoordBuffers> simpleStaticWallsBuffers;
 		std::unique_ptr<Buffers::PosTexCoordBuffers> simpleDynamicWallsBuffers;
-		std::unordered_map<unsigned, Buffers::PosTexCoordBuffers> texturesToStaticWallsBuffers;
-		std::unordered_map<unsigned, Buffers::PosTexCoordBuffers> texturesToDynamicWallsBuffers;
+		std::unordered_map<std::variant<std::monostate, unsigned, BlendingTexture>, Buffers::PosTexCoordBuffers> texturesToStaticWallsBuffers;
+		std::unordered_map<std::variant<std::monostate, unsigned, BlendingTexture>, Buffers::PosTexCoordBuffers> texturesToDynamicWallsBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customSimpleStaticWallsBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customSimpleDynamicWallsBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customTexturedStaticWallsBuffers;
@@ -51,7 +54,7 @@ namespace Systems
 		std::vector<Buffers::PosTexCoordBuffers> customShadersDynamicWallsBuffers;
 
 		std::unique_ptr<Buffers::PosTexCoordBuffers> simpleGrapplesBuffers;
-		std::unordered_map<unsigned, Buffers::PosTexCoordBuffers> texturesToGrapplesBuffers;
+		std::unordered_map<std::variant<std::monostate, unsigned, BlendingTexture>, Buffers::PosTexCoordBuffers> texturesToGrapplesBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customSimpleGrapplesBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customTexturedGrapplesBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customShadersGrapplesBuffers;

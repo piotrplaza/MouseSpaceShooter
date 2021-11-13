@@ -53,6 +53,7 @@
     <ClInclude Include="3rdParty\stb_image\stb_image.h" />
     <ClInclude Include="bodyUserData.hpp" />
     <ClInclude Include="collisionBits.hpp" />
+    <ClInclude Include="commonTypes\blendingTexture.hpp" />
     <ClInclude Include="commonTypes\resolutionMode.hpp" />
     <ClInclude Include="componentBase.hpp" />
     <ClInclude Include="componentId.hpp" />

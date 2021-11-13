@@ -4,12 +4,14 @@
 #include <vector>
 #include <optional>
 #include <functional>
+#include <variant>
 
 #include <Box2D/Box2D.h>
 
 #include <componentBase.hpp>
 
 #include <commonTypes/resolutionMode.hpp>
+#include <commonTypes/blendingTexture.hpp>
 
 #include <ogl/shaders.hpp>
 #include <ogl/renderingSetup.hpp>
@@ -23,7 +25,8 @@ namespace Components
 {
 	struct Wall : ComponentBase
 	{
-		Wall(Body body, std::optional<unsigned> texture = std::nullopt,
+		Wall(Body body,
+			std::variant<std::monostate, unsigned, BlendingTexture> texture = std::monostate{},
 			Tools::UniqueRenderingSetup renderingSetup = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
@@ -35,7 +38,7 @@ namespace Components
 		}
 
 		Body body;
-		std::optional<unsigned> texture;
+		std::variant<std::monostate, unsigned, BlendingTexture> texture;
 		Tools::UniqueRenderingSetup renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;
