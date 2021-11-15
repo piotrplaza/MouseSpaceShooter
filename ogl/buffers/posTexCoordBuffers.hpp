@@ -10,10 +10,8 @@
 
 #include <ogl/shaders.hpp>
 
-#include <tools/animations.hpp>
-
 #include <commonTypes/resolutionMode.hpp>
-#include <commonTypes/blendingTexture.hpp>
+#include <commonTypes/typeComponentMappers.hpp>
 
 namespace Buffers
 {
@@ -31,9 +29,8 @@ namespace Buffers
 		GLuint positionBuffer;
 
 		std::optional<GLuint> texCoordBuffer;
-		std::variant<std::monostate, unsigned, BlendingTexture> texture;
+		TextureVariant texture;
 		const std::function<std::function<void()>(Shaders::ProgramId)>* renderingSetup = nullptr;
-		const Tools::TextureAnimationController* animationController = nullptr;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;
 

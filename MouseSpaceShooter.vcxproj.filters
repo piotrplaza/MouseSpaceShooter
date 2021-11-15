@@ -115,9 +115,6 @@
     <ClCompile Include="levels\level.cpp">
       <Filter>src\levels</Filter>
     </ClCompile>
-    <ClCompile Include="tools\animations.cpp">
-      <Filter>src\tools</Filter>
-    </ClCompile>
     <ClCompile Include="ogl\buffers\posTexCoordBuffers.cpp">
       <Filter>src\ogl\buffers</Filter>
     </ClCompile>
@@ -153,6 +150,9 @@
     </ClCompile>
     <ClCompile Include="systems\renderingController.cpp">
       <Filter>src\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="components\animationTexture.cpp">
+      <Filter>src\components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -236,9 +236,6 @@
     </ClInclude>
     <ClInclude Include="levels\level.hpp">
       <Filter>src\levels</Filter>
-    </ClInclude>
-    <ClInclude Include="tools\animations.hpp">
-      <Filter>src\tools</Filter>
     </ClInclude>
     <ClInclude Include="tools\glmHelpers.hpp">
       <Filter>src\tools</Filter>
@@ -345,8 +342,14 @@
     <ClInclude Include="components\texture.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
-    <ClInclude Include="commonTypes\blendingTexture.hpp">
+    <ClInclude Include="commonTypes\typeComponentMappers.hpp">
       <Filter>src\commonTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="components\animationTexture.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\blendingTexture.hpp">
+      <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

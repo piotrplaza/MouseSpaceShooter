@@ -18,7 +18,6 @@ namespace Buffers
 		texCoordBuffer(other.texCoordBuffer),
 		texture(other.texture),
 		renderingSetup(std::move(other.renderingSetup)),
-		animationController(other.animationController),
 		customShadersProgram(other.customShadersProgram),
 		resolutionMode(other.resolutionMode),
 		positionsCache(std::move(other.positionsCache)),

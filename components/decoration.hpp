@@ -13,34 +13,29 @@
 #include <componentBase.hpp>
 
 #include <commonTypes/resolutionMode.hpp>
-#include <commonTypes/blendingTexture.hpp>
+#include <commonTypes/typeComponentMappers.hpp>
 
 #include <ogl/shaders.hpp>
 #include <ogl/renderingSetup.hpp>
-
-#include <tools/animations.hpp>
 
 namespace Components
 {
 	struct Decoration : ComponentBase
 	{
 		Decoration(std::vector<glm::vec3> positions = {},
-			std::variant<std::monostate, unsigned, BlendingTexture> texture = std::monostate{},
+			TextureVariant texture = std::monostate{},
 			Tools::UniqueRenderingSetup renderingSetup = nullptr,
-			std::unique_ptr<Tools::TextureAnimationController> animationController = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			positions(std::move(positions)),
 			texture(texture),
 			renderingSetup(std::move(renderingSetup)),
-			animationController(std::move(animationController)),
 			customShadersProgram(customShadersProgram)
 		{
 		}
 
 		std::vector<glm::vec3> positions;
-		std::variant<std::monostate, unsigned, BlendingTexture> texture;
+		TextureVariant texture;
 		Tools::UniqueRenderingSetup renderingSetup;
-		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::vector<glm::vec2> texCoord;
 		std::function<void()> step;

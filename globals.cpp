@@ -17,6 +17,8 @@
 #include "components/mvp.hpp"
 #include "components/physics.hpp"
 #include "components/texture.hpp"
+#include "components/animationTexture.hpp"
+#include "components/blendingTexture.hpp"
 #include "components/player.hpp"
 #include "components/wall.hpp"
 #include "components/grapple.hpp"
@@ -131,6 +133,16 @@ namespace Globals
 	std::vector<::Components::Texture>& Components::textures()
 	{
 		return textures_;
+	}
+
+	std::vector<::Components::AnimationTexture>& Components::animationTextures()
+	{
+		return animationTextures_;
+	}
+
+	std::vector<::Components::BlendingTexture>& Components::blendingTextures()
+	{
+		return blendingTextures_;
 	}
 
 	std::vector<::Components::Player>& Components::players()

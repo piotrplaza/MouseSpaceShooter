@@ -60,7 +60,7 @@ namespace Levels
 
 		void createBackground() const
 		{
-			Globals::Components().backgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 100.0f, 60.0f }), playFieldTexture);
+			Globals::Components().backgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 100.0f, 60.0f }), TCM::Texture(playFieldTexture));
 			Globals::Components().backgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
 		}
 
@@ -76,22 +76,22 @@ namespace Levels
 			const float bordersHGauge = 50.0f;
 
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ -levelHSize.x - bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHSize.y + bordersHGauge * 2 }), woodTexture);
+				{ bordersHGauge, levelHSize.y + bordersHGauge * 2 }), TCM::Texture(woodTexture));
 
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHSize.y + bordersHGauge * 2 }), woodTexture);
+				{ bordersHGauge, levelHSize.y + bordersHGauge * 2 }), TCM::Texture(woodTexture));
 
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize.y - bordersHGauge },
-				{ levelHSize.x + bordersHGauge * 2, bordersHGauge }), woodTexture);
+				{ levelHSize.x + bordersHGauge * 2, bordersHGauge }), TCM::Texture(woodTexture));
 
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize.y + bordersHGauge },
-				{ levelHSize.x + bordersHGauge * 2, bordersHGauge }), woodTexture);
+				{ levelHSize.x + bordersHGauge * 2, bordersHGauge }), TCM::Texture(woodTexture));
 		}
 
 		void createGrapples()
 		{
 			ball = &Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ 0.0f, 0.0f }, 2.0f, b2_dynamicBody, 0.02f, 0.5f), 15.0f,
-				orbTexture);
+				TCM::Texture(orbTexture));
 		}
 
 		void setCamera() const

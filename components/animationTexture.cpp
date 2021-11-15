@@ -1,16 +1,17 @@
-#include "animations.hpp"
+#include "animationTexture.hpp"
 
-#include "glmHelpers.hpp"
+#include <tools/glmHelpers.hpp>
 
 #include <globals.hpp>
 
 #include <components/physics.hpp>
 
-namespace Tools
+namespace Components
 {
-	TextureAnimationController::TextureAnimationController(
-		glm::ivec2 imageSize, glm::ivec2 startPosition, glm::ivec2 frameSize, glm::ivec2 framesGrid, glm::vec2 frameStep, float frameDuration,
-		int numOfFrames, AnimationLayout animationLayout, AnimationPlayback animationPlayback, AnimationPolicy animationPolicy, glm::vec2 translate, glm::vec2 scale):
+	AnimationTexture::AnimationTexture(
+		unsigned textureId, glm::ivec2 imageSize, glm::ivec2 startPosition, glm::ivec2 frameSize, glm::ivec2 framesGrid, glm::vec2 frameStep, float frameDuration,
+		int numOfFrames, AnimationLayout animationLayout, AnimationPlayback animationPlayback, AnimationPolicy animationPolicy, glm::vec2 translate, glm::vec2 scale) :
+		textureId(textureId),
 		imageSize(imageSize),
 		startPosition(startPosition.x, -startPosition.y),
 		framesGrid(framesGrid),
@@ -27,7 +28,12 @@ namespace Tools
 	{
 	}
 
-	TextureAnimationController::FrameTransformation TextureAnimationController::getFrameTransformation() const
+	unsigned AnimationTexture::getTextureId() const
+	{
+		return textureId;
+	}
+
+	AnimationTexture::FrameTransformation AnimationTexture::getFrameTransformation() const
 	{
 		if (prevDuration && !pauseDuration)
 		{
@@ -49,37 +55,37 @@ namespace Tools
 		return { frameTranslate, frameScale };
 	}
 
-	void TextureAnimationController::start()
+	void AnimationTexture::start()
 	{
 		animationDuration = 0;
 		prevDuration = Globals::Components().physics().simulationDuration;
 		pauseDuration = std::nullopt;
 	}
 
-	void TextureAnimationController::stop()
+	void AnimationTexture::stop()
 	{
 		prevDuration = std::nullopt;
 		pauseDuration = std::nullopt;
 	}
 
-	void TextureAnimationController::pause()
+	void AnimationTexture::pause()
 	{
 		if (!pauseDuration && prevDuration) pauseDuration = Globals::Components().physics().simulationDuration;
 	}
 
-	void TextureAnimationController::resume()
+	void AnimationTexture::resume()
 	{
 		if (pauseDuration && prevDuration)
 			*prevDuration += Globals::Components().physics().simulationDuration - *pauseDuration;
 		pauseDuration = std::nullopt;
 	}
 
-	void TextureAnimationController::setDurationScale(float durationScale)
+	void AnimationTexture::setDurationScale(float durationScale)
 	{
 		this->durationScale = durationScale;
 	}
 
-	float TextureAnimationController::getDurationScale() const
+	float AnimationTexture::getDurationScale() const
 	{
 		return durationScale;
 	}

@@ -25,23 +25,20 @@ namespace Components
 	struct Missile : ComponentBase
 	{
 		Missile(Body body,
-			std::variant<std::monostate, unsigned, BlendingTexture> texture = std::monostate{},
+			TextureVariant texture = std::monostate{},
 			Tools::UniqueRenderingSetup renderingSetup = nullptr,
-			std::unique_ptr<Tools::TextureAnimationController> animationController = nullptr,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
 			texture(texture),
 			renderingSetup(std::move(renderingSetup)),
-			animationController(std::move(animationController)),
 			customShadersProgram(customShadersProgram)
 		{
 			Tools::AccessUserData(*this->body).componentId = getComponentId();
 		}
 
 		Body body;
-		std::variant<std::monostate, unsigned, BlendingTexture> texture;
+		TextureVariant texture;
 		Tools::UniqueRenderingSetup renderingSetup;
-		std::unique_ptr<Tools::TextureAnimationController> animationController;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::function<void()> step;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;

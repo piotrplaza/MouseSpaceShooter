@@ -7,7 +7,7 @@
 #include <componentId.hpp>
 #include <componentBase.hpp>
 
-#include <commonTypes/blendingTexture.hpp>
+#include <commonTypes/typeComponentMappers.hpp>
 
 namespace Tools
 {
@@ -64,7 +64,7 @@ namespace Tools
 
 	template <typename Component, typename Buffers>
 	inline void UpdateTransformedPositionsBuffers(const std::vector<Component>& components, Buffers& simpleBuffers,
-		std::unordered_map<std::variant<std::monostate, unsigned, BlendingTexture>, Buffers>& texturesToBuffers, std::vector<Buffers>& customSimpleBuffers,
+		std::unordered_map<TextureVariant, Buffers>& texturesToBuffers, std::vector<Buffers>& customSimpleBuffers,
 		std::vector<Buffers>& customTexturedBuffers, std::vector<Buffers>& customShadersBuffers)
 	{
 		simpleBuffers.positionsCache.clear();
@@ -146,7 +146,6 @@ namespace Tools
 			const auto& positions = component.getPositions();
 			buffers.renderingSetup = component.renderingSetup.get();
 			buffers.texture = component.texture;
-			buffers.animationController = component.animationController.get();
 			buffers.customShadersProgram = component.customShadersProgram;
 			buffers.positionsCache.clear();
 			buffers.positionsCache.insert(buffers.positionsCache.end(), positions.begin(), positions.end());
@@ -165,7 +164,7 @@ namespace Tools
 
 	template <typename Component, typename Buffers>
 	inline void UpdateTexCoordBuffers(const std::vector<Component>& components,
-		std::unordered_map<std::variant<std::monostate, unsigned, BlendingTexture>, Buffers>& texturesToBuffers, std::vector<Buffers>& customTexturedBuffers,
+		std::unordered_map<TextureVariant, Buffers>& texturesToBuffers, std::vector<Buffers>& customTexturedBuffers,
 		std::vector<Buffers>& customShadersTexturedBuffers)
 	{
 		for (auto& [texture, buffers] : texturesToBuffers) buffers.texCoordCache.clear();
@@ -263,7 +262,6 @@ namespace Tools
 			auto& buffers = mapOfBuffers[id];
 			buffers.renderingSetup = component.renderingSetup.get();
 			buffers.texture = component.texture;
-			buffers.animationController = component.animationController.get();
 			buffers.customShadersProgram = component.customShadersProgram;
 			buffers.positionsCache = component.getPositions();
 			buffers.resolutionMode = component.resolutionMode;

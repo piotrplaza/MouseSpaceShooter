@@ -12,6 +12,7 @@
 
 #include <globals.hpp>
 #include <components/texture.hpp>
+#include <components/animationTexture.hpp>
 #include <components/mvp.hpp>
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
@@ -21,7 +22,7 @@
 
 #include <tools/utility.hpp>
 
-#include <commonTypes/blendingTexture.hpp>
+#include <commonTypes/typeComponentMappers.hpp>
 
 namespace Tools
 {
@@ -33,45 +34,49 @@ namespace Tools
 	}
 
 	template <typename ShadersProgram>
-	inline void StaticTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned texture, bool textureRatioPreserved)
+	inline void StaticTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned textureId, bool textureRatioPreserved)
 	{
-		const auto& textureComponent = Globals::Components().textures()[texture];
+		const auto& textureComponent = Globals::Components().textures()[textureId];
 
-		shadersProgram.texture1Uniform.setValue(texture);
+		shadersProgram.texture1Uniform.setValue(textureId);
 		shadersProgram.textureTranslateUniform.setValue(textureComponent.translate);
 		shadersProgram.textureScaleUniform.setValue(
 			{ (textureRatioPreserved ? (float)textureComponent.loaded.size.x / textureComponent.loaded.size.y : 1.0f)
 			* textureComponent.scale.x, textureComponent.scale.y });
 	}
 
-	template <typename ShadersProgram, typename AnimationController>
-	inline void AnimatedTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned texture,
-		const AnimationController& animationController)
+	template <typename ShadersProgram>
+	inline void AnimatedTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned animationTextureId)
 	{
-		const auto& textureComponent = Globals::Components().textures()[texture];
+		const auto& animationTexture = Globals::Components().animationTextures()[animationTextureId];
 
-		shadersProgram.texture1Uniform.setValue(texture);
-		const auto frameTransformation = animationController.getFrameTransformation();
+		shadersProgram.texture1Uniform.setValue(animationTexture.getTextureId());
+		const auto frameTransformation = animationTexture.getFrameTransformation();
 		shadersProgram.textureTranslateUniform.setValue(frameTransformation.translate);
 		shadersProgram.textureScaleUniform.setValue(frameTransformation.scale);
 	}
 
 	template <typename ShadersProgram>
-	class StaticTexturedRenderInitializationVisitor
+	class TexturedRenderInitializationVisitor
 	{
 	public:
-		StaticTexturedRenderInitializationVisitor(ShadersProgram& shadersProgram, bool textureRatioPreserved):
+		TexturedRenderInitializationVisitor(ShadersProgram& shadersProgram, bool textureRatioPreserved):
 			shadersProgram(shadersProgram),
 			textureRatioPreserved(textureRatioPreserved)
 		{
 		}
 
-		void operator ()(unsigned texture)
+		void operator ()(TCM::Texture texture)
 		{
-			StaticTexturedRenderInitialization(shadersProgram, texture, textureRatioPreserved);
+			StaticTexturedRenderInitialization(shadersProgram, texture.id, textureRatioPreserved);
 		}
 
-		void operator ()(const BlendingTexture& blendingTexture)
+		void operator ()(TCM::AnimationTexture animationTexture)
+		{
+			AnimatedTexturedRenderInitialization(shadersProgram, animationTexture.id);
+		}
+
+		void operator ()(TCM::BlendingTexture blendingTexture)
 		{
 			assert(!"Unsupported yet.");
 		}
@@ -86,43 +91,10 @@ namespace Tools
 		bool textureRatioPreserved;
 	};
 
-	template <typename ShadersProgram, typename AnimationController>
-	class AnimatedTexturedRenderInitializationVisitor
-	{
-	public:
-		AnimatedTexturedRenderInitializationVisitor(ShadersProgram& shadersProgram, const AnimationController& animationController):
-			shadersProgram(shadersProgram),
-			animationController(animationController)
-		{
-		}
-
-		void operator ()(unsigned texture)
-		{
-			AnimatedTexturedRenderInitialization(shadersProgram, texture, animationController);
-		}
-
-		void operator ()(const BlendingTexture& blendingTexture)
-		{
-			assert(!"Unsupported yet.");
-		}
-
-		void operator ()(std::monostate)
-		{
-			assert(!"Wrong variant state.");
-		}
-
-	private:
-		ShadersProgram& shadersProgram;
-		const AnimationController& animationController;
-	};
-
 	template <typename ShadersProgram, typename Buffers>
-	inline void TexturedRender(ShadersProgram& shadersProgram, const Buffers& buffers, const std::variant<std::monostate, unsigned, BlendingTexture>& texture)
+	inline void TexturedRender(ShadersProgram& shadersProgram, const Buffers& buffers, const TextureVariant& texture)
 	{
-		if (buffers.animationController)
-			std::visit(AnimatedTexturedRenderInitializationVisitor{ shadersProgram, *buffers.animationController }, texture);
-		else
-			std::visit(StaticTexturedRenderInitializationVisitor{ shadersProgram, buffers.textureRatioPreserved }, texture);
+		std::visit(TexturedRenderInitializationVisitor{ shadersProgram, buffers.textureRatioPreserved }, texture);
 
 		std::function<void()> renderingTeardown;
 		if (buffers.renderingSetup)

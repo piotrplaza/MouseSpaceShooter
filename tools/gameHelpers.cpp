@@ -14,16 +14,18 @@
 #include <components/mvp.hpp>
 #include <components/camera.hpp>
 #include <components/screenInfo.hpp>
+#include <components/animationTexture.hpp>
 
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/textured.hpp>
 #include <ogl/shaders/julia.hpp>
 
-#include <tools/animations.hpp>
 #include <tools/b2Helpers.hpp>
 #include <tools/utility.hpp>
 
 #include <collisionBits.hpp>
+
+#include <commonTypes/typeComponentMappers.hpp>
 
 namespace Tools
 {
@@ -32,7 +34,7 @@ namespace Tools
 		PlayerPlaneHandler playerPlaneHandler;
 
 		playerPlaneHandler.playerId = Globals::Components().players().size();
-		auto& player = Globals::Components().players().emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), planeTexture);
+		auto& player = Globals::Components().players().emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), TCM::Texture(planeTexture));
 		SetCollisionFilteringBits(*player.body, CollisionBits::playerBit, CollisionBits::all);
 		player.setPosition({ -10.0f, 0.0f });
 		player.renderingSetup = Tools::MakeUniqueRenderingSetup([
@@ -46,9 +48,16 @@ namespace Tools
 
 		for (int i = 0; i < 2; ++i)
 		{
+			const unsigned animationTextureId = Globals::Components().animationTextures().size();
+			Globals::Components().animationTextures().push_back(Components::AnimationTexture(
+				flameAnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
+				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
+				{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
+			auto& animationTexture = Globals::Components().animationTextures().back();
+
 			playerPlaneHandler.backThrustsIds[i] = Globals::Components().farMidgroundDecorations().size();
 			auto& decoration = Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }),
-				flameAnimationTexture);
+				TCM::AnimationTexture(animationTextureId));
 
 			decoration.renderingSetup = Tools::MakeUniqueRenderingSetup([&, i, modelUniform = Uniforms::UniformControllerMat4f(),
 				thrustScale = 1.0f
@@ -68,12 +77,7 @@ namespace Tools
 				return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
 			});
 
-			decoration.animationController.reset(new Tools::TextureAnimationController(
-				{ 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
-				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
-				{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
-
-			decoration.animationController->start();
+			animationTexture.start();
 		}
 
 		return playerPlaneHandler;
@@ -122,7 +126,7 @@ namespace Tools
 		SetCollisionFilteringBits(body, CollisionBits::missileBit, CollisionBits::all - CollisionBits::missileBit - CollisionBits::playerBit);
 		body.SetBullet(true);
 		body.SetLinearVelocity({ initialVelocity.x, initialVelocity.y });
-		missile.texture = missileTexture;
+		missile.texture = TCM::Texture(missileTexture);
 		missile.renderingSetup = Tools::MakeUniqueRenderingSetup(
 			[modelUniform = Uniforms::UniformControllerMat4f(), &body](Shaders::ProgramId program) mutable
 		{
@@ -140,8 +144,15 @@ namespace Tools
 			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
 		};
 
+		const unsigned animationTextureId = Globals::Components().animationTextures().size();
+		Globals::Components().animationTextures().push_back(Components::AnimationTexture(
+			flameAnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
+			AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
+			{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
+		auto& animationTexture = Globals::Components().animationTextures().back();
+
 		auto& decoration = EmplaceIdComponent(Globals::Components().temporaryFarMidgroundDecorations(), { Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }),
-			flameAnimationTexture });
+			TCM::AnimationTexture(animationTextureId) });
 		decoration.renderingSetup = Tools::MakeUniqueRenderingSetup([&, modelUniform = Uniforms::UniformControllerMat4f(),
 			thrustScale = 0.1f
 		](Shaders::ProgramId program) mutable {
@@ -159,12 +170,7 @@ namespace Tools
 			return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
 		});
 
-		decoration.animationController.reset(new Tools::TextureAnimationController(
-			{ 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
-			AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
-			{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
-
-		decoration.animationController->start();
+		animationTexture.start();
 
 		return { missile.getComponentId(), decoration.getComponentId() };
 	}
@@ -228,7 +234,7 @@ namespace Tools
 		for (int posYI = -1; posYI <= 1; ++posYI)
 		for (int posXI = -1; posXI <= 1; ++posXI)
 		{
-			Globals::Components().foregroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)), fogTexture);
+			Globals::Components().foregroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)), TCM::Texture(fogTexture));
 			Globals::Components().foregroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
 			Globals::Components().foregroundDecorations().back().renderingSetup = Tools::MakeUniqueRenderingSetup([=, texturedProgram = Shaders::Programs::TexturedAccessor()
 			](Shaders::ProgramId program) mutable {
