@@ -39,8 +39,8 @@ namespace Systems
 		Globals::Systems().decorations().renderBackground();
 		Globals::Systems().decorations().renderFarMidground();
 		Globals::Systems().walls().render();
-		Globals::Systems().players().render();
 		Globals::Systems().temporaries().render();
+		Globals::Systems().players().render();
 		Globals::Systems().decorations().renderMidground();
 		Globals::Systems().decorations().renderNearMidground();
 		Globals::Systems().decorations().renderForeground();
