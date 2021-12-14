@@ -28,7 +28,7 @@ namespace Systems
 	void RenderingController::render() const
 	{
 		const auto& screenInfo = Globals::Components().screenInfo();
-		auto& framebuffers = Globals::Components().framebuffers();
+		const auto& framebuffers = Globals::Components().framebuffers();
 		const glm::vec4& clearColor = Globals::Components().graphicsSettings().clearColor;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.main.fbo);

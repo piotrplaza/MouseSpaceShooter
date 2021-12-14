@@ -75,7 +75,7 @@ namespace Levels
 
 			weedTexture = textures.size();
 			textures.emplace_back("textures/weed.png");
-			textures.back().minFilter = GL_LINEAR_MIPMAP_NEAREST;
+			textures.back().minFilter = GL_LINEAR_MIPMAP_LINEAR;
 
 			roseTexture = textures.size();
 			textures.emplace_back("textures/rose.png");
@@ -197,13 +197,14 @@ namespace Levels
 				](Shaders::ProgramId program) mutable {
 					if (!basicProgram.isValid()) basicProgram = program;
 					basicProgram.colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.0f });
-					return nullptr;
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
 				});
 				Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
 					[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
 					[](float input) { return glm::vec2(input + 0.3f, input + 0.3f); },
 					[](float input) { return input * 600.0f; },
-					[value = 0.0f]() mutable->std::optional<float> {
+					[value = 0.0f]() mutable -> std::optional<float> {
 					if (value > 1.0f) return std::nullopt;
 					float result = value;
 					value += 0.002f;
@@ -218,7 +219,8 @@ namespace Levels
 					texturedProgram.colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
 						(glm::sin(Globals::Components().physics().simulationDuration * glm::two_pi<float>()) + 1.0f) / 2.0f + 0.5f });
 					texturedProgram.modelUniform.setValue(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
-					return nullptr;
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
 				});
 			}
 			Globals::Components().midgroundDecorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
@@ -245,6 +247,7 @@ namespace Levels
 				{ { -levelHSize, -levelHSize }, { levelHSize, -levelHSize }, { levelHSize, levelHSize }, { -levelHSize, levelHSize }, { -levelHSize, -levelHSize } },
 				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture));
 			Globals::Components().nearMidgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
+			//Globals::Components().nearMidgroundDecorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
 		}
 
 		void createGrapples() const
@@ -257,7 +260,8 @@ namespace Levels
 				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
 				colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
 					(glm::sin(Globals::Components().physics().simulationDuration / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
-				return nullptr;
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
 			});
 			Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f,
 				TCM::Texture(orbTexture));

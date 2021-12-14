@@ -22,7 +22,7 @@ namespace Systems
 	private:
 		struct TextureCache
 		{
-			std::unique_ptr<unsigned char[]> bytes;
+			std::unique_ptr<float[]> channels;
 			glm::ivec2 size = {0, 0};
 			int bitDepth = 0;
 		};

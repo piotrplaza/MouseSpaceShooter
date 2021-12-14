@@ -40,6 +40,8 @@ namespace Components
 		glm::vec2 translate{ 0.0f };
 		glm::vec2 scale{ 1.0f };
 
+		bool premultipliedAlpha = true;
+
 		struct
 		{
 			unsigned textureUnit = 0;

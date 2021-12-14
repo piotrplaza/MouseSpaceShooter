@@ -74,7 +74,7 @@ namespace Tools
 
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-				return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
+				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
 			});
 
 			animationTexture.start();
@@ -167,7 +167,7 @@ namespace Tools
 
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-			return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
+			return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
 		});
 
 		animationTexture.start();
@@ -196,7 +196,7 @@ namespace Tools
 
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-				return []() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); };
+				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
 			});
 			Globals::Systems().deferredActions().addDeferredAction([=, startTime = Globals::Components().physics().simulationDuration, &shockwave, &explosionDecoration]() {
 				const float elapsed = Globals::Components().physics().simulationDuration - startTime;
@@ -247,7 +247,7 @@ namespace Tools
 
 				return [texturedProgram]() mutable {
 					texturedProgram.vpUniform.setValue(Globals::Components().mvp().getVP());
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 				};
 			});
 			Globals::Components().foregroundDecorations().back().resolutionMode = ResolutionMode::LowestLinearBlend1;

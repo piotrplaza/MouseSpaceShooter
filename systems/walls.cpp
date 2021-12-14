@@ -178,6 +178,8 @@ namespace Systems
 
 	void Walls::basicRender() const
 	{
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
 		Globals::Shaders().basic().vpUniform.setValue(Globals::Components().mvp().getVP());
 		Globals::Shaders().basic().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
@@ -194,6 +196,8 @@ namespace Systems
 
 		for (const auto& customSimpleStaticWallBuffers : customSimpleStaticWallsBuffers)
 		{
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 			Globals::Shaders().basic().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 			Globals::Shaders().basic().modelUniform.setValue(glm::mat4(1.0f));
 
@@ -209,6 +213,8 @@ namespace Systems
 
 		for (const auto& customSimpleDynamicWallBuffers : customSimpleDynamicWallsBuffers)
 		{
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 			Globals::Shaders().basic().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 			Globals::Shaders().basic().modelUniform.setValue(glm::mat4(1.0f));
 
@@ -224,6 +230,8 @@ namespace Systems
 
 		for (const auto& customSimpleGrappleBuffers : customSimpleGrapplesBuffers)
 		{
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 			Globals::Shaders().basic().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 			Globals::Shaders().basic().modelUniform.setValue(glm::mat4(1.0f));
 
@@ -236,5 +244,7 @@ namespace Systems
 			if (renderingTeardown)
 				renderingTeardown();
 		}
+
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	}
 }

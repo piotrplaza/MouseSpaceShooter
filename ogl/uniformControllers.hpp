@@ -48,6 +48,18 @@ namespace Uniforms
 		glm::ivec2 cache{};
 	};
 
+	class UniformController1b : public UniformController
+	{
+	public:
+		using UniformController::UniformController;
+
+		void setValue(bool value);
+		bool getValue() const;
+
+	private:
+		bool cache{};
+	};
+
 	class UniformController1f : public UniformController
 	{
 	public:

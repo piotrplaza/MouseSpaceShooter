@@ -23,6 +23,7 @@ namespace Systems
 	{
 		static_assert(maxTextureObjects <= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 		stbi_set_flip_vertically_on_load(true);
+		stbi_ldr_to_hdr_gamma(1.0f);
 	}
 
 	void Textures::postInit()
@@ -51,10 +52,10 @@ namespace Systems
 		glBindTexture(GL_TEXTURE_2D, texture.loaded.textureObject);
 
 		auto& textureCache = pathsToTexturesCache[texture.path];
-		if (!textureCache.bytes)
+		if (!textureCache.channels)
 		{
-			textureCache.bytes.reset(stbi_load(texture.path.c_str(), &textureCache.size.x, &textureCache.size.y, &textureCache.bitDepth, 0));
-			if (!textureCache.bytes)
+			textureCache.channels.reset(stbi_loadf(texture.path.c_str(), &textureCache.size.x, &textureCache.size.y, &textureCache.bitDepth, 0));
+			if (!textureCache.channels)
 			{
 				assert(!"Unable to load image.");
 				throw std::runtime_error("Unable to load image \"" + texture.path + "\".");
@@ -66,14 +67,23 @@ namespace Systems
 
 		const GLint format = texture.loaded.bitDepth == 4 ? GL_RGBA : texture.loaded.bitDepth == 3 ? GL_RGB : texture.loaded.bitDepth == 2 ? GL_RG : GL_RED;
 
+		if (texture.premultipliedAlpha && format == GL_RGBA)
+		{
+			for (int i = 0; i < textureCache.size.x * textureCache.size.y * textureCache.bitDepth; i += 4)
+			{
+				textureCache.channels[i] *= textureCache.channels[i + 3];
+				textureCache.channels[i + 1] *= textureCache.channels[i + 3];
+				textureCache.channels[i + 2] *= textureCache.channels[i + 3];
+			}
+		}
+
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture.wrapMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture.wrapMode);
-
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture.minFilter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texture.magFilter);
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, texture.loaded.size.x, texture.loaded.size.y, 0, format, GL_UNSIGNED_BYTE, textureCache.bytes.get());
+		glTexImage2D(GL_TEXTURE_2D, 0, format, texture.loaded.size.x, texture.loaded.size.y, 0, format, GL_FLOAT, textureCache.channels.get());
 
 		if (texture.minFilter == GL_LINEAR_MIPMAP_LINEAR ||
 			texture.minFilter == GL_LINEAR_MIPMAP_NEAREST ||

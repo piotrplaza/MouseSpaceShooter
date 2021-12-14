@@ -47,6 +47,20 @@ namespace Uniforms
 		return cache;
 	}
 
+	void UniformController1b::setValue(bool value)
+	{
+		assert(isValid());
+		cache = value;
+		glUseProgram_proxy(programId);
+		glUniform1i(uniformId, value);
+	}
+
+	bool UniformController1b::getValue() const
+	{
+		assert(isValid());
+		return cache;
+	}
+
 	void UniformController1f::setValue(float value)
 	{
 		assert(isValid());

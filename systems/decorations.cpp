@@ -198,6 +198,8 @@ namespace Systems
 
 		auto render = [&](const auto& buffers)
 		{
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.resolutionMode);
 			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
 				lowResSubBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
@@ -223,5 +225,7 @@ namespace Systems
 
 		for (const auto& [id, buffers] : temporaryBuffers)
 			render(buffers);
+
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	}
 }
