@@ -79,7 +79,7 @@ namespace Levels
 
 			roseTexture = textures.size();
 			textures.emplace_back("textures/rose.png");
-			textures.back().minFilter = GL_LINEAR_MIPMAP_NEAREST;
+			textures.back().minFilter = GL_LINEAR_MIPMAP_LINEAR;
 
 			fogTexture = textures.size();
 			textures.emplace_back("textures/fog.png");
@@ -191,14 +191,14 @@ namespace Levels
 						return nullptr;
 					}),
 					texturedColorThresholdShaders.getProgramId());
+				const auto wallId = Globals::Components().dynamicWalls().size();
 				Globals::Components().dynamicWalls().emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f));
 				Globals::Components().dynamicWalls().back().renderingSetup = Tools::MakeUniqueRenderingSetup([
 					basicProgram = Shaders::Programs::BasicAccessor()
 				](Shaders::ProgramId program) mutable {
 					if (!basicProgram.isValid()) basicProgram = program;
-					basicProgram.colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.0f });
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-					return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+					basicProgram.colorUniform.setValue(glm::vec4(0.0f));
+					return nullptr;
 				});
 				Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
 					[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
@@ -212,15 +212,13 @@ namespace Levels
 				}), TCM::Texture(roseTexture));
 				Globals::Components().midgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
 				Globals::Components().midgroundDecorations().back().renderingSetup = Tools::MakeUniqueRenderingSetup([
-					texturedProgram = Shaders::Programs::TexturedAccessor(),
-					wallId = Globals::Components().dynamicWalls().size() - 1
+					wallId, texturedProgram = Shaders::Programs::TexturedAccessor()
 				](Shaders::ProgramId program) mutable {
 					if (!texturedProgram.isValid()) texturedProgram = program;
-					texturedProgram.colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
-						(glm::sin(Globals::Components().physics().simulationDuration * glm::two_pi<float>()) + 1.0f) / 2.0f + 0.5f });
+					texturedProgram.colorUniform.setValue(glm::vec4(
+						glm::sin(Globals::Components().physics().simulationDuration * glm::two_pi<float>() * 0.2f) + 1.0f) / 2.0f);
 					texturedProgram.modelUniform.setValue(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-					return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+					return nullptr;
 				});
 			}
 			Globals::Components().midgroundDecorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
@@ -258,10 +256,8 @@ namespace Levels
 				colorUniform = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {
 				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-				colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
-					(glm::sin(Globals::Components().physics().simulationDuration / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+				colorUniform.setValue(glm::vec4(glm::sin(Globals::Components().physics().simulationDuration / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f);
+				return nullptr;
 			});
 			Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f,
 				TCM::Texture(orbTexture));

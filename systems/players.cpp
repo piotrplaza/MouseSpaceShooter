@@ -137,8 +137,6 @@ namespace Systems
 
 	void Players::basicRender() const
 	{
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
 		Globals::Shaders().basic().vpUniform.setValue(Globals::Components().mvp().getVP());
 		Globals::Shaders().basic().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
@@ -149,8 +147,6 @@ namespace Systems
 
 		for (const auto& customSimplePlayerBuffers : customSimplePlayersBuffers)
 		{
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 			Globals::Shaders().basic().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 			Globals::Shaders().basic().modelUniform.setValue(glm::mat4(1.0f));
 
@@ -163,8 +159,6 @@ namespace Systems
 			if (renderingTeardown)
 				renderingTeardown();
 		}
-
-		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	void Players::sceneCoordTexturedRender() const
@@ -208,16 +202,12 @@ namespace Systems
 
 	void Players::coloredRender() const
 	{
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 		glUseProgram_proxy(Globals::Shaders().colored().getProgramId());
 		Globals::Shaders().colored().vpUniform.setValue(Globals::Components().mvp().getVP());
 		Globals::Shaders().colored().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
 		Globals::Shaders().colored().modelUniform.setValue(glm::mat4(1.0f));
 		glBindVertexArray(connectionsBuffers->vertexArray);
 		glDrawArrays(GL_LINES, 0, connectionsBuffers->positionsCache.size());
-
-		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	void Players::turn(Components::Player& player, glm::vec2 controllerDelta) const
@@ -316,32 +306,32 @@ namespace Systems
 						if (player.grappleJoint)
 						{
 							connections.emplace_back(player.getCenter(), grapple.getCenter(),
-								glm::vec4(0.0f, 1.0f, 0.0f, 0.2f), 1);
+								glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) * 0.2f, 1);
 						}
 						player.weakConnectedGrappleId = grappleInRange;
 					}
 					else
 					{
 						connections.emplace_back(player.getCenter(), grapple.getCenter(),
-							glm::vec4(0.0f, 1.0f, 0.0f, 0.2f), 1);
+							glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) * 0.2f, 1);
 					}
 				}
 			}
 			else if (player.connectedGrappleId != grappleInRange)
 			{
-				connections.emplace_back(player.getCenter(), grapple.getCenter(), glm::vec4(1.0f, 0.0f, 0.0f, 0.2f), 1);
+				connections.emplace_back(player.getCenter(), grapple.getCenter(), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) * 0.2f, 1);
 			}
 		}
 
 		if (player.connectedGrappleId != -1)
 		{
 			connections.emplace_back(player.getCenter(), Globals::Components().grapples()[player.connectedGrappleId].getCenter(),
-				glm::vec4(0.0f, 0.0f, 1.0f, 0.7f), 20, 0.4f);
+				glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) * 0.7f, 20, 0.4f);
 		}
 		else if (player.weakConnectedGrappleId != -1)
 		{
 			connections.emplace_back(player.getCenter(), Globals::Components().grapples()[player.weakConnectedGrappleId].getCenter(),
-				glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), 1);
+				glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) * 0.5f, 1);
 		}
 	}
 
