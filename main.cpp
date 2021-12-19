@@ -51,7 +51,7 @@ void OGLInitialize()
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	glLineWidth(3.0f);
+	glLineWidth(5.0f);
 }
 
 void CreateLevel()

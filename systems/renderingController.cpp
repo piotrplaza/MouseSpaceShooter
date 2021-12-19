@@ -18,11 +18,13 @@
 
 namespace Systems
 {
-	RenderingController::RenderingController() = default;
+	RenderingController::RenderingController()
+	{
+		initGraphics();
+	}
 
 	void RenderingController::postInit() const
 	{
-		initGraphics();
 	}
 
 	void RenderingController::render() const
