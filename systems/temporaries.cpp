@@ -11,6 +11,7 @@
 
 #include <components/missile.hpp>
 #include <components/decoration.hpp>
+#include <components/renderingSetup.hpp>
 #include <components/mvp.hpp>
 #include <components/graphicsSettings.hpp>
 
@@ -49,7 +50,7 @@ namespace Systems
 
 			std::function<void()> renderingTeardown;
 			if (currentBuffers.renderingSetup)
-				renderingTeardown = (*currentBuffers.renderingSetup)(*currentBuffers.customShadersProgram);
+				renderingTeardown = Globals::Components().renderingSetups()[currentBuffers.renderingSetup](*currentBuffers.customShadersProgram);
 
 			glBindVertexArray(currentBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());
@@ -84,7 +85,7 @@ namespace Systems
 
 			std::function<void()> renderingTeardown;
 			if (currentBuffers.renderingSetup)
-				renderingTeardown = (*currentBuffers.renderingSetup)(Globals::Shaders().basic().getProgramId());
+				renderingTeardown = Globals::Components().renderingSetups()[currentBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
 
 			glBindVertexArray(currentBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());

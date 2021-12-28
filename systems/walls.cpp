@@ -16,6 +16,7 @@
 
 #include <components/physics.hpp>
 #include <components/mvp.hpp>
+#include <components/renderingSetup.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
 #include <components/texture.hpp>
@@ -102,7 +103,7 @@ namespace Systems
 
 			std::function<void()> renderingTeardown;
 			if (currentBuffers.renderingSetup)
-				renderingTeardown = (*currentBuffers.renderingSetup)(*currentBuffers.customShadersProgram);
+				renderingTeardown = Globals::Components().renderingSetups()[currentBuffers.renderingSetup](*currentBuffers.customShadersProgram);
 
 			glBindVertexArray(currentBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());
@@ -198,7 +199,7 @@ namespace Systems
 			Globals::Shaders().basic().modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				(*customSimpleStaticWallBuffers.renderingSetup)(Globals::Shaders().basic().getProgramId());
+				Globals::Components().renderingSetups()[customSimpleStaticWallBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
 
 			glBindVertexArray(customSimpleStaticWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimpleStaticWallBuffers.positionsCache.size());
@@ -213,7 +214,7 @@ namespace Systems
 			Globals::Shaders().basic().modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				(*customSimpleDynamicWallBuffers.renderingSetup)(Globals::Shaders().basic().getProgramId());
+				Globals::Components().renderingSetups()[customSimpleDynamicWallBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
 
 			glBindVertexArray(customSimpleDynamicWallBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimpleDynamicWallBuffers.positionsCache.size());
@@ -228,7 +229,7 @@ namespace Systems
 			Globals::Shaders().basic().modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				(*customSimpleGrappleBuffers.renderingSetup)(Globals::Shaders().basic().getProgramId());
+				Globals::Components().renderingSetups()[customSimpleGrappleBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
 
 			glBindVertexArray(customSimpleGrappleBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimpleGrappleBuffers.positionsCache.size());

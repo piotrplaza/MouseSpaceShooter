@@ -24,6 +24,7 @@
 #include <components/player.hpp>
 #include <components/physics.hpp>
 #include <components/mvp.hpp>
+#include <components/renderingSetup.hpp>
 #include <components/mouseState.hpp>
 #include <components/grapple.hpp>
 #include <components/texture.hpp>
@@ -46,8 +47,7 @@ namespace Systems
 
 	void Players::step()
 	{
-		for (auto& player : Globals::Components().players())
-		{
+		Globals::ForEach(Globals::Components().players(), [&](auto& player) {
 			const glm::ivec2 windowSpaceMouseDelta = Globals::Components().mouseState().getMouseDelta();
 			const glm::vec2 mouseDelta = { windowSpaceMouseDelta.x, -windowSpaceMouseDelta.y };
 
@@ -57,7 +57,7 @@ namespace Systems
 
 			updatePlayersPositionsBuffers();
 			updateConnectionsGraphicsBuffers();
-		}
+			});
 	}
 
 	void Players::render() const
@@ -151,7 +151,7 @@ namespace Systems
 			Globals::Shaders().basic().modelUniform.setValue(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				(*customSimplePlayerBuffers.renderingSetup)(Globals::Shaders().basic().getProgramId());
+				Globals::Components().renderingSetups()[customSimplePlayerBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
 
 			glBindVertexArray(customSimplePlayerBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, customSimplePlayerBuffers.positionsCache.size());
@@ -190,7 +190,7 @@ namespace Systems
 
 			std::function<void()> renderingTeardown;
 			if (currentBuffers.renderingSetup)
-				renderingTeardown = (*currentBuffers.renderingSetup)(*currentBuffers.customShadersProgram);
+				renderingTeardown = Globals::Components().renderingSetups()[currentBuffers.renderingSetup](*currentBuffers.customShadersProgram);
 
 			glBindVertexArray(currentBuffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());
@@ -261,7 +261,7 @@ namespace Systems
 		float nearestGrappleDistance = std::numeric_limits<float>::infinity();
 		std::vector<int> grapplesInRange;
 
-		for (int i = 0; i < (int)Globals::Components().grapples().size(); ++i)
+		for (int i = 1; i < (int)Globals::Components().grapples().size(); ++i)
 		{
 			const auto& grapple = Globals::Components().grapples()[i];
 			const float grappleDistance = glm::distance(player.getCenter(), grapple.getCenter());

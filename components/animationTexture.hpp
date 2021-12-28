@@ -5,15 +5,18 @@
 
 #include <glm/vec2.hpp>
 
+#include <componentBase.hpp>
+
 enum class AnimationLayout { Horizontal, Vertical };
 enum class AnimationPlayback { Forward, Backward };
 enum class AnimationPolicy { StopOnLastFrame, Repeat, Pingpong };
 
 namespace Components
 {
-	struct AnimationTexture
+	struct AnimationTexture : ComponentBase
 	{
-	public:
+		using ComponentBase::ComponentBase;
+
 		struct FrameTransformation
 		{
 			glm::vec2 translate;

@@ -28,11 +28,13 @@ namespace Systems
 
 	void StateController::postInit() const
 	{
-		for (auto& player : Globals::Components().players())
+		Globals::ForEach(Globals::Components().players(), [](auto& player) {
 			player.previousCenter = player.getCenter();
+			});
 
-		for (auto& grapple : Globals::Components().grapples())
+		Globals::ForEach(Globals::Components().grapples(), [](auto& grapple) {
 			grapple.previousCenter = grapple.getCenter();
+			});
 	}
 
 	void StateController::frameSetup() const
@@ -46,11 +48,13 @@ namespace Systems
 		for (auto& [id, frameTeardown] : Globals::Components().frameTeardowns())
 			frameTeardown();
 
-		for (auto& player : Globals::Components().players())
+		Globals::ForEach(Globals::Components().players(), [](auto& player) {
 			player.previousCenter = player.getCenter();
+			});
 
-		for (auto& grapple : Globals::Components().grapples())
+		Globals::ForEach(Globals::Components().grapples(), [](auto& grapple) {
 			grapple.previousCenter = grapple.getCenter();
+			});
 	}
 
 	void StateController::changeWindowSize(glm::ivec2 size) const

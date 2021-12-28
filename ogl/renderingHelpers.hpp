@@ -98,7 +98,7 @@ namespace Tools
 
 		std::function<void()> renderingTeardown;
 		if (buffers.renderingSetup)
-			renderingTeardown = (*buffers.renderingSetup)(shadersProgram.getProgramId());
+			renderingTeardown = Globals::Components().renderingSetups()[buffers.renderingSetup](shadersProgram.getProgramId());
 
 		glBindVertexArray(buffers.vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, buffers.positionsCache.size());

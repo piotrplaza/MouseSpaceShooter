@@ -15,7 +15,6 @@
 #include <commonTypes/typeComponentMappers.hpp>
 
 #include <ogl/shaders.hpp>
-#include <ogl/renderingSetup.hpp>
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>
@@ -26,9 +25,11 @@ namespace Components
 {
 	struct Grapple : ComponentBase
 	{
+		using ComponentBase::ComponentBase;
+
 		Grapple(Body body, float influenceRadius,
 			TextureVariant texture = std::monostate{},
-			Tools::UniqueRenderingSetup renderingSetup = nullptr,
+			ComponentId renderingSetup = 0,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
 			influenceRadius(influenceRadius),
@@ -42,7 +43,7 @@ namespace Components
 		Body body;
 		float influenceRadius;
 		TextureVariant texture;
-		Tools::UniqueRenderingSetup renderingSetup;
+		ComponentId renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;
 

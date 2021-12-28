@@ -9,7 +9,9 @@
 #include <tools/utility.hpp>
 #endif
 
-enum class ComponentState {Ongoing, Changed, Outdated};
+enum class ComponentState {Ongoing, Changed, Outdated, Fake};
+
+static constexpr class FakeComponent {} fakeComponent;
 
 struct ComponentBase
 {
@@ -24,7 +26,14 @@ struct ComponentBase
 		}
 		std::cout << componentId << std::endl;
 	}
+#else
+	ComponentBase() = default;
 #endif
+
+	ComponentBase(FakeComponent):
+		state(ComponentState::Fake)
+	{
+	}
 
 	ComponentId getComponentId() const
 	{

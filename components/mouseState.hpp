@@ -8,6 +8,8 @@ namespace Components
 {
 	struct MouseState : ComponentBase
 	{
+		using ComponentBase::ComponentBase;
+
 		bool lmb{ false };
 		bool rmb{ false };
 		bool mmb{ false };

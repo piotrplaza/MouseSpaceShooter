@@ -26,6 +26,7 @@ namespace Components
 	struct Texture;
 	struct AnimationTexture;
 	struct BlendingTexture;
+	struct RenderingSetup;
 	struct Player;
 	struct Wall;
 	struct Grapple;
@@ -82,6 +83,8 @@ namespace Globals
 	class Components
 	{
 	public:
+		Components();
+
 		::Components::MouseState& mouseState();
 		::Components::ScreenInfo& screenInfo();
 		::Components::MVP& mvp();
@@ -94,6 +97,7 @@ namespace Globals
 		std::vector<::Components::Texture>& textures();
 		std::vector<::Components::AnimationTexture>& animationTextures();
 		std::vector<::Components::BlendingTexture>& blendingTextures();
+		std::vector<::Components::RenderingSetup>& renderingSetups();
 		std::vector<::Components::Player>& players();
 		std::vector<::Components::Wall>& staticWalls();
 		std::vector<::Components::Wall>& dynamicWalls();
@@ -129,6 +133,7 @@ namespace Globals
 		std::vector<::Components::Texture> textures_;
 		std::vector<::Components::AnimationTexture> animationTextures_;
 		std::vector<::Components::BlendingTexture> blendingTextures_;
+		std::vector<::Components::RenderingSetup> renderingSetups_;
 		std::vector<::Components::Player> players_;
 		std::vector<::Components::Wall> staticWalls_;
 		std::vector<::Components::Wall> dynamicWalls_;
@@ -189,4 +194,22 @@ namespace Globals
 	::ComponentIdGenerator& ComponentIdGenerator();
 	class Components& Components();
 	class Systems& Systems();
+
+	template <typename Component, typename F>
+	inline void ForEach(std::vector<Component>& components, F f)
+	{
+		for (auto it = std::next(components.begin()); it != components.end(); ++it)
+		{
+			f(*it);
+		}
+	}
+
+	template <typename Component, typename F>
+	inline void ForEach(const std::vector<Component>& components, F f)
+	{
+		for (auto it = std::next(components.begin()); it != components.end(); ++it)
+		{
+			f(*it);
+		}
+	}
 }

@@ -25,8 +25,14 @@
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="levels\level.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
-    <ClCompile Include="levels\race1\race1.cpp" />
-    <ClCompile Include="levels\rocketball\rocketball.cpp" />
+    <ClCompile Include="levels\race1\race1.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="levels\rocketball\rocketball.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ogl\buffers\posTexCoordBuffers.cpp" />
     <ClCompile Include="ogl\oglHelpers.cpp" />
@@ -73,6 +79,7 @@
     <ClInclude Include="components\mvp.hpp" />
     <ClInclude Include="components\physics.hpp" />
     <ClInclude Include="components\player.hpp" />
+    <ClInclude Include="components\renderingSetup.hpp" />
     <ClInclude Include="components\screenInfo.hpp" />
     <ClInclude Include="components\shockwave.hpp" />
     <ClInclude Include="components\texture.hpp" />
@@ -88,7 +95,6 @@
     <ClInclude Include="ogl\oglHelpers.hpp" />
     <ClInclude Include="ogl\oglProxy.hpp" />
     <ClInclude Include="ogl\renderingHelpers.hpp" />
-    <ClInclude Include="ogl\renderingSetup.hpp" />
     <ClInclude Include="ogl\shaders.hpp" />
     <ClInclude Include="ogl\shaders\basic.hpp" />
     <ClInclude Include="ogl\shaders\colored.hpp" />

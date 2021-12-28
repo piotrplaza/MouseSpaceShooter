@@ -11,6 +11,7 @@
 #include <components/decoration.hpp>
 #include <components/missile.hpp>
 #include <components/shockwave.hpp>
+#include <components/renderingSetup.hpp>
 #include <components/mvp.hpp>
 #include <components/camera.hpp>
 #include <components/screenInfo.hpp>
@@ -37,14 +38,17 @@ namespace Tools
 		auto& player = Globals::Components().players().emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), TCM::Texture(planeTexture));
 		SetCollisionFilteringBits(*player.body, CollisionBits::playerBit, CollisionBits::all);
 		player.setPosition({ -10.0f, 0.0f });
-		player.renderingSetup = Tools::MakeUniqueRenderingSetup([
+
+		Globals::Components().renderingSetups().emplace_back([
 			colorUniform = Uniforms::UniformController4f()
-		](Shaders::ProgramId program) mutable {
-			if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-			const float fade = (glm::sin(Globals::Components().physics().simulationDuration * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
-			colorUniform.setValue({ fade, 1.0f, fade, 1.0f });
-			return nullptr;
-		});
+			](Shaders::ProgramId program) mutable {
+					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
+					const float fade = (glm::sin(Globals::Components().physics().simulationDuration * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
+					colorUniform.setValue({ fade, 1.0f, fade, 1.0f });
+					return nullptr;
+				});
+
+		player.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 
 		for (int i = 0; i < 2; ++i)
 		{
@@ -59,23 +63,25 @@ namespace Tools
 			auto& decoration = Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }),
 				TCM::AnimationTexture(animationTextureId));
 
-			decoration.renderingSetup = Tools::MakeUniqueRenderingSetup([&, i, modelUniform = Uniforms::UniformControllerMat4f(),
+			Globals::Components().renderingSetups().emplace_back([&, i, modelUniform = Uniforms::UniformControllerMat4f(),
 				thrustScale = 1.0f
-			](Shaders::ProgramId program) mutable {
-				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-				modelUniform.setValue(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*player.body),
-					{ -0.9f, i == 0 ? -0.42f : 0.42f, 0.0f }),
-					-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
-					{ std::min(thrustScale * 0.5f, 0.7f), thrustScale, 1.0f }));
+				](Shaders::ProgramId program) mutable {
+					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
+					modelUniform.setValue(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*player.body),
+						{ -0.9f, i == 0 ? -0.42f : 0.42f, 0.0f }),
+						-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
+						{ std::min(thrustScale * 0.5f, 0.7f), thrustScale, 1.0f }));
 
-				const float targetFrameDurationFactor = Globals::Components().physics().frameDuration * 6;
-				if (player.throttling) thrustScale = std::min(thrustScale * (1.0f + targetFrameDurationFactor), 5.0f);
-				else thrustScale = 1.0f + (thrustScale - 1.0f) * (1.0f - targetFrameDurationFactor);
+					const float targetFrameDurationFactor = Globals::Components().physics().frameDuration * 6;
+					if (player.throttling) thrustScale = std::min(thrustScale * (1.0f + targetFrameDurationFactor), 5.0f);
+					else thrustScale = 1.0f + (thrustScale - 1.0f) * (1.0f - targetFrameDurationFactor);
 
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
-			});
+					return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+				});
+
+			decoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 
 			animationTexture.start();
 		}
@@ -127,13 +133,17 @@ namespace Tools
 		body.SetBullet(true);
 		body.SetLinearVelocity({ initialVelocity.x, initialVelocity.y });
 		missile.texture = TCM::Texture(missileTexture);
-		missile.renderingSetup = Tools::MakeUniqueRenderingSetup(
-			[modelUniform = Uniforms::UniformControllerMat4f(), &body](Shaders::ProgramId program) mutable
-		{
-			if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-			modelUniform.setValue(Tools::GetModelMatrix(body));
-			return nullptr;
-		});
+
+		Globals::Components().renderingSetups().emplace_back([
+			modelUniform = Uniforms::UniformControllerMat4f(), &body](Shaders::ProgramId program) mutable
+			{
+				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
+				modelUniform.setValue(Tools::GetModelMatrix(body));
+				return nullptr;
+			});
+
+		missile.renderingSetup = Globals::Components().renderingSetups().size() - 1;
+
 		missile.step = [&body, force, launchTime = Globals::Components().physics().simulationDuration, fullCollisions = false]() mutable
 		{
 			if (!fullCollisions && (Globals::Components().physics().simulationDuration - launchTime) > 0.5f)
@@ -153,22 +163,25 @@ namespace Tools
 
 		auto& decoration = EmplaceIdComponent(Globals::Components().temporaryFarMidgroundDecorations(), { Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }),
 			TCM::AnimationTexture(animationTextureId) });
-		decoration.renderingSetup = Tools::MakeUniqueRenderingSetup([&, modelUniform = Uniforms::UniformControllerMat4f(),
+
+		Globals::Components().renderingSetups().emplace_back([&, modelUniform = Uniforms::UniformControllerMat4f(),
 			thrustScale = 0.1f
-		](Shaders::ProgramId program) mutable {
-			if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-			modelUniform.setValue(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*missile.body),
-				{ -0.65f, 0.0f, 0.0f }),
-				-glm::half_pi<float>() + 0.0f, { 0.0f, 0.0f, 1.0f }),
-				{ std::min(thrustScale * 0.2f, 0.4f), thrustScale, 1.0f }));
+			](Shaders::ProgramId program) mutable {
+				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
+				modelUniform.setValue(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*missile.body),
+					{ -0.65f, 0.0f, 0.0f }),
+					-glm::half_pi<float>() + 0.0f, { 0.0f, 0.0f, 1.0f }),
+					{ std::min(thrustScale * 0.2f, 0.4f), thrustScale, 1.0f }));
 
-			const float targetFrameDurationFactor = Globals::Components().physics().frameDuration * 10;
-			thrustScale = std::min(thrustScale * (1.0f + targetFrameDurationFactor), 3.0f);
+				const float targetFrameDurationFactor = Globals::Components().physics().frameDuration * 10;
+				thrustScale = std::min(thrustScale * (1.0f + targetFrameDurationFactor), 3.0f);
 
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-			return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
-		});
+				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+			});
+
+		decoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 
 		animationTexture.start();
 
@@ -185,19 +198,23 @@ namespace Tools
 			explosionDecoration.resolutionMode = resolutionMode;
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
-			explosionDecoration.renderingSetup = Tools::MakeUniqueRenderingSetup(
-				[=, startTime = Globals::Components().physics().simulationDuration](Shaders::ProgramId program) mutable
-			{
-				particlesProgram.vpUniform.setValue(Globals::Components().mvp().getVP());
-				particlesProgram.texture1Uniform.setValue(explosionTexture);
 
-				const float elapsed = Globals::Components().physics().simulationDuration - startTime;
-				particlesProgram.colorUniform.setValue(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (explosionDuration * 2.0f), 10.0f)), 1.0f));
+			Globals::Components().renderingSetups().emplace_back([=, startTime = Globals::Components().physics().simulationDuration
+				](Shaders::ProgramId program) mutable
+				{
+					particlesProgram.vpUniform.setValue(Globals::Components().mvp().getVP());
+					particlesProgram.texture1Uniform.setValue(explosionTexture);
 
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+					const float elapsed = Globals::Components().physics().simulationDuration - startTime;
+					particlesProgram.colorUniform.setValue(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (explosionDuration * 2.0f), 10.0f)), 1.0f));
 
-				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
-			});
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+					return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+				});
+
+			explosionDecoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
+
 			Globals::Systems().deferredActions().addDeferredAction([=, startTime = Globals::Components().physics().simulationDuration, &shockwave, &explosionDecoration]() {
 				const float elapsed = Globals::Components().physics().simulationDuration - startTime;
 				const float scale = 1.0f + elapsed * 20.0f;
@@ -236,20 +253,23 @@ namespace Tools
 		{
 			Globals::Components().foregroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)), TCM::Texture(fogTexture));
 			Globals::Components().foregroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
-			Globals::Components().foregroundDecorations().back().renderingSetup = Tools::MakeUniqueRenderingSetup([=, texturedProgram = Shaders::Programs::TexturedAccessor()
-			](Shaders::ProgramId program) mutable {
-				if (!texturedProgram.isValid()) texturedProgram = program;
-				texturedProgram.vpUniform.setValue(glm::translate(glm::scale(Globals::Components().mvp().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
-					glm::vec3(-Globals::Components().camera().prevPosition * (0.002f + layer * 0.002f), 0.0f)));
-				texturedProgram.colorUniform.setValue(fColor() * glm::vec4(1.0f, 1.0f, 1.0f, alphaPerLayer));
 
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			Globals::Components().renderingSetups().emplace_back([=, texturedProgram = Shaders::Programs::TexturedAccessor()
+				](Shaders::ProgramId program) mutable {
+					if (!texturedProgram.isValid()) texturedProgram = program;
+					texturedProgram.vpUniform.setValue(glm::translate(glm::scale(Globals::Components().mvp().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
+						glm::vec3(-Globals::Components().camera().prevPosition * (0.002f + layer * 0.002f), 0.0f)));
+					texturedProgram.colorUniform.setValue(fColor()* glm::vec4(1.0f, 1.0f, 1.0f, alphaPerLayer));
 
-				return [texturedProgram]() mutable {
-					texturedProgram.vpUniform.setValue(Globals::Components().mvp().getVP());
-					glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-				};
-			});
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+					return [texturedProgram]() mutable {
+						texturedProgram.vpUniform.setValue(Globals::Components().mvp().getVP());
+						glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+					};
+				});
+
+			Globals::Components().foregroundDecorations().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
 			Globals::Components().foregroundDecorations().back().resolutionMode = ResolutionMode::LowestLinearBlend1;
 		}
 	}
@@ -258,15 +278,19 @@ namespace Tools
 	{
 		auto& background = Globals::Components().backgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
 		background.customShadersProgram = juliaShaders.getProgramId();
-		background.renderingSetup = std::make_unique<std::function<std::function<void()>(Shaders::ProgramId)>>([=, &juliaShaders](auto) mutable {
-			juliaShaders.vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
-				glm::vec3((float)Globals::Components().screenInfo().windowSize.y / Globals::Components().screenInfo().windowSize.x, 1.0f, 1.0f) * 1.5f),
-				glm::vec3(-Globals::Components().camera().prevPosition * 0.005f, 0.0f)));
-			juliaShaders.juliaCOffsetUniform.setValue(juliaCOffset());
-			juliaShaders.minColorUniform.setValue({ 0.0f, 0.0f, 0.0f, 1.0f });
-			juliaShaders.maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
-			return nullptr;
+
+		Globals::Components().renderingSetups().emplace_back([=, &juliaShaders
+			](auto) mutable {
+				juliaShaders.vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
+					glm::vec3((float)Globals::Components().screenInfo().windowSize.y / Globals::Components().screenInfo().windowSize.x, 1.0f, 1.0f) * 1.5f),
+					glm::vec3(-Globals::Components().camera().prevPosition * 0.005f, 0.0f)));
+				juliaShaders.juliaCOffsetUniform.setValue(juliaCOffset());
+				juliaShaders.minColorUniform.setValue({ 0.0f, 0.0f, 0.0f, 1.0f });
+				juliaShaders.maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
+				return nullptr;
 			});
+
+		background.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 		background.resolutionMode = ResolutionMode::LowerLinearBlend1;
 	}
 }

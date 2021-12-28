@@ -1,9 +1,13 @@
 #pragma once
 
+#include <componentBase.hpp>
+
 namespace Components
 {
-	struct BlendingTexture
+	struct BlendingTexture : ComponentBase
 	{
+		using ComponentBase::ComponentBase;
+
 		int blendingTexture = -1;
 		int textureR = -1;
 		int textureG = -1;

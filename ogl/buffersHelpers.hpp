@@ -77,10 +77,8 @@ namespace Tools
 		auto customTexturedBuffersIt = customTexturedBuffers.begin();
 		auto customShadersBuffersIt = customShadersBuffers.begin();
 
-		for (auto& component : components)
-		{
-			auto& buffers = [&]() -> auto&
-			{
+		Globals::ForEach(components, [&](auto& component) {
+			auto& buffers = [&]() -> auto& {
 				if (component.customShadersProgram)
 					return Detail::ReuseOrEmplaceBack(customShadersBuffers, customShadersBuffersIt);
 				else if (!std::holds_alternative<std::monostate>(component.texture))
@@ -99,7 +97,7 @@ namespace Tools
 				}
 			}();
 
-			buffers.renderingSetup = component.renderingSetup.get();
+			buffers.renderingSetup = component.renderingSetup;
 			buffers.texture = component.texture;
 			buffers.customShadersProgram = component.customShadersProgram;
 			buffers.resolutionMode = component.resolutionMode;
@@ -110,7 +108,7 @@ namespace Tools
 			const auto& transformedPositions = component.getTransformedPositions();
 			buffers.positionsCache.insert(buffers.positionsCache.end(),
 				transformedPositions.begin(), transformedPositions.end());
-		}
+			});
 
 		customSimpleBuffers.resize(std::distance(customSimpleBuffers.begin(), customSimpleBuffersIt));
 		customTexturedBuffers.resize(std::distance(customTexturedBuffers.begin(), customTexturedBuffersIt));
@@ -131,10 +129,8 @@ namespace Tools
 		auto texturedBuffersIt = texturedBuffers.begin();
 		auto customShadersBuffersIt = customShadersBuffers.begin();
 
-		for (auto& component : components)
-		{
-			auto& buffers = [&]() -> auto&
-			{
+		Globals::ForEach(components, [&](const auto& component) {
+			auto& buffers = [&]() -> auto& {
 				if (component.customShadersProgram)
 					return Detail::ReuseOrEmplaceBack(customShadersBuffers, customShadersBuffersIt);
 				else if (!std::holds_alternative<std::monostate>(component.texture))
@@ -144,7 +140,7 @@ namespace Tools
 			}();
 
 			const auto& positions = component.getPositions();
-			buffers.renderingSetup = component.renderingSetup.get();
+			buffers.renderingSetup = component.renderingSetup;
 			buffers.texture = component.texture;
 			buffers.customShadersProgram = component.customShadersProgram;
 			buffers.positionsCache.clear();
@@ -155,7 +151,7 @@ namespace Tools
 			buffers.bufferDataUsage = component.bufferDataUsage;
 
 			Detail::AllocateOrUpdatePositionsData(buffers);
-		}
+			});
 
 		simpleBuffers.resize(std::distance(simpleBuffers.begin(), simpleBuffersIt));
 		texturedBuffers.resize(std::distance(texturedBuffers.begin(), texturedBuffersIt));
@@ -174,12 +170,10 @@ namespace Tools
 		auto customTexturedBuffersIt = customTexturedBuffers.begin();
 		auto customShadersBuffersIt = customShadersTexturedBuffers.begin();
 
-		for (auto& component : components)
-		{
+		Globals::ForEach(components, [&](const auto& component) {
 			if (!std::holds_alternative<std::monostate>(component.texture))
 			{
-				auto& buffers = [&]() -> auto&
-				{
+				auto& buffers = [&]() -> auto& {
 					if (component.customShadersProgram)
 						return Detail::ReuseOrEmplaceBack(customShadersTexturedBuffers, customShadersBuffersIt);
 					else if (component.renderingSetup)
@@ -196,7 +190,7 @@ namespace Tools
 				buffers.drawMode = component.drawMode;
 				buffers.bufferDataUsage = component.bufferDataUsage;
 			}
-		}
+			});
 
 		for (auto& [texture, buffers] : texturesToBuffers) Detail::AllocateOrUpdateTexCoordData(buffers);
 		for (auto& buffers : customTexturedBuffers) Detail::AllocateOrUpdateTexCoordData(buffers);
@@ -210,8 +204,7 @@ namespace Tools
 		auto texturedBuffersIt = texturedBuffers.begin();
 		auto customShadersTexturedBuffersIt = customShadersTexturedBuffers.begin();
 
-		for (const auto& component : components)
-		{
+		Globals::ForEach(components, [&](const auto& component) {
 			if (!std::holds_alternative<std::monostate>(component.texture))
 			{
 				auto& relevantBuffers = component.customShadersProgram
@@ -231,7 +224,7 @@ namespace Tools
 
 				Detail::AllocateOrUpdateTexCoordData(buffers);
 			}
-		}
+			});
 	}
 
 	template <typename Component, typename Buffers>
@@ -260,7 +253,7 @@ namespace Tools
 			}
 
 			auto& buffers = mapOfBuffers[id];
-			buffers.renderingSetup = component.renderingSetup.get();
+			buffers.renderingSetup = component.renderingSetup;
 			buffers.texture = component.texture;
 			buffers.customShadersProgram = component.customShadersProgram;
 			buffers.positionsCache = component.getPositions();

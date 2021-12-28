@@ -12,6 +12,8 @@ namespace Components
 {
 	struct CollisionHandler : ComponentBase
 	{
+		using ComponentBase::ComponentBase;
+
 		CollisionHandler(const b2Fixture& fixtureA, const b2Fixture& fixtureB, std::function<void(b2Fixture&, b2Fixture&)> handler):
 			handler([relevantSortedFixtures = Tools::Sort(&fixtureA, &fixtureB), handler = std::move(handler)](b2Fixture& fixtureA, b2Fixture& fixtureB)
 			{

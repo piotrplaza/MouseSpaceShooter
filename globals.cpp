@@ -19,6 +19,7 @@
 #include "components/texture.hpp"
 #include "components/animationTexture.hpp"
 #include "components/blendingTexture.hpp"
+#include "components/renderingSetup.hpp"
 #include "components/player.hpp"
 #include "components/wall.hpp"
 #include "components/grapple.hpp"
@@ -89,6 +90,23 @@ namespace Globals
 	}
 
 
+	Components::Components()
+	{
+		textures_.emplace_back(fakeComponent);
+		animationTextures_.emplace_back(fakeComponent);
+		blendingTextures_.emplace_back(fakeComponent);
+		renderingSetups_.emplace_back(fakeComponent);
+		players_.emplace_back(fakeComponent);
+		staticWalls_.emplace_back(fakeComponent);
+		dynamicWalls_.emplace_back(fakeComponent);
+		grapples_.emplace_back(fakeComponent);
+		backgroundDecorations_.emplace_back(fakeComponent);
+		farMidgroundDecorations_.emplace_back(fakeComponent);
+		midgroundDecorations_.emplace_back(fakeComponent);
+		nearMidgroundDecorations_.emplace_back(fakeComponent);
+		foregroundDecorations_.emplace_back(fakeComponent);
+	}
+
 	::Components::MouseState& Components::mouseState()
 	{
 		return *mouseState_;
@@ -143,6 +161,11 @@ namespace Globals
 	std::vector<::Components::BlendingTexture>& Components::blendingTextures()
 	{
 		return blendingTextures_;
+	}
+
+	std::vector<::Components::RenderingSetup>& Components::renderingSetups()
+	{
+		return renderingSetups_;
 	}
 
 	std::vector<::Components::Player>& Components::players()

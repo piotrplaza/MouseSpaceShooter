@@ -14,7 +14,6 @@
 #include <commonTypes/typeComponentMappers.hpp>
 
 #include <ogl/shaders.hpp>
-#include <ogl/renderingSetup.hpp>
 
 #include <tools/b2Helpers.hpp>
 #include <tools/graphicsHelpers.hpp>
@@ -25,13 +24,15 @@ namespace Components
 {
 	struct Wall : ComponentBase
 	{
+		using ComponentBase::ComponentBase;
+
 		Wall(Body body,
 			TextureVariant texture = std::monostate{},
-			Tools::UniqueRenderingSetup renderingSetup = nullptr,
+			ComponentId renderingSetup = 0,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
 			texture(texture),
-			renderingSetup(std::move(renderingSetup)),
+			renderingSetup(renderingSetup),
 			customShadersProgram(customShadersProgram)
 		{
 			Tools::AccessUserData(*this->body).componentId = getComponentId();
@@ -39,7 +40,7 @@ namespace Components
 
 		Body body;
 		TextureVariant texture;
-		Tools::UniqueRenderingSetup renderingSetup;
+		ComponentId renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;
 

@@ -12,6 +12,7 @@
 
 #include <components/decoration.hpp>
 #include <components/mvp.hpp>
+#include <components/renderingSetup.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/screenInfo.hpp>
 #include <components/framebuffers.hpp> 
@@ -142,7 +143,7 @@ namespace Systems
 
 			std::function<void()> renderingTeardown;
 			if (buffers.renderingSetup)
-				renderingTeardown = (*buffers.renderingSetup)(*buffers.customShadersProgram);
+				renderingTeardown = Globals::Components().renderingSetups()[buffers.renderingSetup](*buffers.customShadersProgram);
 
 			glBindVertexArray(buffers.vertexArray);
 
@@ -209,7 +210,7 @@ namespace Systems
 
 			std::function<void()> renderingTeardown;
 			if (buffers.renderingSetup)
-				renderingTeardown = (*buffers.renderingSetup)(Globals::Shaders().basic().getProgramId());
+				renderingTeardown = Globals::Components().renderingSetups()[buffers.renderingSetup](Globals::Shaders().basic().getProgramId());
 
 			glBindVertexArray(buffers.vertexArray);
 			glDrawArrays(GL_TRIANGLES, 0, buffers.positionsCache.size());

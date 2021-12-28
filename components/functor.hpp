@@ -8,8 +8,10 @@ namespace Components
 {
 	struct Functor : ComponentBase
 	{
+		using ComponentBase::ComponentBase;
+
 		Functor(std::function<void()> functor) :
-			functor(functor)
+			functor(std::move(functor))
 		{
 		}
 

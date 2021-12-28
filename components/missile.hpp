@@ -13,7 +13,6 @@
 #include <commonTypes/resolutionMode.hpp>
 
 #include <ogl/shaders.hpp>
-#include <ogl/renderingSetup.hpp>
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>
@@ -24,13 +23,15 @@ namespace Components
 {
 	struct Missile : ComponentBase
 	{
+		using ComponentBase::ComponentBase;
+
 		Missile(Body body,
 			TextureVariant texture = std::monostate{},
-			Tools::UniqueRenderingSetup renderingSetup = nullptr,
+			ComponentId renderingSetup = 0,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
 			texture(texture),
-			renderingSetup(std::move(renderingSetup)),
+			renderingSetup(renderingSetup),
 			customShadersProgram(customShadersProgram)
 		{
 			Tools::AccessUserData(*this->body).componentId = getComponentId();
@@ -38,7 +39,7 @@ namespace Components
 
 		Body body;
 		TextureVariant texture;
-		Tools::UniqueRenderingSetup renderingSetup;
+		ComponentId renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::function<void()> step;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;

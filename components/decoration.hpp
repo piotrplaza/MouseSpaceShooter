@@ -16,26 +16,27 @@
 #include <commonTypes/typeComponentMappers.hpp>
 
 #include <ogl/shaders.hpp>
-#include <ogl/renderingSetup.hpp>
 
 namespace Components
 {
 	struct Decoration : ComponentBase
 	{
+		using ComponentBase::ComponentBase;
+
 		Decoration(std::vector<glm::vec3> positions = {},
 			TextureVariant texture = std::monostate{},
-			Tools::UniqueRenderingSetup renderingSetup = nullptr,
+			ComponentId renderingSetup = 0,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			positions(std::move(positions)),
 			texture(texture),
-			renderingSetup(std::move(renderingSetup)),
+			renderingSetup(renderingSetup),
 			customShadersProgram(customShadersProgram)
 		{
 		}
 
 		std::vector<glm::vec3> positions;
 		TextureVariant texture;
-		Tools::UniqueRenderingSetup renderingSetup;
+		ComponentId renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::vector<glm::vec2> texCoord;
 		std::function<void()> step;

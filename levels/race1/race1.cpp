@@ -6,6 +6,7 @@
 
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
+#include <components/renderingSetup.hpp>
 #include <components/player.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
@@ -77,7 +78,7 @@ namespace Levels
 
 		void createBackground()
 		{
-			Tools::CreateJuliaBackground(juliaShaders, []() { return Globals::Components().players()[0].getCenter() * 0.0001f; });
+			Tools::CreateJuliaBackground(juliaShaders, []() { return Globals::Components().players()[1].getCenter() * 0.0001f; });
 		}
 
 		void createForeground() const
@@ -99,36 +100,41 @@ namespace Levels
 			wall1.GetFixtureList()->SetRestitution(0.5f);
 			wall2.GetFixtureList()->SetRestitution(0.5f);
 			Tools::PinBodies(wall1, wall2, { 5.0f, 0.0f });
-			Globals::Components().dynamicWalls().back().renderingSetup = Tools::MakeUniqueRenderingSetup([
+
+			Globals::Components().renderingSetups().emplace_back([
 				textureTranslateUniform = Uniforms::UniformController2f()
-			](Shaders::ProgramId program) mutable {
-				if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2f(program, "textureTranslate");
-				const float simulationDuration = Globals::Components().physics().simulationDuration;
-				textureTranslateUniform.setValue({ glm::cos(simulationDuration * 0.1f), glm::sin(simulationDuration * 0.1f) });
-				return nullptr;
-			});
+				](Shaders::ProgramId program) mutable {
+					if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2f(program, "textureTranslate");
+					const float simulationDuration = Globals::Components().physics().simulationDuration;
+					textureTranslateUniform.setValue({ glm::cos(simulationDuration * 0.1f), glm::sin(simulationDuration * 0.1f) });
+					return nullptr;
+				});
+			Globals::Components().dynamicWalls().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
 
 			for (const float pos : {-30.0f, 30.0f})
 			{
+				Globals::Components().renderingSetups().emplace_back([this](auto) {
+					Tools::MVPInitialization(texturedColorThresholdShaders);
+					Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, woodTexture, true);
+					const float simulationDuration = Globals::Components().physics().simulationDuration;
+					texturedColorThresholdShaders.invisibleColorUniform.setValue({ 1.0f, 1.0f, 1.0f });
+					texturedColorThresholdShaders.invisibleColorThresholdUniform.setValue((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
+					return nullptr;
+					});
 				Globals::Components().dynamicWalls().emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), TCM::Texture(woodTexture),
-					Tools::MakeUniqueRenderingSetup([this](auto)
-					{
-						Tools::MVPInitialization(texturedColorThresholdShaders);
-						Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, woodTexture, true);
-						const float simulationDuration = Globals::Components().physics().simulationDuration;
-						texturedColorThresholdShaders.invisibleColorUniform.setValue({ 1.0f, 1.0f, 1.0f });
-						texturedColorThresholdShaders.invisibleColorThresholdUniform.setValue((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
-						return nullptr;
-					}),
+					Globals::Components().renderingSetups().size() - 1,
 					texturedColorThresholdShaders.getProgramId());
 				Globals::Components().dynamicWalls().emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f));
-				Globals::Components().dynamicWalls().back().renderingSetup = Tools::MakeUniqueRenderingSetup([
+
+				Globals::Components().renderingSetups().emplace_back([
 					colorUniform = Uniforms::UniformController4f()
-				](Shaders::ProgramId program) mutable {
-					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-					colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.0f });
-					return nullptr;
-				});
+					](Shaders::ProgramId program) mutable {
+						if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
+						colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.0f });
+						return nullptr;
+					});
+				Globals::Components().dynamicWalls().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
+
 				Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
 					[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
 					[](float input) { return glm::vec2(input + 0.3f, input + 0.3f); },
@@ -140,17 +146,20 @@ namespace Levels
 					return result;
 				}
 				), TCM::Texture(roseTexture));
+
 				Globals::Components().nearMidgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
-				Globals::Components().nearMidgroundDecorations().back().renderingSetup = Tools::MakeUniqueRenderingSetup([
+
+				Globals::Components().renderingSetups().emplace_back([
 					texturedProgramAccessor = std::optional<Shaders::Programs::TexturedAccessor>(),
-						wallId = Globals::Components().dynamicWalls().size() - 1
-				](Shaders::ProgramId program) mutable {
-					if (!texturedProgramAccessor) texturedProgramAccessor.emplace(program);
-					texturedProgramAccessor->colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
-						(glm::sin(Globals::Components().physics().simulationDuration * glm::two_pi<float>()) + 1.0f) / 2.0f + 0.5f });
-					texturedProgramAccessor->modelUniform.setValue(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
-					return nullptr;
-				});
+					wallId = Globals::Components().dynamicWalls().size() - 1
+					](Shaders::ProgramId program) mutable {
+						if (!texturedProgramAccessor) texturedProgramAccessor.emplace(program);
+						texturedProgramAccessor->colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
+							(glm::sin(Globals::Components().physics().simulationDuration * glm::two_pi<float>()) + 1.0f) / 2.0f + 0.5f });
+						texturedProgramAccessor->modelUniform.setValue(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
+						return nullptr;
+					});
+				Globals::Components().nearMidgroundDecorations().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
 			}
 		}
 
@@ -188,27 +197,32 @@ namespace Levels
 		{
 			Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ 0.0f, 10.0f }, 1.0f), 15.0f, TCM::Texture(orbTexture));
 			Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f, TCM::Texture(orbTexture));
-			Globals::Components().grapples().back().renderingSetup = Tools::MakeUniqueRenderingSetup([
+
+			Globals::Components().renderingSetups().emplace_back([
 				colorUniform = Uniforms::UniformController4f()
-			](Shaders::ProgramId program) mutable {
-				if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-				colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
-					(glm::sin(Globals::Components().physics().simulationDuration / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
-				return nullptr;
-			});
+				](Shaders::ProgramId program) mutable {
+					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
+					colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
+						(glm::sin(Globals::Components().physics().simulationDuration / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
+					return nullptr;
+				});
+			Globals::Components().grapples().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
+
 			Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f,
 				TCM::Texture(orbTexture));
 			auto& grapple = Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f);
 
 			Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.8f, 1.8f }), TCM::Texture(roseTexture));
 			Globals::Components().farMidgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
-			Globals::Components().farMidgroundDecorations().back().renderingSetup = Tools::MakeUniqueRenderingSetup([&,
+
+			Globals::Components().renderingSetups().emplace_back([&,
 				modelUniform = Uniforms::UniformControllerMat4f()
-			](Shaders::ProgramId program) mutable {
-				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-				modelUniform.setValue(grapple.getModelMatrix());
-				return nullptr;
-			});
+				](Shaders::ProgramId program) mutable {
+					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
+					modelUniform.setValue(grapple.getModelMatrix());
+					return nullptr;
+				});
+			Globals::Components().farMidgroundDecorations().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
 		}
 
 		void setCamera() const

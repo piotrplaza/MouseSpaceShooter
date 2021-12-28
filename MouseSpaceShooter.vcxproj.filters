@@ -321,9 +321,6 @@
     <ClInclude Include="ogl\shaders\particles.hpp">
       <Filter>src\ogl\shaders\particles</Filter>
     </ClInclude>
-    <ClInclude Include="ogl\renderingSetup.hpp">
-      <Filter>src\ogl</Filter>
-    </ClInclude>
     <ClInclude Include="commonTypes\resolutionMode.hpp">
       <Filter>src\commonTypes</Filter>
     </ClInclude>
@@ -349,6 +346,9 @@
       <Filter>src\components</Filter>
     </ClInclude>
     <ClInclude Include="components\blendingTexture.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\renderingSetup.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>
