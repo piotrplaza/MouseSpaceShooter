@@ -1,8 +1,8 @@
 #pragma once
 
-#include <glm/mat4x4.hpp>
-
 #include <componentBase.hpp>
+
+#include <glm/mat4x4.hpp>
 
 namespace Components
 {

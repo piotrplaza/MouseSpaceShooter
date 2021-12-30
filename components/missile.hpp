@@ -1,13 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <optional>
-#include <functional>
-
-#include <glm/glm.hpp>
-
-#include <Box2D/Box2D.h>
-
 #include <componentBase.hpp>
 
 #include <commonTypes/resolutionMode.hpp>
@@ -18,6 +10,14 @@
 #include <tools/b2Helpers.hpp>
 
 #include <bodyUserData.hpp>
+
+#include <Box2D/Box2D.h>
+
+#include <glm/glm.hpp>
+
+#include <vector>
+#include <optional>
+#include <functional>
 
 namespace Components
 {

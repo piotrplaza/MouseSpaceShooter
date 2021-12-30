@@ -1,9 +1,9 @@
 #pragma once
 
+#include <GL/glew.h>
+
 #include <string>
 #include <map>
-
-#include <GL/glew.h>
 
 namespace Shaders
 {

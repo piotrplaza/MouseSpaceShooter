@@ -1,9 +1,5 @@
 #include "walls.hpp"
 
-#include <GL/glew.h>
-
-#include <Box2D/Box2D.h>
-
 #include <ogl/oglProxy.hpp>
 #include <ogl/buffersHelpers.hpp>
 #include <ogl/renderingHelpers.hpp>
@@ -21,6 +17,10 @@
 #include <components/grapple.hpp>
 #include <components/texture.hpp>
 #include <components/graphicsSettings.hpp>
+
+#include <Box2D/Box2D.h>
+
+#include <GL/glew.h>
 
 namespace Systems
 {

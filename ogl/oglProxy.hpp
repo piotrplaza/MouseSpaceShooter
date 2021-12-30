@@ -1,3 +1,5 @@
+#pragma once
+
 #include <GL/glew.h>
 
 #ifdef GL_USE_PROGRAM_PROXY_OPTIMISATION_DISABLED

@@ -1,7 +1,8 @@
 #include "oglHelpers.hpp"
 
-#include <GL/glew.h>
 #include <Windows.h>
+
+#include <GL/glew.h>
 
 namespace Tools
 {

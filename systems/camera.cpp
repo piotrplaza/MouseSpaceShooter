@@ -1,14 +1,14 @@
 #include "camera.hpp"
 
-#include <algorithm>
-
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <globals.hpp>
 
 #include <components/camera.hpp>
 #include <components/mvp.hpp>
 #include <components/screenInfo.hpp>
+
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <algorithm>
 
 namespace Systems
 {

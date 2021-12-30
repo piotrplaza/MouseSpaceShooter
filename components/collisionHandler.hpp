@@ -1,10 +1,10 @@
 #pragma once
 
-#include <functional>
-
 #include <componentBase.hpp>
 
 #include <tools/b2Helpers.hpp>
+
+#include <functional>
 
 class b2Fixture;
 

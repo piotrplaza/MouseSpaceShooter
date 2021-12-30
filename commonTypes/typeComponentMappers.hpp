@@ -1,6 +1,7 @@
 #pragma once
 
 #include <componentId.hpp>
+
 #include <variant>
 
 namespace TypeComponentMappers

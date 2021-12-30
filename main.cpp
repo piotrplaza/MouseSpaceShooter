@@ -1,15 +1,3 @@
-#include <memory>
-#include <stdexcept>
-#include <vector>
-
-#include <windows.h>
-#include <shellscalingapi.h>
-
-#include <GL/glew.h>
-#include <gl/gl.h>
-
-#include <glm/glm.hpp>
-
 #include "globals.hpp"
 
 #include "components/mouseState.hpp"
@@ -34,6 +22,18 @@
 #include "ogl/oglHelpers.hpp"
 
 #include <tools/utility.hpp>
+
+#include <GL/glew.h>
+#include <gl/gl.h>
+
+#include <glm/glm.hpp>
+
+#include <memory>
+#include <stdexcept>
+#include <vector>
+
+#include <windows.h>
+#include <shellscalingapi.h>
 
 const bool fullScreen = true;
 const bool console = true;

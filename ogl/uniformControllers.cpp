@@ -1,8 +1,8 @@
 #include "uniformControllers.hpp"
 
-#include <glm/gtc/type_ptr.hpp>
-
 #include "oglProxy.hpp"
+
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Uniforms
 {

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <functional>
-#include <optional>
+#include <componentBase.hpp>
 
 #include <glm/vec2.hpp>
 
-#include <componentBase.hpp>
+#include <functional>
+#include <optional>
 
 enum class AnimationLayout { Horizontal, Vertical };
 enum class AnimationPlayback { Forward, Backward };

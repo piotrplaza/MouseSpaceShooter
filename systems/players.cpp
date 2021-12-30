@@ -1,13 +1,5 @@
 #include "players.hpp"
 
-#include <vector>
-#include <limits>
-#include <algorithm>
-
-#include <GL/glew.h>
-
-#include <Box2D/Box2D.h>
-
 #include <ogl/oglProxy.hpp>
 #include <ogl/buffersHelpers.hpp>
 #include <ogl/renderingHelpers.hpp>
@@ -29,6 +21,14 @@
 #include <components/grapple.hpp>
 #include <components/texture.hpp>
 #include <components/graphicsSettings.hpp>
+
+#include <Box2D/Box2D.h>
+
+#include <GL/glew.h>
+
+#include <vector>
+#include <limits>
+#include <algorithm>
 
 namespace
 {

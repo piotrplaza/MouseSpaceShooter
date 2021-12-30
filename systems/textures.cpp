@@ -1,16 +1,16 @@
 #include "textures.hpp"
 
-#include <cassert>
-#include <stdexcept>
-
-#include <GL/glew.h>
-
-#include <stb_image/stb_image.h>
-
 #include <globals.hpp>
 
 #include <components/texture.hpp>
 #include <components/framebuffers.hpp>
+
+#include <stb_image/stb_image.h>
+
+#include <GL/glew.h>
+
+#include <cassert>
+#include <stdexcept>
 
 namespace
 {

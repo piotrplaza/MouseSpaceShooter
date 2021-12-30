@@ -1,21 +1,21 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-#include <functional>
-#include <optional>
-#include <variant>
-
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-#include <glm/mat4x4.hpp>
-
 #include <componentBase.hpp>
 
 #include <commonTypes/resolutionMode.hpp>
 #include <commonTypes/typeComponentMappers.hpp>
 
 #include <ogl/shaders.hpp>
+
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
+
+#include <memory>
+#include <vector>
+#include <functional>
+#include <optional>
+#include <variant>
 
 namespace Components
 {

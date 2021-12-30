@@ -1,13 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-#include <optional>
-#include <functional>
-#include <variant>
-
-#include <Box2D/Box2D.h>
-
 #include <componentBase.hpp>
 
 #include <commonTypes/resolutionMode.hpp>
@@ -19,6 +11,14 @@
 #include <tools/graphicsHelpers.hpp>
 
 #include <bodyUserData.hpp>
+
+#include <Box2D/Box2D.h>
+
+#include <memory>
+#include <vector>
+#include <optional>
+#include <functional>
+#include <variant>
 
 namespace Components
 {

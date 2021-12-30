@@ -1,12 +1,12 @@
 #pragma once
 
-#include <vector>
-#include <functional>
-#include <optional>
-
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
+
+#include <vector>
+#include <functional>
+#include <optional>
 
 namespace Tools
 {

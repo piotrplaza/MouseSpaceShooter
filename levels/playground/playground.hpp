@@ -1,8 +1,8 @@
 #pragma once
 
-#include <memory>
-
 #include "../level.hpp"
+
+#include <memory>
 
 namespace Levels
 {

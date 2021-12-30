@@ -1,10 +1,10 @@
 #include "graphicsHelpers.hpp"
 
+#include "utility.hpp"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
-#include "utility.hpp"
 
 namespace Detail
 {

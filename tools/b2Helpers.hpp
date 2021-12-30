@@ -1,13 +1,13 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-#include <utility>
-
 #include <Box2D/Box2D.h>
 
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
+
+#include <memory>
+#include <vector>
+#include <utility>
 
 struct BodyUserData;
 

@@ -1,7 +1,5 @@
 #include "gameHelpers.hpp"
 
-#include <cassert>
-
 #include <globals.hpp>
 
 #include <systems/deferredActions.hpp>
@@ -27,6 +25,8 @@
 #include <collisionBits.hpp>
 
 #include <commonTypes/typeComponentMappers.hpp>
+
+#include <cassert>
 
 namespace Tools
 {

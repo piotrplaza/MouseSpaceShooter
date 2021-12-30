@@ -1,12 +1,6 @@
 #include "playground.hpp"
 
-#include <algorithm>
-#include <unordered_map>
-#include <unordered_set>
-
 #include <globals.hpp>
-
-#include <systems/deferredActions.hpp>
 
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
@@ -38,6 +32,10 @@
 #include <tools/gameHelpers.hpp>
 
 #include <collisionBits.hpp>
+
+#include <algorithm>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace Levels
 {

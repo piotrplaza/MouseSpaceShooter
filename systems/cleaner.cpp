@@ -1,12 +1,15 @@
 #include "cleaner.hpp"
 
+#include <components/decoration.hpp>
+#include <components/missile.hpp>
+#include <components/collisionHandler.hpp>
+#include <components/shockwave.hpp>
+#include <components/light.hpp>
+#include <components/functor.hpp>
+
 #include <globals.hpp>
 #include <componentBase.hpp>
 #include <componentId.hpp>
-
-#include <components/decoration.hpp>
-#include <components/missile.hpp>
-#include <components/shockwave.hpp>
 
 template <typename ComponentsMap>
 inline void RemoveOutdatedComponents(ComponentsMap& components)
@@ -32,9 +35,15 @@ namespace Systems
 	{
 		RemoveOutdatedComponents(Globals::Components().temporaryBackgroundDecorations());
 		RemoveOutdatedComponents(Globals::Components().temporaryFarMidgroundDecorations());
+		RemoveOutdatedComponents(Globals::Components().temporaryMidgroundDecorations());
 		RemoveOutdatedComponents(Globals::Components().temporaryNearMidgroundDecorations());
 		RemoveOutdatedComponents(Globals::Components().temporaryForegroundDecorations());
 		RemoveOutdatedComponents(Globals::Components().missiles());
+		RemoveOutdatedComponents(Globals::Components().beginCollisionHandlers());
+		RemoveOutdatedComponents(Globals::Components().endCollisionHandlers());
 		RemoveOutdatedComponents(Globals::Components().shockwaves());
+		RemoveOutdatedComponents(Globals::Components().lights());
+		RemoveOutdatedComponents(Globals::Components().frameSetups());
+		RemoveOutdatedComponents(Globals::Components().frameTeardowns());
 	}
 }

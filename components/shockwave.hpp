@@ -1,19 +1,19 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
-
-#include <Box2D/Box2D.h>
-
 #include <componentBase.hpp>
 
 #include <tools/b2Helpers.hpp>
 #include <tools/utility.hpp>
 
 #include <collisionBits.hpp>
+
+#include <Box2D/Box2D.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+
+#include <memory>
+#include <vector>
 
 namespace Components
 {

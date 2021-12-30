@@ -1,16 +1,7 @@
 #pragma once
 
-#include <functional>
-#include <optional>
-#include <array>
-#include <variant>
-
-#include <GL/glew.h>
-
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <globals.hpp>
+
 #include <components/texture.hpp>
 #include <components/animationTexture.hpp>
 #include <components/mvp.hpp>
@@ -23,6 +14,16 @@
 #include <tools/utility.hpp>
 
 #include <commonTypes/typeComponentMappers.hpp>
+
+#include <GL/glew.h>
+
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <functional>
+#include <optional>
+#include <array>
+#include <variant>
 
 namespace Tools
 {

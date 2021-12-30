@@ -1,8 +1,8 @@
 #pragma once
 
-#include <functional>
-
 #include <componentBase.hpp>
+
+#include <functional>
 
 namespace Components
 {

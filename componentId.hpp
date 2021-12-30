@@ -1,8 +1,8 @@
 #pragma once
 
-#include <utility>
-
 #include "idGenerator.hpp"
+
+#include <utility>
 
 using ComponentId = unsigned long;
 using ComponentIdGenerator = IdGenerator<ComponentId, 1>;

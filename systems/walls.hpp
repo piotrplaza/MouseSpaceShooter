@@ -1,13 +1,13 @@
 #pragma once
 
+#include <ogl/buffers/posTexCoordBuffers.hpp>
+
+#include <commonTypes/typeComponentMappers.hpp>
+
 #include <memory>
 #include <vector>
 #include <unordered_map>
 #include <variant>
-
-#include <ogl/buffers/posTexCoordBuffers.hpp>
-
-#include <commonTypes/typeComponentMappers.hpp>
 
 namespace Components
 {

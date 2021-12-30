@@ -1,8 +1,8 @@
 #pragma once
 
-#include <glm/vec2.hpp>
-
 #include <componentBase.hpp>
+
+#include <glm/vec2.hpp>
 
 namespace Components
 {

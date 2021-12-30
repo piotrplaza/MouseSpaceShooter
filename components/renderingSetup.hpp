@@ -1,10 +1,10 @@
 #pragma once
 
-#include <functional>
+#include <componentBase.hpp>
 
 #include <ogl/shaders.hpp>
 
-#include <componentBase.hpp>
+#include <functional>
 
 namespace Components
 {

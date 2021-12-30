@@ -1,7 +1,5 @@
 #include "race1.hpp"
 
-#include <algorithm>
-
 #include <globals.hpp>
 
 #include <components/screenInfo.hpp>
@@ -25,6 +23,8 @@
 #include <tools/graphicsHelpers.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
+
+#include <algorithm>
 
 namespace Levels
 {

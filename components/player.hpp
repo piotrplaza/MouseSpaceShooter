@@ -1,15 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-#include <optional>
-#include <functional>
-#include <variant>
-
-#include <glm/vec3.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <componentBase.hpp>
 
 #include <commonTypes/resolutionMode.hpp>
@@ -21,6 +11,16 @@
 #include <tools/graphicsHelpers.hpp>
 
 #include <bodyUserData.hpp>
+
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <memory>
+#include <vector>
+#include <optional>
+#include <functional>
+#include <variant>
 
 namespace Components
 {

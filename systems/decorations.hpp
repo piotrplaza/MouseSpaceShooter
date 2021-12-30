@@ -1,12 +1,12 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-#include <unordered_map>
-
 #include <ogl/buffers/posTexCoordBuffers.hpp>
 
 #include <componentId.hpp>
+
+#include <memory>
+#include <vector>
+#include <unordered_map>
 
 namespace Systems
 {

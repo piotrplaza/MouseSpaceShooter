@@ -1,12 +1,12 @@
 #pragma once
 
-#include <memory>
+#include <componentBase.hpp>
 
 #include <Box2D/Box2D.h>
 
 #include <glm/vec2.hpp>
 
-#include <componentBase.hpp>
+#include <memory>
 
 namespace Components
 {

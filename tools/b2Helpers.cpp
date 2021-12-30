@@ -1,7 +1,5 @@
 #include "b2Helpers.hpp"
 
-#include <glm/gtx/transform.hpp>
-
 #include <globals.hpp>
 
 #include <components/physics.hpp>
@@ -11,6 +9,8 @@
 #include <collisionBits.hpp>
 
 #include <bodyUserData.hpp>
+
+#include <glm/gtx/transform.hpp>
 
 namespace
 {

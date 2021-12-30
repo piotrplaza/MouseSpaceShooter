@@ -1,13 +1,15 @@
-#include <vector>
-#include <unordered_map>
-#include <variant>
-
-#include <GL/glew.h>
+#pragma once
 
 #include <componentId.hpp>
 #include <componentBase.hpp>
 
 #include <commonTypes/typeComponentMappers.hpp>
+
+#include <GL/glew.h>
+
+#include <vector>
+#include <unordered_map>
+#include <variant>
 
 namespace Tools
 {

@@ -5,8 +5,8 @@
 //#define PRINT_COMPONENT_ID
 
 #ifdef PRINT_COMPONENT_ID
-#include <iostream>
 #include <tools/utility.hpp>
+#include <iostream>
 #endif
 
 enum class ComponentState {Ongoing, Changed, Outdated, Fake};

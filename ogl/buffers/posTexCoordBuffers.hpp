@@ -1,17 +1,17 @@
 #pragma once
 
-#include <optional>
-#include <functional>
-#include <vector>
-#include <variant>
-
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-
 #include <ogl/shaders.hpp>
 
 #include <commonTypes/resolutionMode.hpp>
 #include <commonTypes/typeComponentMappers.hpp>
+
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+
+#include <optional>
+#include <functional>
+#include <vector>
+#include <variant>
 
 namespace Buffers
 {

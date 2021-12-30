@@ -1,9 +1,5 @@
 #include "globals.hpp"
 
-#include <memory>
-#include <vector>
-#include <unordered_map>
-
 #include "ogl/shaders/basic.hpp"
 #include "ogl/shaders/colored.hpp"
 #include "ogl/shaders/julia.hpp"
@@ -45,6 +41,10 @@
 #include "systems/cleaner.hpp"
 #include "systems/deferredActions.hpp"
 #include "systems/renderingController.hpp"
+
+#include <memory>
+#include <vector>
+#include <unordered_map>
 
 namespace Globals
 {

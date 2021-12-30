@@ -1,8 +1,10 @@
+#pragma once
+
+#include <glm/vec2.hpp>
+
 #include <memory>
 #include <string>
 #include <unordered_map>
-
-#include <glm/vec2.hpp>
 
 namespace Components
 {

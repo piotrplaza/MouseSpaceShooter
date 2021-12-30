@@ -1,14 +1,14 @@
 #pragma once
 
-#include <functional>
-
-#include <glm/vec2.hpp>
-
 #include <componentId.hpp>
 
 #include <ogl/shaders/particles.hpp>
 
 #include <commonTypes/resolutionMode.hpp>
+
+#include <glm/vec2.hpp>
+
+#include <functional>
 
 namespace Shaders
 {

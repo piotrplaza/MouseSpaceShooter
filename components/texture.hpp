@@ -1,12 +1,12 @@
 #pragma once
 
-#include <string>
+#include <componentBase.hpp>
 
 #include <GL/glew.h>
 
 #include <glm/vec2.hpp>
 
-#include <componentBase.hpp>
+#include <string>
 
 namespace Components
 {

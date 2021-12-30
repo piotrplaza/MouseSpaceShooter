@@ -1,19 +1,19 @@
 #pragma once
 
+#include <ogl/buffers/posTexCoordBuffers.hpp>
+
+#include <commonTypes/typeComponentMappers.hpp>
+
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+
 #include <memory>
 #include <functional>
 #include <optional>
 #include <vector>
 #include <unordered_map>
 #include <variant>
-
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-
-#include <ogl/buffers/posTexCoordBuffers.hpp>
-
-#include <commonTypes/typeComponentMappers.hpp>
 
 namespace Components
 {
