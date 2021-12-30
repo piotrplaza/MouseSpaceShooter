@@ -8,10 +8,10 @@ namespace Components
 	{
 		using ComponentBase::ComponentBase;
 
-		int blendingTexture = -1;
-		int textureR = -1;
-		int textureG = -1;
-		int textureB = -1;
-		int textureA = -1;
+		ComponentId blendingTexture = 0;
+		ComponentId textureR = 0;
+		ComponentId textureG = 0;
+		ComponentId textureB = 0;
+		ComponentId textureA = 0;
 	};
 }

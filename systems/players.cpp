@@ -257,11 +257,11 @@ namespace Systems
 	{
 		connections.clear();
 
-		int nearestGrappleId = -1;
+		ComponentId nearestGrappleId = 0;
 		float nearestGrappleDistance = std::numeric_limits<float>::infinity();
-		std::vector<int> grapplesInRange;
+		std::vector<ComponentId> grapplesInRange;
 
-		for (int i = 1; i < (int)Globals::Components().grapples().size(); ++i)
+		for (ComponentId i = 1; i < (ComponentId)Globals::Components().grapples().size(); ++i)
 		{
 			const auto& grapple = Globals::Components().grapples()[i];
 			const float grappleDistance = glm::distance(player.getCenter(), grapple.getCenter());
@@ -279,12 +279,12 @@ namespace Systems
 
 		if (!active)
 		{
-			player.connectedGrappleId = -1;
-			player.weakConnectedGrappleId = -1;
+			player.connectedGrappleId = 0;
+			player.weakConnectedGrappleId = 0;
 			player.grappleJoint.reset();
 		}
 
-		for (const int grappleInRange : grapplesInRange)
+		for (ComponentId grappleInRange : grapplesInRange)
 		{
 			const auto& grapple = Globals::Components().grapples()[grappleInRange];
 
@@ -296,7 +296,7 @@ namespace Systems
 					player.connectIfApproaching))
 				{
 					player.connectedGrappleId = grappleInRange;
-					player.weakConnectedGrappleId = -1;
+					player.weakConnectedGrappleId = 0;
 					createGrappleJoint(player);
 				}
 				else if(player.connectedGrappleId != grappleInRange)
@@ -323,12 +323,12 @@ namespace Systems
 			}
 		}
 
-		if (player.connectedGrappleId != -1)
+		if (player.connectedGrappleId)
 		{
 			connections.emplace_back(player.getCenter(), Globals::Components().grapples()[player.connectedGrappleId].getCenter(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) * 0.7f, 20, 0.4f);
 		}
-		else if (player.weakConnectedGrappleId != -1)
+		else if (player.weakConnectedGrappleId)
 		{
 			connections.emplace_back(player.getCenter(), Globals::Components().grapples()[player.weakConnectedGrappleId].getCenter(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) * 0.5f, 1);
@@ -337,7 +337,7 @@ namespace Systems
 
 	void Players::createGrappleJoint(Components::Player& player) const
 	{
-		assert(player.connectedGrappleId != -1);
+		assert(player.connectedGrappleId);
 
 		const auto& grapple = Globals::Components().grapples()[player.connectedGrappleId];
 
