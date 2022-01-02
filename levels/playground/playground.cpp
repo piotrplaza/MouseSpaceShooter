@@ -18,6 +18,7 @@
 #include <components/shockwave.hpp>
 #include <components/functor.hpp>
 #include <components/mainFramebufferRenderer.hpp>
+#include <components/blendingTexture.hpp>
 
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/basic.hpp>
@@ -157,7 +158,7 @@ namespace Levels
 				](Shaders::ProgramId program) mutable {
 					if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2f(program, "textureTranslate");
 					const float simulationDuration = Globals::Components().physics().simulationDuration;
-					textureTranslateUniform.setValue({ glm::cos(simulationDuration * 0.1f), glm::sin(simulationDuration * 0.1f) });
+					textureTranslateUniform({ glm::cos(simulationDuration * 0.1f), glm::sin(simulationDuration * 0.1f) });
 					return nullptr;
 				});
 
@@ -175,7 +176,7 @@ namespace Levels
 						wallId = Globals::Components().dynamicWalls().size() - i
 						](Shaders::ProgramId program) mutable {
 							if (!texturedProgram.isValid()) texturedProgram = program;
-							texturedProgram.modelUniform.setValue(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
+							texturedProgram.modelUniform(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
 							return nullptr;
 						});
 
@@ -189,8 +190,8 @@ namespace Levels
 						Tools::MVPInitialization(texturedColorThresholdShaders);
 						Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, woodTexture, true);
 						const float simulationDuration = Globals::Components().physics().simulationDuration;
-						texturedColorThresholdShaders.invisibleColorUniform.setValue({ 1.0f, 1.0f, 1.0f });
-						texturedColorThresholdShaders.invisibleColorThresholdUniform.setValue((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
+						texturedColorThresholdShaders.invisibleColorUniform({ 1.0f, 1.0f, 1.0f });
+						texturedColorThresholdShaders.invisibleColorThresholdUniform((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
 						return nullptr;
 					});
 
@@ -203,7 +204,7 @@ namespace Levels
 					basicProgram = Shaders::Programs::BasicAccessor()
 					](Shaders::ProgramId program) mutable {
 						if (!basicProgram.isValid()) basicProgram = program;
-						basicProgram.colorUniform.setValue(glm::vec4(0.0f));
+						basicProgram.colorUniform(glm::vec4(0.0f));
 						return nullptr;
 					});
 
@@ -224,9 +225,9 @@ namespace Levels
 					wallId, texturedProgram = Shaders::Programs::TexturedAccessor()
 					](Shaders::ProgramId program) mutable {
 						if (!texturedProgram.isValid()) texturedProgram = program;
-						texturedProgram.colorUniform.setValue(glm::vec4(
+						texturedProgram.colorUniform(glm::vec4(
 							glm::sin(Globals::Components().physics().simulationDuration* glm::two_pi<float>() * 0.2f) + 1.0f) / 2.0f);
-						texturedProgram.modelUniform.setValue(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
+						texturedProgram.modelUniform(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
 						return nullptr;
 					});
 
@@ -241,16 +242,17 @@ namespace Levels
 			const float levelHSize = 50.0f;
 			const float bordersHGauge = 50.0f;
 
-			//BlendingTexture blendingTexture{ (int)woodTexture, (int)spaceRockTexture, (int)fogTexture };
+			Globals::Components().blendingTextures().emplace_back(woodTexture, spaceRockTexture, fogTexture);
+			const auto blendingTexture1 = Globals::Components().blendingTextures().size() - 1;
 
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ -levelHSize - bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::Texture(spaceRockTexture));
+				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture1));
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ levelHSize + bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::Texture(spaceRockTexture));
+				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture1));
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize - bordersHGauge },
-				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::Texture(spaceRockTexture));
+				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture1));
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize + bordersHGauge },
-				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::Texture(spaceRockTexture));
+				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture1));
 
 			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f },
 				{ { -levelHSize, -levelHSize }, { levelHSize, -levelHSize }, { levelHSize, levelHSize }, { -levelHSize, levelHSize }, { -levelHSize, -levelHSize } },
@@ -268,7 +270,7 @@ namespace Levels
 				colorUniform = Uniforms::UniformController4f()
 				](Shaders::ProgramId program) mutable {
 					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-					colorUniform.setValue(glm::vec4(glm::sin(Globals::Components().physics().simulationDuration / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f);
+					colorUniform(glm::vec4(glm::sin(Globals::Components().physics().simulationDuration / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f);
 					return nullptr;
 				});
 
@@ -281,7 +283,7 @@ namespace Levels
 				colorUniform = Uniforms::UniformController4f()
 				](Shaders::ProgramId program) mutable {
 					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-					colorUniform.setValue({ 0.0f, 0.0f, 0.0f, 0.0f });
+					colorUniform({ 0.0f, 0.0f, 0.0f, 0.0f });
 					return nullptr;
 				});
 
@@ -294,7 +296,7 @@ namespace Levels
 				modelUniform = Uniforms::UniformControllerMat4f()
 				](Shaders::ProgramId program) mutable {
 					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-					modelUniform.setValue(grapple.getModelMatrix());
+					modelUniform(grapple.getModelMatrix());
 					return nullptr;
 				});
 

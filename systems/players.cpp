@@ -138,17 +138,17 @@ namespace Systems
 	void Players::basicRender() const
 	{
 		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
-		Globals::Shaders().basic().vpUniform.setValue(Globals::Components().mvp().getVP());
-		Globals::Shaders().basic().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
-		Globals::Shaders().basic().modelUniform.setValue(glm::mat4(1.0f));
+		Globals::Shaders().basic().vpUniform(Globals::Components().mvp().getVP());
+		Globals::Shaders().basic().colorUniform(Globals::Components().graphicsSettings().defaultColor);
+		Globals::Shaders().basic().modelUniform(glm::mat4(1.0f));
 
 		glBindVertexArray(simplePlayersBuffers->positionBuffer);
 		glDrawArrays(GL_TRIANGLES, 0, simplePlayersBuffers->positionsCache.size());
 
 		for (const auto& customSimplePlayerBuffers : customSimplePlayersBuffers)
 		{
-			Globals::Shaders().basic().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().basic().modelUniform.setValue(glm::mat4(1.0f));
+			Globals::Shaders().basic().colorUniform(Globals::Components().graphicsSettings().defaultColor);
+			Globals::Shaders().basic().modelUniform(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
 				Globals::Components().renderingSetups()[customSimplePlayerBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
@@ -164,19 +164,19 @@ namespace Systems
 	void Players::sceneCoordTexturedRender() const
 	{
 		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
-		Globals::Shaders().textured().vpUniform.setValue(Globals::Components().mvp().getVP());
+		Globals::Shaders().textured().vpUniform(Globals::Components().mvp().getVP());
 
 		for (const auto& [texture, texturedPlayerBuffers] : texturesToPlayersBuffers)
 		{
-			Globals::Shaders().textured().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().textured().modelUniform.setValue(glm::mat4(1.0f));
+			Globals::Shaders().textured().colorUniform(Globals::Components().graphicsSettings().defaultColor);
+			Globals::Shaders().textured().modelUniform(glm::mat4(1.0f));
 			Tools::TexturedRender(Globals::Shaders().textured(), texturedPlayerBuffers, texture);
 		}
 
 		for (const auto& customTexturedPlayerBuffers : customTexturedPlayersBuffers)
 		{
-			Globals::Shaders().textured().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().textured().modelUniform.setValue(glm::mat4(1.0f));
+			Globals::Shaders().textured().colorUniform(Globals::Components().graphicsSettings().defaultColor);
+			Globals::Shaders().textured().modelUniform(glm::mat4(1.0f));
 			Tools::TexturedRender(Globals::Shaders().textured(), customTexturedPlayerBuffers,
 				customTexturedPlayerBuffers.texture);
 		}
@@ -203,9 +203,9 @@ namespace Systems
 	void Players::coloredRender() const
 	{
 		glUseProgram_proxy(Globals::Shaders().colored().getProgramId());
-		Globals::Shaders().colored().vpUniform.setValue(Globals::Components().mvp().getVP());
-		Globals::Shaders().colored().colorUniform.setValue(Globals::Components().graphicsSettings().defaultColor);
-		Globals::Shaders().colored().modelUniform.setValue(glm::mat4(1.0f));
+		Globals::Shaders().colored().vpUniform(Globals::Components().mvp().getVP());
+		Globals::Shaders().colored().colorUniform(Globals::Components().graphicsSettings().defaultColor);
+		Globals::Shaders().colored().modelUniform(glm::mat4(1.0f));
 		glBindVertexArray(connectionsBuffers->vertexArray);
 		glDrawArrays(GL_LINES, 0, connectionsBuffers->positionsCache.size());
 	}

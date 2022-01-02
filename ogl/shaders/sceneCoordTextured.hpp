@@ -18,7 +18,8 @@ namespace Shaders
 				textureTranslateUniform(program, "textureTranslate"),
 				textureScaleUniform(program, "textureScale"),
 				textureCoordBasedOnModelTransformUniform(program, "textureCoordBasedOnModelTransform"),
-				texture1Uniform(program, "texture1")
+				numOfTexturesUniform(program, "numOfTextures"),
+				texturesUniform(program, "textures")
 			{
 			}
 
@@ -28,7 +29,8 @@ namespace Shaders
 			Uniforms::UniformController2f textureTranslateUniform;
 			Uniforms::UniformController2f textureScaleUniform;
 			Uniforms::UniformController1i textureCoordBasedOnModelTransformUniform;
-			Uniforms::UniformController1i texture1Uniform;
+			Uniforms::UniformController1i numOfTexturesUniform;
+			Uniforms::UniformController1iv<5> texturesUniform;
 		};
 
 		struct SceneCoordTextured: SceneCoordTexturedAccessor

@@ -2,12 +2,16 @@
 
 #include "shaders.hpp"
 
+#include "oglProxy.hpp"
+
 #include <GL/glew.h>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
+
+#include <array>
 
 namespace Uniforms
 {
@@ -29,11 +33,29 @@ namespace Uniforms
 	public:
 		using UniformController::UniformController;
 
-		void setValue(int value);
-		int getValue() const;
+		void operator ()(int value);
+	};
 
-	private:
-		int cache{};
+	template <unsigned Size>
+	class UniformController1iv : public UniformController
+	{
+	public:
+		using UniformController::UniformController;
+
+		void operator ()(unsigned index, int value)
+		{
+			assert(isValid());
+			assert(index < Size);
+			glUseProgram_proxy(programId);
+			glUniform1i(uniformId + index, value);
+		}
+
+		void operator ()(const std::array<int, Size>& values)
+		{
+			assert(isValid());
+			glUseProgram_proxy(programId);
+			glUniform1iv(uniformId, Size, values.data());
+		}
 	};
 
 	class UniformController2i : public UniformController
@@ -41,11 +63,7 @@ namespace Uniforms
 	public:
 		using UniformController::UniformController;
 
-		void setValue(glm::ivec2 value);
-		glm::ivec2 getValue() const;
-
-	private:
-		glm::ivec2 cache{};
+		void operator ()(glm::ivec2 value);
 	};
 
 	class UniformController1b : public UniformController
@@ -53,11 +71,7 @@ namespace Uniforms
 	public:
 		using UniformController::UniformController;
 
-		void setValue(bool value);
-		bool getValue() const;
-
-	private:
-		bool cache{};
+		void operator ()(bool value);
 	};
 
 	class UniformController1f : public UniformController
@@ -65,11 +79,7 @@ namespace Uniforms
 	public:
 		using UniformController::UniformController;
 
-		void setValue(float value);
-		float getValue() const;
-
-	private:
-		float cache{};
+		void operator ()(float value);
 	};
 
 	class UniformController2f : public UniformController
@@ -77,11 +87,7 @@ namespace Uniforms
 	public:
 		using UniformController::UniformController;
 
-		void setValue(glm::vec2 value);
-		glm::vec2 getValue() const;
-
-	private:
-		glm::vec2 cache{};
+		void operator ()(glm::vec2 value);
 	};
 
 	class UniformController3f : public UniformController
@@ -89,11 +95,7 @@ namespace Uniforms
 	public:
 		using UniformController::UniformController;
 
-		void setValue(glm::vec3 value);
-		glm::vec3 getValue() const;
-
-	private:
-		glm::vec3 cache{};
+		void operator ()(glm::vec3 value);
 	};
 
 	class UniformController4f : public UniformController
@@ -101,11 +103,7 @@ namespace Uniforms
 	public:
 		using UniformController::UniformController;
 
-		void setValue(glm::vec4 value);
-		glm::vec4 getValue() const;
-
-	private:
-		glm::vec4 cache{};
+		void operator ()(glm::vec4 value);
 	};
 
 	class UniformControllerMat4f : public UniformController
@@ -113,10 +111,6 @@ namespace Uniforms
 	public:
 		using UniformController::UniformController;
 
-		void setValue(glm::mat4 value);
-		glm::mat4 getValue() const;
-
-	private:
-		glm::mat4 cache{};
+		void operator ()(glm::mat4 value);
 	};
 }

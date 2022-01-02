@@ -106,7 +106,7 @@ namespace Levels
 				](Shaders::ProgramId program) mutable {
 					if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2f(program, "textureTranslate");
 					const float simulationDuration = Globals::Components().physics().simulationDuration;
-					textureTranslateUniform.setValue({ glm::cos(simulationDuration * 0.1f), glm::sin(simulationDuration * 0.1f) });
+					textureTranslateUniform({ glm::cos(simulationDuration * 0.1f), glm::sin(simulationDuration * 0.1f) });
 					return nullptr;
 				});
 			Globals::Components().dynamicWalls().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
@@ -117,8 +117,8 @@ namespace Levels
 					Tools::MVPInitialization(texturedColorThresholdShaders);
 					Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, woodTexture, true);
 					const float simulationDuration = Globals::Components().physics().simulationDuration;
-					texturedColorThresholdShaders.invisibleColorUniform.setValue({ 1.0f, 1.0f, 1.0f });
-					texturedColorThresholdShaders.invisibleColorThresholdUniform.setValue((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
+					texturedColorThresholdShaders.invisibleColorUniform({ 1.0f, 1.0f, 1.0f });
+					texturedColorThresholdShaders.invisibleColorThresholdUniform((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
 					return nullptr;
 					});
 				Globals::Components().dynamicWalls().emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), TCM::Texture(woodTexture),
@@ -130,7 +130,7 @@ namespace Levels
 					colorUniform = Uniforms::UniformController4f()
 					](Shaders::ProgramId program) mutable {
 						if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-						colorUniform.setValue({ 1.0f, 1.0f, 1.0f, 0.0f });
+						colorUniform({ 1.0f, 1.0f, 1.0f, 0.0f });
 						return nullptr;
 					});
 				Globals::Components().dynamicWalls().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
@@ -154,9 +154,9 @@ namespace Levels
 					wallId = Globals::Components().dynamicWalls().size() - 1
 					](Shaders::ProgramId program) mutable {
 						if (!texturedProgramAccessor) texturedProgramAccessor.emplace(program);
-						texturedProgramAccessor->colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
+						texturedProgramAccessor->colorUniform({ 1.0f, 1.0f, 1.0f,
 							(glm::sin(Globals::Components().physics().simulationDuration * glm::two_pi<float>()) + 1.0f) / 2.0f + 0.5f });
-						texturedProgramAccessor->modelUniform.setValue(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
+						texturedProgramAccessor->modelUniform(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
 						return nullptr;
 					});
 				Globals::Components().nearMidgroundDecorations().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
@@ -202,7 +202,7 @@ namespace Levels
 				colorUniform = Uniforms::UniformController4f()
 				](Shaders::ProgramId program) mutable {
 					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-					colorUniform.setValue({ 1.0f, 1.0f, 1.0f,
+					colorUniform({ 1.0f, 1.0f, 1.0f,
 						(glm::sin(Globals::Components().physics().simulationDuration / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f });
 					return nullptr;
 				});
@@ -219,7 +219,7 @@ namespace Levels
 				modelUniform = Uniforms::UniformControllerMat4f()
 				](Shaders::ProgramId program) mutable {
 					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-					modelUniform.setValue(grapple.getModelMatrix());
+					modelUniform(grapple.getModelMatrix());
 					return nullptr;
 				});
 			Globals::Components().farMidgroundDecorations().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;

@@ -44,7 +44,7 @@ namespace Tools
 			](Shaders::ProgramId program) mutable {
 					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
 					const float fade = (glm::sin(Globals::Components().physics().simulationDuration * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
-					colorUniform.setValue({ fade, 1.0f, fade, 1.0f });
+					colorUniform({ fade, 1.0f, fade, 1.0f });
 					return nullptr;
 				});
 
@@ -67,7 +67,7 @@ namespace Tools
 				thrustScale = 1.0f
 				](Shaders::ProgramId program) mutable {
 					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-					modelUniform.setValue(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*player.body),
+					modelUniform(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*player.body),
 						{ -0.9f, i == 0 ? -0.42f : 0.42f, 0.0f }),
 						-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
 						{ std::min(thrustScale * 0.5f, 0.7f), thrustScale, 1.0f }));
@@ -138,7 +138,7 @@ namespace Tools
 			modelUniform = Uniforms::UniformControllerMat4f(), &body](Shaders::ProgramId program) mutable
 			{
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-				modelUniform.setValue(Tools::GetModelMatrix(body));
+				modelUniform(Tools::GetModelMatrix(body));
 				return nullptr;
 			});
 
@@ -168,7 +168,7 @@ namespace Tools
 			thrustScale = 0.1f
 			](Shaders::ProgramId program) mutable {
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-				modelUniform.setValue(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*missile.body),
+				modelUniform(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*missile.body),
 					{ -0.65f, 0.0f, 0.0f }),
 					-glm::half_pi<float>() + 0.0f, { 0.0f, 0.0f, 1.0f }),
 					{ std::min(thrustScale * 0.2f, 0.4f), thrustScale, 1.0f }));
@@ -202,11 +202,11 @@ namespace Tools
 			Globals::Components().renderingSetups().emplace_back([=, startTime = Globals::Components().physics().simulationDuration
 				](Shaders::ProgramId program) mutable
 				{
-					particlesProgram.vpUniform.setValue(Globals::Components().mvp().getVP());
-					particlesProgram.texture1Uniform.setValue(explosionTexture);
+					particlesProgram.vpUniform(Globals::Components().mvp().getVP());
+					particlesProgram.texture1Uniform(explosionTexture);
 
 					const float elapsed = Globals::Components().physics().simulationDuration - startTime;
-					particlesProgram.colorUniform.setValue(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (explosionDuration * 2.0f), 10.0f)), 1.0f));
+					particlesProgram.colorUniform(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (explosionDuration * 2.0f), 10.0f)), 1.0f));
 
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -257,14 +257,14 @@ namespace Tools
 			Globals::Components().renderingSetups().emplace_back([=, texturedProgram = Shaders::Programs::TexturedAccessor()
 				](Shaders::ProgramId program) mutable {
 					if (!texturedProgram.isValid()) texturedProgram = program;
-					texturedProgram.vpUniform.setValue(glm::translate(glm::scale(Globals::Components().mvp().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
+					texturedProgram.vpUniform(glm::translate(glm::scale(Globals::Components().mvp().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
 						glm::vec3(-Globals::Components().camera().prevPosition * (0.002f + layer * 0.002f), 0.0f)));
-					texturedProgram.colorUniform.setValue(fColor()* glm::vec4(1.0f, 1.0f, 1.0f, alphaPerLayer));
+					texturedProgram.colorUniform(fColor()* glm::vec4(1.0f, 1.0f, 1.0f, alphaPerLayer));
 
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 					return [texturedProgram]() mutable {
-						texturedProgram.vpUniform.setValue(Globals::Components().mvp().getVP());
+						texturedProgram.vpUniform(Globals::Components().mvp().getVP());
 						glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 					};
 				});
@@ -281,12 +281,12 @@ namespace Tools
 
 		Globals::Components().renderingSetups().emplace_back([=, &juliaShaders
 			](auto) mutable {
-				juliaShaders.vpUniform.setValue(glm::translate(glm::scale(glm::mat4(1.0f),
+				juliaShaders.vpUniform(glm::translate(glm::scale(glm::mat4(1.0f),
 					glm::vec3((float)Globals::Components().screenInfo().windowSize.y / Globals::Components().screenInfo().windowSize.x, 1.0f, 1.0f) * 1.5f),
 					glm::vec3(-Globals::Components().camera().prevPosition * 0.005f, 0.0f)));
-				juliaShaders.juliaCOffsetUniform.setValue(juliaCOffset());
-				juliaShaders.minColorUniform.setValue({ 0.0f, 0.0f, 0.0f, 1.0f });
-				juliaShaders.maxColorUniform.setValue({ 0, 0.1f, 0.2f, 1.0f });
+				juliaShaders.juliaCOffsetUniform(juliaCOffset());
+				juliaShaders.minColorUniform({ 0.0f, 0.0f, 0.0f, 1.0f });
+				juliaShaders.maxColorUniform({ 0, 0.1f, 0.2f, 1.0f });
 				return nullptr;
 			});
 

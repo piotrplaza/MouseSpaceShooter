@@ -3,6 +3,7 @@
 #include <globals.hpp>
 
 #include <components/texture.hpp>
+#include <components/blendingTexture.hpp>
 #include <components/animationTexture.hpp>
 #include <components/mvp.hpp>
 #include <components/screenInfo.hpp>
@@ -30,8 +31,8 @@ namespace Tools
 	template <typename ShadersProgram>
 	inline void MVPInitialization(ShadersProgram& shadersProgram, std::optional<glm::mat4> modelMatrix = std::nullopt)
 	{
-		shadersProgram.vpUniform.setValue(Globals::Components().mvp().getVP());
-		shadersProgram.modelUniform.setValue(modelMatrix ? *modelMatrix : glm::mat4(1.0f));
+		shadersProgram.vpUniform(Globals::Components().mvp().getVP());
+		shadersProgram.modelUniform(modelMatrix ? *modelMatrix : glm::mat4(1.0f));
 	}
 
 	template <typename ShadersProgram>
@@ -39,9 +40,9 @@ namespace Tools
 	{
 		const auto& textureComponent = Globals::Components().textures()[textureId];
 
-		shadersProgram.texture1Uniform.setValue(textureId);
-		shadersProgram.textureTranslateUniform.setValue(textureComponent.translate);
-		shadersProgram.textureScaleUniform.setValue(
+		shadersProgram.texturesUniform(0, textureId);
+		shadersProgram.textureTranslateUniform(textureComponent.translate);
+		shadersProgram.textureScaleUniform(
 			{ (textureRatioPreserved ? (float)textureComponent.loaded.size.x / textureComponent.loaded.size.y : 1.0f)
 			* textureComponent.scale.x, textureComponent.scale.y });
 	}
@@ -51,10 +52,28 @@ namespace Tools
 	{
 		const auto& animationTexture = Globals::Components().animationTextures()[animationTextureId];
 
-		shadersProgram.texture1Uniform.setValue(animationTexture.getTextureId());
+		shadersProgram.texturesUniform(0, animationTexture.getTextureId());
 		const auto frameTransformation = animationTexture.getFrameTransformation();
-		shadersProgram.textureTranslateUniform.setValue(frameTransformation.translate);
-		shadersProgram.textureScaleUniform.setValue(frameTransformation.scale);
+		shadersProgram.textureTranslateUniform(frameTransformation.translate);
+		shadersProgram.textureScaleUniform(frameTransformation.scale);
+	}
+
+	template <typename ShadersProgram>
+	inline void BlendingTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned blendingTextureId, bool textureRatioPreserved)
+	{
+		const auto& blendingTextureComponent = Globals::Components().blendingTextures()[blendingTextureId];
+
+		const auto& controlTexture = Globals::Components().textures()[blendingTextureComponent.controlTexture];
+		const auto& textureR = Globals::Components().textures()[blendingTextureComponent.textureR];
+		const auto& textureG = Globals::Components().textures()[blendingTextureComponent.textureG];
+		const auto& textureB = Globals::Components().textures()[blendingTextureComponent.textureB];
+		const auto& textureA = Globals::Components().textures()[blendingTextureComponent.textureA];
+
+		shadersProgram.texturesUniform(0, blendingTextureComponent.textureR);
+		shadersProgram.textureTranslateUniform(textureR.translate);
+		shadersProgram.textureScaleUniform(
+			{ (textureRatioPreserved ? (float)textureR.loaded.size.x / textureR.loaded.size.y : 1.0f)
+			* textureR.scale.x, textureR.scale.y });
 	}
 
 	template <typename ShadersProgram>
@@ -79,7 +98,7 @@ namespace Tools
 
 		void operator ()(TCM::BlendingTexture blendingTexture)
 		{
-			assert(!"Unsupported yet.");
+			BlendingTexturedRenderInitialization(shadersProgram, blendingTexture.id, textureRatioPreserved);
 		}
 
 		void operator ()(std::monostate)
@@ -109,11 +128,12 @@ namespace Tools
 	}
 
 	template <typename ShadersPrograms>
-	inline void TexturedScreenRender(ShadersPrograms& shadersProgram, unsigned texture, std::function<void()> customSetup = nullptr, std::function<std::array<glm::vec3, 6>()> customSize = nullptr)
+	inline void TexturedScreenRender(ShadersPrograms& shadersProgram, unsigned texture, std::function<void()> customSetup = nullptr,
+		std::function<std::array<glm::vec3, 6>()> positionsGenerator = nullptr)
 	{
 		const int numOfVertices = 6;
 
-		const static glm::vec3 positions[numOfVertices] =
+		const static glm::vec3 defaultPositions[numOfVertices] =
 		{
 			{-1.0f, -1.0f, 0.0f},
 			{1.0f, -1.0f, 0.0f},
@@ -123,7 +143,7 @@ namespace Tools
 			{1.0f, 1.0f, 0.0f}
 		};
 
-		const static glm::vec2 texCoords[numOfVertices] =
+		const static glm::vec2 defaultTexCoords[numOfVertices] =
 		{
 			{0.0f, 0.0f},
 			{1.0f, 0.0f},
@@ -133,24 +153,31 @@ namespace Tools
 			{1.0f, 1.0f}
 		};
 
+		static std::array<glm::vec3, numOfVertices> customPositions;
+
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		if (customSize)
-			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, &customSize()[0]);
+
+		if (positionsGenerator)
+		{
+			customPositions = positionsGenerator();
+			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, &customPositions);
+		}
 		else
-			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, &positions);
+			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, &defaultPositions);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, &texCoords);
+
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, &defaultTexCoords);
 		glEnableVertexAttribArray(1);
 
 		glUseProgram_proxy(shadersProgram.getProgramId());
 
-		shadersProgram.modelUniform.setValue(glm::mat4(1.0f));
-		shadersProgram.vpUniform.setValue(glm::mat4(1.0f));
-		shadersProgram.colorUniform.setValue(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		shadersProgram.textureTranslateUniform.setValue(glm::vec2(0.0f));
-		shadersProgram.textureScaleUniform.setValue(glm::vec2(1.0f));
-		shadersProgram.texture1Uniform.setValue(texture);
+		shadersProgram.modelUniform(glm::mat4(1.0f));
+		shadersProgram.vpUniform(glm::mat4(1.0f));
+		shadersProgram.colorUniform(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		shadersProgram.textureTranslateUniform(glm::vec2(0.0f));
+		shadersProgram.textureScaleUniform(glm::vec2(1.0f));
+		shadersProgram.texturesUniform(0, texture);
 
 		if (customSetup)
 			customSetup();
@@ -214,8 +241,8 @@ namespace Tools
 			glDisable(GL_BLEND);
 			Tools::TexturedScreenRender(shadersProgram, textureId, [&]()
 				{
-					shadersProgram.vpUniform.setValue(vp);
-					shadersProgram.modelUniform.setValue(model);
+					shadersProgram.vpUniform(vp);
+					shadersProgram.modelUniform(model);
 				}, [&]()
 				{
 					const float quakeIntensity = 0.001f * Globals::Components().shockwaves().size();

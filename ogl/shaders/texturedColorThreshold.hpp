@@ -17,7 +17,8 @@ namespace Shaders
 				colorUniform(program, "color"),
 				textureTranslateUniform(program, "textureTranslate"),
 				textureScaleUniform(program, "textureScale"),
-				texture1Uniform(program, "texture1"),
+				numOfTexturesUniform(program, "numOfTextures"),
+				texturesUniform(program, "textures"),
 				invisibleColorUniform(program, "invisibleColor"),
 				invisibleColorThresholdUniform(program, "invisibleColorThreshold")
 			{
@@ -28,7 +29,8 @@ namespace Shaders
 			Uniforms::UniformController4f colorUniform;
 			Uniforms::UniformController2f textureTranslateUniform;
 			Uniforms::UniformController2f textureScaleUniform;
-			Uniforms::UniformController1i texture1Uniform;
+			Uniforms::UniformController1i numOfTexturesUniform;
+			Uniforms::UniformController1iv<5> texturesUniform;
 			Uniforms::UniformController3f invisibleColorUniform;
 			Uniforms::UniformController1f invisibleColorThresholdUniform;
 		};
