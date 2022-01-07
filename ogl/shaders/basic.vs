@@ -2,8 +2,8 @@
 
 in vec3 bPos;
 
-uniform mat4 model = mat4(1.0);
-uniform mat4 vp = mat4(1.0);
+uniform mat4 model;
+uniform mat4 vp;
 
 void main()
 {

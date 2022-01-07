@@ -7,9 +7,7 @@ in float vAngle[];
 
 out vec2 gTexCoord;
 
-uniform mat4 vp = mat4(1.0);
-uniform vec2 textureTranslate = vec2(0.0);
-uniform vec2 textureScale = vec2(1.0);
+uniform mat4 vp;
 
 mat4 rotationMatrix(vec3 axis, float angle)
 {

@@ -29,6 +29,9 @@ namespace Shaders
 				BasicAccessor(LinkProgram(CompileShaders("ogl/shaders/basic.vs",
 					"ogl/shaders/basic.fs"), { {0, "bPos"} }))
 			{
+				modelUniform(glm::mat4(1.0f));
+				vpUniform(glm::mat4(1.0f));
+				colorUniform(glm::vec4(1.0f));
 			}
 
 			Basic(const Basic&) = delete;

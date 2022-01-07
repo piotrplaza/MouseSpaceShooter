@@ -31,6 +31,10 @@ namespace Shaders
 				JuliaAccessor(LinkProgram(CompileShaders("ogl/shaders/julia.vs",
 					"ogl/shaders/julia.fs"), { {0, "bPos"} }))
 			{
+				vpUniform(glm::mat4(1.0f));
+				juliaCOffsetUniform(glm::vec2(0.0f, 0.0f));
+				minColorUniform(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+				maxColorUniform(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 			}
 
 			Julia(const Julia&) = delete;

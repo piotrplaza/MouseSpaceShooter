@@ -41,8 +41,8 @@ namespace Tools
 		const auto& textureComponent = Globals::Components().textures()[textureId];
 
 		shadersProgram.texturesUniform(0, textureId);
-		shadersProgram.textureTranslateUniform(textureComponent.translate);
-		shadersProgram.textureScaleUniform(
+		shadersProgram.texturesTranslateUniform(0, textureComponent.translate);
+		shadersProgram.texturesScaleUniform(0,
 			{ (textureRatioPreserved ? (float)textureComponent.loaded.size.x / textureComponent.loaded.size.y : 1.0f)
 			* textureComponent.scale.x, textureComponent.scale.y });
 	}
@@ -54,8 +54,8 @@ namespace Tools
 
 		shadersProgram.texturesUniform(0, animationTexture.getTextureId());
 		const auto frameTransformation = animationTexture.getFrameTransformation();
-		shadersProgram.textureTranslateUniform(frameTransformation.translate);
-		shadersProgram.textureScaleUniform(frameTransformation.scale);
+		shadersProgram.texturesTranslateUniform(0, frameTransformation.translate);
+		shadersProgram.texturesScaleUniform(0, frameTransformation.scale);
 	}
 
 	template <typename ShadersProgram>
@@ -70,8 +70,8 @@ namespace Tools
 		const auto& textureA = Globals::Components().textures()[blendingTextureComponent.textureA];
 
 		shadersProgram.texturesUniform(0, blendingTextureComponent.textureR);
-		shadersProgram.textureTranslateUniform(textureR.translate);
-		shadersProgram.textureScaleUniform(
+		shadersProgram.texturesTranslateUniform(0, textureR.translate);
+		shadersProgram.texturesScaleUniform(0,
 			{ (textureRatioPreserved ? (float)textureR.loaded.size.x / textureR.loaded.size.y : 1.0f)
 			* textureR.scale.x, textureR.scale.y });
 	}
@@ -175,8 +175,8 @@ namespace Tools
 		shadersProgram.modelUniform(glm::mat4(1.0f));
 		shadersProgram.vpUniform(glm::mat4(1.0f));
 		shadersProgram.colorUniform(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		shadersProgram.textureTranslateUniform(glm::vec2(0.0f));
-		shadersProgram.textureScaleUniform(glm::vec2(1.0f));
+		shadersProgram.texturesTranslateUniform(0, glm::vec2(0.0f));
+		shadersProgram.texturesScaleUniform(0, glm::vec2(1.0f));
 		shadersProgram.texturesUniform(0, texture);
 
 		if (customSetup)

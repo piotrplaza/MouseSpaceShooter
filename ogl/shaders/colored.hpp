@@ -29,6 +29,9 @@ namespace Shaders
 				ColoredAccessor(LinkProgram(CompileShaders("ogl/shaders/colored.vs",
 					"ogl/shaders/colored.fs"), { {0, "bPos"}, {1, "bColor"} }))
 			{
+				modelUniform(glm::mat4(1.0f));
+				vpUniform(glm::mat4(1.0f));
+				colorUniform(glm::vec4(1.0f));
 			}
 
 			Colored(const Colored&) = delete;

@@ -35,7 +35,12 @@
 #include <windows.h>
 #include <shellscalingapi.h>
 
-const bool fullScreen = true;
+const bool fullScreen =
+#ifdef _DEBUG
+false;
+#else 
+true;
+#endif
 const bool console = true;
 const glm::ivec2 windowRes = { 1920, 1080 };
 

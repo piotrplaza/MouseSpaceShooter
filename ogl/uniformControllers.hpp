@@ -42,6 +42,15 @@ namespace Uniforms
 	public:
 		using UniformController::UniformController;
 
+		void operator ()(int value)
+		{
+			assert(isValid());
+			glUseProgram_proxy(programId);
+			std::array<int, Size> values;
+			values.fill(value);
+			glUniform1iv(uniformId, Size, values.data());
+		}
+
 		void operator ()(unsigned index, int value)
 		{
 			assert(isValid());
@@ -53,6 +62,7 @@ namespace Uniforms
 		void operator ()(const std::array<int, Size>& values)
 		{
 			assert(isValid());
+			assert(values.size() == Size);
 			glUseProgram_proxy(programId);
 			glUniform1iv(uniformId, Size, values.data());
 		}
@@ -88,6 +98,38 @@ namespace Uniforms
 		using UniformController::UniformController;
 
 		void operator ()(glm::vec2 value);
+	};
+
+	template <unsigned Size>
+	class UniformController2fv : public UniformController
+	{
+	public:
+		using UniformController::UniformController;
+
+		void operator ()(glm::vec2 value)
+		{
+			assert(isValid());
+			glUseProgram_proxy(programId);
+			std::array<glm::vec2, Size> values;
+			values.fill(value);
+			glUniform2fv(uniformId, Size, &values[0][0]);
+		}
+
+		void operator ()(unsigned index, glm::vec2 value)
+		{
+			assert(isValid());
+			assert(index < Size);
+			glUseProgram_proxy(programId);
+			glUniform2f(uniformId + index, value.x, value.y);
+		}
+
+		void operator ()(const std::array<glm::vec2, Size>& values)
+		{
+			assert(isValid());
+			assert(values.size() == Size);
+			glUseProgram_proxy(programId);
+			glUniform2fv(uniformId, Size, values.data());
+		}
 	};
 
 	class UniformController3f : public UniformController

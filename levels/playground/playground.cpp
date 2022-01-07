@@ -154,11 +154,11 @@ namespace Levels
 			Tools::PinBodies(wall1, wall2, { 5.0f, 0.0f });
 
 			Globals::Components().renderingSetups().emplace_back([
-				textureTranslateUniform = Uniforms::UniformController2f()
+				texturesTranslateUniform = Uniforms::UniformController2f()
 				](Shaders::ProgramId program) mutable {
-					if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2f(program, "textureTranslate");
+					if (!texturesTranslateUniform.isValid()) texturesTranslateUniform = Uniforms::UniformController2f(program, "texturesTranslate");
 					const float simulationDuration = Globals::Components().physics().simulationDuration;
-					textureTranslateUniform({ glm::cos(simulationDuration * 0.1f), glm::sin(simulationDuration * 0.1f) });
+					texturesTranslateUniform({ glm::cos(simulationDuration * 0.1f), glm::sin(simulationDuration * 0.1f) });
 					return nullptr;
 				});
 

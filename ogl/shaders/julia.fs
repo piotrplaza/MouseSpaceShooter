@@ -4,13 +4,14 @@ in vec3 vPos;
 
 out vec4 fColor;
 
-uniform int iterations = 200;
-uniform float zoom = 1.0;
-uniform vec2 translation = vec2(0.0, 0.0);
-uniform vec2 juliaC = vec2(-0.1, 0.65);
-uniform vec2 juliaCOffset = vec2(0.0, 0.0);
-uniform vec4 minColor = vec4(0.0, 0.0, 0.0, 1.0);
-uniform vec4 maxColor = vec4(1.0, 1.0, 1.0, 1.0);
+uniform vec2 juliaCOffset;
+uniform vec4 minColor;
+uniform vec4 maxColor;
+
+const int iterations = 200;
+const uniform float zoom = 1.0;
+const uniform vec2 translation = vec2(0.0, 0.0);
+const uniform vec2 juliaC = vec2(-0.1, 0.65);
 
 vec2 complexAdd(vec2 c1, vec2 c2)
 {

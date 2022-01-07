@@ -4,11 +4,11 @@ in vec2 vTexCoord;
 
 out vec4 fColor;
 
-uniform vec4 color = vec4(1.0);
-uniform int numOfTextures = 1;
+uniform vec4 color;
+uniform int numOfTextures;
 uniform sampler2D textures[5];
-uniform vec3 invisibleColor = vec3(0.0);
-uniform float invisibleColorThreshold = 0.0;
+uniform vec3 invisibleColor;
+uniform float invisibleColorThreshold;
 
 void main()
 {
