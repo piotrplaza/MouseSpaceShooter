@@ -10,6 +10,7 @@ namespace Uniforms
 		programId(programId),
 		uniformId(glGetUniformLocation(programId, uniformName.c_str()))
 	{
+		assert(isValid());
 	}
 
 	bool UniformController::isValid() const
