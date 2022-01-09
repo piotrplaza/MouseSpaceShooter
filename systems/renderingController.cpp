@@ -1,7 +1,5 @@
 #include "renderingController.hpp"
 
-#include <globals.hpp>
-
 #include <components/screenInfo.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/framebuffers.hpp>
@@ -15,6 +13,9 @@
 #include <ogl/renderingHelpers.hpp>
 
 #include <ogl/shaders/textured.hpp>
+
+#include <globals/shaders.hpp>
+#include <globals/systems.hpp>
 
 namespace Systems
 {

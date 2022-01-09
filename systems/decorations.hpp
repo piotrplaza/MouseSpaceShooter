@@ -2,7 +2,7 @@
 
 #include <ogl/buffers/posTexCoordBuffers.hpp>
 
-#include <componentId.hpp>
+#include <components/componentId.hpp>
 
 #include <memory>
 #include <vector>

@@ -22,7 +22,9 @@
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
     <ClCompile Include="commonTypes\resolutionMode.cpp" />
     <ClCompile Include="components\animationTexture.cpp" />
-    <ClCompile Include="globals.cpp" />
+    <ClCompile Include="globals\components.cpp" />
+    <ClCompile Include="globals\shaders.cpp" />
+    <ClCompile Include="globals\systems.cpp" />
     <ClCompile Include="levels\level.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
     <ClCompile Include="levels\race1\race1.cpp">
@@ -57,16 +59,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdParty\stb_image\stb_image.h" />
-    <ClInclude Include="bodyUserData.hpp" />
-    <ClInclude Include="collisionBits.hpp" />
+    <ClInclude Include="commonIds\collisionBits.hpp" />
+    <ClInclude Include="commonTypes\bodyUserData.hpp" />
+    <ClInclude Include="commonTypes\idGenerator.hpp" />
     <ClInclude Include="commonTypes\resolutionMode.hpp" />
-    <ClInclude Include="commonTypes\typeComponentMappers.hpp" />
-    <ClInclude Include="componentBase.hpp" />
-    <ClInclude Include="componentId.hpp" />
     <ClInclude Include="components\animationTexture.hpp" />
     <ClInclude Include="components\blendingTexture.hpp" />
     <ClInclude Include="components\camera.hpp" />
     <ClInclude Include="components\collisionHandler.hpp" />
+    <ClInclude Include="components\componentBase.hpp" />
+    <ClInclude Include="components\componentId.hpp" />
     <ClInclude Include="components\decoration.hpp" />
     <ClInclude Include="components\framebuffers.hpp" />
     <ClInclude Include="components\functor.hpp" />
@@ -83,9 +85,11 @@
     <ClInclude Include="components\screenInfo.hpp" />
     <ClInclude Include="components\shockwave.hpp" />
     <ClInclude Include="components\texture.hpp" />
+    <ClInclude Include="components\typeComponentMappers.hpp" />
     <ClInclude Include="components\wall.hpp" />
-    <ClInclude Include="globals.hpp" />
-    <ClInclude Include="idGenerator.hpp" />
+    <ClInclude Include="globals\components.hpp" />
+    <ClInclude Include="globals\shaders.hpp" />
+    <ClInclude Include="globals\systems.hpp" />
     <ClInclude Include="levels\level.hpp" />
     <ClInclude Include="levels\playground\playground.hpp" />
     <ClInclude Include="levels\race1\race1.hpp" />

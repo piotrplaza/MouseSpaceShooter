@@ -1,9 +1,9 @@
 #include "physics.hpp"
 
-#include <globals.hpp>
-
 #include <components/physics.hpp>
 #include <components/collisionHandler.hpp>
+
+#include <globals/components.hpp>
 
 namespace
 {

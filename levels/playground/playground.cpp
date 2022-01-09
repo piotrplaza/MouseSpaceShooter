@@ -1,7 +1,5 @@
 #include "playground.hpp"
 
-#include <globals.hpp>
-
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
 #include <components/renderingSetup.hpp>
@@ -28,11 +26,14 @@
 #include <ogl/shaders/particles.hpp>
 #include <ogl/renderingHelpers.hpp>
 
+#include <globals/shaders.hpp>
+#include <globals/components.hpp>
+
 #include <tools/graphicsHelpers.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
 
-#include <collisionBits.hpp>
+#include <commonIds/collisionBits.hpp>
 
 #include <algorithm>
 #include <unordered_map>

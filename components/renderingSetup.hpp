@@ -1,6 +1,6 @@
 #pragma once
 
-#include <componentBase.hpp>
+#include "componentBase.hpp"
 
 #include <ogl/shaders.hpp>
 

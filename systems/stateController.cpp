@@ -2,8 +2,6 @@
 
 #include "tools/utility.hpp"
 
-#include <globals.hpp>
-
 #include <components/player.hpp>
 #include <components/grapple.hpp>
 #include <components/screenInfo.hpp>
@@ -12,6 +10,8 @@
 #include <components/framebuffers.hpp>
 #include <components/texture.hpp>
 #include <components/functor.hpp>
+
+#include <globals/components.hpp>
 
 namespace
 {

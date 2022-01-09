@@ -1,16 +1,15 @@
 #pragma once
 
-#include <componentBase.hpp>
-
-#include <commonTypes/resolutionMode.hpp>
-#include <commonTypes/typeComponentMappers.hpp>
-
-#include <ogl/shaders.hpp>
+#include "componentBase.hpp"
+#include "typeComponentMappers.hpp"
 
 #include <tools/b2Helpers.hpp>
 #include <tools/graphicsHelpers.hpp>
 
-#include <bodyUserData.hpp>
+#include <commonTypes/resolutionMode.hpp>
+#include <commonTypes/bodyUserData.hpp>
+
+#include <ogl/shaders.hpp>
 
 #include <Box2D/Box2D.h>
 

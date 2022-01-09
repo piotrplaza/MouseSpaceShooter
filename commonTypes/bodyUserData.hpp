@@ -1,6 +1,6 @@
 #pragma once
 
-#include "componentId.hpp"
+#include <components/componentId.hpp>
 
 struct BodyUserData
 {

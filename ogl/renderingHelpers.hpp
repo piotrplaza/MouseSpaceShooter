@@ -1,7 +1,5 @@
 #pragma once
 
-#include <globals.hpp>
-
 #include <components/texture.hpp>
 #include <components/blendingTexture.hpp>
 #include <components/animationTexture.hpp>
@@ -10,11 +8,11 @@
 #include <components/physics.hpp>
 #include <components/mouseState.hpp>
 
+#include <components/typeComponentMappers.hpp>
+
 #include <ogl/oglProxy.hpp>
 
 #include <tools/utility.hpp>
-
-#include <commonTypes/typeComponentMappers.hpp>
 
 #include <GL/glew.h>
 

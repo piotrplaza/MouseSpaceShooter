@@ -1,9 +1,8 @@
 #pragma once
 
-#include <componentId.hpp>
-#include <componentBase.hpp>
-
-#include <commonTypes/typeComponentMappers.hpp>
+#include <components/componentId.hpp>
+#include <components/componentBase.hpp>
+#include <components/typeComponentMappers.hpp>
 
 #include <GL/glew.h>
 

@@ -1,9 +1,9 @@
 #include "textures.hpp"
 
-#include <globals.hpp>
-
 #include <components/texture.hpp>
 #include <components/framebuffers.hpp>
+
+#include <globals/components.hpp>
 
 #include <stb_image/stb_image.h>
 

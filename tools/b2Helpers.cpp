@@ -1,14 +1,14 @@
 #include "b2Helpers.hpp"
 
-#include <globals.hpp>
-
 #include <components/physics.hpp>
+
+#include <globals/components.hpp>
 
 #include <tools/graphicsHelpers.hpp>
 
-#include <collisionBits.hpp>
+#include <commonIds/collisionBits.hpp>
 
-#include <bodyUserData.hpp>
+#include <commonTypes/bodyUserData.hpp>
 
 #include <glm/gtx/transform.hpp>
 

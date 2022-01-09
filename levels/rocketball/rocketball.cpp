@@ -1,7 +1,5 @@
 #include "rocketball.hpp"
 
-#include <globals.hpp>
-
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
 #include <components/texture.hpp>
@@ -12,6 +10,8 @@
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/mouseState.hpp>
+
+#include <globals/components.hpp>
 
 #include <ogl/uniformControllers.hpp>
 

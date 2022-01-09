@@ -2,7 +2,7 @@
 
 #include <ogl/buffers/posTexCoordBuffers.hpp>
 
-#include <commonTypes/typeComponentMappers.hpp>
+#include <components/typeComponentMappers.hpp>
 
 #include <memory>
 #include <vector>

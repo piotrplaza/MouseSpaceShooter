@@ -1,4 +1,7 @@
-#include "globals.hpp"
+#include "levels/level.hpp"
+#include "levels/playground/playground.hpp"
+#include "levels/rocketball/rocketball.hpp"
+#include "levels/race1/race1.hpp"
 
 #include "components/mouseState.hpp"
 
@@ -14,14 +17,13 @@
 #include "systems/renderingController.hpp"
 #include "systems/textures.hpp"
 
-#include "levels/level.hpp"
-#include "levels/playground/playground.hpp"
-#include "levels/rocketball/rocketball.hpp"
-#include "levels/race1/race1.hpp"
+#include "globals/shaders.hpp"
+#include "globals/components.hpp"
+#include "globals/systems.hpp"
 
 #include "ogl/oglHelpers.hpp"
 
-#include <tools/utility.hpp>
+#include "tools/utility.hpp"
 
 #include <GL/glew.h>
 #include <gl/gl.h>

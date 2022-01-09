@@ -1,94 +1,31 @@
-#include "globals.hpp"
+#include "components.hpp"
 
-#include "ogl/shaders/basic.hpp"
-#include "ogl/shaders/colored.hpp"
-#include "ogl/shaders/julia.hpp"
-#include "ogl/shaders/particles.hpp"
-#include "ogl/shaders/sceneCoordTextured.hpp"
-#include "ogl/shaders/textured.hpp"
-#include "ogl/shaders/texturedColorThreshold.hpp"
-
-#include "components/mouseState.hpp"
-#include "components/screenInfo.hpp"
-#include "components/mvp.hpp"
-#include "components/physics.hpp"
-#include "components/texture.hpp"
-#include "components/animationTexture.hpp"
-#include "components/blendingTexture.hpp"
-#include "components/renderingSetup.hpp"
-#include "components/player.hpp"
-#include "components/wall.hpp"
-#include "components/grapple.hpp"
-#include "components/camera.hpp"
-#include "components/decoration.hpp"
-#include "components/graphicsSettings.hpp"
-#include "components/missile.hpp"
-#include "components/collisionHandler.hpp"
-#include "components/shockwave.hpp"
-#include "components/light.hpp"
-#include "components/framebuffers.hpp"
-#include "components/functor.hpp"
-#include "components/mainFramebufferRenderer.hpp"
-
-#include "systems/stateController.hpp"
-#include "systems/physics.hpp"
-#include "systems/textures.hpp"
-#include "systems/players.hpp"
-#include "systems/walls.hpp"
-#include "systems/camera.hpp"
-#include "systems/decorations.hpp"
-#include "systems/temporaries.hpp"
-#include "systems/cleaner.hpp"
-#include "systems/deferredActions.hpp"
-#include "systems/renderingController.hpp"
-
-#include <memory>
-#include <vector>
-#include <unordered_map>
+#include <components/mouseState.hpp>
+#include <components/screenInfo.hpp>
+#include <components/mvp.hpp>
+#include <components/physics.hpp>
+#include <components/texture.hpp>
+#include <components/animationTexture.hpp>
+#include <components/blendingTexture.hpp>
+#include <components/renderingSetup.hpp>
+#include <components/player.hpp>
+#include <components/wall.hpp>
+#include <components/grapple.hpp>
+#include <components/camera.hpp>
+#include <components/decoration.hpp>
+#include <components/graphicsSettings.hpp>
+#include <components/missile.hpp>
+#include <components/collisionHandler.hpp>
+#include <components/shockwave.hpp>
+#include <components/light.hpp>
+#include <components/framebuffers.hpp>
+#include <components/functor.hpp>
+#include <components/mainFramebufferRenderer.hpp>
 
 namespace Globals
 {
-	static std::unique_ptr<class Shaders> shaders;
 	static std::unique_ptr<::ComponentIdGenerator> componentIdGenerator;
-	static std::unique_ptr<class Systems> systems;
 	static std::unique_ptr<class Components> components;
-
-
-	::Shaders::Programs::Basic& Shaders::basic()
-	{
-		return *basic_;
-	}
-
-	::Shaders::Programs::Colored& Shaders::colored()
-	{
-		return *colored_;
-	}
-
-	::Shaders::Programs::Julia& Shaders::julia()
-	{
-		return *julia_;
-	}
-
-	::Shaders::Programs::Particles& Shaders::particles()
-	{
-		return *particles_;
-	}
-
-	::Shaders::Programs::SceneCoordTextured& Shaders::sceneCoordTextured()
-	{
-		return *sceneCoordTextured_;
-	}
-
-	::Shaders::Programs::Textured& Shaders::textured()
-	{
-		return *textured_;
-	}
-
-	::Shaders::Programs::TexturedColorThreshold& Shaders::texturedColorThreshold()
-	{
-		return *texturedColorThreshold_;
-	}
-
 
 	Components::Components()
 	{
@@ -273,83 +210,10 @@ namespace Globals
 		return frameTeardowns_;
 	}
 
-
-	::Systems::StateController& Systems::stateController()
-	{
-		return *stateController_;
-	}
-
-	::Systems::Physics& Systems::physics()
-	{
-		return *physics_;
-	}
-
-	::Systems::Textures& Systems::textures()
-	{
-		return *textures_;
-	}
-
-	::Systems::Players& Systems::players()
-	{
-		return *players_;
-	}
-
-	::Systems::Walls& Systems::walls()
-	{
-		return *walls_;
-	}
-
-	::Systems::Camera& Systems::camera()
-	{
-		return *camera_;
-	}
-
-	::Systems::Decorations& Systems::decorations()
-	{
-		return *decorations_;
-	}
-
-	::Systems::Temporaries& Systems::temporaries()
-	{
-		return *temporaries_;
-	}
-
-	::Systems::Cleaner& Systems::cleaner()
-	{
-		return *cleaner_;
-	}
-
-	::Systems::DeferredActions& Systems::deferredActions()
-	{
-		return *deferredActions_;
-	}
-
-	::Systems::RenderingController& Systems::renderingController()
-	{
-		return *renderingController_;
-	}
-
-
-	void InitializeShaders()
-	{
-		shaders = std::make_unique<class Shaders>();
-	}
-
 	void InitializeComponents()
 	{
 		componentIdGenerator = std::make_unique<::ComponentIdGenerator>();
 		components = std::make_unique<class Components>();
-	}
-
-	void InitializeSystems()
-	{
-		systems = std::make_unique<class Systems>();
-	}
-
-
-	class Shaders& Shaders()
-	{
-		return *shaders;
 	}
 
 	::ComponentIdGenerator& ComponentIdGenerator()
@@ -360,10 +224,5 @@ namespace Globals
 	class Components& Components()
 	{
 		return *components;
-	}
-
-	class Systems& Systems()
-	{
-		return *systems;
 	}
 }

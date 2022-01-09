@@ -1,7 +1,5 @@
 #include "race1.hpp"
 
-#include <globals.hpp>
-
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
 #include <components/renderingSetup.hpp>
@@ -19,6 +17,8 @@
 #include <ogl/shaders/texturedColorThreshold.hpp>
 #include <ogl/shaders/textured.hpp>
 #include <ogl/renderingHelpers.hpp>
+
+#include <globals/components.hpp>
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/utility.hpp>

@@ -1,10 +1,10 @@
 #include "camera.hpp"
 
-#include <globals.hpp>
-
 #include <components/camera.hpp>
 #include <components/mvp.hpp>
 #include <components/screenInfo.hpp>
+
+#include <globals/components.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 

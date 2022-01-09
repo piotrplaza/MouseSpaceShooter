@@ -3,7 +3,7 @@
 #include <ogl/shaders.hpp>
 
 #include <commonTypes/resolutionMode.hpp>
-#include <commonTypes/typeComponentMappers.hpp>
+#include <components/typeComponentMappers.hpp>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>

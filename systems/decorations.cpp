@@ -8,14 +8,14 @@
 #include <ogl/shaders/basic.hpp>
 #include <ogl/shaders/textured.hpp>
 
-#include <globals.hpp>
-
 #include <components/decoration.hpp>
 #include <components/mvp.hpp>
 #include <components/renderingSetup.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/screenInfo.hpp>
 #include <components/framebuffers.hpp> 
+
+#include <globals/shaders.hpp>
 
 namespace Systems
 {

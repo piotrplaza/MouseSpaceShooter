@@ -2,8 +2,6 @@
 
 #include <tools/glmHelpers.hpp>
 
-#include <globals.hpp>
-
 #include <components/physics.hpp>
 
 namespace Components

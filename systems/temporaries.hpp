@@ -4,7 +4,7 @@
 
 #include <ogl/buffers/posTexCoordBuffers.hpp>
 
-#include <componentId.hpp>
+#include <components/componentId.hpp>
 
 namespace Systems
 {

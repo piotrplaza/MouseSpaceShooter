@@ -7,13 +7,13 @@
 #include <ogl/shaders/basic.hpp>
 #include <ogl/shaders/textured.hpp>
 
-#include <globals.hpp>
-
 #include <components/missile.hpp>
 #include <components/decoration.hpp>
 #include <components/renderingSetup.hpp>
 #include <components/mvp.hpp>
 #include <components/graphicsSettings.hpp>
+
+#include <globals/shaders.hpp>
 
 namespace Systems
 {

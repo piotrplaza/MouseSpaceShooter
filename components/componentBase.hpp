@@ -1,13 +1,13 @@
 #pragma once
 
-#include "globals.hpp"
-
 //#define PRINT_COMPONENT_ID
 
 #ifdef PRINT_COMPONENT_ID
 #include <tools/utility.hpp>
 #include <iostream>
 #endif
+
+#include <globals/components.hpp>
 
 enum class ComponentState {Ongoing, Changed, Outdated, Fake};
 

@@ -3,7 +3,6 @@
 #include <ogl/shaders/textured.hpp>
 #include <ogl/renderingHelpers.hpp>
 
-#include <globals.hpp>
 #include <components/framebuffers.hpp>
 
 TexturesFramebuffersRenderer::TexturesFramebuffersRenderer(Shaders::Programs::Textured& texturedShadersProgram):

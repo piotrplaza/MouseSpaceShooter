@@ -7,9 +7,10 @@
 #include <components/light.hpp>
 #include <components/functor.hpp>
 
-#include <globals.hpp>
-#include <componentBase.hpp>
-#include <componentId.hpp>
+#include <components/componentBase.hpp>
+#include <components/componentId.hpp>
+
+#include <globals/components.hpp>
 
 template <typename ComponentsMap>
 inline void RemoveOutdatedComponents(ComponentsMap& components)

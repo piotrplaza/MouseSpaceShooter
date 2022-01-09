@@ -1,7 +1,5 @@
 #include "gameHelpers.hpp"
 
-#include <globals.hpp>
-
 #include <systems/deferredActions.hpp>
 
 #include <components/player.hpp>
@@ -15,16 +13,18 @@
 #include <components/screenInfo.hpp>
 #include <components/animationTexture.hpp>
 
+#include <components/typeComponentMappers.hpp>
+
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/textured.hpp>
 #include <ogl/shaders/julia.hpp>
 
+#include <globals/systems.hpp>
+
 #include <tools/b2Helpers.hpp>
 #include <tools/utility.hpp>
 
-#include <collisionBits.hpp>
-
-#include <commonTypes/typeComponentMappers.hpp>
+#include <commonIds/collisionBits.hpp>
 
 #include <cassert>
 

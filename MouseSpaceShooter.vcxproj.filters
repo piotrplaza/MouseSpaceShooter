@@ -65,12 +65,15 @@
     <Filter Include="src\commonTypes">
       <UniqueIdentifier>{63186fb2-8de8-482a-a71f-800c739e5cc1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\globals">
+      <UniqueIdentifier>{559bc9f3-4bd9-4a0f-a00f-82fcce3231b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\commonIds">
+      <UniqueIdentifier>{fbaa671a-12fa-4d4c-8bba-07a92ab28bfe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="globals.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="systems\physics.cpp">
@@ -154,11 +157,17 @@
     <ClCompile Include="components\animationTexture.cpp">
       <Filter>src\components</Filter>
     </ClCompile>
+    <ClCompile Include="globals\components.cpp">
+      <Filter>src\globals</Filter>
+    </ClCompile>
+    <ClCompile Include="globals\shaders.cpp">
+      <Filter>src\globals</Filter>
+    </ClCompile>
+    <ClCompile Include="globals\systems.cpp">
+      <Filter>src\globals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="globals.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="components\mouseState.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -282,32 +291,17 @@
     <ClInclude Include="components\missile.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
-    <ClInclude Include="componentId.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="systems\walls.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
-    <ClInclude Include="idGenerator.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="systems\cleaner.hpp">
       <Filter>src\systems</Filter>
-    </ClInclude>
-    <ClInclude Include="collisionBits.hpp">
-      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="ogl\shaders\programBase.hpp">
       <Filter>src\ogl\shaders</Filter>
     </ClInclude>
     <ClInclude Include="components\collisionHandler.hpp">
       <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="bodyUserData.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="componentBase.hpp">
-      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="components\shockwave.hpp">
       <Filter>src\components</Filter>
@@ -339,9 +333,6 @@
     <ClInclude Include="components\texture.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
-    <ClInclude Include="commonTypes\typeComponentMappers.hpp">
-      <Filter>src\commonTypes</Filter>
-    </ClInclude>
     <ClInclude Include="components\animationTexture.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -349,6 +340,33 @@
       <Filter>src\components</Filter>
     </ClInclude>
     <ClInclude Include="components\renderingSetup.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\components.hpp">
+      <Filter>src\globals</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\shaders.hpp">
+      <Filter>src\globals</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\systems.hpp">
+      <Filter>src\globals</Filter>
+    </ClInclude>
+    <ClInclude Include="commonTypes\bodyUserData.hpp">
+      <Filter>src\commonTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="commonTypes\idGenerator.hpp">
+      <Filter>src\commonTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="commonIds\collisionBits.hpp">
+      <Filter>src\commonIds</Filter>
+    </ClInclude>
+    <ClInclude Include="components\componentBase.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\typeComponentMappers.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\componentId.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <componentBase.hpp>
+#include "componentBase.hpp"
 
 #include <tools/b2Helpers.hpp>
 #include <tools/utility.hpp>
 
-#include <collisionBits.hpp>
+#include <commonIds/collisionBits.hpp>
 
 #include <Box2D/Box2D.h>
 

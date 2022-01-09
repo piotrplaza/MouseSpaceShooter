@@ -1,6 +1,6 @@
 #pragma once
 
-#include <componentBase.hpp>
+#include "componentBase.hpp"
 
 #include <commonTypes/resolutionMode.hpp>
 
@@ -9,7 +9,7 @@
 #include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>
 
-#include <bodyUserData.hpp>
+#include <commonTypes/bodyUserData.hpp>
 
 #include <Box2D/Box2D.h>
 

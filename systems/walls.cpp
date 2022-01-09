@@ -8,8 +8,6 @@
 #include <ogl/shaders/sceneCoordTextured.hpp>
 #include <ogl/shaders/textured.hpp>
 
-#include <globals.hpp>
-
 #include <components/physics.hpp>
 #include <components/mvp.hpp>
 #include <components/renderingSetup.hpp>
@@ -17,6 +15,8 @@
 #include <components/grapple.hpp>
 #include <components/texture.hpp>
 #include <components/graphicsSettings.hpp>
+
+#include <globals/shaders.hpp>
 
 #include <Box2D/Box2D.h>
 

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <componentBase.hpp>
+#include "componentBase.hpp"
+#include "typeComponentMappers.hpp"
 
 #include <commonTypes/resolutionMode.hpp>
-#include <commonTypes/typeComponentMappers.hpp>
 
 #include <ogl/shaders.hpp>
 
