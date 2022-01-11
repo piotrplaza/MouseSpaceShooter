@@ -48,10 +48,10 @@ namespace Tools
 	template <typename ShadersProgram>
 	inline void AnimatedTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned animationTextureId)
 	{
-		const auto& animationTexture = Globals::Components().animationTextures()[animationTextureId];
+		const auto& animationTextureComponent = Globals::Components().animationTextures()[animationTextureId];
 
-		shadersProgram.texturesUniform(0, animationTexture.getTextureId());
-		const auto frameTransformation = animationTexture.getFrameTransformation();
+		shadersProgram.texturesUniform(0, animationTextureComponent.getTextureId());
+		const auto frameTransformation = animationTextureComponent.getFrameTransformation();
 		shadersProgram.texturesTranslateUniform(0, frameTransformation.translate);
 		shadersProgram.texturesScaleUniform(0, frameTransformation.scale);
 	}
@@ -61,17 +61,18 @@ namespace Tools
 	{
 		const auto& blendingTextureComponent = Globals::Components().blendingTextures()[blendingTextureId];
 
-		const auto& controlTexture = Globals::Components().textures()[blendingTextureComponent.controlTexture];
-		const auto& textureR = Globals::Components().textures()[blendingTextureComponent.textureR];
-		const auto& textureG = Globals::Components().textures()[blendingTextureComponent.textureG];
-		const auto& textureB = Globals::Components().textures()[blendingTextureComponent.textureB];
-		const auto& textureA = Globals::Components().textures()[blendingTextureComponent.textureA];
+		shadersProgram.numOfTexturesUniform(blendingTextureComponent.texturesIds.size());
+		for (unsigned i = 0; i < (unsigned)blendingTextureComponent.texturesIds.size(); ++i)
+		{
+			const auto textureId = blendingTextureComponent.texturesIds[i];
+			const auto& textureComponent = Globals::Components().textures()[textureId];
 
-		shadersProgram.texturesUniform(0, blendingTextureComponent.textureR);
-		shadersProgram.texturesTranslateUniform(0, textureR.translate);
-		shadersProgram.texturesScaleUniform(0,
-			{ (textureRatioPreserved ? (float)textureR.loaded.size.x / textureR.loaded.size.y : 1.0f)
-			* textureR.scale.x, textureR.scale.y });
+			shadersProgram.texturesUniform(i, textureId);
+			shadersProgram.texturesTranslateUniform(i, textureComponent.translate);
+			shadersProgram.texturesScaleUniform(i,
+				{ (textureRatioPreserved ? (float)textureComponent.loaded.size.x / textureComponent.loaded.size.y : 1.0f)
+				* textureComponent.scale.x, textureComponent.scale.y });
+		}
 	}
 
 	template <typename ShadersProgram>

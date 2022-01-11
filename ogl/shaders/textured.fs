@@ -1,6 +1,6 @@
 #version 440
 
-in vec2 vTexCoord;
+in vec2 vTexCoord[5];
 
 out vec4 fColor;
 
@@ -10,5 +10,14 @@ uniform sampler2D textures[5];
 
 void main()
 {
-	fColor = texture(textures[0], vTexCoord) * color;
+	if (numOfTextures == 1)
+		fColor = texture(textures[0], vTexCoord[0]) * color;
+	else
+	{
+		const vec4 blendingColor = texture(textures[0], vTexCoord[0]);
+		vec3 accumulatedColor = vec3(0.0);
+		for (int i = 1; i < numOfTextures; ++i)
+			accumulatedColor += blendingColor[i - 1] * texture(textures[i], vTexCoord[i]).rgb;
+		fColor = vec4(accumulatedColor / (numOfTextures - 1), blendingColor.a) * color;
+	}
 }

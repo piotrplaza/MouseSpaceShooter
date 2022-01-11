@@ -8,19 +8,16 @@ namespace Components
 	{
 		using ComponentBase::ComponentBase;
 
-		BlendingTexture(ComponentId controlTexture, ComponentId textureR, ComponentId textureG = 0, ComponentId textureB = 0, ComponentId textureA = 0):
-			controlTexture(controlTexture),
-			textureR(textureR),
-			textureG(textureG),
-			textureB(textureB),
-			textureA(textureA)
+		BlendingTexture(std::initializer_list<ComponentId> texturesIds):
+			texturesIds(texturesIds)
 		{
 		}
 
-		ComponentId controlTexture = 0;
-		ComponentId textureR = 0;
-		ComponentId textureG = 0;
-		ComponentId textureB = 0;
-		ComponentId textureA = 0;
+		BlendingTexture(std::vector<ComponentId> texturesIds) :
+			texturesIds(std::move(texturesIds))
+		{
+		}
+
+		std::vector<ComponentId> texturesIds;
 	};
 }

@@ -103,6 +103,18 @@ namespace Levels
 
 			explosionTexture = textures.size();
 			textures.emplace_back("textures/explosion.png");
+
+			foiledEggsTexture = textures.size();
+			textures.emplace_back("textures/foiled eggs.jpg", GL_MIRRORED_REPEAT);
+			textures.back().scale = glm::vec2(100.0f, 100.0f);
+
+			fractalTexture = textures.size();
+			textures.emplace_back("textures/fractal.jpg", GL_MIRRORED_REPEAT);
+			textures.back().scale = glm::vec2(50.0f, 50.0f);
+
+			mosaicTexture = textures.size();
+			textures.emplace_back("textures/mosaic.jpg", GL_MIRRORED_REPEAT);
+			textures.back().scale = glm::vec2(50.0f, 50.0f);
 		}
 
 		void createBackground()
@@ -184,46 +196,35 @@ namespace Levels
 				Globals::Components().midgroundDecorations().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
 			}
 
-
 			for (const float pos : {-30.0f, 30.0f})
 			{
 				Globals::Components().renderingSetups().emplace_back([this](auto) {
 						Tools::MVPInitialization(texturedColorThresholdShaders);
-						Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, woodTexture, true);
+						Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, orbTexture, true);
 						const float simulationDuration = Globals::Components().physics().simulationDuration;
 						texturedColorThresholdShaders.invisibleColorUniform({ 1.0f, 1.0f, 1.0f });
 						texturedColorThresholdShaders.invisibleColorThresholdUniform((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
+						texturedColorThresholdShaders.texturesScaleUniform(glm::vec3(10.0f, 10.0f, 1.0f));
 						return nullptr;
 					});
 
-				Globals::Components().dynamicWalls().emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), TCM::Texture(woodTexture),
+				Globals::Components().dynamicWalls().emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), TCM::Texture(),
 					Globals::Components().renderingSetups().size() - 1, texturedColorThresholdShaders.getProgramId());
-				const auto wallId = Globals::Components().dynamicWalls().size();
-				Globals::Components().dynamicWalls().emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f));
 
 				Globals::Components().renderingSetups().emplace_back([
-					basicProgram = Shaders::Programs::BasicAccessor()
+						basicProgram = Shaders::Programs::BasicAccessor()
 					](Shaders::ProgramId program) mutable {
 						if (!basicProgram.isValid()) basicProgram = program;
 						basicProgram.colorUniform(glm::vec4(0.0f));
 						return nullptr;
 					});
 
+				Globals::Components().dynamicWalls().emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f));
 				Globals::Components().dynamicWalls().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
-				Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
-					[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
-					[](float input) { return glm::vec2(input + 0.3f, input + 0.3f); },
-					[](float input) { return input * 600.0f; },
-					[value = 0.0f]() mutable -> std::optional<float> {
-					if (value > 1.0f) return std::nullopt;
-					float result = value;
-					value += 0.002f;
-					return result;
-				}), TCM::Texture(roseTexture));
-				Globals::Components().midgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
 
 				Globals::Components().renderingSetups().emplace_back([
-					wallId, texturedProgram = Shaders::Programs::TexturedAccessor()
+						wallId = Globals::Components().dynamicWalls().size() - 1,
+						texturedProgram = Shaders::Programs::TexturedAccessor()
 					](Shaders::ProgramId program) mutable {
 						if (!texturedProgram.isValid()) texturedProgram = program;
 						texturedProgram.colorUniform(glm::vec4(
@@ -232,8 +233,20 @@ namespace Levels
 						return nullptr;
 					});
 
+				Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
+					[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
+					[](float input) { return glm::vec2(input + 0.3f, input + 0.3f); },
+					[](float input) { return input * 600.0f; },
+					[value = 0.0f]() mutable->std::optional<float> {
+					if (value > 1.0f) return std::nullopt;
+					float result = value;
+					value += 0.002f;
+					return result;
+				}), TCM::Texture(roseTexture));
+				Globals::Components().midgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
 				Globals::Components().midgroundDecorations().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
 			}
+
 			Globals::Components().midgroundDecorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
 			lowResBodies.insert(Globals::Components().dynamicWalls().back().body.get());
 		}
@@ -243,7 +256,7 @@ namespace Levels
 			const float levelHSize = 50.0f;
 			const float bordersHGauge = 50.0f;
 
-			Globals::Components().blendingTextures().emplace_back(woodTexture, spaceRockTexture, fogTexture);
+			Globals::Components().blendingTextures().push_back({ fractalTexture, woodTexture, spaceRockTexture, foiledEggsTexture });
 			const auto blendingTexture1 = Globals::Components().blendingTextures().size() - 1;
 
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ -levelHSize - bordersHGauge, 0.0f },
@@ -376,6 +389,9 @@ namespace Levels
 		unsigned missile1Texture = 0;
 		unsigned missile2Texture = 0;
 		unsigned explosionTexture = 0;
+		unsigned foiledEggsTexture = 0;
+		unsigned fractalTexture = 0;
+		unsigned mosaicTexture = 0;
 
 		Tools::PlayerPlaneHandler player1Handler;
 

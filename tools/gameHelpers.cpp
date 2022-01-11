@@ -173,7 +173,7 @@ namespace Tools
 					-glm::half_pi<float>() + 0.0f, { 0.0f, 0.0f, 1.0f }),
 					{ std::min(thrustScale * 0.2f, 0.4f), thrustScale, 1.0f }));
 
-				const float targetFrameDurationFactor = Globals::Components().physics().frameDuration * 10;
+				const float targetFrameDurationFactor = Globals::Components().physics().frameDuration * 6.0f;
 				thrustScale = std::min(thrustScale * (1.0f + targetFrameDurationFactor), 3.0f);
 
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
