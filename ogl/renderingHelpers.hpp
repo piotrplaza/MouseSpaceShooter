@@ -2,7 +2,7 @@
 
 #include <components/texture.hpp>
 #include <components/blendingTexture.hpp>
-#include <components/animationTexture.hpp>
+#include <components/animatedTexture.hpp>
 #include <components/mvp.hpp>
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
@@ -38,6 +38,7 @@ namespace Tools
 	{
 		const auto& textureComponent = Globals::Components().textures()[textureId];
 
+		shadersProgram.numOfTexturesUniform(1);
 		shadersProgram.texturesUniform(0, textureId);
 		shadersProgram.texturesTranslateUniform(0, textureComponent.translate);
 		shadersProgram.texturesScaleUniform(0,
@@ -46,10 +47,11 @@ namespace Tools
 	}
 
 	template <typename ShadersProgram>
-	inline void AnimatedTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned animationTextureId)
+	inline void AnimatedTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned animatedTextureId)
 	{
-		const auto& animationTextureComponent = Globals::Components().animationTextures()[animationTextureId];
+		const auto& animationTextureComponent = Globals::Components().animatedTextures()[animatedTextureId];
 
+		shadersProgram.numOfTexturesUniform(1);
 		shadersProgram.texturesUniform(0, animationTextureComponent.getTextureId());
 		const auto frameTransformation = animationTextureComponent.getFrameTransformation();
 		shadersProgram.texturesTranslateUniform(0, frameTransformation.translate);
@@ -61,8 +63,15 @@ namespace Tools
 	{
 		const auto& blendingTextureComponent = Globals::Components().blendingTextures()[blendingTextureId];
 
+		unsigned iStart = 0;
+		if (blendingTextureComponent.blendingAnimation)
+		{
+			iStart = 1;
+			AnimatedTexturedRenderInitialization(shadersProgram, blendingTextureComponent.texturesIds[0]);
+		}
+
 		shadersProgram.numOfTexturesUniform(blendingTextureComponent.texturesIds.size());
-		for (unsigned i = 0; i < (unsigned)blendingTextureComponent.texturesIds.size(); ++i)
+		for (unsigned i = iStart; i < (unsigned)blendingTextureComponent.texturesIds.size(); ++i)
 		{
 			const auto textureId = blendingTextureComponent.texturesIds[i];
 			const auto& textureComponent = Globals::Components().textures()[textureId];
@@ -90,9 +99,9 @@ namespace Tools
 			StaticTexturedRenderInitialization(shadersProgram, texture.id, textureRatioPreserved);
 		}
 
-		void operator ()(TCM::AnimationTexture animationTexture)
+		void operator ()(TCM::AnimatedTexture animatedTexture)
 		{
-			AnimatedTexturedRenderInitialization(shadersProgram, animationTexture.id);
+			AnimatedTexturedRenderInitialization(shadersProgram, animatedTexture.id);
 		}
 
 		void operator ()(TCM::BlendingTexture blendingTexture)
@@ -174,9 +183,10 @@ namespace Tools
 		shadersProgram.modelUniform(glm::mat4(1.0f));
 		shadersProgram.vpUniform(glm::mat4(1.0f));
 		shadersProgram.colorUniform(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		shadersProgram.numOfTexturesUniform(1);
+		shadersProgram.texturesUniform(0, texture);
 		shadersProgram.texturesTranslateUniform(0, glm::vec2(0.0f));
 		shadersProgram.texturesScaleUniform(0, glm::vec2(1.0f));
-		shadersProgram.texturesUniform(0, texture);
 
 		if (customSetup)
 			customSetup();

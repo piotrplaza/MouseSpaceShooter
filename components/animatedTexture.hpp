@@ -13,7 +13,7 @@ enum class AnimationPolicy { StopOnLastFrame, Repeat, Pingpong };
 
 namespace Components
 {
-	struct AnimationTexture : ComponentBase
+	struct AnimatedTexture : ComponentBase
 	{
 		using ComponentBase::ComponentBase;
 
@@ -23,7 +23,7 @@ namespace Components
 			glm::vec2 scale;
 		};
 
-		AnimationTexture(unsigned textureId, glm::ivec2 imageSize, glm::ivec2 startPosition, glm::ivec2 frameSize, glm::ivec2 framesGrid, glm::vec2 frameStep,
+		AnimatedTexture(unsigned textureId, glm::ivec2 imageSize, glm::ivec2 startPosition, glm::ivec2 frameSize, glm::ivec2 framesGrid, glm::vec2 frameStep,
 			float frameDuration, int numOfFrames = 0, AnimationLayout animationLayout = AnimationLayout::Horizontal,
 			AnimationPlayback animationPlayback = AnimationPlayback::Forward, AnimationPolicy animationPolicy = AnimationPolicy::Repeat,
 			glm::vec2 translate = { 0.0f, 0.0f }, glm::vec2 scale = { 1.0f, 1.0f });

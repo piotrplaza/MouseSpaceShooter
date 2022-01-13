@@ -11,6 +11,7 @@
 #include <components/graphicsSettings.hpp>
 #include <components/mouseState.hpp>
 #include <components/mvp.hpp>
+#include <components/animatedTexture.hpp>
 
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/julia.hpp>
@@ -71,9 +72,18 @@ namespace Levels
 			fogTexture = textures.size();
 			textures.emplace_back("textures/fog.png");
 
-			flameAnimation1Texture = textures.size();
+			flame1AnimationTexture = textures.size();
 			textures.emplace_back("textures/flame animation 1.jpg");
 			textures.back().minFilter = GL_LINEAR;
+		}
+
+		void setAnimations()
+		{
+			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
+			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
+				flame1AnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
+				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
+				{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
 		}
 
 		void createBackground()
@@ -88,7 +98,7 @@ namespace Levels
 
 		void createPlayers()
 		{
-			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flameAnimation1Texture);
+			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flame1AnimatedTexture);
 		}
 
 		void createDynamicWalls()
@@ -102,11 +112,11 @@ namespace Levels
 			Tools::PinBodies(wall1, wall2, { 5.0f, 0.0f });
 
 			Globals::Components().renderingSetups().emplace_back([
-				textureTranslateUniform = Uniforms::UniformController2f()
+				textureTranslateUniform = Uniforms::UniformController2fv<5>()
 				](Shaders::ProgramId program) mutable {
-					if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2f(program, "textureTranslate");
+					if (!textureTranslateUniform.isValid()) textureTranslateUniform = Uniforms::UniformController2fv<5>(program, "texturesTranslate");
 					const float simulationDuration = Globals::Components().physics().simulationDuration;
-					textureTranslateUniform({ glm::cos(simulationDuration * 0.1f), glm::sin(simulationDuration * 0.1f) });
+					textureTranslateUniform(0, { glm::cos(simulationDuration * 0.1f), glm::sin(simulationDuration * 0.1f) });
 					return nullptr;
 				});
 			Globals::Components().dynamicWalls().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
@@ -244,8 +254,8 @@ namespace Levels
 			for (size_t backThrustsBackgroundDecorationId : player1Handler.backThrustsIds)
 			{
 				assert(backThrustsBackgroundDecorationId < Globals::Components().farMidgroundDecorations().size());
-				auto& player1ThrustAnimationTexture = Globals::Components().animationTextures()[
-					std::get<TCM::AnimationTexture>(Globals::Components().farMidgroundDecorations()[backThrustsBackgroundDecorationId].texture).id];
+				auto& player1ThrustAnimationTexture = Globals::Components().animatedTextures()[
+					std::get<TCM::AnimatedTexture>(Globals::Components().farMidgroundDecorations()[backThrustsBackgroundDecorationId].texture).id];
 				//player1ThrustAnimationTexture.setTimeScale(1.0f + Globals::Components::mouseState.wheel / 10.0f);
 			}
 		}
@@ -261,7 +271,9 @@ namespace Levels
 		unsigned weedTexture = 0;
 		unsigned roseTexture = 0;
 		unsigned fogTexture = 0;
-		unsigned flameAnimation1Texture = 0;
+		unsigned flame1AnimationTexture = 0;
+
+		unsigned flame1AnimatedTexture = 0;
 
 		Tools::PlayerPlaneHandler player1Handler;
 	};
@@ -271,6 +283,7 @@ namespace Levels
 	{
 		impl->setGraphicsSettings();
 		impl->loadTextures();
+		impl->setAnimations();
 		impl->createBackground();
 		impl->createPlayers();
 		impl->createDynamicWalls();

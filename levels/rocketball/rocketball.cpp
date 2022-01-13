@@ -10,6 +10,7 @@
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/mouseState.hpp>
+#include <components/animatedTexture.hpp>
 
 #include <globals/components.hpp>
 
@@ -53,9 +54,18 @@ namespace Levels
 			playFieldTexture = textures.size();
 			textures.emplace_back("textures/play field.jpg");
 
-			flameAnimation1Texture = textures.size();
+			flame1AnimationTexture = textures.size();
 			textures.emplace_back("textures/flame animation 1.jpg");
 			textures.back().minFilter = GL_LINEAR;
+		}
+
+		void setAnimations()
+		{
+			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
+			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
+				flame1AnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
+				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
+				{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
 		}
 
 		void createBackground() const
@@ -66,7 +76,7 @@ namespace Levels
 
 		void createPlayers()
 		{
-			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flameAnimation1Texture);
+			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flame1AnimatedTexture);
 			Globals::Components().players()[1].connectIfApproaching = true;
 		}
 
@@ -117,7 +127,9 @@ namespace Levels
 		unsigned woodTexture = 0;
 		unsigned orbTexture = 0;
 		unsigned playFieldTexture = 0;
-		unsigned flameAnimation1Texture = 0;
+		unsigned flame1AnimationTexture = 0;
+
+		unsigned flame1AnimatedTexture = 0;
 
 		Tools::PlayerPlaneHandler player1Handler;
 		Components::Grapple* ball = nullptr;
@@ -128,6 +140,7 @@ namespace Levels
 	{
 		impl->setGraphicsSettings();
 		impl->loadTextures();
+		impl->setAnimations();
 		impl->createBackground();
 		impl->createPlayers();
 		impl->createStaticWalls();

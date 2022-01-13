@@ -154,9 +154,6 @@
     <ClCompile Include="systems\renderingController.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
-    <ClCompile Include="components\animationTexture.cpp">
-      <Filter>src\components</Filter>
-    </ClCompile>
     <ClCompile Include="globals\components.cpp">
       <Filter>src\globals</Filter>
     </ClCompile>
@@ -165,6 +162,9 @@
     </ClCompile>
     <ClCompile Include="globals\systems.cpp">
       <Filter>src\globals</Filter>
+    </ClCompile>
+    <ClCompile Include="components\animatedTexture.cpp">
+      <Filter>src\components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -333,9 +333,6 @@
     <ClInclude Include="components\texture.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
-    <ClInclude Include="components\animationTexture.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="components\blendingTexture.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -367,6 +364,9 @@
       <Filter>src\components</Filter>
     </ClInclude>
     <ClInclude Include="components\componentId.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\animatedTexture.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>

@@ -17,6 +17,7 @@
 #include <components/functor.hpp>
 #include <components/mainFramebufferRenderer.hpp>
 #include <components/blendingTexture.hpp>
+#include <components/animatedTexture.hpp>
 
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/basic.hpp>
@@ -85,7 +86,7 @@ namespace Levels
 			fogTexture = textures.size();
 			textures.emplace_back("textures/fog.png");
 
-			flameAnimation1Texture = textures.size();
+			flame1AnimationTexture = textures.size();
 			textures.emplace_back("textures/flame animation 1.jpg");
 			textures.back().minFilter = GL_LINEAR;
 
@@ -115,6 +116,31 @@ namespace Levels
 			mosaicTexture = textures.size();
 			textures.emplace_back("textures/mosaic.jpg", GL_MIRRORED_REPEAT);
 			textures.back().scale = glm::vec2(50.0f, 50.0f);
+
+			ppTexture = textures.size();
+			textures.emplace_back("textures/pp.png");
+
+			skullTexture = textures.size();
+			textures.emplace_back("textures/skull.png");
+			textures.back().translate = glm::vec2(0.58f, 1.1f);
+			textures.back().scale = glm::vec2(0.48f, 0.44f);
+		}
+
+		void setAnimations()
+		{
+			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
+			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
+				flame1AnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
+				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
+				{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
+			Globals::Components().animatedTextures().back().start();
+
+			flame2AnimatedTexture = Globals::Components().animatedTextures().size();
+			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
+				flame1AnimationTexture, { 500, 498 }, { -30, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
+				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
+				{ 0.0f, -0.45f }, { 1.0f, -1.2f }));
+			Globals::Components().animatedTextures().back().start();
 		}
 
 		void createBackground()
@@ -143,16 +169,26 @@ namespace Levels
 				});
 		}
 
+		void createAdditionalDecorations() const
+		{
+			const auto blendingTexture = Globals::Components().blendingTextures().size();
+			Globals::Components().blendingTextures().push_back({ { flame2AnimatedTexture, ppTexture, skullTexture }, true });
+
+			Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 40.0f, -40.0f }, { 9.0f, 10.0f }),
+				TCM::BlendingTexture(blendingTexture));
+			Globals::Components().midgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
+		}
+
 		void createPlayers()
 		{
-			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flameAnimation1Texture);
+			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flame1AnimatedTexture);
 		}
 
 		void launchMissile()
 		{
 			auto missileHandler = Tools::CreateMissile(Globals::Components().players()[1].getCenter(),
 				Globals::Components().players()[1].getAngle(), 5.0f, Globals::Components().players()[1].getVelocity(),
-				missile2Texture, flameAnimation1Texture);
+				missile2Texture, flame1AnimatedTexture);
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 		}
 
@@ -196,11 +232,17 @@ namespace Levels
 				Globals::Components().midgroundDecorations().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
 			}
 
+			const auto blendingTexture = Globals::Components().blendingTextures().size();
+			Globals::Components().blendingTextures().push_back({ fractalTexture, woodTexture, spaceRockTexture, foiledEggsTexture });
+
 			for (const float pos : {-30.0f, 30.0f})
 			{
-				Globals::Components().renderingSetups().emplace_back([this](auto) {
+				Globals::Components().renderingSetups().emplace_back([=, this](auto) {
 						Tools::MVPInitialization(texturedColorThresholdShaders);
-						Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, orbTexture, true);
+						if (pos < 0.0f)
+							Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, orbTexture, true);
+						else
+							Tools::BlendingTexturedRenderInitialization(texturedColorThresholdShaders, blendingTexture, true);
 						const float simulationDuration = Globals::Components().physics().simulationDuration;
 						texturedColorThresholdShaders.invisibleColorUniform({ 1.0f, 1.0f, 1.0f });
 						texturedColorThresholdShaders.invisibleColorThresholdUniform((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
@@ -254,19 +296,19 @@ namespace Levels
 		void createStaticWalls() const
 		{
 			const float levelHSize = 50.0f;
-			const float bordersHGauge = 50.0f;
+			const float bordersHGauge = 100.0f;
 
+			const auto blendingTexture = Globals::Components().blendingTextures().size();
 			Globals::Components().blendingTextures().push_back({ fractalTexture, woodTexture, spaceRockTexture, foiledEggsTexture });
-			const auto blendingTexture1 = Globals::Components().blendingTextures().size() - 1;
 
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ -levelHSize - bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture1));
+				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture));
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ levelHSize + bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture1));
+				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture));
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize - bordersHGauge },
-				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture1));
+				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture));
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize + bordersHGauge },
-				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture1));
+				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture));
 
 			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f },
 				{ { -levelHSize, -levelHSize }, { levelHSize, -levelHSize }, { levelHSize, levelHSize }, { -levelHSize, levelHSize }, { -levelHSize, -levelHSize } },
@@ -385,13 +427,18 @@ namespace Levels
 		unsigned weedTexture = 0;
 		unsigned roseTexture = 0;
 		unsigned fogTexture = 0;
-		unsigned flameAnimation1Texture = 0;
+		unsigned flame1AnimationTexture = 0;
 		unsigned missile1Texture = 0;
 		unsigned missile2Texture = 0;
 		unsigned explosionTexture = 0;
 		unsigned foiledEggsTexture = 0;
 		unsigned fractalTexture = 0;
 		unsigned mosaicTexture = 0;
+		unsigned ppTexture = 0;
+		unsigned skullTexture = 0;
+
+		unsigned flame1AnimatedTexture = 0;
+		unsigned flame2AnimatedTexture = 0;
 
 		Tools::PlayerPlaneHandler player1Handler;
 
@@ -411,12 +458,14 @@ namespace Levels
 	{
 		impl->setGraphicsSettings();
 		impl->loadTextures();
+		impl->setAnimations();
 		impl->createBackground();
 		impl->createPlayers();
 		impl->createDynamicWalls();
 		impl->createStaticWalls();
 		impl->createGrapples();
 		impl->createForeground();
+		impl->createAdditionalDecorations();
 		impl->setCamera();
 		impl->setCollisionCallbacks();
 		impl->setFramesRoutines();

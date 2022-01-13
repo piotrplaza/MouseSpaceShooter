@@ -13,7 +13,7 @@ namespace Components
 	struct MVP;
 	struct Physics;
 	struct Texture;
-	struct AnimationTexture;
+	struct AnimatedTexture;
 	struct BlendingTexture;
 	struct RenderingSetup;
 	struct Player;
@@ -48,7 +48,7 @@ namespace Globals
 		::Components::MainFramebufferRenderer& mainFramebufferRenderer();
 
 		std::vector<::Components::Texture>& textures();
-		std::vector<::Components::AnimationTexture>& animationTextures();
+		std::vector<::Components::AnimatedTexture>& animatedTextures();
 		std::vector<::Components::BlendingTexture>& blendingTextures();
 		std::vector<::Components::RenderingSetup>& renderingSetups();
 		std::vector<::Components::Player>& players();
@@ -84,7 +84,7 @@ namespace Globals
 		std::unique_ptr<::Components::MainFramebufferRenderer> mainFramebufferRenderer_ = std::make_unique<::Components::MainFramebufferRenderer>();
 
 		std::vector<::Components::Texture> textures_;
-		std::vector<::Components::AnimationTexture> animationTextures_;
+		std::vector<::Components::AnimatedTexture> animatedTextures_;
 		std::vector<::Components::BlendingTexture> blendingTextures_;
 		std::vector<::Components::RenderingSetup> renderingSetups_;
 		std::vector<::Components::Player> players_;

@@ -41,15 +41,15 @@ namespace Tools
 		return positions;
 	}
 
-	std::vector<glm::vec2> CreateTexCoordOfRectangle()
+	std::vector<glm::vec2> CreateTexCoordOfRectangle(const glm::vec2& leftDown, const glm::vec2& bottomUp)
 	{
 		return {
-			{ 0.0f, 0.0f },
-			{ 1.0f, 0.0f },
-			{ 0.0f, 1.0f },
-			{ 0.0f, 1.0f },
-			{ 1.0f, 0.0f },
-			{ 1.0f, 1.0f },
+			leftDown,
+			{ bottomUp.x, leftDown.y },
+			{ leftDown.x, bottomUp.y },
+			{ leftDown.x, bottomUp.y },
+			{ bottomUp.x, leftDown.y },
+			bottomUp
 		};
 	}
 

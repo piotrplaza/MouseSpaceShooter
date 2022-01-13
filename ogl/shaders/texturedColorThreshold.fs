@@ -27,9 +27,9 @@ void main()
 		const vec4 blendingColor = distance(vec3(baseColor), invisibleColor) < length(vec3(1.0, 1.0, 1.0)) * invisibleColorThreshold
 			? alternateColor
 			: baseColor;
-		vec3 accumulatedColor = vec3(0.0);
+		vec4 accumulatedColor = vec4(0.0);
 		for (int i = 1; i < numOfTextures; ++i)
-			accumulatedColor += blendingColor[i - 1] * texture(textures[i], vTexCoord[i]).rgb;
-		fColor = vec4(accumulatedColor / (numOfTextures - 1), blendingColor.a) * color;
+			accumulatedColor += blendingColor[i - 1] * texture(textures[i], vTexCoord[i]);
+		fColor = vec4((accumulatedColor / (numOfTextures - 1)).rgb, accumulatedColor.a) * color;
 	}
 }

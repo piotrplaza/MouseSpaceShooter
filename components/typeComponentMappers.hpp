@@ -13,11 +13,11 @@ namespace TypeComponentMappers
 		bool operator==(const Texture&) const = default;
 	};
 
-	struct AnimationTexture
+	struct AnimatedTexture
 	{
 		ComponentId id;
 
-		bool operator==(const AnimationTexture&) const = default;
+		bool operator==(const AnimatedTexture&) const = default;
 	};
 
 	struct BlendingTexture
@@ -30,7 +30,7 @@ namespace TypeComponentMappers
 
 namespace TCM = TypeComponentMappers;
 
-using TextureVariant = std::variant<std::monostate, TCM::Texture, TCM::AnimationTexture, TCM::BlendingTexture>;
+using TextureVariant = std::variant<std::monostate, TCM::Texture, TCM::AnimatedTexture, TCM::BlendingTexture>;
 
 template<>
 struct std::hash<TCM::Texture>
@@ -42,9 +42,9 @@ struct std::hash<TCM::Texture>
 };
 
 template<>
-struct std::hash<TCM::AnimationTexture>
+struct std::hash<TCM::AnimatedTexture>
 {
-	std::size_t operator()(const TCM::AnimationTexture& animationTexture) const noexcept
+	std::size_t operator()(const TCM::AnimatedTexture& animationTexture) const noexcept
 	{
 		return animationTexture.id;
 	}

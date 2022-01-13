@@ -1,4 +1,4 @@
-#include "animationTexture.hpp"
+#include "animatedTexture.hpp"
 
 #include <tools/glmHelpers.hpp>
 
@@ -6,7 +6,7 @@
 
 namespace Components
 {
-	AnimationTexture::AnimationTexture(
+	AnimatedTexture::AnimatedTexture(
 		unsigned textureId, glm::ivec2 imageSize, glm::ivec2 startPosition, glm::ivec2 frameSize, glm::ivec2 framesGrid, glm::vec2 frameStep, float frameDuration,
 		int numOfFrames, AnimationLayout animationLayout, AnimationPlayback animationPlayback, AnimationPolicy animationPolicy, glm::vec2 translate, glm::vec2 scale) :
 		textureId(textureId),
@@ -26,12 +26,12 @@ namespace Components
 	{
 	}
 
-	unsigned AnimationTexture::getTextureId() const
+	unsigned AnimatedTexture::getTextureId() const
 	{
 		return textureId;
 	}
 
-	AnimationTexture::FrameTransformation AnimationTexture::getFrameTransformation() const
+	AnimatedTexture::FrameTransformation AnimatedTexture::getFrameTransformation() const
 	{
 		if (prevDuration && !pauseDuration)
 		{
@@ -53,37 +53,37 @@ namespace Components
 		return { frameTranslate, frameScale };
 	}
 
-	void AnimationTexture::start()
+	void AnimatedTexture::start()
 	{
 		animationDuration = 0;
 		prevDuration = Globals::Components().physics().simulationDuration;
 		pauseDuration = std::nullopt;
 	}
 
-	void AnimationTexture::stop()
+	void AnimatedTexture::stop()
 	{
 		prevDuration = std::nullopt;
 		pauseDuration = std::nullopt;
 	}
 
-	void AnimationTexture::pause()
+	void AnimatedTexture::pause()
 	{
 		if (!pauseDuration && prevDuration) pauseDuration = Globals::Components().physics().simulationDuration;
 	}
 
-	void AnimationTexture::resume()
+	void AnimatedTexture::resume()
 	{
 		if (pauseDuration && prevDuration)
 			*prevDuration += Globals::Components().physics().simulationDuration - *pauseDuration;
 		pauseDuration = std::nullopt;
 	}
 
-	void AnimationTexture::setDurationScale(float durationScale)
+	void AnimatedTexture::setDurationScale(float durationScale)
 	{
 		this->durationScale = durationScale;
 	}
 
-	float AnimationTexture::getDurationScale() const
+	float AnimatedTexture::getDurationScale() const
 	{
 		return durationScale;
 	}

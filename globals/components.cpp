@@ -5,7 +5,7 @@
 #include <components/mvp.hpp>
 #include <components/physics.hpp>
 #include <components/texture.hpp>
-#include <components/animationTexture.hpp>
+#include <components/animatedTexture.hpp>
 #include <components/blendingTexture.hpp>
 #include <components/renderingSetup.hpp>
 #include <components/player.hpp>
@@ -30,7 +30,7 @@ namespace Globals
 	Components::Components()
 	{
 		textures_.emplace_back(fakeComponent);
-		animationTextures_.emplace_back(fakeComponent);
+		animatedTextures_.emplace_back(fakeComponent);
 		blendingTextures_.emplace_back(fakeComponent);
 		renderingSetups_.emplace_back(fakeComponent);
 		players_.emplace_back(fakeComponent);
@@ -90,9 +90,9 @@ namespace Globals
 		return textures_;
 	}
 
-	std::vector<::Components::AnimationTexture>& Components::animationTextures()
+	std::vector<::Components::AnimatedTexture>& Components::animatedTextures()
 	{
-		return animationTextures_;
+		return animatedTextures_;
 	}
 
 	std::vector<::Components::BlendingTexture>& Components::blendingTextures()

@@ -11,7 +11,7 @@
 #include <components/mvp.hpp>
 #include <components/camera.hpp>
 #include <components/screenInfo.hpp>
-#include <components/animationTexture.hpp>
+#include <components/animatedTexture.hpp>
 
 #include <components/typeComponentMappers.hpp>
 
@@ -30,7 +30,7 @@
 
 namespace Tools
 {
-	PlayerPlaneHandler CreatePlayerPlane(unsigned planeTexture, unsigned flameAnimationTexture)
+	PlayerPlaneHandler CreatePlayerPlane(unsigned planeTexture, unsigned flameAnimatedTexture)
 	{
 		PlayerPlaneHandler playerPlaneHandler;
 
@@ -52,16 +52,11 @@ namespace Tools
 
 		for (int i = 0; i < 2; ++i)
 		{
-			const unsigned animationTextureId = Globals::Components().animationTextures().size();
-			Globals::Components().animationTextures().push_back(Components::AnimationTexture(
-				flameAnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
-				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
-				{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
-			auto& animationTexture = Globals::Components().animationTextures().back();
+			auto& animationTexture = Globals::Components().animatedTextures().back();
 
 			playerPlaneHandler.backThrustsIds[i] = Globals::Components().farMidgroundDecorations().size();
 			auto& decoration = Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }),
-				TCM::AnimationTexture(animationTextureId));
+				TCM::AnimatedTexture(flameAnimatedTexture));
 
 			Globals::Components().renderingSetups().emplace_back([&, i, modelUniform = Uniforms::UniformControllerMat4f(),
 				thrustScale = 1.0f
@@ -82,8 +77,6 @@ namespace Tools
 				});
 
 			decoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
-
-			animationTexture.start();
 		}
 
 		return playerPlaneHandler;
@@ -125,7 +118,7 @@ namespace Tools
 	}
 
 	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 initialVelocity,
-		unsigned missileTexture, unsigned flameAnimationTexture)
+		unsigned missileTexture, unsigned flameAnimatedTexture)
 	{
 		auto& missile = EmplaceIdComponent(Globals::Components().missiles(), { Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f) });
 		auto& body = *missile.body;
@@ -154,15 +147,10 @@ namespace Tools
 			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
 		};
 
-		const unsigned animationTextureId = Globals::Components().animationTextures().size();
-		Globals::Components().animationTextures().push_back(Components::AnimationTexture(
-			flameAnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
-			AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
-			{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
-		auto& animationTexture = Globals::Components().animationTextures().back();
+		auto& animationTexture = Globals::Components().animatedTextures().back();
 
 		auto& decoration = EmplaceIdComponent(Globals::Components().temporaryFarMidgroundDecorations(), { Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }),
-			TCM::AnimationTexture(animationTextureId) });
+			TCM::AnimatedTexture(flameAnimatedTexture) });
 
 		Globals::Components().renderingSetups().emplace_back([&, modelUniform = Uniforms::UniformControllerMat4f(),
 			thrustScale = 0.1f
@@ -182,8 +170,6 @@ namespace Tools
 			});
 
 		decoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
-
-		animationTexture.start();
 
 		return { missile.getComponentId(), decoration.getComponentId() };
 	}

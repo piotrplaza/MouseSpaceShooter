@@ -21,7 +21,7 @@
   <ItemGroup>
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
     <ClCompile Include="commonTypes\resolutionMode.cpp" />
-    <ClCompile Include="components\animationTexture.cpp" />
+    <ClCompile Include="components\animatedTexture.cpp" />
     <ClCompile Include="globals\components.cpp" />
     <ClCompile Include="globals\shaders.cpp" />
     <ClCompile Include="globals\systems.cpp" />
@@ -63,7 +63,7 @@
     <ClInclude Include="commonTypes\bodyUserData.hpp" />
     <ClInclude Include="commonTypes\idGenerator.hpp" />
     <ClInclude Include="commonTypes\resolutionMode.hpp" />
-    <ClInclude Include="components\animationTexture.hpp" />
+    <ClInclude Include="components\animatedTexture.hpp" />
     <ClInclude Include="components\blendingTexture.hpp" />
     <ClInclude Include="components\camera.hpp" />
     <ClInclude Include="components\collisionHandler.hpp" />
