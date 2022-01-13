@@ -5,6 +5,7 @@ in vec2 vTexCoord[5];
 out vec4 fColor;
 
 uniform vec4 color;
+uniform vec4 blendingColor;
 uniform int numOfTextures;
 uniform sampler2D textures[5];
 uniform vec3 invisibleColor;
@@ -24,12 +25,12 @@ void main()
 	}
 	else
 	{
-		const vec4 blendingColor = distance(vec3(baseColor), invisibleColor) < length(vec3(1.0, 1.0, 1.0)) * invisibleColorThreshold
-			? alternateColor
-			: baseColor;
+		const vec4 finalBlendingColor = distance(vec3(baseColor), invisibleColor) < length(vec3(1.0, 1.0, 1.0)) * invisibleColorThreshold
+			? alternateColor * blendingColor
+			: baseColor * blendingColor;
 		vec4 accumulatedColor = vec4(0.0);
 		for (int i = 1; i < numOfTextures; ++i)
-			accumulatedColor += blendingColor[i - 1] * texture(textures[i], vTexCoord[i]);
+			accumulatedColor += finalBlendingColor[i - 1] * texture(textures[i], vTexCoord[i]);
 		fColor = vec4((accumulatedColor / (numOfTextures - 1)).rgb, accumulatedColor.a) * color;
 	}
 }

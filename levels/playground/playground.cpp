@@ -137,9 +137,9 @@ namespace Levels
 
 			flame2AnimatedTexture = Globals::Components().animatedTextures().size();
 			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
-				flame1AnimationTexture, { 500, 498 }, { -30, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
+				flame1AnimationTexture, { 500, 498 }, { -26, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
 				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
-				{ 0.0f, -0.45f }, { 1.0f, -1.2f }));
+				{ 0.0f, -0.45f }, { 1.2f, -1.2f }));
 			Globals::Components().animatedTextures().back().start();
 		}
 
@@ -174,8 +174,18 @@ namespace Levels
 			const auto blendingTexture = Globals::Components().blendingTextures().size();
 			Globals::Components().blendingTextures().push_back({ { flame2AnimatedTexture, ppTexture, skullTexture }, true });
 
-			Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 40.0f, -40.0f }, { 9.0f, 10.0f }),
-				TCM::BlendingTexture(blendingTexture));
+			glm::vec2 portraitCenter(40.0f, -40.0f);
+			Globals::Components().renderingSetups().emplace_back([=,
+				blendingColorUniform = Uniforms::UniformController4f()
+			](Shaders::ProgramId program) mutable {
+					if (!blendingColorUniform.isValid()) blendingColorUniform = Uniforms::UniformController4f(program, "blendingColor");
+					const float skullOpacity = 1.0f - glm::min(1.0f, glm::distance(Globals::Components().players()[1].getCenter(), portraitCenter) / 50.0f);
+					blendingColorUniform({ 1.0f, skullOpacity, 1.0f, 1.0f });
+					return [=]() mutable { blendingColorUniform({ 1.0f, 1.0f, 1.0f, 1.0f }); };
+				});
+
+			Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle(portraitCenter, { 9.0f, 10.0f }),
+				TCM::BlendingTexture(blendingTexture), Globals::Components().renderingSetups().size() - 1);
 			Globals::Components().midgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
 		}
 
