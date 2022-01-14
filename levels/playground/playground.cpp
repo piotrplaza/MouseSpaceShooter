@@ -148,9 +148,9 @@ namespace Levels
 			Tools::CreateJuliaBackground(juliaShaders, []() { return Globals::Components().players()[1].getCenter() * 0.0001f; });
 		}
 
-		void createForeground() const
+		void createForeground()
 		{
-			Tools::CreateFogForeground(2, 0.02f, fogTexture, [&, fogAlphaFactor = 1.0f, fogTargetAlphaFactor = 1.0f]() mutable {
+			Tools::CreateFogForeground(2, 0.02f, fogTexture, [&, fogTargetAlphaFactor = 1.0f]() mutable {
 				if (explosionFrame)
 				{
 					const float maxAlphaFactor = 1.5f;
@@ -179,7 +179,7 @@ namespace Levels
 				blendingColorUniform = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {
 					if (!blendingColorUniform.isValid()) blendingColorUniform = Uniforms::UniformController4f(program, "blendingColor");
-					const float skullOpacity = 1.0f - glm::min(1.0f, glm::distance(Globals::Components().players()[1].getCenter(), portraitCenter) / 50.0f);
+					const float skullOpacity = (fogAlphaFactor - 1.0f) * 2.0f;
 					blendingColorUniform({ 1.0f, skullOpacity, 1.0f, 1.0f });
 					return [=]() mutable { blendingColorUniform({ 1.0f, 1.0f, 1.0f, 1.0f }); };
 				});
@@ -458,6 +458,8 @@ namespace Levels
 		float projectionHSizeBase = 20.0f;
 
 		bool explosionFrame = false;
+
+		float fogAlphaFactor = 1.0f;
 
 		std::unordered_map<ComponentId, Tools::MissileHandler> missilesToHandlers;
 		std::unordered_set<const b2Body*> lowResBodies;
