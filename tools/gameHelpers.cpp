@@ -188,11 +188,11 @@ namespace Tools
 			Globals::Components().renderingSetups().emplace_back([=, startTime = Globals::Components().physics().simulationDuration
 				](Shaders::ProgramId program) mutable
 				{
-					particlesProgram.vpUniform(Globals::Components().mvp().getVP());
-					particlesProgram.texture1Uniform(explosionTexture);
+					particlesProgram.vp(Globals::Components().mvp().getVP());
+					particlesProgram.texture1(explosionTexture);
 
 					const float elapsed = Globals::Components().physics().simulationDuration - startTime;
-					particlesProgram.colorUniform(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (explosionDuration * 2.0f), 10.0f)), 1.0f));
+					particlesProgram.color(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (explosionDuration * 2.0f), 10.0f)), 1.0f));
 
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -243,14 +243,14 @@ namespace Tools
 			Globals::Components().renderingSetups().emplace_back([=, texturedProgram = Shaders::Programs::TexturedAccessor()
 				](Shaders::ProgramId program) mutable {
 					if (!texturedProgram.isValid()) texturedProgram = program;
-					texturedProgram.vpUniform(glm::translate(glm::scale(Globals::Components().mvp().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
+					texturedProgram.vp(glm::translate(glm::scale(Globals::Components().mvp().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
 						glm::vec3(-Globals::Components().camera().prevPosition * (0.002f + layer * 0.002f), 0.0f)));
-					texturedProgram.colorUniform(fColor()* glm::vec4(1.0f, 1.0f, 1.0f, alphaPerLayer));
+					texturedProgram.color(fColor()* glm::vec4(1.0f, 1.0f, 1.0f, alphaPerLayer));
 
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 					return [texturedProgram]() mutable {
-						texturedProgram.vpUniform(Globals::Components().mvp().getVP());
+						texturedProgram.vp(Globals::Components().mvp().getVP());
 						glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 					};
 				});
@@ -267,12 +267,12 @@ namespace Tools
 
 		Globals::Components().renderingSetups().emplace_back([=, &juliaShaders
 			](auto) mutable {
-				juliaShaders.vpUniform(glm::translate(glm::scale(glm::mat4(1.0f),
+				juliaShaders.vp(glm::translate(glm::scale(glm::mat4(1.0f),
 					glm::vec3((float)Globals::Components().screenInfo().windowSize.y / Globals::Components().screenInfo().windowSize.x, 1.0f, 1.0f) * 1.5f),
 					glm::vec3(-Globals::Components().camera().prevPosition * 0.005f, 0.0f)));
-				juliaShaders.juliaCOffsetUniform(juliaCOffset());
-				juliaShaders.minColorUniform({ 0.0f, 0.0f, 0.0f, 1.0f });
-				juliaShaders.maxColorUniform({ 0, 0.1f, 0.2f, 1.0f });
+				juliaShaders.juliaCOffset(juliaCOffset());
+				juliaShaders.minColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+				juliaShaders.maxColor({ 0, 0.1f, 0.2f, 1.0f });
 				return nullptr;
 			});
 

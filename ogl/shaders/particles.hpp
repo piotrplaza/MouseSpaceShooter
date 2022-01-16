@@ -12,15 +12,15 @@ namespace Shaders
 
 			ParticlesAccessor(ProgramId program) :
 				ProgramBase(program),
-				vpUniform(program, "vp"),
-				colorUniform(program, "color"),
-				texture1Uniform(program, "texture1")
+				vp(program, "vp"),
+				color(program, "color"),
+				texture1(program, "texture1")
 			{
 			}
 
-			Uniforms::UniformControllerMat4f vpUniform;
-			Uniforms::UniformController4f colorUniform;
-			Uniforms::UniformController1i texture1Uniform;
+			Uniforms::UniformControllerMat4f vp;
+			Uniforms::UniformController4f color;
+			Uniforms::UniformController1i texture1;
 		};
 
 		struct Particles : ParticlesAccessor
@@ -29,8 +29,8 @@ namespace Shaders
 				ParticlesAccessor(LinkProgram(CompileShaders("ogl/shaders/particles.vs",
 					"ogl/shaders/particles.gs", "ogl/shaders/particles.fs"), { {0, "bPos"} }))
 			{
-				vpUniform(glm::mat4(1.0f));
-				colorUniform(glm::vec4(1.0f));
+				vp(glm::mat4(1.0f));
+				color(glm::vec4(1.0f));
 			}
 
 			Particles(const Particles&) = delete;

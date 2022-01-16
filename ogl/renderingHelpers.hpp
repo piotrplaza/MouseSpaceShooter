@@ -29,8 +29,8 @@ namespace Tools
 	template <typename ShadersProgram>
 	inline void MVPInitialization(ShadersProgram& shadersProgram, std::optional<glm::mat4> modelMatrix = std::nullopt)
 	{
-		shadersProgram.vpUniform(Globals::Components().mvp().getVP());
-		shadersProgram.modelUniform(modelMatrix ? *modelMatrix : glm::mat4(1.0f));
+		shadersProgram.vp(Globals::Components().mvp().getVP());
+		shadersProgram.model(modelMatrix ? *modelMatrix : glm::mat4(1.0f));
 	}
 
 	template <typename ShadersProgram>
@@ -38,10 +38,10 @@ namespace Tools
 	{
 		const auto& textureComponent = Globals::Components().textures()[textureId];
 
-		shadersProgram.numOfTexturesUniform(1);
-		shadersProgram.texturesUniform(0, textureId);
-		shadersProgram.texturesTranslateUniform(0, textureComponent.translate);
-		shadersProgram.texturesScaleUniform(0,
+		shadersProgram.numOfTextures(1);
+		shadersProgram.textures(0, textureId);
+		shadersProgram.texturesTranslate(0, textureComponent.translate);
+		shadersProgram.texturesScale(0,
 			{ (textureRatioPreserved ? (float)textureComponent.loaded.size.x / textureComponent.loaded.size.y : 1.0f)
 			* textureComponent.scale.x, textureComponent.scale.y });
 	}
@@ -51,11 +51,11 @@ namespace Tools
 	{
 		const auto& animationTextureComponent = Globals::Components().animatedTextures()[animatedTextureId];
 
-		shadersProgram.numOfTexturesUniform(1);
-		shadersProgram.texturesUniform(0, animationTextureComponent.getTextureId());
+		shadersProgram.numOfTextures(1);
+		shadersProgram.textures(0, animationTextureComponent.getTextureId());
 		const auto frameTransformation = animationTextureComponent.getFrameTransformation();
-		shadersProgram.texturesTranslateUniform(0, frameTransformation.translate);
-		shadersProgram.texturesScaleUniform(0, frameTransformation.scale);
+		shadersProgram.texturesTranslate(0, frameTransformation.translate);
+		shadersProgram.texturesScale(0, frameTransformation.scale);
 	}
 
 	template <typename ShadersProgram>
@@ -70,15 +70,15 @@ namespace Tools
 			AnimatedTexturedRenderInitialization(shadersProgram, blendingTextureComponent.texturesIds[0]);
 		}
 
-		shadersProgram.numOfTexturesUniform(blendingTextureComponent.texturesIds.size());
+		shadersProgram.numOfTextures(blendingTextureComponent.texturesIds.size());
 		for (unsigned i = iStart; i < (unsigned)blendingTextureComponent.texturesIds.size(); ++i)
 		{
 			const auto textureId = blendingTextureComponent.texturesIds[i];
 			const auto& textureComponent = Globals::Components().textures()[textureId];
 
-			shadersProgram.texturesUniform(i, textureId);
-			shadersProgram.texturesTranslateUniform(i, textureComponent.translate);
-			shadersProgram.texturesScaleUniform(i,
+			shadersProgram.textures(i, textureId);
+			shadersProgram.texturesTranslate(i, textureComponent.translate);
+			shadersProgram.texturesScale(i,
 				{ (textureRatioPreserved ? (float)textureComponent.loaded.size.x / textureComponent.loaded.size.y : 1.0f)
 				* textureComponent.scale.x, textureComponent.scale.y });
 		}
@@ -180,13 +180,13 @@ namespace Tools
 
 		glUseProgram_proxy(shadersProgram.getProgramId());
 
-		shadersProgram.modelUniform(glm::mat4(1.0f));
-		shadersProgram.vpUniform(glm::mat4(1.0f));
-		shadersProgram.colorUniform(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		shadersProgram.numOfTexturesUniform(1);
-		shadersProgram.texturesUniform(0, texture);
-		shadersProgram.texturesTranslateUniform(0, glm::vec2(0.0f));
-		shadersProgram.texturesScaleUniform(0, glm::vec2(1.0f));
+		shadersProgram.model(glm::mat4(1.0f));
+		shadersProgram.vp(glm::mat4(1.0f));
+		shadersProgram.color(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		shadersProgram.numOfTextures(1);
+		shadersProgram.textures(0, texture);
+		shadersProgram.texturesTranslate(0, glm::vec2(0.0f));
+		shadersProgram.texturesScale(0, glm::vec2(1.0f));
 
 		if (customSetup)
 			customSetup();
@@ -250,8 +250,8 @@ namespace Tools
 			glDisable(GL_BLEND);
 			Tools::TexturedScreenRender(shadersProgram, textureId, [&]()
 				{
-					shadersProgram.vpUniform(vp);
-					shadersProgram.modelUniform(model);
+					shadersProgram.vp(vp);
+					shadersProgram.model(model);
 				}, [&]()
 				{
 					const float quakeIntensity = 0.001f * Globals::Components().shockwaves().size();

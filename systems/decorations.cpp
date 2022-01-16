@@ -164,7 +164,7 @@ namespace Systems
 		const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const
 	{
 		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
-		Globals::Shaders().textured().vpUniform(Globals::Components().mvp().getVP());
+		Globals::Shaders().textured().vp(Globals::Components().mvp().getVP());
 
 		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
@@ -176,8 +176,8 @@ namespace Systems
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
-			Globals::Shaders().textured().colorUniform(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().textured().modelUniform(glm::mat4(1.0f));
+			Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
+			Globals::Shaders().textured().model(glm::mat4(1.0f));
 
 			Tools::TexturedRender(Globals::Shaders().textured(), buffers, buffers.texture);
 		};
@@ -193,7 +193,7 @@ namespace Systems
 		const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const
 	{
 		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
-		Globals::Shaders().basic().vpUniform(Globals::Components().mvp().getVP());
+		Globals::Shaders().basic().vp(Globals::Components().mvp().getVP());
 
 		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
@@ -205,8 +205,8 @@ namespace Systems
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
-			Globals::Shaders().basic().colorUniform(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().basic().modelUniform(glm::mat4(1.0f));
+			Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
+			Globals::Shaders().basic().model(glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown;
 			if (buffers.renderingSetup)

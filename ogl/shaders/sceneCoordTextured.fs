@@ -8,6 +8,8 @@ uniform vec4 color;
 uniform vec4 blendingColor;
 uniform int numOfTextures;
 uniform sampler2D textures[5];
+uniform bool alphaFromBlendingTexture;
+uniform bool colorAccumulation;
 
 void main()
 {
@@ -19,6 +21,10 @@ void main()
 		vec4 accumulatedColor = vec4(0.0);
 		for (int i = 1; i < numOfTextures; ++i)
 			accumulatedColor += finalBlendingColor[i - 1] * texture(textures[i], vTexCoord[i]);
-		fColor = vec4((accumulatedColor / (numOfTextures - 1)).rgb, accumulatedColor.a) * color;
+		fColor = vec4((accumulatedColor / (colorAccumulation ? 1 : (numOfTextures - 1))).rgb,
+			alphaFromBlendingTexture
+			? finalBlendingColor.a
+			: accumulatedColor.a
+		) * color;
 	}
 }

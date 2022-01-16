@@ -12,25 +12,29 @@ namespace Shaders
 
 			TexturedAccessor(ProgramId program):
 				ProgramBase(program),
-				modelUniform(program, "model"),
-				vpUniform(program, "vp"),
-				colorUniform(program, "color"),
-				blendingColorUniform(program, "blendingColor"),
-				numOfTexturesUniform(program, "numOfTextures"),
-				texturesUniform(program, "textures"),
-				texturesTranslateUniform(program, "texturesTranslate"),
-				texturesScaleUniform(program, "texturesScale")
+				model(program, "model"),
+				vp(program, "vp"),
+				color(program, "color"),
+				blendingColor(program, "blendingColor"),
+				numOfTextures(program, "numOfTextures"),
+				textures(program, "textures"),
+				texturesTranslate(program, "texturesTranslate"),
+				texturesScale(program, "texturesScale"),
+				alphaFromBlendingTexture(program, "alphaFromBlendingTexture"),
+				colorAccumulation(program, "colorAccumulation")
 			{
 			}
 
-			Uniforms::UniformControllerMat4f modelUniform;
-			Uniforms::UniformControllerMat4f vpUniform;
-			Uniforms::UniformController4f colorUniform;
-			Uniforms::UniformController4f blendingColorUniform;
-			Uniforms::UniformController1i numOfTexturesUniform;
-			Uniforms::UniformController1iv<5> texturesUniform;
-			Uniforms::UniformController2fv<5> texturesTranslateUniform;
-			Uniforms::UniformController2fv<5> texturesScaleUniform;
+			Uniforms::UniformControllerMat4f model;
+			Uniforms::UniformControllerMat4f vp;
+			Uniforms::UniformController4f color;
+			Uniforms::UniformController4f blendingColor;
+			Uniforms::UniformController1i numOfTextures;
+			Uniforms::UniformController1iv<5> textures;
+			Uniforms::UniformController2fv<5> texturesTranslate;
+			Uniforms::UniformController2fv<5> texturesScale;
+			Uniforms::UniformController1b alphaFromBlendingTexture;
+			Uniforms::UniformController1b colorAccumulation;
 		};
 
 		struct Textured: TexturedAccessor
@@ -39,13 +43,15 @@ namespace Shaders
 				TexturedAccessor(LinkProgram(CompileShaders("ogl/shaders/textured.vs",
 					"ogl/shaders/textured.fs"), { {0, "bPos"}, {1, "bTexCoord"} }))
 			{
-				modelUniform(glm::mat4(1.0f));
-				vpUniform(glm::mat4(1.0f));
-				colorUniform(glm::vec4(1.0f));
-				blendingColorUniform(glm::vec4(1.0f));
-				numOfTexturesUniform(1);
-				texturesTranslateUniform(glm::vec2(0.0f));
-				texturesScaleUniform(glm::vec2(1.0f));
+				model(glm::mat4(1.0f));
+				vp(glm::mat4(1.0f));
+				color(glm::vec4(1.0f));
+				blendingColor(glm::vec4(1.0f));
+				numOfTextures(1);
+				texturesTranslate(glm::vec2(0.0f));
+				texturesScale(glm::vec2(1.0f));
+				alphaFromBlendingTexture(false);
+				colorAccumulation(false);
 			}
 
 			Textured(const Textured&) = delete;

@@ -127,8 +127,8 @@ namespace Levels
 					Tools::MVPInitialization(texturedColorThresholdShaders);
 					Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, woodTexture, true);
 					const float simulationDuration = Globals::Components().physics().simulationDuration;
-					texturedColorThresholdShaders.invisibleColorUniform({ 1.0f, 1.0f, 1.0f });
-					texturedColorThresholdShaders.invisibleColorThresholdUniform((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
+					texturedColorThresholdShaders.invisibleColor({ 1.0f, 1.0f, 1.0f });
+					texturedColorThresholdShaders.invisibleColorThreshold((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
 					return nullptr;
 					});
 				Globals::Components().dynamicWalls().emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), TCM::Texture(woodTexture),
@@ -164,9 +164,9 @@ namespace Levels
 					wallId = Globals::Components().dynamicWalls().size() - 1
 					](Shaders::ProgramId program) mutable {
 						if (!texturedProgramAccessor) texturedProgramAccessor.emplace(program);
-						texturedProgramAccessor->colorUniform({ 1.0f, 1.0f, 1.0f,
+						texturedProgramAccessor->color({ 1.0f, 1.0f, 1.0f,
 							(glm::sin(Globals::Components().physics().simulationDuration * glm::two_pi<float>()) + 1.0f) / 2.0f + 0.5f });
-						texturedProgramAccessor->modelUniform(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
+						texturedProgramAccessor->model(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
 						return nullptr;
 					});
 				Globals::Components().nearMidgroundDecorations().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;

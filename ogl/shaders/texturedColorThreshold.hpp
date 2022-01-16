@@ -12,29 +12,33 @@ namespace Shaders
 
 			TexturedColorThresholdAccessor(ProgramId program):
 				ProgramBase(program),
-				modelUniform(program, "model"),
-				vpUniform(program, "vp"),
-				colorUniform(program, "color"),
-				blendingColorUniform(program, "blendingColor"),
-				numOfTexturesUniform(program, "numOfTextures"),
-				texturesUniform(program, "textures"),
-				texturesTranslateUniform(program, "texturesTranslate"),
-				texturesScaleUniform(program, "texturesScale"),
-				invisibleColorUniform(program, "invisibleColor"),
-				invisibleColorThresholdUniform(program, "invisibleColorThreshold")
+				model(program, "model"),
+				vp(program, "vp"),
+				color(program, "color"),
+				blendingColor(program, "blendingColor"),
+				numOfTextures(program, "numOfTextures"),
+				textures(program, "textures"),
+				texturesTranslate(program, "texturesTranslate"),
+				texturesScale(program, "texturesScale"),
+				alphaFromBlendingTexture(program, "alphaFromBlendingTexture"),
+				colorAccumulation(program, "colorAccumulation"),
+				invisibleColor(program, "invisibleColor"),
+				invisibleColorThreshold(program, "invisibleColorThreshold")
 			{
 			}
 
-			Uniforms::UniformControllerMat4f modelUniform;
-			Uniforms::UniformControllerMat4f vpUniform;
-			Uniforms::UniformController4f colorUniform;
-			Uniforms::UniformController4f blendingColorUniform;
-			Uniforms::UniformController1i numOfTexturesUniform;
-			Uniforms::UniformController1iv<5> texturesUniform;
-			Uniforms::UniformController2fv<5> texturesTranslateUniform;
-			Uniforms::UniformController2fv<5> texturesScaleUniform;
-			Uniforms::UniformController3f invisibleColorUniform;
-			Uniforms::UniformController1f invisibleColorThresholdUniform;
+			Uniforms::UniformControllerMat4f model;
+			Uniforms::UniformControllerMat4f vp;
+			Uniforms::UniformController4f color;
+			Uniforms::UniformController4f blendingColor;
+			Uniforms::UniformController1i numOfTextures;
+			Uniforms::UniformController1iv<5> textures;
+			Uniforms::UniformController2fv<5> texturesTranslate;
+			Uniforms::UniformController2fv<5> texturesScale;
+			Uniforms::UniformController1b alphaFromBlendingTexture;
+			Uniforms::UniformController1b colorAccumulation;
+			Uniforms::UniformController3f invisibleColor;
+			Uniforms::UniformController1f invisibleColorThreshold;
 		};
 
 		struct TexturedColorThreshold: TexturedColorThresholdAccessor
@@ -43,15 +47,17 @@ namespace Shaders
 				TexturedColorThresholdAccessor(LinkProgram(CompileShaders("ogl/shaders/texturedColorThreshold.vs",
 					"ogl/shaders/texturedColorThreshold.fs"), { {0, "bPos"}, {1, "bTexCoord"} }))
 			{
-				modelUniform(glm::mat4(1.0f));
-				vpUniform(glm::mat4(1.0f));
-				colorUniform(glm::vec4(1.0f));
-				blendingColorUniform(glm::vec4(1.0f));
-				numOfTexturesUniform(1);
-				texturesTranslateUniform(glm::vec2(0.0f));
-				texturesScaleUniform(glm::vec2(1.0f));
-				invisibleColorUniform(glm::vec3(0.0f));
-				invisibleColorThresholdUniform(0.0f);
+				model(glm::mat4(1.0f));
+				vp(glm::mat4(1.0f));
+				color(glm::vec4(1.0f));
+				blendingColor(glm::vec4(1.0f));
+				numOfTextures(1);
+				texturesTranslate(glm::vec2(0.0f));
+				texturesScale(glm::vec2(1.0f));
+				alphaFromBlendingTexture(false);
+				colorAccumulation(false);
+				invisibleColor(glm::vec3(0.0f));
+				invisibleColorThreshold(0.0f);
 			}
 
 			TexturedColorThreshold(const TexturedColorThreshold&) = delete;

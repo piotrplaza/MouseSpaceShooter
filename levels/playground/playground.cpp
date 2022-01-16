@@ -178,10 +178,16 @@ namespace Levels
 			Globals::Components().renderingSetups().emplace_back([=,
 				blendingColorUniform = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {
-					if (!blendingColorUniform.isValid()) blendingColorUniform = Uniforms::UniformController4f(program, "blendingColor");
-					const float skullOpacity = (fogAlphaFactor - 1.0f) * 2.0f;
+					if (!blendingColorUniform.isValid())
+						blendingColorUniform = Uniforms::UniformController4f(program, "blendingColor");
+					
+					const float skullOpacity = (fogAlphaFactor - 1.0f) * 2.0f +
+						glm::max(0.0f, 1.0f - glm::distance(Globals::Components().players()[1].getCenter(), portraitCenter) / 20.0f);
 					blendingColorUniform({ 1.0f, skullOpacity, 1.0f, 1.0f });
-					return [=]() mutable { blendingColorUniform({ 1.0f, 1.0f, 1.0f, 1.0f }); };
+					
+					return [=]() mutable {
+						blendingColorUniform({ 1.0f, 1.0f, 1.0f, 1.0f });
+					};
 				});
 
 			Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle(portraitCenter, { 9.0f, 10.0f }),
@@ -235,7 +241,7 @@ namespace Levels
 						wallId = Globals::Components().dynamicWalls().size() - i
 						](Shaders::ProgramId program) mutable {
 							if (!texturedProgram.isValid()) texturedProgram = program;
-							texturedProgram.modelUniform(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
+							texturedProgram.model(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
 							return nullptr;
 						});
 
@@ -254,9 +260,9 @@ namespace Levels
 						else
 							Tools::BlendingTexturedRenderInitialization(texturedColorThresholdShaders, blendingTexture, true);
 						const float simulationDuration = Globals::Components().physics().simulationDuration;
-						texturedColorThresholdShaders.invisibleColorUniform({ 1.0f, 1.0f, 1.0f });
-						texturedColorThresholdShaders.invisibleColorThresholdUniform((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
-						texturedColorThresholdShaders.texturesScaleUniform(glm::vec3(10.0f, 10.0f, 1.0f));
+						texturedColorThresholdShaders.invisibleColor({ 0.0f, 0.0f, 0.0f });
+						texturedColorThresholdShaders.invisibleColorThreshold((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
+						texturedColorThresholdShaders.texturesScale(glm::vec3(10.0f, 10.0f, 1.0f));
 						return nullptr;
 					});
 
@@ -267,7 +273,7 @@ namespace Levels
 						basicProgram = Shaders::Programs::BasicAccessor()
 					](Shaders::ProgramId program) mutable {
 						if (!basicProgram.isValid()) basicProgram = program;
-						basicProgram.colorUniform(glm::vec4(0.0f));
+						basicProgram.color(glm::vec4(0.0f));
 						return nullptr;
 					});
 
@@ -279,9 +285,9 @@ namespace Levels
 						texturedProgram = Shaders::Programs::TexturedAccessor()
 					](Shaders::ProgramId program) mutable {
 						if (!texturedProgram.isValid()) texturedProgram = program;
-						texturedProgram.colorUniform(glm::vec4(
+						texturedProgram.color(glm::vec4(
 							glm::sin(Globals::Components().physics().simulationDuration* glm::two_pi<float>() * 0.2f) + 1.0f) / 2.0f);
-						texturedProgram.modelUniform(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
+						texturedProgram.model(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
 						return nullptr;
 					});
 
@@ -308,17 +314,37 @@ namespace Levels
 			const float levelHSize = 50.0f;
 			const float bordersHGauge = 100.0f;
 
+			const auto renderingSetup = Globals::Components().renderingSetups().size();
+			Globals::Components().renderingSetups().emplace_back([
+				alphaFromBlendingTextureUniform = Uniforms::UniformController1b(),
+				colorAccumulationUniform = Uniforms::UniformController1b()
+			](Shaders::ProgramId program) mutable {
+				if (!alphaFromBlendingTextureUniform.isValid())
+					alphaFromBlendingTextureUniform = Uniforms::UniformController1b(program, "alphaFromBlendingTexture");
+				if (!colorAccumulationUniform.isValid())
+					colorAccumulationUniform = Uniforms::UniformController1b(program, "colorAccumulation");
+
+				alphaFromBlendingTextureUniform(true);
+				colorAccumulationUniform(true);
+
+				return [=]() mutable
+				{
+					alphaFromBlendingTextureUniform(true);
+					colorAccumulationUniform(false);
+				};
+			});
+
 			const auto blendingTexture = Globals::Components().blendingTextures().size();
 			Globals::Components().blendingTextures().push_back({ fractalTexture, woodTexture, spaceRockTexture, foiledEggsTexture });
 
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ -levelHSize - bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture));
+				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture), renderingSetup);
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ levelHSize + bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture));
+				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture), renderingSetup);
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize - bordersHGauge },
-				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture));
+				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture), renderingSetup);
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize + bordersHGauge },
-				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture));
+				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture), renderingSetup);
 
 			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f },
 				{ { -levelHSize, -levelHSize }, { levelHSize, -levelHSize }, { levelHSize, levelHSize }, { -levelHSize, levelHSize }, { -levelHSize, -levelHSize } },
