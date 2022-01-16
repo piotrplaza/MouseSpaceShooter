@@ -84,6 +84,7 @@ namespace Levels
 				flame1AnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
 				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
 				{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
+			Globals::Components().animatedTextures().back().start();
 		}
 
 		void createBackground()
