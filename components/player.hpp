@@ -28,7 +28,7 @@ namespace Components
 		using ComponentBase::ComponentBase;
 
 		Player(Body body,
-			TextureVariant texture = std::monostate{},
+			TextureComponentVariant texture = std::monostate{},
 			ComponentId renderingSetup = 0,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
@@ -36,11 +36,11 @@ namespace Components
 			renderingSetup(renderingSetup),
 			customShadersProgram(customShadersProgram)
 		{
-			Tools::AccessUserData(*this->body).componentId = getComponentId();
+			Tools::AccessUserData(*this->body).bodyComponentVariant = TCM::Player(getComponentId());
 		}
 
 		Body body;
-		TextureVariant texture;
+		TextureComponentVariant texture;
 		ComponentId renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;

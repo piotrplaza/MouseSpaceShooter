@@ -120,7 +120,7 @@ namespace Tools
 	};
 
 	template <typename ShadersProgram, typename Buffers>
-	inline void TexturedRender(ShadersProgram& shadersProgram, const Buffers& buffers, const TextureVariant& texture)
+	inline void TexturedRender(ShadersProgram& shadersProgram, const Buffers& buffers, const TextureComponentVariant& texture)
 	{
 		std::visit(TexturedRenderInitializationVisitor{ shadersProgram, buffers.textureRatioPreserved }, texture);
 

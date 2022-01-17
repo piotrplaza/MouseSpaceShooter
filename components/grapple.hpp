@@ -27,7 +27,7 @@ namespace Components
 		using ComponentBase::ComponentBase;
 
 		Grapple(Body body, float influenceRadius,
-			TextureVariant texture = std::monostate{},
+			TextureComponentVariant texture = std::monostate{},
 			ComponentId renderingSetup = 0,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
@@ -36,12 +36,12 @@ namespace Components
 			renderingSetup(std::move(renderingSetup)),
 			customShadersProgram(customShadersProgram)
 		{
-			Tools::AccessUserData(*this->body).componentId = getComponentId();
+			Tools::AccessUserData(*this->body).bodyComponentVariant = TCM::Grapple(getComponentId());
 		}
 
 		Body body;
 		float influenceRadius;
-		TextureVariant texture;
+		TextureComponentVariant texture;
 		ComponentId renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;

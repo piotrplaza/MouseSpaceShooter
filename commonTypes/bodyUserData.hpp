@@ -1,8 +1,8 @@
 #pragma once
 
-#include <components/componentId.hpp>
+#include <components/typeComponentMappers.hpp>
 
 struct BodyUserData
 {
-	ComponentId componentId = 0;
+	BodyComponentVariant bodyComponentVariant;
 };

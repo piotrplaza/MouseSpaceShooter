@@ -176,17 +176,16 @@ namespace Levels
 
 			glm::vec2 portraitCenter(40.0f, -40.0f);
 			Globals::Components().renderingSetups().emplace_back([=,
-				blendingColorUniform = Uniforms::UniformController4f()
+				addBlendingColor = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {
-					if (!blendingColorUniform.isValid())
-						blendingColorUniform = Uniforms::UniformController4f(program, "blendingColor");
+					if (!addBlendingColor.isValid())
+						addBlendingColor = Uniforms::UniformController4f(program, "addBlendingColor");
 					
-					const float skullOpacity = (fogAlphaFactor - 1.0f) * 2.0f +
-						glm::max(0.0f, 1.0f - glm::distance(Globals::Components().players()[1].getCenter(), portraitCenter) / 20.0f);
-					blendingColorUniform({ 1.0f, skullOpacity, 1.0f, 1.0f });
+					const float skullOpacity = fogAlphaFactor - 1.0f;
+					addBlendingColor({ 1.0f, skullOpacity, 0.0f, 0.0f });
 					
 					return [=]() mutable {
-						blendingColorUniform({ 1.0f, 1.0f, 1.0f, 1.0f });
+						addBlendingColor({ 0.0f, 0.0f, 0.0f, 0.0f });
 					};
 				});
 
@@ -329,7 +328,7 @@ namespace Levels
 
 				return [=]() mutable
 				{
-					alphaFromBlendingTextureUniform(true);
+					alphaFromBlendingTextureUniform(false);
 					colorAccumulationUniform(false);
 				};
 			});
@@ -411,19 +410,21 @@ namespace Levels
 
 		void setCollisionCallbacks()
 		{
-			EmplaceIdComponent(Globals::Components().beginCollisionHandlers(), { CollisionBits::missileBit, CollisionBits::all, [this](const auto& fixtureA, const auto& fixtureB) {
-				for (const auto* fixture : { &fixtureA, &fixtureB })
-				if (fixture->GetFilterData().categoryBits == CollisionBits::missileBit)
-				{
-					const auto& otherFixture = fixture == &fixtureA ? fixtureB : fixtureA;
-					const auto& body = *fixture->GetBody();
-					missilesToHandlers.erase(Tools::AccessUserData(body).componentId);
-					Tools::CreateExplosion(particlesShaders, ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture, 1.0f, 64, 4,
-						lowResBodies.count(otherFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1);
+			EmplaceIdComponent(Globals::Components().beginCollisionHandlers(), { CollisionBits::missileBit, CollisionBits::all,
+				[this](const auto& fixtureA, const auto& fixtureB) {
+					for (const auto* fixture : { &fixtureA, &fixtureB })
+					if (fixture->GetFilterData().categoryBits == CollisionBits::missileBit)
+					{
+						const auto& otherFixture = fixture == &fixtureA ? fixtureB : fixtureA;
+						const auto& body = *fixture->GetBody();
+						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(body).bodyComponentVariant).id);
+						Tools::CreateExplosion(particlesShaders, ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture, 1.0f, 64, 4,
+							lowResBodies.count(otherFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1);
 
-					explosionFrame = true;
+						explosionFrame = true;
+					}
 				}
-			} });
+			});
 		}
 
 		void setFramesRoutines()

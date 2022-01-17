@@ -65,7 +65,7 @@ namespace Tools
 
 	template <typename Component, typename Buffers>
 	inline void UpdateTransformedPositionsBuffers(const std::vector<Component>& components, Buffers& simpleBuffers,
-		std::unordered_map<TextureVariant, Buffers>& texturesToBuffers, std::vector<Buffers>& customSimpleBuffers,
+		std::unordered_map<TextureComponentVariant, Buffers>& texturesToBuffers, std::vector<Buffers>& customSimpleBuffers,
 		std::vector<Buffers>& customTexturedBuffers, std::vector<Buffers>& customShadersBuffers)
 	{
 		simpleBuffers.positionsCache.clear();
@@ -161,7 +161,7 @@ namespace Tools
 
 	template <typename Component, typename Buffers>
 	inline void UpdateTexCoordBuffers(const std::vector<Component>& components,
-		std::unordered_map<TextureVariant, Buffers>& texturesToBuffers, std::vector<Buffers>& customTexturedBuffers,
+		std::unordered_map<TextureComponentVariant, Buffers>& texturesToBuffers, std::vector<Buffers>& customTexturedBuffers,
 		std::vector<Buffers>& customShadersTexturedBuffers)
 	{
 		for (auto& [texture, buffers] : texturesToBuffers) buffers.texCoordCache.clear();

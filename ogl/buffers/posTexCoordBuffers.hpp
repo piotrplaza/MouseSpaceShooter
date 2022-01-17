@@ -29,7 +29,7 @@ namespace Buffers
 		GLuint positionBuffer;
 
 		std::optional<GLuint> texCoordBuffer;
-		TextureVariant texture;
+		TextureComponentVariant texture;
 		ComponentId renderingSetup = 0;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;

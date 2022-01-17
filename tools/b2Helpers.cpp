@@ -1,5 +1,6 @@
 #include "b2Helpers.hpp"
 
+#include <components/typeComponentMappers.hpp>
 #include <components/physics.hpp>
 
 #include <globals/components.hpp>
@@ -19,7 +20,7 @@ namespace
 	constexpr int circleGraphicsComplexity = 60;
 }
 
-void b2BodyDeleter::operator()(b2Body * body) const
+void b2BodyDeleter::operator()(b2Body* body) const
 {
 	auto* bodyUserData = static_cast<BodyUserData*>(body->GetUserData());
 	delete bodyUserData;

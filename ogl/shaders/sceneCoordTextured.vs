@@ -15,5 +15,6 @@ void main()
 {
 	for (int i = 0; i < numOfTextures; ++i)
 		vTexCoord[i] = ((textureCoordBasedOnModelTransform ? model : mat4(1.0)) * vec4(bPos, 1.0)).xy / texturesScale[i] - texturesTranslate[i];
+
 	gl_Position = vp * model * vec4(bPos, 1.0);
 }
