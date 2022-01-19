@@ -67,13 +67,17 @@ namespace Systems
 
 		const GLint format = texture.loaded.bitDepth == 4 ? GL_RGBA : texture.loaded.bitDepth == 3 ? GL_RGB : texture.loaded.bitDepth == 2 ? GL_RG : GL_RED;
 
-		if (texture.premultipliedAlpha && format == GL_RGBA)
+		if (format == GL_RGBA && (texture.premultipliedAlpha || texture.darkToTransparent))
 		{
 			for (int i = 0; i < textureCache.size.x * textureCache.size.y * textureCache.bitDepth; i += 4)
 			{
-				textureCache.channels[i] *= textureCache.channels[i + 3];
-				textureCache.channels[i + 1] *= textureCache.channels[i + 3];
-				textureCache.channels[i + 2] *= textureCache.channels[i + 3];
+				textureCache.channels[i + 3] = (1 - texture.darkToTransparent) * textureCache.channels[i + 3] + texture.darkToTransparent *
+					std::min(1.0f, textureCache.channels[i] + textureCache.channels[i + 1] + textureCache.channels[i + 2]);
+
+				const float premultipliedAlphaFactor = (1 - texture.premultipliedAlpha) + texture.premultipliedAlpha * textureCache.channels[i + 3];
+				textureCache.channels[i] *= premultipliedAlphaFactor;
+				textureCache.channels[i + 1] *= premultipliedAlphaFactor;
+				textureCache.channels[i + 2] *= premultipliedAlphaFactor;
 			}
 		}
 

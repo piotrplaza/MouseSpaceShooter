@@ -121,9 +121,15 @@ namespace Levels
 			textures.emplace_back("textures/pp.png");
 
 			skullTexture = textures.size();
-			textures.emplace_back("textures/skull.png");
+			textures.emplace_back("textures/skull_rot.png");
 			textures.back().translate = glm::vec2(0.58f, 1.1f);
 			textures.back().scale = glm::vec2(0.48f, 0.44f);
+
+			avatarTexture = textures.size();
+			textures.emplace_back("textures/avatar_rot.png");
+			textures.back().translate = glm::vec2(1.68f, 1.56f);
+			textures.back().scale = glm::vec2(0.24f, 0.32f);
+			textures.back().darkToTransparent = true;
 		}
 
 		void setAnimations()
@@ -172,7 +178,7 @@ namespace Levels
 		void createAdditionalDecorations() const
 		{
 			const auto blendingTexture = Globals::Components().blendingTextures().size();
-			Globals::Components().blendingTextures().push_back({ { flame2AnimatedTexture, ppTexture, skullTexture }, true });
+			Globals::Components().blendingTextures().push_back({ { flame2AnimatedTexture, ppTexture, skullTexture, avatarTexture }, true });
 
 			glm::vec2 portraitCenter(40.0f, -40.0f);
 			Globals::Components().renderingSetups().emplace_back([=,
@@ -182,7 +188,9 @@ namespace Levels
 						addBlendingColor = Uniforms::UniformController4f(program, "addBlendingColor");
 					
 					const float skullOpacity = fogAlphaFactor - 1.0f;
-					addBlendingColor({ 1.0f, skullOpacity, 0.0f, 0.0f });
+					const float avatarOpacity = glm::min(0.0f, glm::distance(Globals::Components().players()[1].getCenter(), portraitCenter) / 3.0f - 5.0f);
+
+					addBlendingColor({ 1.0f, skullOpacity, avatarOpacity, 0.0f });
 					
 					return [=]() mutable {
 						addBlendingColor({ 0.0f, 0.0f, 0.0f, 0.0f });
@@ -473,6 +481,7 @@ namespace Levels
 		unsigned mosaicTexture = 0;
 		unsigned ppTexture = 0;
 		unsigned skullTexture = 0;
+		unsigned avatarTexture = 0;
 
 		unsigned flame1AnimatedTexture = 0;
 		unsigned flame2AnimatedTexture = 0;

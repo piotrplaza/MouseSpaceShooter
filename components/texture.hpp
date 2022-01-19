@@ -43,6 +43,7 @@ namespace Components
 		glm::vec2 scale{ 1.0f };
 
 		bool premultipliedAlpha = true;
+		bool darkToTransparent = false;
 
 		struct
 		{
