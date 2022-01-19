@@ -71,8 +71,8 @@ namespace Levels
 
 		void createBackground() const
 		{
-			Globals::Components().backgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 100.0f, 60.0f }), TCM::Texture(playFieldTexture));
-			Globals::Components().backgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
+			Globals::Components().backgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 100.0f, 60.0f }),
+				TCM::Texture(playFieldTexture), Tools::CreateTexCoordOfRectangle());
 		}
 
 		void createPlayers()

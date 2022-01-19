@@ -25,10 +25,12 @@ namespace Components
 
 		Decoration(std::vector<glm::vec3> positions = {},
 			TextureComponentVariant texture = std::monostate{},
+			std::vector<glm::vec2> texCoord = {},
 			ComponentId renderingSetup = 0,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			positions(std::move(positions)),
 			texture(texture),
+			texCoord(std::move(texCoord)),
 			renderingSetup(renderingSetup),
 			customShadersProgram(customShadersProgram)
 		{

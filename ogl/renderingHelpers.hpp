@@ -153,12 +153,12 @@ namespace Tools
 
 		const static glm::vec2 defaultTexCoords[numOfVertices] =
 		{
-			{0.0f, 0.0f},
-			{1.0f, 0.0f},
-			{0.0f, 1.0f},
-			{0.0f, 1.0f},
-			{1.0f, 0.0f},
-			{1.0f, 1.0f}
+			{-0.5f, -0.5f},
+			{0.5f, -0.5f},
+			{-0.5f, 0.5f},
+			{-0.5f, 0.5f},
+			{0.5f, -0.5f},
+			{0.5f, 0.5f}
 		};
 
 		static std::array<glm::vec3, numOfVertices> customPositions;

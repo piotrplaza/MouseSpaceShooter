@@ -57,22 +57,19 @@ namespace Levels
 
 			rocketPlaneTexture = textures.size();
 			textures.emplace_back("textures/rocket plane.png");
-			textures.back().translate = glm::vec2(-0.35f, -0.5f);
+			textures.back().translate = glm::vec2(0.15f, 0.0f);
 			textures.back().scale = glm::vec2(1.7f);
 
 			spaceRockTexture = textures.size();
 			textures.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT);
-			textures.back().translate = glm::vec2(-0.35f, -0.5f);
 			textures.back().scale = glm::vec2(20.0f);
 
 			woodTexture = textures.size();
 			textures.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
-			textures.back().translate = glm::vec2(-0.35f, -0.5f);
 			textures.back().scale = glm::vec2(16.0f);
 
 			orbTexture = textures.size();
 			textures.emplace_back("textures/orb.png");
-			textures.back().translate = glm::vec2(-0.5f);
 			textures.back().scale = glm::vec2(4.0f);
 
 			weedTexture = textures.size();
@@ -93,13 +90,12 @@ namespace Levels
 			missile1Texture = textures.size();
 			textures.emplace_back("textures/missile1.png");
 			textures.back().minFilter = GL_LINEAR;
-			textures.back().translate = glm::vec2(-0.6f, -0.5f);
+			textures.back().translate = glm::vec2(0.4f, 0.0f);
 			textures.back().scale = glm::vec2(0.3f, 0.4f);
 
 			missile2Texture = textures.size();
 			textures.emplace_back("textures/missile2.png");
 			textures.back().minFilter = GL_LINEAR;
-			textures.back().translate = glm::vec2(-0.5f, -0.5f);
 			textures.back().scale = glm::vec2(0.4f, 0.45f);
 
 			explosionTexture = textures.size();
@@ -122,12 +118,12 @@ namespace Levels
 
 			skullTexture = textures.size();
 			textures.emplace_back("textures/skull_rot.png");
-			textures.back().translate = glm::vec2(0.58f, 1.1f);
+			textures.back().translate = glm::vec2(0.04f, 0.47f);
 			textures.back().scale = glm::vec2(0.48f, 0.44f);
 
 			avatarTexture = textures.size();
 			textures.emplace_back("textures/avatar_rot.png");
-			textures.back().translate = glm::vec2(1.68f, 1.56f);
+			textures.back().translate = glm::vec2(0.08f, 0.495f);
 			textures.back().scale = glm::vec2(0.24f, 0.32f);
 			textures.back().darkToTransparent = true;
 		}
@@ -138,14 +134,14 @@ namespace Levels
 			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
 				flame1AnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
 				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
-				{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
+				{ 4.1f, 1.65f }, { 1.0f, 1.0f }));
 			Globals::Components().animatedTextures().back().start();
 
 			flame2AnimatedTexture = Globals::Components().animatedTextures().size();
 			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
-				flame1AnimationTexture, { 500, 498 }, { -26, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
+				flame1AnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
 				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
-				{ 0.0f, -0.45f }, { 1.2f, -1.2f }));
+				{ 4.1f, 2.0f }, { 1.2f, -1.2f }));
 			Globals::Components().animatedTextures().back().start();
 		}
 
@@ -159,7 +155,7 @@ namespace Levels
 			Tools::CreateFogForeground(2, 0.02f, fogTexture, [&, fogTargetAlphaFactor = 1.0f]() mutable {
 				if (explosionFrame)
 				{
-					const float maxAlphaFactor = 1.5f;
+					const float maxAlphaFactor = 2.0f;
 					fogTargetAlphaFactor = fogTargetAlphaFactor < maxAlphaFactor
 						? fogTargetAlphaFactor + Globals::Components().physics().frameDuration * 10.0f
 						: maxAlphaFactor;
@@ -170,7 +166,7 @@ namespace Levels
 						? fogTargetAlphaFactor - Globals::Components().physics().frameDuration * 0.2f
 						: 1.0f;
 				}
-				fogAlphaFactor += (fogTargetAlphaFactor - fogAlphaFactor) * Globals::Components().physics().frameDuration;
+				fogAlphaFactor += (fogTargetAlphaFactor - fogAlphaFactor) * 0.05f * Globals::Components().physics().frameDuration;
 				return glm::vec4(1.0f, 1.0f, 1.0f, fogAlphaFactor);
 				});
 		}
@@ -198,8 +194,7 @@ namespace Levels
 				});
 
 			Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle(portraitCenter, { 9.0f, 10.0f }),
-				TCM::BlendingTexture(blendingTexture), Globals::Components().renderingSetups().size() - 1);
-			Globals::Components().midgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
+				TCM::BlendingTexture(blendingTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
 		}
 
 		void createPlayers()
@@ -238,21 +233,19 @@ namespace Levels
 
 			for (int i = 1; i <= 2; ++i)
 			{
+				Globals::Components().renderingSetups().emplace_back([
+					texturedProgram = Shaders::Programs::TexturedAccessor(),
+						wallId = Globals::Components().dynamicWalls().size() - i
+				](Shaders::ProgramId program) mutable {
+						if (!texturedProgram.isValid()) texturedProgram = program;
+						texturedProgram.model(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
+						return nullptr;
+					});
+
 				Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 0.4f, 0.4f },
 					{ { -0.5f, -5.0f }, { 0.5f, -5.0f }, { 0.5f, 5.0f }, { -0.5f, 5.0f}, { -0.5f, -5.0f } },
-					{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }), TCM::Texture(roseTexture));
-				Globals::Components().midgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
-
-				Globals::Components().renderingSetups().emplace_back([
-						texturedProgram = Shaders::Programs::TexturedAccessor(),
-						wallId = Globals::Components().dynamicWalls().size() - i
-						](Shaders::ProgramId program) mutable {
-							if (!texturedProgram.isValid()) texturedProgram = program;
-							texturedProgram.model(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
-							return nullptr;
-						});
-
-				Globals::Components().midgroundDecorations().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
+					{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }),
+					TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
 			}
 
 			const auto blendingTexture = Globals::Components().blendingTextures().size();
@@ -303,13 +296,11 @@ namespace Levels
 					[](float input) { return glm::vec2(input + 0.3f, input + 0.3f); },
 					[](float input) { return input * 600.0f; },
 					[value = 0.0f]() mutable->std::optional<float> {
-					if (value > 1.0f) return std::nullopt;
-					float result = value;
-					value += 0.002f;
-					return result;
-				}), TCM::Texture(roseTexture));
-				Globals::Components().midgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
-				Globals::Components().midgroundDecorations().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
+						if (value > 1.0f) return std::nullopt;
+						float result = value;
+						value += 0.002f;
+						return result;
+					}), TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
 			}
 
 			Globals::Components().midgroundDecorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
@@ -318,6 +309,27 @@ namespace Levels
 
 		void createStaticWalls() const
 		{
+			{
+				Globals::Components().renderingSetups().emplace_back([](auto) {
+					return nullptr;
+					});
+				Globals::Components().renderingSetups().emplace_back([](auto) {
+					return nullptr;
+					});
+				Globals::Components().renderingSetups().emplace_back([](auto) {
+					return nullptr;
+					});
+
+				Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, 0.0f },
+					{ 5.0f, 5.0f }, 0.0f, b2_staticBody), TCM::AnimatedTexture(flame1AnimatedTexture), Globals::Components().renderingSetups().size() - 3);
+
+				Globals::Components().dynamicWalls().emplace_back(Tools::CreateBoxBody({ -10.0f, 20.0f },
+					{ 1.5f, 1.5f }, 0.0f, b2_dynamicBody), TCM::AnimatedTexture(flame1AnimatedTexture), Globals::Components().renderingSetups().size() - 2);
+
+				Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 10.0f, 20.0f }, { 1.5f, 1.5f }), TCM::AnimatedTexture(flame1AnimatedTexture),
+					Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
+			}
+
 			const float levelHSize = 50.0f;
 			const float bordersHGauge = 100.0f;
 
@@ -355,51 +367,48 @@ namespace Levels
 
 			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f },
 				{ { -levelHSize, -levelHSize }, { levelHSize, -levelHSize }, { levelHSize, levelHSize }, { -levelHSize, levelHSize }, { -levelHSize, -levelHSize } },
-				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture));
-			Globals::Components().nearMidgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
+				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture), Tools::CreateTexCoordOfRectangle());
 			//Globals::Components().nearMidgroundDecorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
 		}
 
 		void createGrapples() const
 		{
 			Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ 0.0f, 10.0f }, 1.0f), 15.0f, TCM::Texture(orbTexture));
-			Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f, TCM::Texture(orbTexture));
 
 			Globals::Components().renderingSetups().emplace_back([
 				colorUniform = Uniforms::UniformController4f()
-				](Shaders::ProgramId program) mutable {
+			](Shaders::ProgramId program) mutable {
 					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
 					colorUniform(glm::vec4(glm::sin(Globals::Components().physics().simulationDuration / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f);
 					return nullptr;
 				});
 
-			Globals::Components().grapples().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
+			Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f, TCM::Texture(orbTexture), Globals::Components().renderingSetups().size() - 1);
+
 			Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f,
 				TCM::Texture(orbTexture));
-			auto& grapple = Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f);
 
 			Globals::Components().renderingSetups().emplace_back([
 				colorUniform = Uniforms::UniformController4f()
-				](Shaders::ProgramId program) mutable {
+			](Shaders::ProgramId program) mutable {
 					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
 					colorUniform({ 0.0f, 0.0f, 0.0f, 0.0f });
 					return nullptr;
 				});
 
+			auto& grapple = Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f);
 			grapple.renderingSetup = Globals::Components().renderingSetups().size() - 1;
-
-			Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 2.2f, 2.2f }), TCM::Texture(roseTexture));
-			Globals::Components().farMidgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
 
 			Globals::Components().renderingSetups().emplace_back([&,
 				modelUniform = Uniforms::UniformControllerMat4f()
-				](Shaders::ProgramId program) mutable {
-					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-					modelUniform(grapple.getModelMatrix());
-					return nullptr;
-				});
+			](Shaders::ProgramId program) mutable {
+				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
+				modelUniform(grapple.getModelMatrix());
+				return nullptr;
+			});
 
-			Globals::Components().farMidgroundDecorations().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
+			Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 2.2f, 2.2f }),
+				TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
 		}
 
 		void setCamera() const

@@ -106,11 +106,6 @@ namespace Levels
 		{
 			auto& wall1 = *Globals::Components().dynamicWalls().emplace_back(
 				Tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture)).body;
-			auto& wall2 = *Globals::Components().dynamicWalls().emplace_back(
-				Tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture)).body;
-			wall1.GetFixtureList()->SetRestitution(0.5f);
-			wall2.GetFixtureList()->SetRestitution(0.5f);
-			Tools::PinBodies(wall1, wall2, { 5.0f, 0.0f });
 
 			Globals::Components().renderingSetups().emplace_back([
 				textureTranslateUniform = Uniforms::UniformController2fv<5>()
@@ -120,7 +115,12 @@ namespace Levels
 					textureTranslateUniform(0, { glm::cos(simulationDuration * 0.1f), glm::sin(simulationDuration * 0.1f) });
 					return nullptr;
 				});
-			Globals::Components().dynamicWalls().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
+
+			auto& wall2 = *Globals::Components().dynamicWalls().emplace_back(
+				Tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture), Globals::Components().renderingSetups().size() - 1).body;
+			wall1.GetFixtureList()->SetRestitution(0.5f);
+			wall2.GetFixtureList()->SetRestitution(0.5f);
+			Tools::PinBodies(wall1, wall2, { 5.0f, 0.0f });
 
 			for (const float pos : {-30.0f, 30.0f})
 			{
@@ -132,19 +132,31 @@ namespace Levels
 					texturedColorThresholdShaders.invisibleColorThreshold((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
 					return nullptr;
 					});
+
 				Globals::Components().dynamicWalls().emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), TCM::Texture(woodTexture),
-					Globals::Components().renderingSetups().size() - 1,
-					texturedColorThresholdShaders.getProgramId());
-				Globals::Components().dynamicWalls().emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f));
+					Globals::Components().renderingSetups().size() - 1, texturedColorThresholdShaders.getProgramId());
 
 				Globals::Components().renderingSetups().emplace_back([
 					colorUniform = Uniforms::UniformController4f()
-					](Shaders::ProgramId program) mutable {
+				](Shaders::ProgramId program) mutable {
 						if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
 						colorUniform({ 1.0f, 1.0f, 1.0f, 0.0f });
 						return nullptr;
 					});
+
+				Globals::Components().dynamicWalls().emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f));
 				Globals::Components().dynamicWalls().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
+
+				Globals::Components().renderingSetups().emplace_back([
+					texturedProgramAccessor = std::optional<Shaders::Programs::TexturedAccessor>(),
+						wallId = Globals::Components().dynamicWalls().size() - 1
+				](Shaders::ProgramId program) mutable {
+						if (!texturedProgramAccessor) texturedProgramAccessor.emplace(program);
+						texturedProgramAccessor->color({ 1.0f, 1.0f, 1.0f,
+							(glm::sin(Globals::Components().physics().simulationDuration * glm::two_pi<float>()) + 1.0f) / 2.0f + 0.5f });
+						texturedProgramAccessor->model(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
+						return nullptr;
+					});
 
 				Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
 					[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
@@ -155,22 +167,7 @@ namespace Levels
 					float result = value;
 					value += 0.002f;
 					return result;
-				}
-				), TCM::Texture(roseTexture));
-
-				Globals::Components().nearMidgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
-
-				Globals::Components().renderingSetups().emplace_back([
-					texturedProgramAccessor = std::optional<Shaders::Programs::TexturedAccessor>(),
-					wallId = Globals::Components().dynamicWalls().size() - 1
-					](Shaders::ProgramId program) mutable {
-						if (!texturedProgramAccessor) texturedProgramAccessor.emplace(program);
-						texturedProgramAccessor->color({ 1.0f, 1.0f, 1.0f,
-							(glm::sin(Globals::Components().physics().simulationDuration * glm::two_pi<float>()) + 1.0f) / 2.0f + 0.5f });
-						texturedProgramAccessor->model(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
-						return nullptr;
-					});
-				Globals::Components().nearMidgroundDecorations().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
+				}), TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
 			}
 		}
 
@@ -182,26 +179,22 @@ namespace Levels
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ -levelHSize - bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::Texture(spaceRockTexture));
 			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { -levelHSize, -levelHSize }, { levelHSize, -levelHSize } },
-				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture));
-			Globals::Components().nearMidgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
+				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture), Tools::CreateTexCoordOfRectangle());
 
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ levelHSize + bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::Texture(spaceRockTexture));
 			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { -levelHSize, levelHSize }, { levelHSize, levelHSize } },
-				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture));
-			Globals::Components().nearMidgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
+				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture), Tools::CreateTexCoordOfRectangle());
 
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize - bordersHGauge },
 				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::Texture(spaceRockTexture));
 			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { -levelHSize, -levelHSize }, { -levelHSize, levelHSize } },
-				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture));
-			Globals::Components().nearMidgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
+				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture), Tools::CreateTexCoordOfRectangle());
 
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize + bordersHGauge },
 				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::Texture(spaceRockTexture));
 			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.0f, 1.0f }, { { levelHSize, -levelHSize }, { levelHSize, levelHSize } },
-				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture));
-			Globals::Components().nearMidgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
+				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture), Tools::CreateTexCoordOfRectangle());
 		}
 
 		void createGrapples() const
@@ -223,8 +216,8 @@ namespace Levels
 				TCM::Texture(orbTexture));
 			auto& grapple = Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f);
 
-			Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.8f, 1.8f }), TCM::Texture(roseTexture));
-			Globals::Components().farMidgroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
+			Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.8f, 1.8f }),
+				TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle());
 
 			Globals::Components().renderingSetups().emplace_back([&,
 				modelUniform = Uniforms::UniformControllerMat4f()

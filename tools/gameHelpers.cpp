@@ -237,25 +237,24 @@ namespace Tools
 		for (int posYI = -1; posYI <= 1; ++posYI)
 		for (int posXI = -1; posXI <= 1; ++posXI)
 		{
-			Globals::Components().foregroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)), TCM::Texture(fogTexture));
-			Globals::Components().foregroundDecorations().back().texCoord = Tools::CreateTexCoordOfRectangle();
-
 			Globals::Components().renderingSetups().emplace_back([=, texturedProgram = Shaders::Programs::TexturedAccessor()
-				](Shaders::ProgramId program) mutable {
-					if (!texturedProgram.isValid()) texturedProgram = program;
-					texturedProgram.vp(glm::translate(glm::scale(Globals::Components().mvp().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
-						glm::vec3(-Globals::Components().camera().prevPosition * (0.002f + layer * 0.002f), 0.0f)));
-					texturedProgram.color(fColor()* glm::vec4(1.0f, 1.0f, 1.0f, alphaPerLayer));
+			](Shaders::ProgramId program) mutable {
+				if (!texturedProgram.isValid()) texturedProgram = program;
+				texturedProgram.vp(glm::translate(glm::scale(Globals::Components().mvp().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
+					glm::vec3(-Globals::Components().camera().prevPosition * (0.002f + layer * 0.002f), 0.0f)));
+				texturedProgram.color(fColor()* glm::vec4(1.0f, 1.0f, 1.0f, alphaPerLayer));
 
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-					return [texturedProgram]() mutable {
-						texturedProgram.vp(Globals::Components().mvp().getVP());
-						glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-					};
-				});
+				return [texturedProgram]() mutable {
+					texturedProgram.vp(Globals::Components().mvp().getVP());
+					glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+				};
+			});
 
-			Globals::Components().foregroundDecorations().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
+			Globals::Components().foregroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
+				TCM::Texture(fogTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
+
 			Globals::Components().foregroundDecorations().back().resolutionMode = ResolutionMode::LowestLinearBlend1;
 		}
 	}
