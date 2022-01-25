@@ -309,27 +309,6 @@ namespace Levels
 
 		void createStaticWalls() const
 		{
-			{
-				Globals::Components().renderingSetups().emplace_back([](auto) {
-					return nullptr;
-					});
-				Globals::Components().renderingSetups().emplace_back([](auto) {
-					return nullptr;
-					});
-				Globals::Components().renderingSetups().emplace_back([](auto) {
-					return nullptr;
-					});
-
-				Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, 0.0f },
-					{ 5.0f, 5.0f }, 0.0f, b2_staticBody), TCM::AnimatedTexture(flame1AnimatedTexture), Globals::Components().renderingSetups().size() - 3);
-
-				Globals::Components().dynamicWalls().emplace_back(Tools::CreateBoxBody({ -10.0f, 20.0f },
-					{ 1.5f, 1.5f }, 0.0f, b2_dynamicBody), TCM::AnimatedTexture(flame1AnimatedTexture), Globals::Components().renderingSetups().size() - 2);
-
-				Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 10.0f, 20.0f }, { 1.5f, 1.5f }), TCM::AnimatedTexture(flame1AnimatedTexture),
-					Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
-			}
-
 			const float levelHSize = 50.0f;
 			const float bordersHGauge = 100.0f;
 
