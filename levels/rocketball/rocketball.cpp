@@ -39,7 +39,7 @@ namespace Levels
 
 			rocketPlaneTexture = textures.size();
 			textures.emplace_back("textures/rocket plane.png");
-			textures.back().translate = glm::vec2(-0.35f, -0.5f);
+			textures.back().translate = glm::vec2(0.15f, 0.0f);
 			textures.back().scale = glm::vec2(1.7f);
 
 			woodTexture = textures.size();
@@ -48,7 +48,6 @@ namespace Levels
 
 			orbTexture = textures.size();
 			textures.emplace_back("textures/orb.png");
-			textures.back().translate = glm::vec2(-0.5f);
 			textures.back().scale = glm::vec2(4.0f);
 
 			playFieldTexture = textures.size();
@@ -65,7 +64,7 @@ namespace Levels
 			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
 				flame1AnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
 				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
-				{ 0.0f, -0.45f }, { 1.0f, 1.0f }));
+				{ 4.1f, 1.65f }, { 1.0f, 1.0f }));
 			Globals::Components().animatedTextures().back().start();
 		}
 
@@ -77,7 +76,7 @@ namespace Levels
 
 		void createPlayers()
 		{
-			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flame1AnimatedTexture);
+			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flame1AnimatedTexture, { -10.0f, 0.0f });
 			Globals::Components().players()[1].connectIfApproaching = true;
 		}
 

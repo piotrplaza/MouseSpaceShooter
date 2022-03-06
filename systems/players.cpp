@@ -51,7 +51,7 @@ namespace Systems
 			const glm::ivec2 windowSpaceMouseDelta = Globals::Components().mouseState().getMouseDelta();
 			const glm::vec2 mouseDelta = { windowSpaceMouseDelta.x, -windowSpaceMouseDelta.y };
 
-			turn(player, mouseDelta);
+			turn(player, mouseDelta, Globals::Components().mouseState().rmb);
 			throttle(player, Globals::Components().mouseState().rmb);
 			magneticHook(player, Globals::Components().mouseState().mmb || Globals::Components().mouseState().xmb1);
 
@@ -210,7 +210,7 @@ namespace Systems
 		glDrawArrays(GL_LINES, 0, connectionsBuffers->positionsCache.size());
 	}
 
-	void Players::turn(Components::Player& player, glm::vec2 controllerDelta) const
+	void Players::turn(Components::Player& player, glm::vec2 controllerDelta, bool autoRotation) const
 	{
 		if (glm::length(controllerDelta) > 0)
 		{
@@ -222,7 +222,7 @@ namespace Systems
 			player.body->SetTransform(player.body->GetPosition(), playerAngle + controllerDot * mouseSensitivity);
 		}
 
-		if (player.grappleJoint)
+		if (player.grappleJoint && autoRotation)
 		{
 			const auto& grapple = Globals::Components().grapples()[player.connectedGrappleId];
 			const glm::vec2 stepVelocity = (player.getCenter() - player.previousCenter) - (grapple.getCenter() - grapple.previousCenter);
@@ -231,12 +231,20 @@ namespace Systems
 			if (stepVelocityLength > 0.0f)
 			{
 				const glm::vec2 normalizedStepVelocity = stepVelocity / stepVelocityLength;
+
 				const float playerAngle = player.body->GetAngle();
-				const float playerSideAngle = playerAngle + glm::half_pi<float>();
-				const glm::vec2 playerDirection = { std::cos(playerSideAngle), std::sin(playerSideAngle) };
+				const glm::vec2 playerDirection = { std::cos(playerAngle), std::sin(playerAngle) };
 				const float velocityDot = glm::dot(playerDirection, normalizedStepVelocity);
 
-				player.body->SetTransform(player.body->GetPosition(), playerAngle + velocityDot *
+				const float playerFrontAngle = playerAngle + glm::half_pi<float>();
+				const glm::vec2 playerFrontDirection = { std::cos(playerFrontAngle), std::sin(playerFrontAngle) };
+				const float velocityFrontDot = glm::dot(playerFrontDirection, normalizedStepVelocity);
+
+				const float playerBackAngle = playerAngle - glm::half_pi<float>();
+				const glm::vec2 playerBackDirection = { std::cos(playerBackAngle), std::sin(playerBackAngle) };
+				const float velocityBackDot = glm::dot(playerBackDirection, normalizedStepVelocity);
+
+				player.body->SetTransform(player.body->GetPosition(), playerAngle + (velocityDot > 0.0f ? velocityFrontDot : velocityBackDot) *
 					stepVelocityLength * player.autoRotationFactor);
 			}
 		}

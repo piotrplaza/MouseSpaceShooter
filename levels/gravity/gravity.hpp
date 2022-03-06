@@ -1,16 +1,16 @@
 #pragma once
 
-#include <memory>
-
 #include "../level.hpp"
+
+#include <memory>
 
 namespace Levels
 {
-	class Race1 : public Level
+	class Gravity: public Level
 	{
 	public:
-		Race1();
-		~Race1();
+		Gravity();
+		~Gravity();
 
 		void step() override;
 

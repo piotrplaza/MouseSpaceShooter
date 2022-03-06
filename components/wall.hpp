@@ -46,6 +46,11 @@ namespace Components
 		GLenum drawMode = GL_TRIANGLES;
 		GLenum bufferDataUsage = GL_STATIC_DRAW;
 
+		glm::vec2 getCenter() const
+		{
+			return ToVec2<glm::vec2>(body->GetWorldCenter());
+		}
+
 		std::vector<glm::vec3> getPositions() const
 		{
 			return Tools::GetPositions(*body);

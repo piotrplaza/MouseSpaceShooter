@@ -25,12 +25,9 @@
     <ClCompile Include="globals\components.cpp" />
     <ClCompile Include="globals\shaders.cpp" />
     <ClCompile Include="globals\systems.cpp" />
+    <ClCompile Include="levels\gravity\gravity.cpp" />
     <ClCompile Include="levels\level.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
-    <ClCompile Include="levels\race1\race1.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="levels\rocketball\rocketball.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
@@ -90,9 +87,9 @@
     <ClInclude Include="globals\components.hpp" />
     <ClInclude Include="globals\shaders.hpp" />
     <ClInclude Include="globals\systems.hpp" />
+    <ClInclude Include="levels\gravity\gravity.hpp" />
     <ClInclude Include="levels\level.hpp" />
     <ClInclude Include="levels\playground\playground.hpp" />
-    <ClInclude Include="levels\race1\race1.hpp" />
     <ClInclude Include="levels\rocketball\rocketball.hpp" />
     <ClInclude Include="ogl\buffersHelpers.hpp" />
     <ClInclude Include="ogl\buffers\posTexCoordBuffers.hpp" />
@@ -212,7 +209,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\libraries\glew-2.1.0\include;C:\libraries\glm;C:\libraries\box2d-2.4.0\include;$(ProjectDir)\3rdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\libraries\glew-2.2.0\include;C:\libraries\glm;C:\libraries\box2d-2.4.0\include;$(ProjectDir)\3rdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -222,7 +219,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>shcore.lib;opengl32.lib;glew32.lib;Box2DLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);C:\libraries\glew-2.1.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ProjectReference>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
@@ -248,7 +245,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\libraries\glew-2.1.0\include;C:\libraries\glm;C:\libraries\box2d-2.4.0\include;$(ProjectDir)\3rdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\libraries\glew-2.2.0\include;C:\libraries\glm;C:\libraries\box2d-2.4.0\include;$(ProjectDir)\3rdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -259,7 +256,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>shcore.lib;opengl32.lib;glew32.lib;Box2DLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);C:\libraries\glew-2.1.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ProjectReference>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>

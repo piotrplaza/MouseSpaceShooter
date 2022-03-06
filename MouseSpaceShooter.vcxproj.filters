@@ -56,9 +56,6 @@
     <Filter Include="src\ogl\shaders\texturedColorThreshold">
       <UniqueIdentifier>{ecbef966-6056-48cd-aef7-d6cc39c9cc82}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\levels\race1">
-      <UniqueIdentifier>{76361db7-1f44-4baa-ac42-10597ad01e0d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ogl\shaders\particles">
       <UniqueIdentifier>{92adb1c3-7dba-4c44-81d7-e0c84a0acc32}</UniqueIdentifier>
     </Filter>
@@ -70,6 +67,9 @@
     </Filter>
     <Filter Include="src\commonIds">
       <UniqueIdentifier>{fbaa671a-12fa-4d4c-8bba-07a92ab28bfe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\levels\gravity">
+      <UniqueIdentifier>{5a636ec7-4eb2-4591-9087-b0b38b96553c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -130,9 +130,6 @@
     <ClCompile Include="ogl\oglHelpers.cpp">
       <Filter>src\ogl</Filter>
     </ClCompile>
-    <ClCompile Include="levels\race1\race1.cpp">
-      <Filter>src\levels\race1</Filter>
-    </ClCompile>
     <ClCompile Include="tools\gameHelpers.cpp">
       <Filter>src\tools</Filter>
     </ClCompile>
@@ -165,6 +162,9 @@
     </ClCompile>
     <ClCompile Include="components\animatedTexture.cpp">
       <Filter>src\components</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\gravity\gravity.cpp">
+      <Filter>src\levels\gravity</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -279,9 +279,6 @@
     <ClInclude Include="ogl\oglHelpers.hpp">
       <Filter>src\ogl</Filter>
     </ClInclude>
-    <ClInclude Include="levels\race1\race1.hpp">
-      <Filter>src\levels\race1</Filter>
-    </ClInclude>
     <ClInclude Include="tools\gameHelpers.hpp">
       <Filter>src\tools</Filter>
     </ClInclude>
@@ -368,6 +365,9 @@
     </ClInclude>
     <ClInclude Include="components\animatedTexture.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\gravity\gravity.hpp">
+      <Filter>src\levels\gravity</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

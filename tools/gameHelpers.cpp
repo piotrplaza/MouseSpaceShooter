@@ -30,14 +30,15 @@
 
 namespace Tools
 {
-	PlayerPlaneHandler CreatePlayerPlane(unsigned planeTexture, unsigned flameAnimatedTexture)
+	PlayerPlaneHandler CreatePlayerPlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position, float angle)
 	{
 		PlayerPlaneHandler playerPlaneHandler;
 
 		playerPlaneHandler.playerId = Globals::Components().players().size();
 		auto& player = Globals::Components().players().emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), TCM::Texture(planeTexture));
 		SetCollisionFilteringBits(*player.body, CollisionBits::playerBit, CollisionBits::all);
-		player.setPosition({ -10.0f, 0.0f });
+		player.setPosition(position);
+		player.setRotation(angle);
 
 		Globals::Components().renderingSetups().emplace_back([
 			colorUniform = Uniforms::UniformController4f()

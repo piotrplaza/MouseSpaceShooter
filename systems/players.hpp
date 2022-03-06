@@ -68,7 +68,7 @@ namespace Systems
 
 		void initGraphics();
 
-		void turn(Components::Player& player, glm::vec2 controllerDelta) const;
+		void turn(Components::Player& player, glm::vec2 controllerDelta, bool autoRotation) const;
 		void throttle(Components::Player& player, bool active) const;
 		void magneticHook(Components::Player& player, bool active);
 		void createGrappleJoint(Components::Player& player) const;
