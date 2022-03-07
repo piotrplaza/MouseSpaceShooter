@@ -16,7 +16,7 @@ uniform float invisibleColorThreshold;
 
 void main()
 {
-	const vec4 baseColor = texture(textures[0], vTexCoord[0] + vec2(0.5));
+	const vec4 baseColor = texture(textures[0], vTexCoord[0]);
 	const vec4 alternateColor = vec4(vec3(1.0) - vec3(baseColor), 1.0);
 	const vec4 finalBaseColor = distance(vec3(baseColor), invisibleColor) < length(vec3(1.0, 1.0, 1.0)) * invisibleColorThreshold
 		? alternateColor : baseColor;
@@ -32,7 +32,7 @@ void main()
 		vec4 accumulatedColor = vec4(0.0);
 
 		for (int i = 1; i < numOfTextures; ++i)
-			accumulatedColor += finalBlendingColor[i - 1] * texture(textures[i], vTexCoord[i] + vec2(0.5));
+			accumulatedColor += finalBlendingColor[i - 1] * texture(textures[i], vTexCoord[i]);
 
 		fColor = vec4((accumulatedColor / (colorAccumulation ? 1 : (numOfTextures - 1))).rgb,
 			alphaFromBlendingTexture

@@ -19,8 +19,8 @@ namespace Shaders
 				addBlendingColor(program, "addBlendingColor"),
 				numOfTextures(program, "numOfTextures"),
 				textures(program, "textures"),
-				texturesTranslate(program, "texturesTranslate"),
-				texturesScale(program, "texturesScale"),
+				texturesBaseTransform(program, "texturesBaseTransform"),
+				texturesCustomTransform(program, "texturesCustomTransform"),
 				alphaFromBlendingTexture(program, "alphaFromBlendingTexture"),
 				colorAccumulation(program, "colorAccumulation"),
 				invisibleColor(program, "invisibleColor"),
@@ -35,8 +35,8 @@ namespace Shaders
 			Uniforms::UniformController4f addBlendingColor;
 			Uniforms::UniformController1i numOfTextures;
 			Uniforms::UniformController1iv<5> textures;
-			Uniforms::UniformController2fv<5> texturesTranslate;
-			Uniforms::UniformController2fv<5> texturesScale;
+			Uniforms::UniformControllerMat4fv<5> texturesBaseTransform;
+			Uniforms::UniformControllerMat4fv<5> texturesCustomTransform;
 			Uniforms::UniformController1b alphaFromBlendingTexture;
 			Uniforms::UniformController1b colorAccumulation;
 			Uniforms::UniformController3f invisibleColor;
@@ -55,8 +55,8 @@ namespace Shaders
 				mulBlendingColor(glm::vec4(1.0f));
 				addBlendingColor(glm::vec4(0.0f));
 				numOfTextures(1);
-				texturesTranslate(glm::vec2(0.0f));
-				texturesScale(glm::vec2(1.0f));
+				texturesBaseTransform(glm::mat4(1.0f));
+				texturesCustomTransform(glm::mat4(1.0f));
 				alphaFromBlendingTexture(false);
 				colorAccumulation(false);
 				invisibleColor(glm::vec3(0.0f));

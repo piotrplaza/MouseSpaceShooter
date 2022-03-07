@@ -78,7 +78,7 @@ namespace Systems
 		void updateConnectionsGraphicsBuffers();
 
 		void basicRender() const;
-		void sceneCoordTexturedRender() const;
+		void texturedRender() const;
 		void customShadersRender() const;
 		void coloredRender() const;
 

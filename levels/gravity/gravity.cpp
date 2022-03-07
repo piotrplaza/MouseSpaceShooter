@@ -57,12 +57,12 @@ namespace Levels
 
 			rocketPlaneTexture = textures.size();
 			textures.emplace_back("textures/rocket plane.png");
-			textures.back().translate = glm::vec2(0.15f, 0.0f);
-			textures.back().scale = glm::vec2(1.7f);
+			textures.back().translate = glm::vec2(0.4f, 0.0f);
+			textures.back().scale = glm::vec2(1.6f, 1.8f);
 
 			spaceRockTexture = textures.size();
 			textures.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT);
-			textures.back().scale = glm::vec2(20.0f);
+			textures.back().scale = glm::vec2(5.0f);
 
 			woodTexture = textures.size();
 			textures.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
@@ -100,49 +100,22 @@ namespace Levels
 
 			explosionTexture = textures.size();
 			textures.emplace_back("textures/explosion.png");
-
-			foiledEggsTexture = textures.size();
-			textures.emplace_back("textures/foiled eggs.jpg", GL_MIRRORED_REPEAT);
-			textures.back().scale = glm::vec2(100.0f, 100.0f);
-
-			fractalTexture = textures.size();
-			textures.emplace_back("textures/fractal.jpg", GL_MIRRORED_REPEAT);
-			textures.back().scale = glm::vec2(50.0f, 50.0f);
-
-			mosaicTexture = textures.size();
-			textures.emplace_back("textures/mosaic.jpg", GL_MIRRORED_REPEAT);
-			textures.back().scale = glm::vec2(50.0f, 50.0f);
-
-			ppTexture = textures.size();
-			textures.emplace_back("textures/pp.png");
-
-			skullTexture = textures.size();
-			textures.emplace_back("textures/skull_rot.png");
-			textures.back().translate = glm::vec2(0.04f, 0.47f);
-			textures.back().scale = glm::vec2(0.48f, 0.44f);
-
-			avatarTexture = textures.size();
-			textures.emplace_back("textures/avatar_rot.png");
-			textures.back().translate = glm::vec2(0.08f, 0.495f);
-			textures.back().scale = glm::vec2(0.24f, 0.32f);
-			textures.back().darkToTransparent = true;
 		}
 
 		void setAnimations()
 		{
 			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
 			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
-				flame1AnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
-				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
-				{ 4.1f, 1.65f }, { 1.0f, 1.0f }));
-			Globals::Components().animatedTextures().back().start();
+				flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
+			Globals::Components().animatedTextures().back().start(true);
 
-			flame2AnimatedTexture = Globals::Components().animatedTextures().size();
+			/*flame2AnimatedTexture = Globals::Components().animatedTextures().size();
 			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
 				flame1AnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
 				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
 				{ 4.1f, 2.0f }, { 1.2f, -1.2f }));
-			Globals::Components().animatedTextures().back().start();
+			Globals::Components().animatedTextures().back().start();*/
 		}
 
 		void createBackground()
@@ -303,15 +276,8 @@ namespace Levels
 		unsigned missile1Texture = 0;
 		unsigned missile2Texture = 0;
 		unsigned explosionTexture = 0;
-		unsigned foiledEggsTexture = 0;
-		unsigned fractalTexture = 0;
-		unsigned mosaicTexture = 0;
-		unsigned ppTexture = 0;
-		unsigned skullTexture = 0;
-		unsigned avatarTexture = 0;
 
 		unsigned flame1AnimatedTexture = 0;
-		unsigned flame2AnimatedTexture = 0;
 
 		Tools::PlayerPlaneHandler player1Handler;
 

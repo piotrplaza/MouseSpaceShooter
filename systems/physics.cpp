@@ -8,6 +8,7 @@
 namespace
 {
 	constexpr float debugFrameDuration = 1.0f / 144;
+	constexpr float gameSpeed = 1.0f;
 
 	class ContactListener : public b2ContactListener
 	{
@@ -48,7 +49,7 @@ namespace Systems
 		auto& physics = Globals::Components().physics();
 
 #ifndef _DEBUG 
-		const auto simulationDuration = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - startTime).count() - pauseDuration;
+		const auto simulationDuration = (std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - startTime).count() - pauseDuration) * gameSpeed;
 		physics.frameDuration = simulationDuration - physics.simulationDuration;
 		physics.simulationDuration = simulationDuration;
 #else

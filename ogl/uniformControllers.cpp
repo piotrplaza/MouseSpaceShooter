@@ -1,7 +1,5 @@
 #include "uniformControllers.hpp"
 
-#include <glm/gtc/type_ptr.hpp>
-
 namespace Uniforms
 {
 	UniformController::UniformController() = default;

@@ -1,29 +1,41 @@
 #include "animatedTexture.hpp"
 
 #include <tools/glmHelpers.hpp>
+#include <tools/graphicsHelpers.hpp>
+
+#include <tools/utility.hpp>
+
+#include <ogl/renderingHelpers.hpp>
 
 #include <components/physics.hpp>
+#include <components/texture.hpp>
+
+#include <globals/components.hpp>
+
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <iostream>
+using namespace std;
 
 namespace Components
 {
-	AnimatedTexture::AnimatedTexture(
-		unsigned textureId, glm::ivec2 imageSize, glm::ivec2 startPosition, glm::ivec2 frameSize, glm::ivec2 framesGrid, glm::vec2 frameStep, float frameDuration,
-		int numOfFrames, AnimationLayout animationLayout, AnimationPlayback animationPlayback, AnimationPolicy animationPolicy, glm::vec2 translate, glm::vec2 scale) :
+	AnimatedTexture::AnimatedTexture(unsigned textureId, glm::ivec2 textureSize, glm::ivec2 framesGrid, glm::ivec2 leftTopFrameLeftTopCorner, int rightTopFrameLeftEdge, int leftBottomFrameTopEdge,
+		glm::ivec2 frameSize, float frameDuration, int numOfFrames, int startFrame, AnimationDirection animationDirection, AnimationPolicy animationPolicy, TextureLayout textureLayout):
 		textureId(textureId),
-		imageSize(imageSize),
-		startPosition(startPosition.x, -startPosition.y),
 		framesGrid(framesGrid),
-		frameStep(frameStep),
+		leftTopFrameLeftTopCorner(glm::vec2(leftTopFrameLeftTopCorner) / textureSize),
+		rightTopFrameLeftEdge((float)rightTopFrameLeftEdge / textureSize.x),
+		leftBottomFrameTopEdge((float)leftBottomFrameTopEdge / textureSize.y),
+		frameScale(glm::vec2(textureSize) / frameSize),
 		frameDuration(frameDuration),
-		numOfFrames(numOfFrames == 0 ? framesGrid.x * framesGrid.y : numOfFrames),
-		animationLayout(animationLayout),
-		animationPlayback(animationPlayback),
+		numOfFrames(numOfFrames),
+		startFrame(startFrame),
+		animationDirection(animationDirection),
 		animationPolicy(animationPolicy),
-		translate(translate),
-		scale(scale),
-		textureScale(glm::vec2(imageSize) / frameSize),
-		frameScale(glm::vec2(frameSize) / imageSize)
+		textureLayout(textureLayout),
+		hFrameSize(glm::vec2(frameSize) / textureSize)
 	{
+		assert(startFrame >= 0 && startFrame < numOfFrames);
 	}
 
 	unsigned AnimatedTexture::getTextureId() const
@@ -31,60 +43,100 @@ namespace Components
 		return textureId;
 	}
 
-	AnimatedTexture::FrameTransformation AnimatedTexture::getFrameTransformation() const
+	glm::mat4 AnimatedTexture::getFrameTransformation()
 	{
-		if (prevDuration && !pauseDuration)
+		const auto frameLocation = getFrameLocation();
+		const glm::vec2 delta((rightTopFrameLeftEdge - leftTopFrameLeftTopCorner.x) / (framesGrid.x - 1),
+			(leftBottomFrameTopEdge - leftTopFrameLeftTopCorner.y) / (framesGrid.y - 1));
+		const auto hFrameSize = 1.0f / frameScale * 0.5f;
+		const auto translate = glm::translate(glm::mat4(1.0f), glm::vec3(leftTopFrameLeftTopCorner +
+			glm::vec2(delta.x * frameLocation.x + hFrameSize.x - 0.5f, -delta.y * frameLocation.y - hFrameSize.y + 0.5f), 0.0f));
+
+		return glm::scale(translate, glm::vec3(1.0f / frameScale, 1.0f)) * additionalTransform;
+	}
+
+	void AnimatedTexture::start(bool value)
+	{
+		started = value;
+		animationTime = 0.0f;
+		paused = false;
+		prevSimDuration = started * Globals::Components().physics().simulationDuration;
+	}
+
+	bool AnimatedTexture::isStarted() const
+	{
+		return started;
+	}
+
+	void AnimatedTexture::pause(bool value)
+	{
+		paused = value;
+	}
+
+	bool AnimatedTexture::isPaused() const
+	{
+		return paused;
+	}
+
+	void AnimatedTexture::setSpeedScaling(float speedScaling)
+	{
+		this->speedScaling = speedScaling;
+	}
+
+	void AnimatedTexture::setAdditionalTransformation(glm::vec2 translate, float angle, glm::vec2 scale)
+	{
+		additionalTransform = Tools::TextureTransform(translate, angle, scale);
+	}
+
+	int AnimatedTexture::getAbsoluteFrame()
+	{
+		if (!started)
+			return 0;
+
+		animationTime += !paused * (Globals::Components().physics().simulationDuration - prevSimDuration) * speedScaling;
+		prevSimDuration = Globals::Components().physics().simulationDuration;
+
+		return int(animationTime / frameDuration);
+	}
+
+	int AnimatedTexture::getCurrentFrame()
+	{
+		const int absoluteFrame = getAbsoluteFrame();
+		const int absoluteFrameWithPolicy = [&]()
 		{
-			animationDuration += (Globals::Components().physics().simulationDuration - *prevDuration) * getDurationScale();
-			prevDuration = Globals::Components().physics().simulationDuration;
-		}
+			auto pingpong = [&]()
+			{
+				const bool backward = (absoluteFrame - 1) / (numOfFrames - 1) % 2;
+				if (backward)
+					return (absoluteFrame - 1) / (numOfFrames - 1) * (numOfFrames - 1) - absoluteFrame + numOfFrames - 1;
+				else
+					return absoluteFrame - (absoluteFrame - 1) / (numOfFrames - 1) * (numOfFrames - 1);
+			};
 
-		int currentFrame = int(animationDuration / frameDuration) % numOfFrames;
-		if (animationDuration < 0.0f) currentFrame += numOfFrames - 1;
-		if (animationPlayback == AnimationPlayback::Backward) currentFrame = numOfFrames - currentFrame - 1;
-		const glm::ivec2 currentFrameInGrid = animationLayout == AnimationLayout::Vertical
-			? glm::ivec2{ currentFrame / framesGrid.y, currentFrame % framesGrid.y }
-		: glm::ivec2{ currentFrame % framesGrid.x, currentFrame / framesGrid.x };
-		const glm::vec2 imageCoord = startPosition + currentFrameInGrid * frameStep;
-		const glm::vec2 frameTranslate =
-			glm::vec2(0.0f, -1.0f) - glm::vec2(imageCoord.x, -imageCoord.y) / imageSize
-			- glm::vec2(frameScale.x, -frameScale.y) * 0.5f + translate * frameScale;
-		const glm::vec2 frameScale = glm::vec2(textureScale.x, textureScale.y) * scale;
-		return { frameTranslate, frameScale };
+			switch (animationPolicy)
+			{
+			case AnimationPolicy::Repeat:
+				return absoluteFrame;
+			case AnimationPolicy::Pingpong:
+				return pingpong();
+			case AnimationPolicy::StopOnLastFrame:
+				return absoluteFrame >= numOfFrames
+					? numOfFrames - 1
+					: absoluteFrame;
+			default:
+				assert(!"not implemented");
+				return 0;
+			}
+		}();
+
+		return ((((int)animationDirection * -2 + 1) * absoluteFrameWithPolicy + startFrame) % numOfFrames
+			+ (int)animationDirection * numOfFrames) % numOfFrames;
 	}
 
-	void AnimatedTexture::start()
+	glm::ivec2 AnimatedTexture::getFrameLocation()
 	{
-		animationDuration = 0;
-		prevDuration = Globals::Components().physics().simulationDuration;
-		pauseDuration = std::nullopt;
-	}
+		const int currentFrame = getCurrentFrame();
 
-	void AnimatedTexture::stop()
-	{
-		prevDuration = std::nullopt;
-		pauseDuration = std::nullopt;
-	}
-
-	void AnimatedTexture::pause()
-	{
-		if (!pauseDuration && prevDuration) pauseDuration = Globals::Components().physics().simulationDuration;
-	}
-
-	void AnimatedTexture::resume()
-	{
-		if (pauseDuration && prevDuration)
-			*prevDuration += Globals::Components().physics().simulationDuration - *pauseDuration;
-		pauseDuration = std::nullopt;
-	}
-
-	void AnimatedTexture::setDurationScale(float durationScale)
-	{
-		this->durationScale = durationScale;
-	}
-
-	float AnimatedTexture::getDurationScale() const
-	{
-		return durationScale;
+		return { currentFrame % framesGrid.x, currentFrame / framesGrid.x };
 	}
 }

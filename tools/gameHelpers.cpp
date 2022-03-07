@@ -35,7 +35,7 @@ namespace Tools
 		PlayerPlaneHandler playerPlaneHandler;
 
 		playerPlaneHandler.playerId = Globals::Components().players().size();
-		auto& player = Globals::Components().players().emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f), TCM::Texture(planeTexture));
+		auto& player = Globals::Components().players().emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f, 0.5f), TCM::Texture(planeTexture));
 		SetCollisionFilteringBits(*player.body, CollisionBits::playerBit, CollisionBits::all);
 		player.setPosition(position);
 		player.setRotation(angle);
@@ -56,7 +56,7 @@ namespace Tools
 			auto& animationTexture = Globals::Components().animatedTextures().back();
 
 			playerPlaneHandler.backThrustsIds[i] = Globals::Components().farMidgroundDecorations().size();
-			auto& decoration = Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }),
+			auto& decoration = Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }),
 				TCM::AnimatedTexture(flameAnimatedTexture));
 
 			Globals::Components().renderingSetups().emplace_back([&, i, modelUniform = Uniforms::UniformControllerMat4f(),
@@ -64,9 +64,9 @@ namespace Tools
 				](Shaders::ProgramId program) mutable {
 					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
 					modelUniform(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*player.body),
-						{ -0.9f, i == 0 ? -0.42f : 0.42f, 0.0f }),
+						{ -1.0f - thrustScale * 0.25f, i == 0 ? -0.5f : 0.5f, 0.0f }),
 						-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
-						{ std::min(thrustScale * 0.5f, 0.7f), thrustScale, 1.0f }));
+						{ std::min(thrustScale * 0.5f, 0.6f), thrustScale, 1.0f }));
 
 					const float targetFrameDurationFactor = Globals::Components().physics().frameDuration * 6;
 					if (player.throttling) thrustScale = std::min(thrustScale * (1.0f + targetFrameDurationFactor), 5.0f);
@@ -150,17 +150,17 @@ namespace Tools
 
 		auto& animationTexture = Globals::Components().animatedTextures().back();
 
-		auto& decoration = EmplaceIdComponent(Globals::Components().temporaryFarMidgroundDecorations(), { Tools::CreatePositionsOfRectangle({ 0.0f, -0.45f }, { 0.5f, 0.5f }),
-			TCM::AnimatedTexture(flameAnimatedTexture) });
+		auto& decoration = EmplaceIdComponent(Globals::Components().temporaryFarMidgroundDecorations(), { Tools::CreatePositionsOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
+			TCM::AnimatedTexture(flameAnimatedTexture), Tools::CreateTexCoordOfRectangle() });
 
 		Globals::Components().renderingSetups().emplace_back([&, modelUniform = Uniforms::UniformControllerMat4f(),
 			thrustScale = 0.1f
 			](Shaders::ProgramId program) mutable {
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
 				modelUniform(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*missile.body),
-					{ -0.65f, 0.0f, 0.0f }),
-					-glm::half_pi<float>() + 0.0f, { 0.0f, 0.0f, 1.0f }),
-					{ std::min(thrustScale * 0.2f, 0.4f), thrustScale, 1.0f }));
+					{ -0.5f, 0.0f, 0.0f }),
+					-glm::half_pi<float>(), { 0.0f, 0.0f, 1.0f }),
+					{ std::min(thrustScale * 0.2f, 0.3f), thrustScale, 1.0f }));
 
 				const float targetFrameDurationFactor = Globals::Components().physics().frameDuration * 6.0f;
 				thrustScale = std::min(thrustScale * (1.0f + targetFrameDurationFactor), 3.0f);

@@ -39,8 +39,8 @@ namespace Levels
 
 			rocketPlaneTexture = textures.size();
 			textures.emplace_back("textures/rocket plane.png");
-			textures.back().translate = glm::vec2(0.15f, 0.0f);
-			textures.back().scale = glm::vec2(1.7f);
+			textures.back().translate = glm::vec2(0.4f, 0.0f);
+			textures.back().scale = glm::vec2(1.6f, 1.8f);
 
 			woodTexture = textures.size();
 			textures.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
@@ -62,10 +62,9 @@ namespace Levels
 		{
 			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
 			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
-				flame1AnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
-				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
-				{ 4.1f, 1.65f }, { 1.0f, 1.0f }));
-			Globals::Components().animatedTextures().back().start();
+				flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
+			Globals::Components().animatedTextures().back().start(true);
 		}
 
 		void createBackground() const

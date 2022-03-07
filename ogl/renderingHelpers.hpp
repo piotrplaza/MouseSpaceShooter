@@ -16,9 +16,6 @@
 
 #include <GL/glew.h>
 
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <functional>
 #include <optional>
 #include <array>
@@ -40,22 +37,17 @@ namespace Tools
 
 		shadersProgram.numOfTextures(1);
 		shadersProgram.textures(0, textureId);
-		shadersProgram.texturesTranslate(0, textureComponent.translate);
-		shadersProgram.texturesScale(0,
-			{ (textureRatioPreserved ? (float)textureComponent.loaded.size.x / textureComponent.loaded.size.y : 1.0f)
-			* textureComponent.scale.x, textureComponent.scale.y });
+		shadersProgram.texturesBaseTransform(0, TextureTransform(textureComponent, textureRatioPreserved));
 	}
 
 	template <typename ShadersProgram>
 	inline void AnimatedTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned animatedTextureId)
 	{
-		const auto& animationTextureComponent = Globals::Components().animatedTextures()[animatedTextureId];
+		auto& animationTextureComponent = Globals::Components().animatedTextures()[animatedTextureId];
 
 		shadersProgram.numOfTextures(1);
 		shadersProgram.textures(0, animationTextureComponent.getTextureId());
-		const auto frameTransformation = animationTextureComponent.getFrameTransformation();
-		shadersProgram.texturesTranslate(0, frameTransformation.translate);
-		shadersProgram.texturesScale(0, frameTransformation.scale);
+		shadersProgram.texturesBaseTransform(0, animationTextureComponent.getFrameTransformation());
 	}
 
 	template <typename ShadersProgram>
@@ -77,10 +69,7 @@ namespace Tools
 			const auto& textureComponent = Globals::Components().textures()[textureId];
 
 			shadersProgram.textures(i, textureId);
-			shadersProgram.texturesTranslate(i, textureComponent.translate);
-			shadersProgram.texturesScale(i,
-				{ (textureRatioPreserved ? (float)textureComponent.loaded.size.x / textureComponent.loaded.size.y : 1.0f)
-				* textureComponent.scale.x, textureComponent.scale.y });
+			shadersProgram.texturesBaseTransform(i, TextureTransform(textureComponent, textureRatioPreserved));
 		}
 	}
 
@@ -185,8 +174,7 @@ namespace Tools
 		shadersProgram.color(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 		shadersProgram.numOfTextures(1);
 		shadersProgram.textures(0, texture);
-		shadersProgram.texturesTranslate(0, glm::vec2(0.0f));
-		shadersProgram.texturesScale(0, glm::vec2(1.0f));
+		shadersProgram.texturesBaseTransform(0, glm::mat4(1.0f));
 
 		if (customSetup)
 			customSetup();

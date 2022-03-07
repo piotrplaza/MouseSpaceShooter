@@ -57,20 +57,20 @@ namespace Levels
 
 			rocketPlaneTexture = textures.size();
 			textures.emplace_back("textures/rocket plane.png");
-			textures.back().translate = glm::vec2(0.15f, 0.0f);
-			textures.back().scale = glm::vec2(1.7f);
+			textures.back().translate = glm::vec2(0.4f, 0.0f);
+			textures.back().scale = glm::vec2(1.6f, 1.8f);
 
 			spaceRockTexture = textures.size();
 			textures.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT);
-			textures.back().scale = glm::vec2(20.0f);
+			textures.back().scale = glm::vec2(5.0f);
 
 			woodTexture = textures.size();
 			textures.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
-			textures.back().scale = glm::vec2(16.0f);
+			textures.back().scale = glm::vec2(5.0f);
 
 			orbTexture = textures.size();
 			textures.emplace_back("textures/orb.png");
-			textures.back().scale = glm::vec2(4.0f);
+			textures.back().scale = glm::vec2(2.0f);
 
 			weedTexture = textures.size();
 			textures.emplace_back("textures/weed.png");
@@ -111,19 +111,19 @@ namespace Levels
 
 			mosaicTexture = textures.size();
 			textures.emplace_back("textures/mosaic.jpg", GL_MIRRORED_REPEAT);
-			textures.back().scale = glm::vec2(50.0f, 50.0f);
+			textures.back().scale = glm::vec2(1.0f, 1.0f);
 
 			ppTexture = textures.size();
 			textures.emplace_back("textures/pp.png");
 
 			skullTexture = textures.size();
 			textures.emplace_back("textures/skull_rot.png");
-			textures.back().translate = glm::vec2(0.04f, 0.47f);
-			textures.back().scale = glm::vec2(0.48f, 0.44f);
+			textures.back().translate = glm::vec2(0.02f, 0.21f);
+			textures.back().scale = glm::vec2(0.46f, 0.44f);
 
 			avatarTexture = textures.size();
 			textures.emplace_back("textures/avatar_rot.png");
-			textures.back().translate = glm::vec2(0.08f, 0.495f);
+			textures.back().translate = glm::vec2(0.02f, 0.16f);
 			textures.back().scale = glm::vec2(0.24f, 0.32f);
 			textures.back().darkToTransparent = true;
 		}
@@ -132,22 +132,18 @@ namespace Levels
 		{
 			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
 			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
-				flame1AnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
-				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
-				{ 4.1f, 1.65f }, { 1.0f, 1.0f }));
-			Globals::Components().animatedTextures().back().start();
+				flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
+			Globals::Components().animatedTextures().back().start(true);
 
 			flame2AnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
-				flame1AnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
-				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
-				{ 4.1f, 2.0f }, { 1.2f, -1.2f }));
-			Globals::Components().animatedTextures().back().start();
+			Globals::Components().animatedTextures().push_back(Globals::Components().animatedTextures().back());
+			Globals::Components().animatedTextures().back().setAdditionalTransformation({ 0.0f, 0.0f }, glm::pi<float>());
 		}
 
 		void createBackground()
 		{
-			Tools::CreateJuliaBackground(juliaShaders, []() { return Globals::Components().players()[1].getCenter() * 0.0001f; });
+			Tools::CreateJuliaBackground(Globals::Shaders().julia(), []() { return Globals::Components().players()[1].getCenter() * 0.0001f; });
 		}
 
 		void createForeground()
@@ -212,24 +208,22 @@ namespace Levels
 
 		void createDynamicWalls()
 		{
+			Globals::Components().renderingSetups().emplace_back([
+				texturesCustomTransformUniform = Uniforms::UniformControllerMat4f()
+			](Shaders::ProgramId program) mutable {
+					if (!texturesCustomTransformUniform.isValid()) texturesCustomTransformUniform = Uniforms::UniformControllerMat4f(program, "texturesCustomTransform");
+					const float simulationDuration = Globals::Components().physics().simulationDuration;
+					texturesCustomTransformUniform(Tools::TextureTransform(glm::vec2(glm::cos(simulationDuration), glm::sin(simulationDuration)) * 0.1f ));
+					return [=]() mutable { texturesCustomTransformUniform(glm::mat4(1.0f)); };
+				});
+
 			auto& wall1 = *Globals::Components().dynamicWalls().emplace_back(
-				Tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture)).body;
+				Tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture), Globals::Components().renderingSetups().size() - 1).body;
 			auto& wall2 = *Globals::Components().dynamicWalls().emplace_back(
 				Tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture)).body;
 			wall1.GetFixtureList()->SetRestitution(0.5f);
 			wall2.GetFixtureList()->SetRestitution(0.5f);
 			Tools::PinBodies(wall1, wall2, { 5.0f, 0.0f });
-
-			Globals::Components().renderingSetups().emplace_back([
-				texturesTranslateUniform = Uniforms::UniformController2f()
-				](Shaders::ProgramId program) mutable {
-					if (!texturesTranslateUniform.isValid()) texturesTranslateUniform = Uniforms::UniformController2f(program, "texturesTranslate");
-					const float simulationDuration = Globals::Components().physics().simulationDuration;
-					texturesTranslateUniform({ glm::cos(simulationDuration * 0.1f), glm::sin(simulationDuration * 0.1f) });
-					return nullptr;
-				});
-
-			std::prev(Globals::Components().dynamicWalls().end(), 2)->renderingSetup = Globals::Components().renderingSetups().size() - 1;
 
 			for (int i = 1; i <= 2; ++i)
 			{
@@ -254,20 +248,22 @@ namespace Levels
 			for (const float pos : {-30.0f, 30.0f})
 			{
 				Globals::Components().renderingSetups().emplace_back([=, this](auto) {
-						Tools::MVPInitialization(texturedColorThresholdShaders);
+						Tools::MVPInitialization(Globals::Shaders().texturedColorThreshold());
 						if (pos < 0.0f)
-							Tools::StaticTexturedRenderInitialization(texturedColorThresholdShaders, orbTexture, true);
+						{
+							Tools::StaticTexturedRenderInitialization(Globals::Shaders().texturedColorThreshold(), orbTexture, true);
+							Globals::Shaders().texturedColorThreshold().texturesCustomTransform(Tools::TextureTransform({ 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }));
+						}
 						else
-							Tools::BlendingTexturedRenderInitialization(texturedColorThresholdShaders, blendingTexture, true);
+							Tools::BlendingTexturedRenderInitialization(Globals::Shaders().texturedColorThreshold(), blendingTexture, true);
 						const float simulationDuration = Globals::Components().physics().simulationDuration;
-						texturedColorThresholdShaders.invisibleColor({ 0.0f, 0.0f, 0.0f });
-						texturedColorThresholdShaders.invisibleColorThreshold((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
-						texturedColorThresholdShaders.texturesScale(glm::vec3(10.0f, 10.0f, 1.0f));
-						return nullptr;
+						Globals::Shaders().texturedColorThreshold().invisibleColor({ 0.0f, 0.0f, 0.0f });
+						Globals::Shaders().texturedColorThreshold().invisibleColorThreshold((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
+						return [=]() mutable { Globals::Shaders().texturedColorThreshold().texturesCustomTransform(glm::mat4(1.0f)); };
 					});
 
 				Globals::Components().dynamicWalls().emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), TCM::Texture(),
-					Globals::Components().renderingSetups().size() - 1, texturedColorThresholdShaders.getProgramId());
+					Globals::Components().renderingSetups().size() - 1, Globals::Shaders().texturedColorThreshold().getProgramId());
 
 				Globals::Components().renderingSetups().emplace_back([
 						basicProgram = Shaders::Programs::BasicAccessor()
@@ -362,10 +358,19 @@ namespace Levels
 					return nullptr;
 				});
 
-			Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f, TCM::Texture(orbTexture), Globals::Components().renderingSetups().size() - 1);
+			Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), 15.0f, TCM::Texture(orbTexture),
+				Globals::Components().renderingSetups().size() - 1);
+
+			Globals::Components().renderingSetups().emplace_back([
+				texturesCustomTransformUniform = Uniforms::UniformControllerMat4f()
+			](Shaders::ProgramId program) mutable {
+					if (!texturesCustomTransformUniform.isValid()) texturesCustomTransformUniform = Uniforms::UniformControllerMat4f(program, "texturesCustomTransform");
+					texturesCustomTransformUniform(Tools::TextureTransform({ 0.0f, 0.0f }, 0.0f, { 2.0f, 2.0f }));
+					return [=]() mutable { texturesCustomTransformUniform(glm::mat4(1.0f)); };
+				});
 
 			Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), 30.0f,
-				TCM::Texture(orbTexture));
+				TCM::Texture(orbTexture), Globals::Components().renderingSetups().size() - 1);
 
 			Globals::Components().renderingSetups().emplace_back([
 				colorUniform = Uniforms::UniformController4f()
@@ -414,7 +419,7 @@ namespace Levels
 						const auto& otherFixture = fixture == &fixtureA ? fixtureB : fixtureA;
 						const auto& body = *fixture->GetBody();
 						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(body).bodyComponentVariant).id);
-						Tools::CreateExplosion(particlesShaders, ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture, 1.0f, 64, 4,
+						Tools::CreateExplosion(Globals::Shaders().particles(), ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture, 1.0f, 64, 4,
 							lowResBodies.count(otherFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1);
 
 						explosionFrame = true;
@@ -449,10 +454,6 @@ namespace Levels
 		}
 
 	private:
-		Shaders::Programs::Julia juliaShaders;
-		Shaders::Programs::TexturedColorThreshold texturedColorThresholdShaders;
-		Shaders::Programs::Particles particlesShaders;
-
 		unsigned rocketPlaneTexture = 0;
 		unsigned spaceRockTexture = 0;
 		unsigned woodTexture = 0;

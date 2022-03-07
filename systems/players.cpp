@@ -64,7 +64,7 @@ namespace Systems
 	{
 		basicRender();
 		coloredRender();
-		sceneCoordTexturedRender();
+		texturedRender();
 		customShadersRender();
 	}
 
@@ -161,7 +161,7 @@ namespace Systems
 		}
 	}
 
-	void Players::sceneCoordTexturedRender() const
+	void Players::texturedRender() const
 	{
 		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
 		Globals::Shaders().textured().vp(Globals::Components().mvp().getVP());

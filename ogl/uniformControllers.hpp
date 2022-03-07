@@ -10,6 +10,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <array>
 
@@ -154,5 +155,37 @@ namespace Uniforms
 		using UniformController::UniformController;
 
 		void operator ()(glm::mat4 value);
+	};
+
+	template <unsigned Size>
+	class UniformControllerMat4fv : public UniformController
+	{
+	public:
+		using UniformController::UniformController;
+
+		void operator ()(glm::mat4 value)
+		{
+			assert(isValid());
+			glUseProgram_proxy(programId);
+			std::array<glm::mat4, Size> values;
+			values.fill(value);
+			glUniformMatrix4fv(uniformId, Size, GL_FALSE, glm::value_ptr(values[0]));
+		}
+
+		void operator ()(unsigned index, glm::mat4 value)
+		{
+			assert(isValid());
+			assert(index < Size);
+			glUseProgram_proxy(programId);
+			glUniformMatrix4fv(uniformId + index, 1, GL_FALSE, glm::value_ptr(value));
+		}
+
+		void operator ()(const std::array<glm::mat4, Size>& values)
+		{
+			assert(isValid());
+			assert(values.size() == Size);
+			glUseProgram_proxy(programId);
+			glUniformMatrix4fv(uniformId, Size, GL_FALSE, values.data());
+		}
 	};
 }

@@ -34,7 +34,7 @@ using Body = std::unique_ptr<b2Body, b2BodyDeleter>;
 
 namespace Tools
 {
-	Body CreateTrianglePlayerBody(float size, float density, float spreadFactor = 0.5f);
+	Body CreateTrianglePlayerBody(float size, float density, float spreadFactor);
 	Body CreateBoxBody(glm::vec2 position, glm::vec2 hSize, float angle = 0.0f,
 		b2BodyType bodyType = b2_staticBody, float density = 1.0f, float restitution = 0.1f, float friction = 0.2f);
 	Body CreateCircleBody(glm::vec2 position, float radius,
