@@ -303,7 +303,7 @@ namespace Levels
 			lowResBodies.insert(Globals::Components().dynamicWalls().back().body.get());
 		}
 
-		void createStaticWalls() const
+		void createStaticWalls()
 		{
 			const float levelHSize = 50.0f;
 			const float bordersHGauge = 100.0f;
@@ -311,15 +311,26 @@ namespace Levels
 			const auto renderingSetup = Globals::Components().renderingSetups().size();
 			Globals::Components().renderingSetups().emplace_back([
 				alphaFromBlendingTextureUniform = Uniforms::UniformController1b(),
-				colorAccumulationUniform = Uniforms::UniformController1b()
+					colorAccumulationUniform = Uniforms::UniformController1b(),
+					texturesCustomTransform = Uniforms::UniformControllerMat4fv<5>(),
+					this
 			](Shaders::ProgramId program) mutable {
 				if (!alphaFromBlendingTextureUniform.isValid())
 					alphaFromBlendingTextureUniform = Uniforms::UniformController1b(program, "alphaFromBlendingTexture");
 				if (!colorAccumulationUniform.isValid())
 					colorAccumulationUniform = Uniforms::UniformController1b(program, "colorAccumulation");
+				if (!texturesCustomTransform.isValid())
+					texturesCustomTransform = Uniforms::UniformControllerMat4fv<5>(program, "texturesCustomTransform");
 
 				alphaFromBlendingTextureUniform(true);
 				colorAccumulationUniform(true);
+
+				texturesCustomTransform(0, glm::rotate(glm::mat4(1.0f), -textureAngle, { 0.0f, 0.0f, 1.0f }));
+
+				for (int i = 1; i < 4; ++i)
+				{
+					texturesCustomTransform(i, glm::rotate(glm::mat4(1.0f), textureAngle * i / 4, { 0.0f, 0.0f, 1.0f }));
+				}
 
 				return [=]() mutable
 				{
@@ -451,6 +462,8 @@ namespace Levels
 
 			projectionHSizeBase = std::clamp(projectionHSizeBase + (prevWheel - Globals::Components().mouseState().wheel) * 5.0f, 5.0f, 100.0f);
 			prevWheel = Globals::Components().mouseState().wheel;
+
+			//textureAngle += Globals::Components().physics().frameDuration * 0.05f;
 		}
 
 	private:
@@ -485,6 +498,7 @@ namespace Levels
 		bool explosionFrame = false;
 
 		float fogAlphaFactor = 1.0f;
+		float textureAngle = 0.0f;
 
 		std::unordered_map<ComponentId, Tools::MissileHandler> missilesToHandlers;
 		std::unordered_set<const b2Body*> lowResBodies;
