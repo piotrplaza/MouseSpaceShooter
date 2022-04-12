@@ -26,7 +26,8 @@ namespace Buffers
 		numOfAllocatedTexCoord(other.numOfAllocatedTexCoord),
 		drawMode(other.drawMode),
 		bufferDataUsage(other.bufferDataUsage),
-		allocatedBufferDataUsage(std::move(other.allocatedBufferDataUsage))
+		allocatedBufferDataUsage(std::move(other.allocatedBufferDataUsage)),
+		textureRatioPreserved(other.textureRatioPreserved)
 	{
 		other.expired = true;
 	}

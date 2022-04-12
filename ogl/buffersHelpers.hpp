@@ -105,6 +105,7 @@ namespace Tools
 
 			buffers.drawMode = component.drawMode;
 			buffers.bufferDataUsage = component.bufferDataUsage;
+			buffers.textureRatioPreserved = component.isTextureRatioPreserved();
 
 			const auto& transformedPositions = component.getTransformedPositions();
 			buffers.positionsCache.insert(buffers.positionsCache.end(),
