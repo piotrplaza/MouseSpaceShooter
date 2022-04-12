@@ -52,7 +52,7 @@ namespace Systems
 		glBindTexture(GL_TEXTURE_2D, texture.loaded.textureObject);
 
 		auto& textureCache = pathsToTexturesCache[texture.path];
-		if (!textureCache.channels)
+		if (!textureCache.channels || textureCache.premultipliedAlpha != texture.premultipliedAlpha || textureCache.darkToTransparent != texture.darkToTransparent)
 		{
 			textureCache.channels.reset(stbi_loadf(texture.path.c_str(), &textureCache.size.x, &textureCache.size.y, &textureCache.bitDepth, 0));
 			if (!textureCache.channels)
@@ -60,26 +60,26 @@ namespace Systems
 				assert(!"Unable to load image.");
 				throw std::runtime_error("Unable to load image \"" + texture.path + "\".");
 			}
+
+			if (textureCache.bitDepth == 4 && (texture.premultipliedAlpha || texture.darkToTransparent))
+			{
+				for (int i = 0; i < textureCache.size.x * textureCache.size.y * textureCache.bitDepth; i += 4)
+				{
+					textureCache.channels[i + 3] = (1 - texture.darkToTransparent) * textureCache.channels[i + 3] + texture.darkToTransparent *
+						std::min(1.0f, textureCache.channels[i] + textureCache.channels[i + 1] + textureCache.channels[i + 2]);
+
+					const float premultipliedAlphaFactor = (1 - texture.premultipliedAlpha) + texture.premultipliedAlpha * textureCache.channels[i + 3];
+					textureCache.channels[i] *= premultipliedAlphaFactor;
+					textureCache.channels[i + 1] *= premultipliedAlphaFactor;
+					textureCache.channels[i + 2] *= premultipliedAlphaFactor;
+				}
+			}
 		}
 		texture.loaded.size.x = textureCache.size.x;
 		texture.loaded.size.y = textureCache.size.y;
 		texture.loaded.bitDepth = textureCache.bitDepth;
 
 		const GLint format = texture.loaded.bitDepth == 4 ? GL_RGBA : texture.loaded.bitDepth == 3 ? GL_RGB : texture.loaded.bitDepth == 2 ? GL_RG : GL_RED;
-
-		if (format == GL_RGBA && (texture.premultipliedAlpha || texture.darkToTransparent))
-		{
-			for (int i = 0; i < textureCache.size.x * textureCache.size.y * textureCache.bitDepth; i += 4)
-			{
-				textureCache.channels[i + 3] = (1 - texture.darkToTransparent) * textureCache.channels[i + 3] + texture.darkToTransparent *
-					std::min(1.0f, textureCache.channels[i] + textureCache.channels[i + 1] + textureCache.channels[i + 2]);
-
-				const float premultipliedAlphaFactor = (1 - texture.premultipliedAlpha) + texture.premultipliedAlpha * textureCache.channels[i + 3];
-				textureCache.channels[i] *= premultipliedAlphaFactor;
-				textureCache.channels[i + 1] *= premultipliedAlphaFactor;
-				textureCache.channels[i + 2] *= premultipliedAlphaFactor;
-			}
-		}
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture.wrapMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture.wrapMode);
