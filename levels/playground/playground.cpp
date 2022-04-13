@@ -124,7 +124,7 @@ namespace Levels
 			avatarTexture = textures.size();
 			textures.emplace_back("textures/avatar_rot.png");
 			textures.back().translate = glm::vec2(0.02f, 0.16f);
-			textures.back().scale = glm::vec2(0.24f, 0.32f);
+			textures.back().scale = glm::vec2(0.29f, 0.32f);
 			textures.back().darkToTransparent = true;
 		}
 
@@ -172,25 +172,30 @@ namespace Levels
 			const auto blendingTexture = Globals::Components().blendingTextures().size();
 			Globals::Components().blendingTextures().push_back({ { flame2AnimatedTexture, ppTexture, skullTexture, avatarTexture }, true });
 
-			glm::vec2 portraitCenter(40.0f, -40.0f);
-			Globals::Components().renderingSetups().emplace_back([=,
-				addBlendingColor = Uniforms::UniformController4f()
-			](Shaders::ProgramId program) mutable {
+			for (int i = 0; i < 2; ++i)
+			{
+				glm::vec2 portraitCenter(i == 0 ? -40.0f : 40.0f, -40.0f);
+				Globals::Components().renderingSetups().emplace_back([=,
+					addBlendingColor = Uniforms::UniformController4f()
+				](Shaders::ProgramId program) mutable {
 					if (!addBlendingColor.isValid())
 						addBlendingColor = Uniforms::UniformController4f(program, "addBlendingColor");
-					
+
 					const float skullOpacity = fogAlphaFactor - 1.0f;
 					const float avatarOpacity = glm::min(0.0f, glm::distance(Globals::Components().players()[1].getCenter(), portraitCenter) / 3.0f - 5.0f);
 
-					addBlendingColor({ 1.0f, skullOpacity, avatarOpacity, 0.0f });
-					
+					i == 0
+						? addBlendingColor({ 1.0f, skullOpacity, avatarOpacity, 0.0f })
+						: addBlendingColor({ 0.0f, 0.0f, 1.0f, 0.0f });
+
 					return [=]() mutable {
 						addBlendingColor({ 0.0f, 0.0f, 0.0f, 0.0f });
 					};
 				});
 
-			Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle(portraitCenter, { 10.0f, 10.0f }),
-				TCM::BlendingTexture(blendingTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1).preserveTextureRatio = true;
+				Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle(portraitCenter, { 10.0f, 10.0f }),
+					TCM::BlendingTexture(blendingTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1).preserveTextureRatio = true;
+			}
 		}
 
 		void createPlayers()
