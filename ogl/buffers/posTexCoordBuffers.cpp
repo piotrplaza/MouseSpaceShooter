@@ -27,7 +27,7 @@ namespace Buffers
 		drawMode(other.drawMode),
 		bufferDataUsage(other.bufferDataUsage),
 		allocatedBufferDataUsage(std::move(other.allocatedBufferDataUsage)),
-		textureRatioPreserved(other.textureRatioPreserved)
+		preserveTextureRatio(other.preserveTextureRatio)
 	{
 		other.expired = true;
 	}

@@ -39,6 +39,7 @@ namespace Tools
 		SetCollisionFilteringBits(*player.body, CollisionBits::playerBit, CollisionBits::all);
 		player.setPosition(position);
 		player.setRotation(angle);
+		player.preserveTextureRatio = true;
 
 		Globals::Components().renderingSetups().emplace_back([
 			colorUniform = Uniforms::UniformController4f()
@@ -127,6 +128,7 @@ namespace Tools
 		body.SetBullet(true);
 		body.SetLinearVelocity({ initialVelocity.x, initialVelocity.y });
 		missile.texture = TCM::Texture(missileTexture);
+		missile.preserveTextureRatio = true;
 
 		Globals::Components().renderingSetups().emplace_back([
 			modelUniform = Uniforms::UniformControllerMat4f(), &body](Shaders::ProgramId program) mutable
@@ -138,13 +140,8 @@ namespace Tools
 
 		missile.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 
-		missile.step = [&body, force, launchTime = Globals::Components().physics().simulationDuration, fullCollisions = false]() mutable
+		missile.step = [&body, force, launchTime = Globals::Components().physics().simulationDuration]() mutable
 		{
-			if (!fullCollisions && (Globals::Components().physics().simulationDuration - launchTime) > 0.5f)
-			{
-				SetCollisionFilteringBits(body, CollisionBits::missileBit, CollisionBits::all);
-				fullCollisions = true;
-			}
 			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
 		};
 

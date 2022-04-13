@@ -189,8 +189,8 @@ namespace Levels
 					};
 				});
 
-			Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle(portraitCenter, { 9.0f, 10.0f }),
-				TCM::BlendingTexture(blendingTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
+			Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle(portraitCenter, { 10.0f, 10.0f }),
+				TCM::BlendingTexture(blendingTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1).preserveTextureRatio = true;
 		}
 
 		void createPlayers()
@@ -343,13 +343,13 @@ namespace Levels
 			Globals::Components().blendingTextures().push_back({ fractalTexture, woodTexture, spaceRockTexture, foiledEggsTexture });
 
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ -levelHSize - bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture), renderingSetup);
+				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture), renderingSetup).preserveTextureRatio = true;
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ levelHSize + bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture), renderingSetup);
+				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture), renderingSetup).preserveTextureRatio = true;
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize - bordersHGauge },
-				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture), renderingSetup);
+				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture), renderingSetup).preserveTextureRatio = true;
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize + bordersHGauge },
-				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture), renderingSetup);
+				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture), renderingSetup).preserveTextureRatio = true;
 
 			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f },
 				{ { -levelHSize, -levelHSize }, { levelHSize, -levelHSize }, { levelHSize, levelHSize }, { -levelHSize, levelHSize }, { -levelHSize, -levelHSize } },

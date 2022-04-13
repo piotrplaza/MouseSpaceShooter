@@ -48,6 +48,8 @@ namespace Components
 		GLenum drawMode = GL_TRIANGLES;
 		GLenum bufferDataUsage = GL_STATIC_DRAW;
 
+		bool preserveTextureRatio = false;
+
 		const std::vector<glm::vec3>& getPositions() const
 		{
 			return positions;
@@ -73,11 +75,6 @@ namespace Components
 				assert(texCoord.size() == positions.size());
 				return texCoord;
 			}
-		}
-
-		bool isTextureRatioPreserved() const
-		{
-			return texCoord.empty();
 		}
 	};
 }

@@ -43,7 +43,7 @@ namespace Buffers
 		GLenum bufferDataUsage = GL_STATIC_DRAW;
 		std::optional<GLenum> allocatedBufferDataUsage;
 
-		bool textureRatioPreserved = false;
+		bool preserveTextureRatio = false;
 
 		bool expired = false;
 	};

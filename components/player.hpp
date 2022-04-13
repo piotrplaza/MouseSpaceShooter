@@ -60,6 +60,8 @@ namespace Components
 
 		GLenum drawMode = GL_TRIANGLES;
 		GLenum bufferDataUsage = GL_DYNAMIC_DRAW;
+
+		bool preserveTextureRatio = false;
 		
 		void setPosition(const glm::vec2& position)
 		{
@@ -131,11 +133,6 @@ namespace Components
 		glm::mat4 getModelMatrix() const
 		{
 			return Tools::GetModelMatrix(*body);
-		}
-
-		bool isTextureRatioPreserved() const
-		{
-			return true;
 		}
 	};
 }

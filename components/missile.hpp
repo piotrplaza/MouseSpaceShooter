@@ -47,6 +47,8 @@ namespace Components
 		static constexpr GLenum drawMode = GL_TRIANGLES;
 		static constexpr GLenum bufferDataUsage = GL_STATIC_DRAW;
 
+		bool preserveTextureRatio = false;
+
 		glm::vec2 getCenter() const
 		{
 			return ToVec2<glm::vec2>(body->GetWorldCenter());
@@ -71,11 +73,6 @@ namespace Components
 		glm::mat4 getModelMatrix() const
 		{
 			return Tools::GetModelMatrix(*body);
-		}
-
-		bool isTextureRatioPreserved() const
-		{
-			return true;
 		}
 	};
 }

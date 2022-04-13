@@ -37,12 +37,12 @@ namespace Tools
 	}
 
 	template <typename TextureComponent>
-	inline glm::mat4 TextureTransform(const TextureComponent& textureComponent, bool textureRatioPreserved)
+	inline glm::mat4 TextureTransform(const TextureComponent& textureComponent, bool preserveTextureRatio)
 	{
 		return
 			glm::translate(
 				glm::scale(glm::mat4(1.0f), glm::vec3(
-					(textureRatioPreserved ? (float)textureComponent.loaded.size.y / textureComponent.loaded.size.x : 1.0f)
+					(preserveTextureRatio ? (float)textureComponent.loaded.size.y / textureComponent.loaded.size.x : 1.0f)
 					* 1.0f / textureComponent.scale.x, 1.0f / textureComponent.scale.y, 1.0f)),
 				glm::vec3(-textureComponent.translate, 0.0f));
 	}

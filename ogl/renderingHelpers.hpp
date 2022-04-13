@@ -31,13 +31,13 @@ namespace Tools
 	}
 
 	template <typename ShadersProgram>
-	inline void StaticTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned textureId, bool textureRatioPreserved)
+	inline void StaticTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned textureId, bool preserveTextureRatio)
 	{
 		const auto& textureComponent = Globals::Components().textures()[textureId];
 
 		shadersProgram.numOfTextures(1);
 		shadersProgram.textures(0, textureId);
-		shadersProgram.texturesBaseTransform(0, TextureTransform(textureComponent, textureRatioPreserved));
+		shadersProgram.texturesBaseTransform(0, TextureTransform(textureComponent, preserveTextureRatio));
 	}
 
 	template <typename ShadersProgram>
@@ -51,7 +51,7 @@ namespace Tools
 	}
 
 	template <typename ShadersProgram>
-	inline void BlendingTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned blendingTextureId, bool textureRatioPreserved)
+	inline void BlendingTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned blendingTextureId, bool preserveTextureRatio)
 	{
 		const auto& blendingTextureComponent = Globals::Components().blendingTextures()[blendingTextureId];
 
@@ -69,7 +69,7 @@ namespace Tools
 			const auto& textureComponent = Globals::Components().textures()[textureId];
 
 			shadersProgram.textures(i, textureId);
-			shadersProgram.texturesBaseTransform(i, TextureTransform(textureComponent, textureRatioPreserved));
+			shadersProgram.texturesBaseTransform(i, TextureTransform(textureComponent, preserveTextureRatio));
 		}
 	}
 
@@ -77,15 +77,15 @@ namespace Tools
 	class TexturedRenderInitializationVisitor
 	{
 	public:
-		TexturedRenderInitializationVisitor(ShadersProgram& shadersProgram, bool textureRatioPreserved):
+		TexturedRenderInitializationVisitor(ShadersProgram& shadersProgram, bool preserveTextureRatio):
 			shadersProgram(shadersProgram),
-			textureRatioPreserved(textureRatioPreserved)
+			preserveTextureRatio(preserveTextureRatio)
 		{
 		}
 
 		void operator ()(TCM::Texture texture)
 		{
-			StaticTexturedRenderInitialization(shadersProgram, texture.id, textureRatioPreserved);
+			StaticTexturedRenderInitialization(shadersProgram, texture.id, preserveTextureRatio);
 		}
 
 		void operator ()(TCM::AnimatedTexture animatedTexture)
@@ -95,7 +95,7 @@ namespace Tools
 
 		void operator ()(TCM::BlendingTexture blendingTexture)
 		{
-			BlendingTexturedRenderInitialization(shadersProgram, blendingTexture.id, textureRatioPreserved);
+			BlendingTexturedRenderInitialization(shadersProgram, blendingTexture.id, preserveTextureRatio);
 		}
 
 		void operator ()(std::monostate)
@@ -105,13 +105,13 @@ namespace Tools
 
 	private:
 		ShadersProgram& shadersProgram;
-		bool textureRatioPreserved;
+		bool preserveTextureRatio;
 	};
 
 	template <typename ShadersProgram, typename Buffers>
 	inline void TexturedRender(ShadersProgram& shadersProgram, const Buffers& buffers, const TextureComponentVariant& texture)
 	{
-		std::visit(TexturedRenderInitializationVisitor{ shadersProgram, buffers.textureRatioPreserved }, texture);
+		std::visit(TexturedRenderInitializationVisitor{ shadersProgram, buffers.preserveTextureRatio }, texture);
 
 		std::function<void()> renderingTeardown;
 		if (buffers.renderingSetup)

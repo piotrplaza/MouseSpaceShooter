@@ -105,7 +105,7 @@ namespace Tools
 
 			buffers.drawMode = component.drawMode;
 			buffers.bufferDataUsage = component.bufferDataUsage;
-			buffers.textureRatioPreserved = component.isTextureRatioPreserved();
+			buffers.preserveTextureRatio = component.preserveTextureRatio;
 
 			const auto& transformedPositions = component.getTransformedPositions();
 			buffers.positionsCache.insert(buffers.positionsCache.end(),
@@ -187,7 +187,7 @@ namespace Tools
 				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
 				const auto& texCoord = component.getTexCoord();
 				buffers.texCoordCache.insert(buffers.texCoordCache.end(), texCoord.begin(), texCoord.end());
-				buffers.textureRatioPreserved = component.isTextureRatioPreserved();
+				buffers.preserveTextureRatio = component.preserveTextureRatio;
 
 				buffers.drawMode = component.drawMode;
 				buffers.bufferDataUsage = component.bufferDataUsage;
@@ -219,7 +219,7 @@ namespace Tools
 				auto& buffers = Detail::ReuseOrEmplaceBack(relevantBuffers, relevantBuffersIt);
 				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
 				buffers.texCoordCache = component.getTexCoord();
-				buffers.textureRatioPreserved = component.isTextureRatioPreserved();
+				buffers.preserveTextureRatio = component.preserveTextureRatio;
 
 				buffers.drawMode = component.drawMode;
 				buffers.bufferDataUsage = component.bufferDataUsage;
@@ -270,7 +270,7 @@ namespace Tools
 			{
 				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
 				buffers.texCoordCache = component.getTexCoord();
-				buffers.textureRatioPreserved = component.isTextureRatioPreserved();
+				buffers.preserveTextureRatio = component.preserveTextureRatio;
 				Detail::AllocateOrUpdateTexCoordData(buffers);
 			}
 
