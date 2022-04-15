@@ -99,7 +99,7 @@ namespace Systems
 			if (connection.segmentsNum > 1)
 				connection.segmentsNum = std::max((int)glm::distance(connection.p1, connection.p2) * 2, 2);
 
-			const auto positions = connection.getPositions();
+			const auto positions = connection.getBodyPositions();
 			connectionsBuffers->positionsCache.insert(connectionsBuffers->positionsCache.end(),
 				positions.begin(), positions.end());
 
@@ -380,7 +380,7 @@ namespace Systems
 		glDeleteVertexArrays(1, &vertexArray);
 	}
 
-	std::vector<glm::vec3> Players::Connection::getPositions() const
+	std::vector<glm::vec3> Players::Connection::getBodyPositions() const
 	{
 		if (segmentsNum == 1) return { { p1, 0.0f }, { p2, 0.0f } };
 		else return Tools::CreatePositionsOfLightning(p1, p2, segmentsNum, frayFactor);

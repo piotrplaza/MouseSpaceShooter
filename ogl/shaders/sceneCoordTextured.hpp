@@ -23,7 +23,10 @@ namespace Shaders
 				texturesCustomTransform(program, "texturesCustomTransform"),
 				alphaFromBlendingTexture(program, "alphaFromBlendingTexture"),
 				colorAccumulation(program, "colorAccumulation"),
-				textureCoordBasedOnModelTransform(program, "textureCoordBasedOnModelTransform")
+				textureCoordBasedOnModelTransform(program, "textureCoordBasedOnModelTransform"),
+				numOfPlayers(program, "numOfPlayers"),
+				playersCenter(program, "playersCenter"),
+				playerUnhidingRadius(program, "playerUnhidingRadius")
 			{
 			}
 
@@ -39,6 +42,9 @@ namespace Shaders
 			Uniforms::UniformController1b alphaFromBlendingTexture;
 			Uniforms::UniformController1b colorAccumulation;
 			Uniforms::UniformController1b textureCoordBasedOnModelTransform;
+			Uniforms::UniformController1i numOfPlayers;
+			Uniforms::UniformController2fv<4> playersCenter;
+			Uniforms::UniformController1f playerUnhidingRadius;
 		};
 
 		struct SceneCoordTextured: SceneCoordTexturedAccessor
@@ -58,6 +64,9 @@ namespace Shaders
 				alphaFromBlendingTexture(false);
 				colorAccumulation(false);
 				textureCoordBasedOnModelTransform(false);
+				numOfPlayers(0);
+				playersCenter(glm::vec2(0.0f, 0.0f));
+				playerUnhidingRadius(0.0f);
 			}
 
 			SceneCoordTextured(const SceneCoordTextured&) = delete;

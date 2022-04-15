@@ -12,6 +12,7 @@ namespace Systems
 
 		void postInit() const;
 		void frameSetup() const;
+		void renderSetup() const;
 		void frameTeardown() const;
 		void changeWindowSize(glm::ivec2 size) const;
 		void changeWindowLocation(glm::ivec2 location) const;

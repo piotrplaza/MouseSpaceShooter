@@ -11,7 +11,11 @@
 #include <components/texture.hpp>
 #include <components/functor.hpp>
 
+#include <ogl/shaders/textured.hpp>
+#include <ogl/shaders/sceneCoordTextured.hpp>
+
 #include <globals/components.hpp>
+#include <globals/shaders.hpp>
 
 namespace
 {
@@ -43,11 +47,20 @@ namespace Systems
 			frameSetup();
 	}
 
+	void StateController::renderSetup() const
+	{
+		Globals::Shaders().textured().numOfPlayers(Globals::Components().players().size() - 1);
+		Globals::Shaders().sceneCoordTextured().numOfPlayers(Globals::Components().players().size() - 1);
+
+		for (int i = 1; i < (int)Globals::Components().players().size(); ++i)
+		{
+			Globals::Shaders().textured().playersCenter(i - 1, Globals::Components().players()[i].getCenter());
+			Globals::Shaders().sceneCoordTextured().playersCenter(i - 1, Globals::Components().players()[i].getCenter());
+		}
+	}
+
 	void StateController::frameTeardown() const
 	{
-		for (auto& [id, frameTeardown] : Globals::Components().frameTeardowns())
-			frameTeardown();
-
 		Globals::ForEach(Globals::Components().players(), [](auto& player) {
 			player.previousCenter = player.getCenter();
 			});
@@ -55,6 +68,9 @@ namespace Systems
 		Globals::ForEach(Globals::Components().grapples(), [](auto& grapple) {
 			grapple.previousCenter = grapple.getCenter();
 			});
+
+		for (auto& [id, frameTeardown] : Globals::Components().frameTeardowns())
+			frameTeardown();
 	}
 
 	void StateController::changeWindowSize(glm::ivec2 size) const

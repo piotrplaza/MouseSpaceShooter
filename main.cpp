@@ -104,6 +104,8 @@ void PrepareFrame()
 
 	activeLevel->step();
 
+	Globals::Systems().stateController().renderSetup();
+
 	Globals::Systems().renderingController().render();
 
 	Globals::Systems().stateController().frameTeardown();

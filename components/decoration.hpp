@@ -50,7 +50,7 @@ namespace Components
 
 		bool preserveTextureRatio = false;
 
-		const std::vector<glm::vec3>& getPositions() const
+		const std::vector<glm::vec3>& getBodyPositions() const
 		{
 			return positions;
 		}
@@ -59,7 +59,7 @@ namespace Components
 		{
 			if (texCoord.empty())
 			{
-				const auto positions = getPositions();
+				const auto positions = getBodyPositions();
 				return std::vector<glm::vec2>(positions.begin(), positions.end());
 			}
 			else if (texCoord.size() < positions.size())

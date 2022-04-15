@@ -107,7 +107,7 @@ namespace Tools
 			buffers.bufferDataUsage = component.bufferDataUsage;
 			buffers.preserveTextureRatio = component.preserveTextureRatio;
 
-			const auto& transformedPositions = component.getTransformedPositions();
+			const auto& transformedPositions = component.getTransformedBodyPositions();
 			buffers.positionsCache.insert(buffers.positionsCache.end(),
 				transformedPositions.begin(), transformedPositions.end());
 			});
@@ -141,7 +141,7 @@ namespace Tools
 					return Detail::ReuseOrEmplaceBack(simpleBuffers, simpleBuffersIt);
 			}();
 
-			const auto& positions = component.getPositions();
+			const auto& positions = component.getBodyPositions();
 			buffers.renderingSetup = component.renderingSetup;
 			buffers.texture = component.texture;
 			buffers.customShadersProgram = component.customShadersProgram;
@@ -258,7 +258,7 @@ namespace Tools
 			buffers.renderingSetup = component.renderingSetup;
 			buffers.texture = component.texture;
 			buffers.customShadersProgram = component.customShadersProgram;
-			buffers.positionsCache = component.getPositions();
+			buffers.positionsCache = component.getBodyPositions();
 			buffers.resolutionMode = component.resolutionMode;
 
 			buffers.drawMode = component.drawMode;

@@ -313,7 +313,7 @@ namespace Levels
 			const float levelHSize = 50.0f;
 			const float bordersHGauge = 100.0f;
 
-			const auto renderingSetup = Globals::Components().renderingSetups().size();
+			auto renderingSetup = Globals::Components().renderingSetups().size();
 			Globals::Components().renderingSetups().emplace_back([
 				alphaFromBlendingTextureUniform = Uniforms::UniformController1b(),
 					colorAccumulationUniform = Uniforms::UniformController1b(),
@@ -356,9 +356,25 @@ namespace Levels
 			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize + bordersHGauge },
 				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture), renderingSetup).preserveTextureRatio = true;
 
+			renderingSetup = Globals::Components().renderingSetups().size();
+			Globals::Components().renderingSetups().emplace_back([
+				playerUnhidingRadiusUniform = Uniforms::UniformController1f(),
+				this
+			](Shaders::ProgramId program) mutable {
+					if (!playerUnhidingRadiusUniform.isValid())
+						playerUnhidingRadiusUniform = Uniforms::UniformController1f(program, "playerUnhidingRadius");
+
+					playerUnhidingRadiusUniform(20.0f);
+
+					return [=]() mutable
+					{
+						playerUnhidingRadiusUniform(0.0f);
+					};
+				});
+
 			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f },
 				{ { -levelHSize, -levelHSize }, { levelHSize, -levelHSize }, { levelHSize, levelHSize }, { -levelHSize, levelHSize }, { -levelHSize, -levelHSize } },
-				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture), Tools::CreateTexCoordOfRectangle());
+				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture), Tools::CreateTexCoordOfRectangle(), renderingSetup);
 			//Globals::Components().nearMidgroundDecorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
 		}
 
