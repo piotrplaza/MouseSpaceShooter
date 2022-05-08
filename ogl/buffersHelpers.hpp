@@ -15,46 +15,6 @@ namespace Tools
 	namespace Detail
 	{
 		template <typename Buffers>
-		void AllocateOrUpdatePositionsData(Buffers& buffers)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, buffers.positionBuffer);
-			if (buffers.numOfAllocatedPositions < buffers.positionsCache.size() || !buffers.allocatedBufferDataUsage || *buffers.allocatedBufferDataUsage != buffers.bufferDataUsage)
-			{
-				glBufferData(GL_ARRAY_BUFFER, buffers.positionsCache.size()
-					* sizeof(buffers.positionsCache.front()),
-					buffers.positionsCache.data(), buffers.bufferDataUsage);
-				buffers.numOfAllocatedPositions = buffers.positionsCache.size();
-				buffers.allocatedBufferDataUsage = buffers.bufferDataUsage;
-			}
-			else
-			{
-				glBufferSubData(GL_ARRAY_BUFFER, 0, buffers.positionsCache.size()
-					* sizeof(buffers.positionsCache.front()),
-					buffers.positionsCache.data());
-			}
-		}
-
-		template <typename Buffers>
-		void AllocateOrUpdateTexCoordData(Buffers& buffers)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, *buffers.texCoordBuffer);
-			if (buffers.numOfAllocatedTexCoord < buffers.texCoordCache.size() || !buffers.allocatedBufferDataUsage || *buffers.allocatedBufferDataUsage != buffers.bufferDataUsage)
-			{
-				glBufferData(GL_ARRAY_BUFFER, buffers.texCoordCache.size()
-					* sizeof(buffers.texCoordCache.front()),
-					buffers.texCoordCache.data(), buffers.bufferDataUsage);
-				buffers.numOfAllocatedTexCoord = buffers.texCoordCache.size();
-				buffers.allocatedBufferDataUsage = buffers.bufferDataUsage;
-			}
-			else
-			{
-				glBufferSubData(GL_ARRAY_BUFFER, 0, buffers.texCoordCache.size()
-					* sizeof(buffers.texCoordCache.front()),
-					buffers.texCoordCache.data());
-			}
-		}
-
-		template <typename Buffers>
 		Buffers& ReuseOrEmplaceBack(std::vector<Buffers>& buffers, typename std::vector<Buffers>::iterator& it)
 		{
 			return it == buffers.end()
@@ -68,33 +28,55 @@ namespace Tools
 		std::unordered_map<TextureComponentVariant, Buffers>& texturesToBuffers, std::vector<Buffers>& customSimpleBuffers,
 		std::vector<Buffers>& customTexturedBuffers, std::vector<Buffers>& customShadersBuffers)
 	{
-		simpleBuffers.positionsCache.clear();
-		for (auto& [texture, buffers] : texturesToBuffers) buffers.positionsCache.clear();
-		for (auto& buffers: customSimpleBuffers) buffers.positionsCache.clear();
-		for (auto& buffers: customTexturedBuffers) buffers.positionsCache.clear();
-		for (auto& buffers: customShadersBuffers) buffers.positionsCache.clear();
+		std::vector<glm::vec3> simpleBuffersPositions;
+		std::vector<glm::vec3> texturesToBuffersPositions;
+		std::vector<glm::vec3> customSimpleBuffersPositions;
+		std::vector<glm::vec3> customTexturedBuffersPositions;
+		std::vector<glm::vec3> customShadersBuffersPositions;
 
 		auto customSimpleBuffersIt = customSimpleBuffers.begin();
 		auto customTexturedBuffersIt = customTexturedBuffers.begin();
 		auto customShadersBuffersIt = customShadersBuffers.begin();
 
 		Globals::ForEach(components, [&](auto& component) {
+			const auto& transformedPositions = component.getTransformedVertexPositions();
+
 			auto& buffers = [&]() -> auto& {
 				if (component.customShadersProgram)
+				{
+					customShadersBuffersPositions.insert(customShadersBuffersPositions.end(),
+						transformedPositions.begin(), transformedPositions.end());
 					return Detail::ReuseOrEmplaceBack(customShadersBuffers, customShadersBuffersIt);
+				}
 				else if (!std::holds_alternative<std::monostate>(component.texture))
 				{
 					if (component.renderingSetup)
+					{
+						customTexturedBuffersPositions.insert(customTexturedBuffersPositions.end(),
+							transformedPositions.begin(), transformedPositions.end());
 						return Detail::ReuseOrEmplaceBack(customTexturedBuffers, customTexturedBuffersIt);
+					}
 					else
+					{
+						texturesToBuffersPositions.insert(texturesToBuffersPositions.end(),
+							transformedPositions.begin(), transformedPositions.end());
 						return texturesToBuffers[component.texture];
+					}
 				}
 				else
 				{
 					if (component.renderingSetup)
+					{
+						customSimpleBuffersPositions.insert(customSimpleBuffersPositions.end(),
+							transformedPositions.begin(), transformedPositions.end());
 						return Detail::ReuseOrEmplaceBack(customSimpleBuffers, customSimpleBuffersIt);
+					}
 					else
+					{
+						simpleBuffersPositions.insert(simpleBuffersPositions.end(),
+							transformedPositions.begin(), transformedPositions.end());
 						return simpleBuffers;
+					}
 				}
 			}();
 
@@ -106,21 +88,21 @@ namespace Tools
 			buffers.drawMode = component.drawMode;
 			buffers.bufferDataUsage = component.bufferDataUsage;
 			buffers.preserveTextureRatio = component.preserveTextureRatio;
-
-			const auto& transformedPositions = component.getTransformedBodyPositions();
-			buffers.positionsCache.insert(buffers.positionsCache.end(),
-				transformedPositions.begin(), transformedPositions.end());
 			});
 
 		customSimpleBuffers.resize(std::distance(customSimpleBuffers.begin(), customSimpleBuffersIt));
 		customTexturedBuffers.resize(std::distance(customTexturedBuffers.begin(), customTexturedBuffersIt));
 		customShadersBuffers.resize(std::distance(customShadersBuffers.begin(), customShadersBuffersIt));
 
-		Detail::AllocateOrUpdatePositionsData(simpleBuffers);
-		for (auto& [texture, buffers] : texturesToBuffers) Detail::AllocateOrUpdatePositionsData(buffers);
-		for (auto& buffers : customSimpleBuffers) Detail::AllocateOrUpdatePositionsData(buffers);
-		for (auto& buffers : customTexturedBuffers) Detail::AllocateOrUpdatePositionsData(buffers);
-		for (auto& buffers : customShadersBuffers) Detail::AllocateOrUpdatePositionsData(buffers);
+		simpleBuffers.allocateOrUpdatePositionsBuffer(simpleBuffersPositions);
+		for (auto& [texture, buffers] : texturesToBuffers)
+			buffers.allocateOrUpdatePositionsBuffer(texturesToBuffersPositions);
+		for (auto& buffers : customSimpleBuffers)
+			buffers.allocateOrUpdatePositionsBuffer(customSimpleBuffersPositions);
+		for (auto& buffers : customTexturedBuffers)
+			buffers.allocateOrUpdatePositionsBuffer(customTexturedBuffersPositions);
+		for (auto& buffers : customShadersBuffers)
+			buffers.allocateOrUpdatePositionsBuffer(customShadersBuffersPositions);
 	}
 
 	template <typename Component, typename Buffers>
@@ -141,18 +123,13 @@ namespace Tools
 					return Detail::ReuseOrEmplaceBack(simpleBuffers, simpleBuffersIt);
 			}();
 
-			const auto& positions = component.getBodyPositions();
+			buffers.allocateOrUpdatePositionsBuffer(component.getVertexPositions());
 			buffers.renderingSetup = component.renderingSetup;
 			buffers.texture = component.texture;
 			buffers.customShadersProgram = component.customShadersProgram;
-			buffers.positionsCache.clear();
-			buffers.positionsCache.insert(buffers.positionsCache.end(), positions.begin(), positions.end());
 			buffers.resolutionMode = component.resolutionMode;
-
 			buffers.drawMode = component.drawMode;
 			buffers.bufferDataUsage = component.bufferDataUsage;
-
-			Detail::AllocateOrUpdatePositionsData(buffers);
 			});
 
 		simpleBuffers.resize(std::distance(simpleBuffers.begin(), simpleBuffersIt));
@@ -165,38 +142,50 @@ namespace Tools
 		std::unordered_map<TextureComponentVariant, Buffers>& texturesToBuffers, std::vector<Buffers>& customTexturedBuffers,
 		std::vector<Buffers>& customShadersTexturedBuffers)
 	{
-		for (auto& [texture, buffers] : texturesToBuffers) buffers.texCoordCache.clear();
-		for (auto& buffers : customTexturedBuffers) buffers.texCoordCache.clear();
-		for (auto& buffers : customShadersTexturedBuffers) buffers.texCoordCache.clear();
+		std::vector<glm::vec2> texturesToBuffersTexCoord;
+		std::vector<glm::vec2> customTexturedBuffersTexCoord;
+		std::vector<glm::vec2> customShadersTexturedBuffersTexCoord;
 
 		auto customTexturedBuffersIt = customTexturedBuffers.begin();
 		auto customShadersBuffersIt = customShadersTexturedBuffers.begin();
 
 		Globals::ForEach(components, [&](const auto& component) {
+			const auto& texCoord = component.getTexCoord();
 			if (!std::holds_alternative<std::monostate>(component.texture))
 			{
 				auto& buffers = [&]() -> auto& {
 					if (component.customShadersProgram)
+					{
+						customShadersTexturedBuffersTexCoord.insert(customShadersTexturedBuffersTexCoord.end(),
+							texCoord.begin(), texCoord.end());
 						return Detail::ReuseOrEmplaceBack(customShadersTexturedBuffers, customShadersBuffersIt);
+					}
 					else if (component.renderingSetup)
+					{
+						customTexturedBuffersTexCoord.insert(customTexturedBuffersTexCoord.end(),
+							texCoord.begin(), texCoord.end());
 						return Detail::ReuseOrEmplaceBack(customTexturedBuffers, customTexturedBuffersIt);
+					}
 					else
+					{
+						texturesToBuffersTexCoord.insert(texturesToBuffersTexCoord.end(),
+							texCoord.begin(), texCoord.end());
 						return texturesToBuffers[component.texture];
+					}
 				}();
 
-				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
-				const auto& texCoord = component.getTexCoord();
-				buffers.texCoordCache.insert(buffers.texCoordCache.end(), texCoord.begin(), texCoord.end());
 				buffers.preserveTextureRatio = component.preserveTextureRatio;
-
 				buffers.drawMode = component.drawMode;
 				buffers.bufferDataUsage = component.bufferDataUsage;
 			}
 			});
 
-		for (auto& [texture, buffers] : texturesToBuffers) Detail::AllocateOrUpdateTexCoordData(buffers);
-		for (auto& buffers : customTexturedBuffers) Detail::AllocateOrUpdateTexCoordData(buffers);
-		for (auto& buffers : customShadersTexturedBuffers) Detail::AllocateOrUpdateTexCoordData(buffers);
+		for (auto& [texture, buffers] : texturesToBuffers)
+			buffers.allocateOrUpdateTexCoordBuffer(texturesToBuffersTexCoord);
+		for (auto& buffers : customTexturedBuffers)
+			buffers.allocateOrUpdateTexCoordBuffer(customTexturedBuffersTexCoord);
+		for (auto& buffers : customShadersTexturedBuffers)
+			buffers.allocateOrUpdateTexCoordBuffer(customShadersTexturedBuffersTexCoord);
 	}
 
 	template <typename Component, typename Buffers>
@@ -217,14 +206,10 @@ namespace Tools
 					: texturedBuffersIt;
 
 				auto& buffers = Detail::ReuseOrEmplaceBack(relevantBuffers, relevantBuffersIt);
-				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
-				buffers.texCoordCache = component.getTexCoord();
+				buffers.allocateOrUpdateTexCoordBuffer(component.getTexCoord());
 				buffers.preserveTextureRatio = component.preserveTextureRatio;
-
 				buffers.drawMode = component.drawMode;
 				buffers.bufferDataUsage = component.bufferDataUsage;
-
-				Detail::AllocateOrUpdateTexCoordData(buffers);
 			}
 			});
 	}
@@ -255,23 +240,18 @@ namespace Tools
 			}
 
 			auto& buffers = mapOfBuffers[id];
+			buffers.allocateOrUpdatePositionsBuffer(component.getVertexPositions());
 			buffers.renderingSetup = component.renderingSetup;
 			buffers.texture = component.texture;
 			buffers.customShadersProgram = component.customShadersProgram;
-			buffers.positionsCache = component.getBodyPositions();
 			buffers.resolutionMode = component.resolutionMode;
-
 			buffers.drawMode = component.drawMode;
 			buffers.bufferDataUsage = component.bufferDataUsage;
 
-			Detail::AllocateOrUpdatePositionsData(buffers);
-
 			if (!std::holds_alternative<std::monostate>(component.texture))
 			{
-				if (!buffers.texCoordBuffer) buffers.createTexCoordBuffer();
-				buffers.texCoordCache = component.getTexCoord();
+				buffers.allocateOrUpdateTexCoordBuffer(component.getTexCoord());
 				buffers.preserveTextureRatio = component.preserveTextureRatio;
-				Detail::AllocateOrUpdateTexCoordData(buffers);
 			}
 
 			component.state = ComponentState::Ongoing;

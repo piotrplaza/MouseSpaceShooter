@@ -53,19 +53,19 @@ namespace Components
 			return ToVec2<glm::vec2>(body->GetWorldCenter());
 		}
 
-		std::vector<glm::vec3> getBodyPositions() const
+		std::vector<glm::vec3> getVertexPositions() const
 		{
-			return Tools::GetPositions(*body);
+			return Tools::GetVertices(*body);
 		}
 
-		std::vector<glm::vec3> getTransformedBodyPositions() const
+		std::vector<glm::vec3> getTransformedVertexPositions() const
 		{
-			return Tools::Transform(getBodyPositions(), getModelMatrix());
+			return Tools::Transform(getVertexPositions(), getModelMatrix());
 		}
 
 		const std::vector<glm::vec2> getTexCoord() const
 		{
-			const auto positions = getBodyPositions();
+			const auto positions = getVertexPositions();
 			return std::vector<glm::vec2>(positions.begin(), positions.end());
 		}
 

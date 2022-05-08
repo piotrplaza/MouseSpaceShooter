@@ -131,7 +131,7 @@ namespace Tools
 			bodyTransform.q.GetAngle(), { 0.0f, 0.0f, 1.0f });
 	}
 
-	std::vector<glm::vec3> GetPositions(const b2Body& body)
+	std::vector<glm::vec3> GetVertices(const b2Body& body)
 	{
 		std::vector<glm::vec3> positions;
 
@@ -173,7 +173,7 @@ namespace Tools
 			case b2Shape::e_circle:
 			{
 				const auto& circleShape = static_cast<const b2CircleShape&>(*fixture->GetShape());
-				Tools::AppendPositionsOfCircle(positions, ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity);
+				Tools::AppendVerticesOfCircle(positions, ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity);
 				break;
 			}
 			default:

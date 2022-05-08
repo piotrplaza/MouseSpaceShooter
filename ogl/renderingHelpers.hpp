@@ -117,8 +117,7 @@ namespace Tools
 		if (buffers.renderingSetup)
 			renderingTeardown = Globals::Components().renderingSetups()[buffers.renderingSetup](shadersProgram.getProgramId());
 
-		glBindVertexArray(buffers.vertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, buffers.positionsCache.size());
+		buffers.draw();
 		
 		if (renderingTeardown)
 			renderingTeardown();

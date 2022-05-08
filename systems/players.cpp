@@ -99,7 +99,7 @@ namespace Systems
 			if (connection.segmentsNum > 1)
 				connection.segmentsNum = std::max((int)glm::distance(connection.p1, connection.p2) * 2, 2);
 
-			const auto positions = connection.getBodyPositions();
+			const auto positions = connection.getVertexPositions();
 			connectionsBuffers->positionsCache.insert(connectionsBuffers->positionsCache.end(),
 				positions.begin(), positions.end());
 
@@ -142,8 +142,7 @@ namespace Systems
 		Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
 		Globals::Shaders().basic().model(glm::mat4(1.0f));
 
-		glBindVertexArray(simplePlayersBuffers->positionBuffer);
-		glDrawArrays(GL_TRIANGLES, 0, simplePlayersBuffers->positionsCache.size());
+		simplePlayersBuffers->draw();
 
 		for (const auto& customSimplePlayerBuffers : customSimplePlayersBuffers)
 		{
@@ -153,8 +152,7 @@ namespace Systems
 			std::function<void()> renderingTeardown =
 				Globals::Components().renderingSetups()[customSimplePlayerBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
 
-			glBindVertexArray(customSimplePlayerBuffers.vertexArray);
-			glDrawArrays(GL_TRIANGLES, 0, customSimplePlayerBuffers.positionsCache.size());
+			customSimplePlayerBuffers.draw();
 
 			if (renderingTeardown)
 				renderingTeardown();
@@ -192,8 +190,7 @@ namespace Systems
 			if (currentBuffers.renderingSetup)
 				renderingTeardown = Globals::Components().renderingSetups()[currentBuffers.renderingSetup](*currentBuffers.customShadersProgram);
 
-			glBindVertexArray(currentBuffers.vertexArray);
-			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());
+			currentBuffers.draw();
 
 			if (renderingTeardown)
 				renderingTeardown();
@@ -380,10 +377,10 @@ namespace Systems
 		glDeleteVertexArrays(1, &vertexArray);
 	}
 
-	std::vector<glm::vec3> Players::Connection::getBodyPositions() const
+	std::vector<glm::vec3> Players::Connection::getVertexPositions() const
 	{
 		if (segmentsNum == 1) return { { p1, 0.0f }, { p2, 0.0f } };
-		else return Tools::CreatePositionsOfLightning(p1, p2, segmentsNum, frayFactor);
+		else return Tools::CreateVerticesOfLightning(p1, p2, segmentsNum, frayFactor);
 	}
 
 	std::vector<glm::vec4> Players::Connection::getColors() const

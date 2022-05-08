@@ -23,28 +23,32 @@ namespace Buffers
 
 		~PosTexCoordBuffers();
 
-		void createTexCoordBuffer();
+		void allocateOrUpdatePositionsBuffer(const std::vector<glm::vec3>& positions);
+		void allocateOrUpdateTexCoordBuffer(const std::vector<glm::vec2>& texCoord);
 
-		GLuint vertexArray;
-		GLuint positionBuffer;
+		void draw() const;
 
-		std::optional<GLuint> texCoordBuffer;
 		TextureComponentVariant texture;
 		ComponentId renderingSetup = 0;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;
 
-		std::vector<glm::vec3> positionsCache;
-		std::vector<glm::vec2> texCoordCache;
-		size_t numOfAllocatedPositions = 0;
-		size_t numOfAllocatedTexCoord = 0;
-
 		GLenum drawMode = GL_TRIANGLES;
 		GLenum bufferDataUsage = GL_STATIC_DRAW;
-		std::optional<GLenum> allocatedBufferDataUsage;
 
 		bool preserveTextureRatio = false;
 
+	private:
+		void createTexCoordBuffer();
+
+		GLuint vertexArray;
+		GLuint positionBuffer;
+		std::optional<GLuint> texCoordBuffer;
+		size_t numOfPositions = 0;
+		size_t numOfTexCoord = 0;
+		size_t numOfAllocatedPositions = 0;
+		size_t numOfAllocatedTexCoord = 0;
+		std::optional<GLenum> allocatedBufferDataUsage;
 		bool expired = false;
 	};
 }

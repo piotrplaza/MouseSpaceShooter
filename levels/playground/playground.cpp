@@ -193,7 +193,7 @@ namespace Levels
 					};
 				});
 
-				Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle(portraitCenter, { 10.0f, 10.0f }),
+				Globals::Components().midgroundDecorations().emplace_back(Tools::CreateVerticesOfRectangle(portraitCenter, { 10.0f, 10.0f }),
 					TCM::BlendingTexture(blendingTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1).preserveTextureRatio = true;
 			}
 		}
@@ -241,7 +241,7 @@ namespace Levels
 						return nullptr;
 					});
 
-				Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 0.4f, 0.4f },
+				Globals::Components().midgroundDecorations().emplace_back(Tools::CreateVerticesOfLineOfRectangles({ 0.4f, 0.4f },
 					{ { -0.5f, -5.0f }, { 0.5f, -5.0f }, { 0.5f, 5.0f }, { -0.5f, 5.0f}, { -0.5f, -5.0f } },
 					{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }),
 					TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
@@ -292,7 +292,7 @@ namespace Levels
 						return nullptr;
 					});
 
-				Globals::Components().midgroundDecorations().emplace_back(Tools::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
+				Globals::Components().midgroundDecorations().emplace_back(Tools::CreateVerticesOfFunctionalRectangles({ 1.0f, 1.0f },
 					[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
 					[](float input) { return glm::vec2(input + 0.3f, input + 0.3f); },
 					[](float input) { return input * 600.0f; },
@@ -372,7 +372,7 @@ namespace Levels
 					};
 				});
 
-			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f },
+			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreateVerticesOfLineOfRectangles({ 1.5f, 1.5f },
 				{ { -levelHSize, -levelHSize }, { levelHSize, -levelHSize }, { levelHSize, levelHSize }, { -levelHSize, levelHSize }, { -levelHSize, -levelHSize } },
 				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture), Tools::CreateTexCoordOfRectangle(), renderingSetup);
 			//Globals::Components().nearMidgroundDecorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
@@ -423,7 +423,7 @@ namespace Levels
 				return nullptr;
 			});
 
-			Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 2.2f, 2.2f }),
+			Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 2.2f, 2.2f }),
 				TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
 		}
 

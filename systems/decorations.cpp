@@ -145,9 +145,7 @@ namespace Systems
 			if (buffers.renderingSetup)
 				renderingTeardown = Globals::Components().renderingSetups()[buffers.renderingSetup](*buffers.customShadersProgram);
 
-			glBindVertexArray(buffers.vertexArray);
-
-			glDrawArrays(buffers.drawMode, 0, buffers.positionsCache.size());
+			buffers.draw();
 
 			if (renderingTeardown)
 				renderingTeardown();
@@ -212,8 +210,7 @@ namespace Systems
 			if (buffers.renderingSetup)
 				renderingTeardown = Globals::Components().renderingSetups()[buffers.renderingSetup](Globals::Shaders().basic().getProgramId());
 
-			glBindVertexArray(buffers.vertexArray);
-			glDrawArrays(GL_TRIANGLES, 0, buffers.positionsCache.size());
+			buffers.draw();
 
 			if (renderingTeardown)
 				renderingTeardown();

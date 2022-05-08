@@ -46,7 +46,7 @@ namespace Systems
 			int segmentsNum;
 			float frayFactor;
 
-			std::vector<glm::vec3> getBodyPositions() const;
+			std::vector<glm::vec3> getVertexPositions() const;
 			std::vector<glm::vec4> getColors() const;
 		};
 

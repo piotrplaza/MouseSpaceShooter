@@ -57,7 +57,7 @@ namespace Tools
 			auto& animationTexture = Globals::Components().animatedTextures().back();
 
 			playerPlaneHandler.backThrustsIds[i] = Globals::Components().farMidgroundDecorations().size();
-			auto& decoration = Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }),
+			auto& decoration = Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }),
 				TCM::AnimatedTexture(flameAnimatedTexture));
 
 			Globals::Components().renderingSetups().emplace_back([&, i, modelUniform = Uniforms::UniformControllerMat4f(),
@@ -147,7 +147,7 @@ namespace Tools
 
 		auto& animationTexture = Globals::Components().animatedTextures().back();
 
-		auto& decoration = EmplaceIdComponent(Globals::Components().temporaryFarMidgroundDecorations(), { Tools::CreatePositionsOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
+		auto& decoration = EmplaceIdComponent(Globals::Components().temporaryFarMidgroundDecorations(), { Tools::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
 			TCM::AnimatedTexture(flameAnimatedTexture), Tools::CreateTexCoordOfRectangle() });
 
 		Globals::Components().renderingSetups().emplace_back([&, modelUniform = Uniforms::UniformControllerMat4f(),
@@ -250,7 +250,7 @@ namespace Tools
 				};
 			});
 
-			Globals::Components().foregroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
+			Globals::Components().foregroundDecorations().emplace_back(Tools::CreateVerticesOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
 				TCM::Texture(fogTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
 
 			Globals::Components().foregroundDecorations().back().resolutionMode = ResolutionMode::LowestLinearBlend1;
@@ -259,7 +259,7 @@ namespace Tools
 
 	void CreateJuliaBackground(Shaders::Programs::Julia& juliaShaders, std::function<glm::vec2()> juliaCOffset)
 	{
-		auto& background = Globals::Components().backgroundDecorations().emplace_back(Tools::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
+		auto& background = Globals::Components().backgroundDecorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
 		background.customShadersProgram = juliaShaders.getProgramId();
 
 		Globals::Components().renderingSetups().emplace_back([=, &juliaShaders

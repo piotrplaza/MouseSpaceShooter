@@ -105,8 +105,7 @@ namespace Systems
 			if (currentBuffers.renderingSetup)
 				renderingTeardown = Globals::Components().renderingSetups()[currentBuffers.renderingSetup](*currentBuffers.customShadersProgram);
 
-			glBindVertexArray(currentBuffers.vertexArray);
-			glDrawArrays(GL_TRIANGLES, 0, currentBuffers.positionsCache.size());
+			currentBuffers.draw();
 
 			if (renderingTeardown)
 				renderingTeardown();
@@ -184,14 +183,9 @@ namespace Systems
 		Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
 		Globals::Shaders().basic().model(glm::mat4(1.0f));
 
-		glBindVertexArray(simpleStaticWallsBuffers->vertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, simpleStaticWallsBuffers->positionsCache.size());
-
-		glBindVertexArray(simpleDynamicWallsBuffers->vertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, simpleDynamicWallsBuffers->positionsCache.size());
-
-		glBindVertexArray(simpleGrapplesBuffers->vertexArray);
-		glDrawArrays(GL_TRIANGLES, 0, simpleGrapplesBuffers->positionsCache.size());
+		simpleStaticWallsBuffers->draw();
+		simpleDynamicWallsBuffers->draw();
+		simpleGrapplesBuffers->draw();
 
 		for (const auto& customSimpleStaticWallBuffers : customSimpleStaticWallsBuffers)
 		{
@@ -201,8 +195,7 @@ namespace Systems
 			std::function<void()> renderingTeardown =
 				Globals::Components().renderingSetups()[customSimpleStaticWallBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
 
-			glBindVertexArray(customSimpleStaticWallBuffers.vertexArray);
-			glDrawArrays(GL_TRIANGLES, 0, customSimpleStaticWallBuffers.positionsCache.size());
+			customSimpleStaticWallBuffers.draw();
 
 			if (renderingTeardown)
 				renderingTeardown();
@@ -216,8 +209,7 @@ namespace Systems
 			std::function<void()> renderingTeardown =
 				Globals::Components().renderingSetups()[customSimpleDynamicWallBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
 
-			glBindVertexArray(customSimpleDynamicWallBuffers.vertexArray);
-			glDrawArrays(GL_TRIANGLES, 0, customSimpleDynamicWallBuffers.positionsCache.size());
+			customSimpleDynamicWallBuffers.draw();
 
 			if (renderingTeardown)
 				renderingTeardown();
@@ -231,8 +223,7 @@ namespace Systems
 			std::function<void()> renderingTeardown =
 				Globals::Components().renderingSetups()[customSimpleGrappleBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
 
-			glBindVertexArray(customSimpleGrappleBuffers.vertexArray);
-			glDrawArrays(GL_TRIANGLES, 0, customSimpleGrappleBuffers.positionsCache.size());
+			customSimpleGrappleBuffers.draw();
 
 			if (renderingTeardown)
 				renderingTeardown();
