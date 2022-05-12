@@ -12,15 +12,9 @@ namespace Systems
 
 		void postInit();
 		void step();
-		void pause();
-		void resume();
-
-	private:
-		float pauseDuration = 0.0f;
 
 #ifndef _DEBUG 
-		std::chrono::high_resolution_clock::time_point startTime;
+		std::chrono::high_resolution_clock::time_point prevFrameTime;
 #endif
-		std::optional<std::chrono::high_resolution_clock::time_point> pauseTime;
 	};
 }

@@ -4,6 +4,7 @@
 #include "levels/gravity/gravity.hpp"
 
 #include "components/mouseState.hpp"
+#include "components/physics.hpp"
 
 #include "systems/stateController.hpp"
 #include "systems/walls.hpp"
@@ -33,6 +34,7 @@
 #include <memory>
 #include <stdexcept>
 #include <vector>
+#include <array>
 
 #include <windows.h>
 #include <shellscalingapi.h>
@@ -115,7 +117,7 @@ void PrepareFrame()
 
 void SetDCPixelFormat(HDC hDC);
 
-static bool keys[256];
+static std::array<bool, 256> keys;
 static bool quit;
 static bool focus;
 static bool resetMousePositionRequired;
@@ -171,12 +173,12 @@ LRESULT CALLBACK WndProc(
 			ShowCursor(false);
 			focus = true;
 			resetMousePositionRequired = true;
-			Globals::Systems().physics().resume();
+			Globals::Components().physics().paused = false;
 			break;
 		case WM_KILLFOCUS:
 			ShowCursor(true);
 			focus = false;
-			Globals::Systems().physics().pause();
+			Globals::Components().physics().paused = true;
 			break;
 		case WM_KEYDOWN:
 			keys[wParam] = true;

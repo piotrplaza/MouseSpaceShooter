@@ -23,5 +23,8 @@ namespace Components
 
 		float simulationDuration = 0.0f;
 		float frameDuration = 0.0f;
+		float gameSpeed = 1.0f;
+
+		bool paused = false;
 	};
 }

@@ -10,6 +10,7 @@
 #include <components/framebuffers.hpp>
 #include <components/texture.hpp>
 #include <components/functor.hpp>
+#include <components/physics.hpp>
 
 #include <ogl/shaders/textured.hpp>
 #include <ogl/shaders/sceneCoordTextured.hpp>
@@ -135,7 +136,11 @@ namespace Systems
 		resetMousePosition();
 	}
 
-	void StateController::handleKeyboard(bool const* const keys) const
+	void StateController::handleKeyboard(const std::array<bool, 256>& keys)
 	{
+		if (keys['P'] && !prevKeys['P'])
+			Globals::Components().physics().paused = !Globals::Components().physics().paused;
+
+		prevKeys = keys;
 	}
 }

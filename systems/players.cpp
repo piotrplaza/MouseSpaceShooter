@@ -53,7 +53,7 @@ namespace Systems
 
 			turn(player, mouseDelta, Globals::Components().mouseState().rmb);
 			throttle(player, Globals::Components().mouseState().rmb);
-			magneticHook(player, Globals::Components().mouseState().mmb || Globals::Components().mouseState().xmb1);
+			magneticHook(player, Globals::Components().mouseState().mmb);
 
 			updatePlayersPositionsBuffers();
 			updateConnectionsGraphicsBuffers();

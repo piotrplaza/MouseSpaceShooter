@@ -480,8 +480,13 @@ namespace Levels
 				else durationToLaunchMissile -= Globals::Components().physics().frameDuration;
 			}
 			else durationToLaunchMissile = 0.0f;
+			
+			if (Globals::Components().mouseState().xmb1)
+				Globals::Components().physics().gameSpeed = std::clamp(Globals::Components().physics().gameSpeed
+					+ (prevWheel - Globals::Components().mouseState().wheel) * -0.1f, 0.0f, 2.0f);
+			else
+				projectionHSizeBase = std::clamp(projectionHSizeBase + (prevWheel - Globals::Components().mouseState().wheel) * 5.0f, 5.0f, 100.0f);
 
-			projectionHSizeBase = std::clamp(projectionHSizeBase + (prevWheel - Globals::Components().mouseState().wheel) * 5.0f, 5.0f, 100.0f);
 			prevWheel = Globals::Components().mouseState().wheel;
 
 			//textureAngle += Globals::Components().physics().frameDuration * 0.05f;

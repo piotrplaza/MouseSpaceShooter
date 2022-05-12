@@ -2,6 +2,8 @@
 
 #include <glm/vec2.hpp>
 
+#include <array>
+
 namespace Systems
 {
 	class StateController
@@ -18,6 +20,9 @@ namespace Systems
 		void changeWindowLocation(glm::ivec2 location) const;
 		void resetMousePosition() const;
 		void handleMousePosition() const;
-		void handleKeyboard(bool const* const keys) const;
+		void handleKeyboard(const std::array<bool, 256>& keys);
+
+	private:
+		std::array<bool, 256> prevKeys;
 	};
 }

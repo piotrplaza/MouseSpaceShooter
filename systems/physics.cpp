@@ -40,38 +40,21 @@ namespace Systems
 	{
 		Globals::Components().physics().world->SetContactListener(&contactListener);
 #ifndef _DEBUG 
-		startTime = std::chrono::high_resolution_clock::now();
+		prevFrameTime = std::chrono::high_resolution_clock::now();
 #endif
 	}
 
 	void Physics::step()
 	{
 		auto& physics = Globals::Components().physics();
-
-#ifndef _DEBUG 
-		const auto simulationDuration = (std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - startTime).count() - pauseDuration) * gameSpeed;
-		physics.frameDuration = simulationDuration - physics.simulationDuration;
-		physics.simulationDuration = simulationDuration;
+		const auto currentTime = std::chrono::high_resolution_clock::now();
+#ifndef _DEBUG
+		physics.frameDuration = !physics.paused * (std::chrono::duration<float>(currentTime - prevFrameTime).count()) * physics.gameSpeed;
+		prevFrameTime = currentTime;
 #else
-		physics.frameDuration = debugFrameDuration;
-		physics.simulationDuration += physics.frameDuration;
+		physics.frameDuration = !physics.paused * debugFrameDuration * physics.gameSpeed;
 #endif
-
+		physics.simulationDuration += physics.frameDuration;
 		physics.world->Step(physics.frameDuration, 3, 8);
-	}
-
-	void Physics::pause()
-	{
-		if (!pauseTime)
-			pauseTime = std::chrono::high_resolution_clock::now();
-	}
-
-	void Physics::resume()
-	{
-		if (pauseTime)
-		{
-			pauseDuration += std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - *pauseTime).count();
-			pauseTime.reset();
-		}
 	}
 }
