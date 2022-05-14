@@ -8,7 +8,6 @@
 namespace
 {
 	constexpr float debugFrameDuration = 1.0f / 144;
-	constexpr float gameSpeed = 1.0f;
 
 	class ContactListener : public b2ContactListener
 	{
