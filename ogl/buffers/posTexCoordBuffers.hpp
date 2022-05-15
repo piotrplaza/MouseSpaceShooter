@@ -7,6 +7,7 @@
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
 
 #include <optional>
 #include <functional>
@@ -28,6 +29,7 @@ namespace Buffers
 
 		void draw() const;
 
+		std::function<glm::mat4()> modelMatrixF;
 		TextureComponentVariant texture;
 		ComponentId renderingSetup = 0;
 		std::optional<Shaders::ProgramId> customShadersProgram;

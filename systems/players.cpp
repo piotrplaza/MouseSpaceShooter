@@ -55,7 +55,6 @@ namespace Systems
 			throttle(player, Globals::Components().mouseState().rmb);
 			magneticHook(player, Globals::Components().mouseState().mmb);
 
-			updatePlayersPositionsBuffers();
 			updateConnectionsGraphicsBuffers();
 			});
 	}
@@ -70,23 +69,20 @@ namespace Systems
 
 	void Players::initGraphics()
 	{
-		simplePlayersBuffers = std::make_unique<Buffers::PosTexCoordBuffers>();
 		connectionsBuffers = std::make_unique<ConnectionsBuffers>();
 
+		updatePlayersPositionsBuffers();
 		updatePlayersTexCoordBuffers();
 	}
 
 	void Players::updatePlayersPositionsBuffers()
 	{
-		Tools::UpdateTransformedPositionsBuffers(Globals::Components().players(),
-			*simplePlayersBuffers, texturesToPlayersBuffers, customSimplePlayersBuffers,
-			customTexturedPlayersBuffers, customShadersPlayersBuffers);
+		Tools::UpdatePositionsBuffers(Globals::Components().players(), simplePlayersBuffers, texturedPlayersBuffers, customShadersPlayersBuffers);
 	}
 
 	void Players::updatePlayersTexCoordBuffers()
 	{
-		Tools::UpdateTexCoordBuffers(Globals::Components().players(), texturesToPlayersBuffers,
-			customTexturedPlayersBuffers, customShadersPlayersBuffers);
+		Tools::UpdateTexCoordBuffers(Globals::Components().players(), texturedPlayersBuffers, customShadersPlayersBuffers);
 	}
 
 	void Players::updateConnectionsGraphicsBuffers()
@@ -140,19 +136,16 @@ namespace Systems
 		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
 		Globals::Shaders().basic().vp(Globals::Components().mvp().getVP());
 		Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
-		Globals::Shaders().basic().model(glm::mat4(1.0f));
 
-		simplePlayersBuffers->draw();
-
-		for (const auto& customSimplePlayerBuffers : customSimplePlayersBuffers)
+		for (const auto& simplePlayerBuffers : simplePlayersBuffers)
 		{
 			Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().basic().model(glm::mat4(1.0f));
+			Globals::Shaders().basic().model(simplePlayerBuffers.modelMatrixF ? simplePlayerBuffers.modelMatrixF() : glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				Globals::Components().renderingSetups()[customSimplePlayerBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
+				Globals::Components().renderingSetups()[simplePlayerBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
 
-			customSimplePlayerBuffers.draw();
+			simplePlayerBuffers.draw();
 
 			if (renderingTeardown)
 				renderingTeardown();
@@ -164,17 +157,10 @@ namespace Systems
 		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
 		Globals::Shaders().textured().vp(Globals::Components().mvp().getVP());
 
-		for (const auto& [texture, texturedPlayerBuffers] : texturesToPlayersBuffers)
+		for (const auto& customTexturedPlayerBuffers : texturedPlayersBuffers)
 		{
 			Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().textured().model(glm::mat4(1.0f));
-			Tools::TexturedRender(Globals::Shaders().textured(), texturedPlayerBuffers, texture);
-		}
-
-		for (const auto& customTexturedPlayerBuffers : customTexturedPlayersBuffers)
-		{
-			Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().textured().model(glm::mat4(1.0f));
+			Globals::Shaders().textured().model(customTexturedPlayerBuffers.modelMatrixF ? customTexturedPlayerBuffers.modelMatrixF() : glm::mat4(1.0f));
 			Tools::TexturedRender(Globals::Shaders().textured(), customTexturedPlayerBuffers,
 				customTexturedPlayerBuffers.texture);
 		}

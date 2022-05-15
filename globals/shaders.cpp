@@ -4,7 +4,6 @@
 #include "ogl/shaders/colored.hpp"
 #include "ogl/shaders/julia.hpp"
 #include "ogl/shaders/particles.hpp"
-#include "ogl/shaders/sceneCoordTextured.hpp"
 #include "ogl/shaders/textured.hpp"
 #include "ogl/shaders/texturedColorThreshold.hpp"
 
@@ -30,11 +29,6 @@ namespace Globals
 	::Shaders::Programs::Particles& Shaders::particles()
 	{
 		return *particles_;
-	}
-
-	::Shaders::Programs::SceneCoordTextured& Shaders::sceneCoordTextured()
-	{
-		return *sceneCoordTextured_;
 	}
 
 	::Shaders::Programs::Textured& Shaders::textured()

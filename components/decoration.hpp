@@ -76,5 +76,10 @@ namespace Components
 				return texCoord;
 			}
 		}
+
+		glm::mat4 getModelMatrix() const
+		{
+			return glm::mat4(1.0f);
+		}
 	};
 }

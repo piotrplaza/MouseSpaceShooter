@@ -13,7 +13,6 @@
 #include <components/physics.hpp>
 
 #include <ogl/shaders/textured.hpp>
-#include <ogl/shaders/sceneCoordTextured.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -51,12 +50,10 @@ namespace Systems
 	void StateController::renderSetup() const
 	{
 		Globals::Shaders().textured().numOfPlayers(Globals::Components().players().size() - 1);
-		Globals::Shaders().sceneCoordTextured().numOfPlayers(Globals::Components().players().size() - 1);
 
 		for (int i = 1; i < (int)Globals::Components().players().size(); ++i)
 		{
 			Globals::Shaders().textured().playersCenter(i - 1, Globals::Components().players()[i].getCenter());
-			Globals::Shaders().sceneCoordTextured().playersCenter(i - 1, Globals::Components().players()[i].getCenter());
 		}
 	}
 

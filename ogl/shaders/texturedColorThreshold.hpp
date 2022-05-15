@@ -24,7 +24,8 @@ namespace Shaders
 				alphaFromBlendingTexture(program, "alphaFromBlendingTexture"),
 				colorAccumulation(program, "colorAccumulation"),
 				invisibleColor(program, "invisibleColor"),
-				invisibleColorThreshold(program, "invisibleColorThreshold")
+				invisibleColorThreshold(program, "invisibleColorThreshold"),
+				sceneCoordTextures(program, "sceneCoordTextures")
 			{
 			}
 
@@ -41,6 +42,7 @@ namespace Shaders
 			Uniforms::UniformController1b colorAccumulation;
 			Uniforms::UniformController3f invisibleColor;
 			Uniforms::UniformController1f invisibleColorThreshold;
+			Uniforms::UniformController1b sceneCoordTextures;
 		};
 
 		struct TexturedColorThreshold: TexturedColorThresholdAccessor
@@ -61,6 +63,7 @@ namespace Shaders
 				colorAccumulation(false);
 				invisibleColor(glm::vec3(0.0f));
 				invisibleColorThreshold(0.0f);
+				sceneCoordTextures(false);
 			}
 
 			TexturedColorThreshold(const TexturedColorThreshold&) = delete;

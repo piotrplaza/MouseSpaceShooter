@@ -52,8 +52,7 @@ namespace Globals
 		std::vector<::Components::BlendingTexture>& blendingTextures();
 		std::vector<::Components::RenderingSetup>& renderingSetups();
 		std::vector<::Components::Player>& players();
-		std::vector<::Components::Wall>& staticWalls();
-		std::vector<::Components::Wall>& dynamicWalls();
+		std::vector<::Components::Wall>& walls();
 		std::vector<::Components::Grapple>& grapples();
 		std::vector<::Components::Decoration>& backgroundDecorations();
 		std::unordered_map<::ComponentId, ::Components::Decoration>& temporaryBackgroundDecorations();
@@ -88,8 +87,7 @@ namespace Globals
 		std::vector<::Components::BlendingTexture> blendingTextures_;
 		std::vector<::Components::RenderingSetup> renderingSetups_;
 		std::vector<::Components::Player> players_;
-		std::vector<::Components::Wall> staticWalls_;
-		std::vector<::Components::Wall> dynamicWalls_;
+		std::vector<::Components::Wall> walls_;
 		std::vector<::Components::Grapple> grapples_;
 		std::vector<::Components::Decoration> backgroundDecorations_;
 		std::unordered_map<::ComponentId, ::Components::Decoration> temporaryBackgroundDecorations_;

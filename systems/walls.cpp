@@ -5,7 +5,6 @@
 #include <ogl/renderingHelpers.hpp>
 
 #include <ogl/shaders/basic.hpp>
-#include <ogl/shaders/sceneCoordTextured.hpp>
 #include <ogl/shaders/textured.hpp>
 
 #include <components/physics.hpp>
@@ -33,65 +32,46 @@ namespace Systems
 
 	void Walls::step()
 	{
-		updateDynamicWallsPositionsBuffers();
-		updateGrapplesPositionsBuffers();
 	}
 
 	void Walls::render() const
 	{
 		basicRender();
 		texturedRender();
-		sceneCoordTexturedRender();
 		customShadersRender();
 	}
 
 	void Walls::initGraphics()
 	{
-		simpleStaticWallsBuffers = std::make_unique<Buffers::PosTexCoordBuffers>();
-		simpleDynamicWallsBuffers = std::make_unique<Buffers::PosTexCoordBuffers>();
-		simpleGrapplesBuffers = std::make_unique<Buffers::PosTexCoordBuffers>();
-
-		updateStaticWallsPositionsBuffers();
-		updatePersistentTexCoordsBuffers();
+		updateWallsPositionsBuffers();
+		updateGrapplesPositionsBuffers();
+		updateTexCoordsBuffers();
 	}
 
-	void Walls::updateStaticWallsPositionsBuffers()
+	void Walls::updateWallsPositionsBuffers()
 	{
-		Tools::UpdateTransformedPositionsBuffers(Globals::Components().staticWalls(),
-			*simpleStaticWallsBuffers, texturesToStaticWallsBuffers, customSimpleStaticWallsBuffers,
-			customTexturedStaticWallsBuffers, customShadersStaticWallsBuffers);
-	}
-
-	void Walls::updateDynamicWallsPositionsBuffers()
-	{
-		Tools::UpdateTransformedPositionsBuffers(Globals::Components().dynamicWalls(),
-			*simpleDynamicWallsBuffers, texturesToDynamicWallsBuffers, customSimpleDynamicWallsBuffers,
-			customTexturedDynamicWallsBuffers, customShadersDynamicWallsBuffers);
+		Tools::UpdatePositionsBuffers(Globals::Components().walls(), simpleWallsBuffers, texturedWallsBuffers, customShadersWallsBuffers);
 	}
 
 	void Walls::updateGrapplesPositionsBuffers()
 	{
-		Tools::UpdateTransformedPositionsBuffers(Globals::Components().grapples(),
-			*simpleGrapplesBuffers, texturesToGrapplesBuffers, customSimpleGrapplesBuffers,
-			customTexturedGrapplesBuffers, customShadersGrapplesBuffers);
+		Tools::UpdatePositionsBuffers(Globals::Components().grapples(), simpleGrapplesBuffers, texturedGrapplesBuffers, customShadersGrapplesBuffers);
 	}
 
-	void Walls::updatePersistentTexCoordsBuffers()
+	void Walls::updateTexCoordsBuffers()
 	{
-		updateDynamicWallsTexCoordsBuffers();
+		updateWallsTexCoordsBuffers();
 		updateGrapplesTexCoordsBuffers();
 	}
 
-	void Walls::updateDynamicWallsTexCoordsBuffers()
+	void Walls::updateWallsTexCoordsBuffers()
 	{
-		Tools::UpdateTexCoordBuffers(Globals::Components().dynamicWalls(), texturesToDynamicWallsBuffers,
-			customTexturedDynamicWallsBuffers, customShadersDynamicWallsBuffers);
+		Tools::UpdateTexCoordBuffers(Globals::Components().walls(), texturedWallsBuffers, customShadersWallsBuffers);
 	}
 
 	void Walls::updateGrapplesTexCoordsBuffers()
 	{
-		Tools::UpdateTexCoordBuffers(Globals::Components().grapples(), texturesToGrapplesBuffers,
-			customTexturedGrapplesBuffers, customShadersGrapplesBuffers);
+		Tools::UpdateTexCoordBuffers(Globals::Components().grapples(), texturedGrapplesBuffers, customShadersGrapplesBuffers);
 	}
 
 	void Walls::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
@@ -114,30 +94,8 @@ namespace Systems
 
 	void Walls::customShadersRender() const
 	{
-		customShadersRender(customShadersDynamicWallsBuffers);
-		customShadersRender(customShadersStaticWallsBuffers);
+		customShadersRender(customShadersWallsBuffers);
 		customShadersRender(customShadersGrapplesBuffers);
-	}
-
-	void Walls::sceneCoordTexturedRender() const
-	{
-		glUseProgram_proxy(Globals::Shaders().sceneCoordTextured().getProgramId());
-		Globals::Shaders().sceneCoordTextured().vp(Globals::Components().mvp().getVP());
-
-		for (const auto& [texture, texturedStaticWallBuffers] : texturesToStaticWallsBuffers)
-		{
-			Globals::Shaders().sceneCoordTextured().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().sceneCoordTextured().model(glm::mat4(1.0f));
-			Tools::TexturedRender(Globals::Shaders().sceneCoordTextured(), texturedStaticWallBuffers, texture);
-		}
-
-		for (const auto& customTexturedStaticWallBuffers : customTexturedStaticWallsBuffers)
-		{
-			Globals::Shaders().sceneCoordTextured().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().sceneCoordTextured().model(glm::mat4(1.0f));
-			Tools::TexturedRender(Globals::Shaders().sceneCoordTextured(), customTexturedStaticWallBuffers,
-				customTexturedStaticWallBuffers.texture);
-		}
 	}
 
 	void Walls::texturedRender() const
@@ -145,34 +103,18 @@ namespace Systems
 		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
 		Globals::Shaders().textured().vp(Globals::Components().mvp().getVP());
 
-		for (const auto& [texture, texturedDynamicWallBuffers] : texturesToDynamicWallsBuffers)
+		for (const auto& texturedWallBuffers : texturedWallsBuffers)
 		{
 			Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().textured().model(glm::mat4(1.0f));
-			Tools::TexturedRender(Globals::Shaders().textured(), texturedDynamicWallBuffers, texture);
+			Globals::Shaders().textured().model(texturedWallBuffers.modelMatrixF ? texturedWallBuffers.modelMatrixF() : glm::mat4(1.0f));
+			Tools::TexturedRender(Globals::Shaders().textured(), texturedWallBuffers, texturedWallBuffers.texture);
 		}
 
-		for (const auto& [texture, texturedGrappleBuffers] : texturesToGrapplesBuffers)
+		for (const auto& textureGrappleBuffers : texturedGrapplesBuffers)
 		{
 			Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().textured().model(glm::mat4(1.0f));
-			Tools::TexturedRender(Globals::Shaders().textured(), texturedGrappleBuffers, texture);
-		}
-
-		for (const auto& customTexturedDynamicWallBuffers : customTexturedDynamicWallsBuffers)
-		{
-			Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().textured().model(glm::mat4(1.0f));
-			Tools::TexturedRender(Globals::Shaders().textured(), customTexturedDynamicWallBuffers,
-				customTexturedDynamicWallBuffers.texture);
-		}
-
-		for (const auto& customTextureGrappleBuffers : customTexturedGrapplesBuffers)
-		{
-			Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().textured().model(glm::mat4(1.0f));
-			Tools::TexturedRender(Globals::Shaders().textured(), customTextureGrappleBuffers,
-				customTextureGrappleBuffers.texture);
+			Globals::Shaders().textured().model(textureGrappleBuffers.modelMatrixF ? textureGrappleBuffers.modelMatrixF() : glm::mat4(1.0f));
+			Tools::TexturedRender(Globals::Shaders().textured(), textureGrappleBuffers, textureGrappleBuffers.texture);
 		}
 	}
 
@@ -181,49 +123,30 @@ namespace Systems
 		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
 		Globals::Shaders().basic().vp(Globals::Components().mvp().getVP());
 		Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
-		Globals::Shaders().basic().model(glm::mat4(1.0f));
 
-		simpleStaticWallsBuffers->draw();
-		simpleDynamicWallsBuffers->draw();
-		simpleGrapplesBuffers->draw();
-
-		for (const auto& customSimpleStaticWallBuffers : customSimpleStaticWallsBuffers)
+		for (const auto& simpleWallBuffers : simpleWallsBuffers)
 		{
 			Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().basic().model(glm::mat4(1.0f));
+			Globals::Shaders().basic().model(simpleWallBuffers.modelMatrixF ? simpleWallBuffers.modelMatrixF() : glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				Globals::Components().renderingSetups()[customSimpleStaticWallBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
+				Globals::Components().renderingSetups()[simpleWallBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
 
-			customSimpleStaticWallBuffers.draw();
+			simpleWallBuffers.draw();
 
 			if (renderingTeardown)
 				renderingTeardown();
 		}
 
-		for (const auto& customSimpleDynamicWallBuffers : customSimpleDynamicWallsBuffers)
+		for (const auto& simpleGrappleBuffers : simpleGrapplesBuffers)
 		{
 			Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().basic().model(glm::mat4(1.0f));
+			Globals::Shaders().basic().model(simpleGrappleBuffers.modelMatrixF ? simpleGrappleBuffers.modelMatrixF() : glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				Globals::Components().renderingSetups()[customSimpleDynamicWallBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
+				Globals::Components().renderingSetups()[simpleGrappleBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
 
-			customSimpleDynamicWallBuffers.draw();
-
-			if (renderingTeardown)
-				renderingTeardown();
-		}
-
-		for (const auto& customSimpleGrappleBuffers : customSimpleGrapplesBuffers)
-		{
-			Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().basic().model(glm::mat4(1.0f));
-
-			std::function<void()> renderingTeardown =
-				Globals::Components().renderingSetups()[customSimpleGrappleBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
-
-			customSimpleGrappleBuffers.draw();
+			simpleGrappleBuffers.draw();
 
 			if (renderingTeardown)
 				renderingTeardown();

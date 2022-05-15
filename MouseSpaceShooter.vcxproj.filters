@@ -44,9 +44,6 @@
     <Filter Include="src\ogl\shaders\julia">
       <UniqueIdentifier>{fc5a1d40-ed16-4d60-9c7f-6bac933fc7a9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ogl\shaders\sceneCoordTextured">
-      <UniqueIdentifier>{67242143-e044-4927-b1c4-3960bff48e49}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ogl\shaders\textured">
       <UniqueIdentifier>{a3c981c3-58ac-421a-b5d2-bc857b2d4e78}</UniqueIdentifier>
     </Filter>
@@ -261,9 +258,6 @@
     <ClInclude Include="ogl\shaders\julia.hpp">
       <Filter>src\ogl\shaders\julia</Filter>
     </ClInclude>
-    <ClInclude Include="ogl\shaders\sceneCoordTextured.hpp">
-      <Filter>src\ogl\shaders\sceneCoordTextured</Filter>
-    </ClInclude>
     <ClInclude Include="ogl\shaders\textured.hpp">
       <Filter>src\ogl\shaders\textured</Filter>
     </ClInclude>
@@ -388,12 +382,6 @@
     </None>
     <None Include="ogl\shaders\julia.vs">
       <Filter>src\ogl\shaders\julia</Filter>
-    </None>
-    <None Include="ogl\shaders\sceneCoordTextured.fs">
-      <Filter>src\ogl\shaders\sceneCoordTextured</Filter>
-    </None>
-    <None Include="ogl\shaders\sceneCoordTextured.vs">
-      <Filter>src\ogl\shaders\sceneCoordTextured</Filter>
     </None>
     <None Include="ogl\shaders\textured.vs">
       <Filter>src\ogl\shaders\textured</Filter>

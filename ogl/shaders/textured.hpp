@@ -25,7 +25,8 @@ namespace Shaders
 				colorAccumulation(program, "colorAccumulation"),
 				numOfPlayers(program, "numOfPlayers"),
 				playersCenter(program, "playersCenter"),
-				playerUnhidingRadius(program, "playerUnhidingRadius")
+				playerUnhidingRadius(program, "playerUnhidingRadius"),
+				sceneCoordTextures(program, "sceneCoordTextures")
 			{
 			}
 
@@ -43,6 +44,7 @@ namespace Shaders
 			Uniforms::UniformController1i numOfPlayers;
 			Uniforms::UniformController2fv<4> playersCenter;
 			Uniforms::UniformController1f playerUnhidingRadius;
+			Uniforms::UniformController1b sceneCoordTextures;
 		};
 
 		struct Textured: TexturedAccessor
@@ -64,6 +66,7 @@ namespace Shaders
 				numOfPlayers(0);
 				playersCenter(glm::vec2(0.0f, 0.0f));
 				playerUnhidingRadius(0.0f);
+				sceneCoordTextures(false);
 			}
 
 			Textured(const Textured&) = delete;

@@ -28,35 +28,24 @@ namespace Systems
 	private:
 		void initGraphics();
 
-		void updateStaticWallsPositionsBuffers();
-		void updateDynamicWallsPositionsBuffers();
+		void updateWallsPositionsBuffers();
 		void updateGrapplesPositionsBuffers();
 
-		void updatePersistentTexCoordsBuffers();
-		void updateDynamicWallsTexCoordsBuffers();
+		void updateTexCoordsBuffers();
+		void updateWallsTexCoordsBuffers();
 		void updateGrapplesTexCoordsBuffers();
 
 		void customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const;
 		void customShadersRender() const;
-		void sceneCoordTexturedRender() const;
 		void texturedRender() const;
 		void basicRender() const;
 
-		std::unique_ptr<Buffers::PosTexCoordBuffers> simpleStaticWallsBuffers;
-		std::unique_ptr<Buffers::PosTexCoordBuffers> simpleDynamicWallsBuffers;
-		std::unordered_map<TextureComponentVariant, Buffers::PosTexCoordBuffers> texturesToStaticWallsBuffers;
-		std::unordered_map<TextureComponentVariant, Buffers::PosTexCoordBuffers> texturesToDynamicWallsBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> customSimpleStaticWallsBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> customSimpleDynamicWallsBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> customTexturedStaticWallsBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> customTexturedDynamicWallsBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> customShadersStaticWallsBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> customShadersDynamicWallsBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> simpleWallsBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> texturedWallsBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> customShadersWallsBuffers;
 
-		std::unique_ptr<Buffers::PosTexCoordBuffers> simpleGrapplesBuffers;
-		std::unordered_map<TextureComponentVariant, Buffers::PosTexCoordBuffers> texturesToGrapplesBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> customSimpleGrapplesBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> customTexturedGrapplesBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> simpleGrapplesBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> texturedGrapplesBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customShadersGrapplesBuffers;
 	};
 }

@@ -82,10 +82,8 @@ namespace Systems
 		void customShadersRender() const;
 		void coloredRender() const;
 
-		std::unique_ptr<Buffers::PosTexCoordBuffers> simplePlayersBuffers;
-		std::unordered_map<TextureComponentVariant, Buffers::PosTexCoordBuffers> texturesToPlayersBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> customSimplePlayersBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> customTexturedPlayersBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> simplePlayersBuffers;
+		std::vector<Buffers::PosTexCoordBuffers> texturedPlayersBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customShadersPlayersBuffers;
 
 		std::vector<Connection> connections;

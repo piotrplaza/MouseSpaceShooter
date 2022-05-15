@@ -23,7 +23,7 @@ namespace Tools
 		}
 	}
 
-	template <typename Component, typename Buffers>
+	/*template <typename Component, typename Buffers>
 	inline void UpdateTransformedPositionsBuffers(const std::vector<Component>& components, Buffers& simpleBuffers,
 		std::unordered_map<TextureComponentVariant, Buffers>& texturesToBuffers, std::vector<Buffers>& customSimpleBuffers,
 		std::vector<Buffers>& customTexturedBuffers, std::vector<Buffers>& customShadersBuffers)
@@ -103,11 +103,11 @@ namespace Tools
 			buffers.allocateOrUpdatePositionsBuffer(customTexturedBuffersPositions);
 		for (auto& buffers : customShadersBuffers)
 			buffers.allocateOrUpdatePositionsBuffer(customShadersBuffersPositions);
-	}
+	}*/
 
 	template <typename Component, typename Buffers>
-	inline void UpdatePositionsBuffers(const std::vector<Component>& components, std::vector<Buffers>& simpleBuffers,
-		std::vector<Buffers>& texturedBuffers, std::vector<Buffers>& customShadersBuffers)
+	inline void UpdatePositionsBuffers(const std::vector<Component>& components,
+		std::vector<Buffers>& simpleBuffers, std::vector<Buffers>& texturedBuffers, std::vector<Buffers>& customShadersBuffers)
 	{
 		auto simpleBuffersIt = simpleBuffers.begin();
 		auto texturedBuffersIt = texturedBuffers.begin();
@@ -124,6 +124,7 @@ namespace Tools
 			}();
 
 			buffers.allocateOrUpdatePositionsBuffer(component.getVertexPositions());
+			buffers.modelMatrixF = [&]() { return component.getModelMatrix(); };
 			buffers.renderingSetup = component.renderingSetup;
 			buffers.texture = component.texture;
 			buffers.customShadersProgram = component.customShadersProgram;
@@ -137,7 +138,7 @@ namespace Tools
 		customShadersBuffers.resize(std::distance(customShadersBuffers.begin(), customShadersBuffersIt));
 	}
 
-	template <typename Component, typename Buffers>
+	/*template <typename Component, typename Buffers>
 	inline void UpdateTexCoordBuffers(const std::vector<Component>& components,
 		std::unordered_map<TextureComponentVariant, Buffers>& texturesToBuffers, std::vector<Buffers>& customTexturedBuffers,
 		std::vector<Buffers>& customShadersTexturedBuffers)
@@ -186,7 +187,7 @@ namespace Tools
 			buffers.allocateOrUpdateTexCoordBuffer(customTexturedBuffersTexCoord);
 		for (auto& buffers : customShadersTexturedBuffers)
 			buffers.allocateOrUpdateTexCoordBuffer(customShadersTexturedBuffersTexCoord);
-	}
+	}*/
 
 	template <typename Component, typename Buffers>
 	inline void UpdateTexCoordBuffers(const std::vector<Component>& components,

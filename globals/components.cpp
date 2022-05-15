@@ -34,8 +34,7 @@ namespace Globals
 		blendingTextures_.emplace_back(fakeComponent);
 		renderingSetups_.emplace_back(fakeComponent);
 		players_.emplace_back(fakeComponent);
-		staticWalls_.emplace_back(fakeComponent);
-		dynamicWalls_.emplace_back(fakeComponent);
+		walls_.emplace_back(fakeComponent);
 		grapples_.emplace_back(fakeComponent);
 		backgroundDecorations_.emplace_back(fakeComponent);
 		farMidgroundDecorations_.emplace_back(fakeComponent);
@@ -110,14 +109,9 @@ namespace Globals
 		return players_;
 	}
 
-	std::vector<::Components::Wall>& Components::staticWalls()
+	std::vector<::Components::Wall>& Components::walls()
 	{
-		return staticWalls_;
-	}
-
-	std::vector<::Components::Wall>& Components::dynamicWalls()
-	{
-		return dynamicWalls_;
+		return walls_;
 	}
 
 	std::vector<::Components::Grapple>& Components::grapples()

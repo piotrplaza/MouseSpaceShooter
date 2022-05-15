@@ -163,18 +163,18 @@ namespace Levels
 
 		void createDynamicWalls()
 		{
-			debrisBegin = Globals::Components().dynamicWalls().size();
+			debrisBegin = Globals::Components().walls().size();
 
 			for (int i = 0; i < 500; ++i)
 			{
 				const float angle = Tools::Random(0.0f, glm::two_pi<float>());
 				const glm::vec2 pos = glm::vec2(glm::cos(angle), glm::sin(angle)) * 20.0f;
-				Globals::Components().dynamicWalls().emplace_back(
+				Globals::Components().walls().emplace_back(
 					Tools::CreateBoxBody(pos, { Tools::Random(0.1f, 1.0f), Tools::Random(0.1f, 1.0f) }, angle, b2_dynamicBody, 0.02f),
 					TCM::Texture(spaceRockTexture));
 			}
 
-			debrisEnd = Globals::Components().dynamicWalls().size();
+			debrisEnd = Globals::Components().walls().size();
 		}
 
 		void createStaticWalls() const
@@ -249,7 +249,7 @@ namespace Levels
 
 			for (size_t i = debrisBegin; i != debrisEnd; ++i)
 			{
-				auto& debris = Globals::Components().dynamicWalls()[i];
+				auto& debris = Globals::Components().walls()[i];
 				const auto& planet = Globals::Components().grapples()[planetId];
 				const auto gravityDiff = (planet.getCenter() - debris.getCenter()) * gravityFactor;
 				const auto gravityVecNorm = glm::normalize(gravityDiff);

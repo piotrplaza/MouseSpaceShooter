@@ -222,9 +222,9 @@ namespace Levels
 					return [=]() mutable { texturesCustomTransformUniform(glm::mat4(1.0f)); };
 				});
 
-			auto& wall1 = *Globals::Components().dynamicWalls().emplace_back(
+			auto& wall1 = *Globals::Components().walls().emplace_back(
 				Tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture), Globals::Components().renderingSetups().size() - 1).body;
-			auto& wall2 = *Globals::Components().dynamicWalls().emplace_back(
+			auto& wall2 = *Globals::Components().walls().emplace_back(
 				Tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture)).body;
 			wall1.GetFixtureList()->SetRestitution(0.5f);
 			wall2.GetFixtureList()->SetRestitution(0.5f);
@@ -234,10 +234,10 @@ namespace Levels
 			{
 				Globals::Components().renderingSetups().emplace_back([
 					texturedProgram = Shaders::Programs::TexturedAccessor(),
-						wallId = Globals::Components().dynamicWalls().size() - i
+						wallId = Globals::Components().walls().size() - i
 				](Shaders::ProgramId program) mutable {
 						if (!texturedProgram.isValid()) texturedProgram = program;
-						texturedProgram.model(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
+						texturedProgram.model(Globals::Components().walls()[wallId].getModelMatrix());
 						return nullptr;
 					});
 
@@ -252,23 +252,27 @@ namespace Levels
 
 			for (const float pos : {-30.0f, 30.0f})
 			{
-				Globals::Components().renderingSetups().emplace_back([=, this](auto) {
-						Tools::MVPInitialization(Globals::Shaders().texturedColorThreshold());
-						if (pos < 0.0f)
-						{
-							Tools::StaticTexturedRenderInitialization(Globals::Shaders().texturedColorThreshold(), orbTexture, true);
-							Globals::Shaders().texturedColorThreshold().texturesCustomTransform(Tools::TextureTransform({ 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }));
-						}
-						else
-							Tools::BlendingTexturedRenderInitialization(Globals::Shaders().texturedColorThreshold(), blendingTexture, true);
-						const float simulationDuration = Globals::Components().physics().simulationDuration;
-						Globals::Shaders().texturedColorThreshold().invisibleColor({ 0.0f, 0.0f, 0.0f });
-						Globals::Shaders().texturedColorThreshold().invisibleColorThreshold((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
-						return [=]() mutable { Globals::Shaders().texturedColorThreshold().texturesCustomTransform(glm::mat4(1.0f)); };
-					});
+				Globals::Components().walls().emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), TCM::Texture(),
+					Globals::Components().renderingSetups().size(), Globals::Shaders().texturedColorThreshold().getProgramId());
 
-				Globals::Components().dynamicWalls().emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), TCM::Texture(),
-					Globals::Components().renderingSetups().size() - 1, Globals::Shaders().texturedColorThreshold().getProgramId());
+				Globals::Components().renderingSetups().emplace_back([=, this, wallId = Globals::Components().walls().size() - 1](auto) {
+					Tools::MVPInitialization(Globals::Shaders().texturedColorThreshold(), Globals::Components().walls()[wallId].getModelMatrix());
+
+					if (pos < 0.0f)
+					{
+						Tools::StaticTexturedRenderInitialization(Globals::Shaders().texturedColorThreshold(), orbTexture, true);
+						Globals::Shaders().texturedColorThreshold().texturesCustomTransform(Tools::TextureTransform({ 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }));
+					}
+					else
+					{
+						Tools::BlendingTexturedRenderInitialization(Globals::Shaders().texturedColorThreshold(), blendingTexture, true);
+					}
+
+					const float simulationDuration = Globals::Components().physics().simulationDuration;
+					Globals::Shaders().texturedColorThreshold().invisibleColor({ 0.0f, 0.0f, 0.0f });
+					Globals::Shaders().texturedColorThreshold().invisibleColorThreshold((-glm::cos(simulationDuration * 0.5f) + 1.0f) * 0.5f);
+					return [=]() mutable { Globals::Shaders().texturedColorThreshold().texturesCustomTransform(glm::mat4(1.0f)); };
+					});
 
 				Globals::Components().renderingSetups().emplace_back([
 						basicProgram = Shaders::Programs::BasicAccessor()
@@ -278,17 +282,17 @@ namespace Levels
 						return nullptr;
 					});
 
-				Globals::Components().dynamicWalls().emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f));
-				Globals::Components().dynamicWalls().back().renderingSetup = Globals::Components().renderingSetups().size() - 1;
+				Globals::Components().walls().emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f), std::monostate{},
+					Globals::Components().renderingSetups().size() - 1);
 
 				Globals::Components().renderingSetups().emplace_back([
-						wallId = Globals::Components().dynamicWalls().size() - 1,
+						wallId = Globals::Components().walls().size() - 1,
 						texturedProgram = Shaders::Programs::TexturedAccessor()
 					](Shaders::ProgramId program) mutable {
 						if (!texturedProgram.isValid()) texturedProgram = program;
 						texturedProgram.color(glm::vec4(
 							glm::sin(Globals::Components().physics().simulationDuration* glm::two_pi<float>() * 0.2f) + 1.0f) / 2.0f);
-						texturedProgram.model(Globals::Components().dynamicWalls()[wallId].getModelMatrix());
+						texturedProgram.model(Globals::Components().walls()[wallId].getModelMatrix());
 						return nullptr;
 					});
 
@@ -305,7 +309,7 @@ namespace Levels
 			}
 
 			Globals::Components().midgroundDecorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
-			lowResBodies.insert(Globals::Components().dynamicWalls().back().body.get());
+			lowResBodies.insert(Globals::Components().walls().back().body.get());
 		}
 
 		void createStaticWalls()
@@ -318,6 +322,7 @@ namespace Levels
 				alphaFromBlendingTextureUniform = Uniforms::UniformController1b(),
 					colorAccumulationUniform = Uniforms::UniformController1b(),
 					texturesCustomTransform = Uniforms::UniformControllerMat4fv<5>(),
+					sceneCoordTextures = Uniforms::UniformController1b(),
 					this
 			](Shaders::ProgramId program) mutable {
 				if (!alphaFromBlendingTextureUniform.isValid())
@@ -326,9 +331,12 @@ namespace Levels
 					colorAccumulationUniform = Uniforms::UniformController1b(program, "colorAccumulation");
 				if (!texturesCustomTransform.isValid())
 					texturesCustomTransform = Uniforms::UniformControllerMat4fv<5>(program, "texturesCustomTransform");
+				if (!sceneCoordTextures.isValid())
+					sceneCoordTextures = Uniforms::UniformController1b(program, "sceneCoordTextures");
 
 				alphaFromBlendingTextureUniform(true);
 				colorAccumulationUniform(true);
+				sceneCoordTextures(true);
 
 				texturesCustomTransform(0, glm::rotate(glm::mat4(1.0f), -textureAngle, { 0.0f, 0.0f, 1.0f }));
 
@@ -341,19 +349,22 @@ namespace Levels
 				{
 					alphaFromBlendingTextureUniform(false);
 					colorAccumulationUniform(false);
+					sceneCoordTextures(false);
+
+					texturesCustomTransform(glm::mat4(1.0f));
 				};
 			});
 
 			const auto blendingTexture = Globals::Components().blendingTextures().size();
 			Globals::Components().blendingTextures().push_back({ fractalTexture, woodTexture, spaceRockTexture, foiledEggsTexture });
 
-			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ -levelHSize - bordersHGauge, 0.0f },
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ -levelHSize - bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture), renderingSetup).preserveTextureRatio = true;
-			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ levelHSize + bordersHGauge, 0.0f },
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ levelHSize + bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture), renderingSetup).preserveTextureRatio = true;
-			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize - bordersHGauge },
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize - bordersHGauge },
 				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture), renderingSetup).preserveTextureRatio = true;
-			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize + bordersHGauge },
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize + bordersHGauge },
 				{ levelHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture), renderingSetup).preserveTextureRatio = true;
 
 			renderingSetup = Globals::Components().renderingSetups().size();
@@ -489,7 +500,7 @@ namespace Levels
 
 			prevWheel = Globals::Components().mouseState().wheel;
 
-			//textureAngle += Globals::Components().physics().frameDuration * 0.05f;
+			//textureAngle += Globals::Components().physics().frameDuration * 0.2f;
 		}
 
 	private:
