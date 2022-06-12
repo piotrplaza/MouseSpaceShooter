@@ -43,7 +43,6 @@ namespace Components
 		std::vector<glm::vec2> texCoord;
 		std::function<void()> step;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;
-		//std::vector<float> genericBuffer;
 
 		GLenum drawMode = GL_TRIANGLES;
 		GLenum bufferDataUsage = GL_STATIC_DRAW;
