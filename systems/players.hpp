@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ogl/buffers/posTexCoordBuffers.hpp>
+#include <ogl/buffers/posColorBuffers.hpp>
 
 #include <components/typeComponentMappers.hpp>
 
@@ -32,38 +33,32 @@ namespace Systems
 		void render() const;
 
 	private:
-		struct Connection
+		struct Connections
 		{
-			Connection(const glm::vec2& p1, const glm::vec2& p2, const glm::vec4& color, int segmentsNum = 1, float frayFactor = 0.5f)
-				: p1(p1), p2(p2), color(color), segmentsNum(segmentsNum), frayFactor(frayFactor)
+			struct Params
 			{
-			}
+				Params(const glm::vec2& p1, const glm::vec2& p2, const glm::vec4& color, int segmentsNum = 1, float frayFactor = 0.5f)
+					: p1(p1), p2(p2), color(color), segmentsNum(segmentsNum), frayFactor(frayFactor)
+				{
+				}
 
-			glm::vec2 p1;
-			glm::vec2 p2;
+				glm::vec2 p1;
+				glm::vec2 p2;
 
-			glm::vec4 color;
-			int segmentsNum;
-			float frayFactor;
+				glm::vec4 color;
+				int segmentsNum;
+				float frayFactor;
 
-			std::vector<glm::vec3> getVertexPositions() const;
-			std::vector<glm::vec4> getColors() const;
-		};
+				std::vector<glm::vec3> getVertices() const;
+				std::vector<glm::vec4> getColors() const;
+			};
 
-		struct ConnectionsBuffers
-		{
-			ConnectionsBuffers();
-			ConnectionsBuffers(const ConnectionsBuffers&) = delete;
+			std::vector<Params> params;
+			std::vector<glm::vec3> vertices;
+			std::vector<glm::vec4> colors;
+			Buffers::PosColorBuffers buffers;
 
-			~ConnectionsBuffers();
-
-			GLuint vertexArray;
-			GLuint positionBuffer;
-			GLuint colorBuffer;
-
-			std::vector<glm::vec3> positionsCache;
-			std::vector<glm::vec4> colorsCache;
-			size_t numOfAllocatedVertices = 0;
+			void updateBuffers();
 		};
 
 		void initGraphics();
@@ -75,7 +70,6 @@ namespace Systems
 
 		void updatePlayersPositionsBuffers();
 		void updatePlayersTexCoordBuffers();
-		void updateConnectionsGraphicsBuffers();
 
 		void basicRender() const;
 		void texturedRender() const;
@@ -86,7 +80,6 @@ namespace Systems
 		std::vector<Buffers::PosTexCoordBuffers> texturedPlayersBuffers;
 		std::vector<Buffers::PosTexCoordBuffers> customShadersPlayersBuffers;
 
-		std::vector<Connection> connections;
-		std::unique_ptr<ConnectionsBuffers> connectionsBuffers;
+		Connections connections;
 	};
 }

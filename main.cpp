@@ -95,7 +95,6 @@ void Initialize()
 void PrepareFrame()
 {
 	Globals::Systems().stateController().frameSetup();
-
 	Globals::Systems().physics().step();
 	Globals::Systems().deferredActions().step();
 	Globals::Systems().players().step();
@@ -107,11 +106,8 @@ void PrepareFrame()
 	activeLevel->step();
 
 	Globals::Systems().stateController().renderSetup();
-
 	Globals::Systems().renderingController().render();
-
 	Globals::Systems().stateController().frameTeardown();
-
 	Globals::Systems().cleaner().step();
 }
 

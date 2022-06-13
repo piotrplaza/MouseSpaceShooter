@@ -163,6 +163,9 @@
     <ClCompile Include="levels\gravity\gravity.cpp">
       <Filter>src\levels\gravity</Filter>
     </ClCompile>
+    <ClCompile Include="ogl\buffers\posColorBuffers.cpp">
+      <Filter>src\ogl\buffers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mouseState.hpp">
@@ -362,6 +365,9 @@
     </ClInclude>
     <ClInclude Include="levels\gravity\gravity.hpp">
       <Filter>src\levels\gravity</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\buffers\posColorBuffers.hpp">
+      <Filter>src\ogl\buffers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -55,7 +55,7 @@ namespace Systems
 			throttle(player, Globals::Components().mouseState().rmb);
 			magneticHook(player, Globals::Components().mouseState().mmb);
 
-			updateConnectionsGraphicsBuffers();
+			connections.updateBuffers();
 			});
 	}
 
@@ -69,8 +69,6 @@ namespace Systems
 
 	void Players::initGraphics()
 	{
-		connectionsBuffers = std::make_unique<ConnectionsBuffers>();
-
 		updatePlayersPositionsBuffers();
 		updatePlayersTexCoordBuffers();
 	}
@@ -83,52 +81,6 @@ namespace Systems
 	void Players::updatePlayersTexCoordBuffers()
 	{
 		Tools::UpdateTexCoordBuffers(Globals::Components().players(), texturedPlayersBuffers, customShadersPlayersBuffers);
-	}
-
-	void Players::updateConnectionsGraphicsBuffers()
-	{
-		connectionsBuffers->positionsCache.clear();
-		connectionsBuffers->colorsCache.clear();
-
-		for (auto& connection : connections)
-		{
-			if (connection.segmentsNum > 1)
-				connection.segmentsNum = std::max((int)glm::distance(connection.p1, connection.p2) * 2, 2);
-
-			const auto positions = connection.getVertexPositions();
-			connectionsBuffers->positionsCache.insert(connectionsBuffers->positionsCache.end(),
-				positions.begin(), positions.end());
-
-			const auto colors = connection.getColors();
-			connectionsBuffers->colorsCache.insert(connectionsBuffers->colorsCache.end(),
-				colors.begin(), colors.end());
-		}
-
-		if (connectionsBuffers->numOfAllocatedVertices < connectionsBuffers->positionsCache.size())
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->positionBuffer);
-			glBufferData(GL_ARRAY_BUFFER, connectionsBuffers->positionsCache.size()
-				* sizeof(connectionsBuffers->positionsCache.front()),
-				connectionsBuffers->positionsCache.data(), GL_DYNAMIC_DRAW);
-			glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->colorBuffer);
-			glBufferData(GL_ARRAY_BUFFER, connectionsBuffers->colorsCache.size()
-				* sizeof(connectionsBuffers->colorsCache.front()),
-				connectionsBuffers->colorsCache.data(), GL_DYNAMIC_DRAW);
-			connectionsBuffers->numOfAllocatedVertices = connectionsBuffers->positionsCache.size();
-		}
-		else
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->positionBuffer);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, connectionsBuffers->positionsCache.size()
-				* sizeof(connectionsBuffers->positionsCache.front()),
-				connectionsBuffers->positionsCache.data());
-			glBindBuffer(GL_ARRAY_BUFFER, connectionsBuffers->colorBuffer);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, connectionsBuffers->colorsCache.size()
-				* sizeof(connectionsBuffers->colorsCache.front()),
-				connectionsBuffers->colorsCache.data());
-		}
-
-		assert(connectionsBuffers->positionsCache.size() == connectionsBuffers->colorsCache.size());
 	}
 
 	void Players::basicRender() const
@@ -189,8 +141,7 @@ namespace Systems
 		Globals::Shaders().colored().vp(Globals::Components().mvp().getVP());
 		Globals::Shaders().colored().color(Globals::Components().graphicsSettings().defaultColor);
 		Globals::Shaders().colored().model(glm::mat4(1.0f));
-		glBindVertexArray(connectionsBuffers->vertexArray);
-		glDrawArrays(GL_LINES, 0, connectionsBuffers->positionsCache.size());
+		connections.buffers.draw();
 	}
 
 	void Players::turn(Components::Player& player, glm::vec2 controllerDelta, bool autoRotation) const
@@ -246,7 +197,7 @@ namespace Systems
 
 	void Players::magneticHook(Components::Player& player, bool active)
 	{
-		connections.clear();
+		connections.params.clear();
 
 		ComponentId nearestGrappleId = 0;
 		float nearestGrappleDistance = std::numeric_limits<float>::infinity();
@@ -296,32 +247,32 @@ namespace Systems
 					{
 						if (player.grappleJoint)
 						{
-							connections.emplace_back(player.getCenter(), grapple.getCenter(),
+							connections.params.emplace_back(player.getCenter(), grapple.getCenter(),
 								glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) * 0.2f, 1);
 						}
 						player.weakConnectedGrappleId = grappleInRange;
 					}
 					else
 					{
-						connections.emplace_back(player.getCenter(), grapple.getCenter(),
+						connections.params.emplace_back(player.getCenter(), grapple.getCenter(),
 							glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) * 0.2f, 1);
 					}
 				}
 			}
 			else if (player.connectedGrappleId != grappleInRange)
 			{
-				connections.emplace_back(player.getCenter(), grapple.getCenter(), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) * 0.2f, 1);
+				connections.params.emplace_back(player.getCenter(), grapple.getCenter(), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) * 0.2f, 1);
 			}
 		}
 
 		if (player.connectedGrappleId)
 		{
-			connections.emplace_back(player.getCenter(), Globals::Components().grapples()[player.connectedGrappleId].getCenter(),
+			connections.params.emplace_back(player.getCenter(), Globals::Components().grapples()[player.connectedGrappleId].getCenter(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) * 0.7f, 20, 0.4f);
 		}
 		else if (player.weakConnectedGrappleId)
 		{
-			connections.emplace_back(player.getCenter(), Globals::Components().grapples()[player.weakConnectedGrappleId].getCenter(),
+			connections.params.emplace_back(player.getCenter(), Globals::Components().grapples()[player.weakConnectedGrappleId].getCenter(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) * 0.5f, 1);
 		}
 	}
@@ -342,35 +293,37 @@ namespace Systems
 		player.grappleJoint.reset(Globals::Components().physics().world->CreateJoint(&distanceJointDef));
 	}
 
-	Players::ConnectionsBuffers::ConnectionsBuffers()
-	{
-		glCreateVertexArrays(1, &vertexArray);
-		glBindVertexArray(vertexArray);
-		glGenBuffers(1, &positionBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-		glEnableVertexAttribArray(0);
-		glGenBuffers(1, &colorBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
-		glEnableVertexAttribArray(1);
-	}
-
-	Players::ConnectionsBuffers::~ConnectionsBuffers()
-	{
-		glDeleteBuffers(1, &positionBuffer);
-		glDeleteBuffers(1, &colorBuffer);
-		glDeleteVertexArrays(1, &vertexArray);
-	}
-
-	std::vector<glm::vec3> Players::Connection::getVertexPositions() const
+	std::vector<glm::vec3> Players::Connections::Params::getVertices() const
 	{
 		if (segmentsNum == 1) return { { p1, 0.0f }, { p2, 0.0f } };
 		else return Tools::CreateVerticesOfLightning(p1, p2, segmentsNum, frayFactor);
 	}
 
-	std::vector<glm::vec4> Players::Connection::getColors() const
+	std::vector<glm::vec4> Players::Connections::Params::getColors() const
 	{
 		return std::vector<glm::vec4>(segmentsNum * 2, color);
+	}
+
+	void Players::Connections::updateBuffers()
+	{
+		vertices.clear();
+		colors.clear();
+
+		for (auto& connectionParams : params)
+		{
+			if (connectionParams.segmentsNum > 1)
+				connectionParams.segmentsNum = std::max((int)glm::distance(connectionParams.p1, connectionParams.p2) * 2, 2);
+
+			const auto vertices = connectionParams.getVertices();
+			this->vertices.insert(this->vertices.end(), vertices.begin(), vertices.end());
+
+			const auto colors = connectionParams.getColors();
+			this->colors.insert(this->colors.end(), colors.begin(), colors.end());
+		}
+
+		buffers.allocateOrUpdatePositionsBuffer(vertices);
+		buffers.allocateOrUpdateColorsBuffer(colors);
+
+		assert(vertices.size() == colors.size());
 	}
 }
