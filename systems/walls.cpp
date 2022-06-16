@@ -74,7 +74,7 @@ namespace Systems
 		Tools::UpdateTexCoordBuffers(Globals::Components().grapples(), texturedGrapplesBuffers, customShadersGrapplesBuffers);
 	}
 
-	void Walls::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const
+	void Walls::customShadersRender(const std::vector<Buffers::GenericBuffers>& buffers) const
 	{
 		for (const auto& currentBuffers : buffers)
 		{

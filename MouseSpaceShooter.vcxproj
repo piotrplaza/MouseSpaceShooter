@@ -33,8 +33,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ogl\buffers\genericBuffers.cpp" />
     <ClCompile Include="ogl\buffers\posColorBuffers.cpp" />
-    <ClCompile Include="ogl\buffers\posTexCoordBuffers.cpp" />
     <ClCompile Include="ogl\oglHelpers.cpp" />
     <ClCompile Include="ogl\oglProxy.cpp" />
     <ClCompile Include="ogl\shaders.cpp" />
@@ -93,14 +93,13 @@
     <ClInclude Include="levels\playground\playground.hpp" />
     <ClInclude Include="levels\rocketball\rocketball.hpp" />
     <ClInclude Include="ogl\buffersHelpers.hpp" />
+    <ClInclude Include="ogl\buffers\genericBuffers.hpp" />
     <ClInclude Include="ogl\buffers\posColorBuffers.hpp" />
-    <ClInclude Include="ogl\buffers\posTexCoordBuffers.hpp" />
     <ClInclude Include="ogl\oglHelpers.hpp" />
     <ClInclude Include="ogl\oglProxy.hpp" />
     <ClInclude Include="ogl\renderingHelpers.hpp" />
     <ClInclude Include="ogl\shaders.hpp" />
     <ClInclude Include="ogl\shaders\basic.hpp" />
-    <ClInclude Include="ogl\shaders\colored.hpp" />
     <ClInclude Include="ogl\shaders\julia.hpp" />
     <ClInclude Include="ogl\shaders\particles.hpp" />
     <ClInclude Include="ogl\shaders\programBase.hpp" />
@@ -127,8 +126,6 @@
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs" />
     <None Include="ogl\shaders\basic.vs" />
-    <None Include="ogl\shaders\colored.fs" />
-    <None Include="ogl\shaders\colored.vs" />
     <None Include="ogl\shaders\julia.fs" />
     <None Include="ogl\shaders\julia.vs" />
     <None Include="ogl\shaders\particles.fs" />

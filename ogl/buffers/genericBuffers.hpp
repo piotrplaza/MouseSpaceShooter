@@ -16,15 +16,16 @@
 
 namespace Buffers
 {
-	struct PosTexCoordBuffers
+	struct GenericBuffers
 	{
-		PosTexCoordBuffers();
-		PosTexCoordBuffers(const PosTexCoordBuffers&) = delete;
-		PosTexCoordBuffers(PosTexCoordBuffers&& other) noexcept;
+		GenericBuffers();
+		GenericBuffers(const GenericBuffers&) = delete;
+		GenericBuffers(GenericBuffers&& other) noexcept;
 
-		~PosTexCoordBuffers();
+		~GenericBuffers();
 
 		void allocateOrUpdatePositionsBuffer(const std::vector<glm::vec3>& positions);
+		void allocateOrUpdateColorsBuffer(const std::vector<glm::vec2>& colors);
 		void allocateOrUpdateTexCoordBuffer(const std::vector<glm::vec2>& texCoord);
 
 		void draw() const;
@@ -41,14 +42,18 @@ namespace Buffers
 		bool preserveTextureRatio = false;
 
 	private:
+		void createColorBuffer();
 		void createTexCoordBuffer();
 
 		GLuint vertexArray;
 		GLuint positionBuffer;
+		std::optional<GLuint> colorBuffer;
 		std::optional<GLuint> texCoordBuffer;
 		size_t numOfPositions = 0;
+		size_t numOfColors = 0;
 		size_t numOfTexCoord = 0;
 		size_t numOfAllocatedPositions = 0;
+		size_t numOfAllocatedColors = 0;
 		size_t numOfAllocatedTexCoord = 0;
 		std::optional<GLenum> allocatedBufferDataUsage;
 		bool expired = false;

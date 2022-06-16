@@ -6,7 +6,6 @@
 
 #include <ogl/shaders/basic.hpp>
 #include <ogl/shaders/textured.hpp>
-#include <ogl/shaders/colored.hpp>
 
 #include <tools/b2Helpers.hpp>
 #include <tools/graphicsHelpers.hpp>
@@ -137,10 +136,10 @@ namespace Systems
 
 	void Players::coloredRender() const
 	{
-		glUseProgram_proxy(Globals::Shaders().colored().getProgramId());
-		Globals::Shaders().colored().vp(Globals::Components().mvp().getVP());
-		Globals::Shaders().colored().color(Globals::Components().graphicsSettings().defaultColor);
-		Globals::Shaders().colored().model(glm::mat4(1.0f));
+		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
+		Globals::Shaders().basic().vp(Globals::Components().mvp().getVP());
+		Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
+		Globals::Shaders().basic().model(glm::mat4(1.0f));
 		connections.buffers.draw();
 	}
 

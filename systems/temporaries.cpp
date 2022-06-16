@@ -41,7 +41,7 @@ namespace Systems
 			texturedRocketsBuffers, customShaderRocketsBuffers);
 	}
 
-	void Temporaries::customShadersRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffers) const
+	void Temporaries::customShadersRender(const std::unordered_map<ComponentId, Buffers::GenericBuffers>& buffers) const
 	{
 		for (const auto& [id, currentBuffers] : buffers)
 		{
@@ -59,7 +59,7 @@ namespace Systems
 		}
 	}
 
-	void Temporaries::texturedRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffers) const
+	void Temporaries::texturedRender(const std::unordered_map<ComponentId, Buffers::GenericBuffers>& buffers) const
 	{
 		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
 		Globals::Shaders().textured().vp(Globals::Components().mvp().getVP());
@@ -72,7 +72,7 @@ namespace Systems
 		}
 	}
 
-	void Temporaries::basicRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffers) const
+	void Temporaries::basicRender(const std::unordered_map<ComponentId, Buffers::GenericBuffers>& buffers) const
 	{
 		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
 		Globals::Shaders().basic().vp(Globals::Components().mvp().getVP());

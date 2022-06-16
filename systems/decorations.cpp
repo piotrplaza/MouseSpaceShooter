@@ -125,8 +125,8 @@ namespace Systems
 			temporaryBuffers.texturedForegroundDecorations, temporaryBuffers.customShadersForegroundDecorations);
 	}
 
-	void Decorations::customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
-		const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const
+	void Decorations::customShadersRender(const std::vector<Buffers::GenericBuffers>& persistentBuffers,
+		const std::unordered_map<ComponentId, Buffers::GenericBuffers>& temporaryBuffers) const
 	{
 		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
@@ -158,8 +158,8 @@ namespace Systems
 			render(buffers);
 	}
 
-	void Decorations::texturedRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
-		const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const
+	void Decorations::texturedRender(const std::vector<Buffers::GenericBuffers>& persistentBuffers,
+		const std::unordered_map<ComponentId, Buffers::GenericBuffers>& temporaryBuffers) const
 	{
 		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
 		Globals::Shaders().textured().vp(Globals::Components().mvp().getVP());
@@ -187,8 +187,8 @@ namespace Systems
 			render(buffers);
 	}
 
-	void Decorations::basicRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
-		const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const
+	void Decorations::basicRender(const std::vector<Buffers::GenericBuffers>& persistentBuffers,
+		const std::unordered_map<ComponentId, Buffers::GenericBuffers>& temporaryBuffers) const
 	{
 		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
 		Globals::Shaders().basic().vp(Globals::Components().mvp().getVP());

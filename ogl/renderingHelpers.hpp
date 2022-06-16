@@ -118,7 +118,7 @@ namespace Tools
 			renderingTeardown = Globals::Components().renderingSetups()[buffers.renderingSetup](shadersProgram.getProgramId());
 
 		buffers.draw();
-		
+
 		if (renderingTeardown)
 			renderingTeardown();
 	}
@@ -163,8 +163,11 @@ namespace Tools
 			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, &defaultPositions);
 		glEnableVertexAttribArray(0);
 
-		glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, &defaultTexCoords);
-		glEnableVertexAttribArray(1);
+		glVertexAttrib4f(1, 1.0f, 1.0f, 1.0f, 1.0f);
+		glDisableVertexAttribArray(1);
+
+		glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, &defaultTexCoords);
+		glEnableVertexAttribArray(2);
 
 		glUseProgram_proxy(shadersProgram.getProgramId());
 

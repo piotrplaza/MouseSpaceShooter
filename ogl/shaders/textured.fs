@@ -1,6 +1,7 @@
 #version 440
 
 in vec2 vPos;
+in vec4 vColor;
 in vec2 vTexCoord[5];
 
 out vec4 fColor;
@@ -34,7 +35,7 @@ float playersDistanceAlpha()
 void main()
 {
 	if (numOfTextures == 1)
-		fColor = texture(textures[0], vTexCoord[0]) * color * playersDistanceAlpha();
+		fColor = texture(textures[0], vTexCoord[0]) * vColor * color * playersDistanceAlpha();
 	else
 	{
 		const vec4 finalBlendingColor = texture(textures[0], vTexCoord[0]) * mulBlendingColor + addBlendingColor;
@@ -45,6 +46,6 @@ void main()
 
 		fColor = vec4((accumulatedColor / (colorAccumulation ? 1 : (numOfTextures - 1))).rgb,
 			alphaFromBlendingTexture ? finalBlendingColor.a : accumulatedColor.a
-		) * color * playersDistanceAlpha();
+		) * vColor * color * playersDistanceAlpha();
 	}
 }

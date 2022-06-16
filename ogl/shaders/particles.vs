@@ -1,8 +1,10 @@
 #version 440
 
 in vec3 bPos;
+in vec4 bColor;
 
 out float vAngle;
+out vec4 vColor;
 
 uint StableRandom(uint seed)
 {
@@ -23,5 +25,6 @@ float randhashf(uint seed, float b)
 void main()
 {
 	vAngle = randhashf(uint(gl_VertexID), 2 * PI);
+	vColor = bColor;
 	gl_Position = vec4(bPos, 1.0);
 }

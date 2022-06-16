@@ -72,7 +72,7 @@ void CreateLevel()
 
 void Initialize()
 {
-	if (console) Tools::RedirectIOToConsole({ 2000, 10 });
+	if (console) Tools::RedirectIOToConsole({ 4000, 10 });
 	Tools::RandomInit();
 	OGLInitialize();
 
@@ -81,7 +81,6 @@ void Initialize()
 	Globals::InitializeSystems();
 
 	CreateLevel();
-
 	Globals::Systems().textures().postInit();
 	Globals::Systems().physics().postInit();
 	Globals::Systems().players().postInit();
@@ -104,7 +103,6 @@ void PrepareFrame()
 	Globals::Systems().camera().step();
 
 	activeLevel->step();
-
 	Globals::Systems().stateController().renderSetup();
 	Globals::Systems().renderingController().render();
 	Globals::Systems().stateController().frameTeardown();

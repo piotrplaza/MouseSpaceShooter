@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-#include <ogl/buffers/posTexCoordBuffers.hpp>
+#include <ogl/buffers/genericBuffers.hpp>
 
 #include <components/componentId.hpp>
 
@@ -19,12 +19,12 @@ namespace Systems
 	private:
 		void updatePosAndTexCoordBuffers();
 
-		void customShadersRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffers) const;
-		void texturedRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffers) const;
-		void basicRender(const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& buffer) const;
+		void customShadersRender(const std::unordered_map<ComponentId, Buffers::GenericBuffers>& buffers) const;
+		void texturedRender(const std::unordered_map<ComponentId, Buffers::GenericBuffers>& buffers) const;
+		void basicRender(const std::unordered_map<ComponentId, Buffers::GenericBuffers>& buffer) const;
 
-		std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers> simpleRocketsBuffers;
-		std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers> texturedRocketsBuffers;
-		std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers> customShaderRocketsBuffers;
+		std::unordered_map<ComponentId, Buffers::GenericBuffers> simpleRocketsBuffers;
+		std::unordered_map<ComponentId, Buffers::GenericBuffers> texturedRocketsBuffers;
+		std::unordered_map<ComponentId, Buffers::GenericBuffers> customShaderRocketsBuffers;
 	};
 }

@@ -1,7 +1,6 @@
 #include "shaders.hpp"
 
 #include "ogl/shaders/basic.hpp"
-#include "ogl/shaders/colored.hpp"
 #include "ogl/shaders/julia.hpp"
 #include "ogl/shaders/particles.hpp"
 #include "ogl/shaders/textured.hpp"
@@ -14,11 +13,6 @@ namespace Globals
 	::Shaders::Programs::Basic& Shaders::basic()
 	{
 		return *basic_;
-	}
-
-	::Shaders::Programs::Colored& Shaders::colored()
-	{
-		return *colored_;
 	}
 
 	::Shaders::Programs::Julia& Shaders::julia()

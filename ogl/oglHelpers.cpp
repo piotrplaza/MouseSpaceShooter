@@ -4,6 +4,8 @@
 
 #include <GL/glew.h>
 
+#include <iostream>
+
 namespace Tools
 {
 	ConditionalScopedFramebuffer::ConditionalScopedFramebuffer(bool cond, unsigned fbo, glm::ivec2 localFbViewportSize, unsigned defaultFBO, glm::ivec2 defaultFbViewportSize):
@@ -46,6 +48,15 @@ namespace Tools
 			{
 				wglSwapIntervalEXT(enabled);
 			}
+		}
+	}
+
+	void PrintCurrentGLErrors(const std::string& prefix)
+	{
+		GLenum err = GL_NO_ERROR;
+		while ((err = glGetError()) != GL_NO_ERROR)
+		{
+			std::cout << prefix << ": 0x" << std::hex << err << std::endl;
 		}
 	}
 }

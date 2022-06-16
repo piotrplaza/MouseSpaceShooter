@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ogl/buffers/posTexCoordBuffers.hpp>
+#include <ogl/buffers/genericBuffers.hpp>
 
 #include <components/typeComponentMappers.hpp>
 
@@ -35,17 +35,17 @@ namespace Systems
 		void updateWallsTexCoordsBuffers();
 		void updateGrapplesTexCoordsBuffers();
 
-		void customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& buffers) const;
+		void customShadersRender(const std::vector<Buffers::GenericBuffers>& buffers) const;
 		void customShadersRender() const;
 		void texturedRender() const;
 		void basicRender() const;
 
-		std::vector<Buffers::PosTexCoordBuffers> simpleWallsBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> texturedWallsBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> customShadersWallsBuffers;
+		std::vector<Buffers::GenericBuffers> simpleWallsBuffers;
+		std::vector<Buffers::GenericBuffers> texturedWallsBuffers;
+		std::vector<Buffers::GenericBuffers> customShadersWallsBuffers;
 
-		std::vector<Buffers::PosTexCoordBuffers> simpleGrapplesBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> texturedGrapplesBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> customShadersGrapplesBuffers;
+		std::vector<Buffers::GenericBuffers> simpleGrapplesBuffers;
+		std::vector<Buffers::GenericBuffers> texturedGrapplesBuffers;
+		std::vector<Buffers::GenericBuffers> customShadersGrapplesBuffers;
 	};
 }

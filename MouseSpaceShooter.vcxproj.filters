@@ -38,9 +38,6 @@
     <Filter Include="src\ogl\shaders\basic">
       <UniqueIdentifier>{326dee5c-236d-4bf2-972c-294c63459962}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ogl\shaders\colored">
-      <UniqueIdentifier>{1bd18e09-f8a5-4e73-a5e7-3c46b30cd820}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ogl\shaders\julia">
       <UniqueIdentifier>{fc5a1d40-ed16-4d60-9c7f-6bac933fc7a9}</UniqueIdentifier>
     </Filter>
@@ -115,9 +112,6 @@
     <ClCompile Include="levels\level.cpp">
       <Filter>src\levels</Filter>
     </ClCompile>
-    <ClCompile Include="ogl\buffers\posTexCoordBuffers.cpp">
-      <Filter>src\ogl\buffers</Filter>
-    </ClCompile>
     <ClCompile Include="levels\rocketball\rocketball.cpp">
       <Filter>src\levels\rocketball</Filter>
     </ClCompile>
@@ -164,6 +158,9 @@
       <Filter>src\levels\gravity</Filter>
     </ClCompile>
     <ClCompile Include="ogl\buffers\posColorBuffers.cpp">
+      <Filter>src\ogl\buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="ogl\buffers\genericBuffers.cpp">
       <Filter>src\ogl\buffers</Filter>
     </ClCompile>
   </ItemGroup>
@@ -249,14 +246,8 @@
     <ClInclude Include="tools\glmHelpers.hpp">
       <Filter>src\tools</Filter>
     </ClInclude>
-    <ClInclude Include="ogl\buffers\posTexCoordBuffers.hpp">
-      <Filter>src\ogl\buffers</Filter>
-    </ClInclude>
     <ClInclude Include="ogl\shaders\basic.hpp">
       <Filter>src\ogl\shaders\basic</Filter>
-    </ClInclude>
-    <ClInclude Include="ogl\shaders\colored.hpp">
-      <Filter>src\ogl\shaders\colored</Filter>
     </ClInclude>
     <ClInclude Include="ogl\shaders\julia.hpp">
       <Filter>src\ogl\shaders\julia</Filter>
@@ -369,6 +360,9 @@
     <ClInclude Include="ogl\buffers\posColorBuffers.hpp">
       <Filter>src\ogl\buffers</Filter>
     </ClInclude>
+    <ClInclude Include="ogl\buffers\genericBuffers.hpp">
+      <Filter>src\ogl\buffers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">
@@ -376,12 +370,6 @@
     </None>
     <None Include="ogl\shaders\basic.vs">
       <Filter>src\ogl\shaders\basic</Filter>
-    </None>
-    <None Include="ogl\shaders\colored.fs">
-      <Filter>src\ogl\shaders\colored</Filter>
-    </None>
-    <None Include="ogl\shaders\colored.vs">
-      <Filter>src\ogl\shaders\colored</Filter>
     </None>
     <None Include="ogl\shaders\julia.fs">
       <Filter>src\ogl\shaders\julia</Filter>

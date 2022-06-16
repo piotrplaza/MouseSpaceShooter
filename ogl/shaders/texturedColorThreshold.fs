@@ -1,5 +1,6 @@
 #version 440
 
+in vec4 vColor;
 in vec2 vTexCoord[5];
 
 out vec4 fColor;
@@ -23,7 +24,7 @@ void main()
 
 	if (numOfTextures == 1)
 	{
-		fColor = finalBaseColor * color;
+		fColor = finalBaseColor * vColor * color;
 	}
 	else
 	{
@@ -38,6 +39,6 @@ void main()
 			alphaFromBlendingTexture
 			? finalBlendingColor.a
 			: accumulatedColor.a
-		) * color;
+		) * vColor * color;
 	}
 }

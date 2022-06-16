@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ogl/buffers/posTexCoordBuffers.hpp>
+#include <ogl/buffers/genericBuffers.hpp>
 #include <ogl/buffers/posColorBuffers.hpp>
 
 #include <components/typeComponentMappers.hpp>
@@ -76,9 +76,9 @@ namespace Systems
 		void customShadersRender() const;
 		void coloredRender() const;
 
-		std::vector<Buffers::PosTexCoordBuffers> simplePlayersBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> texturedPlayersBuffers;
-		std::vector<Buffers::PosTexCoordBuffers> customShadersPlayersBuffers;
+		std::vector<Buffers::GenericBuffers> simplePlayersBuffers;
+		std::vector<Buffers::GenericBuffers> texturedPlayersBuffers;
+		std::vector<Buffers::GenericBuffers> customShadersPlayersBuffers;
 
 		Connections connections;
 	};

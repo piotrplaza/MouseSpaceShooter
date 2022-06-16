@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ogl/buffers/posTexCoordBuffers.hpp>
+#include <ogl/buffers/genericBuffers.hpp>
 
 #include <components/componentId.hpp>
 
@@ -32,12 +32,12 @@ namespace Systems
 
 		void updateTemporaryPosAndTexCoordBuffers();
 
-		void customShadersRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
-			const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const;
-		void texturedRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
-			const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const;
-		void basicRender(const std::vector<Buffers::PosTexCoordBuffers>& persistentBuffers,
-			const std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>& temporaryBuffers) const;
+		void customShadersRender(const std::vector<Buffers::GenericBuffers>& persistentBuffers,
+			const std::unordered_map<ComponentId, Buffers::GenericBuffers>& temporaryBuffers) const;
+		void texturedRender(const std::vector<Buffers::GenericBuffers>& persistentBuffers,
+			const std::unordered_map<ComponentId, Buffers::GenericBuffers>& temporaryBuffers) const;
+		void basicRender(const std::vector<Buffers::GenericBuffers>& persistentBuffers,
+			const std::unordered_map<ComponentId, Buffers::GenericBuffers>& temporaryBuffers) const;
 
 		template <typename BufferType>
 		struct DecorationBuffers
@@ -61,7 +61,7 @@ namespace Systems
 			BufferType customShadersForegroundDecorations;
 		};
 		
-		DecorationBuffers<std::vector<Buffers::PosTexCoordBuffers>> persistentBuffers;
-		DecorationBuffers<std::unordered_map<ComponentId, Buffers::PosTexCoordBuffers>> temporaryBuffers;
+		DecorationBuffers<std::vector<Buffers::GenericBuffers>> persistentBuffers;
+		DecorationBuffers<std::unordered_map<ComponentId, Buffers::GenericBuffers>> temporaryBuffers;
 	};
 }
