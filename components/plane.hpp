@@ -23,11 +23,11 @@
 
 namespace Components
 {
-	struct Player : ComponentBase
+	struct Plane : ComponentBase
 	{
 		using ComponentBase::ComponentBase;
 
-		Player(Body body,
+		Plane(Body body,
 			TextureComponentVariant texture = std::monostate{},
 			std::vector<glm::vec2> texCoord = {},
 			ComponentId renderingSetup = 0,
@@ -38,8 +38,17 @@ namespace Components
 			renderingSetup(renderingSetup),
 			customShadersProgram(customShadersProgram)
 		{
-			Tools::AccessUserData(*this->body).bodyComponentVariant = TCM::Player(getComponentId());
+			Tools::AccessUserData(*this->body).bodyComponentVariant = TCM::Plane(getComponentId());
 		}
+
+		struct
+		{
+			glm::vec2 turningDelta{ 0.0f, 0.0f };
+			bool autoRotation = false;
+			float autoRotationFactor = 0.5f;
+			bool throttling = false;
+			bool magneticHook = false;
+		} controls;
 
 		Body body;
 		TextureComponentVariant texture;
@@ -49,14 +58,11 @@ namespace Components
 		ResolutionMode resolutionMode = ResolutionMode::Normal;
 
 		bool connectIfApproaching = false;
-		float autoRotationFactor = 0.5f;
 
 		std::unique_ptr<b2Joint, b2JointDeleter> grappleJoint;
 		ComponentId connectedGrappleId = 0;
 		ComponentId weakConnectedGrappleId = 0;
 		glm::vec2 previousCenter{ 0.0f, 0.0f };
-
-		bool throttling = false;
 
 		GLenum drawMode = GL_TRIANGLES;
 		GLenum bufferDataUsage = GL_DYNAMIC_DRAW;

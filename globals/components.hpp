@@ -16,7 +16,7 @@ namespace Components
 	struct AnimatedTexture;
 	struct BlendingTexture;
 	struct RenderingSetup;
-	struct Player;
+	struct Plane;
 	struct Wall;
 	struct Grapple;
 	struct Camera;
@@ -51,7 +51,7 @@ namespace Globals
 		std::vector<::Components::AnimatedTexture>& animatedTextures();
 		std::vector<::Components::BlendingTexture>& blendingTextures();
 		std::vector<::Components::RenderingSetup>& renderingSetups();
-		std::vector<::Components::Player>& players();
+		std::vector<::Components::Plane>& planes();
 		std::vector<::Components::Wall>& walls();
 		std::vector<::Components::Grapple>& grapples();
 		std::vector<::Components::Decoration>& backgroundDecorations();
@@ -86,7 +86,7 @@ namespace Globals
 		std::vector<::Components::AnimatedTexture> animatedTextures_;
 		std::vector<::Components::BlendingTexture> blendingTextures_;
 		std::vector<::Components::RenderingSetup> renderingSetups_;
-		std::vector<::Components::Player> players_;
+		std::vector<::Components::Plane> planes_;
 		std::vector<::Components::Wall> walls_;
 		std::vector<::Components::Grapple> grapples_;
 		std::vector<::Components::Decoration> backgroundDecorations_;

@@ -6,7 +6,7 @@
 #include <components/mainFramebufferRenderer.hpp>
 
 #include <systems/walls.hpp>
-#include <systems/players.hpp>
+#include <systems/actors.hpp>
 #include <systems/temporaries.hpp>
 #include <systems/decorations.hpp>
 
@@ -43,7 +43,7 @@ namespace Systems
 		Globals::Systems().decorations().renderFarMidground();
 		Globals::Systems().walls().render();
 		Globals::Systems().temporaries().render();
-		Globals::Systems().players().render();
+		Globals::Systems().actors().render();
 		Globals::Systems().decorations().renderMidground();
 		Globals::Systems().decorations().renderNearMidground();
 		Globals::Systems().decorations().renderForeground();

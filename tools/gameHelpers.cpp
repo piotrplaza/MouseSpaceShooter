@@ -2,7 +2,7 @@
 
 #include <systems/deferredActions.hpp>
 
-#include <components/player.hpp>
+#include <components/plane.hpp>
 #include <components/physics.hpp>
 #include <components/decoration.hpp>
 #include <components/missile.hpp>
@@ -30,16 +30,16 @@
 
 namespace Tools
 {
-	PlayerPlaneHandler CreatePlayerPlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position, float angle)
+	PlaneHandler CreatePlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position, float angle)
 	{
-		PlayerPlaneHandler playerPlaneHandler;
+		PlaneHandler planeHandler;
 
-		playerPlaneHandler.playerId = Globals::Components().players().size();
-		auto& player = Globals::Components().players().emplace_back(Tools::CreateTrianglePlayerBody(2.0f, 0.2f, 0.5f), TCM::Texture(planeTexture));
-		SetCollisionFilteringBits(*player.body, CollisionBits::playerBit, CollisionBits::all);
-		player.setPosition(position);
-		player.setRotation(angle);
-		player.preserveTextureRatio = true;
+		planeHandler.planeId = Globals::Components().planes().size();
+		auto& plane = Globals::Components().planes().emplace_back(Tools::CreatePlaneBody(2.0f, 0.2f, 0.5f), TCM::Texture(planeTexture));
+		SetCollisionFilteringBits(*plane.body, CollisionBits::planeBit, CollisionBits::all);
+		plane.setPosition(position);
+		plane.setRotation(angle);
+		plane.preserveTextureRatio = true;
 
 		Globals::Components().renderingSetups().emplace_back([
 			colorUniform = Uniforms::UniformController4f()
@@ -50,13 +50,13 @@ namespace Tools
 					return nullptr;
 				});
 
-		player.renderingSetup = Globals::Components().renderingSetups().size() - 1;
+		plane.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 
 		for (int i = 0; i < 2; ++i)
 		{
 			auto& animationTexture = Globals::Components().animatedTextures().back();
 
-			playerPlaneHandler.backThrustsIds[i] = Globals::Components().farMidgroundDecorations().size();
+			planeHandler.backThrustsIds[i] = Globals::Components().farMidgroundDecorations().size();
 			auto& decoration = Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }),
 				TCM::AnimatedTexture(flameAnimatedTexture));
 
@@ -64,13 +64,13 @@ namespace Tools
 				thrustScale = 1.0f
 				](Shaders::ProgramId program) mutable {
 					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
-					modelUniform(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*player.body),
+					modelUniform(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*plane.body),
 						{ -1.0f - thrustScale * 0.25f, i == 0 ? -0.5f : 0.5f, 0.0f }),
 						-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
 						{ std::min(thrustScale * 0.5f, 0.6f), thrustScale, 1.0f }));
 
 					const float targetFrameDurationFactor = Globals::Components().physics().frameDuration * 6;
-					if (player.throttling) thrustScale = std::min(thrustScale * (1.0f + targetFrameDurationFactor), 5.0f);
+					if (plane.controls.throttling) thrustScale = std::min(thrustScale * (1.0f + targetFrameDurationFactor), 5.0f);
 					else thrustScale = 1.0f + (thrustScale - 1.0f) * (1.0f - targetFrameDurationFactor);
 
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -81,7 +81,7 @@ namespace Tools
 			decoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 		}
 
-		return playerPlaneHandler;
+		return planeHandler;
 	}
 
 	MissileHandler::MissileHandler() = default;
@@ -124,7 +124,7 @@ namespace Tools
 	{
 		auto& missile = EmplaceIdComponent(Globals::Components().missiles(), { Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f) });
 		auto& body = *missile.body;
-		SetCollisionFilteringBits(body, CollisionBits::missileBit, CollisionBits::all - CollisionBits::missileBit - CollisionBits::playerBit);
+		SetCollisionFilteringBits(body, CollisionBits::missileBit, CollisionBits::all - CollisionBits::missileBit - CollisionBits::planeBit);
 		body.SetBullet(true);
 		body.SetLinearVelocity({ initialVelocity.x, initialVelocity.y });
 		missile.texture = TCM::Texture(missileTexture);

@@ -2,7 +2,7 @@
 
 #include "tools/utility.hpp"
 
-#include <components/player.hpp>
+#include <components/plane.hpp>
 #include <components/grapple.hpp>
 #include <components/screenInfo.hpp>
 #include <components/mouseState.hpp>
@@ -32,8 +32,8 @@ namespace Systems
 
 	void StateController::postInit() const
 	{
-		Globals::ForEach(Globals::Components().players(), [](auto& player) {
-			player.previousCenter = player.getCenter();
+		Globals::ForEach(Globals::Components().planes(), [](auto& plane) {
+			plane.previousCenter = plane.getCenter();
 			});
 
 		Globals::ForEach(Globals::Components().grapples(), [](auto& grapple) {
@@ -49,17 +49,17 @@ namespace Systems
 
 	void StateController::renderSetup() const
 	{
-		Globals::Shaders().textured().numOfPlayers(Globals::Components().players().size() - 1);
+		Globals::Shaders().textured().numOfPlayers(Globals::Components().planes().size() - 1);
 
-		for (int i = 1; i < (int)Globals::Components().players().size(); ++i)
+		for (int i = 1; i < (int)Globals::Components().planes().size(); ++i)
 		{
-			Globals::Shaders().textured().playersCenter(i - 1, Globals::Components().players()[i].getCenter());
+			Globals::Shaders().textured().playersCenter(i - 1, Globals::Components().planes()[i].getCenter());
 		}
 	}
 
 	void StateController::frameTeardown() const
 	{
-		Globals::ForEach(Globals::Components().players(), [](auto& player) {
+		Globals::ForEach(Globals::Components().planes(), [](auto& player) {
 			player.previousCenter = player.getCenter();
 			});
 

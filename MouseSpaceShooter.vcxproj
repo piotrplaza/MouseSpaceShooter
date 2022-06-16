@@ -39,12 +39,12 @@
     <ClCompile Include="ogl\oglProxy.cpp" />
     <ClCompile Include="ogl\shaders.cpp" />
     <ClCompile Include="ogl\uniformControllers.cpp" />
+    <ClCompile Include="systems\actors.cpp" />
     <ClCompile Include="systems\camera.cpp" />
     <ClCompile Include="systems\cleaner.cpp" />
     <ClCompile Include="systems\decorations.cpp" />
     <ClCompile Include="systems\deferredActions.cpp" />
     <ClCompile Include="systems\physics.cpp" />
-    <ClCompile Include="systems\players.cpp" />
     <ClCompile Include="systems\renderingController.cpp" />
     <ClCompile Include="systems\stateController.cpp" />
     <ClCompile Include="systems\temporaries.cpp" />
@@ -78,7 +78,7 @@
     <ClInclude Include="components\mouseState.hpp" />
     <ClInclude Include="components\mvp.hpp" />
     <ClInclude Include="components\physics.hpp" />
-    <ClInclude Include="components\player.hpp" />
+    <ClInclude Include="components\plane.hpp" />
     <ClInclude Include="components\renderingSetup.hpp" />
     <ClInclude Include="components\screenInfo.hpp" />
     <ClInclude Include="components\shockwave.hpp" />
@@ -106,12 +106,12 @@
     <ClInclude Include="ogl\shaders\textured.hpp" />
     <ClInclude Include="ogl\shaders\texturedColorThreshold.hpp" />
     <ClInclude Include="ogl\uniformControllers.hpp" />
+    <ClInclude Include="systems\actors.hpp" />
     <ClInclude Include="systems\camera.hpp" />
     <ClInclude Include="systems\cleaner.hpp" />
     <ClInclude Include="systems\decorations.hpp" />
     <ClInclude Include="systems\deferredActions.hpp" />
     <ClInclude Include="systems\physics.hpp" />
-    <ClInclude Include="systems\players.hpp" />
     <ClInclude Include="systems\renderingController.hpp" />
     <ClInclude Include="systems\stateController.hpp" />
     <ClInclude Include="systems\temporaries.hpp" />

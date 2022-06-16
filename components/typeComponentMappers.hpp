@@ -41,11 +41,11 @@ namespace TypeComponentMappers
 		bool operator==(const Missile&) const = default;
 	};
 
-	struct Player
+	struct Plane
 	{
 		ComponentId id;
 
-		bool operator==(const Player&) const = default;
+		bool operator==(const Plane&) const = default;
 	};
 
 	struct Wall
@@ -59,7 +59,7 @@ namespace TypeComponentMappers
 namespace TCM = TypeComponentMappers;
 
 using TextureComponentVariant = std::variant<std::monostate, TCM::Texture, TCM::AnimatedTexture, TCM::BlendingTexture>;
-using BodyComponentVariant = std::variant<std::monostate, TCM::Grapple, TCM::Missile, TCM::Player, TCM::Wall>;
+using BodyComponentVariant = std::variant<std::monostate, TCM::Grapple, TCM::Missile, TCM::Plane, TCM::Wall>;
 
 template<>
 struct std::hash<TCM::Texture>

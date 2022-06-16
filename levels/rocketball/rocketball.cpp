@@ -3,7 +3,7 @@
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
 #include <components/texture.hpp>
-#include <components/player.hpp>
+#include <components/plane.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
 #include <components/camera.hpp>
@@ -75,8 +75,8 @@ namespace Levels
 
 		void createPlayers()
 		{
-			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flame1AnimatedTexture, { -10.0f, 0.0f });
-			Globals::Components().players()[1].connectIfApproaching = true;
+			player1Handler = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { -10.0f, 0.0f });
+			Globals::Components().planes()[1].connectIfApproaching = true;
 		}
 
 		void createStaticWalls() const
@@ -105,7 +105,7 @@ namespace Levels
 
 		void setCamera() const
 		{
-			const auto& player = Globals::Components().players()[player1Handler.playerId];
+			const auto& player = Globals::Components().planes()[player1Handler.planeId];
 
 			Globals::Components().camera().targetProjectionHSizeF = [&]() {
 				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
@@ -119,6 +119,14 @@ namespace Levels
 
 		void step()
 		{
+			const auto& mouseState = Globals::Components().mouseState();
+			const glm::vec2 mouseDelta = { mouseState.getMouseDelta().x, -mouseState.getMouseDelta().y };
+			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
+
+			player1Controls.turningDelta = mouseDelta;
+			player1Controls.autoRotation = mouseState.rmb;
+			player1Controls.throttling = mouseState.rmb;
+			player1Controls.magneticHook = mouseState.mmb;
 		}
 
 	private:
@@ -130,7 +138,7 @@ namespace Levels
 
 		unsigned flame1AnimatedTexture = 0;
 
-		Tools::PlayerPlaneHandler player1Handler;
+		Tools::PlaneHandler player1Handler;
 		Components::Grapple* ball = nullptr;
 	};
 

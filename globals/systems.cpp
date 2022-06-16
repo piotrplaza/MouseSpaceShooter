@@ -3,7 +3,7 @@
 #include "systems/stateController.hpp"
 #include "systems/physics.hpp"
 #include "systems/textures.hpp"
-#include "systems/players.hpp"
+#include "systems/actors.hpp"
 #include "systems/walls.hpp"
 #include "systems/camera.hpp"
 #include "systems/decorations.hpp"
@@ -31,9 +31,9 @@ namespace Globals
 		return *textures_;
 	}
 
-	::Systems::Players& Systems::players()
+	::Systems::Actors& Systems::actors()
 	{
-		return *players_;
+		return *actors_;
 	}
 
 	::Systems::Walls& Systems::walls()

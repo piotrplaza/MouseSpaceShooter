@@ -3,7 +3,7 @@
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
 #include <components/renderingSetup.hpp>
-#include <components/player.hpp>
+#include <components/plane.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
 #include <components/camera.hpp>
@@ -120,7 +120,7 @@ namespace Levels
 
 		void createBackground()
 		{
-			Tools::CreateJuliaBackground(juliaShaders, []() { return Globals::Components().players()[1].getCenter() * 0.0001f; });
+			Tools::CreateJuliaBackground(juliaShaders, []() { return Globals::Components().planes()[1].getCenter() * 0.0001f; });
 		}
 
 		void createForeground()
@@ -150,13 +150,13 @@ namespace Levels
 
 		void createPlayers()
 		{
-			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flame1AnimatedTexture, {0.0f, -50.0f}, glm::half_pi<float>());
+			player1Handler = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, {0.0f, -50.0f}, glm::half_pi<float>());
 		}
 
 		void launchMissile()
 		{
-			auto missileHandler = Tools::CreateMissile(Globals::Components().players()[1].getCenter(),
-				Globals::Components().players()[1].getAngle(), 5.0f, Globals::Components().players()[1].getVelocity(),
+			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[1].getCenter(),
+				Globals::Components().planes()[1].getAngle(), 5.0f, Globals::Components().planes()[1].getVelocity(),
 				missile2Texture, flame1AnimatedTexture);
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 		}
@@ -189,16 +189,16 @@ namespace Levels
 
 		void setCamera() const
 		{
-			const auto& player = Globals::Components().players()[player1Handler.playerId];
+			const auto& plane = Globals::Components().planes()[player1Handler.planeId];
 			const auto& planet = Globals::Components().grapples()[planetId];
 
 			Globals::Components().camera().targetProjectionHSizeF = [&]() {
 				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
-				return glm::distance(player.getCenter(), planet.getCenter()) * 0.6f + glm::length(player.getVelocity()) * 0.2f;
+				return glm::distance(plane.getCenter(), planet.getCenter()) * 0.6f + glm::length(plane.getVelocity()) * 0.2f;
 			};
 			Globals::Components().camera().targetPositionF = [&]() {
 				Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
-				return (player.getCenter() + planet.getCenter()) / 2.0f + glm::vec2(glm::cos(player.getAngle()), glm::sin(player.getAngle())) * 5.0f + player.getVelocity() * 0.4f;
+				return (plane.getCenter() + planet.getCenter()) / 2.0f + glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * 5.0f + plane.getVelocity() * 0.4f;
 			};
 		}
 
@@ -231,7 +231,16 @@ namespace Levels
 
 		void step()
 		{
-			if (Globals::Components().mouseState().lmb)
+			const auto& mouseState = Globals::Components().mouseState();
+			const glm::vec2 mouseDelta = { mouseState.getMouseDelta().x, -mouseState.getMouseDelta().y };
+			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
+
+			player1Controls.turningDelta = mouseDelta;
+			player1Controls.autoRotation = mouseState.rmb;
+			player1Controls.throttling = mouseState.rmb;
+			player1Controls.magneticHook = mouseState.mmb;
+
+			if (mouseState.lmb)
 			{
 				if (durationToLaunchMissile <= 0.0f)
 				{
@@ -241,9 +250,6 @@ namespace Levels
 				else durationToLaunchMissile -= Globals::Components().physics().frameDuration;
 			}
 			else durationToLaunchMissile = 0.0f;
-
-			projectionHSizeBase = std::clamp(projectionHSizeBase + (prevWheel - Globals::Components().mouseState().wheel) * 5.0f, 5.0f, 100.0f);
-			prevWheel = Globals::Components().mouseState().wheel;
 
 			const float gravityFactor = 0.02f;
 
@@ -279,12 +285,9 @@ namespace Levels
 
 		unsigned flame1AnimatedTexture = 0;
 
-		Tools::PlayerPlaneHandler player1Handler;
+		Tools::PlaneHandler player1Handler;
 
 		float durationToLaunchMissile = 0.0f;
-
-		int prevWheel = 0;
-		float projectionHSizeBase = 20.0f;
 
 		bool explosionFrame = false;
 

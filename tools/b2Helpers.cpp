@@ -35,7 +35,7 @@ void b2JointDeleter::operator()(b2Joint* joint) const
 
 namespace Tools
 {
-	Body CreateTrianglePlayerBody(float size, float density, float spreadFactor)
+	Body CreatePlaneBody(float size, float density, float spreadFactor)
 	{
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;

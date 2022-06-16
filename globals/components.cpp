@@ -8,7 +8,7 @@
 #include <components/animatedTexture.hpp>
 #include <components/blendingTexture.hpp>
 #include <components/renderingSetup.hpp>
-#include <components/player.hpp>
+#include <components/plane.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
 #include <components/camera.hpp>
@@ -33,7 +33,7 @@ namespace Globals
 		animatedTextures_.emplace_back(fakeComponent);
 		blendingTextures_.emplace_back(fakeComponent);
 		renderingSetups_.emplace_back(fakeComponent);
-		players_.emplace_back(fakeComponent);
+		planes_.emplace_back(fakeComponent);
 		walls_.emplace_back(fakeComponent);
 		grapples_.emplace_back(fakeComponent);
 		backgroundDecorations_.emplace_back(fakeComponent);
@@ -104,9 +104,9 @@ namespace Globals
 		return renderingSetups_;
 	}
 
-	std::vector<::Components::Player>& Components::players()
+	std::vector<::Components::Plane>& Components::planes()
 	{
-		return players_;
+		return planes_;
 	}
 
 	std::vector<::Components::Wall>& Components::walls()

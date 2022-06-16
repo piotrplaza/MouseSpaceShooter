@@ -7,7 +7,7 @@ namespace Systems
 	class StateController;
 	class Physics;
 	class Textures;
-	class Players;
+	class Actors;
 	class Walls;
 	class Camera;
 	class Decorations;
@@ -25,7 +25,7 @@ namespace Globals
 		::Systems::StateController& stateController();
 		::Systems::Physics& physics();
 		::Systems::Textures& textures();
-		::Systems::Players& players();
+		::Systems::Actors& actors();
 		::Systems::Walls& walls();
 		::Systems::Camera& camera();
 		::Systems::Decorations& decorations();
@@ -38,7 +38,7 @@ namespace Globals
 		std::unique_ptr<::Systems::StateController> stateController_ = std::make_unique<::Systems::StateController>();
 		std::unique_ptr<::Systems::Physics> physics_ = std::make_unique<::Systems::Physics>();
 		std::unique_ptr<::Systems::Textures> textures_ = std::make_unique<::Systems::Textures>();
-		std::unique_ptr<::Systems::Players> players_ = std::make_unique<::Systems::Players>();
+		std::unique_ptr<::Systems::Actors> actors_ = std::make_unique<::Systems::Actors>();
 		std::unique_ptr<::Systems::Walls> walls_ = std::make_unique<::Systems::Walls>();
 		std::unique_ptr<::Systems::Camera> camera_ = std::make_unique<::Systems::Camera>();
 		std::unique_ptr<::Systems::Decorations> decorations_ = std::make_unique<::Systems::Decorations>();

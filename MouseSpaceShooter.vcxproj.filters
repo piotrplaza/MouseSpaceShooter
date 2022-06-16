@@ -100,9 +100,6 @@
     <ClCompile Include="ogl\uniformControllers.cpp">
       <Filter>src\ogl</Filter>
     </ClCompile>
-    <ClCompile Include="systems\players.cpp">
-      <Filter>src\systems</Filter>
-    </ClCompile>
     <ClCompile Include="systems\decorations.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
@@ -163,6 +160,9 @@
     <ClCompile Include="ogl\buffers\genericBuffers.cpp">
       <Filter>src\ogl\buffers</Filter>
     </ClCompile>
+    <ClCompile Include="systems\actors.cpp">
+      <Filter>src\systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mouseState.hpp">
@@ -175,9 +175,6 @@
       <Filter>src\components</Filter>
     </ClInclude>
     <ClInclude Include="components\physics.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="components\player.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
     <ClInclude Include="systems\physics.hpp">
@@ -218,9 +215,6 @@
     </ClInclude>
     <ClInclude Include="ogl\shaders.hpp">
       <Filter>src\ogl</Filter>
-    </ClInclude>
-    <ClInclude Include="systems\players.hpp">
-      <Filter>src\systems</Filter>
     </ClInclude>
     <ClInclude Include="ogl\buffersHelpers.hpp">
       <Filter>src\ogl</Filter>
@@ -362,6 +356,12 @@
     </ClInclude>
     <ClInclude Include="ogl\buffers\genericBuffers.hpp">
       <Filter>src\ogl\buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\actors.hpp">
+      <Filter>src\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="components\plane.hpp">
+      <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

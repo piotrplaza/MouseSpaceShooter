@@ -3,7 +3,7 @@
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
 #include <components/renderingSetup.hpp>
-#include <components/player.hpp>
+#include <components/plane.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
 #include <components/camera.hpp>
@@ -143,7 +143,7 @@ namespace Levels
 
 		void createBackground()
 		{
-			Tools::CreateJuliaBackground(Globals::Shaders().julia(), []() { return Globals::Components().players()[1].getCenter() * 0.0001f; });
+			Tools::CreateJuliaBackground(Globals::Shaders().julia(), []() { return Globals::Components().planes()[1].getCenter() * 0.0001f; });
 		}
 
 		void createForeground()
@@ -182,7 +182,7 @@ namespace Levels
 						addBlendingColor = Uniforms::UniformController4f(program, "addBlendingColor");
 
 					const float skullOpacity = fogAlphaFactor - 1.0f;
-					const float avatarOpacity = glm::min(0.0f, glm::distance(Globals::Components().players()[1].getCenter(), portraitCenter) / 3.0f - 5.0f);
+					const float avatarOpacity = glm::min(0.0f, glm::distance(Globals::Components().planes()[1].getCenter(), portraitCenter) / 3.0f - 5.0f);
 
 					i == 0
 						? addBlendingColor({ 1.0f, skullOpacity, avatarOpacity, 0.0f })
@@ -200,13 +200,13 @@ namespace Levels
 
 		void createPlayers()
 		{
-			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flame1AnimatedTexture, { -10.0f, 0.0f });
+			player1Handler = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { -10.0f, 0.0f });
 		}
 
 		void launchMissile()
 		{
-			auto missileHandler = Tools::CreateMissile(Globals::Components().players()[1].getCenter(),
-				Globals::Components().players()[1].getAngle(), 5.0f, Globals::Components().players()[1].getVelocity(),
+			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[1].getCenter(),
+				Globals::Components().planes()[1].getAngle(), 5.0f, Globals::Components().planes()[1].getVelocity(),
 				missile2Texture, flame1AnimatedTexture);
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 		}
@@ -440,15 +440,15 @@ namespace Levels
 
 		void setCamera() const
 		{
-			const auto& player = Globals::Components().players()[player1Handler.playerId];
+			const auto& plane = Globals::Components().planes()[player1Handler.planeId];
 
 			Globals::Components().camera().targetProjectionHSizeF = [&]() {
 				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
-				return projectionHSizeBase + glm::length(player.getVelocity()) * 0.2f;
+				return projectionHSizeBase + glm::length(plane.getVelocity()) * 0.2f;
 			};
 			Globals::Components().camera().targetPositionF = [&]() {
 				Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
-				return player.getCenter() + glm::vec2(glm::cos(player.getAngle()), glm::sin(player.getAngle())) * 5.0f + player.getVelocity() * 0.4f;
+				return plane.getCenter() + glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * 5.0f + plane.getVelocity() * 0.4f;
 			};
 		}
 
@@ -459,11 +459,11 @@ namespace Levels
 					for (const auto* fixture : { &fixtureA, &fixtureB })
 					if (fixture->GetFilterData().categoryBits == CollisionBits::missileBit)
 					{
-						const auto& otherFixture = fixture == &fixtureA ? fixtureB : fixtureA;
-						const auto& body = *fixture->GetBody();
-						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(body).bodyComponentVariant).id);
-						Tools::CreateExplosion(Globals::Shaders().particles(), ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture, 1.0f, 64, 4,
-							lowResBodies.count(otherFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1);
+						const auto& targetFixture = fixture == &fixtureA ? fixtureB : fixtureA;
+						const auto& missileBody = *fixture->GetBody();
+						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).id);
+						Tools::CreateExplosion(Globals::Shaders().particles(), ToVec2<glm::vec2>(missileBody.GetWorldCenter()), explosionTexture, 1.0f, 64, 4,
+							lowResBodies.count(targetFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1);
 
 						explosionFrame = true;
 					}
@@ -481,7 +481,16 @@ namespace Levels
 
 		void step()
 		{
-			if (Globals::Components().mouseState().lmb)
+			const auto& mouseState = Globals::Components().mouseState();
+			const glm::vec2 mouseDelta = { mouseState.getMouseDelta().x, -mouseState.getMouseDelta().y };
+			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
+
+			player1Controls.turningDelta = mouseDelta;
+			player1Controls.autoRotation = mouseState.rmb;
+			player1Controls.throttling = mouseState.rmb;
+			player1Controls.magneticHook = mouseState.mmb;
+
+			if (mouseState.lmb)
 			{
 				if (durationToLaunchMissile <= 0.0f)
 				{
@@ -492,13 +501,13 @@ namespace Levels
 			}
 			else durationToLaunchMissile = 0.0f;
 			
-			if (Globals::Components().mouseState().xmb1)
+			if (mouseState.xmb1)
 				Globals::Components().physics().gameSpeed = std::clamp(Globals::Components().physics().gameSpeed
-					+ (prevWheel - Globals::Components().mouseState().wheel) * -0.1f, 0.0f, 2.0f);
+					+ (prevWheel - mouseState.wheel) * -0.1f, 0.0f, 2.0f);
 			else
-				projectionHSizeBase = std::clamp(projectionHSizeBase + (prevWheel - Globals::Components().mouseState().wheel) * 5.0f, 5.0f, 100.0f);
+				projectionHSizeBase = std::clamp(projectionHSizeBase + (prevWheel - mouseState.wheel) * 5.0f, 5.0f, 100.0f);
 
-			prevWheel = Globals::Components().mouseState().wheel;
+			prevWheel = mouseState.wheel;
 
 			//textureAngle += Globals::Components().physics().frameDuration * 0.2f;
 		}
@@ -525,7 +534,7 @@ namespace Levels
 		unsigned flame1AnimatedTexture = 0;
 		unsigned flame2AnimatedTexture = 0;
 
-		Tools::PlayerPlaneHandler player1Handler;
+		Tools::PlaneHandler player1Handler;
 
 		float durationToLaunchMissile = 0.0f;
 

@@ -18,15 +18,15 @@
 
 namespace Components
 {
-	struct Player;
+	struct Plane;
 }
 
 namespace Systems
 {
-	class Players
+	class Actors
 	{
 	public:
-		Players();
+		Actors();
 
 		void postInit();
 		void step();
@@ -63,22 +63,22 @@ namespace Systems
 
 		void initGraphics();
 
-		void turn(Components::Player& player, glm::vec2 controllerDelta, bool autoRotation) const;
-		void throttle(Components::Player& player, bool active) const;
-		void magneticHook(Components::Player& player, bool active);
-		void createGrappleJoint(Components::Player& player) const;
+		void turn(Components::Plane& plane) const;
+		void throttle(Components::Plane& plane) const;
+		void magneticHook(Components::Plane& plane);
+		void createGrappleJoint(Components::Plane& plane) const;
 
-		void updatePlayersPositionsBuffers();
-		void updatePlayersTexCoordBuffers();
+		void updatePlanesPositionsBuffers();
+		void updatePlanesTexCoordBuffers();
 
 		void basicRender() const;
 		void texturedRender() const;
 		void customShadersRender() const;
 		void coloredRender() const;
 
-		std::vector<Buffers::GenericBuffers> simplePlayersBuffers;
-		std::vector<Buffers::GenericBuffers> texturedPlayersBuffers;
-		std::vector<Buffers::GenericBuffers> customShadersPlayersBuffers;
+		std::vector<Buffers::GenericBuffers> simplePlaneBuffers;
+		std::vector<Buffers::GenericBuffers> texturedPlaneBuffers;
+		std::vector<Buffers::GenericBuffers> customShadersPlaneBuffers;
 
 		Connections connections;
 	};

@@ -8,7 +8,7 @@
 
 #include "systems/stateController.hpp"
 #include "systems/walls.hpp"
-#include "systems/players.hpp"
+#include "systems/actors.hpp"
 #include "systems/physics.hpp"
 #include "systems/camera.hpp"
 #include "systems/decorations.hpp"
@@ -83,7 +83,7 @@ void Initialize()
 	CreateLevel();
 	Globals::Systems().textures().postInit();
 	Globals::Systems().physics().postInit();
-	Globals::Systems().players().postInit();
+	Globals::Systems().actors().postInit();
 	Globals::Systems().walls().postInit();
 	Globals::Systems().decorations().postInit();
 	Globals::Systems().camera().postInit();
@@ -96,7 +96,7 @@ void PrepareFrame()
 	Globals::Systems().stateController().frameSetup();
 	Globals::Systems().physics().step();
 	Globals::Systems().deferredActions().step();
-	Globals::Systems().players().step();
+	Globals::Systems().actors().step();
 	Globals::Systems().temporaries().step();
 	Globals::Systems().walls().step();
 	Globals::Systems().decorations().step();
