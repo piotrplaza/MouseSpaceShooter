@@ -25,9 +25,9 @@
 namespace Globals
 {
 	static std::unique_ptr<::ComponentIdGenerator> componentIdGenerator;
-	static std::unique_ptr<class Components> components;
+	static std::unique_ptr<ComponentsHolder> componentsHolder;
 
-	Components::Components()
+	ComponentsHolder::ComponentsHolder()
 	{
 		textures_.emplace_back(fakeComponent);
 		animatedTextures_.emplace_back(fakeComponent);
@@ -43,163 +43,163 @@ namespace Globals
 		foregroundDecorations_.emplace_back(fakeComponent);
 	}
 
-	::Components::MouseState& Components::mouseState()
+	Components::MouseState& ComponentsHolder::mouseState()
 	{
 		return *mouseState_;
 	}
 
-	::Components::ScreenInfo& Components::screenInfo()
+	Components::ScreenInfo& ComponentsHolder::screenInfo()
 	{
 		return *screenInfo_;
 	}
 
-	::Components::MVP& Components::mvp()
+	Components::MVP& ComponentsHolder::mvp()
 	{
 		return *mvp_;
 	}
 
-	::Components::Physics& Components::physics()
+	Components::Physics& ComponentsHolder::physics()
 	{
 		return *physics_;
 	}
 
-	::Components::Camera& Components::camera()
+	Components::Camera& ComponentsHolder::camera()
 	{
 		return *camera_;
 	}
 
-	::Components::GraphicsSettings& Components::graphicsSettings()
+	Components::GraphicsSettings& ComponentsHolder::graphicsSettings()
 	{
 		return *graphicsSettings_;
 	}
 
-	::Components::Framebuffers& Components::framebuffers()
+	Components::Framebuffers& ComponentsHolder::framebuffers()
 	{
 		return *framebuffers_;
 	}
 
-	::Components::MainFramebufferRenderer& Components::mainFramebufferRenderer()
+	Components::MainFramebufferRenderer& ComponentsHolder::mainFramebufferRenderer()
 	{
 		return *mainFramebufferRenderer_;
 	}
 
 
-	std::vector<::Components::Texture>& Components::textures()
+	std::vector<Components::Texture>& ComponentsHolder::textures()
 	{
 		return textures_;
 	}
 
-	std::vector<::Components::AnimatedTexture>& Components::animatedTextures()
+	std::vector<Components::AnimatedTexture>& ComponentsHolder::animatedTextures()
 	{
 		return animatedTextures_;
 	}
 
-	std::vector<::Components::BlendingTexture>& Components::blendingTextures()
+	std::vector<Components::BlendingTexture>& ComponentsHolder::blendingTextures()
 	{
 		return blendingTextures_;
 	}
 
-	std::vector<::Components::RenderingSetup>& Components::renderingSetups()
+	std::vector<Components::RenderingSetup>& ComponentsHolder::renderingSetups()
 	{
 		return renderingSetups_;
 	}
 
-	std::vector<::Components::Plane>& Components::planes()
+	std::vector<Components::Plane>& ComponentsHolder::planes()
 	{
 		return planes_;
 	}
 
-	std::vector<::Components::Wall>& Components::walls()
+	std::vector<Components::Wall>& ComponentsHolder::walls()
 	{
 		return walls_;
 	}
 
-	std::vector<::Components::Grapple>& Components::grapples()
+	std::vector<Components::Grapple>& ComponentsHolder::grapples()
 	{
 		return grapples_;
 	}
 
-	std::vector<::Components::Decoration>& Components::backgroundDecorations()
+	std::vector<Components::Decoration>& ComponentsHolder::backgroundDecorations()
 	{
 		return backgroundDecorations_;
 	}
 
-	std::unordered_map<::ComponentId, ::Components::Decoration>& Components::temporaryBackgroundDecorations()
+	std::unordered_map<ComponentId, ::Components::Decoration>& ComponentsHolder::temporaryBackgroundDecorations()
 	{
 		return temporaryBackgroundDecorations_;
 	}
 
-	std::vector<::Components::Decoration>& Components::farMidgroundDecorations()
+	std::vector<Components::Decoration>& ComponentsHolder::farMidgroundDecorations()
 	{
 		return farMidgroundDecorations_;
 	}
 
-	std::unordered_map<::ComponentId, ::Components::Decoration>& Components::temporaryFarMidgroundDecorations()
+	std::unordered_map<ComponentId, Components::Decoration>& ComponentsHolder::temporaryFarMidgroundDecorations()
 	{
 		return temporaryFarMidgroundDecorations_;
 	}
 
-	std::vector<::Components::Decoration>& Components::midgroundDecorations()
+	std::vector<Components::Decoration>& ComponentsHolder::midgroundDecorations()
 	{
 		return midgroundDecorations_;
 	}
 
-	std::unordered_map<::ComponentId, ::Components::Decoration>& Components::temporaryMidgroundDecorations()
+	std::unordered_map<ComponentId, Components::Decoration>& ComponentsHolder::temporaryMidgroundDecorations()
 	{
 		return temporaryMidgroundDecorations_;
 	}
 
-	std::vector<::Components::Decoration>& Components::nearMidgroundDecorations()
+	std::vector<Components::Decoration>& ComponentsHolder::nearMidgroundDecorations()
 	{
 		return nearMidgroundDecorations_;
 	}
 
-	std::unordered_map<::ComponentId, ::Components::Decoration>& Components::temporaryNearMidgroundDecorations()
+	std::unordered_map<ComponentId, Components::Decoration>& ComponentsHolder::temporaryNearMidgroundDecorations()
 	{
 		return temporaryNearMidgroundDecorations_;
 	}
 
-	std::vector<::Components::Decoration>& Components::foregroundDecorations()
+	std::vector<Components::Decoration>& ComponentsHolder::foregroundDecorations()
 	{
 		return foregroundDecorations_;
 	}
 
-	std::unordered_map<::ComponentId, ::Components::Decoration>& Components::temporaryForegroundDecorations()
+	std::unordered_map<::ComponentId, Components::Decoration>& ComponentsHolder::temporaryForegroundDecorations()
 	{
 		return temporaryForegroundDecorations_;
 	}
 
-	std::unordered_map<::ComponentId, ::Components::Missile>& Components::missiles()
+	std::unordered_map<::ComponentId, Components::Missile>& ComponentsHolder::missiles()
 	{
 		return missiles_;
 	}
 
-	std::unordered_map<::ComponentId, ::Components::CollisionHandler>& Components::beginCollisionHandlers()
+	std::unordered_map<::ComponentId, Components::CollisionHandler>& ComponentsHolder::beginCollisionHandlers()
 	{
 		return beginCollisionHandlers_;
 	}
 
-	std::unordered_map<::ComponentId, ::Components::CollisionHandler>& Components::endCollisionHandlers()
+	std::unordered_map<::ComponentId, Components::CollisionHandler>& ComponentsHolder::endCollisionHandlers()
 	{
 		return endCollisionHandlers_;
 	}
 
-	std::unordered_map<::ComponentId, ::Components::Shockwave>& Components::shockwaves()
+	std::unordered_map<::ComponentId, Components::Shockwave>& ComponentsHolder::shockwaves()
 	{
 		return shockwaves_;
 	}
 
-	std::unordered_map<::ComponentId, ::Components::Light>& Components::lights()
+	std::unordered_map<::ComponentId, Components::Light>& ComponentsHolder::lights()
 	{
 		return lights_;
 	}
 
-	std::unordered_map<::ComponentId, ::Components::Functor>& Components::frameSetups()
+	std::unordered_map<::ComponentId, Components::Functor>& ComponentsHolder::frameSetups()
 	{
 		return frameSetups_;
 	}
 
-	std::unordered_map<::ComponentId, ::Components::Functor>& Components::frameTeardowns()
+	std::unordered_map<::ComponentId, Components::Functor>& ComponentsHolder::frameTeardowns()
 	{
 		return frameTeardowns_;
 	}
@@ -207,7 +207,7 @@ namespace Globals
 	void InitializeComponents()
 	{
 		componentIdGenerator = std::make_unique<::ComponentIdGenerator>();
-		components = std::make_unique<class Components>();
+		componentsHolder = std::make_unique<ComponentsHolder>();
 	}
 
 	::ComponentIdGenerator& ComponentIdGenerator()
@@ -215,8 +215,8 @@ namespace Globals
 		return *componentIdGenerator;
 	}
 
-	class Components& Components()
+	class ComponentsHolder& Components()
 	{
-		return *components;
+		return *componentsHolder;
 	}
 }
