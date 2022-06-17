@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
+#include <list>
 
 namespace Components
 {
@@ -29,6 +30,7 @@ namespace Components
 	struct Framebuffers;
 	struct Functor;
 	struct MainFramebufferRenderer;
+	struct DeferredAction;
 }
 
 namespace Globals
@@ -53,7 +55,8 @@ namespace Globals
 		std::vector<Components::RenderingSetup>& renderingSetups();
 		std::vector<Components::Plane>& planes();
 		std::vector<Components::Wall>& walls();
-		std::vector<Components::Grapple>& grapples();
+		std::unordered_map<ComponentId, Components::Wall>& dynamicWalls();
+		std::unordered_map<ComponentId, Components::Grapple>& grapples();
 		std::vector<Components::Decoration>& backgroundDecorations();
 		std::unordered_map<ComponentId, Components::Decoration>& dynamicBackgroundDecorations();
 		std::vector<Components::Decoration>& farMidgroundDecorations();
@@ -71,6 +74,7 @@ namespace Globals
 		std::unordered_map<ComponentId, Components::Light>& lights();
 		std::unordered_map<ComponentId, Components::Functor>& frameSetups();
 		std::unordered_map<ComponentId, Components::Functor>& frameTeardowns();
+		std::list<Components::DeferredAction>& deferredActions();
 
 	private:
 		std::unique_ptr<Components::MouseState> mouseState_ = std::make_unique<Components::MouseState>();
@@ -88,17 +92,18 @@ namespace Globals
 		std::vector<Components::RenderingSetup> renderingSetups_;
 		std::vector<Components::Plane> planes_;
 		std::vector<Components::Wall> walls_;
-		std::vector<Components::Grapple> grapples_;
+		std::unordered_map<ComponentId, Components::Wall> dynamicWalls_;
+		std::unordered_map<ComponentId, Components::Grapple> grapples_;
 		std::vector<Components::Decoration> backgroundDecorations_;
-		std::unordered_map<ComponentId, Components::Decoration> temporaryBackgroundDecorations_;
+		std::unordered_map<ComponentId, Components::Decoration> dynamicBackgroundDecorations_;
 		std::vector<Components::Decoration> farMidgroundDecorations_;
-		std::unordered_map<ComponentId, Components::Decoration> temporaryFarMidgroundDecorations_;
+		std::unordered_map<ComponentId, Components::Decoration> dynamicFarMidgroundDecorations_;
 		std::vector<Components::Decoration> midgroundDecorations_;
-		std::unordered_map<ComponentId, Components::Decoration> temporaryMidgroundDecorations_;
+		std::unordered_map<ComponentId, Components::Decoration> dynamicMidgroundDecorations_;
 		std::vector<Components::Decoration> nearMidgroundDecorations_;
-		std::unordered_map<ComponentId, Components::Decoration> temporaryNearMidgroundDecorations_;
+		std::unordered_map<ComponentId, Components::Decoration> dynamicNearMidgroundDecorations_;
 		std::vector<Components::Decoration> foregroundDecorations_;
-		std::unordered_map<ComponentId, Components::Decoration> temporaryForegroundDecorations_;
+		std::unordered_map<ComponentId, Components::Decoration> dynamicForegroundDecorations_;
 		std::unordered_map<ComponentId, Components::Missile> missiles_;
 		std::unordered_map<ComponentId, Components::CollisionHandler> beginCollisionHandlers_;
 		std::unordered_map<ComponentId, Components::CollisionHandler> endCollisionHandlers_;
@@ -106,6 +111,7 @@ namespace Globals
 		std::unordered_map<ComponentId, Components::Light> lights_;
 		std::unordered_map<ComponentId, Components::Functor> frameSetups_;
 		std::unordered_map<ComponentId, Components::Functor> frameTeardowns_;
+		std::list<Components::DeferredAction> deferredActions_;
 	};
 
 	void InitializeComponents();

@@ -21,6 +21,7 @@
 #include <components/framebuffers.hpp>
 #include <components/functor.hpp>
 #include <components/mainFramebufferRenderer.hpp>
+#include <components/deferredAction.hpp>
 
 namespace Globals
 {
@@ -35,7 +36,6 @@ namespace Globals
 		renderingSetups_.emplace_back(fakeComponent);
 		planes_.emplace_back(fakeComponent);
 		walls_.emplace_back(fakeComponent);
-		grapples_.emplace_back(fakeComponent);
 		backgroundDecorations_.emplace_back(fakeComponent);
 		farMidgroundDecorations_.emplace_back(fakeComponent);
 		midgroundDecorations_.emplace_back(fakeComponent);
@@ -114,7 +114,12 @@ namespace Globals
 		return walls_;
 	}
 
-	std::vector<Components::Grapple>& ComponentsHolder::grapples()
+	std::unordered_map<ComponentId, Components::Wall>& ComponentsHolder::dynamicWalls()
+	{
+		return dynamicWalls_;
+	}
+
+	std::unordered_map<ComponentId, Components::Grapple>& ComponentsHolder::grapples()
 	{
 		return grapples_;
 	}
@@ -126,7 +131,7 @@ namespace Globals
 
 	std::unordered_map<ComponentId, ::Components::Decoration>& ComponentsHolder::dynamicBackgroundDecorations()
 	{
-		return temporaryBackgroundDecorations_;
+		return dynamicBackgroundDecorations_;
 	}
 
 	std::vector<Components::Decoration>& ComponentsHolder::farMidgroundDecorations()
@@ -136,7 +141,7 @@ namespace Globals
 
 	std::unordered_map<ComponentId, Components::Decoration>& ComponentsHolder::dynamicFarMidgroundDecorations()
 	{
-		return temporaryFarMidgroundDecorations_;
+		return dynamicFarMidgroundDecorations_;
 	}
 
 	std::vector<Components::Decoration>& ComponentsHolder::midgroundDecorations()
@@ -146,7 +151,7 @@ namespace Globals
 
 	std::unordered_map<ComponentId, Components::Decoration>& ComponentsHolder::dynamicMidgroundDecorations()
 	{
-		return temporaryMidgroundDecorations_;
+		return dynamicMidgroundDecorations_;
 	}
 
 	std::vector<Components::Decoration>& ComponentsHolder::nearMidgroundDecorations()
@@ -156,7 +161,7 @@ namespace Globals
 
 	std::unordered_map<ComponentId, Components::Decoration>& ComponentsHolder::dynamicNearMidgroundDecorations()
 	{
-		return temporaryNearMidgroundDecorations_;
+		return dynamicNearMidgroundDecorations_;
 	}
 
 	std::vector<Components::Decoration>& ComponentsHolder::foregroundDecorations()
@@ -166,7 +171,7 @@ namespace Globals
 
 	std::unordered_map<::ComponentId, Components::Decoration>& ComponentsHolder::dynamicForegroundDecorations()
 	{
-		return temporaryForegroundDecorations_;
+		return dynamicForegroundDecorations_;
 	}
 
 	std::unordered_map<::ComponentId, Components::Missile>& ComponentsHolder::missiles()
@@ -202,6 +207,11 @@ namespace Globals
 	std::unordered_map<::ComponentId, Components::Functor>& ComponentsHolder::frameTeardowns()
 	{
 		return frameTeardowns_;
+	}
+
+	std::list<Components::DeferredAction>& ComponentsHolder::deferredActions()
+	{
+		return deferredActions_;
 	}
 
 	void InitializeComponents()

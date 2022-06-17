@@ -23,12 +23,12 @@ namespace Components
 	{
 		using ComponentBase::ComponentBase;
 
-		Decoration(std::vector<glm::vec3> positions = {},
+		Decoration(std::vector<glm::vec3> vertices = {},
 			TextureComponentVariant texture = std::monostate{},
 			std::vector<glm::vec2> texCoord = {},
 			ComponentId renderingSetup = 0,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			positions(std::move(positions)),
+			vertices(std::move(vertices)),
 			texture(texture),
 			texCoord(std::move(texCoord)),
 			renderingSetup(renderingSetup),
@@ -36,7 +36,7 @@ namespace Components
 		{
 		}
 
-		std::vector<glm::vec3> positions;
+		std::vector<glm::vec3> vertices;
 		TextureComponentVariant texture;
 		ComponentId renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
@@ -49,29 +49,28 @@ namespace Components
 
 		bool preserveTextureRatio = false;
 
-		const std::vector<glm::vec3>& getVertexPositions() const
+		const std::vector<glm::vec3>& getVertices() const
 		{
-			return positions;
+			return vertices;
 		}
 
 		const std::vector<glm::vec2> getTexCoord() const
 		{
 			if (texCoord.empty())
 			{
-				const auto positions = getVertexPositions();
-				return std::vector<glm::vec2>(positions.begin(), positions.end());
+				return std::vector<glm::vec2>(getVertices().begin(), getVertices().end());
 			}
-			else if (texCoord.size() < positions.size())
+			else if (texCoord.size() < getVertices().size())
 			{
 				std::vector<glm::vec2> cyclicTexCoord;
-				cyclicTexCoord.reserve(positions.size());
-				for (size_t i = 0; i < positions.size(); ++i)
+				cyclicTexCoord.reserve(getVertices().size());
+				for (size_t i = 0; i < getVertices().size(); ++i)
 					cyclicTexCoord.push_back(texCoord[i % texCoord.size()]);
 				return cyclicTexCoord;
 			}
 			else
 			{
-				assert(texCoord.size() == positions.size());
+				assert(texCoord.size() == getVertices().size());
 				return texCoord;
 			}
 		}

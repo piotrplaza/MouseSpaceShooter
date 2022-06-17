@@ -24,7 +24,7 @@ namespace Buffers
 
 		~GenericBuffers();
 
-		void allocateOrUpdatePositionsBuffer(const std::vector<glm::vec3>& positions);
+		void allocateOrUpdatePositionsBuffer(const std::vector<glm::vec3>& vertices);
 		void allocateOrUpdateColorsBuffer(const std::vector<glm::vec2>& colors);
 		void allocateOrUpdateTexCoordBuffer(const std::vector<glm::vec2>& texCoord);
 

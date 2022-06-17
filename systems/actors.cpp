@@ -46,6 +46,15 @@ namespace Systems
 	void Actors::step()
 	{
 		Globals::ForEach(Globals::Components().planes(), [&](auto& plane) {
+			if (plane.connectedGrappleId && !Globals::Components().grapples().count(plane.connectedGrappleId))
+			{
+				plane.grappleJoint.release();
+				plane.connectedGrappleId = 0;
+			}
+
+			if (plane.weakConnectedGrappleId && !Globals::Components().grapples().count(plane.weakConnectedGrappleId))
+				plane.weakConnectedGrappleId = 0;
+
 			turn(plane);
 			throttle(plane);
 			magneticHook(plane);
@@ -148,7 +157,7 @@ namespace Systems
 		if (plane.grappleJoint && plane.controls.autoRotation)
 		{
 			const auto& grapple = Globals::Components().grapples()[plane.connectedGrappleId];
-			const glm::vec2 stepVelocity = (plane.getCenter() - plane.previousCenter) - (grapple.getCenter() - grapple.previousCenter);
+			const glm::vec2 stepVelocity = (plane.getCenter() - plane.details.previousCenter) - (grapple.getCenter() - grapple.details.previousCenter);
 			const float stepVelocityLength = glm::length(stepVelocity);
 
 			if (stepVelocityLength > 0.0f)
@@ -190,27 +199,26 @@ namespace Systems
 		float nearestGrappleDistance = std::numeric_limits<float>::infinity();
 		std::vector<ComponentId> grapplesInRange;
 
-		for (ComponentId i = 1; i < (ComponentId)Globals::Components().grapples().size(); ++i)
+		for (const auto& [id, grapple]: Globals::Components().grapples())
 		{
-			const auto& grapple = Globals::Components().grapples()[i];
 			const float grappleDistance = glm::distance(plane.getCenter(), grapple.getCenter());
 
 			if (grappleDistance > grapple.influenceRadius) continue;
 
-			grapplesInRange.push_back(i);
+			grapplesInRange.push_back(id);
 
 			if (grappleDistance < nearestGrappleDistance)
 			{
 				nearestGrappleDistance = grappleDistance;
-				nearestGrappleId = i;
+				nearestGrappleId = id;
 			}
 		}
 
 		if (!plane.controls.magneticHook)
 		{
+			plane.grappleJoint.reset();
 			plane.connectedGrappleId = 0;
 			plane.weakConnectedGrappleId = 0;
-			plane.grappleJoint.reset();
 		}
 
 		for (ComponentId grappleInRange : grapplesInRange)
@@ -221,7 +229,7 @@ namespace Systems
 			{
 				if (plane.controls.magneticHook && !plane.grappleJoint &&
 					(glm::distance(plane.getCenter(), grapple.getCenter()) >=
-					glm::distance(plane.previousCenter, grapple.previousCenter) || 
+					glm::distance(plane.details.previousCenter, grapple.details.previousCenter) ||
 					plane.connectIfApproaching))
 				{
 					plane.connectedGrappleId = grappleInRange;

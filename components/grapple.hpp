@@ -1,6 +1,6 @@
 #pragma once
 
-#include "componentBase.hpp"
+#include "components/wall.hpp"
 #include "typeComponentMappers.hpp"
 
 #include <tools/graphicsHelpers.hpp>
@@ -22,61 +22,15 @@
 
 namespace Components
 {
-	struct Grapple : ComponentBase
+	struct Grapple : Wall
 	{
-		using ComponentBase::ComponentBase;
+		using Wall::Wall;
 
-		Grapple(Body body, float influenceRadius,
-			TextureComponentVariant texture = std::monostate{},
-			ComponentId renderingSetup = 0,
-			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			body(std::move(body)),
-			influenceRadius(influenceRadius),
-			texture(texture),
-			renderingSetup(std::move(renderingSetup)),
-			customShadersProgram(customShadersProgram)
+		float influenceRadius = 0.0f;
+
+		struct
 		{
-			Tools::AccessUserData(*this->body).bodyComponentVariant = TCM::Grapple(getComponentId());
-		}
-
-		Body body;
-		float influenceRadius;
-		TextureComponentVariant texture;
-		ComponentId renderingSetup;
-		std::optional<Shaders::ProgramId> customShadersProgram;
-		ResolutionMode resolutionMode = ResolutionMode::Normal;
-
-		glm::vec2 previousCenter{ 0.0f, 0.0f };
-
-		GLenum drawMode = GL_TRIANGLES;
-		GLenum bufferDataUsage = GL_STATIC_DRAW;
-
-		bool preserveTextureRatio = false;
-
-		glm::vec2 getCenter() const
-		{
-			return ToVec2<glm::vec2>(body->GetWorldCenter());
-		}
-
-		std::vector<glm::vec3> getVertexPositions() const
-		{
-			return Tools::GetVertices(*body);
-		}
-
-		std::vector<glm::vec3> getTransformedVertexPositions() const
-		{
-			return Tools::Transform(getVertexPositions(), getModelMatrix());
-		}
-
-		const std::vector<glm::vec2> getTexCoord() const
-		{
-			const auto positions = getVertexPositions();
-			return std::vector<glm::vec2>(positions.begin(), positions.end());
-		}
-
-		glm::mat4 getModelMatrix() const
-		{
-			return Tools::GetModelMatrix(*body);
-		}
+			glm::vec2 previousCenter{ 0.0f, 0.0f };
+		} details;
 	};
 }

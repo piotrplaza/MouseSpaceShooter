@@ -41,6 +41,8 @@ namespace Components
 		TextureComponentVariant texture;
 		ComponentId renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
+		std::vector<glm::vec2> texCoord;
+		std::function<void()> step;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;
 
 		GLenum drawMode = GL_TRIANGLES;
@@ -53,20 +55,36 @@ namespace Components
 			return ToVec2<glm::vec2>(body->GetWorldCenter());
 		}
 
-		std::vector<glm::vec3> getVertexPositions() const
+		std::vector<glm::vec3> getVertices() const
 		{
 			return Tools::GetVertices(*body);
 		}
 
-		std::vector<glm::vec3> getTransformedVertexPositions() const
+		std::vector<glm::vec3> getTransformedVertices() const
 		{
-			return Tools::Transform(getVertexPositions(), getModelMatrix());
+			return Tools::Transform(getVertices(), getModelMatrix());
 		}
 
 		const std::vector<glm::vec2> getTexCoord() const
 		{
-			const auto positions = getVertexPositions();
-			return std::vector<glm::vec2>(positions.begin(), positions.end());
+			const auto vertices = getVertices();
+			if (texCoord.empty())
+			{
+				return std::vector<glm::vec2>(vertices.begin(), vertices.end());
+			}
+			else if (texCoord.size() < vertices.size())
+			{
+				std::vector<glm::vec2> cyclicTexCoord;
+				cyclicTexCoord.reserve(vertices.size());
+				for (size_t i = 0; i < vertices.size(); ++i)
+					cyclicTexCoord.push_back(texCoord[i % texCoord.size()]);
+				return cyclicTexCoord;
+			}
+			else
+			{
+				assert(texCoord.size() == vertices.size());
+				return texCoord;
+			}
 		}
 
 		glm::mat4 getModelMatrix() const

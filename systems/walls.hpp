@@ -29,18 +29,26 @@ namespace Systems
 		void initGraphics();
 
 		void updateStaticBuffers();
+		void updateDynamicBuffers();
 
-		void customShadersRender(const std::vector<Buffers::GenericBuffers>& buffers) const;
 		void customShadersRender() const;
 		void texturedRender() const;
 		void basicRender() const;
 
-		std::vector<Buffers::GenericBuffers> simpleWallsBuffers;
-		std::vector<Buffers::GenericBuffers> texturedWallsBuffers;
-		std::vector<Buffers::GenericBuffers> customShadersWallsBuffers;
+		template <typename BufferType>
+		struct WallsBuffers
+		{
+			BufferType simpleWalls;
+			BufferType simpleGrapples;
 
-		std::vector<Buffers::GenericBuffers> simpleGrapplesBuffers;
-		std::vector<Buffers::GenericBuffers> texturedGrapplesBuffers;
-		std::vector<Buffers::GenericBuffers> customShadersGrapplesBuffers;
+			BufferType texturedWalls;
+			BufferType texturedGrapples;
+
+			BufferType customShadersWalls;
+			BufferType customShadersGrapples;
+		};
+
+		WallsBuffers<std::vector<Buffers::GenericBuffers>> staticBuffers;
+		WallsBuffers<std::unordered_map<ComponentId, Buffers::GenericBuffers>> dynamicBuffers;
 	};
 }

@@ -31,6 +31,7 @@ namespace Systems
 		for (const auto* decoration : {
 			&Globals::Components().backgroundDecorations(),
 			&Globals::Components().farMidgroundDecorations(),
+			&Globals::Components().midgroundDecorations(),
 			&Globals::Components().nearMidgroundDecorations(),
 			&Globals::Components().foregroundDecorations() })
 		{
@@ -42,6 +43,7 @@ namespace Systems
 		for (const auto* dynamicDecoration : { 
 			&Globals::Components().dynamicBackgroundDecorations(),
 			&Globals::Components().dynamicFarMidgroundDecorations(),
+			&Globals::Components().dynamicMidgroundDecorations(),
 			&Globals::Components().dynamicNearMidgroundDecorations(),
 			&Globals::Components().dynamicForegroundDecorations() })
 		{

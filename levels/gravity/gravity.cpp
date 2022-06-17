@@ -161,7 +161,7 @@ namespace Levels
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 		}
 
-		void createDynamicWalls()
+		void createMovableWalls()
 		{
 			debrisBegin = Globals::Components().walls().size();
 
@@ -177,14 +177,15 @@ namespace Levels
 			debrisEnd = Globals::Components().walls().size();
 		}
 
-		void createStaticWalls() const
+		void createStationaryWalls() const
 		{
 		}
 
 		void createGrapples()
 		{
-			planetId = Globals::Components().grapples().size();
-			Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ 0.0f, 0.0f }, 20.0f), 60.0f, TCM::Texture(orbTexture));
+			auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ 0.0f, 0.0f }, 20.0f), TCM::Texture(orbTexture) });
+			grapple.influenceRadius = 60.0f;
+			planetId = grapple.getComponentId();
 		}
 
 		void setCamera() const
@@ -204,7 +205,7 @@ namespace Levels
 
 		void setCollisionCallbacks()
 		{
-			EmplaceIdComponent(Globals::Components().beginCollisionHandlers(), { CollisionBits::missileBit, CollisionBits::all,
+			EmplaceDynamicComponent(Globals::Components().beginCollisionHandlers(), { CollisionBits::missileBit, CollisionBits::all,
 				[this](const auto& fixtureA, const auto& fixtureB) {
 					for (const auto* fixture : { &fixtureA, &fixtureB })
 					if (fixture->GetFilterData().categoryBits == CollisionBits::missileBit)
@@ -223,7 +224,7 @@ namespace Levels
 
 		void setFramesRoutines()
 		{
-			EmplaceIdComponent(Globals::Components().frameSetups(), { [&]()
+			EmplaceDynamicComponent(Globals::Components().frameSetups(), { [&]()
 				{
 					explosionFrame = false;
 				} });
@@ -238,7 +239,7 @@ namespace Levels
 			player1Controls.turningDelta = mouseDelta;
 			player1Controls.autoRotation = mouseState.rmb;
 			player1Controls.throttling = mouseState.rmb;
-			player1Controls.magneticHook = mouseState.mmb;
+			player1Controls.magneticHook = mouseState.xmb1;
 
 			if (mouseState.lmb)
 			{
@@ -309,8 +310,8 @@ namespace Levels
 		impl->setAnimations();
 		impl->createBackground();
 		impl->createPlayers();
-		impl->createDynamicWalls();
-		impl->createStaticWalls();
+		impl->createMovableWalls();
+		impl->createStationaryWalls();
 		impl->createGrapples();
 		impl->createForeground();
 		impl->createAdditionalDecorations();

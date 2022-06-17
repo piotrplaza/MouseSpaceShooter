@@ -11,7 +11,7 @@
 
 namespace Tools
 {
-	namespace Detail
+	namespace Details
 	{
 		template <typename Buffers>
 		Buffers& ReuseOrEmplaceBack(std::vector<Buffers>& buffers, typename std::vector<Buffers>::iterator& it)
@@ -20,32 +20,14 @@ namespace Tools
 				? buffers.emplace_back(), it = buffers.end(), buffers.back()
 				: *it++;
 		}
-	}
 
-	template <typename Component, typename Buffers>
-	inline void UpdateStaticBuffers(const std::vector<Component>& components,
-		std::vector<Buffers>& simpleBuffers, std::vector<Buffers>& texturedBuffers, std::vector<Buffers>& customShadersBuffers)
-	{
-		auto simpleBuffersIt = simpleBuffers.begin();
-		auto texturedBuffersIt = texturedBuffers.begin();
-		auto customShadersBuffersIt = customShadersBuffers.begin();
-
-		Globals::ForEach(components, [&](const auto& component) {
-			auto& buffers = [&]() -> auto& {
-				if (component.customShadersProgram)
-					return Detail::ReuseOrEmplaceBack(customShadersBuffers, customShadersBuffersIt);
-				else if (!std::holds_alternative<std::monostate>(component.texture))
-					return Detail::ReuseOrEmplaceBack(texturedBuffers, texturedBuffersIt);
-				else
-					return Detail::ReuseOrEmplaceBack(simpleBuffers, simpleBuffersIt);
-			}();
-
-			buffers.allocateOrUpdatePositionsBuffer(component.getVertexPositions());
+		template <typename Component, typename Buffers>
+		void ComponentToBuffers(Component& component, Buffers& buffers)
+		{
+			buffers.allocateOrUpdatePositionsBuffer(component.getVertices());
 
 			if (!std::holds_alternative<std::monostate>(component.texture))
-			{
 				buffers.allocateOrUpdateTexCoordBuffer(component.getTexCoord());
-			}
 
 			buffers.modelMatrixF = [&]() { return component.getModelMatrix(); };
 			buffers.renderingSetup = component.renderingSetup;
@@ -56,6 +38,29 @@ namespace Tools
 			buffers.bufferDataUsage = component.bufferDataUsage;
 			buffers.preserveTextureRatio = component.preserveTextureRatio;
 
+			component.state = ComponentState::Ongoing;
+		}
+	}
+
+	template <typename Component, typename Buffers>
+	inline void UpdateStaticBuffers(std::vector<Component>& components,
+		std::vector<Buffers>& simpleBuffers, std::vector<Buffers>& texturedBuffers, std::vector<Buffers>& customShadersBuffers)
+	{
+		auto simpleBuffersIt = simpleBuffers.begin();
+		auto texturedBuffersIt = texturedBuffers.begin();
+		auto customShadersBuffersIt = customShadersBuffers.begin();
+
+		Globals::ForEach(components, [&](auto& component) {
+			auto& buffers = [&]() -> auto& {
+				if (component.customShadersProgram)
+					return Details::ReuseOrEmplaceBack(customShadersBuffers, customShadersBuffersIt);
+				else if (!std::holds_alternative<std::monostate>(component.texture))
+					return Details::ReuseOrEmplaceBack(texturedBuffers, texturedBuffersIt);
+				else
+					return Details::ReuseOrEmplaceBack(simpleBuffers, simpleBuffersIt);
+			}();
+
+			Details::ComponentToBuffers(component, buffers);
 			});
 
 		simpleBuffers.resize(std::distance(simpleBuffers.begin(), simpleBuffersIt));
@@ -89,21 +94,8 @@ namespace Tools
 			}
 
 			auto& buffers = mapOfBuffers[id];
-			buffers.allocateOrUpdatePositionsBuffer(component.getVertexPositions());
-			buffers.renderingSetup = component.renderingSetup;
-			buffers.texture = component.texture;
-			buffers.customShadersProgram = component.customShadersProgram;
-			buffers.resolutionMode = component.resolutionMode;
-			buffers.drawMode = component.drawMode;
-			buffers.bufferDataUsage = component.bufferDataUsage;
 
-			if (!std::holds_alternative<std::monostate>(component.texture))
-			{
-				buffers.allocateOrUpdateTexCoordBuffer(component.getTexCoord());
-				buffers.preserveTextureRatio = component.preserveTextureRatio;
-			}
-
-			component.state = ComponentState::Ongoing;
+			Details::ComponentToBuffers(component, buffers);
 		}
 	}
 }

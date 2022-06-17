@@ -363,6 +363,9 @@
     <ClInclude Include="components\plane.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
+    <ClInclude Include="components\deferredAction.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">

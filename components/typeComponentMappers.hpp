@@ -2,6 +2,8 @@
 
 #include "componentId.hpp"
 
+#include <glm/vec2.hpp>
+
 #include <variant>
 
 namespace TypeComponentMappers
@@ -10,6 +12,10 @@ namespace TypeComponentMappers
 	{
 		ComponentId id;
 
+		glm::vec2 translate = { 0.0f, 0.0f };
+		float rotate = 0.0f;
+		glm::vec2 scale = { 1.0f, 1.0f };
+
 		bool operator==(const Texture&) const = default;
 	};
 
@@ -17,12 +23,20 @@ namespace TypeComponentMappers
 	{
 		ComponentId id;
 
+		glm::vec2 translate = { 0.0f, 0.0f };
+		float rotate = 0.0f;
+		glm::vec2 scale = { 1.0f, 1.0f };
+
 		bool operator==(const AnimatedTexture&) const = default;
 	};
 
 	struct BlendingTexture
 	{
 		ComponentId id;
+
+		glm::vec2 translate = { 0.0f, 0.0f };
+		float rotate = 0.0f;
+		glm::vec2 scale = { 1.0f, 1.0f };
 
 		bool operator==(const BlendingTexture&) const = default;
 	};

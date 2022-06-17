@@ -1,5 +1,7 @@
 #include "cleaner.hpp"
 
+#include <components/wall.hpp>
+#include <components/grapple.hpp>
 #include <components/decoration.hpp>
 #include <components/missile.hpp>
 #include <components/collisionHandler.hpp>
@@ -34,6 +36,8 @@ namespace Systems
 
 	void Cleaner::step() const
 	{
+		RemoveOutdatedComponents(Globals::Components().dynamicWalls());
+		RemoveOutdatedComponents(Globals::Components().grapples());
 		RemoveOutdatedComponents(Globals::Components().dynamicBackgroundDecorations());
 		RemoveOutdatedComponents(Globals::Components().dynamicFarMidgroundDecorations());
 		RemoveOutdatedComponents(Globals::Components().dynamicMidgroundDecorations());

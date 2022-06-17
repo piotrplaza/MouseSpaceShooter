@@ -32,6 +32,19 @@ namespace Systems
 
 	void Walls::step()
 	{
+		for (const auto& wall : Globals::Components().walls())
+			if (wall.step)
+				wall.step();
+
+		for (const auto& [id, wall] : Globals::Components().dynamicWalls())
+			if (wall.step)
+				wall.step();
+
+		for (auto& [id, grapple] : Globals::Components().grapples())
+			if (grapple.step)
+				grapple.step();
+
+		updateDynamicBuffers();
 	}
 
 	void Walls::render() const
@@ -48,32 +61,43 @@ namespace Systems
 
 	void Walls::updateStaticBuffers()
 	{
-		Tools::UpdateStaticBuffers(Globals::Components().walls(), simpleWallsBuffers, texturedWallsBuffers, customShadersWallsBuffers);
-		Tools::UpdateStaticBuffers(Globals::Components().grapples(), simpleGrapplesBuffers, texturedGrapplesBuffers, customShadersGrapplesBuffers);
+		Tools::UpdateStaticBuffers(Globals::Components().walls(), staticBuffers.simpleWalls, staticBuffers.texturedWalls, staticBuffers.customShadersWalls);
 	}
 
-	void Walls::customShadersRender(const std::vector<Buffers::GenericBuffers>& buffers) const
+	void Walls::updateDynamicBuffers()
 	{
-		for (const auto& currentBuffers : buffers)
-		{
-			assert(currentBuffers.customShadersProgram);
-			glUseProgram_proxy(*currentBuffers.customShadersProgram);
-
-			std::function<void()> renderingTeardown;
-			if (currentBuffers.renderingSetup)
-				renderingTeardown = Globals::Components().renderingSetups()[currentBuffers.renderingSetup](*currentBuffers.customShadersProgram);
-
-			currentBuffers.draw();
-
-			if (renderingTeardown)
-				renderingTeardown();
-		}
+		Tools::UpdateDynamicBuffers(Globals::Components().dynamicWalls(), dynamicBuffers.simpleWalls, dynamicBuffers.texturedWalls, dynamicBuffers.texturedWalls);
+		Tools::UpdateDynamicBuffers(Globals::Components().grapples(), dynamicBuffers.simpleGrapples, dynamicBuffers.texturedGrapples, dynamicBuffers.texturedGrapples);
 	}
 
 	void Walls::customShadersRender() const
 	{
-		customShadersRender(customShadersWallsBuffers);
-		customShadersRender(customShadersGrapplesBuffers);
+		auto render = [&](const auto& buffers)
+		{
+			assert(buffers.customShadersProgram);
+			glUseProgram_proxy(*buffers.customShadersProgram);
+
+			std::function<void()> renderingTeardown;
+			if (buffers.renderingSetup)
+				renderingTeardown = Globals::Components().renderingSetups()[buffers.renderingSetup](*buffers.customShadersProgram);
+
+			buffers.draw();
+
+			if (renderingTeardown)
+				renderingTeardown();
+		};
+
+		for (const auto& buffers : staticBuffers.customShadersWalls)
+			render(buffers);
+
+		for (const auto& buffers : staticBuffers.customShadersGrapples)
+			render(buffers);
+
+		for (const auto& [id, buffers] : dynamicBuffers.customShadersWalls)
+			render(buffers);
+
+		for (const auto& [id, buffers] : dynamicBuffers.customShadersGrapples)
+			render(buffers);
 	}
 
 	void Walls::texturedRender() const
@@ -81,53 +105,55 @@ namespace Systems
 		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
 		Globals::Shaders().textured().vp(Globals::Components().mvp().getVP());
 
-		for (const auto& texturedWallBuffers : texturedWallsBuffers)
+		auto render = [&](const auto& buffers)
 		{
 			Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().textured().model(texturedWallBuffers.modelMatrixF ? texturedWallBuffers.modelMatrixF() : glm::mat4(1.0f));
-			Tools::TexturedRender(Globals::Shaders().textured(), texturedWallBuffers, texturedWallBuffers.texture);
-		}
+			Globals::Shaders().textured().model(buffers.modelMatrixF ? buffers.modelMatrixF() : glm::mat4(1.0f));
+			Tools::TexturedRender(Globals::Shaders().textured(), buffers, buffers.texture);
+		};
 
-		for (const auto& textureGrappleBuffers : texturedGrapplesBuffers)
-		{
-			Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().textured().model(textureGrappleBuffers.modelMatrixF ? textureGrappleBuffers.modelMatrixF() : glm::mat4(1.0f));
-			Tools::TexturedRender(Globals::Shaders().textured(), textureGrappleBuffers, textureGrappleBuffers.texture);
-		}
+		for (const auto& buffers : staticBuffers.texturedWalls)
+			render(buffers);
+
+		for (const auto& buffers : staticBuffers.texturedGrapples)
+			render(buffers);
+
+		for (const auto& [id, buffers] : dynamicBuffers.texturedWalls)
+			render(buffers);
+
+		for (const auto& [id, buffers] : dynamicBuffers.texturedGrapples)
+			render(buffers);
 	}
 
 	void Walls::basicRender() const
 	{
 		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
 		Globals::Shaders().basic().vp(Globals::Components().mvp().getVP());
-		Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
 
-		for (const auto& simpleWallBuffers : simpleWallsBuffers)
+		auto render = [&](const auto& buffers)
 		{
 			Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().basic().model(simpleWallBuffers.modelMatrixF ? simpleWallBuffers.modelMatrixF() : glm::mat4(1.0f));
+			Globals::Shaders().basic().model(buffers.modelMatrixF ? buffers.modelMatrixF() : glm::mat4(1.0f));
 
 			std::function<void()> renderingTeardown =
-				Globals::Components().renderingSetups()[simpleWallBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
+				Globals::Components().renderingSetups()[buffers.renderingSetup](Globals::Shaders().basic().getProgramId());
 
-			simpleWallBuffers.draw();
+			buffers.draw();
 
 			if (renderingTeardown)
 				renderingTeardown();
-		}
+		};
 
-		for (const auto& simpleGrappleBuffers : simpleGrapplesBuffers)
-		{
-			Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().basic().model(simpleGrappleBuffers.modelMatrixF ? simpleGrappleBuffers.modelMatrixF() : glm::mat4(1.0f));
+		for (const auto& buffers : staticBuffers.simpleWalls)
+			render(buffers);
 
-			std::function<void()> renderingTeardown =
-				Globals::Components().renderingSetups()[simpleGrappleBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
+		for (const auto& buffers : staticBuffers.simpleGrapples)
+			render(buffers);
 
-			simpleGrappleBuffers.draw();
+		for (const auto& [id, buffers] : dynamicBuffers.simpleWalls)
+			render(buffers);
 
-			if (renderingTeardown)
-				renderingTeardown();
-		}
+		for (const auto& [id, buffers] : dynamicBuffers.simpleGrapples)
+			render(buffers);
 	}
 }

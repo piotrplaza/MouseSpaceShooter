@@ -95,7 +95,6 @@ void PrepareFrame()
 {
 	Globals::Systems().stateController().frameSetup();
 	Globals::Systems().physics().step();
-	Globals::Systems().deferredActions().step();
 	Globals::Systems().actors().step();
 	Globals::Systems().temporaries().step();
 	Globals::Systems().walls().step();
@@ -107,6 +106,8 @@ void PrepareFrame()
 	Globals::Systems().renderingController().render();
 	Globals::Systems().stateController().frameTeardown();
 	Globals::Systems().cleaner().step();
+
+	Globals::Systems().deferredActions().step();
 }
 
 void SetDCPixelFormat(HDC hDC);

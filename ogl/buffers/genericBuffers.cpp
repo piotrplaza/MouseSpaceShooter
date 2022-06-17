@@ -49,20 +49,20 @@ namespace Buffers
 		glDeleteVertexArrays(1, &vertexArray);
 	}
 
-	void GenericBuffers::allocateOrUpdatePositionsBuffer(const std::vector<glm::vec3>& positions)
+	void GenericBuffers::allocateOrUpdatePositionsBuffer(const std::vector<glm::vec3>& vertices)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-		if (numOfAllocatedPositions < positions.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != bufferDataUsage)
+		if (numOfAllocatedPositions < vertices.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != bufferDataUsage)
 		{
-			glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(positions.front()), positions.data(), bufferDataUsage);
-			numOfAllocatedPositions = positions.size();
+			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices.front()), vertices.data(), bufferDataUsage);
+			numOfAllocatedPositions = vertices.size();
 			allocatedBufferDataUsage = bufferDataUsage;
 		}
 		else
 		{
-			glBufferSubData(GL_ARRAY_BUFFER, 0, positions.size() * sizeof(positions.front()), positions.data());
+			glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(vertices.front()), vertices.data());
 		}
-		numOfPositions = positions.size();
+		numOfPositions = vertices.size();
 	}
 
 	void GenericBuffers::allocateOrUpdateColorsBuffer(const std::vector<glm::vec2>& colors)

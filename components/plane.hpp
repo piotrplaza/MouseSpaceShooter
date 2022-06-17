@@ -62,12 +62,16 @@ namespace Components
 		std::unique_ptr<b2Joint, b2JointDeleter> grappleJoint;
 		ComponentId connectedGrappleId = 0;
 		ComponentId weakConnectedGrappleId = 0;
-		glm::vec2 previousCenter{ 0.0f, 0.0f };
 
 		GLenum drawMode = GL_TRIANGLES;
 		GLenum bufferDataUsage = GL_DYNAMIC_DRAW;
 
 		bool preserveTextureRatio = false;
+
+		struct
+		{
+			glm::vec2 previousCenter{ 0.0f, 0.0f };
+		} details;
 		
 		void setPosition(const glm::vec2& position)
 		{
@@ -100,37 +104,37 @@ namespace Components
 			return ToVec2<glm::vec2>(body->GetLinearVelocity());
 		}
 
-		std::vector<glm::vec3> getVertexPositions() const
+		std::vector<glm::vec3> getVertices() const
 		{
 			return Tools::GetVertices(*body);
 		}
 
-		std::vector<glm::vec3> getTransformedVertexPositions() const
+		std::vector<glm::vec3> getTransformedVertices() const
 		{
-			return Tools::Transform(getVertexPositions(), getModelMatrix());
+			return Tools::Transform(getVertices(), getModelMatrix());
 		}
 
 		const std::vector<glm::vec2> getTexCoord() const
 		{
 			if (texCoord.empty())
 			{
-				const auto positions = getVertexPositions();
-				return std::vector<glm::vec2>(positions.begin(), positions.end());
+				const auto vertices = getVertices();
+				return std::vector<glm::vec2>(vertices.begin(), vertices.end());
 			}
 			else
 			{
-				const auto positions = getVertexPositions();
-				if (texCoord.size() < positions.size())
+				const auto vertices = getVertices();
+				if (texCoord.size() < vertices.size())
 				{
 					std::vector<glm::vec2> cyclicTexCoord;
-					cyclicTexCoord.reserve(positions.size());
-					for (size_t i = 0; i < positions.size(); ++i)
+					cyclicTexCoord.reserve(vertices.size());
+					for (size_t i = 0; i < vertices.size(); ++i)
 						cyclicTexCoord.push_back(texCoord[i % texCoord.size()]);
 					return cyclicTexCoord;
 				}
 				else
 				{
-					assert(texCoord.size() == positions.size());
+					assert(texCoord.size() == vertices.size());
 					return texCoord;
 				}
 			}

@@ -68,6 +68,7 @@
     <ClInclude Include="components\componentBase.hpp" />
     <ClInclude Include="components\componentId.hpp" />
     <ClInclude Include="components\decoration.hpp" />
+    <ClInclude Include="components\deferredAction.hpp" />
     <ClInclude Include="components\framebuffers.hpp" />
     <ClInclude Include="components\functor.hpp" />
     <ClInclude Include="components\graphicsSettings.hpp" />

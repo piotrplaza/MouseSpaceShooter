@@ -26,5 +26,5 @@ namespace Tools
 	std::vector<glm::vec3> CreateVerticesOfLightning(const glm::vec2& p1, const glm::vec2& p2,
 		int segmentsNum, float frayFactor = 1.0f, float z = 0.0f);
 
-	std::vector<glm::vec3> Transform(const std::vector<glm::vec3>& positions, const glm::mat4& transformation);
+	std::vector<glm::vec3> Transform(const std::vector<glm::vec3>& vertices, const glm::mat4& transformation);
 }

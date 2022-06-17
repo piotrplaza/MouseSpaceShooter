@@ -12,14 +12,13 @@
 #include <components/camera.hpp>
 #include <components/screenInfo.hpp>
 #include <components/animatedTexture.hpp>
+#include <components/deferredAction.hpp>
 
 #include <components/typeComponentMappers.hpp>
 
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/textured.hpp>
 #include <ogl/shaders/julia.hpp>
-
-#include <globals/systems.hpp>
 
 #include <tools/b2Helpers.hpp>
 #include <tools/utility.hpp>
@@ -122,7 +121,7 @@ namespace Tools
 	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 initialVelocity,
 		unsigned missileTexture, unsigned flameAnimatedTexture)
 	{
-		auto& missile = EmplaceIdComponent(Globals::Components().missiles(), { Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f) });
+		auto& missile = EmplaceDynamicComponent(Globals::Components().missiles(), { Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f) });
 		auto& body = *missile.body;
 		SetCollisionFilteringBits(body, CollisionBits::missileBit, CollisionBits::all - CollisionBits::missileBit - CollisionBits::planeBit);
 		body.SetBullet(true);
@@ -147,7 +146,7 @@ namespace Tools
 
 		auto& animationTexture = Globals::Components().animatedTextures().back();
 
-		auto& decoration = EmplaceIdComponent(Globals::Components().dynamicFarMidgroundDecorations(), { Tools::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
+		auto& decoration = EmplaceDynamicComponent(Globals::Components().dynamicFarMidgroundDecorations(), { Tools::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
 			TCM::AnimatedTexture(flameAnimatedTexture), Tools::CreateTexCoordOfRectangle() });
 
 		Globals::Components().renderingSetups().emplace_back([&, modelUniform = Uniforms::UniformControllerMat4f(),
@@ -175,9 +174,9 @@ namespace Tools
 	void CreateExplosion(Shaders::Programs::ParticlesAccessor particlesProgram, glm::vec2 center, unsigned explosionTexture,
 		float explosionDuration, int numOfParticles, int particlesPerDecoration, ResolutionMode resolutionMode)
 	{
-		Globals::Systems().deferredActions().addDeferredAction([=]() {
-			auto& shockwave = EmplaceIdComponent(Globals::Components().shockwaves(), { center, numOfParticles });
-			auto& explosionDecoration = EmplaceIdComponent(Globals::Components().dynamicNearMidgroundDecorations(), {});
+		Globals::Components().deferredActions().emplace_back([=](float) {
+			auto& shockwave = EmplaceDynamicComponent(Globals::Components().shockwaves(), { center, numOfParticles });
+			auto& explosionDecoration = EmplaceDynamicComponent(Globals::Components().dynamicNearMidgroundDecorations(), {});
 			explosionDecoration.customShadersProgram = particlesProgram.getProgramId();
 			explosionDecoration.resolutionMode = resolutionMode;
 			explosionDecoration.drawMode = GL_POINTS;
@@ -199,7 +198,7 @@ namespace Tools
 
 			explosionDecoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 
-			Globals::Systems().deferredActions().addDeferredAction([=, startTime = Globals::Components().physics().simulationDuration, &shockwave, &explosionDecoration]() {
+			Globals::Components().deferredActions().emplace_back([=, startTime = Globals::Components().physics().simulationDuration, &shockwave, &explosionDecoration](float) {
 				const float elapsed = Globals::Components().physics().simulationDuration - startTime;
 				const float scale = 1.0f + elapsed * 20.0f;
 
@@ -210,14 +209,14 @@ namespace Tools
 					return false;
 				}
 
-				explosionDecoration.positions.clear();
-				explosionDecoration.positions.emplace_back(shockwave.center, scale);
+				explosionDecoration.vertices.clear();
+				explosionDecoration.vertices.emplace_back(shockwave.center, scale);
 				for (size_t i = 0; i < shockwave.particles.size(); ++i)
 				{
 					if (i % particlesPerDecoration != 0) continue;
 					const auto& particle = shockwave.particles[i];
 					const glm::vec2 position = shockwave.center + (ToVec2<glm::vec2>(particle->GetWorldCenter()) - shockwave.center) * 0.5f;
-					explosionDecoration.positions.emplace_back(position, scale);
+					explosionDecoration.vertices.emplace_back(position, scale);
 				}
 				explosionDecoration.state = ComponentState::Changed;
 

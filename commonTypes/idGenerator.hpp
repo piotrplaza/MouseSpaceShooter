@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <deque>
 #include <limits>
 #include <cassert>
 
@@ -21,8 +21,8 @@ public:
 		else
 		{
 			assert(!releasedIds.empty());
-			const auto id = releasedIds.back();
-			releasedIds.pop_back();
+			const auto id = releasedIds.front();
+			releasedIds.pop_front();
 			return id;
 		}
 	}
@@ -36,7 +36,7 @@ public:
 		else
 		{
 			assert(!releasedIds.empty());
-			return releasedIds.back();
+			return releasedIds.front();
 		}
 	}
 
@@ -47,5 +47,5 @@ public:
 
 private:
 	Id counter = firstId;
-	std::vector<Id> releasedIds;
+	std::deque<Id> releasedIds;
 };

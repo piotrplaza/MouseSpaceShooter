@@ -79,7 +79,7 @@ namespace Levels
 			Globals::Components().planes()[1].connectIfApproaching = true;
 		}
 
-		void createStaticWalls() const
+		void createStationaryWalls() const
 		{
 			const glm::vec2 levelHSize = { 100.0f, 60.0f };
 			const float bordersHGauge = 50.0f;
@@ -99,8 +99,8 @@ namespace Levels
 
 		void createGrapples()
 		{
-			ball = &Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ 0.0f, 0.0f }, 2.0f, b2_dynamicBody, 0.02f, 0.5f), 15.0f,
-				TCM::Texture(orbTexture));
+			ball = &EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ 0.0f, 0.0f }, 2.0f, b2_dynamicBody, 0.02f, 0.5f), TCM::Texture(orbTexture) });
+			ball->influenceRadius = 15.0f;
 		}
 
 		void setCamera() const
@@ -150,7 +150,7 @@ namespace Levels
 		impl->setAnimations();
 		impl->createBackground();
 		impl->createPlayers();
-		impl->createStaticWalls();
+		impl->createStationaryWalls();
 		impl->createGrapples();
 		impl->setCamera();
 	}

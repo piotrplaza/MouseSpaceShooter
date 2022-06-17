@@ -33,12 +33,11 @@ namespace Systems
 	void StateController::postInit() const
 	{
 		Globals::ForEach(Globals::Components().planes(), [](auto& plane) {
-			plane.previousCenter = plane.getCenter();
+			plane.details.previousCenter = plane.getCenter();
 			});
 
-		Globals::ForEach(Globals::Components().grapples(), [](auto& grapple) {
-			grapple.previousCenter = grapple.getCenter();
-			});
+		for (auto& [id, grapple] : Globals::Components().grapples())
+			grapple.details.previousCenter = grapple.getCenter();
 	}
 
 	void StateController::frameSetup() const
@@ -52,20 +51,17 @@ namespace Systems
 		Globals::Shaders().textured().numOfPlayers(Globals::Components().planes().size() - 1);
 
 		for (int i = 1; i < (int)Globals::Components().planes().size(); ++i)
-		{
 			Globals::Shaders().textured().playersCenter(i - 1, Globals::Components().planes()[i].getCenter());
-		}
 	}
 
 	void StateController::frameTeardown() const
 	{
 		Globals::ForEach(Globals::Components().planes(), [](auto& player) {
-			player.previousCenter = player.getCenter();
+			player.details.previousCenter = player.getCenter();
 			});
 
-		Globals::ForEach(Globals::Components().grapples(), [](auto& grapple) {
-			grapple.previousCenter = grapple.getCenter();
-			});
+		for (auto& [id, grapple] : Globals::Components().grapples())
+			grapple.details.previousCenter = grapple.getCenter();
 
 		for (auto& [id, frameTeardown] : Globals::Components().frameTeardowns())
 			frameTeardown();
