@@ -27,17 +27,15 @@ namespace Systems
 	private:
 		void initGraphics();
 
-		void updatePersistentPositionsBuffers();
-		void updatePersistentTexCoordsBuffers();
+		void updateStaticBuffers();
+		void updateDynamicBuffers();
 
-		void updateTemporaryPosAndTexCoordBuffers();
-
-		void customShadersRender(const std::vector<Buffers::GenericBuffers>& persistentBuffers,
-			const std::unordered_map<ComponentId, Buffers::GenericBuffers>& temporaryBuffers) const;
-		void texturedRender(const std::vector<Buffers::GenericBuffers>& persistentBuffers,
-			const std::unordered_map<ComponentId, Buffers::GenericBuffers>& temporaryBuffers) const;
-		void basicRender(const std::vector<Buffers::GenericBuffers>& persistentBuffers,
-			const std::unordered_map<ComponentId, Buffers::GenericBuffers>& temporaryBuffers) const;
+		void customShadersRender(const std::vector<Buffers::GenericBuffers>& staticBuffers,
+			const std::unordered_map<ComponentId, Buffers::GenericBuffers>& dynamicBuffers) const;
+		void texturedRender(const std::vector<Buffers::GenericBuffers>& staticBuffers,
+			const std::unordered_map<ComponentId, Buffers::GenericBuffers>& dynamicBuffers) const;
+		void basicRender(const std::vector<Buffers::GenericBuffers>& staticBuffers,
+			const std::unordered_map<ComponentId, Buffers::GenericBuffers>& dynamicBuffers) const;
 
 		template <typename BufferType>
 		struct DecorationBuffers
@@ -61,7 +59,7 @@ namespace Systems
 			BufferType customShadersForegroundDecorations;
 		};
 		
-		DecorationBuffers<std::vector<Buffers::GenericBuffers>> persistentBuffers;
-		DecorationBuffers<std::unordered_map<ComponentId, Buffers::GenericBuffers>> temporaryBuffers;
+		DecorationBuffers<std::vector<Buffers::GenericBuffers>> staticBuffers;
+		DecorationBuffers<std::unordered_map<ComponentId, Buffers::GenericBuffers>> dynamicBuffers;
 	};
 }

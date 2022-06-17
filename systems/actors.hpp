@@ -68,8 +68,7 @@ namespace Systems
 		void magneticHook(Components::Plane& plane);
 		void createGrappleJoint(Components::Plane& plane) const;
 
-		void updatePlanesPositionsBuffers();
-		void updatePlanesTexCoordBuffers();
+		void updatePlanesStaticBuffers();
 
 		void basicRender() const;
 		void texturedRender() const;

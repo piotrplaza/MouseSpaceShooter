@@ -99,8 +99,8 @@ namespace Tools
 		auto missileIt = Globals::Components().missiles().find(missileId);
 		assert(missileIt != Globals::Components().missiles().end());
 		missileIt->second.state = ComponentState::Outdated;
-		auto thrustIt = Globals::Components().temporaryFarMidgroundDecorations().find(backThrustId);
-		assert(thrustIt != Globals::Components().temporaryFarMidgroundDecorations().end());
+		auto thrustIt = Globals::Components().dynamicFarMidgroundDecorations().find(backThrustId);
+		assert(thrustIt != Globals::Components().dynamicFarMidgroundDecorations().end());
 		thrustIt->second.state = ComponentState::Outdated;
 	}
 
@@ -147,7 +147,7 @@ namespace Tools
 
 		auto& animationTexture = Globals::Components().animatedTextures().back();
 
-		auto& decoration = EmplaceIdComponent(Globals::Components().temporaryFarMidgroundDecorations(), { Tools::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
+		auto& decoration = EmplaceIdComponent(Globals::Components().dynamicFarMidgroundDecorations(), { Tools::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
 			TCM::AnimatedTexture(flameAnimatedTexture), Tools::CreateTexCoordOfRectangle() });
 
 		Globals::Components().renderingSetups().emplace_back([&, modelUniform = Uniforms::UniformControllerMat4f(),
@@ -177,7 +177,7 @@ namespace Tools
 	{
 		Globals::Systems().deferredActions().addDeferredAction([=]() {
 			auto& shockwave = EmplaceIdComponent(Globals::Components().shockwaves(), { center, numOfParticles });
-			auto& explosionDecoration = EmplaceIdComponent(Globals::Components().temporaryNearMidgroundDecorations(), {});
+			auto& explosionDecoration = EmplaceIdComponent(Globals::Components().dynamicNearMidgroundDecorations(), {});
 			explosionDecoration.customShadersProgram = particlesProgram.getProgramId();
 			explosionDecoration.resolutionMode = resolutionMode;
 			explosionDecoration.drawMode = GL_POINTS;

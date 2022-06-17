@@ -124,7 +124,7 @@ namespace Globals
 		return backgroundDecorations_;
 	}
 
-	std::unordered_map<ComponentId, ::Components::Decoration>& ComponentsHolder::temporaryBackgroundDecorations()
+	std::unordered_map<ComponentId, ::Components::Decoration>& ComponentsHolder::dynamicBackgroundDecorations()
 	{
 		return temporaryBackgroundDecorations_;
 	}
@@ -134,7 +134,7 @@ namespace Globals
 		return farMidgroundDecorations_;
 	}
 
-	std::unordered_map<ComponentId, Components::Decoration>& ComponentsHolder::temporaryFarMidgroundDecorations()
+	std::unordered_map<ComponentId, Components::Decoration>& ComponentsHolder::dynamicFarMidgroundDecorations()
 	{
 		return temporaryFarMidgroundDecorations_;
 	}
@@ -144,7 +144,7 @@ namespace Globals
 		return midgroundDecorations_;
 	}
 
-	std::unordered_map<ComponentId, Components::Decoration>& ComponentsHolder::temporaryMidgroundDecorations()
+	std::unordered_map<ComponentId, Components::Decoration>& ComponentsHolder::dynamicMidgroundDecorations()
 	{
 		return temporaryMidgroundDecorations_;
 	}
@@ -154,7 +154,7 @@ namespace Globals
 		return nearMidgroundDecorations_;
 	}
 
-	std::unordered_map<ComponentId, Components::Decoration>& ComponentsHolder::temporaryNearMidgroundDecorations()
+	std::unordered_map<ComponentId, Components::Decoration>& ComponentsHolder::dynamicNearMidgroundDecorations()
 	{
 		return temporaryNearMidgroundDecorations_;
 	}
@@ -164,7 +164,7 @@ namespace Globals
 		return foregroundDecorations_;
 	}
 
-	std::unordered_map<::ComponentId, Components::Decoration>& ComponentsHolder::temporaryForegroundDecorations()
+	std::unordered_map<::ComponentId, Components::Decoration>& ComponentsHolder::dynamicForegroundDecorations()
 	{
 		return temporaryForegroundDecorations_;
 	}

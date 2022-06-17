@@ -64,18 +64,12 @@ namespace Systems
 
 	void Actors::initGraphics()
 	{
-		updatePlanesPositionsBuffers();
-		updatePlanesTexCoordBuffers();
+		updatePlanesStaticBuffers();
 	}
 
-	void Actors::updatePlanesPositionsBuffers()
+	void Actors::updatePlanesStaticBuffers()
 	{
-		Tools::UpdatePositionsBuffers(Globals::Components().planes(), simplePlaneBuffers, texturedPlaneBuffers, customShadersPlaneBuffers);
-	}
-
-	void Actors::updatePlanesTexCoordBuffers()
-	{
-		Tools::UpdateTexCoordBuffers(Globals::Components().planes(), texturedPlaneBuffers, customShadersPlaneBuffers);
+		Tools::UpdateStaticBuffers(Globals::Components().planes(), simplePlaneBuffers, texturedPlaneBuffers, customShadersPlaneBuffers);
 	}
 
 	void Actors::basicRender() const

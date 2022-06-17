@@ -34,11 +34,11 @@ namespace Systems
 
 	void Cleaner::step() const
 	{
-		RemoveOutdatedComponents(Globals::Components().temporaryBackgroundDecorations());
-		RemoveOutdatedComponents(Globals::Components().temporaryFarMidgroundDecorations());
-		RemoveOutdatedComponents(Globals::Components().temporaryMidgroundDecorations());
-		RemoveOutdatedComponents(Globals::Components().temporaryNearMidgroundDecorations());
-		RemoveOutdatedComponents(Globals::Components().temporaryForegroundDecorations());
+		RemoveOutdatedComponents(Globals::Components().dynamicBackgroundDecorations());
+		RemoveOutdatedComponents(Globals::Components().dynamicFarMidgroundDecorations());
+		RemoveOutdatedComponents(Globals::Components().dynamicMidgroundDecorations());
+		RemoveOutdatedComponents(Globals::Components().dynamicNearMidgroundDecorations());
+		RemoveOutdatedComponents(Globals::Components().dynamicForegroundDecorations());
 		RemoveOutdatedComponents(Globals::Components().missiles());
 		RemoveOutdatedComponents(Globals::Components().beginCollisionHandlers());
 		RemoveOutdatedComponents(Globals::Components().endCollisionHandlers());

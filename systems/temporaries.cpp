@@ -25,7 +25,7 @@ namespace Systems
 			if (missile.step)
 				missile.step();
 
-		updatePosAndTexCoordBuffers();
+		updateDynamicBuffers();
 	}
 
 	void Temporaries::render() const
@@ -35,9 +35,9 @@ namespace Systems
 		customShadersRender(customShaderRocketsBuffers);
 	}
 
-	void Temporaries::updatePosAndTexCoordBuffers()
+	void Temporaries::updateDynamicBuffers()
 	{
-		Tools::UpdatePosTexCoordBuffers(Globals::Components().missiles(), simpleRocketsBuffers,
+		Tools::UpdateDynamicBuffers(Globals::Components().missiles(), simpleRocketsBuffers,
 			texturedRocketsBuffers, customShaderRocketsBuffers);
 	}
 

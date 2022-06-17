@@ -28,12 +28,7 @@ namespace Systems
 	private:
 		void initGraphics();
 
-		void updateWallsPositionsBuffers();
-		void updateGrapplesPositionsBuffers();
-
-		void updateTexCoordsBuffers();
-		void updateWallsTexCoordsBuffers();
-		void updateGrapplesTexCoordsBuffers();
+		void updateStaticBuffers();
 
 		void customShadersRender(const std::vector<Buffers::GenericBuffers>& buffers) const;
 		void customShadersRender() const;

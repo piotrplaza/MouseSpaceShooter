@@ -23,7 +23,7 @@ namespace Tools
 	}
 
 	template <typename Component, typename Buffers>
-	inline void UpdatePositionsBuffers(const std::vector<Component>& components,
+	inline void UpdateStaticBuffers(const std::vector<Component>& components,
 		std::vector<Buffers>& simpleBuffers, std::vector<Buffers>& texturedBuffers, std::vector<Buffers>& customShadersBuffers)
 	{
 		auto simpleBuffersIt = simpleBuffers.begin();
@@ -41,6 +41,12 @@ namespace Tools
 			}();
 
 			buffers.allocateOrUpdatePositionsBuffer(component.getVertexPositions());
+
+			if (!std::holds_alternative<std::monostate>(component.texture))
+			{
+				buffers.allocateOrUpdateTexCoordBuffer(component.getTexCoord());
+			}
+
 			buffers.modelMatrixF = [&]() { return component.getModelMatrix(); };
 			buffers.renderingSetup = component.renderingSetup;
 			buffers.texture = component.texture;
@@ -48,6 +54,8 @@ namespace Tools
 			buffers.resolutionMode = component.resolutionMode;
 			buffers.drawMode = component.drawMode;
 			buffers.bufferDataUsage = component.bufferDataUsage;
+			buffers.preserveTextureRatio = component.preserveTextureRatio;
+
 			});
 
 		simpleBuffers.resize(std::distance(simpleBuffers.begin(), simpleBuffersIt));
@@ -56,33 +64,7 @@ namespace Tools
 	}
 
 	template <typename Component, typename Buffers>
-	inline void UpdateTexCoordBuffers(const std::vector<Component>& components,
-		std::vector<Buffers>& texturedBuffers, std::vector<Buffers>& customShadersTexturedBuffers)
-	{
-		auto texturedBuffersIt = texturedBuffers.begin();
-		auto customShadersTexturedBuffersIt = customShadersTexturedBuffers.begin();
-
-		Globals::ForEach(components, [&](const auto& component) {
-			if (!std::holds_alternative<std::monostate>(component.texture))
-			{
-				auto& relevantBuffers = component.customShadersProgram
-					? customShadersTexturedBuffers
-					: texturedBuffers;
-				auto& relevantBuffersIt = component.customShadersProgram
-					? customShadersTexturedBuffersIt
-					: texturedBuffersIt;
-
-				auto& buffers = Detail::ReuseOrEmplaceBack(relevantBuffers, relevantBuffersIt);
-				buffers.allocateOrUpdateTexCoordBuffer(component.getTexCoord());
-				buffers.preserveTextureRatio = component.preserveTextureRatio;
-				buffers.drawMode = component.drawMode;
-				buffers.bufferDataUsage = component.bufferDataUsage;
-			}
-			});
-	}
-
-	template <typename Component, typename Buffers>
-	inline void UpdatePosTexCoordBuffers(std::unordered_map<ComponentId, Component>& components, std::unordered_map<ComponentId, Buffers>& simpleBuffers,
+	inline void UpdateDynamicBuffers(std::unordered_map<ComponentId, Component>& components, std::unordered_map<ComponentId, Buffers>& simpleBuffers,
 		std::unordered_map<ComponentId, Buffers>& texturedBuffers, std::unordered_map<ComponentId, Buffers>& customShadersBuffers)
 	{
 		for(auto& [id, component] : components)

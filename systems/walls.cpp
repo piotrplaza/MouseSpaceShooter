@@ -43,35 +43,13 @@ namespace Systems
 
 	void Walls::initGraphics()
 	{
-		updateWallsPositionsBuffers();
-		updateGrapplesPositionsBuffers();
-		updateTexCoordsBuffers();
+		updateStaticBuffers();
 	}
 
-	void Walls::updateWallsPositionsBuffers()
+	void Walls::updateStaticBuffers()
 	{
-		Tools::UpdatePositionsBuffers(Globals::Components().walls(), simpleWallsBuffers, texturedWallsBuffers, customShadersWallsBuffers);
-	}
-
-	void Walls::updateGrapplesPositionsBuffers()
-	{
-		Tools::UpdatePositionsBuffers(Globals::Components().grapples(), simpleGrapplesBuffers, texturedGrapplesBuffers, customShadersGrapplesBuffers);
-	}
-
-	void Walls::updateTexCoordsBuffers()
-	{
-		updateWallsTexCoordsBuffers();
-		updateGrapplesTexCoordsBuffers();
-	}
-
-	void Walls::updateWallsTexCoordsBuffers()
-	{
-		Tools::UpdateTexCoordBuffers(Globals::Components().walls(), texturedWallsBuffers, customShadersWallsBuffers);
-	}
-
-	void Walls::updateGrapplesTexCoordsBuffers()
-	{
-		Tools::UpdateTexCoordBuffers(Globals::Components().grapples(), texturedGrapplesBuffers, customShadersGrapplesBuffers);
+		Tools::UpdateStaticBuffers(Globals::Components().walls(), simpleWallsBuffers, texturedWallsBuffers, customShadersWallsBuffers);
+		Tools::UpdateStaticBuffers(Globals::Components().grapples(), simpleGrapplesBuffers, texturedGrapplesBuffers, customShadersGrapplesBuffers);
 	}
 
 	void Walls::customShadersRender(const std::vector<Buffers::GenericBuffers>& buffers) const

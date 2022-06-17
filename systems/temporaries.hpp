@@ -17,7 +17,7 @@ namespace Systems
 		void render() const;
 
 	private:
-		void updatePosAndTexCoordBuffers();
+		void updateDynamicBuffers();
 
 		void customShadersRender(const std::unordered_map<ComponentId, Buffers::GenericBuffers>& buffers) const;
 		void texturedRender(const std::unordered_map<ComponentId, Buffers::GenericBuffers>& buffers) const;
