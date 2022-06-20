@@ -126,7 +126,7 @@ namespace Levels
 			player1Controls.turningDelta = mouseDelta;
 			player1Controls.autoRotation = mouseState.rmb;
 			player1Controls.throttling = mouseState.rmb;
-			player1Controls.magneticHook = mouseState.mmb;
+			player1Controls.magneticHook = mouseState.xmb1;
 		}
 
 	private:
