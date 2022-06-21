@@ -498,7 +498,7 @@ namespace Levels
 					return nullptr;
 				});
 
-			auto spawner = [=, this](float duration, auto& spawner) -> bool //Type deduction doesn't get it is always bool.
+			auto spawner = [this, alpha, renderingSetupId, first = true](float duration, auto& spawner) mutable -> bool //Type deduction doesn't get it is always bool.
 			{
 				const float existenceDuration = 2.0f;
 				const float fadeDuration = 0.2f;
@@ -509,8 +509,9 @@ namespace Levels
 					? (existenceDuration - duration) / fadeDuration
 					: 1.0f;
 
-				if (duration - Globals::Components().physics().frameDuration < 0.0f)
+				if (first)
 				{
+					first = false;
 					auto& wall = EmplaceDynamicComponent(Globals::Components().dynamicWalls(), { Tools::CreateBoxBody({ -50.0f, 30.0f }, { 5.0f, 5.0f }),
 						TCM::Texture(woodTexture, { 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }), renderingSetupId });
 					dynamicWallId = wall.getComponentId();
@@ -522,16 +523,17 @@ namespace Levels
 				}
 				else if (duration >= existenceDuration)
 				{
+					first = true;
 					Globals::Components().dynamicWalls()[dynamicWallId].state = ComponentState::Outdated;
 					Globals::Components().grapples()[dynamicGrappleId].state = ComponentState::Outdated;
-					Globals::Components().deferredActions().emplace_back([spawner](float duration) { return spawner(duration, spawner); }, existenceDuration);
+					Globals::Components().deferredActions().emplace_back([spawner](float duration) mutable { return spawner(duration, spawner); }, existenceDuration);
 
 					return false;
 				}
 
 				return true;
 			};
-			Globals::Components().deferredActions().emplace_back([spawner](float duration) { return spawner(duration, spawner); });
+			Globals::Components().deferredActions().emplace_back([spawner](float duration) mutable { return spawner(duration, spawner); });
 		}
 
 		void step()
