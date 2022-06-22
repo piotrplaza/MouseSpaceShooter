@@ -4,6 +4,10 @@
 
 #include <commonTypes/resolutionMode.hpp>
 #include <components/typeComponentMappers.hpp>
+#include <components/typeComponentMappers.hpp>
+#include <components/renderingSetup.hpp>
+
+#include <globals/components.hpp>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -16,46 +20,83 @@
 
 namespace Buffers
 {
-	struct GenericBuffers
+	struct SubGenericBuffers
 	{
-		GenericBuffers();
-		GenericBuffers(const GenericBuffers&) = delete;
-		GenericBuffers(GenericBuffers&& other) noexcept;
+		SubGenericBuffers();
+		SubGenericBuffers(const SubGenericBuffers&) = delete;
+		SubGenericBuffers(SubGenericBuffers&& other) noexcept;
 
-		~GenericBuffers();
+		~SubGenericBuffers();
 
-		void allocateOrUpdatePositionsBuffer(const std::vector<glm::vec3>& vertices);
-		void allocateOrUpdateColorsBuffer(const std::vector<glm::vec2>& colors);
+		void allocateOrUpdateVerticesBuffer(const std::vector<glm::vec3>& vertices);
+		void allocateOrUpdateColorsBuffer(const std::vector<glm::vec4>& colors);
 		void allocateOrUpdateTexCoordBuffer(const std::vector<glm::vec2>& texCoord);
-
-		void draw() const;
 
 		std::function<glm::mat4()> modelMatrixF;
 		TextureComponentVariant texture;
 		ComponentId renderingSetup = 0;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;
-
 		GLenum drawMode = GL_TRIANGLES;
 		GLenum bufferDataUsage = GL_STATIC_DRAW;
-
 		bool preserveTextureRatio = false;
+		GLuint vertexArray;
+		size_t numOfVertices = 0;
+		bool render = true;
 
 	private:
 		void createColorBuffer();
 		void createTexCoordBuffer();
 
-		GLuint vertexArray;
 		GLuint positionBuffer;
 		std::optional<GLuint> colorBuffer;
 		std::optional<GLuint> texCoordBuffer;
-		size_t numOfPositions = 0;
 		size_t numOfColors = 0;
 		size_t numOfTexCoord = 0;
-		size_t numOfAllocatedPositions = 0;
+		size_t numOfAllocatedVertices = 0;
 		size_t numOfAllocatedColors = 0;
 		size_t numOfAllocatedTexCoord = 0;
 		std::optional<GLenum> allocatedBufferDataUsage;
+
 		bool expired = false;
+	};
+
+	struct GenericBuffers : SubGenericBuffers
+	{
+		template <typename GeneralSetup>
+		void draw(Shaders::ProgramId programId, GeneralSetup generalSetup) const
+		{
+			auto setAndDraw = [&](const SubGenericBuffers& buffers)
+			{
+				if (!buffers.render)
+					return;
+
+				glBindVertexArray(buffers.vertexArray);
+
+				generalSetup(buffers);
+
+				std::function<void()> renderingTeardown;
+				if (buffers.renderingSetup)
+					renderingTeardown = Globals::Components().renderingSetups()[buffers.renderingSetup](programId);
+
+				glDrawArrays(buffers.drawMode, 0, buffers.numOfVertices);
+
+				if (renderingTeardown)
+					renderingTeardown();
+			};
+
+			for (auto it = subsequence.begin(); it != std::next(subsequence.begin(), posInSubsequence); ++it)
+				setAndDraw(*it);
+
+			setAndDraw(*this);
+
+			for (auto it = std::next(subsequence.begin(), posInSubsequence); it != subsequence.end(); ++it)
+				setAndDraw(*it);
+		}
+
+		std::vector<SubGenericBuffers> subsequence;
+		unsigned posInSubsequence = 0;
+
+		ComponentId sourceComponent = 0;
 	};
 }

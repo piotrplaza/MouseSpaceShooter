@@ -1,15 +1,18 @@
 #pragma once
 
 #include "componentBase.hpp"
+#include "typeComponentMappers.hpp"
 
 #include <commonTypes/resolutionMode.hpp>
 
-#include <ogl/shaders.hpp>
+#include "decoration.hpp"
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>
 
 #include <commonTypes/bodyUserData.hpp>
+
+#include <ogl/shaders.hpp>
 
 #include <Box2D/Box2D.h>
 
@@ -44,10 +47,15 @@ namespace Components
 		std::function<void()> step;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;
 
-		static constexpr GLenum drawMode = GL_TRIANGLES;
-		static constexpr GLenum bufferDataUsage = GL_STATIC_DRAW;
+		GLenum drawMode = GL_TRIANGLES;
+		GLenum bufferDataUsage = GL_STATIC_DRAW;
 
 		bool preserveTextureRatio = false;
+
+		bool render = true;
+
+		std::vector<DecorationDef> subsequence;
+		unsigned posInSubsequence = 0;
 
 		glm::vec2 getCenter() const
 		{

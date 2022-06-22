@@ -19,35 +19,32 @@
 
 namespace Components
 {
-	struct Decoration : ComponentBase
+	struct DecorationDef
 	{
-		using ComponentBase::ComponentBase;
-
-		Decoration(std::vector<glm::vec3> vertices = {},
+		DecorationDef(std::vector<glm::vec3> vertices = {},
 			TextureComponentVariant texture = std::monostate{},
 			std::vector<glm::vec2> texCoord = {},
 			ComponentId renderingSetup = 0,
-			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
+			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt) :
 			vertices(std::move(vertices)),
 			texture(texture),
 			texCoord(std::move(texCoord)),
-			renderingSetup(renderingSetup),
-			customShadersProgram(customShadersProgram)
+			renderingSetup(renderingSetup)
 		{
 		}
 
 		std::vector<glm::vec3> vertices;
 		TextureComponentVariant texture;
 		ComponentId renderingSetup;
-		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::vector<glm::vec2> texCoord;
-		std::function<void()> step;
-		ResolutionMode resolutionMode = ResolutionMode::Normal;
+		std::function<glm::mat4()> modelMatrixF;
 
 		GLenum drawMode = GL_TRIANGLES;
 		GLenum bufferDataUsage = GL_STATIC_DRAW;
 
 		bool preserveTextureRatio = false;
+
+		bool render = true;
 
 		const std::vector<glm::vec3>& getVertices() const
 		{
@@ -77,7 +74,29 @@ namespace Components
 
 		glm::mat4 getModelMatrix() const
 		{
-			return glm::mat4(1.0f);
+			return modelMatrixF ? modelMatrixF() : glm::mat4(1.0f);
 		}
+	};
+
+	struct Decoration : ComponentBase, DecorationDef
+	{
+		using ComponentBase::ComponentBase;
+
+		Decoration(std::vector<glm::vec3> vertices = {},
+			TextureComponentVariant texture = std::monostate{},
+			std::vector<glm::vec2> texCoord = {},
+			ComponentId renderingSetup = 0,
+			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt) :
+			DecorationDef(std::move(vertices), texture, std::move(texCoord), renderingSetup),
+			customShadersProgram(customShadersProgram)
+		{
+		}
+
+		std::optional<Shaders::ProgramId> customShadersProgram;
+		std::function<void()> step;
+		ResolutionMode resolutionMode = ResolutionMode::Normal;
+
+		std::vector<DecorationDef> subsequence;
+		unsigned posInSubsequence = 0;
 	};
 }

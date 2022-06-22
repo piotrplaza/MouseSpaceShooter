@@ -3,6 +3,7 @@
 #include <ogl/oglProxy.hpp>
 #include <ogl/buffersHelpers.hpp>
 #include <ogl/renderingHelpers.hpp>
+#include <ogl/oglHelpers.hpp>
 
 #include <ogl/shaders/basic.hpp>
 #include <ogl/shaders/textured.hpp>
@@ -17,6 +18,7 @@
 #include <components/grapple.hpp>
 #include <components/texture.hpp>
 #include <components/graphicsSettings.hpp>
+#include <components/framebuffers.hpp> 
 
 #include <globals/shaders.hpp>
 
@@ -71,14 +73,14 @@ namespace Systems
 		customShadersRender();
 	}
 
-	void Actors::initGraphics()
-	{
-		updatePlanesStaticBuffers();
-	}
-
-	void Actors::updatePlanesStaticBuffers()
+	void Actors::updateStaticBuffers()
 	{
 		Tools::UpdateStaticBuffers(Globals::Components().planes(), simplePlaneBuffers, texturedPlaneBuffers, customShadersPlaneBuffers);
+	}
+
+	void Actors::initGraphics()
+	{
+		updateStaticBuffers();
 	}
 
 	void Actors::basicRender() const
@@ -87,18 +89,19 @@ namespace Systems
 		Globals::Shaders().basic().vp(Globals::Components().mvp().getVP());
 		Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
 
-		for (const auto& simplePlaneBuffers : simplePlaneBuffers)
+		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
+
+		for (const auto& buffers : simplePlaneBuffers)
 		{
-			Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().basic().model(simplePlaneBuffers.modelMatrixF ? simplePlaneBuffers.modelMatrixF() : glm::mat4(1.0f));
+			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
+				lowResSubBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
 
-			std::function<void()> renderingTeardown =
-				Globals::Components().renderingSetups()[simplePlaneBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
+			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
-			simplePlaneBuffers.draw();
-
-			if (renderingTeardown)
-				renderingTeardown();
+			buffers.draw(Globals::Shaders().basic().getProgramId(), [](const auto& buffers) {
+				Globals::Shaders().basic().model(buffers.modelMatrixF ? buffers.modelMatrixF() : glm::mat4(1.0f));
+				});
 		}
 	}
 
@@ -106,40 +109,53 @@ namespace Systems
 	{
 		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
 		Globals::Shaders().textured().vp(Globals::Components().mvp().getVP());
+		Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
 
-		for (const auto& customTexturedPlaneBuffers : texturedPlaneBuffers)
+		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
+
+		for (const auto& buffers : texturedPlaneBuffers)
 		{
-			Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().textured().model(customTexturedPlaneBuffers.modelMatrixF ? customTexturedPlaneBuffers.modelMatrixF() : glm::mat4(1.0f));
-			Tools::TexturedRender(Globals::Shaders().textured(), customTexturedPlaneBuffers,
-				customTexturedPlaneBuffers.texture);
+			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
+				lowResSubBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
+
+			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
+
+			buffers.draw(Globals::Shaders().textured(), [](const auto& buffers) {
+				Globals::Shaders().textured().model(buffers.modelMatrixF ? buffers.modelMatrixF() : glm::mat4(1.0f));
+				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers, buffers.texture);
+				});
 		}
 	}
 
 	void Actors::customShadersRender() const
 	{
-		for (const auto& currentBuffers : customShadersPlaneBuffers)
+		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
+
+		for (const auto& buffers : customShadersPlaneBuffers)
 		{
-			glUseProgram_proxy(*currentBuffers.customShadersProgram);
+			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
+				lowResSubBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
 
-			std::function<void()> renderingTeardown;
-			if (currentBuffers.renderingSetup)
-				renderingTeardown = Globals::Components().renderingSetups()[currentBuffers.renderingSetup](*currentBuffers.customShadersProgram);
+			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
-			currentBuffers.draw();
+			assert(buffers.customShadersProgram);
+			glUseProgram_proxy(*buffers.customShadersProgram);
 
-			if (renderingTeardown)
-				renderingTeardown();
+			buffers.draw(*buffers.customShadersProgram, [](auto&) {});
 		}
 	}
 
 	void Actors::coloredRender() const
 	{
 		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
+
 		Globals::Shaders().basic().vp(Globals::Components().mvp().getVP());
 		Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
 		Globals::Shaders().basic().model(glm::mat4(1.0f));
-		connections.buffers.draw();
+
+		connections.buffers.draw(Globals::Shaders().basic().getProgramId(), [](auto&) {});
 	}
 
 	void Actors::turn(Components::Plane& plane) const
@@ -299,6 +315,12 @@ namespace Systems
 		return std::vector<glm::vec4>(segmentsNum * 2, color);
 	}
 
+	Actors::Connections::Connections()
+	{
+		buffers.drawMode = GL_LINES;
+		buffers.bufferDataUsage = GL_DYNAMIC_DRAW;
+	}
+
 	void Actors::Connections::updateBuffers()
 	{
 		vertices.clear();
@@ -316,7 +338,7 @@ namespace Systems
 			this->colors.insert(this->colors.end(), colors.begin(), colors.end());
 		}
 
-		buffers.allocateOrUpdatePositionsBuffer(vertices);
+		buffers.allocateOrUpdateVerticesBuffer(vertices);
 		buffers.allocateOrUpdateColorsBuffer(colors);
 
 		assert(vertices.size() == colors.size());

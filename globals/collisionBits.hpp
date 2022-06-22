@@ -1,6 +1,6 @@
 #pragma once
 
-namespace CollisionBits
+namespace Globals::CollisionBits
 {
 	constexpr unsigned short planeBit = 1 << 1;
 	constexpr unsigned short missileBit = 1 << 2;

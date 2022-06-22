@@ -26,6 +26,15 @@ namespace Components
 	{
 		using Wall::Wall;
 
+		Grapple(Body body,
+			TextureComponentVariant texture = std::monostate{},
+			ComponentId renderingSetup = 0,
+			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
+			Wall(std::move(body), texture, renderingSetup, customShadersProgram)
+		{
+			Tools::AccessUserData(*this->body).bodyComponentVariant = TCM::Grapple(getComponentId());
+		}
+
 		float influenceRadius = 0.0f;
 
 		struct

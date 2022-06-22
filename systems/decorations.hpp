@@ -24,10 +24,17 @@ namespace Systems
 		void renderNearMidground() const;
 		void renderForeground() const;
 
+		void updateBackgroundStaticBuffers();
+		void updateFarMidgroundStaticBuffers();
+		void updateMidgroundStaticBuffers();
+		void updateNearMidgroundStaticBuffers();
+		void updateForegroundStaticBuffers();
+
+		void updateStaticBuffers();
+
 	private:
 		void initGraphics();
 
-		void updateStaticBuffers();
 		void updateDynamicBuffers();
 
 		void customShadersRender(const std::vector<Buffers::GenericBuffers>& staticBuffers,

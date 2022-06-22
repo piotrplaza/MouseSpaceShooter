@@ -34,7 +34,6 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ogl\buffers\genericBuffers.cpp" />
-    <ClCompile Include="ogl\buffers\posColorBuffers.cpp" />
     <ClCompile Include="ogl\oglHelpers.cpp" />
     <ClCompile Include="ogl\oglProxy.cpp" />
     <ClCompile Include="ogl\shaders.cpp" />
@@ -57,7 +56,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdParty\stb_image\stb_image.h" />
-    <ClInclude Include="commonIds\collisionBits.hpp" />
     <ClInclude Include="commonTypes\bodyUserData.hpp" />
     <ClInclude Include="commonTypes\idGenerator.hpp" />
     <ClInclude Include="commonTypes\resolutionMode.hpp" />
@@ -86,6 +84,7 @@
     <ClInclude Include="components\texture.hpp" />
     <ClInclude Include="components\typeComponentMappers.hpp" />
     <ClInclude Include="components\wall.hpp" />
+    <ClInclude Include="globals\collisionBits.hpp" />
     <ClInclude Include="globals\components.hpp" />
     <ClInclude Include="globals\shaders.hpp" />
     <ClInclude Include="globals\systems.hpp" />
@@ -95,7 +94,6 @@
     <ClInclude Include="levels\rocketball\rocketball.hpp" />
     <ClInclude Include="ogl\buffersHelpers.hpp" />
     <ClInclude Include="ogl\buffers\genericBuffers.hpp" />
-    <ClInclude Include="ogl\buffers\posColorBuffers.hpp" />
     <ClInclude Include="ogl\oglHelpers.hpp" />
     <ClInclude Include="ogl\oglProxy.hpp" />
     <ClInclude Include="ogl\renderingHelpers.hpp" />

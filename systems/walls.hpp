@@ -25,10 +25,11 @@ namespace Systems
 		void step();
 		void render() const;
 
+		void updateStaticBuffers();
+
 	private:
 		void initGraphics();
 
-		void updateStaticBuffers();
 		void updateDynamicBuffers();
 
 		void customShadersRender() const;

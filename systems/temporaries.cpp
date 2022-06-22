@@ -3,6 +3,7 @@
 #include <ogl/oglProxy.hpp>
 #include <ogl/buffersHelpers.hpp>
 #include <ogl/renderingHelpers.hpp>
+#include <ogl/oglHelpers.hpp>
 
 #include <ogl/shaders/basic.hpp>
 #include <ogl/shaders/textured.hpp>
@@ -12,6 +13,7 @@
 #include <components/renderingSetup.hpp>
 #include <components/mvp.hpp>
 #include <components/graphicsSettings.hpp>
+#include <components/framebuffers.hpp> 
 
 #include <globals/shaders.hpp>
 
@@ -43,19 +45,20 @@ namespace Systems
 
 	void Temporaries::customShadersRender(const std::unordered_map<ComponentId, Buffers::GenericBuffers>& buffers) const
 	{
+		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
+
 		for (const auto& [id, currentBuffers] : buffers)
 		{
+			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(currentBuffers.resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(currentBuffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
+				lowResSubBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
+
+			texturesFramebuffersRenderer.clearIfFirstOfMode(currentBuffers.resolutionMode);
+
 			assert(currentBuffers.customShadersProgram);
 			glUseProgram_proxy(*currentBuffers.customShadersProgram);
 
-			std::function<void()> renderingTeardown;
-			if (currentBuffers.renderingSetup)
-				renderingTeardown = Globals::Components().renderingSetups()[currentBuffers.renderingSetup](*currentBuffers.customShadersProgram);
-
-			currentBuffers.draw();
-
-			if (renderingTeardown)
-				renderingTeardown();
+			currentBuffers.draw(*currentBuffers.customShadersProgram, [](auto&) {});
 		}
 	}
 
@@ -63,12 +66,22 @@ namespace Systems
 	{
 		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
 		Globals::Shaders().textured().vp(Globals::Components().mvp().getVP());
+		Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
+
+		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
 		for (const auto& [id, currentBuffers] : buffers)
 		{
-			Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().textured().model(glm::mat4(1.0f));
-			Tools::TexturedRender(Globals::Shaders().textured(), currentBuffers, currentBuffers.texture);
+			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(currentBuffers.resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(currentBuffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
+				lowResSubBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
+
+			texturesFramebuffersRenderer.clearIfFirstOfMode(currentBuffers.resolutionMode);
+
+			currentBuffers.draw(Globals::Shaders().textured(), [](const auto& buffers) {
+				Globals::Shaders().textured().model(buffers.modelMatrixF ? buffers.modelMatrixF() : glm::mat4(1.0f));
+				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers, buffers.texture);
+				});
 		}
 	}
 
@@ -76,20 +89,21 @@ namespace Systems
 	{
 		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
 		Globals::Shaders().basic().vp(Globals::Components().mvp().getVP());
+		Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
+
+		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
 		for (const auto& [id, currentBuffers] : buffers)
 		{
-			Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().basic().model(glm::mat4(1.0f));
+			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(currentBuffers.resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(currentBuffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
+				lowResSubBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
 
-			std::function<void()> renderingTeardown;
-			if (currentBuffers.renderingSetup)
-				renderingTeardown = Globals::Components().renderingSetups()[currentBuffers.renderingSetup](Globals::Shaders().basic().getProgramId());
+			texturesFramebuffersRenderer.clearIfFirstOfMode(currentBuffers.resolutionMode);
 
-			currentBuffers.draw();
-
-			if (renderingTeardown)
-				renderingTeardown();
+			currentBuffers.draw(Globals::Shaders().basic().getProgramId(), [](const auto& buffers) {
+				Globals::Shaders().basic().model(buffers.modelMatrixF ? buffers.modelMatrixF() : glm::mat4(1.0f));
+				});
 		}
 	}
 }

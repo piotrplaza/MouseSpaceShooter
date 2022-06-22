@@ -23,6 +23,7 @@
 #include <globals/shaders.hpp>
 #include <globals/components.hpp>
 #include <globals/systems.hpp>
+#include <globals/collisionBits.hpp>
 
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/basic.hpp>
@@ -36,8 +37,6 @@
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
 
-#include <commonIds/collisionBits.hpp>
-
 #include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
@@ -49,7 +48,7 @@ namespace Levels
 	public:
 		void setGraphicsSettings() const
 		{
-			Globals::Components().graphicsSettings().defaultColor = { 0.7f, 0.7f, 0.7f, 1.0f };
+			Globals::Components().graphicsSettings().defaultColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 			Globals::Components().mainFramebufferRenderer().renderer = Tools::Demo3DRotatedFullscreenRenderer(Globals::Shaders().textured());
 		}
 
@@ -224,29 +223,29 @@ namespace Levels
 					return [=]() mutable { texturesCustomTransformUniform(glm::mat4(1.0f)); };
 				});
 
-			auto& wall1 = *Globals::Components().walls().emplace_back(
-				Tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture), Globals::Components().renderingSetups().size() - 1).body;
-			auto& wall2 = *Globals::Components().walls().emplace_back(
-				Tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture)).body;
-			wall1.GetFixtureList()->SetRestitution(0.5f);
-			wall2.GetFixtureList()->SetRestitution(0.5f);
-			Tools::PinBodies(wall1, wall2, { 5.0f, 0.0f });
-
-			for (int i = 1; i <= 2; ++i)
 			{
-				Globals::Components().renderingSetups().emplace_back([
-					texturedProgram = Shaders::Programs::TexturedAccessor(),
-						wallId = Globals::Components().walls().size() - i
-				](Shaders::ProgramId program) mutable {
-						if (!texturedProgram.isValid()) texturedProgram = program;
-						texturedProgram.model(Globals::Components().walls()[wallId].getModelMatrix());
-						return nullptr;
-					});
+				auto setRenderingSetupAndSubsequence = [&]()
+				{
+					Globals::Components().walls().back().subsequence.emplace_back(Tools::CreateVerticesOfLineOfRectangles({ 0.4f, 0.4f },
+						{ { -0.5f, -5.0f }, { 0.5f, -5.0f }, { 0.5f, 5.0f }, { -0.5f, 5.0f}, { -0.5f, -5.0f } },
+						{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }),
+						TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle());
+					Globals::Components().walls().back().subsequence.back().modelMatrixF = [wallId = Globals::Components().walls().size() - 1]() {
+						return Globals::Components().walls()[wallId].getModelMatrix();
+					};
+				};
 
-				Globals::Components().midgroundDecorations().emplace_back(Tools::CreateVerticesOfLineOfRectangles({ 0.4f, 0.4f },
-					{ { -0.5f, -5.0f }, { 0.5f, -5.0f }, { 0.5f, 5.0f }, { -0.5f, 5.0f}, { -0.5f, -5.0f } },
-					{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }),
-					TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
+				auto& wall1Body = *Globals::Components().walls().emplace_back(
+					Tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture), Globals::Components().renderingSetups().size() - 1).body;
+				wall1Body.GetFixtureList()->SetRestitution(0.5f);
+				setRenderingSetupAndSubsequence();
+
+				auto& wall2Body = *Globals::Components().walls().emplace_back(
+					Tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture)).body;
+				wall2Body.GetFixtureList()->SetRestitution(0.5f);
+				setRenderingSetupAndSubsequence();
+
+				Tools::PinBodies(wall1Body, wall2Body, { 5.0f, 0.0f });
 			}
 
 			const auto blendingTexture = Globals::Components().blendingTextures().size();
@@ -395,16 +394,14 @@ namespace Levels
 
 		void createGrapples() const
 		{
-			//Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ 0.0f, 10.0f }, 1.0f), TCM::Texture(orbTexture)).influenceRadius = 15.0f;
-
 			EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ 0.0f, 10.0f }, 1.0f), TCM::Texture(orbTexture) }).influenceRadius = 15.0f;
 
 			Globals::Components().renderingSetups().emplace_back([
 				colorUniform = Uniforms::UniformController4f()
 			](Shaders::ProgramId program) mutable {
 					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-					colorUniform(glm::vec4(glm::sin(Globals::Components().physics().simulationDuration / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f);
-					return nullptr;
+					colorUniform(glm::vec4((glm::sin(Globals::Components().physics().simulationDuration / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f));
+					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColor); };
 				});
 
 			EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), TCM::Texture(orbTexture),
@@ -421,17 +418,9 @@ namespace Levels
 			EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f),
 				TCM::Texture(orbTexture), Globals::Components().renderingSetups().size() - 1 }).influenceRadius = 30.0f;
 
-			Globals::Components().renderingSetups().emplace_back([
-				colorUniform = Uniforms::UniformController4f()
-			](Shaders::ProgramId program) mutable {
-					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
-					colorUniform({ 0.0f, 0.0f, 0.0f, 0.0f });
-					return nullptr;
-				});
-
 			auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f) });
 			grapple.influenceRadius = 30.0f;
-			grapple.renderingSetup = Globals::Components().renderingSetups().size() - 1;
+			grapple.render = false;
 
 			Globals::Components().renderingSetups().emplace_back([&,
 				modelUniform = Uniforms::UniformControllerMat4f()
@@ -461,10 +450,10 @@ namespace Levels
 
 		void setCollisionCallbacks()
 		{
-			EmplaceDynamicComponent(Globals::Components().beginCollisionHandlers(), { CollisionBits::missileBit, CollisionBits::all,
+			EmplaceDynamicComponent(Globals::Components().beginCollisionHandlers(), { Globals::CollisionBits::missileBit, Globals::CollisionBits::all,
 				[this](const auto& fixtureA, const auto& fixtureB) {
 					for (const auto* fixture : { &fixtureA, &fixtureB })
-					if (fixture->GetFilterData().categoryBits == CollisionBits::missileBit)
+					if (fixture->GetFilterData().categoryBits == Globals::CollisionBits::missileBit)
 					{
 						const auto& targetFixture = fixture == &fixtureA ? fixtureB : fixtureA;
 						const auto& missileBody = *fixture->GetBody();
@@ -495,7 +484,7 @@ namespace Levels
 			](Shaders::ProgramId program) mutable {
 					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
 					colorUniform(glm::vec4(*alpha));
-					return nullptr;
+					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColor); };
 				});
 
 			auto spawner = [this, alpha, renderingSetupId, first = true](float duration, auto& spawner) mutable -> bool //Type deduction doesn't get it is always bool.

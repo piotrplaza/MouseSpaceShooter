@@ -2,7 +2,7 @@
 
 namespace Buffers
 {
-	GenericBuffers::GenericBuffers()
+	SubGenericBuffers::SubGenericBuffers()
 	{
 		glGenVertexArrays(1, &vertexArray);
 		glBindVertexArray(vertexArray);
@@ -15,7 +15,7 @@ namespace Buffers
 		glDisableVertexAttribArray(1);
 	}
 
-	GenericBuffers::GenericBuffers(GenericBuffers&& other) noexcept:
+	SubGenericBuffers::SubGenericBuffers(SubGenericBuffers&& other) noexcept:
 		vertexArray(other.vertexArray),
 		positionBuffer(other.positionBuffer),
 		colorBuffer(other.colorBuffer),
@@ -25,21 +25,22 @@ namespace Buffers
 		renderingSetup(other.renderingSetup),
 		customShadersProgram(other.customShadersProgram),
 		resolutionMode(other.resolutionMode),
-		numOfPositions(other.numOfPositions),
+		numOfVertices(other.numOfVertices),
 		numOfColors(other.numOfColors),
 		numOfTexCoord(other.numOfTexCoord),
-		numOfAllocatedPositions(other.numOfAllocatedPositions),
+		numOfAllocatedVertices(other.numOfAllocatedVertices),
 		numOfAllocatedColors(other.numOfAllocatedColors),
 		numOfAllocatedTexCoord(other.numOfAllocatedTexCoord),
 		drawMode(other.drawMode),
 		bufferDataUsage(other.bufferDataUsage),
 		allocatedBufferDataUsage(std::move(other.allocatedBufferDataUsage)),
-		preserveTextureRatio(other.preserveTextureRatio)
+		preserveTextureRatio(other.preserveTextureRatio),
+		render(other.render)
 	{
 		other.expired = true;
 	}
 
-	GenericBuffers::~GenericBuffers()
+	SubGenericBuffers::~SubGenericBuffers()
 	{
 		if (expired) return;
 
@@ -49,23 +50,23 @@ namespace Buffers
 		glDeleteVertexArrays(1, &vertexArray);
 	}
 
-	void GenericBuffers::allocateOrUpdatePositionsBuffer(const std::vector<glm::vec3>& vertices)
+	void SubGenericBuffers::allocateOrUpdateVerticesBuffer(const std::vector<glm::vec3>& vertices)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-		if (numOfAllocatedPositions < vertices.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != bufferDataUsage)
+		if (numOfAllocatedVertices < vertices.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != bufferDataUsage)
 		{
 			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices.front()), vertices.data(), bufferDataUsage);
-			numOfAllocatedPositions = vertices.size();
+			numOfAllocatedVertices = vertices.size();
 			allocatedBufferDataUsage = bufferDataUsage;
 		}
 		else
 		{
 			glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(vertices.front()), vertices.data());
 		}
-		numOfPositions = vertices.size();
+		numOfVertices = vertices.size();
 	}
 
-	void GenericBuffers::allocateOrUpdateColorsBuffer(const std::vector<glm::vec2>& colors)
+	void SubGenericBuffers::allocateOrUpdateColorsBuffer(const std::vector<glm::vec4>& colors)
 	{
 		if (!colorBuffer)
 			createColorBuffer();
@@ -84,7 +85,7 @@ namespace Buffers
 		numOfColors = colors.size();
 	}
 
-	void GenericBuffers::allocateOrUpdateTexCoordBuffer(const std::vector<glm::vec2>& texCoord)
+	void SubGenericBuffers::allocateOrUpdateTexCoordBuffer(const std::vector<glm::vec2>& texCoord)
 	{
 		if (!texCoordBuffer)
 			createTexCoordBuffer();
@@ -103,14 +104,7 @@ namespace Buffers
 		numOfTexCoord = texCoord.size();
 	}
 
-	void GenericBuffers::draw() const
-	{
-		glBindVertexArray(vertexArray);
-
-		glDrawArrays(drawMode, 0, numOfPositions);
-	}
-
-	void GenericBuffers::createColorBuffer()
+	void SubGenericBuffers::createColorBuffer()
 	{
 		assert(!colorBuffer);
 		colorBuffer = 0;
@@ -121,7 +115,7 @@ namespace Buffers
 		glEnableVertexAttribArray(1);
 	}
 
-	void GenericBuffers::createTexCoordBuffer()
+	void SubGenericBuffers::createTexCoordBuffer()
 	{
 		assert(!texCoordBuffer);
 		texCoordBuffer = 0;

@@ -29,12 +29,11 @@
 
 #include <globals/shaders.hpp>
 #include <globals/components.hpp>
+#include <globals/collisionBits.hpp>
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
-
-#include <commonIds/collisionBits.hpp>
 
 #include <algorithm>
 #include <unordered_map>
@@ -205,10 +204,10 @@ namespace Levels
 
 		void setCollisionCallbacks()
 		{
-			EmplaceDynamicComponent(Globals::Components().beginCollisionHandlers(), { CollisionBits::missileBit, CollisionBits::all,
+			EmplaceDynamicComponent(Globals::Components().beginCollisionHandlers(), { Globals::CollisionBits::missileBit, Globals::CollisionBits::all,
 				[this](const auto& fixtureA, const auto& fixtureB) {
 					for (const auto* fixture : { &fixtureA, &fixtureB })
-					if (fixture->GetFilterData().categoryBits == CollisionBits::missileBit)
+					if (fixture->GetFilterData().categoryBits == Globals::CollisionBits::missileBit)
 					{
 						const auto& otherFixture = fixture == &fixtureA ? fixtureB : fixtureA;
 						const auto& body = *fixture->GetBody();

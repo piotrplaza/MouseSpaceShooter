@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ogl/buffers/genericBuffers.hpp>
-#include <ogl/buffers/posColorBuffers.hpp>
 
 #include <components/typeComponentMappers.hpp>
 
@@ -32,6 +31,8 @@ namespace Systems
 		void step();
 		void render() const;
 
+		void updateStaticBuffers();
+
 	private:
 		struct Connections
 		{
@@ -53,10 +54,12 @@ namespace Systems
 				std::vector<glm::vec4> getColors() const;
 			};
 
+			Connections();
+
 			std::vector<Params> params;
 			std::vector<glm::vec3> vertices;
 			std::vector<glm::vec4> colors;
-			Buffers::PosColorBuffers buffers;
+			Buffers::GenericBuffers buffers;
 
 			void updateBuffers();
 		};
@@ -67,8 +70,6 @@ namespace Systems
 		void throttle(Components::Plane& plane) const;
 		void magneticHook(Components::Plane& plane);
 		void createGrappleJoint(Components::Plane& plane) const;
-
-		void updatePlanesStaticBuffers();
 
 		void basicRender() const;
 		void texturedRender() const;

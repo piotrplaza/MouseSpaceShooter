@@ -23,7 +23,7 @@ namespace Components
 		{
 		}
 
-		CollisionHandler(unsigned short categoryBits, unsigned short maskBits, std::function<void(b2Fixture&, b2Fixture&)> handler) :
+		CollisionHandler(unsigned short categoryBits, unsigned short maskBits, std::function<void(b2Fixture&, b2Fixture&)> handler):
 			handler([categoryBits, maskBits, handler = std::move(handler)](b2Fixture& fixtureA, b2Fixture& fixtureB)
 			{
 				if ((categoryBits & fixtureA.GetFilterData().categoryBits && fixtureB.GetFilterData().categoryBits & maskBits) || 

@@ -59,9 +59,6 @@
     <Filter Include="src\globals">
       <UniqueIdentifier>{559bc9f3-4bd9-4a0f-a00f-82fcce3231b4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\commonIds">
-      <UniqueIdentifier>{fbaa671a-12fa-4d4c-8bba-07a92ab28bfe}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\levels\gravity">
       <UniqueIdentifier>{5a636ec7-4eb2-4591-9087-b0b38b96553c}</UniqueIdentifier>
     </Filter>
@@ -153,9 +150,6 @@
     </ClCompile>
     <ClCompile Include="levels\gravity\gravity.cpp">
       <Filter>src\levels\gravity</Filter>
-    </ClCompile>
-    <ClCompile Include="ogl\buffers\posColorBuffers.cpp">
-      <Filter>src\ogl\buffers</Filter>
     </ClCompile>
     <ClCompile Include="ogl\buffers\genericBuffers.cpp">
       <Filter>src\ogl\buffers</Filter>
@@ -333,9 +327,6 @@
     <ClInclude Include="commonTypes\idGenerator.hpp">
       <Filter>src\commonTypes</Filter>
     </ClInclude>
-    <ClInclude Include="commonIds\collisionBits.hpp">
-      <Filter>src\commonIds</Filter>
-    </ClInclude>
     <ClInclude Include="components\componentBase.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -351,9 +342,6 @@
     <ClInclude Include="levels\gravity\gravity.hpp">
       <Filter>src\levels\gravity</Filter>
     </ClInclude>
-    <ClInclude Include="ogl\buffers\posColorBuffers.hpp">
-      <Filter>src\ogl\buffers</Filter>
-    </ClInclude>
     <ClInclude Include="ogl\buffers\genericBuffers.hpp">
       <Filter>src\ogl\buffers</Filter>
     </ClInclude>
@@ -365,6 +353,9 @@
     </ClInclude>
     <ClInclude Include="components\deferredAction.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\collisionBits.hpp">
+      <Filter>src\globals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

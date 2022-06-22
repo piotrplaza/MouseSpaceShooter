@@ -90,23 +90,48 @@ namespace Systems
 		customShadersRender(staticBuffers.customShadersForegroundDecorations, dynamicBuffers.customShadersForegroundDecorations);
 	}
 
-	void Decorations::initGraphics()
+	void Decorations::updateBackgroundStaticBuffers()
 	{
-		updateStaticBuffers();
+		Tools::UpdateStaticBuffers(Globals::Components().backgroundDecorations(), staticBuffers.simpleBackgroundDecorations,
+			staticBuffers.texturedBackgroundDecorations, staticBuffers.customShadersBackgroundDecorations);
+	}
+
+	void Decorations::updateFarMidgroundStaticBuffers()
+	{
+		Tools::UpdateStaticBuffers(Globals::Components().farMidgroundDecorations(), staticBuffers.simpleFarMidgroundDecorations,
+			staticBuffers.texturedFarMidgroundDecorations, staticBuffers.customShadersFarMidgroundDecorations);
+	}
+
+	void Decorations::updateMidgroundStaticBuffers()
+	{
+		Tools::UpdateStaticBuffers(Globals::Components().midgroundDecorations(), staticBuffers.simpleMidgroundDecorations,
+			staticBuffers.texturedMidgroundDecorations, staticBuffers.customShadersMidgroundDecorations);
+	}
+
+	void Decorations::updateNearMidgroundStaticBuffers()
+	{
+		Tools::UpdateStaticBuffers(Globals::Components().nearMidgroundDecorations(), staticBuffers.simpleNearMidgroundDecorations,
+			staticBuffers.texturedNearMidgroundDecorations, staticBuffers.customShadersNearMidgroundDecorations);
+	}
+
+	void Decorations::updateForegroundStaticBuffers()
+	{
+		Tools::UpdateStaticBuffers(Globals::Components().foregroundDecorations(), staticBuffers.simpleForegroundDecorations,
+			staticBuffers.texturedForegroundDecorations, staticBuffers.customShadersForegroundDecorations);
 	}
 
 	void Decorations::updateStaticBuffers()
 	{
-		Tools::UpdateStaticBuffers(Globals::Components().backgroundDecorations(), staticBuffers.simpleBackgroundDecorations,
-			staticBuffers.texturedBackgroundDecorations, staticBuffers.customShadersBackgroundDecorations);
-		Tools::UpdateStaticBuffers(Globals::Components().farMidgroundDecorations(), staticBuffers.simpleFarMidgroundDecorations,
-			staticBuffers.texturedFarMidgroundDecorations, staticBuffers.customShadersFarMidgroundDecorations);
-		Tools::UpdateStaticBuffers(Globals::Components().midgroundDecorations(), staticBuffers.simpleMidgroundDecorations,
-			staticBuffers.texturedMidgroundDecorations, staticBuffers.customShadersMidgroundDecorations);
-		Tools::UpdateStaticBuffers(Globals::Components().nearMidgroundDecorations(), staticBuffers.simpleNearMidgroundDecorations,
-			staticBuffers.texturedNearMidgroundDecorations, staticBuffers.customShadersNearMidgroundDecorations);
-		Tools::UpdateStaticBuffers(Globals::Components().foregroundDecorations(), staticBuffers.simpleForegroundDecorations,
-			staticBuffers.texturedForegroundDecorations, staticBuffers.customShadersForegroundDecorations);
+		updateBackgroundStaticBuffers();
+		updateFarMidgroundStaticBuffers();
+		updateMidgroundStaticBuffers();
+		updateNearMidgroundStaticBuffers();
+		updateForegroundStaticBuffers();
+	}
+
+	void Decorations::initGraphics()
+	{
+		updateStaticBuffers();
 	}
 
 	void Decorations::updateDynamicBuffers()
@@ -139,14 +164,7 @@ namespace Systems
 			assert(buffers.customShadersProgram);
 			glUseProgram_proxy(*buffers.customShadersProgram);
 
-			std::function<void()> renderingTeardown;
-			if (buffers.renderingSetup)
-				renderingTeardown = Globals::Components().renderingSetups()[buffers.renderingSetup](*buffers.customShadersProgram);
-
-			buffers.draw();
-
-			if (renderingTeardown)
-				renderingTeardown();
+			buffers.draw(*buffers.customShadersProgram, [](auto&) {});
 		};
 
 		for (const auto& buffers : staticBuffers)
@@ -161,6 +179,7 @@ namespace Systems
 	{
 		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
 		Globals::Shaders().textured().vp(Globals::Components().mvp().getVP());
+		Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
 
 		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
@@ -172,10 +191,10 @@ namespace Systems
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
-			Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().textured().model(glm::mat4(1.0f));
-
-			Tools::TexturedRender(Globals::Shaders().textured(), buffers, buffers.texture);
+			buffers.draw(Globals::Shaders().textured(), [](const auto& buffers) {
+				Globals::Shaders().textured().model(buffers.modelMatrixF ? buffers.modelMatrixF() : glm::mat4(1.0f));
+				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers, buffers.texture);
+				});
 		};
 
 		for (const auto& buffers : staticBuffers)
@@ -190,6 +209,7 @@ namespace Systems
 	{
 		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
 		Globals::Shaders().basic().vp(Globals::Components().mvp().getVP());
+		Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
 
 		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
@@ -201,17 +221,9 @@ namespace Systems
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
 
-			Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
-			Globals::Shaders().basic().model(glm::mat4(1.0f));
-
-			std::function<void()> renderingTeardown;
-			if (buffers.renderingSetup)
-				renderingTeardown = Globals::Components().renderingSetups()[buffers.renderingSetup](Globals::Shaders().basic().getProgramId());
-
-			buffers.draw();
-
-			if (renderingTeardown)
-				renderingTeardown();
+			buffers.draw(Globals::Shaders().basic().getProgramId(), [](const auto& buffers) {
+				Globals::Shaders().basic().model(buffers.modelMatrixF ? buffers.modelMatrixF() : glm::mat4(1.0f));
+				});
 		};
 
 		for (const auto& buffers : staticBuffers)

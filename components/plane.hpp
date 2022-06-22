@@ -3,8 +3,10 @@
 #include "componentBase.hpp"
 #include "typeComponentMappers.hpp"
 
-#include <tools/b2Helpers.hpp>
+#include "decoration.hpp"
+
 #include <tools/graphicsHelpers.hpp>
+#include <tools/b2Helpers.hpp>
 
 #include <commonTypes/resolutionMode.hpp>
 #include <commonTypes/bodyUserData.hpp>
@@ -68,11 +70,16 @@ namespace Components
 
 		bool preserveTextureRatio = false;
 
+		bool render = true;
+
+		std::vector<DecorationDef> subsequence;
+		unsigned posInSubsequence = 0;
+
 		struct
 		{
 			glm::vec2 previousCenter{ 0.0f, 0.0f };
 		} details;
-		
+
 		void setPosition(const glm::vec2& position)
 		{
 			body->SetTransform({ position.x, position.y }, body->GetAngle());

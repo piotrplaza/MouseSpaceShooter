@@ -3,6 +3,8 @@
 #include "componentBase.hpp"
 #include "typeComponentMappers.hpp"
 
+#include "decoration.hpp"
+
 #include <tools/b2Helpers.hpp>
 #include <tools/graphicsHelpers.hpp>
 
@@ -49,6 +51,11 @@ namespace Components
 		GLenum bufferDataUsage = GL_STATIC_DRAW;
 
 		bool preserveTextureRatio = false;
+
+		bool render = true;
+
+		std::vector<DecorationDef> subsequence;
+		unsigned posInSubsequence = 0;
 
 		glm::vec2 getCenter() const
 		{

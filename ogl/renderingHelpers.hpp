@@ -112,18 +112,9 @@ namespace Tools
 	};
 
 	template <typename ShadersProgram, typename Buffers>
-	inline void TexturedRender(ShadersProgram& shadersProgram, const Buffers& buffers, const TextureComponentVariant& texture)
+	inline void PrepareTexturedRender(ShadersProgram& shadersProgram, const Buffers& buffers, const TextureComponentVariant& texture)
 	{
 		std::visit(TexturedRenderInitializationVisitor{ shadersProgram, buffers.preserveTextureRatio }, texture);
-
-		std::function<void()> renderingTeardown;
-		if (buffers.renderingSetup)
-			renderingTeardown = Globals::Components().renderingSetups()[buffers.renderingSetup](shadersProgram.getProgramId());
-
-		buffers.draw();
-
-		if (renderingTeardown)
-			renderingTeardown();
 	}
 
 	template <typename ShadersPrograms>

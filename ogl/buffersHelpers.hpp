@@ -21,22 +21,44 @@ namespace Tools
 				: *it++;
 		}
 
+		template <typename SubComponent, typename Buffers>
+		void SubComponentToBuffers(const SubComponent& subComponent, Buffers& buffers)
+		{
+			buffers.allocateOrUpdateVerticesBuffer(subComponent.getVertices());
+
+			if (!std::holds_alternative<std::monostate>(subComponent.texture))
+				buffers.allocateOrUpdateTexCoordBuffer(subComponent.getTexCoord());
+
+			buffers.modelMatrixF = [&]() { return subComponent.getModelMatrix(); };
+			buffers.renderingSetup = subComponent.renderingSetup;
+			buffers.texture = subComponent.texture;
+			buffers.drawMode = subComponent.drawMode;
+			buffers.bufferDataUsage = subComponent.bufferDataUsage;
+			buffers.preserveTextureRatio = subComponent.preserveTextureRatio;
+			buffers.render = subComponent.render;
+		}
+
+		template <typename Component, typename Buffers>
+		void ComponentSubsequenceToSubbuffers(const Component& component, Buffers& buffers)
+		{
+			auto subBuffersIt = buffers.subsequence.begin();
+
+			for (const auto& subComponent : component.subsequence)
+			{
+				auto& subBuffers = Details::ReuseOrEmplaceBack(buffers.subsequence, subBuffersIt);
+				Details::SubComponentToBuffers(subComponent, subBuffers);
+			}
+		}
+
 		template <typename Component, typename Buffers>
 		void ComponentToBuffers(Component& component, Buffers& buffers)
 		{
-			buffers.allocateOrUpdatePositionsBuffer(component.getVertices());
+			SubComponentToBuffers(component, buffers);
 
-			if (!std::holds_alternative<std::monostate>(component.texture))
-				buffers.allocateOrUpdateTexCoordBuffer(component.getTexCoord());
-
-			buffers.modelMatrixF = [&]() { return component.getModelMatrix(); };
-			buffers.renderingSetup = component.renderingSetup;
-			buffers.texture = component.texture;
 			buffers.customShadersProgram = component.customShadersProgram;
 			buffers.resolutionMode = component.resolutionMode;
-			buffers.drawMode = component.drawMode;
-			buffers.bufferDataUsage = component.bufferDataUsage;
-			buffers.preserveTextureRatio = component.preserveTextureRatio;
+			buffers.posInSubsequence = component.posInSubsequence;
+			buffers.sourceComponent = component.getComponentId();
 
 			component.state = ComponentState::Ongoing;
 		}
@@ -50,17 +72,26 @@ namespace Tools
 		auto texturedBuffersIt = texturedBuffers.begin();
 		auto customShadersBuffersIt = customShadersBuffers.begin();
 
+		auto prepareBuffersLocation = [&](const Component& component) -> auto& {
+			if (component.customShadersProgram)
+				return Details::ReuseOrEmplaceBack(customShadersBuffers, customShadersBuffersIt);
+			else if (!std::holds_alternative<std::monostate>(component.texture))
+				return Details::ReuseOrEmplaceBack(texturedBuffers, texturedBuffersIt);
+			else
+				return Details::ReuseOrEmplaceBack(simpleBuffers, simpleBuffersIt);
+		};
+
 		Globals::ForEach(components, [&](auto& component) {
-			auto& buffers = [&]() -> auto& {
-				if (component.customShadersProgram)
-					return Details::ReuseOrEmplaceBack(customShadersBuffers, customShadersBuffersIt);
-				else if (!std::holds_alternative<std::monostate>(component.texture))
-					return Details::ReuseOrEmplaceBack(texturedBuffers, texturedBuffersIt);
-				else
-					return Details::ReuseOrEmplaceBack(simpleBuffers, simpleBuffersIt);
-			}();
+			if (component.state == ComponentState::Outdated)
+				return;
+
+			auto& buffers = prepareBuffersLocation(component);
+
+			if (component.getComponentId() == buffers.sourceComponent && component.state == ComponentState::Ongoing)
+				return;
 
 			Details::ComponentToBuffers(component, buffers);
+			Details::ComponentSubsequenceToSubbuffers(component, buffers);
 			});
 
 		simpleBuffers.resize(std::distance(simpleBuffers.begin(), simpleBuffersIt));
@@ -96,6 +127,7 @@ namespace Tools
 			auto& buffers = mapOfBuffers[id];
 
 			Details::ComponentToBuffers(component, buffers);
+			Details::ComponentSubsequenceToSubbuffers(component, buffers);
 		}
 	}
 }

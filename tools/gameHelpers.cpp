@@ -13,8 +13,11 @@
 #include <components/screenInfo.hpp>
 #include <components/animatedTexture.hpp>
 #include <components/deferredAction.hpp>
+#include <components/graphicsSettings.hpp>
 
 #include <components/typeComponentMappers.hpp>
+
+#include <globals/collisionBits.hpp>
 
 #include <ogl/uniformControllers.hpp>
 #include <ogl/shaders/textured.hpp>
@@ -22,8 +25,6 @@
 
 #include <tools/b2Helpers.hpp>
 #include <tools/utility.hpp>
-
-#include <commonIds/collisionBits.hpp>
 
 #include <cassert>
 
@@ -35,7 +36,7 @@ namespace Tools
 
 		planeHandler.planeId = Globals::Components().planes().size();
 		auto& plane = Globals::Components().planes().emplace_back(Tools::CreatePlaneBody(2.0f, 0.2f, 0.5f), TCM::Texture(planeTexture));
-		SetCollisionFilteringBits(*plane.body, CollisionBits::planeBit, CollisionBits::all);
+		SetCollisionFilteringBits(*plane.body, Globals::CollisionBits::planeBit, Globals::CollisionBits::all);
 		plane.setPosition(position);
 		plane.setRotation(angle);
 		plane.preserveTextureRatio = true;
@@ -46,7 +47,7 @@ namespace Tools
 					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
 					const float fade = (glm::sin(Globals::Components().physics().simulationDuration * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
 					colorUniform({ fade, 1.0f, fade, 1.0f });
-					return nullptr;
+					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColor); };
 				});
 
 		plane.renderingSetup = Globals::Components().renderingSetups().size() - 1;
@@ -123,7 +124,7 @@ namespace Tools
 	{
 		auto& missile = EmplaceDynamicComponent(Globals::Components().missiles(), { Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f) });
 		auto& body = *missile.body;
-		SetCollisionFilteringBits(body, CollisionBits::missileBit, CollisionBits::all - CollisionBits::missileBit - CollisionBits::planeBit);
+		SetCollisionFilteringBits(body, Globals::CollisionBits::missileBit, Globals::CollisionBits::all - Globals::CollisionBits::missileBit - Globals::CollisionBits::planeBit);
 		body.SetBullet(true);
 		body.SetLinearVelocity({ initialVelocity.x, initialVelocity.y });
 		missile.texture = TCM::Texture(missileTexture);

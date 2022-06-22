@@ -4,10 +4,9 @@
 #include <components/physics.hpp>
 
 #include <globals/components.hpp>
+#include <globals/collisionBits.hpp>
 
 #include <tools/graphicsHelpers.hpp>
-
-#include <commonIds/collisionBits.hpp>
 
 #include <commonTypes/bodyUserData.hpp>
 
@@ -82,7 +81,7 @@ namespace Tools
 		fixtureDef.density = density;
 		fixtureDef.restitution = restitution;
 		fixtureDef.friction = friction;
-		fixtureDef.filter.categoryBits = CollisionBits::wallBit;
+		fixtureDef.filter.categoryBits = Globals::CollisionBits::wallBit;
 		body->CreateFixture(&fixtureDef);
 
 		body->SetUserData(new BodyUserData);
@@ -105,7 +104,7 @@ namespace Tools
 		fixtureDef.density = density;
 		fixtureDef.restitution = restitution;
 		fixtureDef.friction = friction;
-		fixtureDef.filter.categoryBits = CollisionBits::wallBit;
+		fixtureDef.filter.categoryBits = Globals::CollisionBits::wallBit;
 		body->CreateFixture(&fixtureDef);
 
 		body->SetUserData(new BodyUserData);
