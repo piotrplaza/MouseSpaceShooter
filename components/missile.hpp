@@ -30,7 +30,7 @@ namespace Components
 
 		Missile(Body body,
 			TextureComponentVariant texture = std::monostate{},
-			ComponentId renderingSetup = 0,
+			std::optional<ComponentId> renderingSetup = std::nullopt,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
 			texture(texture),
@@ -42,7 +42,7 @@ namespace Components
 
 		Body body;
 		TextureComponentVariant texture;
-		ComponentId renderingSetup;
+		std::optional<ComponentId> renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::function<void()> step;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;

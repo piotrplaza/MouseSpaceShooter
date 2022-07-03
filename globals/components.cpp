@@ -28,21 +28,6 @@ namespace Globals
 	static std::unique_ptr<::ComponentIdGenerator> componentIdGenerator;
 	static std::unique_ptr<ComponentsHolder> componentsHolder;
 
-	ComponentsHolder::ComponentsHolder()
-	{
-		textures_.emplace_back(fakeComponent);
-		animatedTextures_.emplace_back(fakeComponent);
-		blendingTextures_.emplace_back(fakeComponent);
-		renderingSetups_.emplace_back(fakeComponent);
-		planes_.emplace_back(fakeComponent);
-		walls_.emplace_back(fakeComponent);
-		backgroundDecorations_.emplace_back(fakeComponent);
-		farMidgroundDecorations_.emplace_back(fakeComponent);
-		midgroundDecorations_.emplace_back(fakeComponent);
-		nearMidgroundDecorations_.emplace_back(fakeComponent);
-		foregroundDecorations_.emplace_back(fakeComponent);
-	}
-
 	Components::MouseState& ComponentsHolder::mouseState()
 	{
 		return *mouseState_;

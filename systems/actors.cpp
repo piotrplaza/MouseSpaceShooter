@@ -47,7 +47,8 @@ namespace Systems
 
 	void Actors::step()
 	{
-		Globals::ForEach(Globals::Components().planes(), [&](auto& plane) {
+		for(auto& plane: Globals::Components().planes())
+		{
 			if (plane.connectedGrappleId && !Globals::Components().grapples().count(plane.connectedGrappleId))
 			{
 				plane.grappleJoint.release();
@@ -62,7 +63,7 @@ namespace Systems
 			magneticHook(plane);
 
 			connections.updateBuffers();
-			});
+		}
 	}
 
 	void Actors::render() const

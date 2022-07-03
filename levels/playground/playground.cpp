@@ -144,7 +144,8 @@ namespace Levels
 
 		void createBackground()
 		{
-			Tools::CreateJuliaBackground(Globals::Shaders().julia(), []() { return Globals::Components().planes()[1].getCenter() * 0.0001f; });
+			Tools::CreateJuliaBackground(Globals::Shaders().julia(), [this]() {
+				return Globals::Components().planes()[player1Handler.planeId].getCenter() * 0.0001f; });
 		}
 
 		void createForeground()
@@ -183,7 +184,7 @@ namespace Levels
 						addBlendingColor = Uniforms::UniformController4f(program, "addBlendingColor");
 
 					const float skullOpacity = fogAlphaFactor - 1.0f;
-					const float avatarOpacity = glm::min(0.0f, glm::distance(Globals::Components().planes()[1].getCenter(), portraitCenter) / 3.0f - 5.0f);
+					const float avatarOpacity = glm::min(0.0f, glm::distance(Globals::Components().planes()[player1Handler.planeId].getCenter(), portraitCenter) / 3.0f - 5.0f);
 
 					i == 0
 						? addBlendingColor({ 1.0f, skullOpacity, avatarOpacity, 0.0f })
@@ -206,8 +207,8 @@ namespace Levels
 
 		void launchMissile()
 		{
-			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[1].getCenter(),
-				Globals::Components().planes()[1].getAngle(), 5.0f, Globals::Components().planes()[1].getVelocity(),
+			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[player1Handler.planeId].getCenter(),
+				Globals::Components().planes()[player1Handler.planeId].getAngle(), 5.0f, Globals::Components().planes()[player1Handler.planeId].getVelocity(),
 				missile2Texture, flame1AnimatedTexture);
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 		}

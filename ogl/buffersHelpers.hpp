@@ -81,18 +81,19 @@ namespace Tools
 				return Details::ReuseOrEmplaceBack(simpleBuffers, simpleBuffersIt);
 		};
 
-		Globals::ForEach(components, [&](auto& component) {
+		for(auto& component: components)
+		{
 			if (component.state == ComponentState::Outdated)
-				return;
+				continue;
 
 			auto& buffers = prepareBuffersLocation(component);
 
 			if (component.getComponentId() == buffers.sourceComponent && component.state == ComponentState::Ongoing)
-				return;
+				continue;
 
 			Details::ComponentToBuffers(component, buffers);
 			Details::ComponentSubsequenceToSubbuffers(component, buffers);
-			});
+		}
 
 		simpleBuffers.resize(std::distance(simpleBuffers.begin(), simpleBuffersIt));
 		texturedBuffers.resize(std::distance(texturedBuffers.begin(), texturedBuffersIt));

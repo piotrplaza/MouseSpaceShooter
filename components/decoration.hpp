@@ -24,8 +24,7 @@ namespace Components
 		DecorationDef(std::vector<glm::vec3> vertices = {},
 			TextureComponentVariant texture = std::monostate{},
 			std::vector<glm::vec2> texCoord = {},
-			ComponentId renderingSetup = 0,
-			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt) :
+			std::optional<ComponentId> renderingSetup = std::nullopt) :
 			vertices(std::move(vertices)),
 			texture(texture),
 			texCoord(std::move(texCoord)),
@@ -35,7 +34,7 @@ namespace Components
 
 		std::vector<glm::vec3> vertices;
 		TextureComponentVariant texture;
-		ComponentId renderingSetup;
+		std::optional<ComponentId> renderingSetup;
 		std::vector<glm::vec2> texCoord;
 		std::function<glm::mat4()> modelMatrixF;
 
@@ -85,7 +84,7 @@ namespace Components
 		Decoration(std::vector<glm::vec3> vertices = {},
 			TextureComponentVariant texture = std::monostate{},
 			std::vector<glm::vec2> texCoord = {},
-			ComponentId renderingSetup = 0,
+			std::optional<ComponentId> renderingSetup = std::nullopt,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt) :
 			DecorationDef(std::move(vertices), texture, std::move(texCoord), renderingSetup),
 			customShadersProgram(customShadersProgram)

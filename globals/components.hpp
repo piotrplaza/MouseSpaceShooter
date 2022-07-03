@@ -38,8 +38,6 @@ namespace Globals
 	class ComponentsHolder
 	{
 	public:
-		ComponentsHolder();
-
 		Components::MouseState& mouseState();
 		Components::ScreenInfo& screenInfo();
 		Components::MVP& mvp();
@@ -118,22 +116,4 @@ namespace Globals
 
 	::ComponentIdGenerator& ComponentIdGenerator();
 	ComponentsHolder& Components();
-
-	template <typename Component, typename F>
-	inline void ForEach(std::vector<Component>& components, F f)
-	{
-		for (auto it = std::next(components.begin()); it != components.end(); ++it)
-		{
-			f(*it);
-		}
-	}
-
-	template <typename Component, typename F>
-	inline void ForEach(const std::vector<Component>& components, F f)
-	{
-		for (auto it = std::next(components.begin()); it != components.end(); ++it)
-		{
-			f(*it);
-		}
-	}
 }

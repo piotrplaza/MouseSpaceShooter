@@ -32,7 +32,7 @@ namespace Components
 		Plane(Body body,
 			TextureComponentVariant texture = std::monostate{},
 			std::vector<glm::vec2> texCoord = {},
-			ComponentId renderingSetup = 0,
+			std::optional<ComponentId> renderingSetup = std::nullopt,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
 			texture(texture),
@@ -54,7 +54,7 @@ namespace Components
 
 		Body body;
 		TextureComponentVariant texture;
-		ComponentId renderingSetup;
+		std::optional<ComponentId> renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::vector<glm::vec2> texCoord;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;

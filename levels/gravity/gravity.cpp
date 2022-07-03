@@ -119,7 +119,8 @@ namespace Levels
 
 		void createBackground()
 		{
-			Tools::CreateJuliaBackground(juliaShaders, []() { return Globals::Components().planes()[1].getCenter() * 0.0001f; });
+			Tools::CreateJuliaBackground(juliaShaders, [this]() {
+				return Globals::Components().planes()[player1Handler.planeId].getCenter() * 0.0001f; });
 		}
 
 		void createForeground()
@@ -154,8 +155,8 @@ namespace Levels
 
 		void launchMissile()
 		{
-			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[1].getCenter(),
-				Globals::Components().planes()[1].getAngle(), 5.0f, Globals::Components().planes()[1].getVelocity(),
+			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[player1Handler.planeId].getCenter(),
+				Globals::Components().planes()[player1Handler.planeId].getAngle(), 5.0f, Globals::Components().planes()[player1Handler.planeId].getVelocity(),
 				missile2Texture, flame1AnimatedTexture);
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 		}

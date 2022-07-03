@@ -34,7 +34,7 @@ namespace Buffers
 
 		std::function<glm::mat4()> modelMatrixF;
 		TextureComponentVariant texture;
-		ComponentId renderingSetup = 0;
+		std::optional<ComponentId> renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;
 		GLenum drawMode = GL_TRIANGLES;
@@ -77,7 +77,7 @@ namespace Buffers
 
 				std::function<void()> renderingTeardown;
 				if (buffers.renderingSetup)
-					renderingTeardown = Globals::Components().renderingSetups()[buffers.renderingSetup](programId);
+					renderingTeardown = Globals::Components().renderingSetups()[*buffers.renderingSetup](programId);
 
 				glDrawArrays(buffers.drawMode, 0, buffers.numOfVertices);
 

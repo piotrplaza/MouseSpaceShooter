@@ -28,7 +28,7 @@ namespace Components
 
 		Grapple(Body body,
 			TextureComponentVariant texture = std::monostate{},
-			ComponentId renderingSetup = 0,
+			std::optional<ComponentId>  renderingSetup = std::nullopt,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			Wall(std::move(body), texture, renderingSetup, customShadersProgram)
 		{

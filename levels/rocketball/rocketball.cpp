@@ -76,7 +76,7 @@ namespace Levels
 		void createPlayers()
 		{
 			player1Handler = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { -10.0f, 0.0f });
-			Globals::Components().planes()[1].connectIfApproaching = true;
+			Globals::Components().planes()[player1Handler.planeId].connectIfApproaching = true;
 		}
 
 		void createStationaryWalls() const
