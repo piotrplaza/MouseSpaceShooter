@@ -94,9 +94,9 @@ namespace Globals
 		return planes_;
 	}
 
-	std::vector<Components::Wall>& ComponentsHolder::walls()
+	std::vector<Components::Wall>& ComponentsHolder::structures()
 	{
-		return walls_;
+		return structures_;
 	}
 
 	std::unordered_map<ComponentId, Components::Wall>& ComponentsHolder::dynamicWalls()

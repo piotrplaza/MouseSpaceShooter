@@ -94,9 +94,6 @@
     <ClCompile Include="ogl\shaders.cpp">
       <Filter>src\ogl</Filter>
     </ClCompile>
-    <ClCompile Include="ogl\uniformControllers.cpp">
-      <Filter>src\ogl</Filter>
-    </ClCompile>
     <ClCompile Include="systems\decorations.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
@@ -119,9 +116,6 @@
       <Filter>src\tools</Filter>
     </ClCompile>
     <ClCompile Include="systems\temporaries.cpp">
-      <Filter>src\systems</Filter>
-    </ClCompile>
-    <ClCompile Include="systems\walls.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
     <ClCompile Include="systems\cleaner.cpp">
@@ -156,6 +150,12 @@
     </ClCompile>
     <ClCompile Include="systems\actors.cpp">
       <Filter>src\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="systems\structures.cpp">
+      <Filter>src\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="ogl\uniforms.cpp">
+      <Filter>src\ogl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -202,9 +202,6 @@
       <Filter>src\3rdParty\stb_image</Filter>
     </ClInclude>
     <ClInclude Include="ogl\oglProxy.hpp">
-      <Filter>src\ogl</Filter>
-    </ClInclude>
-    <ClInclude Include="ogl\uniformControllers.hpp">
       <Filter>src\ogl</Filter>
     </ClInclude>
     <ClInclude Include="ogl\shaders.hpp">
@@ -263,9 +260,6 @@
     </ClInclude>
     <ClInclude Include="components\missile.hpp">
       <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="systems\walls.hpp">
-      <Filter>src\systems</Filter>
     </ClInclude>
     <ClInclude Include="systems\cleaner.hpp">
       <Filter>src\systems</Filter>
@@ -356,6 +350,12 @@
     </ClInclude>
     <ClInclude Include="globals\collisionBits.hpp">
       <Filter>src\globals</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\structures.hpp">
+      <Filter>src\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\uniforms.hpp">
+      <Filter>src\ogl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

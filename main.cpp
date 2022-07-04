@@ -7,7 +7,7 @@
 #include "components/physics.hpp"
 
 #include "systems/stateController.hpp"
-#include "systems/walls.hpp"
+#include "systems/structures.hpp"
 #include "systems/actors.hpp"
 #include "systems/physics.hpp"
 #include "systems/camera.hpp"
@@ -84,7 +84,7 @@ void Initialize()
 	Globals::Systems().textures().postInit();
 	Globals::Systems().physics().postInit();
 	Globals::Systems().actors().postInit();
-	Globals::Systems().walls().postInit();
+	Globals::Systems().structures().postInit();
 	Globals::Systems().decorations().postInit();
 	Globals::Systems().camera().postInit();
 	Globals::Systems().renderingController().postInit();
@@ -97,7 +97,7 @@ void PrepareFrame()
 	Globals::Systems().physics().step();
 	Globals::Systems().actors().step();
 	Globals::Systems().temporaries().step();
-	Globals::Systems().walls().step();
+	Globals::Systems().structures().step();
 	Globals::Systems().decorations().step();
 	Globals::Systems().camera().step();
 

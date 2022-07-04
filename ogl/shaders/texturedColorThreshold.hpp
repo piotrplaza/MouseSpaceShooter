@@ -29,20 +29,20 @@ namespace Shaders
 			{
 			}
 
-			Uniforms::UniformControllerMat4f model;
-			Uniforms::UniformControllerMat4f vp;
-			Uniforms::UniformController4f color;
-			Uniforms::UniformController4f mulBlendingColor;
-			Uniforms::UniformController4f addBlendingColor;
-			Uniforms::UniformController1i numOfTextures;
-			Uniforms::UniformController1iv<5> textures;
-			Uniforms::UniformControllerMat4fv<5> texturesBaseTransform;
-			Uniforms::UniformControllerMat4fv<5> texturesCustomTransform;
-			Uniforms::UniformController1b alphaFromBlendingTexture;
-			Uniforms::UniformController1b colorAccumulation;
-			Uniforms::UniformController3f invisibleColor;
-			Uniforms::UniformController1f invisibleColorThreshold;
-			Uniforms::UniformController1b sceneCoordTextures;
+			Uniforms::UniformMat4f model;
+			Uniforms::UniformMat4f vp;
+			Uniforms::Uniform4f color;
+			Uniforms::Uniform4f mulBlendingColor;
+			Uniforms::Uniform4f addBlendingColor;
+			Uniforms::Uniform1i numOfTextures;
+			Uniforms::Uniform1iv<5> textures;
+			Uniforms::UniformMat4fv<5> texturesBaseTransform;
+			Uniforms::UniformMat4fv<5> texturesCustomTransform;
+			Uniforms::Uniform1b alphaFromBlendingTexture;
+			Uniforms::Uniform1b colorAccumulation;
+			Uniforms::Uniform3f invisibleColor;
+			Uniforms::Uniform1f invisibleColorThreshold;
+			Uniforms::Uniform1b sceneCoordTextures;
 		};
 
 		struct TexturedColorThreshold: TexturedColorThresholdAccessor

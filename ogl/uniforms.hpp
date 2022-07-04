@@ -16,11 +16,11 @@
 
 namespace Uniforms
 {
-	class UniformController
+	class Uniform
 	{
 	public:
-		UniformController();
-		UniformController(Shaders::ProgramId programId, const std::string& uniformName);
+		Uniform();
+		Uniform(Shaders::ProgramId programId, const std::string& uniformName);
 
 		bool isValid() const;
 
@@ -29,19 +29,19 @@ namespace Uniforms
 		GLint uniformId = -1;
 	};
 
-	class UniformController1i : public UniformController
+	class Uniform1i : public Uniform
 	{
 	public:
-		using UniformController::UniformController;
+		using Uniform::Uniform;
 
 		void operator ()(int value);
 	};
 
 	template <unsigned Size>
-	class UniformController1iv : public UniformController
+	class Uniform1iv : public Uniform
 	{
 	public:
-		using UniformController::UniformController;
+		using Uniform::Uniform;
 
 		void operator ()(int value)
 		{
@@ -69,43 +69,43 @@ namespace Uniforms
 		}
 	};
 
-	class UniformController2i : public UniformController
+	class Uniform2i : public Uniform
 	{
 	public:
-		using UniformController::UniformController;
+		using Uniform::Uniform;
 
 		void operator ()(glm::ivec2 value);
 	};
 
-	class UniformController1b : public UniformController
+	class Uniform1b : public Uniform
 	{
 	public:
-		using UniformController::UniformController;
+		using Uniform::Uniform;
 
 		void operator ()(bool value);
 	};
 
-	class UniformController1f : public UniformController
+	class Uniform1f : public Uniform
 	{
 	public:
-		using UniformController::UniformController;
+		using Uniform::Uniform;
 
 		void operator ()(float value);
 	};
 
-	class UniformController2f : public UniformController
+	class Uniform2f : public Uniform
 	{
 	public:
-		using UniformController::UniformController;
+		using Uniform::Uniform;
 
 		void operator ()(glm::vec2 value);
 	};
 
 	template <unsigned Size>
-	class UniformController2fv : public UniformController
+	class Uniform2fv : public Uniform
 	{
 	public:
-		using UniformController::UniformController;
+		using Uniform::Uniform;
 
 		void operator ()(glm::vec2 value)
 		{
@@ -133,35 +133,35 @@ namespace Uniforms
 		}
 	};
 
-	class UniformController3f : public UniformController
+	class Uniform3f : public Uniform
 	{
 	public:
-		using UniformController::UniformController;
+		using Uniform::Uniform;
 
 		void operator ()(glm::vec3 value);
 	};
 
-	class UniformController4f : public UniformController
+	class Uniform4f : public Uniform
 	{
 	public:
-		using UniformController::UniformController;
+		using Uniform::Uniform;
 
 		void operator ()(glm::vec4 value);
 	};
 
-	class UniformControllerMat4f : public UniformController
+	class UniformMat4f : public Uniform
 	{
 	public:
-		using UniformController::UniformController;
+		using Uniform::Uniform;
 
 		void operator ()(glm::mat4 value);
 	};
 
 	template <unsigned Size>
-	class UniformControllerMat4fv : public UniformController
+	class UniformMat4fv : public Uniform
 	{
 	public:
-		using UniformController::UniformController;
+		using Uniform::Uniform;
 
 		void operator ()(glm::mat4 value)
 		{

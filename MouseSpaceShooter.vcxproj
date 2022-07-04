@@ -37,7 +37,7 @@
     <ClCompile Include="ogl\oglHelpers.cpp" />
     <ClCompile Include="ogl\oglProxy.cpp" />
     <ClCompile Include="ogl\shaders.cpp" />
-    <ClCompile Include="ogl\uniformControllers.cpp" />
+    <ClCompile Include="ogl\uniforms.cpp" />
     <ClCompile Include="systems\actors.cpp" />
     <ClCompile Include="systems\camera.cpp" />
     <ClCompile Include="systems\cleaner.cpp" />
@@ -46,9 +46,9 @@
     <ClCompile Include="systems\physics.cpp" />
     <ClCompile Include="systems\renderingController.cpp" />
     <ClCompile Include="systems\stateController.cpp" />
+    <ClCompile Include="systems\structures.cpp" />
     <ClCompile Include="systems\temporaries.cpp" />
     <ClCompile Include="systems\textures.cpp" />
-    <ClCompile Include="systems\walls.cpp" />
     <ClCompile Include="tools\b2Helpers.cpp" />
     <ClCompile Include="tools\gameHelpers.cpp" />
     <ClCompile Include="tools\graphicsHelpers.cpp" />
@@ -104,7 +104,7 @@
     <ClInclude Include="ogl\shaders\programBase.hpp" />
     <ClInclude Include="ogl\shaders\textured.hpp" />
     <ClInclude Include="ogl\shaders\texturedColorThreshold.hpp" />
-    <ClInclude Include="ogl\uniformControllers.hpp" />
+    <ClInclude Include="ogl\uniforms.hpp" />
     <ClInclude Include="systems\actors.hpp" />
     <ClInclude Include="systems\camera.hpp" />
     <ClInclude Include="systems\cleaner.hpp" />
@@ -113,9 +113,9 @@
     <ClInclude Include="systems\physics.hpp" />
     <ClInclude Include="systems\renderingController.hpp" />
     <ClInclude Include="systems\stateController.hpp" />
+    <ClInclude Include="systems\structures.hpp" />
     <ClInclude Include="systems\temporaries.hpp" />
     <ClInclude Include="systems\textures.hpp" />
-    <ClInclude Include="systems\walls.hpp" />
     <ClInclude Include="tools\b2Helpers.hpp" />
     <ClInclude Include="tools\gameHelpers.hpp" />
     <ClInclude Include="tools\glmHelpers.hpp" />

@@ -1,4 +1,4 @@
-#include "walls.hpp"
+#include "structures.hpp"
 
 #include <ogl/oglProxy.hpp>
 #include <ogl/buffersHelpers.hpp>
@@ -25,16 +25,16 @@
 
 namespace Systems
 {
-	Walls::Walls() = default;
+	Structures::Structures() = default;
 
-	void Walls::postInit()
+	void Structures::postInit()
 	{
 		initGraphics();
 	}
 
-	void Walls::step()
+	void Structures::step()
 	{
-		for (const auto& wall : Globals::Components().walls())
+		for (const auto& wall : Globals::Components().structures())
 			if (wall.step)
 				wall.step();
 
@@ -49,30 +49,30 @@ namespace Systems
 		updateDynamicBuffers();
 	}
 
-	void Walls::render() const
+	void Structures::render() const
 	{
 		basicRender();
 		texturedRender();
 		customShadersRender();
 	}
 
-	void Walls::updateStaticBuffers()
+	void Structures::updateStaticBuffers()
 	{
-		Tools::UpdateStaticBuffers(Globals::Components().walls(), staticBuffers.simpleWalls, staticBuffers.texturedWalls, staticBuffers.customShadersWalls);
+		Tools::UpdateStaticBuffers(Globals::Components().structures(), staticBuffers.simpleWalls, staticBuffers.texturedWalls, staticBuffers.customShadersWalls);
 	}
 
-	void Walls::initGraphics()
+	void Structures::initGraphics()
 	{
 		updateStaticBuffers();
 	}
 
-	void Walls::updateDynamicBuffers()
+	void Structures::updateDynamicBuffers()
 	{
-		Tools::UpdateDynamicBuffers(Globals::Components().dynamicWalls(), dynamicBuffers.simpleWalls, dynamicBuffers.texturedWalls, dynamicBuffers.texturedWalls);
-		Tools::UpdateDynamicBuffers(Globals::Components().grapples(), dynamicBuffers.simpleGrapples, dynamicBuffers.texturedGrapples, dynamicBuffers.texturedGrapples);
+		Tools::UpdateDynamicBuffers(Globals::Components().dynamicWalls(), dynamicBuffers.simpleWalls, dynamicBuffers.texturedWalls, dynamicBuffers.customShadersWalls);
+		Tools::UpdateDynamicBuffers(Globals::Components().grapples(), dynamicBuffers.simpleGrapples, dynamicBuffers.texturedGrapples, dynamicBuffers.customShadersGrapples);
 	}
 
-	void Walls::customShadersRender() const
+	void Structures::customShadersRender() const
 	{
 		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
@@ -103,7 +103,7 @@ namespace Systems
 			render(buffers);
 	}
 
-	void Walls::texturedRender() const
+	void Structures::texturedRender() const
 	{
 		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
 		Globals::Shaders().textured().vp(Globals::Components().mvp().getVP());
@@ -138,7 +138,7 @@ namespace Systems
 			render(buffers);
 	}
 
-	void Walls::basicRender() const
+	void Structures::basicRender() const
 	{
 		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
 		Globals::Shaders().basic().vp(Globals::Components().mvp().getVP());

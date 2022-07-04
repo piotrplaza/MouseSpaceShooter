@@ -1,71 +1,71 @@
-#include "uniformControllers.hpp"
+#include "uniforms.hpp"
 
 namespace Uniforms
 {
-	UniformController::UniformController() = default;
+	Uniform::Uniform() = default;
 
-	UniformController::UniformController(Shaders::ProgramId programId, const std::string& uniformName) :
+	Uniform::Uniform(Shaders::ProgramId programId, const std::string& uniformName) :
 		programId(programId),
 		uniformId(glGetUniformLocation(programId, uniformName.c_str()))
 	{
 		assert(isValid());
 	}
 
-	bool UniformController::isValid() const
+	bool Uniform::isValid() const
 	{
 		return uniformId != -1;
 	}
 
-	void UniformController1i::operator ()(int value)
+	void Uniform1i::operator ()(int value)
 	{
 		assert(isValid());
 		glUseProgram_proxy(programId);
 		glUniform1i(uniformId, value);
 	}
 
-	void UniformController2i::operator ()(glm::ivec2 value)
+	void Uniform2i::operator ()(glm::ivec2 value)
 	{
 		assert(isValid());
 		glUseProgram_proxy(programId);
 		glUniform2i(uniformId, value.x, value.y);
 	}
 
-	void UniformController1b::operator ()(bool value)
+	void Uniform1b::operator ()(bool value)
 	{
 		assert(isValid());
 		glUseProgram_proxy(programId);
 		glUniform1i(uniformId, value);
 	}
 
-	void UniformController1f::operator ()(float value)
+	void Uniform1f::operator ()(float value)
 	{
 		assert(isValid());
 		glUseProgram_proxy(programId);
 		glUniform1f(uniformId, value);
 	}
 
-	void UniformController2f::operator ()(glm::vec2 value)
+	void Uniform2f::operator ()(glm::vec2 value)
 	{
 		assert(isValid());
 		glUseProgram_proxy(programId);
 		glUniform2f(uniformId, value.x, value.y);
 	}
 
-	void UniformController3f::operator ()(glm::vec3 value)
+	void Uniform3f::operator ()(glm::vec3 value)
 	{
 		assert(isValid());
 		glUseProgram_proxy(programId);
 		glUniform3f(uniformId, value.x, value.y, value.z);
 	}
 
-	void UniformController4f::operator ()(glm::vec4 value)
+	void Uniform4f::operator ()(glm::vec4 value)
 	{
 		assert(isValid());
 		glUseProgram_proxy(programId);
 		glUniform4f(uniformId, value.x, value.y, value.z, value.w);
 	}
 
-	void UniformControllerMat4f::operator ()(glm::mat4 value)
+	void UniformMat4f::operator ()(glm::mat4 value)
 	{
 		assert(isValid());
 		glUseProgram_proxy(programId);

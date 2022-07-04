@@ -14,7 +14,7 @@
 
 #include <globals/components.hpp>
 
-#include <ogl/uniformControllers.hpp>
+#include <ogl/uniforms.hpp>
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/utility.hpp>
@@ -84,16 +84,16 @@ namespace Levels
 			const glm::vec2 levelHSize = { 100.0f, 60.0f };
 			const float bordersHGauge = 50.0f;
 
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ -levelHSize.x - bordersHGauge, 0.0f },
+			Globals::Components().structures().emplace_back(Tools::CreateBoxBody({ -levelHSize.x - bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize.y + bordersHGauge * 2 }), TCM::Texture(woodTexture));
 
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge, 0.0f },
+			Globals::Components().structures().emplace_back(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize.y + bordersHGauge * 2 }), TCM::Texture(woodTexture));
 
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize.y - bordersHGauge },
+			Globals::Components().structures().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize.y - bordersHGauge },
 				{ levelHSize.x + bordersHGauge * 2, bordersHGauge }), TCM::Texture(woodTexture));
 
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize.y + bordersHGauge },
+			Globals::Components().structures().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize.y + bordersHGauge },
 				{ levelHSize.x + bordersHGauge * 2, bordersHGauge }), TCM::Texture(woodTexture));
 		}
 

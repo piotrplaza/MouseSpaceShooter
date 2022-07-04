@@ -19,7 +19,7 @@
 #include <components/blendingTexture.hpp>
 #include <components/animatedTexture.hpp>
 
-#include <ogl/uniformControllers.hpp>
+#include <ogl/uniforms.hpp>
 #include <ogl/shaders/basic.hpp>
 #include <ogl/shaders/julia.hpp>
 #include <ogl/shaders/texturedColorThreshold.hpp>
@@ -163,18 +163,18 @@ namespace Levels
 
 		void createMovableWalls()
 		{
-			debrisBegin = Globals::Components().walls().size();
+			debrisBegin = Globals::Components().structures().size();
 
 			for (int i = 0; i < 500; ++i)
 			{
 				const float angle = Tools::Random(0.0f, glm::two_pi<float>());
 				const glm::vec2 pos = glm::vec2(glm::cos(angle), glm::sin(angle)) * 20.0f;
-				Globals::Components().walls().emplace_back(
+				Globals::Components().structures().emplace_back(
 					Tools::CreateBoxBody(pos, { Tools::Random(0.1f, 1.0f), Tools::Random(0.1f, 1.0f) }, angle, b2_dynamicBody, 0.02f),
 					TCM::Texture(spaceRockTexture));
 			}
 
-			debrisEnd = Globals::Components().walls().size();
+			debrisEnd = Globals::Components().structures().size();
 		}
 
 		void createStationaryWalls() const
@@ -256,7 +256,7 @@ namespace Levels
 
 			for (size_t i = debrisBegin; i != debrisEnd; ++i)
 			{
-				auto& debris = Globals::Components().walls()[i];
+				auto& debris = Globals::Components().structures()[i];
 				const auto& planet = Globals::Components().grapples()[planetId];
 				const auto gravityDiff = (planet.getCenter() - debris.getCenter()) * gravityFactor;
 				const auto gravityVecNorm = glm::normalize(gravityDiff);

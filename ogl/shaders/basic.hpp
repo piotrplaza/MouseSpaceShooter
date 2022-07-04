@@ -18,9 +18,9 @@ namespace Shaders
 			{
 			}
 
-			Uniforms::UniformControllerMat4f model;
-			Uniforms::UniformControllerMat4f vp;
-			Uniforms::UniformController4f color;
+			Uniforms::UniformMat4f model;
+			Uniforms::UniformMat4f vp;
+			Uniforms::Uniform4f color;
 		};
 
 		struct Basic: BasicAccessor

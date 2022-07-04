@@ -19,10 +19,10 @@ namespace Shaders
 			{
 			}
 
-			Uniforms::UniformControllerMat4f vp;
-			Uniforms::UniformController2f juliaCOffset;
-			Uniforms::UniformController4f minColor;
-			Uniforms::UniformController4f maxColor;
+			Uniforms::UniformMat4f vp;
+			Uniforms::Uniform2f juliaCOffset;
+			Uniforms::Uniform4f minColor;
+			Uniforms::Uniform4f maxColor;
 		};
 
 		struct Julia: JuliaAccessor

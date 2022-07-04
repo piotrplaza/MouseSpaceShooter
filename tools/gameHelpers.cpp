@@ -19,7 +19,7 @@
 
 #include <globals/collisionBits.hpp>
 
-#include <ogl/uniformControllers.hpp>
+#include <ogl/uniforms.hpp>
 #include <ogl/shaders/textured.hpp>
 #include <ogl/shaders/julia.hpp>
 
@@ -42,9 +42,9 @@ namespace Tools
 		plane.preserveTextureRatio = true;
 
 		Globals::Components().renderingSetups().emplace_back([
-			colorUniform = Uniforms::UniformController4f()
+			colorUniform = Uniforms::Uniform4f()
 			](Shaders::ProgramId program) mutable {
-					if (!colorUniform.isValid()) colorUniform = Uniforms::UniformController4f(program, "color");
+					if (!colorUniform.isValid()) colorUniform = Uniforms::Uniform4f(program, "color");
 					const float fade = (glm::sin(Globals::Components().physics().simulationDuration * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
 					colorUniform({ fade, 1.0f, fade, 1.0f });
 					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColor); };
@@ -60,10 +60,10 @@ namespace Tools
 			auto& decoration = Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }),
 				TCM::AnimatedTexture(flameAnimatedTexture));
 
-			Globals::Components().renderingSetups().emplace_back([&, i, modelUniform = Uniforms::UniformControllerMat4f(),
+			Globals::Components().renderingSetups().emplace_back([&, i, modelUniform = Uniforms::UniformMat4f(),
 				thrustScale = 1.0f
 				](Shaders::ProgramId program) mutable {
-					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
+					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
 					modelUniform(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*plane.body),
 						{ -1.0f - thrustScale * 0.25f, i == 0 ? -0.5f : 0.5f, 0.0f }),
 						-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
@@ -131,9 +131,9 @@ namespace Tools
 		missile.preserveTextureRatio = true;
 
 		Globals::Components().renderingSetups().emplace_back([
-			modelUniform = Uniforms::UniformControllerMat4f(), &body](Shaders::ProgramId program) mutable
+			modelUniform = Uniforms::UniformMat4f(), &body](Shaders::ProgramId program) mutable
 			{
-				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
+				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
 				modelUniform(Tools::GetModelMatrix(body));
 				return nullptr;
 			});
@@ -150,10 +150,10 @@ namespace Tools
 		auto& decoration = EmplaceDynamicComponent(Globals::Components().dynamicFarMidgroundDecorations(), { Tools::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
 			TCM::AnimatedTexture(flameAnimatedTexture), Tools::CreateTexCoordOfRectangle() });
 
-		Globals::Components().renderingSetups().emplace_back([&, modelUniform = Uniforms::UniformControllerMat4f(),
+		Globals::Components().renderingSetups().emplace_back([&, modelUniform = Uniforms::UniformMat4f(),
 			thrustScale = 0.1f
 			](Shaders::ProgramId program) mutable {
-				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformControllerMat4f(program, "model");
+				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
 				modelUniform(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*missile.body),
 					{ -0.5f, 0.0f, 0.0f }),
 					-glm::half_pi<float>(), { 0.0f, 0.0f, 1.0f }),

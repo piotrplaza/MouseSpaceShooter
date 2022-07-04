@@ -4,7 +4,7 @@
 #include "systems/physics.hpp"
 #include "systems/textures.hpp"
 #include "systems/actors.hpp"
-#include "systems/walls.hpp"
+#include "systems/structures.hpp"
 #include "systems/camera.hpp"
 #include "systems/decorations.hpp"
 #include "systems/temporaries.hpp"
@@ -36,9 +36,9 @@ namespace Globals
 		return *actors_;
 	}
 
-	Systems::Walls& SystemsHolder::walls()
+	Systems::Structures& SystemsHolder::structures()
 	{
-		return *walls_;
+		return *structures_;
 	}
 
 	Systems::Camera& SystemsHolder::camera()

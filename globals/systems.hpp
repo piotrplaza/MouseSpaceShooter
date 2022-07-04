@@ -8,7 +8,7 @@ namespace Systems
 	class Physics;
 	class Textures;
 	class Actors;
-	class Walls;
+	class Structures;
 	class Camera;
 	class Decorations;
 	class Temporaries;
@@ -26,7 +26,7 @@ namespace Globals
 		Systems::Physics& physics();
 		Systems::Textures& textures();
 		Systems::Actors& actors();
-		Systems::Walls& walls();
+		Systems::Structures& structures();
 		Systems::Camera& camera();
 		Systems::Decorations& decorations();
 		Systems::Temporaries& temporaries();
@@ -39,7 +39,7 @@ namespace Globals
 		std::unique_ptr<Systems::Physics> physics_ = std::make_unique<Systems::Physics>();
 		std::unique_ptr<Systems::Textures> textures_ = std::make_unique<Systems::Textures>();
 		std::unique_ptr<Systems::Actors> actors_ = std::make_unique<Systems::Actors>();
-		std::unique_ptr<Systems::Walls> walls_ = std::make_unique<Systems::Walls>();
+		std::unique_ptr<Systems::Structures> structures_ = std::make_unique<Systems::Structures>();
 		std::unique_ptr<Systems::Camera> camera_ = std::make_unique<Systems::Camera>();
 		std::unique_ptr<Systems::Decorations> decorations_ = std::make_unique<Systems::Decorations>();
 		std::unique_ptr<Systems::Temporaries> temporaries_ = std::make_unique<Systems::Temporaries>();

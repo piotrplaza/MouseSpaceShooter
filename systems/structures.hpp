@@ -9,17 +9,12 @@
 #include <unordered_map>
 #include <variant>
 
-namespace Components
-{
-	struct Wall;
-}
-
 namespace Systems
 {
-	class Walls
+	class Structures
 	{
 	public:
-		Walls();
+		Structures();
 
 		void postInit();
 		void step();
@@ -37,7 +32,7 @@ namespace Systems
 		void basicRender() const;
 
 		template <typename BufferType>
-		struct WallsBuffers
+		struct StructuresBuffers
 		{
 			BufferType simpleWalls;
 			BufferType simpleGrapples;
@@ -49,7 +44,7 @@ namespace Systems
 			BufferType customShadersGrapples;
 		};
 
-		WallsBuffers<std::vector<Buffers::GenericBuffers>> staticBuffers;
-		WallsBuffers<std::unordered_map<ComponentId, Buffers::GenericBuffers>> dynamicBuffers;
+		StructuresBuffers<std::vector<Buffers::GenericBuffers>> staticBuffers;
+		StructuresBuffers<std::unordered_map<ComponentId, Buffers::GenericBuffers>> dynamicBuffers;
 	};
 }
