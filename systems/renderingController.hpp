@@ -11,6 +11,10 @@ namespace Systems
 		void render() const;
 
 	private:
-		void initGraphics() const;
+		void basicRender(size_t layer) const;
+		void texturedRender(size_t layer) const;
+		void customShadersRender(size_t layer) const;
+
+
 	};
 }

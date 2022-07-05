@@ -34,6 +34,9 @@
 #include <tools/graphicsHelpers.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
+#include <tools/b2Helpers.hpp>
+
+#include <glm/gtx/vector_angle.hpp>
 
 #include <algorithm>
 #include <unordered_map>
@@ -155,9 +158,12 @@ namespace Levels
 
 		void launchMissile()
 		{
-			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[player1Handler.planeId].getCenter(),
-				Globals::Components().planes()[player1Handler.planeId].getAngle(), 5.0f, Globals::Components().planes()[player1Handler.planeId].getVelocity(),
-				missile2Texture, flame1AnimatedTexture);
+			const float initVelocity = 5.0f;
+			auto& plane = Globals::Components().planes()[player1Handler.planeId];
+
+			auto missileHandler = Tools::CreateMissile(plane.getCenter(), plane.getAngle(), 5.0f, plane.getVelocity(),
+				glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * initVelocity, missile2Texture, flame1AnimatedTexture);
+
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 		}
 
@@ -195,7 +201,7 @@ namespace Levels
 
 			Globals::Components().camera().targetProjectionHSizeF = [&]() {
 				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
-				return glm::distance(plane.getCenter(), planet.getCenter()) * 0.6f + glm::length(plane.getVelocity()) * 0.2f;
+				return (glm::distance(plane.getCenter(), planet.getCenter()) * 0.6f + glm::length(plane.getVelocity()) * 0.2f) * projectionHSizeBase * 0.2f;
 			};
 			Globals::Components().camera().targetPositionF = [&]() {
 				Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
@@ -246,25 +252,35 @@ namespace Levels
 				if (durationToLaunchMissile <= 0.0f)
 				{
 					launchMissile();
-					durationToLaunchMissile = 0.05f;
+					durationToLaunchMissile = 0.1f;
 				}
 				else durationToLaunchMissile -= Globals::Components().physics().frameDuration;
 			}
 			else durationToLaunchMissile = 0.0f;
 
-			const float gravityFactor = 0.02f;
+			auto applyGravity = [&](auto& component, float mM)
+			{
+				const auto& planet = Globals::Components().grapples()[planetId];
+				const auto gravityDiff = planet.getCenter() - component.getCenter();
+				const auto gravityVecDist = glm::length(gravityDiff);
+				const auto gravityVecNorm = glm::normalize(gravityDiff);
+				const auto gravityVec = mM / glm::pow(gravityVecDist, 2.0f) * gravityVecNorm;
+
+				component.body->ApplyForce({ gravityVec.x, gravityVec.y }, { 0.0f, 0.0f }, true);
+			};
 
 			for (size_t i = debrisBegin; i != debrisEnd; ++i)
-			{
-				auto& debris = Globals::Components().walls()[i];
-				const auto& planet = Globals::Components().grapples()[planetId];
-				const auto gravityDiff = (planet.getCenter() - debris.getCenter()) * gravityFactor;
-				const auto gravityVecNorm = glm::normalize(gravityDiff);
-				const auto gravityVecDist = glm::length(gravityDiff);
-				const auto gravityVec = gravityVecNorm * glm::pow(gravityVecDist, 2.0f);
+				applyGravity(Globals::Components().walls()[i], 400.0f);
 
-				debris.body->ApplyForce({ gravityVec.x, gravityVec.y }, { 0.0f, 0.0f }, true);
+			for (auto& [id, missile] : Globals::Components().missiles())
+			{
+				applyGravity(missile, 4000.0f);
+				missile.body->SetTransform(missile.body->GetPosition(), glm::orientedAngle({ 1.0f, 0.0f },
+					glm::normalize(ToVec2<glm::vec2>(missile.body->GetLinearVelocity()) - missilesToHandlers[id].referenceVelocity)));
 			}
+
+			projectionHSizeBase = std::clamp(projectionHSizeBase + (prevWheel - mouseState.wheel) * 5.0f, 5.0f, 100.0f);
+			prevWheel = mouseState.wheel;
 		}
 
 	private:
@@ -289,6 +305,9 @@ namespace Levels
 		Tools::PlaneHandler player1Handler;
 
 		float durationToLaunchMissile = 0.0f;
+
+		int prevWheel = 0;
+		float projectionHSizeBase = 5.0f;
 
 		bool explosionFrame = false;
 

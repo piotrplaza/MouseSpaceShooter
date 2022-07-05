@@ -1,5 +1,6 @@
 #include "components.hpp"
 
+#include <components/renderingBuffers.hpp>
 #include <components/mouseState.hpp>
 #include <components/screenInfo.hpp>
 #include <components/mvp.hpp>
@@ -27,6 +28,11 @@ namespace Globals
 {
 	static std::unique_ptr<::ComponentIdGenerator> componentIdGenerator;
 	static std::unique_ptr<ComponentsHolder> componentsHolder;
+
+	Components::RenderingBuffers& ComponentsHolder::renderingBuffers()
+	{
+		return *renderingBuffers_;
+	}
 
 	Components::MouseState& ComponentsHolder::mouseState()
 	{
@@ -109,54 +115,14 @@ namespace Globals
 		return grapples_;
 	}
 
-	std::vector<Components::Decoration>& ComponentsHolder::backgroundDecorations()
+	std::vector<Components::Decoration>& ComponentsHolder::decorations()
 	{
-		return backgroundDecorations_;
+		return decorations_;
 	}
 
-	std::unordered_map<ComponentId, ::Components::Decoration>& ComponentsHolder::dynamicBackgroundDecorations()
+	std::unordered_map<ComponentId, ::Components::Decoration>& ComponentsHolder::dynamicDecorations()
 	{
-		return dynamicBackgroundDecorations_;
-	}
-
-	std::vector<Components::Decoration>& ComponentsHolder::farMidgroundDecorations()
-	{
-		return farMidgroundDecorations_;
-	}
-
-	std::unordered_map<ComponentId, Components::Decoration>& ComponentsHolder::dynamicFarMidgroundDecorations()
-	{
-		return dynamicFarMidgroundDecorations_;
-	}
-
-	std::vector<Components::Decoration>& ComponentsHolder::midgroundDecorations()
-	{
-		return midgroundDecorations_;
-	}
-
-	std::unordered_map<ComponentId, Components::Decoration>& ComponentsHolder::dynamicMidgroundDecorations()
-	{
-		return dynamicMidgroundDecorations_;
-	}
-
-	std::vector<Components::Decoration>& ComponentsHolder::nearMidgroundDecorations()
-	{
-		return nearMidgroundDecorations_;
-	}
-
-	std::unordered_map<ComponentId, Components::Decoration>& ComponentsHolder::dynamicNearMidgroundDecorations()
-	{
-		return dynamicNearMidgroundDecorations_;
-	}
-
-	std::vector<Components::Decoration>& ComponentsHolder::foregroundDecorations()
-	{
-		return foregroundDecorations_;
-	}
-
-	std::unordered_map<::ComponentId, Components::Decoration>& ComponentsHolder::dynamicForegroundDecorations()
-	{
-		return dynamicForegroundDecorations_;
+		return dynamicDecorations_;
 	}
 
 	std::unordered_map<::ComponentId, Components::Missile>& ComponentsHolder::missiles()

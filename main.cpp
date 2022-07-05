@@ -2,6 +2,7 @@
 #include "levels/playground/playground.hpp"
 #include "levels/rocketball/rocketball.hpp"
 #include "levels/gravity/gravity.hpp"
+#include "levels/basic/basic.hpp"
 
 #include "components/mouseState.hpp"
 #include "components/physics.hpp"
@@ -68,6 +69,7 @@ void CreateLevel()
 	activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
+	//activeLevel = std::make_unique<Levels::Basic>();
 }
 
 void Initialize()

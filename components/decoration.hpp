@@ -4,9 +4,11 @@
 #include "typeComponentMappers.hpp"
 
 #include <commonTypes/resolutionMode.hpp>
+#include <commonTypes/renderLayer.hpp>
 
 #include <ogl/shaders.hpp>
 
+#include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
@@ -33,9 +35,11 @@ namespace Components
 		}
 
 		std::vector<glm::vec3> vertices;
+		std::vector<glm::vec4> colors;
+		std::vector<glm::vec2> texCoord;
+
 		TextureComponentVariant texture;
 		std::optional<ComponentId> renderingSetup;
-		std::vector<glm::vec2> texCoord;
 		std::function<glm::mat4()> modelMatrixF;
 
 		GLenum drawMode = GL_TRIANGLES;
@@ -48,6 +52,11 @@ namespace Components
 		const std::vector<glm::vec3>& getVertices() const
 		{
 			return vertices;
+		}
+
+		const std::vector<glm::vec4>& getColors() const
+		{
+			return colors;
 		}
 
 		const std::vector<glm::vec2> getTexCoord() const
@@ -85,8 +94,10 @@ namespace Components
 			TextureComponentVariant texture = std::monostate{},
 			std::vector<glm::vec2> texCoord = {},
 			std::optional<ComponentId> renderingSetup = std::nullopt,
+			RenderLayer renderLayer = RenderLayer::NearMidground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt) :
 			DecorationDef(std::move(vertices), texture, std::move(texCoord), renderingSetup),
+			renderLayer(renderLayer),
 			customShadersProgram(customShadersProgram)
 		{
 		}
@@ -94,6 +105,7 @@ namespace Components
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::function<void()> step;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;
+		RenderLayer renderLayer = RenderLayer::NearMidground;
 
 		std::vector<DecorationDef> subsequence;
 		unsigned posInSubsequence = 0;

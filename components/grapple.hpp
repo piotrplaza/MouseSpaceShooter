@@ -29,8 +29,9 @@ namespace Components
 		Grapple(Body body,
 			TextureComponentVariant texture = std::monostate{},
 			std::optional<ComponentId>  renderingSetup = std::nullopt,
+			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			Wall(std::move(body), texture, renderingSetup, customShadersProgram)
+			Wall(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram)
 		{
 			Tools::AccessUserData(*this->body).bodyComponentVariant = TCM::Grapple(getComponentId());
 		}

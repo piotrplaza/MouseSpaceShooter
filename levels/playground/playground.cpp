@@ -195,8 +195,9 @@ namespace Levels
 					};
 				});
 
-				Globals::Components().midgroundDecorations().emplace_back(Tools::CreateVerticesOfRectangle(portraitCenter, { 10.0f, 10.0f }),
-					TCM::BlendingTexture(blendingTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1).preserveTextureRatio = true;
+				Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfRectangle(portraitCenter, { 10.0f, 10.0f }),
+					TCM::BlendingTexture(blendingTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1,
+					RenderLayer::Midground).preserveTextureRatio = true;
 			}
 		}
 
@@ -208,7 +209,7 @@ namespace Levels
 		void launchMissile()
 		{
 			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[player1Handler.planeId].getCenter(),
-				Globals::Components().planes()[player1Handler.planeId].getAngle(), 5.0f, Globals::Components().planes()[player1Handler.planeId].getVelocity(),
+				Globals::Components().planes()[player1Handler.planeId].getAngle(), 5.0f, {0.0f, 0.0f}, Globals::Components().planes()[player1Handler.planeId].getVelocity(),
 				missile2Texture, flame1AnimatedTexture);
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 		}
@@ -255,7 +256,7 @@ namespace Levels
 			for (const float pos : {-30.0f, 30.0f})
 			{
 				Globals::Components().walls().emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), TCM::Texture(),
-					Globals::Components().renderingSetups().size(), Globals::Shaders().texturedColorThreshold().getProgramId());
+					Globals::Components().renderingSetups().size(), RenderLayer::Midground, Globals::Shaders().texturedColorThreshold().getProgramId());
 
 				Globals::Components().renderingSetups().emplace_back([=, this, wallId = Globals::Components().walls().size() - 1](auto) {
 					Tools::MVPInitialization(Globals::Shaders().texturedColorThreshold(), Globals::Components().walls()[wallId].getModelMatrix());
@@ -298,7 +299,7 @@ namespace Levels
 						return [=]() mutable { texturedProgram.color(Globals::Components().graphicsSettings().defaultColor); };
 					});
 
-				Globals::Components().midgroundDecorations().emplace_back(Tools::CreateVerticesOfFunctionalRectangles({ 1.0f, 1.0f },
+				Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfFunctionalRectangles({ 1.0f, 1.0f },
 					[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
 					[](float input) { return glm::vec2(input + 0.3f, input + 0.3f); },
 					[](float input) { return input * 600.0f; },
@@ -310,7 +311,7 @@ namespace Levels
 					}), TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
 			}
 
-			Globals::Components().midgroundDecorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
+			Globals::Components().decorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
 			lowResBodies.insert(Globals::Components().walls().back().body.get());
 		}
 
@@ -386,7 +387,7 @@ namespace Levels
 					};
 				});
 
-			Globals::Components().nearMidgroundDecorations().emplace_back(Tools::CreateVerticesOfLineOfRectangles({ 1.5f, 1.5f },
+			Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfLineOfRectangles({ 1.5f, 1.5f },
 				{ { -levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, levelHeightHSize },
 				{ -levelWidthHSize, levelHeightHSize }, { -levelWidthHSize, -levelHeightHSize } },
 				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture), Tools::CreateTexCoordOfRectangle(), renderingSetup);
@@ -431,7 +432,7 @@ namespace Levels
 				return nullptr;
 			});
 
-			Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 2.2f, 2.2f }),
+			Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 2.2f, 2.2f }),
 				TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
 		}
 

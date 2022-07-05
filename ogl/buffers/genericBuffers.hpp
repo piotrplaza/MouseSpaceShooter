@@ -20,13 +20,13 @@
 
 namespace Buffers
 {
-	struct SubGenericBuffers
+	struct GenericSubBuffers
 	{
-		SubGenericBuffers();
-		SubGenericBuffers(const SubGenericBuffers&) = delete;
-		SubGenericBuffers(SubGenericBuffers&& other) noexcept;
+		GenericSubBuffers();
+		GenericSubBuffers(const GenericSubBuffers&) = delete;
+		GenericSubBuffers(GenericSubBuffers&& other) noexcept;
 
-		~SubGenericBuffers();
+		~GenericSubBuffers();
 
 		void allocateOrUpdateVerticesBuffer(const std::vector<glm::vec3>& vertices);
 		void allocateOrUpdateColorsBuffer(const std::vector<glm::vec4>& colors);
@@ -51,8 +51,6 @@ namespace Buffers
 		GLuint positionBuffer;
 		std::optional<GLuint> colorBuffer;
 		std::optional<GLuint> texCoordBuffer;
-		size_t numOfColors = 0;
-		size_t numOfTexCoord = 0;
 		size_t numOfAllocatedVertices = 0;
 		size_t numOfAllocatedColors = 0;
 		size_t numOfAllocatedTexCoord = 0;
@@ -61,12 +59,12 @@ namespace Buffers
 		bool expired = false;
 	};
 
-	struct GenericBuffers : SubGenericBuffers
+	struct GenericBuffers : GenericSubBuffers
 	{
 		template <typename GeneralSetup>
 		void draw(Shaders::ProgramId programId, GeneralSetup generalSetup) const
 		{
-			auto setAndDraw = [&](const SubGenericBuffers& buffers)
+			auto setAndDraw = [&](const GenericSubBuffers& buffers)
 			{
 				if (!buffers.render)
 					return;
@@ -94,7 +92,7 @@ namespace Buffers
 				setAndDraw(*it);
 		}
 
-		std::vector<SubGenericBuffers> subsequence;
+		std::vector<GenericSubBuffers> subsequence;
 		unsigned posInSubsequence = 0;
 
 		ComponentId sourceComponent = 0;

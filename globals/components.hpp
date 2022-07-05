@@ -9,6 +9,7 @@
 
 namespace Components
 {
+	struct RenderingBuffers;
 	struct MouseState;
 	struct ScreenInfo;
 	struct MVP;
@@ -38,6 +39,7 @@ namespace Globals
 	class ComponentsHolder
 	{
 	public:
+		Components::RenderingBuffers& renderingBuffers();
 		Components::MouseState& mouseState();
 		Components::ScreenInfo& screenInfo();
 		Components::MVP& mvp();
@@ -55,16 +57,8 @@ namespace Globals
 		std::vector<Components::Wall>& walls();
 		std::unordered_map<ComponentId, Components::Wall>& dynamicWalls();
 		std::unordered_map<ComponentId, Components::Grapple>& grapples();
-		std::vector<Components::Decoration>& backgroundDecorations();
-		std::unordered_map<ComponentId, Components::Decoration>& dynamicBackgroundDecorations();
-		std::vector<Components::Decoration>& farMidgroundDecorations();
-		std::unordered_map<ComponentId, Components::Decoration>& dynamicFarMidgroundDecorations();
-		std::vector<Components::Decoration>& midgroundDecorations();
-		std::unordered_map<ComponentId, Components::Decoration>& dynamicMidgroundDecorations();
-		std::vector<Components::Decoration>& nearMidgroundDecorations();
-		std::unordered_map<ComponentId, Components::Decoration>& dynamicNearMidgroundDecorations();
-		std::vector<Components::Decoration>& foregroundDecorations();
-		std::unordered_map<ComponentId, Components::Decoration>& dynamicForegroundDecorations();
+		std::vector<Components::Decoration>& decorations();
+		std::unordered_map<ComponentId, Components::Decoration>& dynamicDecorations();
 		std::unordered_map<ComponentId, Components::Missile>& missiles();
 		std::unordered_map<ComponentId, Components::CollisionHandler>& beginCollisionHandlers();
 		std::unordered_map<ComponentId, Components::CollisionHandler>& endCollisionHandlers();
@@ -75,6 +69,7 @@ namespace Globals
 		std::list<Components::DeferredAction>& deferredActions();
 
 	private:
+		std::unique_ptr<Components::RenderingBuffers> renderingBuffers_ = std::make_unique<Components::RenderingBuffers>();
 		std::unique_ptr<Components::MouseState> mouseState_ = std::make_unique<Components::MouseState>();
 		std::unique_ptr<Components::ScreenInfo> screenInfo_ = std::make_unique<Components::ScreenInfo>();
 		std::unique_ptr<Components::MVP> mvp_ = std::make_unique<Components::MVP>();
@@ -92,16 +87,8 @@ namespace Globals
 		std::vector<Components::Wall> structures_;
 		std::unordered_map<ComponentId, Components::Wall> dynamicWalls_;
 		std::unordered_map<ComponentId, Components::Grapple> grapples_;
-		std::vector<Components::Decoration> backgroundDecorations_;
-		std::unordered_map<ComponentId, Components::Decoration> dynamicBackgroundDecorations_;
-		std::vector<Components::Decoration> farMidgroundDecorations_;
-		std::unordered_map<ComponentId, Components::Decoration> dynamicFarMidgroundDecorations_;
-		std::vector<Components::Decoration> midgroundDecorations_;
-		std::unordered_map<ComponentId, Components::Decoration> dynamicMidgroundDecorations_;
-		std::vector<Components::Decoration> nearMidgroundDecorations_;
-		std::unordered_map<ComponentId, Components::Decoration> dynamicNearMidgroundDecorations_;
-		std::vector<Components::Decoration> foregroundDecorations_;
-		std::unordered_map<ComponentId, Components::Decoration> dynamicForegroundDecorations_;
+		std::vector<Components::Decoration> decorations_;
+		std::unordered_map<ComponentId, Components::Decoration> dynamicDecorations_;
 		std::unordered_map<ComponentId, Components::Missile> missiles_;
 		std::unordered_map<ComponentId, Components::CollisionHandler> beginCollisionHandlers_;
 		std::unordered_map<ComponentId, Components::CollisionHandler> endCollisionHandlers_;

@@ -38,11 +38,7 @@ namespace Systems
 	{
 		RemoveOutdatedComponents(Globals::Components().dynamicWalls());
 		RemoveOutdatedComponents(Globals::Components().grapples());
-		RemoveOutdatedComponents(Globals::Components().dynamicBackgroundDecorations());
-		RemoveOutdatedComponents(Globals::Components().dynamicFarMidgroundDecorations());
-		RemoveOutdatedComponents(Globals::Components().dynamicMidgroundDecorations());
-		RemoveOutdatedComponents(Globals::Components().dynamicNearMidgroundDecorations());
-		RemoveOutdatedComponents(Globals::Components().dynamicForegroundDecorations());
+		RemoveOutdatedComponents(Globals::Components().dynamicDecorations());
 		RemoveOutdatedComponents(Globals::Components().missiles());
 		RemoveOutdatedComponents(Globals::Components().beginCollisionHandlers());
 		RemoveOutdatedComponents(Globals::Components().endCollisionHandlers());

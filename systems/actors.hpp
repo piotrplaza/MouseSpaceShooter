@@ -1,19 +1,12 @@
 #pragma once
 
-#include <ogl/buffers/genericBuffers.hpp>
-
-#include <components/typeComponentMappers.hpp>
+#include <components/componentId.hpp>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
-#include <memory>
-#include <functional>
-#include <optional>
 #include <vector>
-#include <unordered_map>
-#include <variant>
 
 namespace Components
 {
@@ -29,7 +22,6 @@ namespace Systems
 
 		void postInit();
 		void step();
-		void render() const;
 
 		void updateStaticBuffers();
 
@@ -57,28 +49,15 @@ namespace Systems
 			Connections();
 
 			std::vector<Params> params;
-			std::vector<glm::vec3> vertices;
-			std::vector<glm::vec4> colors;
-			Buffers::GenericBuffers buffers;
+			ComponentId decorationId;
 
 			void updateBuffers();
 		};
-
-		void initGraphics();
 
 		void turn(Components::Plane& plane) const;
 		void throttle(Components::Plane& plane) const;
 		void magneticHook(Components::Plane& plane);
 		void createGrappleJoint(Components::Plane& plane) const;
-
-		void basicRender() const;
-		void texturedRender() const;
-		void customShadersRender() const;
-		void coloredRender() const;
-
-		std::vector<Buffers::GenericBuffers> simplePlaneBuffers;
-		std::vector<Buffers::GenericBuffers> texturedPlaneBuffers;
-		std::vector<Buffers::GenericBuffers> customShadersPlaneBuffers;
 
 		Connections connections;
 	};

@@ -62,6 +62,9 @@
     <Filter Include="src\levels\gravity">
       <UniqueIdentifier>{5a636ec7-4eb2-4591-9087-b0b38b96553c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\basic">
+      <UniqueIdentifier>{8009aed5-acbe-41b8-a962-b8a0aab9702f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -156,6 +159,9 @@
     </ClCompile>
     <ClCompile Include="ogl\uniforms.cpp">
       <Filter>src\ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\basic\basic.cpp">
+      <Filter>src\levels\basic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -356,6 +362,18 @@
     </ClInclude>
     <ClInclude Include="ogl\uniforms.hpp">
       <Filter>src\ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="commonTypes\renderLayer.hpp">
+      <Filter>src\commonTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="components\renderingBuffers.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="commonTypes\buffersCollections.hpp">
+      <Filter>src\commonTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\basic\basic.hpp">
+      <Filter>src\levels\basic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -9,7 +9,7 @@
 
 #include <globals/components.hpp>
 
-enum class ComponentState {Ongoing, Changed, Outdated};
+enum class ComponentState { Ongoing, Changed, Outdated };
 
 struct ComponentBase
 {

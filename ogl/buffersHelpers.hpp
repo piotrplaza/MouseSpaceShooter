@@ -3,6 +3,13 @@
 #include <components/componentId.hpp>
 #include <components/componentBase.hpp>
 #include <components/typeComponentMappers.hpp>
+#include <components/renderingBuffers.hpp>
+
+#include <globals/components.hpp>
+
+#include <commonTypes/buffersCollections.hpp>
+
+#include <ogl/buffers/genericBuffers.hpp>
 
 #include <GL/glew.h>
 
@@ -21,13 +28,12 @@ namespace Tools
 				: *it++;
 		}
 
-		template <typename SubComponent, typename Buffers>
-		void SubComponentToBuffers(const SubComponent& subComponent, Buffers& buffers)
+		template <typename SubComponent>
+		void SubComponentToBuffers(const SubComponent& subComponent, Buffers::GenericSubBuffers& buffers)
 		{
 			buffers.allocateOrUpdateVerticesBuffer(subComponent.getVertices());
-
-			if (!std::holds_alternative<std::monostate>(subComponent.texture))
-				buffers.allocateOrUpdateTexCoordBuffer(subComponent.getTexCoord());
+			buffers.allocateOrUpdateColorsBuffer(subComponent.getColors());
+			buffers.allocateOrUpdateTexCoordBuffer(subComponent.getTexCoord());
 
 			buffers.modelMatrixF = [&]() { return subComponent.getModelMatrix(); };
 			buffers.renderingSetup = subComponent.renderingSetup;
@@ -38,8 +44,8 @@ namespace Tools
 			buffers.render = subComponent.render;
 		}
 
-		template <typename Component, typename Buffers>
-		void ComponentSubsequenceToSubbuffers(const Component& component, Buffers& buffers)
+		template <typename Component>
+		void ComponentSubsequenceToSubBuffers(const Component& component, Buffers::GenericBuffers& buffers)
 		{
 			auto subBuffersIt = buffers.subsequence.begin();
 
@@ -50,8 +56,8 @@ namespace Tools
 			}
 		}
 
-		template <typename Component, typename Buffers>
-		void ComponentToBuffers(Component& component, Buffers& buffers)
+		template <typename Component>
+		void ComponentToBuffers(Component& component, Buffers::GenericBuffers& buffers)
 		{
 			SubComponentToBuffers(component, buffers);
 
@@ -64,71 +70,80 @@ namespace Tools
 		}
 	}
 
-	template <typename Component, typename Buffers>
-	inline void UpdateStaticBuffers(std::vector<Component>& components,
-		std::vector<Buffers>& simpleBuffers, std::vector<Buffers>& texturedBuffers, std::vector<Buffers>& customShadersBuffers)
+	template <typename Component>
+	inline void UpdateStaticBuffers(std::vector<Component>& components)
 	{
-		auto simpleBuffersIt = simpleBuffers.begin();
-		auto texturedBuffersIt = texturedBuffers.begin();
-		auto customShadersBuffersIt = customShadersBuffers.begin();
+		auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers;
+		BuffersColections<std::vector<Buffers::GenericBuffers>::iterator> buffersIt;
 
-		auto prepareBuffersLocation = [&](const Component& component) -> auto& {
-			if (component.customShadersProgram)
-				return Details::ReuseOrEmplaceBack(customShadersBuffers, customShadersBuffersIt);
-			else if (!std::holds_alternative<std::monostate>(component.texture))
-				return Details::ReuseOrEmplaceBack(texturedBuffers, texturedBuffersIt);
-			else
-				return Details::ReuseOrEmplaceBack(simpleBuffers, simpleBuffersIt);
-		};
+		for (size_t layer = 0; layer < (size_t)RenderLayer::COUNT; ++layer)
+		{
+			buffersIt.basic[layer] = staticBuffers.basic[layer].end();
+			buffersIt.textured[layer] = staticBuffers.textured[layer].end();
+			buffersIt.customShaders[layer] = staticBuffers.customShaders[layer].end();
+		}
 
 		for(auto& component: components)
 		{
 			if (component.state == ComponentState::Outdated)
 				continue;
 
-			auto& buffers = prepareBuffersLocation(component);
+			auto& selectedBuffers = [&, layer = (size_t)component.renderLayer]() -> auto& {
+				if (component.customShadersProgram)
+					return Details::ReuseOrEmplaceBack(staticBuffers.customShaders[layer], buffersIt.customShaders[layer]);
+				else if (!std::holds_alternative<std::monostate>(component.texture))
+					return Details::ReuseOrEmplaceBack(staticBuffers.textured[layer], buffersIt.textured[layer]);
+				else
+					return Details::ReuseOrEmplaceBack(staticBuffers.basic[layer], buffersIt.basic[layer]);
+			}();
 
-			if (component.getComponentId() == buffers.sourceComponent && component.state == ComponentState::Ongoing)
+			if (component.getComponentId() == selectedBuffers.sourceComponent && component.state == ComponentState::Ongoing)
 				continue;
 
-			Details::ComponentToBuffers(component, buffers);
-			Details::ComponentSubsequenceToSubbuffers(component, buffers);
+			Details::ComponentToBuffers(component, selectedBuffers);
+			Details::ComponentSubsequenceToSubBuffers(component, selectedBuffers);
 		}
 
-		simpleBuffers.resize(std::distance(simpleBuffers.begin(), simpleBuffersIt));
-		texturedBuffers.resize(std::distance(texturedBuffers.begin(), texturedBuffersIt));
-		customShadersBuffers.resize(std::distance(customShadersBuffers.begin(), customShadersBuffersIt));
+		for (size_t layer = 0; layer < (size_t)RenderLayer::COUNT; ++layer)
+		{
+			staticBuffers.basic[layer].resize(std::distance(staticBuffers.basic[layer].begin(), buffersIt.basic[layer]));
+			staticBuffers.textured[layer].resize(std::distance(staticBuffers.textured[layer].begin(), buffersIt.textured[layer]));
+			staticBuffers.customShaders[layer].resize(std::distance(staticBuffers.customShaders[layer].begin(), buffersIt.customShaders[layer]));
+		}
 	}
 
-	template <typename Component, typename Buffers>
-	inline void UpdateDynamicBuffers(std::unordered_map<ComponentId, Component>& components, std::unordered_map<ComponentId, Buffers>& simpleBuffers,
-		std::unordered_map<ComponentId, Buffers>& texturedBuffers, std::unordered_map<ComponentId, Buffers>& customShadersBuffers)
+	template <typename Component>
+	inline void UpdateDynamicBuffers(std::unordered_map<ComponentId, Component>& components)
 	{
+		auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers;
+
 		for(auto& [id, component] : components)
 		{
 			if (component.state == ComponentState::Ongoing)
 				continue;
 
-			auto& mapOfBuffers = [&]() -> auto&
+			const auto layer = (size_t)component.renderLayer;
+
+			auto& mapOfSelectedBuffers = [&]() -> auto&
 			{
 				if (component.customShadersProgram)
-					return customShadersBuffers;
+					return dynamicBuffers.customShaders[layer];
 				else if (!std::holds_alternative<std::monostate>(component.texture))
-					return texturedBuffers;
+					return dynamicBuffers.textured[layer];
 				else
-					return simpleBuffers;
+					return dynamicBuffers.basic[layer];
 			}();
 
 			if (component.state == ComponentState::Outdated)
 			{
-				mapOfBuffers.erase(id);
+				mapOfSelectedBuffers.erase(id);
 				continue;
 			}
 
-			auto& buffers = mapOfBuffers[id];
+			auto& selectedBuffers = mapOfSelectedBuffers[id];
 
-			Details::ComponentToBuffers(component, buffers);
-			Details::ComponentSubsequenceToSubbuffers(component, buffers);
+			Details::ComponentToBuffers(component, selectedBuffers);
+			Details::ComponentSubsequenceToSubBuffers(component, selectedBuffers);
 		}
 	}
 }

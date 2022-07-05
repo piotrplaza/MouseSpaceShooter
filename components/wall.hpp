@@ -13,6 +13,10 @@
 
 #include <ogl/shaders.hpp>
 
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+
 #include <Box2D/Box2D.h>
 
 #include <memory>
@@ -30,22 +34,28 @@ namespace Components
 		Wall(Body body,
 			TextureComponentVariant texture = std::monostate{},
 			std::optional<ComponentId> renderingSetup = std::nullopt,
+			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
 			texture(texture),
 			renderingSetup(renderingSetup),
+			renderLayer(renderLayer),
 			customShadersProgram(customShadersProgram)
 		{
 			Tools::AccessUserData(*this->body).bodyComponentVariant = TCM::Wall(getComponentId());
 		}
 
 		Body body;
+
+		std::vector<glm::vec2> texCoord;
+		std::vector<glm::vec4> colors;
+
 		TextureComponentVariant texture;
 		std::optional<ComponentId> renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
-		std::vector<glm::vec2> texCoord;
 		std::function<void()> step;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;
+		RenderLayer renderLayer = RenderLayer::Midground;
 
 		GLenum drawMode = GL_TRIANGLES;
 		GLenum bufferDataUsage = GL_STATIC_DRAW;
@@ -57,19 +67,14 @@ namespace Components
 		std::vector<DecorationDef> subsequence;
 		unsigned posInSubsequence = 0;
 
-		glm::vec2 getCenter() const
-		{
-			return ToVec2<glm::vec2>(body->GetWorldCenter());
-		}
-
 		std::vector<glm::vec3> getVertices() const
 		{
 			return Tools::GetVertices(*body);
 		}
 
-		std::vector<glm::vec3> getTransformedVertices() const
+		const std::vector<glm::vec4>& getColors() const
 		{
-			return Tools::Transform(getVertices(), getModelMatrix());
+			return colors;
 		}
 
 		const std::vector<glm::vec2> getTexCoord() const
@@ -92,6 +97,16 @@ namespace Components
 				assert(texCoord.size() == vertices.size());
 				return texCoord;
 			}
+		}
+
+		glm::vec2 getCenter() const
+		{
+			return ToVec2<glm::vec2>(body->GetWorldCenter());
+		}
+
+		std::vector<glm::vec3> getTransformedVertices() const
+		{
+			return Tools::Transform(getVertices(), getModelMatrix());
 		}
 
 		glm::mat4 getModelMatrix() const

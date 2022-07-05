@@ -56,8 +56,8 @@ namespace Tools
 		{
 			auto& animationTexture = Globals::Components().animatedTextures().back();
 
-			planeHandler.backThrustsIds[i] = Globals::Components().farMidgroundDecorations().size();
-			auto& decoration = Globals::Components().farMidgroundDecorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }),
+			planeHandler.backThrustsIds[i] = Globals::Components().decorations().size();
+			auto& decoration = Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }),
 				TCM::AnimatedTexture(flameAnimatedTexture));
 
 			Globals::Components().renderingSetups().emplace_back([&, i, modelUniform = Uniforms::UniformMat4f(),
@@ -79,6 +79,7 @@ namespace Tools
 				});
 
 			decoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
+			decoration.renderLayer = RenderLayer::FarMidground;
 		}
 
 		return planeHandler;
@@ -86,9 +87,10 @@ namespace Tools
 
 	MissileHandler::MissileHandler() = default;
 
-	MissileHandler::MissileHandler(ComponentId missileId, ComponentId backThrustId):
+	MissileHandler::MissileHandler(ComponentId missileId, ComponentId backThrustId, glm::vec2 referenceVelocity):
 		missileId(missileId),
-		backThrustId(backThrustId)
+		backThrustId(backThrustId),
+		referenceVelocity(referenceVelocity)
 	{
 	}
 
@@ -99,14 +101,15 @@ namespace Tools
 		auto missileIt = Globals::Components().missiles().find(missileId);
 		assert(missileIt != Globals::Components().missiles().end());
 		missileIt->second.state = ComponentState::Outdated;
-		auto thrustIt = Globals::Components().dynamicFarMidgroundDecorations().find(backThrustId);
-		assert(thrustIt != Globals::Components().dynamicFarMidgroundDecorations().end());
+		auto thrustIt = Globals::Components().dynamicDecorations().find(backThrustId);
+		assert(thrustIt != Globals::Components().dynamicDecorations().end());
 		thrustIt->second.state = ComponentState::Outdated;
 	}
 
 	MissileHandler::MissileHandler(MissileHandler&& other) noexcept:
 		missileId(other.missileId),
-		backThrustId(other.backThrustId)
+		backThrustId(other.backThrustId),
+		referenceVelocity(other.referenceVelocity)
 	{
 		other.valid = false;
 	}
@@ -115,18 +118,19 @@ namespace Tools
 	{
 		missileId = other.missileId;
 		backThrustId = other.backThrustId;
+		referenceVelocity = other.referenceVelocity;
 		other.valid = false;
 		return *this;
 	}
 
-	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 initialVelocity,
-		unsigned missileTexture, unsigned flameAnimatedTexture)
+	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 referenceVelocity,
+		glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimatedTexture)
 	{
 		auto& missile = EmplaceDynamicComponent(Globals::Components().missiles(), { Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f) });
 		auto& body = *missile.body;
 		SetCollisionFilteringBits(body, Globals::CollisionBits::missileBit, Globals::CollisionBits::all - Globals::CollisionBits::missileBit - Globals::CollisionBits::planeBit);
 		body.SetBullet(true);
-		body.SetLinearVelocity({ initialVelocity.x, initialVelocity.y });
+		body.SetLinearVelocity(ToVec2<b2Vec2>(referenceVelocity + initialVelocity));
 		missile.texture = TCM::Texture(missileTexture);
 		missile.preserveTextureRatio = true;
 
@@ -139,6 +143,7 @@ namespace Tools
 			});
 
 		missile.renderingSetup = Globals::Components().renderingSetups().size() - 1;
+		missile.renderLayer = RenderLayer::FarMidground;
 
 		missile.step = [&body, force, launchTime = Globals::Components().physics().simulationDuration]() mutable
 		{
@@ -147,7 +152,7 @@ namespace Tools
 
 		auto& animationTexture = Globals::Components().animatedTextures().back();
 
-		auto& decoration = EmplaceDynamicComponent(Globals::Components().dynamicFarMidgroundDecorations(), { Tools::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
+		auto& decoration = EmplaceDynamicComponent(Globals::Components().dynamicDecorations(), { Tools::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
 			TCM::AnimatedTexture(flameAnimatedTexture), Tools::CreateTexCoordOfRectangle() });
 
 		Globals::Components().renderingSetups().emplace_back([&, modelUniform = Uniforms::UniformMat4f(),
@@ -168,8 +173,9 @@ namespace Tools
 			});
 
 		decoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
+		decoration.renderLayer = RenderLayer::FarMidground;
 
-		return { missile.getComponentId(), decoration.getComponentId() };
+		return { missile.getComponentId(), decoration.getComponentId(), referenceVelocity };
 	}
 
 	void CreateExplosion(Shaders::Programs::ParticlesAccessor particlesProgram, glm::vec2 center, unsigned explosionTexture,
@@ -177,7 +183,7 @@ namespace Tools
 	{
 		Globals::Components().deferredActions().emplace_back([=](float) {
 			auto& shockwave = EmplaceDynamicComponent(Globals::Components().shockwaves(), { center, numOfParticles });
-			auto& explosionDecoration = EmplaceDynamicComponent(Globals::Components().dynamicNearMidgroundDecorations(), {});
+			auto& explosionDecoration = EmplaceDynamicComponent(Globals::Components().dynamicDecorations(), {});
 			explosionDecoration.customShadersProgram = particlesProgram.getProgramId();
 			explosionDecoration.resolutionMode = resolutionMode;
 			explosionDecoration.drawMode = GL_POINTS;
@@ -250,16 +256,15 @@ namespace Tools
 				};
 			});
 
-			Globals::Components().foregroundDecorations().emplace_back(Tools::CreateVerticesOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
-				TCM::Texture(fogTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
-
-			Globals::Components().foregroundDecorations().back().resolutionMode = ResolutionMode::LowestLinearBlend1;
+			Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
+				TCM::Texture(fogTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1).renderLayer = RenderLayer::Foreground;
+			Globals::Components().decorations().back().resolutionMode = ResolutionMode::LowestLinearBlend1;
 		}
 	}
 
 	void CreateJuliaBackground(Shaders::Programs::Julia& juliaShaders, std::function<glm::vec2()> juliaCOffset)
 	{
-		auto& background = Globals::Components().backgroundDecorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
+		auto& background = Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
 		background.customShadersProgram = juliaShaders.getProgramId();
 
 		Globals::Components().renderingSetups().emplace_back([=, &juliaShaders
@@ -274,6 +279,7 @@ namespace Tools
 			});
 
 		background.renderingSetup = Globals::Components().renderingSetups().size() - 1;
+		background.renderLayer = RenderLayer::Background;
 		background.resolutionMode = ResolutionMode::LowerLinearBlend1;
 	}
 }
