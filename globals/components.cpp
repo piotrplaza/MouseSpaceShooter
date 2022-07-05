@@ -94,7 +94,7 @@ namespace Globals
 		return planes_;
 	}
 
-	std::vector<Components::Wall>& ComponentsHolder::structures()
+	std::vector<Components::Wall>& ComponentsHolder::walls()
 	{
 		return structures_;
 	}

@@ -36,7 +36,7 @@ namespace Globals
 		return *actors_;
 	}
 
-	Systems::Structures& SystemsHolder::structures()
+	Systems::Structures& SystemsHolder::walls()
 	{
 		return *structures_;
 	}

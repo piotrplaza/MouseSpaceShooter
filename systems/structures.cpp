@@ -34,7 +34,7 @@ namespace Systems
 
 	void Structures::step()
 	{
-		for (const auto& wall : Globals::Components().structures())
+		for (const auto& wall : Globals::Components().walls())
 			if (wall.step)
 				wall.step();
 
@@ -58,7 +58,7 @@ namespace Systems
 
 	void Structures::updateStaticBuffers()
 	{
-		Tools::UpdateStaticBuffers(Globals::Components().structures(), staticBuffers.simpleWalls, staticBuffers.texturedWalls, staticBuffers.customShadersWalls);
+		Tools::UpdateStaticBuffers(Globals::Components().walls(), staticBuffers.simpleWalls, staticBuffers.texturedWalls, staticBuffers.customShadersWalls);
 	}
 
 	void Structures::initGraphics()
