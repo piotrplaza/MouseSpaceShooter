@@ -66,8 +66,6 @@
     <ClInclude Include="components\blendingTexture.hpp" />
     <ClInclude Include="components\camera.hpp" />
     <ClInclude Include="components\collisionHandler.hpp" />
-    <ClInclude Include="components\componentBase.hpp" />
-    <ClInclude Include="components\componentId.hpp" />
     <ClInclude Include="components\decoration.hpp" />
     <ClInclude Include="components\deferredAction.hpp" />
     <ClInclude Include="components\framebuffers.hpp" />
@@ -86,8 +84,10 @@
     <ClInclude Include="components\screenInfo.hpp" />
     <ClInclude Include="components\shockwave.hpp" />
     <ClInclude Include="components\texture.hpp" />
-    <ClInclude Include="components\typeComponentMappers.hpp" />
     <ClInclude Include="components\wall.hpp" />
+    <ClInclude Include="components\_componentBase.hpp" />
+    <ClInclude Include="components\_componentId.hpp" />
+    <ClInclude Include="components\_typeComponentMappers.hpp" />
     <ClInclude Include="globals\collisionBits.hpp" />
     <ClInclude Include="globals\components.hpp" />
     <ClInclude Include="globals\shaders.hpp" />

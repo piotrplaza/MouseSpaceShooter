@@ -3,8 +3,8 @@
 #include <ogl/shaders.hpp>
 
 #include <commonTypes/resolutionMode.hpp>
-#include <components/typeComponentMappers.hpp>
-#include <components/typeComponentMappers.hpp>
+#include <components/_typeComponentMappers.hpp>
+#include <components/_typeComponentMappers.hpp>
 #include <components/renderingSetup.hpp>
 
 #include <globals/components.hpp>

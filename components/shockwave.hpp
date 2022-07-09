@@ -1,6 +1,6 @@
 #pragma once
 
-#include "componentBase.hpp"
+#include "_componentBase.hpp"
 
 #include <tools/b2Helpers.hpp>
 #include <tools/utility.hpp>

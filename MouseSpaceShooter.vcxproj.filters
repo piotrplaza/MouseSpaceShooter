@@ -327,15 +327,6 @@
     <ClInclude Include="commonTypes\idGenerator.hpp">
       <Filter>src\commonTypes</Filter>
     </ClInclude>
-    <ClInclude Include="components\componentBase.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="components\typeComponentMappers.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="components\componentId.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="components\animatedTexture.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -374,6 +365,15 @@
     </ClInclude>
     <ClInclude Include="levels\basic\basic.hpp">
       <Filter>src\levels\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="components\_componentBase.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\_componentId.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\_typeComponentMappers.hpp">
+      <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

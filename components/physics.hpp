@@ -1,6 +1,6 @@
 #pragma once
 
-#include "componentBase.hpp"
+#include "_componentBase.hpp"
 
 #include <Box2D/Box2D.h>
 

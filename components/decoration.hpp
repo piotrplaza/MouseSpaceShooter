@@ -1,7 +1,7 @@
 #pragma once
 
-#include "componentBase.hpp"
-#include "typeComponentMappers.hpp"
+#include "_componentBase.hpp"
+#include "_typeComponentMappers.hpp"
 
 #include <commonTypes/resolutionMode.hpp>
 #include <commonTypes/renderLayer.hpp>

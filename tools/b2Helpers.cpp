@@ -1,6 +1,6 @@
 #include "b2Helpers.hpp"
 
-#include <components/typeComponentMappers.hpp>
+#include <components/_typeComponentMappers.hpp>
 #include <components/physics.hpp>
 
 #include <globals/components.hpp>

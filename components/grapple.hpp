@@ -1,7 +1,7 @@
 #pragma once
 
 #include "components/wall.hpp"
-#include "typeComponentMappers.hpp"
+#include "_typeComponentMappers.hpp"
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>

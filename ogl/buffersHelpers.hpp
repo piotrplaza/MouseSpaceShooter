@@ -1,8 +1,8 @@
 #pragma once
 
-#include <components/componentId.hpp>
-#include <components/componentBase.hpp>
-#include <components/typeComponentMappers.hpp>
+#include <components/_componentId.hpp>
+#include <components/_componentBase.hpp>
+#include <components/_typeComponentMappers.hpp>
 #include <components/renderingBuffers.hpp>
 
 #include <globals/components.hpp>

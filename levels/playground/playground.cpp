@@ -197,7 +197,7 @@ namespace Levels
 
 				Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfRectangle(portraitCenter, { 10.0f, 10.0f }),
 					TCM::BlendingTexture(blendingTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1,
-					RenderLayer::Midground).preserveTextureRatio = true;
+					RenderLayer::NearMidground).preserveTextureRatio = true;
 			}
 		}
 
@@ -277,16 +277,8 @@ namespace Levels
 					return [=]() mutable { Globals::Shaders().texturedColorThreshold().texturesCustomTransform(glm::mat4(1.0f)); };
 					});
 
-				Globals::Components().renderingSetups().emplace_back([
-						basicProgram = Shaders::Programs::BasicAccessor()
-					](Shaders::ProgramId program) mutable {
-						if (!basicProgram.isValid()) basicProgram = program;
-						basicProgram.color(glm::vec4(0.0f));
-						return [=]() mutable { basicProgram.color(Globals::Components().graphicsSettings().defaultColor); };
-					});
-
-				Globals::Components().walls().emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f), std::monostate{},
-					Globals::Components().renderingSetups().size() - 1);
+				auto& wall = Globals::Components().walls().emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f), TCM::Texture(0));
+				wall.render = false;
 
 				Globals::Components().renderingSetups().emplace_back([
 						wallId = Globals::Components().walls().size() - 1,
@@ -299,7 +291,7 @@ namespace Levels
 						return [=]() mutable { texturedProgram.color(Globals::Components().graphicsSettings().defaultColor); };
 					});
 
-				Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfFunctionalRectangles({ 1.0f, 1.0f },
+				wall.subsequence.emplace_back(Tools::CreateVerticesOfFunctionalRectangles({ 1.0f, 1.0f },
 					[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
 					[](float input) { return glm::vec2(input + 0.3f, input + 0.3f); },
 					[](float input) { return input * 600.0f; },
@@ -311,7 +303,7 @@ namespace Levels
 					}), TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
 			}
 
-			Globals::Components().decorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
+			Globals::Components().walls().back().resolutionMode = ResolutionMode::PixelArtBlend0;
 			lowResBodies.insert(Globals::Components().walls().back().body.get());
 		}
 
@@ -391,7 +383,8 @@ namespace Levels
 				{ { -levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, levelHeightHSize },
 				{ -levelWidthHSize, levelHeightHSize }, { -levelWidthHSize, -levelHeightHSize } },
 				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture), Tools::CreateTexCoordOfRectangle(), renderingSetup);
-			//Globals::Components().nearMidgroundDecorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
+			Globals::Components().decorations().back().renderLayer = RenderLayer::FarForeground;
+			//Globals::Components().decorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
 		}
 
 		void createGrapples() const
@@ -420,20 +413,12 @@ namespace Levels
 			EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f),
 				TCM::Texture(orbTexture), Globals::Components().renderingSetups().size() - 1 }).influenceRadius = 30.0f;
 
-			auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f) });
+			auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), TCM::Texture(0) });
 			grapple.influenceRadius = 30.0f;
 			grapple.render = false;
-
-			Globals::Components().renderingSetups().emplace_back([&,
-				modelUniform = Uniforms::UniformMat4f()
-			](Shaders::ProgramId program) mutable {
-				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
-				modelUniform(grapple.getModelMatrix());
-				return nullptr;
-			});
-
-			Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 2.2f, 2.2f }),
-				TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
+			grapple.subsequence.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 2.2f, 2.2f }),
+				TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle());
+			grapple.subsequence.back().modelMatrixF = [&]() { return grapple.getModelMatrix(); };
 		}
 
 		void setCamera() const

@@ -9,8 +9,8 @@
 #include <components/light.hpp>
 #include <components/functor.hpp>
 
-#include <components/componentBase.hpp>
-#include <components/componentId.hpp>
+#include <components/_componentBase.hpp>
+#include <components/_componentId.hpp>
 
 #include <globals/components.hpp>
 

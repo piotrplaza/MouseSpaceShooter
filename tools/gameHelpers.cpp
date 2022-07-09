@@ -15,7 +15,7 @@
 #include <components/deferredAction.hpp>
 #include <components/graphicsSettings.hpp>
 
-#include <components/typeComponentMappers.hpp>
+#include <components/_typeComponentMappers.hpp>
 
 #include <globals/collisionBits.hpp>
 

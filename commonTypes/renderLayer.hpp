@@ -1,3 +1,14 @@
 #pragma once
 
-enum class RenderLayer { Background, FarMidground, Midground, NearMidground, Foreground, COUNT };
+enum class RenderLayer {
+	FarBackground,
+	Background,
+	NearBackground,
+	FarMidground,
+	Midground,
+	NearMidground,
+	FarForeground,
+	Foreground,
+	NearForeground,
+	COUNT 
+};
