@@ -204,6 +204,7 @@ namespace Tools
 				});
 
 			explosionDecoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
+			explosionDecoration.renderLayer = RenderLayer::FarForeground;
 
 			Globals::Components().deferredActions().emplace_back([=, startTime = Globals::Components().physics().simulationDuration, &shockwave, &explosionDecoration](float) {
 				const float elapsed = Globals::Components().physics().simulationDuration - startTime;
