@@ -3,8 +3,8 @@
 #include "systems/stateController.hpp"
 #include "systems/physics.hpp"
 #include "systems/textures.hpp"
-#include "systems/players.hpp"
-#include "systems/walls.hpp"
+#include "systems/actors.hpp"
+#include "systems/structures.hpp"
 #include "systems/camera.hpp"
 #include "systems/decorations.hpp"
 #include "systems/temporaries.hpp"
@@ -14,70 +14,70 @@
 
 namespace Globals
 {
-	static std::unique_ptr<class Systems> systems;
+	static std::unique_ptr<SystemsHolder> systemsHolder;
 
-	::Systems::StateController& Systems::stateController()
+	Systems::StateController& SystemsHolder::stateController()
 	{
 		return *stateController_;
 	}
 
-	::Systems::Physics& Systems::physics()
+	Systems::Physics& SystemsHolder::physics()
 	{
 		return *physics_;
 	}
 
-	::Systems::Textures& Systems::textures()
+	Systems::Textures& SystemsHolder::textures()
 	{
 		return *textures_;
 	}
 
-	::Systems::Players& Systems::players()
+	Systems::Actors& SystemsHolder::actors()
 	{
-		return *players_;
+		return *actors_;
 	}
 
-	::Systems::Walls& Systems::walls()
+	Systems::Structures& SystemsHolder::walls()
 	{
-		return *walls_;
+		return *structures_;
 	}
 
-	::Systems::Camera& Systems::camera()
+	Systems::Camera& SystemsHolder::camera()
 	{
 		return *camera_;
 	}
 
-	::Systems::Decorations& Systems::decorations()
+	Systems::Decorations& SystemsHolder::decorations()
 	{
 		return *decorations_;
 	}
 
-	::Systems::Temporaries& Systems::temporaries()
+	Systems::Temporaries& SystemsHolder::temporaries()
 	{
 		return *temporaries_;
 	}
 
-	::Systems::Cleaner& Systems::cleaner()
+	Systems::Cleaner& SystemsHolder::cleaner()
 	{
 		return *cleaner_;
 	}
 
-	::Systems::DeferredActions& Systems::deferredActions()
+	Systems::DeferredActions& SystemsHolder::deferredActions()
 	{
 		return *deferredActions_;
 	}
 
-	::Systems::RenderingController& Systems::renderingController()
+	Systems::RenderingController& SystemsHolder::renderingController()
 	{
 		return *renderingController_;
 	}
 
 	void InitializeSystems()
 	{
-		systems = std::make_unique<class Systems>();
+		systemsHolder = std::make_unique<SystemsHolder>();
 	}
 
-	class Systems& Systems()
+	SystemsHolder& Systems()
 	{
-		return *systems;
+		return *systemsHolder;
 	}
 }

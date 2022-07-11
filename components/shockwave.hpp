@@ -1,11 +1,11 @@
 #pragma once
 
-#include "componentBase.hpp"
+#include "_componentBase.hpp"
 
 #include <tools/b2Helpers.hpp>
 #include <tools/utility.hpp>
 
-#include <commonIds/collisionBits.hpp>
+#include <globals/collisionBits.hpp>
 
 #include <Box2D/Box2D.h>
 
@@ -33,8 +33,8 @@ namespace Components
 				particles.back()->SetBullet(particlesAsBullets);
 				particles.back()->SetLinearVelocity(b2Vec2(glm::cos(angle), glm::sin(angle)) * initVelocity);
 				particles.back()->SetLinearDamping(particlesLinearDamping);
-				Tools::SetCollisionFilteringBits(*particles.back(), CollisionBits::shockwaveParticleBit,
-					CollisionBits::all - CollisionBits::shockwaveParticleBit - CollisionBits::missileBit);
+				Tools::SetCollisionFilteringBits(*particles.back(), Globals::CollisionBits::shockwaveParticleBit,
+					Globals::CollisionBits::all - Globals::CollisionBits::shockwaveParticleBit - Globals::CollisionBits::missileBit);
 				angle += angleStep;
 			}
 		}

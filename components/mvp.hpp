@@ -1,6 +1,6 @@
 #pragma once
 
-#include "componentBase.hpp"
+#include "_componentBase.hpp"
 
 #include <glm/mat4x4.hpp>
 

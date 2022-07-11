@@ -1,7 +1,7 @@
 #pragma once
 
-#include "componentBase.hpp"
-#include "typeComponentMappers.hpp"
+#include "components/wall.hpp"
+#include "_typeComponentMappers.hpp"
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>
@@ -22,61 +22,25 @@
 
 namespace Components
 {
-	struct Grapple : ComponentBase
+	struct Grapple : Wall
 	{
-		using ComponentBase::ComponentBase;
+		using Wall::Wall;
 
-		Grapple(Body body, float influenceRadius,
+		Grapple(Body body,
 			TextureComponentVariant texture = std::monostate{},
-			ComponentId renderingSetup = 0,
+			std::optional<ComponentId>  renderingSetup = std::nullopt,
+			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			body(std::move(body)),
-			influenceRadius(influenceRadius),
-			texture(texture),
-			renderingSetup(std::move(renderingSetup)),
-			customShadersProgram(customShadersProgram)
+			Wall(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram)
 		{
 			Tools::AccessUserData(*this->body).bodyComponentVariant = TCM::Grapple(getComponentId());
 		}
 
-		Body body;
-		float influenceRadius;
-		TextureComponentVariant texture;
-		ComponentId renderingSetup;
-		std::optional<Shaders::ProgramId> customShadersProgram;
-		ResolutionMode resolutionMode = ResolutionMode::Normal;
+		float influenceRadius = 0.0f;
 
-		glm::vec2 previousCenter{ 0.0f, 0.0f };
-
-		GLenum drawMode = GL_TRIANGLES;
-		GLenum bufferDataUsage = GL_STATIC_DRAW;
-
-		bool preserveTextureRatio = false;
-
-		glm::vec2 getCenter() const
+		struct
 		{
-			return ToVec2<glm::vec2>(body->GetWorldCenter());
-		}
-
-		std::vector<glm::vec3> getVertexPositions() const
-		{
-			return Tools::GetVertices(*body);
-		}
-
-		std::vector<glm::vec3> getTransformedVertexPositions() const
-		{
-			return Tools::Transform(getVertexPositions(), getModelMatrix());
-		}
-
-		const std::vector<glm::vec2> getTexCoord() const
-		{
-			const auto positions = getVertexPositions();
-			return std::vector<glm::vec2>(positions.begin(), positions.end());
-		}
-
-		glm::mat4 getModelMatrix() const
-		{
-			return Tools::GetModelMatrix(*body);
-		}
+			glm::vec2 previousCenter{ 0.0f, 0.0f };
+		} details;
 	};
 }

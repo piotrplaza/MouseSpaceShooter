@@ -1,13 +1,12 @@
 #include "b2Helpers.hpp"
 
-#include <components/typeComponentMappers.hpp>
+#include <components/_typeComponentMappers.hpp>
 #include <components/physics.hpp>
 
 #include <globals/components.hpp>
+#include <globals/collisionBits.hpp>
 
 #include <tools/graphicsHelpers.hpp>
-
-#include <commonIds/collisionBits.hpp>
 
 #include <commonTypes/bodyUserData.hpp>
 
@@ -35,7 +34,7 @@ void b2JointDeleter::operator()(b2Joint* joint) const
 
 namespace Tools
 {
-	Body CreateTrianglePlayerBody(float size, float density, float spreadFactor)
+	Body CreatePlaneBody(float size, float density, float spreadFactor)
 	{
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;
@@ -82,7 +81,7 @@ namespace Tools
 		fixtureDef.density = density;
 		fixtureDef.restitution = restitution;
 		fixtureDef.friction = friction;
-		fixtureDef.filter.categoryBits = CollisionBits::wallBit;
+		fixtureDef.filter.categoryBits = Globals::CollisionBits::wallBit;
 		body->CreateFixture(&fixtureDef);
 
 		body->SetUserData(new BodyUserData);
@@ -105,7 +104,7 @@ namespace Tools
 		fixtureDef.density = density;
 		fixtureDef.restitution = restitution;
 		fixtureDef.friction = friction;
-		fixtureDef.filter.categoryBits = CollisionBits::wallBit;
+		fixtureDef.filter.categoryBits = Globals::CollisionBits::wallBit;
 		body->CreateFixture(&fixtureDef);
 
 		body->SetUserData(new BodyUserData);
@@ -133,7 +132,7 @@ namespace Tools
 
 	std::vector<glm::vec3> GetVertices(const b2Body& body)
 	{
-		std::vector<glm::vec3> positions;
+		std::vector<glm::vec3> vertices;
 
 		auto* fixture = body.GetFixtureList();
 		do
@@ -147,21 +146,21 @@ namespace Tools
 				{
 				case 3:
 				{
-					positions.reserve(positions.size() + 3);
+					vertices.reserve(vertices.size() + 3);
 					for (int i = 0; i < 3; ++i)
 					{
 						const auto& b2v = polygonShape.m_vertices[i];
-						positions.emplace_back(b2v.x, b2v.y, 0.0f);
+						vertices.emplace_back(b2v.x, b2v.y, 0.0f);
 					}
 					break;
 				}
 				case 4:
 				{
-					positions.reserve(positions.size() + 6);
+					vertices.reserve(vertices.size() + 6);
 					for (int i = 0; i < 6; ++i)
 					{
 						const auto& b2v = polygonShape.m_vertices[i < 3 ? i : (i - 1) % 4];
-						positions.emplace_back(b2v.x, b2v.y, 0.0f);
+						vertices.emplace_back(b2v.x, b2v.y, 0.0f);
 					}
 					break;
 				}
@@ -173,7 +172,7 @@ namespace Tools
 			case b2Shape::e_circle:
 			{
 				const auto& circleShape = static_cast<const b2CircleShape&>(*fixture->GetShape());
-				Tools::AppendVerticesOfCircle(positions, ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity);
+				Tools::AppendVerticesOfCircle(vertices, ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity);
 				break;
 			}
 			default:
@@ -182,7 +181,7 @@ namespace Tools
 		}
 		while (fixture = fixture->GetNext());
 
-		return positions;
+		return vertices;
 	}
 
 	void SetCollisionFilteringBits(b2Body& body, unsigned short categoryBits, unsigned short maskBits)

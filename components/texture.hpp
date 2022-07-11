@@ -1,6 +1,6 @@
 #pragma once
 
-#include "componentBase.hpp"
+#include "_componentBase.hpp"
 
 #include <GL/glew.h>
 
@@ -15,7 +15,7 @@ namespace Components
 		using ComponentBase::ComponentBase;
 
 		Texture(std::string path, GLenum wrapMode = GL_CLAMP_TO_EDGE, GLenum minFilter = GL_LINEAR_MIPMAP_LINEAR,
-			GLenum magFilter = GL_LINEAR_MIPMAP_LINEAR):
+			GLenum magFilter = GL_LINEAR):
 			path(std::move(path)),
 			wrapMode(wrapMode),
 			minFilter(minFilter),
@@ -37,7 +37,7 @@ namespace Components
 		std::string path;
 		GLenum wrapMode = GL_CLAMP_TO_EDGE;
 		GLenum minFilter = GL_LINEAR_MIPMAP_LINEAR;
-		GLenum magFilter = GL_LINEAR_MIPMAP_LINEAR;
+		GLenum magFilter = GL_LINEAR;
 
 		glm::vec2 translate{ 0.0f };
 		glm::vec2 scale{ 1.0f };

@@ -25,31 +25,33 @@ namespace Shaders
 				colorAccumulation(program, "colorAccumulation"),
 				numOfPlayers(program, "numOfPlayers"),
 				playersCenter(program, "playersCenter"),
-				playerUnhidingRadius(program, "playerUnhidingRadius")
+				playerUnhidingRadius(program, "playerUnhidingRadius"),
+				sceneCoordTextures(program, "sceneCoordTextures")
 			{
 			}
 
-			Uniforms::UniformControllerMat4f model;
-			Uniforms::UniformControllerMat4f vp;
-			Uniforms::UniformController4f color;
-			Uniforms::UniformController4f mulBlendingColor;
-			Uniforms::UniformController4f addBlendingColor;
-			Uniforms::UniformController1i numOfTextures;
-			Uniforms::UniformController1iv<5> textures;
-			Uniforms::UniformControllerMat4fv<5> texturesBaseTransform;
-			Uniforms::UniformControllerMat4fv<5> texturesCustomTransform;
-			Uniforms::UniformController1b alphaFromBlendingTexture;
-			Uniforms::UniformController1b colorAccumulation;
-			Uniforms::UniformController1i numOfPlayers;
-			Uniforms::UniformController2fv<4> playersCenter;
-			Uniforms::UniformController1f playerUnhidingRadius;
+			Uniforms::UniformMat4f model;
+			Uniforms::UniformMat4f vp;
+			Uniforms::Uniform4f color;
+			Uniforms::Uniform4f mulBlendingColor;
+			Uniforms::Uniform4f addBlendingColor;
+			Uniforms::Uniform1i numOfTextures;
+			Uniforms::Uniform1iv<5> textures;
+			Uniforms::UniformMat4fv<5> texturesBaseTransform;
+			Uniforms::UniformMat4fv<5> texturesCustomTransform;
+			Uniforms::Uniform1b alphaFromBlendingTexture;
+			Uniforms::Uniform1b colorAccumulation;
+			Uniforms::Uniform1i numOfPlayers;
+			Uniforms::Uniform2fv<4> playersCenter;
+			Uniforms::Uniform1f playerUnhidingRadius;
+			Uniforms::Uniform1b sceneCoordTextures;
 		};
 
 		struct Textured: TexturedAccessor
 		{
 			Textured():
 				TexturedAccessor(LinkProgram(CompileShaders("ogl/shaders/textured.vs",
-					"ogl/shaders/textured.fs"), { {0, "bPos"}, {1, "bTexCoord"} }))
+					"ogl/shaders/textured.fs"), { {0, "bPos"}, {1, "bColor"}, {2, "bTexCoord"} }))
 			{
 				model(glm::mat4(1.0f));
 				vp(glm::mat4(1.0f));
@@ -64,6 +66,7 @@ namespace Shaders
 				numOfPlayers(0);
 				playersCenter(glm::vec2(0.0f, 0.0f));
 				playerUnhidingRadius(0.0f);
+				sceneCoordTextures(false);
 			}
 
 			Textured(const Textured&) = delete;

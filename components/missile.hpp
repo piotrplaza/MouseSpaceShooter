@@ -1,15 +1,18 @@
 #pragma once
 
-#include "componentBase.hpp"
+#include "_componentBase.hpp"
+#include "_typeComponentMappers.hpp"
 
 #include <commonTypes/resolutionMode.hpp>
 
-#include <ogl/shaders.hpp>
+#include "decoration.hpp"
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>
 
 #include <commonTypes/bodyUserData.hpp>
+
+#include <ogl/shaders.hpp>
 
 #include <Box2D/Box2D.h>
 
@@ -27,47 +30,84 @@ namespace Components
 
 		Missile(Body body,
 			TextureComponentVariant texture = std::monostate{},
-			ComponentId renderingSetup = 0,
+			std::optional<ComponentId> renderingSetup = std::nullopt,
+			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			body(std::move(body)),
 			texture(texture),
 			renderingSetup(renderingSetup),
+			renderLayer(renderLayer),
 			customShadersProgram(customShadersProgram)
 		{
 			Tools::AccessUserData(*this->body).bodyComponentVariant = TCM::Missile(getComponentId());
 		}
 
 		Body body;
+
+		std::vector<glm::vec4> colors;
+		std::vector<glm::vec2> texCoord;
+
 		TextureComponentVariant texture;
-		ComponentId renderingSetup;
+		std::optional<ComponentId> renderingSetup;
 		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::function<void()> step;
 		ResolutionMode resolutionMode = ResolutionMode::Normal;
+		RenderLayer renderLayer = RenderLayer::Midground;
 
-		static constexpr GLenum drawMode = GL_TRIANGLES;
-		static constexpr GLenum bufferDataUsage = GL_STATIC_DRAW;
+		GLenum drawMode = GL_TRIANGLES;
+		GLenum bufferDataUsage = GL_STATIC_DRAW;
 
 		bool preserveTextureRatio = false;
+
+		bool render = true;
+
+		std::vector<DecorationDef> subsequence;
+		unsigned posInSubsequence = 0;
+
+		std::vector<glm::vec3> getVertices() const
+		{
+			return Tools::GetVertices(*body);
+		}
+
+		const std::vector<glm::vec4>& getColors() const
+		{
+			return colors;
+		}
+
+		const std::vector<glm::vec2> getTexCoord() const
+		{
+			if (texCoord.empty())
+			{
+				const auto vertices = getVertices();
+				return std::vector<glm::vec2>(vertices.begin(), vertices.end());
+			}
+			else
+			{
+				const auto vertices = getVertices();
+				if (texCoord.size() < vertices.size())
+				{
+					std::vector<glm::vec2> cyclicTexCoord;
+					cyclicTexCoord.reserve(vertices.size());
+					for (size_t i = 0; i < vertices.size(); ++i)
+						cyclicTexCoord.push_back(texCoord[i % texCoord.size()]);
+					return cyclicTexCoord;
+				}
+				else
+				{
+					assert(texCoord.size() == vertices.size());
+					return texCoord;
+				}
+			}
+		}
 
 		glm::vec2 getCenter() const
 		{
 			return ToVec2<glm::vec2>(body->GetWorldCenter());
 		}
 
-		std::vector<glm::vec3> getVertexPositions() const
+		std::vector<glm::vec3> getTransformedVertices() const
 		{
-			return Tools::GetVertices(*body);
-		}
-
-		std::vector<glm::vec3> getTransformedVertexPositions() const
-		{
-			return Tools::Transform(getVertexPositions(), getModelMatrix());
-		}
-
-		const std::vector<glm::vec2> getTexCoord() const
-		{
-			const auto positions = getVertexPositions();
-			return std::vector<glm::vec2>(positions.begin(), positions.end());
+			return Tools::Transform(getVertices(), getModelMatrix());
 		}
 
 		glm::mat4 getModelMatrix() const

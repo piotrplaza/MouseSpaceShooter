@@ -1,6 +1,6 @@
 #pragma once
 
-#include <components/componentId.hpp>
+#include <components/_componentId.hpp>
 
 #include <ogl/shaders/particles.hpp>
 
@@ -20,30 +20,31 @@ namespace Shaders
 
 namespace Tools
 {
-	struct PlayerPlaneHandler
+	struct PlaneHandler
 	{
-		size_t playerId = 0;
+		size_t planeId = 0;
 		size_t backThrustsIds[2] = {};
 	};
 
 	struct MissileHandler
 	{
 		MissileHandler();
-		MissileHandler(ComponentId missileId, ComponentId backThrustId);
+		MissileHandler(ComponentId missileId, ComponentId backThrustId, glm::vec2 referenceVelocity);
 		~MissileHandler();
 		MissileHandler(MissileHandler&& other) noexcept;
 		MissileHandler& operator=(MissileHandler&& other) noexcept;
 
 		ComponentId missileId = 0;
 		ComponentId backThrustId = 0;
+		glm::vec2 referenceVelocity{};
 
 	private:
 		bool valid = true;
 	};
 
-	PlayerPlaneHandler CreatePlayerPlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position = glm::vec2(0.0f), float angle = 0.0f);
-	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 initialVelocity,
-		unsigned missileTexture, unsigned flameAnimatedTexture);
+	PlaneHandler CreatePlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position = glm::vec2(0.0f), float angle = 0.0f);
+	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 referenceVelocity,
+		glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimatedTexture);
 	void CreateExplosion(Shaders::Programs::ParticlesAccessor particlesProgram, glm::vec2 center, unsigned explosionTexture,
 		float explosionDuration = 1.0f, int numOfParticles = 64, int particlesPerDecoration = 4,
 		ResolutionMode resolutionMode = ResolutionMode::Normal);

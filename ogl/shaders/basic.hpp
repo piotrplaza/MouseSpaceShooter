@@ -18,16 +18,16 @@ namespace Shaders
 			{
 			}
 
-			Uniforms::UniformControllerMat4f model;
-			Uniforms::UniformControllerMat4f vp;
-			Uniforms::UniformController4f color;
+			Uniforms::UniformMat4f model;
+			Uniforms::UniformMat4f vp;
+			Uniforms::Uniform4f color;
 		};
 
 		struct Basic: BasicAccessor
 		{
 			Basic():
 				BasicAccessor(LinkProgram(CompileShaders("ogl/shaders/basic.vs",
-					"ogl/shaders/basic.fs"), { {0, "bPos"} }))
+					"ogl/shaders/basic.fs"), { {0, "bPos"}, {1, "bColor"} }))
 			{
 				model(glm::mat4(1.0f));
 				vp(glm::mat4(1.0f));

@@ -2,7 +2,7 @@
 
 #include "tools/utility.hpp"
 
-#include <components/player.hpp>
+#include <components/plane.hpp>
 #include <components/grapple.hpp>
 #include <components/screenInfo.hpp>
 #include <components/mouseState.hpp>
@@ -13,7 +13,6 @@
 #include <components/physics.hpp>
 
 #include <ogl/shaders/textured.hpp>
-#include <ogl/shaders/sceneCoordTextured.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -33,13 +32,11 @@ namespace Systems
 
 	void StateController::postInit() const
 	{
-		Globals::ForEach(Globals::Components().players(), [](auto& player) {
-			player.previousCenter = player.getCenter();
-			});
+		for(auto& plane: Globals::Components().planes())
+			plane.details.previousCenter = plane.getCenter();
 
-		Globals::ForEach(Globals::Components().grapples(), [](auto& grapple) {
-			grapple.previousCenter = grapple.getCenter();
-			});
+		for (auto& [id, grapple] : Globals::Components().grapples())
+			grapple.details.previousCenter = grapple.getCenter();
 	}
 
 	void StateController::frameSetup() const
@@ -50,25 +47,19 @@ namespace Systems
 
 	void StateController::renderSetup() const
 	{
-		Globals::Shaders().textured().numOfPlayers(Globals::Components().players().size() - 1);
-		Globals::Shaders().sceneCoordTextured().numOfPlayers(Globals::Components().players().size() - 1);
+		Globals::Shaders().textured().numOfPlayers(Globals::Components().planes().size());
 
-		for (int i = 1; i < (int)Globals::Components().players().size(); ++i)
-		{
-			Globals::Shaders().textured().playersCenter(i - 1, Globals::Components().players()[i].getCenter());
-			Globals::Shaders().sceneCoordTextured().playersCenter(i - 1, Globals::Components().players()[i].getCenter());
-		}
+		for (int i = 0; i < (int)Globals::Components().planes().size(); ++i)
+			Globals::Shaders().textured().playersCenter(i, Globals::Components().planes()[i].getCenter());
 	}
 
 	void StateController::frameTeardown() const
 	{
-		Globals::ForEach(Globals::Components().players(), [](auto& player) {
-			player.previousCenter = player.getCenter();
-			});
+		for(auto& player: Globals::Components().planes())
+			player.details.previousCenter = player.getCenter();
 
-		Globals::ForEach(Globals::Components().grapples(), [](auto& grapple) {
-			grapple.previousCenter = grapple.getCenter();
-			});
+		for (auto& [id, grapple] : Globals::Components().grapples())
+			grapple.details.previousCenter = grapple.getCenter();
 
 		for (auto& [id, frameTeardown] : Globals::Components().frameTeardowns())
 			frameTeardown();

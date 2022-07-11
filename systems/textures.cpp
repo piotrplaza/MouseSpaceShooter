@@ -30,7 +30,7 @@ namespace Systems
 	{
 		assert(Globals::Components().textures().size() <= maxTextureObjects);
 
-		for (unsigned i = 1; i < Globals::Components().textures().size(); ++i)
+		for (unsigned i = 0; i < Globals::Components().textures().size(); ++i)
 		{
 			auto& texture = Globals::Components().textures()[i];
 

@@ -4,7 +4,9 @@ layout (points) in;
 layout (triangle_strip, max_vertices = 4) out;
 
 in float vAngle[];
+in vec4 vColor[];
 
+out vec4 gColor;
 out vec2 gTexCoord;
 
 uniform mat4 vp;
@@ -29,15 +31,19 @@ void main()
     const mat4 rotMat = rotationMatrix(vec3(0.0, 0.0, 1.0), vAngle[0]);
 
 	gl_Position = vp * (position + rotMat * vec4(-hSize, -hSize, 0.0, 0.0));
+    gColor = vColor[0];
     gTexCoord = vec2(0.0, 0.0);
     EmitVertex();
     gl_Position = vp * (position + rotMat * vec4(hSize, -hSize, 0.0, 0.0));
+    gColor = vColor[0];
     gTexCoord = vec2(1.0, 0.0);
     EmitVertex();
     gl_Position = vp * (position + rotMat * vec4(-hSize, hSize, 0.0, 0.0));
+    gColor = vColor[0];
     gTexCoord = vec2(0.0, 1.0);
     EmitVertex();
     gl_Position = vp * (position + rotMat * vec4(hSize, hSize, 0.0, 0.0));
+    gColor = vColor[0];
     gTexCoord = vec2(1.0, 1.0);
     EmitVertex();
 

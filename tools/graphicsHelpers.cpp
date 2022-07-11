@@ -6,7 +6,7 @@
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace Detail
+namespace Details
 {
 	inline glm::vec2 OrthoVec2(const glm::vec2& p1, const glm::vec2& p2, bool invert = false)
 	{
@@ -142,7 +142,7 @@ namespace Tools
 		const glm::vec2 d = glm::normalize(p2 - p1);
 		const glm::vec2 step = (p2 - p1) / (float)segmentsNum;
 		const float stepLength = glm::length(step);
-		const glm::vec2 orthoD = Detail::OrthoVec2(p1, p2);
+		const glm::vec2 orthoD = Details::OrthoVec2(p1, p2);
 		glm::vec2 currentPos = p1;
 
 		vertices.emplace_back(currentPos, z);

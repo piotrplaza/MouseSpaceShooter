@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ogl/shaders.hpp>
-#include <ogl/uniformControllers.hpp>
+#include <ogl/uniforms.hpp>
 
 namespace Shaders
 {

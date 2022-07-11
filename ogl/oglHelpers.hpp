@@ -2,6 +2,8 @@
 
 #include <glm/vec2.hpp>
 
+#include <string>
+
 namespace Tools
 {
 	class ConditionalScopedFramebuffer
@@ -17,4 +19,5 @@ namespace Tools
 	};
 
 	void VSync(bool enabled);
+	void PrintCurrentGLErrors(const std::string& prefix);
 }

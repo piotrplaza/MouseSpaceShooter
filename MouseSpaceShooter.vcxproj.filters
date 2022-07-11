@@ -38,14 +38,8 @@
     <Filter Include="src\ogl\shaders\basic">
       <UniqueIdentifier>{326dee5c-236d-4bf2-972c-294c63459962}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ogl\shaders\colored">
-      <UniqueIdentifier>{1bd18e09-f8a5-4e73-a5e7-3c46b30cd820}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ogl\shaders\julia">
       <UniqueIdentifier>{fc5a1d40-ed16-4d60-9c7f-6bac933fc7a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ogl\shaders\sceneCoordTextured">
-      <UniqueIdentifier>{67242143-e044-4927-b1c4-3960bff48e49}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\ogl\shaders\textured">
       <UniqueIdentifier>{a3c981c3-58ac-421a-b5d2-bc857b2d4e78}</UniqueIdentifier>
@@ -65,11 +59,11 @@
     <Filter Include="src\globals">
       <UniqueIdentifier>{559bc9f3-4bd9-4a0f-a00f-82fcce3231b4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\commonIds">
-      <UniqueIdentifier>{fbaa671a-12fa-4d4c-8bba-07a92ab28bfe}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\levels\gravity">
       <UniqueIdentifier>{5a636ec7-4eb2-4591-9087-b0b38b96553c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\levels\basic">
+      <UniqueIdentifier>{8009aed5-acbe-41b8-a962-b8a0aab9702f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -103,12 +97,6 @@
     <ClCompile Include="ogl\shaders.cpp">
       <Filter>src\ogl</Filter>
     </ClCompile>
-    <ClCompile Include="ogl\uniformControllers.cpp">
-      <Filter>src\ogl</Filter>
-    </ClCompile>
-    <ClCompile Include="systems\players.cpp">
-      <Filter>src\systems</Filter>
-    </ClCompile>
     <ClCompile Include="systems\decorations.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
@@ -117,9 +105,6 @@
     </ClCompile>
     <ClCompile Include="levels\level.cpp">
       <Filter>src\levels</Filter>
-    </ClCompile>
-    <ClCompile Include="ogl\buffers\posTexCoordBuffers.cpp">
-      <Filter>src\ogl\buffers</Filter>
     </ClCompile>
     <ClCompile Include="levels\rocketball\rocketball.cpp">
       <Filter>src\levels\rocketball</Filter>
@@ -134,9 +119,6 @@
       <Filter>src\tools</Filter>
     </ClCompile>
     <ClCompile Include="systems\temporaries.cpp">
-      <Filter>src\systems</Filter>
-    </ClCompile>
-    <ClCompile Include="systems\walls.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
     <ClCompile Include="systems\cleaner.cpp">
@@ -166,6 +148,21 @@
     <ClCompile Include="levels\gravity\gravity.cpp">
       <Filter>src\levels\gravity</Filter>
     </ClCompile>
+    <ClCompile Include="ogl\buffers\genericBuffers.cpp">
+      <Filter>src\ogl\buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="systems\actors.cpp">
+      <Filter>src\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="systems\structures.cpp">
+      <Filter>src\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="ogl\uniforms.cpp">
+      <Filter>src\ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\basic\basic.cpp">
+      <Filter>src\levels\basic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mouseState.hpp">
@@ -178,9 +175,6 @@
       <Filter>src\components</Filter>
     </ClInclude>
     <ClInclude Include="components\physics.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="components\player.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
     <ClInclude Include="systems\physics.hpp">
@@ -216,14 +210,8 @@
     <ClInclude Include="ogl\oglProxy.hpp">
       <Filter>src\ogl</Filter>
     </ClInclude>
-    <ClInclude Include="ogl\uniformControllers.hpp">
-      <Filter>src\ogl</Filter>
-    </ClInclude>
     <ClInclude Include="ogl\shaders.hpp">
       <Filter>src\ogl</Filter>
-    </ClInclude>
-    <ClInclude Include="systems\players.hpp">
-      <Filter>src\systems</Filter>
     </ClInclude>
     <ClInclude Include="ogl\buffersHelpers.hpp">
       <Filter>src\ogl</Filter>
@@ -249,20 +237,11 @@
     <ClInclude Include="tools\glmHelpers.hpp">
       <Filter>src\tools</Filter>
     </ClInclude>
-    <ClInclude Include="ogl\buffers\posTexCoordBuffers.hpp">
-      <Filter>src\ogl\buffers</Filter>
-    </ClInclude>
     <ClInclude Include="ogl\shaders\basic.hpp">
       <Filter>src\ogl\shaders\basic</Filter>
     </ClInclude>
-    <ClInclude Include="ogl\shaders\colored.hpp">
-      <Filter>src\ogl\shaders\colored</Filter>
-    </ClInclude>
     <ClInclude Include="ogl\shaders\julia.hpp">
       <Filter>src\ogl\shaders\julia</Filter>
-    </ClInclude>
-    <ClInclude Include="ogl\shaders\sceneCoordTextured.hpp">
-      <Filter>src\ogl\shaders\sceneCoordTextured</Filter>
     </ClInclude>
     <ClInclude Include="ogl\shaders\textured.hpp">
       <Filter>src\ogl\shaders\textured</Filter>
@@ -287,9 +266,6 @@
     </ClInclude>
     <ClInclude Include="components\missile.hpp">
       <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="systems\walls.hpp">
-      <Filter>src\systems</Filter>
     </ClInclude>
     <ClInclude Include="systems\cleaner.hpp">
       <Filter>src\systems</Filter>
@@ -351,23 +327,53 @@
     <ClInclude Include="commonTypes\idGenerator.hpp">
       <Filter>src\commonTypes</Filter>
     </ClInclude>
-    <ClInclude Include="commonIds\collisionBits.hpp">
-      <Filter>src\commonIds</Filter>
-    </ClInclude>
-    <ClInclude Include="components\componentBase.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="components\typeComponentMappers.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="components\componentId.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="components\animatedTexture.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
     <ClInclude Include="levels\gravity\gravity.hpp">
       <Filter>src\levels\gravity</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\buffers\genericBuffers.hpp">
+      <Filter>src\ogl\buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\actors.hpp">
+      <Filter>src\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="components\plane.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\deferredAction.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\collisionBits.hpp">
+      <Filter>src\globals</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\structures.hpp">
+      <Filter>src\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\uniforms.hpp">
+      <Filter>src\ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="commonTypes\renderLayer.hpp">
+      <Filter>src\commonTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="components\renderingBuffers.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="commonTypes\buffersCollections.hpp">
+      <Filter>src\commonTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\basic\basic.hpp">
+      <Filter>src\levels\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="components\_componentBase.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\_componentId.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\_typeComponentMappers.hpp">
+      <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -377,23 +383,11 @@
     <None Include="ogl\shaders\basic.vs">
       <Filter>src\ogl\shaders\basic</Filter>
     </None>
-    <None Include="ogl\shaders\colored.fs">
-      <Filter>src\ogl\shaders\colored</Filter>
-    </None>
-    <None Include="ogl\shaders\colored.vs">
-      <Filter>src\ogl\shaders\colored</Filter>
-    </None>
     <None Include="ogl\shaders\julia.fs">
       <Filter>src\ogl\shaders\julia</Filter>
     </None>
     <None Include="ogl\shaders\julia.vs">
       <Filter>src\ogl\shaders\julia</Filter>
-    </None>
-    <None Include="ogl\shaders\sceneCoordTextured.fs">
-      <Filter>src\ogl\shaders\sceneCoordTextured</Filter>
-    </None>
-    <None Include="ogl\shaders\sceneCoordTextured.vs">
-      <Filter>src\ogl\shaders\sceneCoordTextured</Filter>
     </None>
     <None Include="ogl\shaders\textured.vs">
       <Filter>src\ogl\shaders\textured</Filter>

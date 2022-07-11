@@ -3,7 +3,7 @@
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
 #include <components/renderingSetup.hpp>
-#include <components/player.hpp>
+#include <components/plane.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
 #include <components/camera.hpp>
@@ -19,7 +19,7 @@
 #include <components/blendingTexture.hpp>
 #include <components/animatedTexture.hpp>
 
-#include <ogl/uniformControllers.hpp>
+#include <ogl/uniforms.hpp>
 #include <ogl/shaders/basic.hpp>
 #include <ogl/shaders/julia.hpp>
 #include <ogl/shaders/texturedColorThreshold.hpp>
@@ -29,12 +29,14 @@
 
 #include <globals/shaders.hpp>
 #include <globals/components.hpp>
+#include <globals/collisionBits.hpp>
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
+#include <tools/b2Helpers.hpp>
 
-#include <commonIds/collisionBits.hpp>
+#include <glm/gtx/vector_angle.hpp>
 
 #include <algorithm>
 #include <unordered_map>
@@ -120,7 +122,8 @@ namespace Levels
 
 		void createBackground()
 		{
-			Tools::CreateJuliaBackground(juliaShaders, []() { return Globals::Components().players()[1].getCenter() * 0.0001f; });
+			Tools::CreateJuliaBackground(juliaShaders, [this]() {
+				return Globals::Components().planes()[player1Handler.planeId].getCenter() * 0.0001f; });
 		}
 
 		void createForeground()
@@ -150,64 +153,68 @@ namespace Levels
 
 		void createPlayers()
 		{
-			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flame1AnimatedTexture, {0.0f, -50.0f}, glm::half_pi<float>());
+			player1Handler = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, {0.0f, -50.0f}, glm::half_pi<float>());
 		}
 
 		void launchMissile()
 		{
-			auto missileHandler = Tools::CreateMissile(Globals::Components().players()[1].getCenter(),
-				Globals::Components().players()[1].getAngle(), 5.0f, Globals::Components().players()[1].getVelocity(),
-				missile2Texture, flame1AnimatedTexture);
+			const float initVelocity = 5.0f;
+			auto& plane = Globals::Components().planes()[player1Handler.planeId];
+
+			auto missileHandler = Tools::CreateMissile(plane.getCenter(), plane.getAngle(), 5.0f, plane.getVelocity(),
+				glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * initVelocity, missile2Texture, flame1AnimatedTexture);
+
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 		}
 
-		void createDynamicWalls()
+		void createMovableWalls()
 		{
-			debrisBegin = Globals::Components().dynamicWalls().size();
+			debrisBegin = Globals::Components().walls().size();
 
 			for (int i = 0; i < 500; ++i)
 			{
 				const float angle = Tools::Random(0.0f, glm::two_pi<float>());
 				const glm::vec2 pos = glm::vec2(glm::cos(angle), glm::sin(angle)) * 20.0f;
-				Globals::Components().dynamicWalls().emplace_back(
+				Globals::Components().walls().emplace_back(
 					Tools::CreateBoxBody(pos, { Tools::Random(0.1f, 1.0f), Tools::Random(0.1f, 1.0f) }, angle, b2_dynamicBody, 0.02f),
 					TCM::Texture(spaceRockTexture));
 			}
 
-			debrisEnd = Globals::Components().dynamicWalls().size();
+			debrisEnd = Globals::Components().walls().size();
 		}
 
-		void createStaticWalls() const
+		void createStationaryWalls() const
 		{
 		}
 
 		void createGrapples()
 		{
-			planetId = Globals::Components().grapples().size();
-			Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ 0.0f, 0.0f }, 20.0f), 60.0f, TCM::Texture(orbTexture));
+			auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ 0.0f, 0.0f }, 20.0f), TCM::Texture(orbTexture) });
+			grapple.influenceRadius = 60.0f;
+			planetId = grapple.getComponentId();
 		}
 
 		void setCamera() const
 		{
-			const auto& player = Globals::Components().players()[player1Handler.playerId];
+			const auto& plane = Globals::Components().planes()[player1Handler.planeId];
 			const auto& planet = Globals::Components().grapples()[planetId];
 
 			Globals::Components().camera().targetProjectionHSizeF = [&]() {
 				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
-				return glm::distance(player.getCenter(), planet.getCenter()) * 0.6f + glm::length(player.getVelocity()) * 0.2f;
+				return (glm::distance(plane.getCenter(), planet.getCenter()) * 0.6f + glm::length(plane.getVelocity()) * 0.2f) * projectionHSizeBase * 0.2f;
 			};
 			Globals::Components().camera().targetPositionF = [&]() {
 				Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
-				return (player.getCenter() + planet.getCenter()) / 2.0f + glm::vec2(glm::cos(player.getAngle()), glm::sin(player.getAngle())) * 5.0f + player.getVelocity() * 0.4f;
+				return (plane.getCenter() + planet.getCenter()) / 2.0f + glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * 5.0f + plane.getVelocity() * 0.4f;
 			};
 		}
 
 		void setCollisionCallbacks()
 		{
-			EmplaceIdComponent(Globals::Components().beginCollisionHandlers(), { CollisionBits::missileBit, CollisionBits::all,
+			EmplaceDynamicComponent(Globals::Components().beginCollisionHandlers(), { Globals::CollisionBits::missileBit, Globals::CollisionBits::all,
 				[this](const auto& fixtureA, const auto& fixtureB) {
 					for (const auto* fixture : { &fixtureA, &fixtureB })
-					if (fixture->GetFilterData().categoryBits == CollisionBits::missileBit)
+					if (fixture->GetFilterData().categoryBits == Globals::CollisionBits::missileBit)
 					{
 						const auto& otherFixture = fixture == &fixtureA ? fixtureB : fixtureA;
 						const auto& body = *fixture->GetBody();
@@ -223,7 +230,7 @@ namespace Levels
 
 		void setFramesRoutines()
 		{
-			EmplaceIdComponent(Globals::Components().frameSetups(), { [&]()
+			EmplaceDynamicComponent(Globals::Components().frameSetups(), { [&]()
 				{
 					explosionFrame = false;
 				} });
@@ -231,33 +238,49 @@ namespace Levels
 
 		void step()
 		{
-			if (Globals::Components().mouseState().lmb)
+			const auto& mouseState = Globals::Components().mouseState();
+			const glm::vec2 mouseDelta = { mouseState.getMouseDelta().x, -mouseState.getMouseDelta().y };
+			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
+
+			player1Controls.turningDelta = mouseDelta;
+			player1Controls.autoRotation = mouseState.rmb;
+			player1Controls.throttling = mouseState.rmb;
+			player1Controls.magneticHook = mouseState.xmb1;
+
+			if (mouseState.lmb)
 			{
 				if (durationToLaunchMissile <= 0.0f)
 				{
 					launchMissile();
-					durationToLaunchMissile = 0.05f;
+					durationToLaunchMissile = 0.1f;
 				}
 				else durationToLaunchMissile -= Globals::Components().physics().frameDuration;
 			}
 			else durationToLaunchMissile = 0.0f;
 
-			projectionHSizeBase = std::clamp(projectionHSizeBase + (prevWheel - Globals::Components().mouseState().wheel) * 5.0f, 5.0f, 100.0f);
-			prevWheel = Globals::Components().mouseState().wheel;
+			auto applyGravity = [&](auto& component, float mM)
+			{
+				const auto& planet = Globals::Components().grapples()[planetId];
+				const auto gravityDiff = planet.getCenter() - component.getCenter();
+				const auto gravityVecDist = glm::length(gravityDiff);
+				const auto gravityVecNorm = glm::normalize(gravityDiff);
+				const auto gravityVec = mM / glm::pow(gravityVecDist, 2.0f) * gravityVecNorm;
 
-			const float gravityFactor = 0.02f;
+				component.body->ApplyForce({ gravityVec.x, gravityVec.y }, { 0.0f, 0.0f }, true);
+			};
 
 			for (size_t i = debrisBegin; i != debrisEnd; ++i)
-			{
-				auto& debris = Globals::Components().dynamicWalls()[i];
-				const auto& planet = Globals::Components().grapples()[planetId];
-				const auto gravityDiff = (planet.getCenter() - debris.getCenter()) * gravityFactor;
-				const auto gravityVecNorm = glm::normalize(gravityDiff);
-				const auto gravityVecDist = glm::length(gravityDiff);
-				const auto gravityVec = gravityVecNorm * glm::pow(gravityVecDist, 2.0f);
+				applyGravity(Globals::Components().walls()[i], 400.0f);
 
-				debris.body->ApplyForce({ gravityVec.x, gravityVec.y }, { 0.0f, 0.0f }, true);
+			for (auto& [id, missile] : Globals::Components().missiles())
+			{
+				applyGravity(missile, 4000.0f);
+				missile.body->SetTransform(missile.body->GetPosition(), glm::orientedAngle({ 1.0f, 0.0f },
+					glm::normalize(ToVec2<glm::vec2>(missile.body->GetLinearVelocity()) - missilesToHandlers[id].referenceVelocity)));
 			}
+
+			projectionHSizeBase = std::clamp(projectionHSizeBase + (prevWheel - mouseState.wheel) * 5.0f, 5.0f, 100.0f);
+			prevWheel = mouseState.wheel;
 		}
 
 	private:
@@ -279,12 +302,12 @@ namespace Levels
 
 		unsigned flame1AnimatedTexture = 0;
 
-		Tools::PlayerPlaneHandler player1Handler;
+		Tools::PlaneHandler player1Handler;
 
 		float durationToLaunchMissile = 0.0f;
 
 		int prevWheel = 0;
-		float projectionHSizeBase = 20.0f;
+		float projectionHSizeBase = 5.0f;
 
 		bool explosionFrame = false;
 
@@ -306,8 +329,8 @@ namespace Levels
 		impl->setAnimations();
 		impl->createBackground();
 		impl->createPlayers();
-		impl->createDynamicWalls();
-		impl->createStaticWalls();
+		impl->createMovableWalls();
+		impl->createStationaryWalls();
 		impl->createGrapples();
 		impl->createForeground();
 		impl->createAdditionalDecorations();

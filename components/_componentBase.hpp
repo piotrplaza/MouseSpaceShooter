@@ -9,9 +9,7 @@
 
 #include <globals/components.hpp>
 
-enum class ComponentState {Ongoing, Changed, Outdated, Fake};
-
-static constexpr class FakeComponent {} fakeComponent;
+enum class ComponentState { Ongoing, Changed, Outdated };
 
 struct ComponentBase
 {
@@ -29,11 +27,6 @@ struct ComponentBase
 #else
 	ComponentBase() = default;
 #endif
-
-	ComponentBase(FakeComponent):
-		state(ComponentState::Fake)
-	{
-	}
 
 	ComponentId getComponentId() const
 	{

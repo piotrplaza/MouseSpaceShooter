@@ -1,59 +1,47 @@
 #include "shaders.hpp"
 
 #include "ogl/shaders/basic.hpp"
-#include "ogl/shaders/colored.hpp"
 #include "ogl/shaders/julia.hpp"
 #include "ogl/shaders/particles.hpp"
-#include "ogl/shaders/sceneCoordTextured.hpp"
 #include "ogl/shaders/textured.hpp"
 #include "ogl/shaders/texturedColorThreshold.hpp"
 
 namespace Globals
 {
-	static std::unique_ptr<class Shaders> shaders;
+	static std::unique_ptr<ShadersHolder> shadersHolder;
 
-	::Shaders::Programs::Basic& Shaders::basic()
+	Shaders::Programs::Basic& ShadersHolder::basic()
 	{
 		return *basic_;
 	}
 
-	::Shaders::Programs::Colored& Shaders::colored()
-	{
-		return *colored_;
-	}
-
-	::Shaders::Programs::Julia& Shaders::julia()
+	Shaders::Programs::Julia& ShadersHolder::julia()
 	{
 		return *julia_;
 	}
 
-	::Shaders::Programs::Particles& Shaders::particles()
+	Shaders::Programs::Particles& ShadersHolder::particles()
 	{
 		return *particles_;
 	}
 
-	::Shaders::Programs::SceneCoordTextured& Shaders::sceneCoordTextured()
-	{
-		return *sceneCoordTextured_;
-	}
-
-	::Shaders::Programs::Textured& Shaders::textured()
+	Shaders::Programs::Textured& ShadersHolder::textured()
 	{
 		return *textured_;
 	}
 
-	::Shaders::Programs::TexturedColorThreshold& Shaders::texturedColorThreshold()
+	Shaders::Programs::TexturedColorThreshold& ShadersHolder::texturedColorThreshold()
 	{
 		return *texturedColorThreshold_;
 	}
 
 	void InitializeShaders()
 	{
-		shaders = std::make_unique<class Shaders>();
+		shadersHolder = std::make_unique<ShadersHolder>();
 	}
 
-	class Shaders& Shaders()
+	ShadersHolder& Shaders()
 	{
-		return *shaders;
+		return *shadersHolder;
 	}
 }

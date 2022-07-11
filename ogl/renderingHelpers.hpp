@@ -8,7 +8,7 @@
 #include <components/physics.hpp>
 #include <components/mouseState.hpp>
 
-#include <components/typeComponentMappers.hpp>
+#include <components/_typeComponentMappers.hpp>
 
 #include <ogl/oglProxy.hpp>
 
@@ -31,27 +31,30 @@ namespace Tools
 	}
 
 	template <typename ShadersProgram>
-	inline void StaticTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned textureId, bool preserveTextureRatio)
+	inline void StaticTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned textureId, bool preserveTextureRatio,
+		glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f })
 	{
 		const auto& textureComponent = Globals::Components().textures()[textureId];
 
 		shadersProgram.numOfTextures(1);
 		shadersProgram.textures(0, textureId);
-		shadersProgram.texturesBaseTransform(0, TextureTransform(textureComponent, preserveTextureRatio));
+		shadersProgram.texturesBaseTransform(0, TextureTransform(textureComponent, preserveTextureRatio) * TextureTransform(translate, rotate, scale));
 	}
 
 	template <typename ShadersProgram>
-	inline void AnimatedTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned animatedTextureId)
+	inline void AnimatedTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned animatedTextureId,
+		glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f })
 	{
 		auto& animationTextureComponent = Globals::Components().animatedTextures()[animatedTextureId];
 
 		shadersProgram.numOfTextures(1);
 		shadersProgram.textures(0, animationTextureComponent.getTextureId());
-		shadersProgram.texturesBaseTransform(0, animationTextureComponent.getFrameTransformation());
+		shadersProgram.texturesBaseTransform(0, animationTextureComponent.getFrameTransformation() * TextureTransform(translate, rotate, scale));
 	}
 
 	template <typename ShadersProgram>
-	inline void BlendingTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned blendingTextureId, bool preserveTextureRatio)
+	inline void BlendingTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned blendingTextureId, bool preserveTextureRatio,
+		glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f })
 	{
 		const auto& blendingTextureComponent = Globals::Components().blendingTextures()[blendingTextureId];
 
@@ -59,7 +62,7 @@ namespace Tools
 		if (blendingTextureComponent.blendingAnimation)
 		{
 			iStart = 1;
-			AnimatedTexturedRenderInitialization(shadersProgram, blendingTextureComponent.texturesIds[0]);
+			AnimatedTexturedRenderInitialization(shadersProgram, blendingTextureComponent.texturesIds[0], translate, rotate, scale);
 		}
 
 		shadersProgram.numOfTextures(blendingTextureComponent.texturesIds.size());
@@ -69,7 +72,7 @@ namespace Tools
 			const auto& textureComponent = Globals::Components().textures()[textureId];
 
 			shadersProgram.textures(i, textureId);
-			shadersProgram.texturesBaseTransform(i, TextureTransform(textureComponent, preserveTextureRatio));
+			shadersProgram.texturesBaseTransform(i, TextureTransform(textureComponent, preserveTextureRatio) * TextureTransform(translate, rotate, scale));
 		}
 	}
 
@@ -83,19 +86,19 @@ namespace Tools
 		{
 		}
 
-		void operator ()(TCM::Texture texture)
+		void operator ()(const TCM::Texture& texture)
 		{
-			StaticTexturedRenderInitialization(shadersProgram, texture.id, preserveTextureRatio);
+			StaticTexturedRenderInitialization(shadersProgram, texture.id, preserveTextureRatio, texture.translate, texture.rotate, texture.scale);
 		}
 
-		void operator ()(TCM::AnimatedTexture animatedTexture)
+		void operator ()(const TCM::AnimatedTexture& animatedTexture)
 		{
-			AnimatedTexturedRenderInitialization(shadersProgram, animatedTexture.id);
+			AnimatedTexturedRenderInitialization(shadersProgram, animatedTexture.id, animatedTexture.translate, animatedTexture.rotate, animatedTexture.scale);
 		}
 
-		void operator ()(TCM::BlendingTexture blendingTexture)
+		void operator ()(const TCM::BlendingTexture& blendingTexture)
 		{
-			BlendingTexturedRenderInitialization(shadersProgram, blendingTexture.id, preserveTextureRatio);
+			BlendingTexturedRenderInitialization(shadersProgram, blendingTexture.id, preserveTextureRatio, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
 		}
 
 		void operator ()(std::monostate)
@@ -109,18 +112,9 @@ namespace Tools
 	};
 
 	template <typename ShadersProgram, typename Buffers>
-	inline void TexturedRender(ShadersProgram& shadersProgram, const Buffers& buffers, const TextureComponentVariant& texture)
+	inline void PrepareTexturedRender(ShadersProgram& shadersProgram, const Buffers& buffers, const TextureComponentVariant& texture)
 	{
-		std::visit(TexturedRenderInitializationVisitor{ shadersProgram, buffers.preserveTextureRatio }, texture);
-
-		std::function<void()> renderingTeardown;
-		if (buffers.renderingSetup)
-			renderingTeardown = Globals::Components().renderingSetups()[buffers.renderingSetup](shadersProgram.getProgramId());
-
-		buffers.draw();
-		
-		if (renderingTeardown)
-			renderingTeardown();
+		std::visit(TexturedRenderInitializationVisitor{ shadersProgram, *buffers.preserveTextureRatio }, texture);
 	}
 
 	template <typename ShadersPrograms>
@@ -163,8 +157,11 @@ namespace Tools
 			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, &defaultPositions);
 		glEnableVertexAttribArray(0);
 
-		glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, &defaultTexCoords);
-		glEnableVertexAttribArray(1);
+		glVertexAttrib4f(1, 1.0f, 1.0f, 1.0f, 1.0f);
+		glDisableVertexAttribArray(1);
+
+		glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, &defaultTexCoords);
+		glEnableVertexAttribArray(2);
 
 		glUseProgram_proxy(shadersProgram.getProgramId());
 

@@ -2,13 +2,14 @@
 #include "levels/playground/playground.hpp"
 #include "levels/rocketball/rocketball.hpp"
 #include "levels/gravity/gravity.hpp"
+#include "levels/basic/basic.hpp"
 
 #include "components/mouseState.hpp"
 #include "components/physics.hpp"
 
 #include "systems/stateController.hpp"
-#include "systems/walls.hpp"
-#include "systems/players.hpp"
+#include "systems/structures.hpp"
+#include "systems/actors.hpp"
 #include "systems/physics.hpp"
 #include "systems/camera.hpp"
 #include "systems/decorations.hpp"
@@ -68,11 +69,12 @@ void CreateLevel()
 	activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
+	//activeLevel = std::make_unique<Levels::Basic>();
 }
 
 void Initialize()
 {
-	if (console) Tools::RedirectIOToConsole({ 2000, 10 });
+	if (console) Tools::RedirectIOToConsole({ 4000, 10 });
 	Tools::RandomInit();
 	OGLInitialize();
 
@@ -81,10 +83,9 @@ void Initialize()
 	Globals::InitializeSystems();
 
 	CreateLevel();
-
 	Globals::Systems().textures().postInit();
 	Globals::Systems().physics().postInit();
-	Globals::Systems().players().postInit();
+	Globals::Systems().actors().postInit();
 	Globals::Systems().walls().postInit();
 	Globals::Systems().decorations().postInit();
 	Globals::Systems().camera().postInit();
@@ -95,24 +96,20 @@ void Initialize()
 void PrepareFrame()
 {
 	Globals::Systems().stateController().frameSetup();
-
 	Globals::Systems().physics().step();
-	Globals::Systems().deferredActions().step();
-	Globals::Systems().players().step();
+	Globals::Systems().actors().step();
 	Globals::Systems().temporaries().step();
 	Globals::Systems().walls().step();
 	Globals::Systems().decorations().step();
 	Globals::Systems().camera().step();
 
 	activeLevel->step();
-
 	Globals::Systems().stateController().renderSetup();
-
 	Globals::Systems().renderingController().render();
-
 	Globals::Systems().stateController().frameTeardown();
-
 	Globals::Systems().cleaner().step();
+
+	Globals::Systems().deferredActions().step();
 }
 
 void SetDCPixelFormat(HDC hDC);

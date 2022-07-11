@@ -3,7 +3,7 @@
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
 #include <components/texture.hpp>
-#include <components/player.hpp>
+#include <components/plane.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
 #include <components/camera.hpp>
@@ -14,7 +14,7 @@
 
 #include <globals/components.hpp>
 
-#include <ogl/uniformControllers.hpp>
+#include <ogl/uniforms.hpp>
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/utility.hpp>
@@ -69,43 +69,43 @@ namespace Levels
 
 		void createBackground() const
 		{
-			Globals::Components().backgroundDecorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 100.0f, 60.0f }),
-				TCM::Texture(playFieldTexture), Tools::CreateTexCoordOfRectangle());
+			Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 100.0f, 60.0f }),
+				TCM::Texture(playFieldTexture), Tools::CreateTexCoordOfRectangle(), std::nullopt, RenderLayer::Background);
 		}
 
 		void createPlayers()
 		{
-			player1Handler = Tools::CreatePlayerPlane(rocketPlaneTexture, flame1AnimatedTexture, { -10.0f, 0.0f });
-			Globals::Components().players()[1].connectIfApproaching = true;
+			player1Handler = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { -10.0f, 0.0f });
+			Globals::Components().planes()[player1Handler.planeId].connectIfApproaching = true;
 		}
 
-		void createStaticWalls() const
+		void createStationaryWalls() const
 		{
 			const glm::vec2 levelHSize = { 100.0f, 60.0f };
 			const float bordersHGauge = 50.0f;
 
-			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ -levelHSize.x - bordersHGauge, 0.0f },
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ -levelHSize.x - bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize.y + bordersHGauge * 2 }), TCM::Texture(woodTexture));
 
-			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge, 0.0f },
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge, 0.0f },
 				{ bordersHGauge, levelHSize.y + bordersHGauge * 2 }), TCM::Texture(woodTexture));
 
-			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize.y - bordersHGauge },
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize.y - bordersHGauge },
 				{ levelHSize.x + bordersHGauge * 2, bordersHGauge }), TCM::Texture(woodTexture));
 
-			Globals::Components().staticWalls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize.y + bordersHGauge },
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize.y + bordersHGauge },
 				{ levelHSize.x + bordersHGauge * 2, bordersHGauge }), TCM::Texture(woodTexture));
 		}
 
 		void createGrapples()
 		{
-			ball = &Globals::Components().grapples().emplace_back(Tools::CreateCircleBody({ 0.0f, 0.0f }, 2.0f, b2_dynamicBody, 0.02f, 0.5f), 15.0f,
-				TCM::Texture(orbTexture));
+			ball = &EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ 0.0f, 0.0f }, 2.0f, b2_dynamicBody, 0.02f, 0.5f), TCM::Texture(orbTexture) });
+			ball->influenceRadius = 15.0f;
 		}
 
 		void setCamera() const
 		{
-			const auto& player = Globals::Components().players()[player1Handler.playerId];
+			const auto& player = Globals::Components().planes()[player1Handler.planeId];
 
 			Globals::Components().camera().targetProjectionHSizeF = [&]() {
 				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
@@ -119,6 +119,14 @@ namespace Levels
 
 		void step()
 		{
+			const auto& mouseState = Globals::Components().mouseState();
+			const glm::vec2 mouseDelta = { mouseState.getMouseDelta().x, -mouseState.getMouseDelta().y };
+			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
+
+			player1Controls.turningDelta = mouseDelta;
+			player1Controls.autoRotation = mouseState.rmb;
+			player1Controls.throttling = mouseState.rmb;
+			player1Controls.magneticHook = mouseState.xmb1;
 		}
 
 	private:
@@ -130,7 +138,7 @@ namespace Levels
 
 		unsigned flame1AnimatedTexture = 0;
 
-		Tools::PlayerPlaneHandler player1Handler;
+		Tools::PlaneHandler player1Handler;
 		Components::Grapple* ball = nullptr;
 	};
 
@@ -142,7 +150,7 @@ namespace Levels
 		impl->setAnimations();
 		impl->createBackground();
 		impl->createPlayers();
-		impl->createStaticWalls();
+		impl->createStationaryWalls();
 		impl->createGrapples();
 		impl->setCamera();
 	}

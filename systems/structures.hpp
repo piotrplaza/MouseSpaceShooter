@@ -2,12 +2,15 @@
 
 namespace Systems
 {
-	class Temporaries
+	class Structures
 	{
 	public:
-		Temporaries();
+		Structures();
 
+		void postInit();
 		void step();
+
+		void updateStaticBuffers();
 
 	private:
 		void updateDynamicBuffers();

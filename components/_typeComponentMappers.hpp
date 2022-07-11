@@ -1,6 +1,8 @@
 #pragma once
 
-#include "componentId.hpp"
+#include "_componentId.hpp"
+
+#include <glm/vec2.hpp>
 
 #include <variant>
 
@@ -10,6 +12,10 @@ namespace TypeComponentMappers
 	{
 		ComponentId id;
 
+		glm::vec2 translate = { 0.0f, 0.0f };
+		float rotate = 0.0f;
+		glm::vec2 scale = { 1.0f, 1.0f };
+
 		bool operator==(const Texture&) const = default;
 	};
 
@@ -17,12 +23,20 @@ namespace TypeComponentMappers
 	{
 		ComponentId id;
 
+		glm::vec2 translate = { 0.0f, 0.0f };
+		float rotate = 0.0f;
+		glm::vec2 scale = { 1.0f, 1.0f };
+
 		bool operator==(const AnimatedTexture&) const = default;
 	};
 
 	struct BlendingTexture
 	{
 		ComponentId id;
+
+		glm::vec2 translate = { 0.0f, 0.0f };
+		float rotate = 0.0f;
+		glm::vec2 scale = { 1.0f, 1.0f };
 
 		bool operator==(const BlendingTexture&) const = default;
 	};
@@ -41,11 +55,11 @@ namespace TypeComponentMappers
 		bool operator==(const Missile&) const = default;
 	};
 
-	struct Player
+	struct Plane
 	{
 		ComponentId id;
 
-		bool operator==(const Player&) const = default;
+		bool operator==(const Plane&) const = default;
 	};
 
 	struct Wall
@@ -59,7 +73,7 @@ namespace TypeComponentMappers
 namespace TCM = TypeComponentMappers;
 
 using TextureComponentVariant = std::variant<std::monostate, TCM::Texture, TCM::AnimatedTexture, TCM::BlendingTexture>;
-using BodyComponentVariant = std::variant<std::monostate, TCM::Grapple, TCM::Missile, TCM::Player, TCM::Wall>;
+using BodyComponentVariant = std::variant<std::monostate, TCM::Grapple, TCM::Missile, TCM::Plane, TCM::Wall>;
 
 template<>
 struct std::hash<TCM::Texture>
