@@ -1,0 +1,141 @@
+#include "basic.hpp"
+
+#include <components/screenInfo.hpp>
+#include <components/physics.hpp>
+#include <components/renderingSetup.hpp>
+#include <components/plane.hpp>
+#include <components/wall.hpp>
+#include <components/grapple.hpp>
+#include <components/camera.hpp>
+#include <components/decoration.hpp>
+#include <components/graphicsSettings.hpp>
+#include <components/mouseState.hpp>
+#include <components/mvp.hpp>
+#include <components/missile.hpp>
+#include <components/collisionHandler.hpp>
+#include <components/shockwave.hpp>
+#include <components/functor.hpp>
+#include <components/mainFramebufferRenderer.hpp>
+#include <components/blendingTexture.hpp>
+#include <components/animatedTexture.hpp>
+
+#include <ogl/uniforms.hpp>
+#include <ogl/shaders/basic.hpp>
+#include <ogl/shaders/julia.hpp>
+#include <ogl/shaders/texturedColorThreshold.hpp>
+#include <ogl/shaders/textured.hpp>
+#include <ogl/shaders/particles.hpp>
+#include <ogl/renderingHelpers.hpp>
+
+#include <globals/shaders.hpp>
+#include <globals/components.hpp>
+#include <globals/collisionBits.hpp>
+
+#include <tools/graphicsHelpers.hpp>
+#include <tools/utility.hpp>
+#include <tools/gameHelpers.hpp>
+#include <tools/b2Helpers.hpp>
+
+#include <glm/gtx/vector_angle.hpp>
+
+#include <algorithm>
+#include <unordered_map>
+#include <unordered_set>
+
+namespace Levels
+{
+	class Basic::Impl
+	{
+	public:
+		void setGraphicsSettings() const
+		{
+			Globals::Components().graphicsSettings().defaultColor = { 0.7f, 0.7f, 0.7f, 1.0f };
+			Globals::Components().mainFramebufferRenderer().renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured());
+		}
+
+		void loadTextures()
+		{
+			auto& textures = Globals::Components().textures();
+
+			rocketPlaneTexture = textures.size();
+			textures.emplace_back("textures/rocket plane.png");
+			textures.back().translate = glm::vec2(0.4f, 0.0f);
+			textures.back().scale = glm::vec2(1.6f, 1.8f);
+
+			flame1AnimationTexture = textures.size();
+			textures.emplace_back("textures/flame animation 1.jpg");
+			textures.back().minFilter = GL_LINEAR;
+		}
+
+		void setAnimations()
+		{
+			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
+			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
+				flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
+			Globals::Components().animatedTextures().back().start(true);
+		}
+
+		void createAdditionalDecorations() const
+		{
+		}
+
+		void createPlayers()
+		{
+			player1Handler = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { 0.0f, 0.0f }, glm::half_pi<float>());
+		}
+
+		void setCamera() const
+		{
+			const auto& plane = Globals::Components().planes()[player1Handler.planeId];
+
+			Globals::Components().camera().targetProjectionHSizeF = [&]() {
+				return 10.0f;
+			};
+			Globals::Components().camera().targetPositionF = [&]() {
+				return glm::vec2(0.0f, 0.0f);
+			};
+		}
+
+		void step()
+		{
+			const auto& mouseState = Globals::Components().mouseState();
+			const glm::vec2 mouseDelta = { mouseState.getMouseDelta().x, -mouseState.getMouseDelta().y };
+			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
+
+			player1Controls.turningDelta = mouseDelta;
+			player1Controls.autoRotation = mouseState.rmb;
+			player1Controls.throttling = mouseState.rmb;
+			player1Controls.magneticHook = mouseState.xmb1;
+		}
+
+	private:
+		Shaders::Programs::Julia juliaShaders;
+		Shaders::Programs::TexturedColorThreshold texturedColorThresholdShaders;
+		Shaders::Programs::Particles particlesShaders;
+
+		unsigned rocketPlaneTexture = 0;
+		unsigned flame1AnimationTexture = 0;
+
+		unsigned flame1AnimatedTexture = 0;
+
+		Tools::PlaneHandler player1Handler;
+	};
+
+	Basic::Basic():
+		impl(std::make_unique<Impl>())
+	{
+		impl->setGraphicsSettings();
+		impl->loadTextures();
+		impl->setAnimations();
+		impl->createPlayers();
+		impl->setCamera();
+	}
+
+	Basic::~Basic() = default;
+
+	void Basic::step()
+	{
+		impl->step();
+	}
+}
