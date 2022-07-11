@@ -32,17 +32,17 @@ namespace Buffers
 		void allocateOrUpdateColorsBuffer(const std::vector<glm::vec4>& colors);
 		void allocateOrUpdateTexCoordBuffer(const std::vector<glm::vec2>& texCoord);
 
-		std::function<glm::mat4()> modelMatrixF;
-		TextureComponentVariant texture;
-		std::optional<ComponentId> renderingSetup;
-		std::optional<Shaders::ProgramId> customShadersProgram;
-		ResolutionMode resolutionMode = ResolutionMode::Normal;
-		GLenum drawMode = GL_TRIANGLES;
-		GLenum bufferDataUsage = GL_STATIC_DRAW;
-		bool preserveTextureRatio = false;
+		std::function<glm::mat4()> modelMatrixF = nullptr;
+		TextureComponentVariant* texture = nullptr;
+		std::optional<ComponentId>* renderingSetup = nullptr;
+		std::optional<Shaders::ProgramId>* customShadersProgram = nullptr;
+		GLenum* drawMode = nullptr;
+		GLenum* bufferDataUsage = nullptr;
+		bool* preserveTextureRatio = nullptr;
+		bool* render = nullptr;
+
 		GLuint vertexArray;
-		size_t numOfVertices = 0;
-		bool render = true;
+		size_t numOfVertices;
 
 	private:
 		void createColorBuffer();
@@ -66,7 +66,7 @@ namespace Buffers
 		{
 			auto setAndDraw = [&](const GenericSubBuffers& buffers)
 			{
-				if (!buffers.render)
+				if (!*buffers.render)
 					return;
 
 				glBindVertexArray(buffers.vertexArray);
@@ -74,26 +74,28 @@ namespace Buffers
 				generalSetup(buffers);
 
 				std::function<void()> renderingTeardown;
-				if (buffers.renderingSetup)
-					renderingTeardown = Globals::Components().renderingSetups()[*buffers.renderingSetup](programId);
+				if (*buffers.renderingSetup)
+					renderingTeardown = Globals::Components().renderingSetups()[**buffers.renderingSetup](programId);
 
-				glDrawArrays(buffers.drawMode, 0, buffers.numOfVertices);
+				glDrawArrays(*buffers.drawMode, 0, buffers.numOfVertices);
 
 				if (renderingTeardown)
 					renderingTeardown();
 			};
 
-			for (auto it = subsequence.begin(); it != std::next(subsequence.begin(), posInSubsequence); ++it)
+			for (auto it = subsequence.begin(); it != std::next(subsequence.begin(), *posInSubsequence); ++it)
 				setAndDraw(*it);
 
 			setAndDraw(*this);
 
-			for (auto it = std::next(subsequence.begin(), posInSubsequence); it != subsequence.end(); ++it)
+			for (auto it = std::next(subsequence.begin(), *posInSubsequence); it != subsequence.end(); ++it)
 				setAndDraw(*it);
 		}
 
+		ResolutionMode* resolutionMode = nullptr;
+
 		std::vector<GenericSubBuffers> subsequence;
-		unsigned posInSubsequence = 0;
+		unsigned* posInSubsequence = nullptr;
 
 		ComponentId sourceComponent = 0;
 	};

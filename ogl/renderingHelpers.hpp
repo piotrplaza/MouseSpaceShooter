@@ -114,7 +114,7 @@ namespace Tools
 	template <typename ShadersProgram, typename Buffers>
 	inline void PrepareTexturedRender(ShadersProgram& shadersProgram, const Buffers& buffers, const TextureComponentVariant& texture)
 	{
-		std::visit(TexturedRenderInitializationVisitor{ shadersProgram, buffers.preserveTextureRatio }, texture);
+		std::visit(TexturedRenderInitializationVisitor{ shadersProgram, *buffers.preserveTextureRatio }, texture);
 	}
 
 	template <typename ShadersPrograms>

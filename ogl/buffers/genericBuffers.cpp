@@ -24,7 +24,6 @@ namespace Buffers
 		texture(other.texture),
 		renderingSetup(other.renderingSetup),
 		customShadersProgram(other.customShadersProgram),
-		resolutionMode(other.resolutionMode),
 		numOfVertices(other.numOfVertices),
 		numOfAllocatedVertices(other.numOfAllocatedVertices),
 		numOfAllocatedColors(other.numOfAllocatedColors),
@@ -57,11 +56,11 @@ namespace Buffers
 	void GenericSubBuffers::allocateOrUpdateVerticesBuffer(const std::vector<glm::vec3>& vertices)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-		if (numOfAllocatedVertices < vertices.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != bufferDataUsage)
+		if (numOfAllocatedVertices < vertices.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != *bufferDataUsage)
 		{
-			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices.front()), vertices.data(), bufferDataUsage);
+			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices.front()), vertices.data(), *bufferDataUsage);
 			numOfAllocatedVertices = vertices.size();
-			allocatedBufferDataUsage = bufferDataUsage;
+			allocatedBufferDataUsage = *bufferDataUsage;
 		}
 		else
 		{
@@ -87,11 +86,11 @@ namespace Buffers
 		else
 			createColorBuffer();
 		
-		if (numOfAllocatedColors < colors.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != bufferDataUsage)
+		if (numOfAllocatedColors < colors.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != *bufferDataUsage)
 		{
-			glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(colors.front()), colors.data(), bufferDataUsage);
+			glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(colors.front()), colors.data(), *bufferDataUsage);
 			numOfAllocatedColors = colors.size();
-			allocatedBufferDataUsage = bufferDataUsage;
+			allocatedBufferDataUsage = *bufferDataUsage;
 		}
 		else
 			glBufferSubData(GL_ARRAY_BUFFER, 0, colors.size() * sizeof(colors.front()), colors.data());
@@ -108,11 +107,11 @@ namespace Buffers
 		else
 			createTexCoordBuffer();
 
-		if (numOfAllocatedTexCoord < texCoord.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != bufferDataUsage)
+		if (numOfAllocatedTexCoord < texCoord.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != *bufferDataUsage)
 		{
-			glBufferData(GL_ARRAY_BUFFER, texCoord.size() * sizeof(texCoord.front()), texCoord.data(), bufferDataUsage);
+			glBufferData(GL_ARRAY_BUFFER, texCoord.size() * sizeof(texCoord.front()), texCoord.data(), *bufferDataUsage);
 			numOfAllocatedTexCoord = texCoord.size();
-			allocatedBufferDataUsage = bufferDataUsage;
+			allocatedBufferDataUsage = *bufferDataUsage;
 		}
 		else
 			glBufferSubData(GL_ARRAY_BUFFER, 0, texCoord.size() * sizeof(texCoord.front()), texCoord.data());

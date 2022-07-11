@@ -29,27 +29,27 @@ namespace Tools
 		}
 
 		template <typename SubComponent>
-		void SubComponentToBuffers(const SubComponent& subComponent, Buffers::GenericSubBuffers& buffers)
+		void SubComponentToBuffers(SubComponent& subComponent, Buffers::GenericSubBuffers& buffers)
 		{
+			buffers.modelMatrixF = [&]() { return subComponent.getModelMatrix(); };
+			buffers.renderingSetup = &subComponent.renderingSetup;
+			buffers.texture = &subComponent.texture;
+			buffers.drawMode = &subComponent.drawMode;
+			buffers.bufferDataUsage = &subComponent.bufferDataUsage;
+			buffers.preserveTextureRatio = &subComponent.preserveTextureRatio;
+			buffers.render = &subComponent.render;
+
 			buffers.allocateOrUpdateVerticesBuffer(subComponent.getVertices());
 			buffers.allocateOrUpdateColorsBuffer(subComponent.getColors());
 			buffers.allocateOrUpdateTexCoordBuffer(subComponent.getTexCoord());
-
-			buffers.modelMatrixF = [&]() { return subComponent.getModelMatrix(); };
-			buffers.renderingSetup = subComponent.renderingSetup;
-			buffers.texture = subComponent.texture;
-			buffers.drawMode = subComponent.drawMode;
-			buffers.bufferDataUsage = subComponent.bufferDataUsage;
-			buffers.preserveTextureRatio = subComponent.preserveTextureRatio;
-			buffers.render = subComponent.render;
 		}
 
 		template <typename Component>
-		void ComponentSubsequenceToSubBuffers(const Component& component, Buffers::GenericBuffers& buffers)
+		void ComponentSubsequenceToSubBuffers(Component& component, Buffers::GenericBuffers& buffers)
 		{
 			auto subBuffersIt = buffers.subsequence.begin();
 
-			for (const auto& subComponent : component.subsequence)
+			for (auto& subComponent : component.subsequence)
 			{
 				auto& subBuffers = Details::ReuseOrEmplaceBack(buffers.subsequence, subBuffersIt);
 				Details::SubComponentToBuffers(subComponent, subBuffers);
@@ -61,11 +61,11 @@ namespace Tools
 		{
 			SubComponentToBuffers(component, buffers);
 
-			buffers.customShadersProgram = component.customShadersProgram;
-			buffers.resolutionMode = component.resolutionMode;
-			buffers.posInSubsequence = component.posInSubsequence;
-			buffers.sourceComponent = component.getComponentId();
+			buffers.customShadersProgram = &component.customShadersProgram;
+			buffers.resolutionMode = &component.resolutionMode;
+			buffers.posInSubsequence = &component.posInSubsequence;
 
+			buffers.sourceComponent = component.getComponentId();
 			component.state = ComponentState::Ongoing;
 		}
 	}

@@ -71,11 +71,11 @@ namespace Systems
 
 		auto render = [&](const auto& buffers)
 		{
-			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
+			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(*buffers.resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(*buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
 				lowResSubBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
+			texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
 
 			buffers.draw(Globals::Shaders().basic().getProgramId(), [](const auto& buffers) {
 				Globals::Shaders().basic().model(buffers.modelMatrixF ? buffers.modelMatrixF() : glm::mat4(1.0f));
@@ -102,15 +102,15 @@ namespace Systems
 
 		auto render = [&](const auto& buffers)
 		{
-			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
+			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(*buffers.resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(*buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
 				lowResSubBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
+			texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
 
 			buffers.draw(Globals::Shaders().textured(), [](const auto& buffers) {
 				Globals::Shaders().textured().model(buffers.modelMatrixF ? buffers.modelMatrixF() : glm::mat4(1.0f));
-				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers, buffers.texture);
+				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers, *buffers.texture);
 				});
 		};
 
@@ -130,16 +130,16 @@ namespace Systems
 
 		auto render = [&](const auto& buffers)
 		{
-			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
+			const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(*buffers.resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(*buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
 				lowResSubBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.resolutionMode);
+			texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
 
 			assert(buffers.customShadersProgram);
-			glUseProgram_proxy(*buffers.customShadersProgram);
+			glUseProgram_proxy(**buffers.customShadersProgram);
 
-			buffers.draw(*buffers.customShadersProgram, [](auto&) {});
+			buffers.draw(**buffers.customShadersProgram, [](auto&) {});
 		};
 
 		for (const auto& buffers : staticBuffers[layer])
