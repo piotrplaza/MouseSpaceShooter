@@ -375,6 +375,12 @@
     <ClInclude Include="components\_typeComponentMappers.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
+    <ClInclude Include="components\_renderable.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\_decorationDef.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">

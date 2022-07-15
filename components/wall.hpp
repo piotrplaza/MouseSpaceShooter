@@ -1,33 +1,16 @@
 #pragma once
 
 #include "_componentBase.hpp"
-#include "_typeComponentMappers.hpp"
+#include "_renderable.hpp"
 
-#include "decoration.hpp"
-
-#include <tools/b2Helpers.hpp>
 #include <tools/graphicsHelpers.hpp>
+#include <tools/b2Helpers.hpp>
 
-#include <commonTypes/resolutionMode.hpp>
 #include <commonTypes/bodyUserData.hpp>
-
-#include <ogl/shaders.hpp>
-
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-
-#include <Box2D/Box2D.h>
-
-#include <memory>
-#include <vector>
-#include <optional>
-#include <functional>
-#include <variant>
 
 namespace Components
 {
-	struct Wall : ComponentBase
+	struct Wall : ComponentBase, Renderable
 	{
 		using ComponentBase::ComponentBase;
 
@@ -36,36 +19,15 @@ namespace Components
 			std::optional<ComponentId> renderingSetup = std::nullopt,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			body(std::move(body)),
-			texture(texture),
-			renderingSetup(renderingSetup),
-			renderLayer(renderLayer),
-			customShadersProgram(customShadersProgram)
+			Renderable(texture, renderingSetup, renderLayer, customShadersProgram),
+			body(std::move(body))
 		{
 			Tools::AccessUserData(*this->body).bodyComponentVariant = TCM::Wall(getComponentId());
 		}
 
 		Body body;
 
-		std::vector<glm::vec2> texCoord;
-		std::vector<glm::vec4> colors;
-
-		TextureComponentVariant texture;
-		std::optional<ComponentId> renderingSetup;
-		std::optional<Shaders::ProgramId> customShadersProgram;
 		std::function<void()> step;
-		ResolutionMode resolutionMode = ResolutionMode::Normal;
-		RenderLayer renderLayer = RenderLayer::Midground;
-
-		GLenum drawMode = GL_TRIANGLES;
-		GLenum bufferDataUsage = GL_STATIC_DRAW;
-
-		bool preserveTextureRatio = false;
-
-		bool render = true;
-
-		std::vector<DecorationDef> subsequence;
-		unsigned posInSubsequence = 0;
 
 		std::vector<glm::vec3> getVertices() const
 		{

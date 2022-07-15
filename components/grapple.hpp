@@ -1,24 +1,6 @@
 #pragma once
 
 #include "components/wall.hpp"
-#include "_typeComponentMappers.hpp"
-
-#include <tools/graphicsHelpers.hpp>
-#include <tools/b2Helpers.hpp>
-
-#include <commonTypes/resolutionMode.hpp>
-#include <commonTypes/bodyUserData.hpp>
-
-#include <ogl/shaders.hpp>
-
-#include <Box2D/Box2D.h>
-
-#include <glm/glm.hpp>
-
-#include <vector>
-#include <optional>
-#include <functional>
-#include <variant>
 
 namespace Components
 {

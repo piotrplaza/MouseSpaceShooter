@@ -87,6 +87,8 @@
     <ClInclude Include="components\wall.hpp" />
     <ClInclude Include="components\_componentBase.hpp" />
     <ClInclude Include="components\_componentId.hpp" />
+    <ClInclude Include="components\_decorationDef.hpp" />
+    <ClInclude Include="components\_renderable.hpp" />
     <ClInclude Include="components\_typeComponentMappers.hpp" />
     <ClInclude Include="globals\collisionBits.hpp" />
     <ClInclude Include="globals\components.hpp" />
