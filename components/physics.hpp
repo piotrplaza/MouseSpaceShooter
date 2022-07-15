@@ -12,8 +12,6 @@ namespace Components
 {
 	struct Physics : ComponentBase
 	{
-		using ComponentBase::ComponentBase;
-
 		Physics()
 		{
 			world = std::make_unique<b2World>(b2Vec2(0.0f, 0.0f));

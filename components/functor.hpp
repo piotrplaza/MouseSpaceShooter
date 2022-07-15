@@ -8,7 +8,7 @@ namespace Components
 {
 	struct Functor : ComponentBase
 	{
-		using ComponentBase::ComponentBase;
+		Functor() = default;
 
 		Functor(std::function<void()> functor) :
 			functor(std::move(functor))

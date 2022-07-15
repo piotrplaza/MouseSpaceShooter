@@ -4,7 +4,7 @@
 
 #include <globals/components.hpp>
 
-#include <ogl/buffersHelpers.hpp>
+#include <tools/buffersHelpers.hpp>
 
 namespace Systems
 {

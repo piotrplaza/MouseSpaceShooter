@@ -213,9 +213,6 @@
     <ClInclude Include="ogl\shaders.hpp">
       <Filter>src\ogl</Filter>
     </ClInclude>
-    <ClInclude Include="ogl\buffersHelpers.hpp">
-      <Filter>src\ogl</Filter>
-    </ClInclude>
     <ClInclude Include="ogl\renderingHelpers.hpp">
       <Filter>src\ogl</Filter>
     </ClInclude>
@@ -380,6 +377,9 @@
     </ClInclude>
     <ClInclude Include="components\_decorationDef.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\buffersHelpers.hpp">
+      <Filter>src\tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

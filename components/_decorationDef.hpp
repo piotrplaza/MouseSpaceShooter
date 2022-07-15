@@ -15,6 +15,11 @@
 #include <functional>
 #include <optional>
 
+namespace Buffers
+{
+	struct GenericSubBuffers;
+}
+
 struct DecorationDef
 {
 	DecorationDef(std::vector<glm::vec3> vertices = {},
@@ -42,6 +47,11 @@ struct DecorationDef
 	bool preserveTextureRatio = false;
 
 	bool render = true;
+
+	struct
+	{
+		Buffers::GenericSubBuffers* subBuffers = nullptr;
+	} loaded;
 
 	const std::vector<glm::vec3>& getVertices() const
 	{

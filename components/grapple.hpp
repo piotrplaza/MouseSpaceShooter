@@ -6,7 +6,7 @@ namespace Components
 {
 	struct Grapple : Wall
 	{
-		using Wall::Wall;
+		Grapple() = default;
 
 		Grapple(Body body,
 			TextureComponentVariant texture = std::monostate{},

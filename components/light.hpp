@@ -9,8 +9,6 @@ namespace Components
 {
 	struct Light : ComponentBase
 	{
-		using ComponentBase::ComponentBase;
-
 		glm::vec2 position;
 		glm::vec3 color;
 	};

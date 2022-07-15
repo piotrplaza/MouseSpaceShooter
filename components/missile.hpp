@@ -12,7 +12,7 @@ namespace Components
 {
 	struct Missile : ComponentBase, Renderable
 	{
-		using ComponentBase::ComponentBase;
+		Missile() = default;
 
 		Missile(Body body,
 			TextureComponentVariant texture = std::monostate{},

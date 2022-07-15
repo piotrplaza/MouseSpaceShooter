@@ -10,8 +10,6 @@ namespace Components
 {
 	struct Camera : ComponentBase
 	{
-		using ComponentBase::ComponentBase;
-
 		std::function<glm::vec2()> targetPositionF = []() { return glm::vec2(0.0f, 0.0f); };
 		std::function<float()> targetProjectionHSizeF = []() { return 10.0f; };
 

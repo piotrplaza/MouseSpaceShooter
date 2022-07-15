@@ -12,7 +12,7 @@ namespace Components
 {
 	struct Wall : ComponentBase, Renderable
 	{
-		using ComponentBase::ComponentBase;
+		Wall() = default;
 
 		Wall(Body body,
 			TextureComponentVariant texture = std::monostate{},

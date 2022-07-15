@@ -10,7 +10,8 @@
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
 
-#include <ogl/buffersHelpers.hpp>
+#include <tools/buffersHelpers.hpp>
+
 #include <ogl/shaders/basic.hpp>
 
 namespace

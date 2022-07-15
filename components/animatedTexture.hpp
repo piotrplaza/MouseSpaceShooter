@@ -16,7 +16,7 @@ namespace Components
 {
 	struct AnimatedTexture : ComponentBase
 	{
-		using ComponentBase::ComponentBase;
+		AnimatedTexture() = default;
 
 		AnimatedTexture(unsigned textureId, glm::ivec2 textureSize, glm::ivec2 framesGrid, glm::ivec2 leftTopFrameLeftTopCorner, int rightTopFrameLeftEdge, int leftBottomFrameTopEdge,
 			glm::ivec2 frameSize, float frameDuration, int numOfFrames = 0, int startFrame = 0, AnimationDirection animationDirection = AnimationDirection::Forward, 

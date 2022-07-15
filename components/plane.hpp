@@ -12,7 +12,7 @@ namespace Components
 {
 	struct Plane : ComponentBase, Renderable
 	{
-		using ComponentBase::ComponentBase;
+		Plane() = default;
 
 		Plane(Body body,
 			TextureComponentVariant texture = std::monostate{},

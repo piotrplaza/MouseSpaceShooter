@@ -101,6 +101,7 @@ namespace Buffers
 			{
 				auto& subBuffers = reuseOrEmplaceBack(subsequence, subBuffersIt);
 				componentCommonsToBuffersCommons(subComponent, subBuffers);
+				subComponent.loaded.subBuffers = &subBuffers;
 			}
 			subsequence.resize(std::distance(subsequence.begin(), subBuffersIt));
 		}
@@ -115,6 +116,7 @@ namespace Buffers
 			componentCommonsToBuffersCommons(component, *this);
 
 			sourceComponent = component.getComponentId();
+			component.loaded.buffers = this;
 			component.state = ComponentState::Ongoing;
 		}
 
