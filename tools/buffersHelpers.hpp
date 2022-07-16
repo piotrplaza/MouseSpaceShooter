@@ -4,14 +4,16 @@
 
 #include <globals/components.hpp>
 
+#include <ranges>
+
 namespace Tools
 {
 	template <typename Component>
-	inline void UpdateStaticBuffers(std::vector<Component>& components)
+	inline void UpdateStaticBuffers(std::vector<Component>& components, size_t offset = 0)
 	{
 		auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers;
 
-		for(auto& component: components)
+		for(auto& component: components | std::views::drop(offset))
 		{
 			if (component.state == ComponentState::Outdated)
 				continue;

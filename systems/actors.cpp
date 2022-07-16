@@ -52,7 +52,8 @@ namespace Systems
 
 	void Actors::updateStaticBuffers()
 	{
-		Tools::UpdateStaticBuffers(Globals::Components().planes());
+		Tools::UpdateStaticBuffers(Globals::Components().planes(), loadedStaticPlanes);
+		loadedStaticPlanes = Globals::Components().planes().size();
 	}
 
 	void Actors::turn(Components::Plane& plane) const

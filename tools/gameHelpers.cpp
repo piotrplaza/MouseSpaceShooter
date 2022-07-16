@@ -41,17 +41,6 @@ namespace Tools
 		plane.setRotation(angle);
 		plane.preserveTextureRatio = true;
 
-		Globals::Components().renderingSetups().emplace_back([
-			colorUniform = Uniforms::Uniform4f()
-			](Shaders::ProgramId program) mutable {
-					if (!colorUniform.isValid()) colorUniform = Uniforms::Uniform4f(program, "color");
-					const float fade = (glm::sin(Globals::Components().physics().simulationDuration * 2.0f * glm::two_pi<float>()) + 1.0f) / 2.0f;
-					colorUniform({ fade, 1.0f, fade, 1.0f });
-					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColor); };
-				});
-
-		plane.renderingSetup = Globals::Components().renderingSetups().size() - 1;
-
 		for (int i = 0; i < 2; ++i)
 		{
 			auto& animationTexture = Globals::Components().animatedTextures().back();

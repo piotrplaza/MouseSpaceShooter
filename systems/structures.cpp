@@ -35,7 +35,8 @@ namespace Systems
 
 	void Structures::updateStaticBuffers()
 	{
-		Tools::UpdateStaticBuffers(Globals::Components().walls());
+		Tools::UpdateStaticBuffers(Globals::Components().walls(), loadedStaticWalls);
+		loadedStaticWalls = Globals::Components().walls().size();
 	}
 
 	void Structures::updateDynamicBuffers()
