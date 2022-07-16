@@ -39,10 +39,10 @@ namespace Systems
 			grapple.details.previousCenter = grapple.getCenter();
 	}
 
-	void StateController::frameSetup() const
+	void StateController::stepSetup() const
 	{
-		for (auto& [id, frameSetup] : Globals::Components().frameSetups())
-			frameSetup();
+		for (auto& [id, stepSetup] : Globals::Components().frameSetups())
+			stepSetup();
 	}
 
 	void StateController::renderSetup() const
@@ -53,7 +53,7 @@ namespace Systems
 			Globals::Shaders().textured().playersCenter(i, Globals::Components().planes()[i].getCenter());
 	}
 
-	void StateController::frameTeardown() const
+	void StateController::stepTeardown() const
 	{
 		for(auto& player: Globals::Components().planes())
 			player.details.previousCenter = player.getCenter();
@@ -61,8 +61,8 @@ namespace Systems
 		for (auto& [id, grapple] : Globals::Components().grapples())
 			grapple.details.previousCenter = grapple.getCenter();
 
-		for (auto& [id, frameTeardown] : Globals::Components().frameTeardowns())
-			frameTeardown();
+		for (auto& [id, stepTeardown] : Globals::Components().frameTeardowns())
+			stepTeardown();
 	}
 
 	void StateController::changeWindowSize(glm::ivec2 size) const

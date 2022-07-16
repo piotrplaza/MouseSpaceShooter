@@ -83,6 +83,7 @@ void Initialize()
 	Globals::InitializeSystems();
 
 	CreateLevel();
+
 	Globals::Systems().textures().postInit();
 	Globals::Systems().physics().postInit();
 	Globals::Systems().actors().postInit();
@@ -95,21 +96,22 @@ void Initialize()
 
 void PrepareFrame()
 {
-	Globals::Systems().stateController().frameSetup();
+	activeLevel->step();
+
+	Globals::Systems().stateController().stepSetup();
 	Globals::Systems().physics().step();
 	Globals::Systems().actors().step();
 	Globals::Systems().temporaries().step();
 	Globals::Systems().walls().step();
 	Globals::Systems().decorations().step();
 	Globals::Systems().camera().step();
-
-	activeLevel->step();
-	Globals::Systems().stateController().renderSetup();
-	Globals::Systems().renderingController().render();
-	Globals::Systems().stateController().frameTeardown();
 	Globals::Systems().cleaner().step();
 
+	Globals::Systems().stateController().renderSetup();
+	Globals::Systems().renderingController().render();
+
 	Globals::Systems().deferredActions().step();
+	Globals::Systems().stateController().stepTeardown();
 }
 
 void SetDCPixelFormat(HDC hDC);
