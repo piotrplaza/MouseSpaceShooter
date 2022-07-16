@@ -1,6 +1,7 @@
 #include "components.hpp"
 
 #include <components/renderingBuffers.hpp>
+#include <components/keyboardState.hpp>
 #include <components/mouseState.hpp>
 #include <components/screenInfo.hpp>
 #include <components/mvp.hpp>
@@ -32,6 +33,11 @@ namespace Globals
 	Components::RenderingBuffers& ComponentsHolder::renderingBuffers()
 	{
 		return *renderingBuffers_;
+	}
+
+	Components::KeyboardState& ComponentsHolder::keyboardState()
+	{
+		return *keyboardState_;
 	}
 
 	Components::MouseState& ComponentsHolder::mouseState()

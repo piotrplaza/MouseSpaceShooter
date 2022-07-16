@@ -14,12 +14,11 @@ namespace Components
 		bool xmb1{ false };
 		bool xmb2{ false };
 		int wheel = 0;
-		glm::ivec2 position{ 0, 0 };
 		glm::ivec2 delta{ 0, 0 };
-		
-		glm::ivec2 getMouseDelta() const
+
+		glm::vec2 getWorldSpaceDelta() const
 		{
-			return delta;
+			return { delta.x, -delta.y };
 		}
 	};
 }

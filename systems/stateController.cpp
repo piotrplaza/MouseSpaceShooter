@@ -5,6 +5,7 @@
 #include <components/plane.hpp>
 #include <components/grapple.hpp>
 #include <components/screenInfo.hpp>
+#include <components/keyboardState.hpp>
 #include <components/mouseState.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/framebuffers.hpp>
@@ -113,17 +114,11 @@ namespace Systems
 	void StateController::resetMousePosition() const
 	{
 		Tools::SetMousePos(Globals::Components().screenInfo().windowCenterInScreenSpace);
-		Globals::Components().mouseState().position = Globals::Components().screenInfo().windowCenterInScreenSpace;
 	}
 
-	void StateController::handleMousePosition() const
+	void StateController::updateMouseDelta() const
 	{
-		auto& mouseState = Globals::Components().mouseState();
-
-		const auto prevPosition = mouseState.position;
-		mouseState.position = Tools::GetMousePos();
-		mouseState.delta = mouseState.position - prevPosition;
-
+		Globals::Components().mouseState().delta = Tools::GetMousePos() - Globals::Components().screenInfo().windowCenterInScreenSpace;
 		resetMousePosition();
 	}
 
@@ -131,6 +126,14 @@ namespace Systems
 	{
 		if (keys['P'] && !prevKeys['P'])
 			Globals::Components().physics().paused = !Globals::Components().physics().paused;
+
+		auto& keyboardState = Globals::Components().keyboardState();
+		for (size_t i = 0; i < keys.size(); ++i)
+		{
+			keyboardState.pressing[i] = keys[i];
+			keyboardState.pressed[i] = keys[i] && !prevKeys[i];
+			keyboardState.released[i] = !keys[i] && prevKeys[i];
+		}
 
 		prevKeys = keys;
 	}

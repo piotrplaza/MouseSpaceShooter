@@ -3,6 +3,7 @@
 #include "levels/rocketball/rocketball.hpp"
 #include "levels/gravity/gravity.hpp"
 #include "levels/basic/basic.hpp"
+#include "levels/dzidzia/dzidzia.hpp"
 
 #include "components/mouseState.hpp"
 #include "components/physics.hpp"
@@ -66,10 +67,11 @@ void OGLInitialize()
 
 void CreateLevel()
 {
-	activeLevel = std::make_unique<Levels::Playground>();
+	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
+	activeLevel = std::make_unique<Levels::Dzidzia>();
 }
 
 void Initialize()
@@ -320,7 +322,7 @@ int APIENTRY WinMain(
 				resetMousePositionRequired = false;
 			}
 			Globals::Systems().stateController().handleKeyboard(keys);
-			Globals::Systems().stateController().handleMousePosition();
+			Globals::Systems().stateController().updateMouseDelta();
 			PrepareFrame();
 
 			glFinish(); //Not sure why, but it helps with stuttering in some scenarios, e.g. if missile was launched (release + lower display refresh rate => bigger stuttering without it).

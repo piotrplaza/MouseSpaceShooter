@@ -65,6 +65,9 @@
     <Filter Include="src\levels\basic">
       <UniqueIdentifier>{8009aed5-acbe-41b8-a962-b8a0aab9702f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\dzidzia">
+      <UniqueIdentifier>{f0c0cea7-23f4-42b4-822a-13e682723901}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -162,6 +165,9 @@
     </ClCompile>
     <ClCompile Include="levels\basic\basic.cpp">
       <Filter>src\levels\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\dzidzia\dzidzia.cpp">
+      <Filter>src\levels\dzidzia</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -380,6 +386,12 @@
     </ClInclude>
     <ClInclude Include="tools\buffersHelpers.hpp">
       <Filter>src\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\dzidzia\dzidzia.hpp">
+      <Filter>src\levels\dzidzia</Filter>
+    </ClInclude>
+    <ClInclude Include="components\keyboardState.hpp">
+      <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
