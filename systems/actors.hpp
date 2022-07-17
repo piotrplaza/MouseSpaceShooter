@@ -60,5 +60,7 @@ namespace Systems
 		void createGrappleJoint(Components::Plane& plane) const;
 
 		Connections connections;
+
+		size_t loadedStaticPlanes = 0;
 	};
 }

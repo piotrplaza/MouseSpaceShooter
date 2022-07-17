@@ -1,46 +1,17 @@
 #include "basic.hpp"
 
-#include <components/screenInfo.hpp>
-#include <components/physics.hpp>
-#include <components/renderingSetup.hpp>
-#include <components/plane.hpp>
-#include <components/wall.hpp>
-#include <components/grapple.hpp>
-#include <components/camera.hpp>
-#include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
-#include <components/mouseState.hpp>
-#include <components/mvp.hpp>
-#include <components/missile.hpp>
-#include <components/collisionHandler.hpp>
-#include <components/shockwave.hpp>
-#include <components/functor.hpp>
 #include <components/mainFramebufferRenderer.hpp>
-#include <components/blendingTexture.hpp>
-#include <components/animatedTexture.hpp>
+#include <components/camera.hpp>
+#include <components/plane.hpp>
 
-#include <ogl/uniforms.hpp>
-#include <ogl/shaders/basic.hpp>
-#include <ogl/shaders/julia.hpp>
-#include <ogl/shaders/texturedColorThreshold.hpp>
-#include <ogl/shaders/textured.hpp>
-#include <ogl/shaders/particles.hpp>
-#include <ogl/renderingHelpers.hpp>
-
-#include <globals/shaders.hpp>
 #include <globals/components.hpp>
-#include <globals/collisionBits.hpp>
+#include <globals/shaders.hpp>
 
-#include <tools/graphicsHelpers.hpp>
-#include <tools/utility.hpp>
+#include <ogl/renderingHelpers.hpp>
+#include <ogl/shaders/textured.hpp>
+
 #include <tools/gameHelpers.hpp>
-#include <tools/b2Helpers.hpp>
-
-#include <glm/gtx/vector_angle.hpp>
-
-#include <algorithm>
-#include <unordered_map>
-#include <unordered_set>
 
 namespace Levels
 {
@@ -100,20 +71,15 @@ namespace Levels
 		void step()
 		{
 			const auto& mouseState = Globals::Components().mouseState();
-			const glm::vec2 mouseDelta = { mouseState.getMouseDelta().x, -mouseState.getMouseDelta().y };
 			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
 
-			player1Controls.turningDelta = mouseDelta;
+			player1Controls.turningDelta = mouseState.getWorldSpaceDelta();
 			player1Controls.autoRotation = mouseState.rmb;
 			player1Controls.throttling = mouseState.rmb;
 			player1Controls.magneticHook = mouseState.xmb1;
 		}
 
 	private:
-		Shaders::Programs::Julia juliaShaders;
-		Shaders::Programs::TexturedColorThreshold texturedColorThresholdShaders;
-		Shaders::Programs::Particles particlesShaders;
-
 		unsigned rocketPlaneTexture = 0;
 		unsigned flame1AnimationTexture = 0;
 

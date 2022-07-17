@@ -1,35 +1,18 @@
 #pragma once
 
 #include "_componentBase.hpp"
-#include "_typeComponentMappers.hpp"
-
-#include "decoration.hpp"
+#include "_renderable.hpp"
 
 #include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>
 
-#include <commonTypes/resolutionMode.hpp>
 #include <commonTypes/bodyUserData.hpp>
-
-#include <ogl/shaders.hpp>
-
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
-#include <memory>
-#include <vector>
-#include <optional>
-#include <functional>
-#include <variant>
 
 namespace Components
 {
-	struct Plane : ComponentBase
+	struct Plane : ComponentBase, Renderable
 	{
-		using ComponentBase::ComponentBase;
+		Plane() = default;
 
 		Plane(Body body,
 			TextureComponentVariant texture = std::monostate{},
@@ -37,38 +20,15 @@ namespace Components
 			std::optional<ComponentId> renderingSetup = std::nullopt,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			body(std::move(body)),
-			texture(texture),
-			texCoord(texCoord),
-			renderingSetup(renderingSetup),
-			renderLayer(renderLayer),
-			customShadersProgram(customShadersProgram)
+			Renderable(texture, renderingSetup, renderLayer, customShadersProgram),
+			body(std::move(body))
 		{
 			Tools::AccessUserData(*this->body).bodyComponentVariant = TCM::Plane(getComponentId());
 		}
 
 		Body body;
 
-		std::vector<glm::vec4> colors;
-		std::vector<glm::vec2> texCoord;
-
-		TextureComponentVariant texture;
-		std::optional<ComponentId> renderingSetup;
-		std::optional<Shaders::ProgramId> customShadersProgram;
-		ResolutionMode resolutionMode = ResolutionMode::Normal;
-		RenderLayer renderLayer = RenderLayer::Midground;
-
 		bool connectIfApproaching = false;
-
-		GLenum drawMode = GL_TRIANGLES;
-		GLenum bufferDataUsage = GL_DYNAMIC_DRAW;
-
-		bool preserveTextureRatio = false;
-
-		bool render = true;
-
-		std::vector<DecorationDef> subsequence;
-		unsigned posInSubsequence = 0;
 
 		struct
 		{

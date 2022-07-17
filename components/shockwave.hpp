@@ -19,7 +19,7 @@ namespace Components
 {
 	struct Shockwave : ComponentBase
 	{
-		using ComponentBase::ComponentBase;
+		Shockwave() = default;
 
 		Shockwave(glm::vec2 center, int numOfParticles = 50, float initVelocity = 100.0f, float particlesRadius = 2.0f, float particlesDensity = 0.002f,
 			float particlesLinearDamping = 3.0f, bool particlesAsBullets = false):

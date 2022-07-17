@@ -26,6 +26,7 @@
     <ClCompile Include="globals\shaders.cpp" />
     <ClCompile Include="globals\systems.cpp" />
     <ClCompile Include="levels\basic\basic.cpp" />
+    <ClCompile Include="levels\dzidzia\dzidzia.cpp" />
     <ClCompile Include="levels\gravity\gravity.cpp" />
     <ClCompile Include="levels\level.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
@@ -72,6 +73,7 @@
     <ClInclude Include="components\functor.hpp" />
     <ClInclude Include="components\graphicsSettings.hpp" />
     <ClInclude Include="components\grapple.hpp" />
+    <ClInclude Include="components\keyboardState.hpp" />
     <ClInclude Include="components\light.hpp" />
     <ClInclude Include="components\mainFramebufferRenderer.hpp" />
     <ClInclude Include="components\missile.hpp" />
@@ -87,17 +89,19 @@
     <ClInclude Include="components\wall.hpp" />
     <ClInclude Include="components\_componentBase.hpp" />
     <ClInclude Include="components\_componentId.hpp" />
+    <ClInclude Include="components\_decorationDef.hpp" />
+    <ClInclude Include="components\_renderable.hpp" />
     <ClInclude Include="components\_typeComponentMappers.hpp" />
     <ClInclude Include="globals\collisionBits.hpp" />
     <ClInclude Include="globals\components.hpp" />
     <ClInclude Include="globals\shaders.hpp" />
     <ClInclude Include="globals\systems.hpp" />
     <ClInclude Include="levels\basic\basic.hpp" />
+    <ClInclude Include="levels\dzidzia\dzidzia.hpp" />
     <ClInclude Include="levels\gravity\gravity.hpp" />
     <ClInclude Include="levels\level.hpp" />
     <ClInclude Include="levels\playground\playground.hpp" />
     <ClInclude Include="levels\rocketball\rocketball.hpp" />
-    <ClInclude Include="ogl\buffersHelpers.hpp" />
     <ClInclude Include="ogl\buffers\genericBuffers.hpp" />
     <ClInclude Include="ogl\oglHelpers.hpp" />
     <ClInclude Include="ogl\oglProxy.hpp" />
@@ -122,6 +126,7 @@
     <ClInclude Include="systems\temporaries.hpp" />
     <ClInclude Include="systems\textures.hpp" />
     <ClInclude Include="tools\b2Helpers.hpp" />
+    <ClInclude Include="tools\buffersHelpers.hpp" />
     <ClInclude Include="tools\gameHelpers.hpp" />
     <ClInclude Include="tools\glmHelpers.hpp" />
     <ClInclude Include="tools\graphicsHelpers.hpp" />

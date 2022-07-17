@@ -14,5 +14,7 @@ namespace Systems
 
 	private:
 		void updateDynamicBuffers();
+
+		size_t loadedStaticWalls = 0;
 	};
 }

@@ -92,11 +92,64 @@ namespace Buffers
 				setAndDraw(*it);
 		}
 
+		template <typename Component>
+		void applyComponentSubsequence(Component& component)
+		{
+			subsequence.reserve(component.subsequence.size());
+			auto subBuffersIt = subsequence.begin();
+			for (auto& subComponent : component.subsequence)
+			{
+				auto& subBuffers = reuseOrEmplaceBack(subsequence, subBuffersIt);
+				componentCommonsToBuffersCommons(subComponent, subBuffers);
+				subComponent.loaded.subBuffers = &subBuffers;
+			}
+			subsequence.resize(std::distance(subsequence.begin(), subBuffersIt));
+		}
+
+		template <typename Component>
+		void applyComponent(Component& component)
+		{
+			customShadersProgram = &component.customShadersProgram;
+			resolutionMode = &component.resolutionMode;
+			posInSubsequence = &component.posInSubsequence;
+
+			componentCommonsToBuffersCommons(component, *this);
+
+			sourceComponent = component.getComponentId();
+			component.loaded.buffers = this;
+			component.state = ComponentState::Ongoing;
+		}
+
 		ResolutionMode* resolutionMode = nullptr;
 
 		std::vector<GenericSubBuffers> subsequence;
 		unsigned* posInSubsequence = nullptr;
 
 		ComponentId sourceComponent = 0;
+
+	private:
+		template <typename Buffers>
+		Buffers& reuseOrEmplaceBack(std::vector<Buffers>& buffers, typename std::vector<Buffers>::iterator& it)
+		{
+			return it == buffers.end()
+				? buffers.emplace_back(), it = buffers.end(), buffers.back()
+				: *it++;
+		}
+
+		template <typename SubComponent>
+		void componentCommonsToBuffersCommons(SubComponent& subComponent, Buffers::GenericSubBuffers& buffers)
+		{
+			buffers.modelMatrixF = [&]() { return subComponent.getModelMatrix(); };
+			buffers.renderingSetup = &subComponent.renderingSetup;
+			buffers.texture = &subComponent.texture;
+			buffers.drawMode = &subComponent.drawMode;
+			buffers.bufferDataUsage = &subComponent.bufferDataUsage;
+			buffers.preserveTextureRatio = &subComponent.preserveTextureRatio;
+			buffers.render = &subComponent.render;
+
+			buffers.allocateOrUpdateVerticesBuffer(subComponent.getVertices());
+			buffers.allocateOrUpdateColorsBuffer(subComponent.getColors());
+			buffers.allocateOrUpdateTexCoordBuffer(subComponent.getTexCoord());
+		}
 	};
 }

@@ -10,7 +10,8 @@
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
 
-#include <ogl/buffersHelpers.hpp>
+#include <tools/buffersHelpers.hpp>
+
 #include <ogl/shaders/basic.hpp>
 
 namespace
@@ -51,7 +52,8 @@ namespace Systems
 
 	void Actors::updateStaticBuffers()
 	{
-		Tools::UpdateStaticBuffers(Globals::Components().planes());
+		Tools::UpdateStaticBuffers(Globals::Components().planes(), loadedStaticPlanes);
+		loadedStaticPlanes = Globals::Components().planes().size();
 	}
 
 	void Actors::turn(Components::Plane& plane) const

@@ -120,10 +120,9 @@ namespace Levels
 		void step()
 		{
 			const auto& mouseState = Globals::Components().mouseState();
-			const glm::vec2 mouseDelta = { mouseState.getMouseDelta().x, -mouseState.getMouseDelta().y };
 			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
 
-			player1Controls.turningDelta = mouseDelta;
+			player1Controls.turningDelta = mouseState.getWorldSpaceDelta();
 			player1Controls.autoRotation = mouseState.rmb;
 			player1Controls.throttling = mouseState.rmb;
 			player1Controls.magneticHook = mouseState.xmb1;

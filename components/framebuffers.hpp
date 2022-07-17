@@ -12,8 +12,6 @@ namespace Components
 {
 	struct Framebuffers : ComponentBase
 	{
-		using ComponentBase::ComponentBase;
-
 		struct SubBuffers
 		{
 			unsigned fbo = 0;

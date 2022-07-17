@@ -3,6 +3,7 @@
 #include "levels/rocketball/rocketball.hpp"
 #include "levels/gravity/gravity.hpp"
 #include "levels/basic/basic.hpp"
+#include "levels/dzidzia/dzidzia.hpp"
 
 #include "components/mouseState.hpp"
 #include "components/physics.hpp"
@@ -66,10 +67,11 @@ void OGLInitialize()
 
 void CreateLevel()
 {
-	activeLevel = std::make_unique<Levels::Playground>();
+	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
+	activeLevel = std::make_unique<Levels::Dzidzia>();
 }
 
 void Initialize()
@@ -83,6 +85,7 @@ void Initialize()
 	Globals::InitializeSystems();
 
 	CreateLevel();
+
 	Globals::Systems().textures().postInit();
 	Globals::Systems().physics().postInit();
 	Globals::Systems().actors().postInit();
@@ -95,21 +98,22 @@ void Initialize()
 
 void PrepareFrame()
 {
-	Globals::Systems().stateController().frameSetup();
+	activeLevel->step();
+
+	Globals::Systems().stateController().stepSetup();
 	Globals::Systems().physics().step();
 	Globals::Systems().actors().step();
 	Globals::Systems().temporaries().step();
 	Globals::Systems().walls().step();
 	Globals::Systems().decorations().step();
 	Globals::Systems().camera().step();
-
-	activeLevel->step();
-	Globals::Systems().stateController().renderSetup();
-	Globals::Systems().renderingController().render();
-	Globals::Systems().stateController().frameTeardown();
 	Globals::Systems().cleaner().step();
 
+	Globals::Systems().stateController().renderSetup();
+	Globals::Systems().renderingController().render();
+
 	Globals::Systems().deferredActions().step();
+	Globals::Systems().stateController().stepTeardown();
 }
 
 void SetDCPixelFormat(HDC hDC);
@@ -318,7 +322,7 @@ int APIENTRY WinMain(
 				resetMousePositionRequired = false;
 			}
 			Globals::Systems().stateController().handleKeyboard(keys);
-			Globals::Systems().stateController().handleMousePosition();
+			Globals::Systems().stateController().updateMouseDelta();
 			PrepareFrame();
 
 			glFinish(); //Not sure why, but it helps with stuttering in some scenarios, e.g. if missile was launched (release + lower display refresh rate => bigger stuttering without it).

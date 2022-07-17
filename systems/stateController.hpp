@@ -13,13 +13,13 @@ namespace Systems
 		~StateController();
 
 		void postInit() const;
-		void frameSetup() const;
+		void stepSetup() const;
 		void renderSetup() const;
-		void frameTeardown() const;
+		void stepTeardown() const;
 		void changeWindowSize(glm::ivec2 size) const;
 		void changeWindowLocation(glm::ivec2 location) const;
 		void resetMousePosition() const;
-		void handleMousePosition() const;
+		void updateMouseDelta() const;
 		void handleKeyboard(const std::array<bool, 256>& keys);
 
 	private:

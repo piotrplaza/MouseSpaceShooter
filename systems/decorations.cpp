@@ -4,7 +4,7 @@
 
 #include <globals/components.hpp>
 
-#include <ogl/buffersHelpers.hpp>
+#include <tools/buffersHelpers.hpp>
 
 namespace Systems
 {
@@ -30,7 +30,8 @@ namespace Systems
 
 	void Decorations::updateStaticBuffers()
 	{
-		Tools::UpdateStaticBuffers(Globals::Components().decorations());
+		Tools::UpdateStaticBuffers(Globals::Components().decorations(), loadedStaticDecorations);
+		loadedStaticDecorations = Globals::Components().decorations().size();
 	}
 
 	void Decorations::updateDynamicBuffers()

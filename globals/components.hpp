@@ -10,6 +10,7 @@
 namespace Components
 {
 	struct RenderingBuffers;
+	struct KeyboardState;
 	struct MouseState;
 	struct ScreenInfo;
 	struct MVP;
@@ -40,6 +41,7 @@ namespace Globals
 	{
 	public:
 		Components::RenderingBuffers& renderingBuffers();
+		Components::KeyboardState& keyboardState();
 		Components::MouseState& mouseState();
 		Components::ScreenInfo& screenInfo();
 		Components::MVP& mvp();
@@ -70,6 +72,7 @@ namespace Globals
 
 	private:
 		std::unique_ptr<Components::RenderingBuffers> renderingBuffers_ = std::make_unique<Components::RenderingBuffers>();
+		std::unique_ptr<Components::KeyboardState> keyboardState_ = std::make_unique<Components::KeyboardState>();
 		std::unique_ptr<Components::MouseState> mouseState_ = std::make_unique<Components::MouseState>();
 		std::unique_ptr<Components::ScreenInfo> screenInfo_ = std::make_unique<Components::ScreenInfo>();
 		std::unique_ptr<Components::MVP> mvp_ = std::make_unique<Components::MVP>();
