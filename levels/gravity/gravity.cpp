@@ -242,11 +242,11 @@ namespace Levels
 			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
 
 			player1Controls.turningDelta = mouseState.getWorldSpaceDelta();
-			player1Controls.autoRotation = mouseState.rmb;
-			player1Controls.throttling = mouseState.rmb;
-			player1Controls.magneticHook = mouseState.xmb1;
+			player1Controls.autoRotation = mouseState.pressing.rmb;
+			player1Controls.throttling = mouseState.pressing.rmb;
+			player1Controls.magneticHook = mouseState.pressing.xmb1;
 
-			if (mouseState.lmb)
+			if (mouseState.pressing.lmb)
 			{
 				if (durationToLaunchMissile <= 0.0f)
 				{
@@ -278,8 +278,7 @@ namespace Levels
 					glm::normalize(ToVec2<glm::vec2>(missile.body->GetLinearVelocity()) - missilesToHandlers[id].referenceVelocity)));
 			}
 
-			projectionHSizeBase = std::clamp(projectionHSizeBase + (prevWheel - mouseState.wheel) * 5.0f, 5.0f, 100.0f);
-			prevWheel = mouseState.wheel;
+			projectionHSizeBase = std::clamp(projectionHSizeBase + mouseState.pressed.wheel * -5.0f, 5.0f, 100.0f);
 		}
 
 	private:
@@ -305,7 +304,6 @@ namespace Levels
 
 		float durationToLaunchMissile = 0.0f;
 
-		int prevWheel = 0;
 		float projectionHSizeBase = 5.0f;
 
 		bool explosionFrame = false;

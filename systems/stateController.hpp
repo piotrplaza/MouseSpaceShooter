@@ -1,5 +1,7 @@
 #pragma once
 
+#include <components/mouseState.hpp>
+
 #include <glm/vec2.hpp>
 
 #include <array>
@@ -19,10 +21,11 @@ namespace Systems
 		void changeWindowSize(glm::ivec2 size) const;
 		void changeWindowLocation(glm::ivec2 location) const;
 		void resetMousePosition() const;
-		void updateMouseDelta() const;
+		void handleMouse();
 		void handleKeyboard(const std::array<bool, 256>& keys);
 
 	private:
-		std::array<bool, 256> prevKeys;
+		std::array<bool, 256> prevKeyboardKeys;
+		Components::MouseState::Buttons prevMouseKeys;
 	};
 }

@@ -74,9 +74,9 @@ namespace Levels
 			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
 
 			player1Controls.turningDelta = mouseState.getWorldSpaceDelta();
-			player1Controls.autoRotation = mouseState.rmb;
-			player1Controls.throttling = mouseState.rmb;
-			player1Controls.magneticHook = mouseState.xmb1;
+			player1Controls.autoRotation = mouseState.pressing.rmb;
+			player1Controls.throttling = mouseState.pressing.rmb;
+			player1Controls.magneticHook = mouseState.pressing.xmb1;
 		}
 
 	private:

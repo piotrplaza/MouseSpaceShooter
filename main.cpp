@@ -190,40 +190,40 @@ LRESULT CALLBACK WndProc(
 			keys[wParam] = false;
 			break;
 		case WM_RBUTTONDOWN:
-			Globals::Components().mouseState().rmb = true;
+			Globals::Components().mouseState().pressing.rmb = true;
 			break;
 		case WM_RBUTTONUP:
-			Globals::Components().mouseState().rmb = false;
+			Globals::Components().mouseState().pressing.rmb = false;
 			break;
 		case WM_LBUTTONDOWN:
-			Globals::Components().mouseState().lmb = true;
+			Globals::Components().mouseState().pressing.lmb = true;
 			break;
 		case WM_LBUTTONUP:
-			Globals::Components().mouseState().lmb = false;
+			Globals::Components().mouseState().pressing.lmb = false;
 			break;
 		case WM_MBUTTONDOWN:
-			Globals::Components().mouseState().mmb = true;
+			Globals::Components().mouseState().pressing.mmb = true;
 			break;
 		case WM_MBUTTONUP:
-			Globals::Components().mouseState().mmb = false;
+			Globals::Components().mouseState().pressing.mmb = false;
 			break;
 		case WM_XBUTTONDOWN:
 			switch (HIWORD(wParam))
 			{
-				case XBUTTON1: Globals::Components().mouseState().xmb1 = true; break;
-				case XBUTTON2: Globals::Components().mouseState().xmb2 = true; break;
+				case XBUTTON1: Globals::Components().mouseState().pressing.xmb1 = true; break;
+				case XBUTTON2: Globals::Components().mouseState().pressing.xmb2 = true; break;
 			}
 			break;
 		case WM_XBUTTONUP:
 			switch (HIWORD(wParam))
 			{
-				case XBUTTON1: Globals::Components().mouseState().xmb1 = false; break;
-				case XBUTTON2: Globals::Components().mouseState().xmb2 = false; break;
+				case XBUTTON1: Globals::Components().mouseState().pressing.xmb1 = false; break;
+				case XBUTTON2: Globals::Components().mouseState().pressing.xmb2 = false; break;
 			}
 			break;
 		case WM_MOUSEWHEEL:
-			if ((int)wParam > 0) ++Globals::Components().mouseState().wheel;
-			else if ((int)wParam < 0) --Globals::Components().mouseState().wheel;
+			if ((int)wParam > 0) ++Globals::Components().mouseState().pressing.wheel;
+			else if ((int)wParam < 0) --Globals::Components().mouseState().pressing.wheel;
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -324,7 +324,7 @@ int APIENTRY WinMain(
 				resetMousePositionRequired = false;
 			}
 			Globals::Systems().stateController().handleKeyboard(keys);
-			Globals::Systems().stateController().updateMouseDelta();
+			Globals::Systems().stateController().handleMouse();
 			PrepareFrame();
 
 			glFinish(); //Not sure why, but it helps with stuttering in some scenarios, e.g. if missile was launched (release + lower display refresh rate => bigger stuttering without it).

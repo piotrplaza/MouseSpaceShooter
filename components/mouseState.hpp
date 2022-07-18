@@ -8,12 +8,16 @@ namespace Components
 {
 	struct MouseState : ComponentBase
 	{
-		bool lmb{ false };
-		bool rmb{ false };
-		bool mmb{ false };
-		bool xmb1{ false };
-		bool xmb2{ false };
-		int wheel = 0;
+		struct Buttons
+		{
+			bool lmb{ false };
+			bool rmb{ false };
+			bool mmb{ false };
+			bool xmb1{ false };
+			bool xmb2{ false };
+			int wheel = 0;
+		} pressed, released, pressing;
+
 		glm::ivec2 delta{ 0, 0 };
 
 		glm::vec2 getWorldSpaceDelta() const

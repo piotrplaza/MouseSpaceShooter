@@ -218,7 +218,7 @@ namespace Tools
 
 			const float angleDelta = Globals::Components().physics().frameDuration * 2.0f;
 
-			if (angle == 0.0f && Globals::Components().mouseState().xmb2)
+			if (angle == 0.0f && Globals::Components().mouseState().pressing.xmb2)
 			{
 				angle = angleDelta;
 			}

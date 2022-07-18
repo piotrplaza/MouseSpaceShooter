@@ -121,25 +121,44 @@ namespace Systems
 		Tools::SetMousePos(Globals::Components().screenInfo().windowCenterInScreenSpace);
 	}
 
-	void StateController::updateMouseDelta() const
+	void StateController::handleMouse()
 	{
-		Globals::Components().mouseState().delta = Tools::GetMousePos() - Globals::Components().screenInfo().windowCenterInScreenSpace;
+		auto& mouseState = Globals::Components().mouseState();
+
+		mouseState.delta = Tools::GetMousePos() - Globals::Components().screenInfo().windowCenterInScreenSpace;
 		resetMousePosition();
+
+		auto updateButton = [&](bool Components::MouseState::Buttons::* button)
+		{
+			mouseState.pressed.*button = mouseState.pressing.*button && !(prevMouseKeys.*button);
+			mouseState.released.*button = !(mouseState.pressing.*button) && prevMouseKeys.*button;
+		};
+
+		updateButton(&Components::MouseState::Buttons::lmb);
+		updateButton(&Components::MouseState::Buttons::rmb);
+		updateButton(&Components::MouseState::Buttons::mmb);
+		updateButton(&Components::MouseState::Buttons::xmb1);
+		updateButton(&Components::MouseState::Buttons::xmb2);
+
+		mouseState.pressed.wheel = mouseState.pressing.wheel - prevMouseKeys.wheel;
+		mouseState.released.wheel = mouseState.pressed.wheel;
+
+		prevMouseKeys = mouseState.pressing;
 	}
 
 	void StateController::handleKeyboard(const std::array<bool, 256>& keys)
 	{
-		if (keys['P'] && !prevKeys['P'])
+		if (keys['P'] && !prevKeyboardKeys['P'])
 			Globals::Components().physics().paused = !Globals::Components().physics().paused;
 
 		auto& keyboardState = Globals::Components().keyboardState();
 		for (size_t i = 0; i < keys.size(); ++i)
 		{
 			keyboardState.pressing[i] = keys[i];
-			keyboardState.pressed[i] = keys[i] && !prevKeys[i];
-			keyboardState.released[i] = !keys[i] && prevKeys[i];
+			keyboardState.pressed[i] = keys[i] && !prevKeyboardKeys[i];
+			keyboardState.released[i] = !keys[i] && prevKeyboardKeys[i];
 		}
 
-		prevKeys = keys;
+		prevKeyboardKeys = keys;
 	}
 }
