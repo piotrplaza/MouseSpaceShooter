@@ -21,9 +21,8 @@ namespace
 
 void b2BodyDeleter::operator()(b2Body* body) const
 {
-	auto* bodyUserData = static_cast<BodyUserData*>(body->GetUserData());
+	auto* bodyUserData = reinterpret_cast<BodyUserData*>(body->GetUserData().pointer);
 	delete bodyUserData;
-	body->SetUserData(nullptr);
 	body->GetWorld()->DestroyBody(body);
 }
 
@@ -60,7 +59,7 @@ namespace Tools
 		body->SetLinearDamping(playerLinearDamping);
 		body->SetAngularDamping(playerAngularDamping);
 
-		body->SetUserData(new BodyUserData);
+		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
 
 		return body;
 	}
@@ -84,7 +83,7 @@ namespace Tools
 		fixtureDef.filter.categoryBits = Globals::CollisionBits::wallBit;
 		body->CreateFixture(&fixtureDef);
 
-		body->SetUserData(new BodyUserData);
+		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
 
 		return body;
 	}
@@ -107,7 +106,7 @@ namespace Tools
 		fixtureDef.filter.categoryBits = Globals::CollisionBits::wallBit;
 		body->CreateFixture(&fixtureDef);
 
-		body->SetUserData(new BodyUserData);
+		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
 
 		return body;
 	}
@@ -208,8 +207,13 @@ namespace Tools
 		return collisionObjectA > collisionObjectB ? std::make_pair(collisionObjectB, collisionObjectA) : std::make_pair(collisionObjectA, collisionObjectB);
 	}
 
-	BodyUserData& AccessUserData(const b2Body& body)
+	BodyUserData& AccessUserData(b2Body& body)
 	{
-		return *static_cast<BodyUserData*>(body.GetUserData());
+		return *reinterpret_cast<BodyUserData*>(body.GetUserData().pointer);
+	}
+
+	const BodyUserData& AccessUserData(const b2Body& body)
+	{
+		return *reinterpret_cast<BodyUserData*>(const_cast<b2Body&>(body).GetUserData().pointer);
 	}
 }

@@ -45,5 +45,6 @@ namespace Tools
 	void SetCollisionFilteringBits(b2Body& body, unsigned short categoryBits, unsigned short maskBits);
 	std::pair<const b2Fixture*, const b2Fixture*> Sort(const b2Fixture* fixtureA, const b2Fixture* fixtureB);
 	std::pair<const unsigned short, const unsigned short> Sort(const unsigned short collisionObjectA, const unsigned short collisionObjectB);
-	BodyUserData& AccessUserData(const b2Body& body);
+	BodyUserData& AccessUserData(b2Body& body);
+	const BodyUserData& AccessUserData(const b2Body& body);
 }

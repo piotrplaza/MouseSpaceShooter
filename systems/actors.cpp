@@ -198,6 +198,8 @@ namespace Systems
 		distanceJointDef.localAnchorA = distanceJointDef.bodyA->GetLocalCenter();
 		distanceJointDef.localAnchorB = distanceJointDef.bodyB->GetLocalCenter();
 		distanceJointDef.length = glm::distance(plane.getCenter(), grapple.getCenter());
+		distanceJointDef.minLength = distanceJointDef.length;
+		distanceJointDef.maxLength = distanceJointDef.length;
 		distanceJointDef.collideConnected = true;
 		plane.details.grappleJoint.reset(Globals::Components().physics().world->CreateJoint(&distanceJointDef));
 	}
