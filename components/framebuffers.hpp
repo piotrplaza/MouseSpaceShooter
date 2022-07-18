@@ -15,6 +15,7 @@ namespace Components
 		struct SubBuffers
 		{
 			unsigned fbo = 0;
+			unsigned depthBuffer = 0;
 			unsigned textureUnit = 0;
 			unsigned textureObject = 0;
 

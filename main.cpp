@@ -59,6 +59,8 @@ void OGLInitialize()
 
 	Tools::VSync(true);
 	//glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_GREATER);
+	//glClearDepth(0.0f);
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -67,11 +69,11 @@ void OGLInitialize()
 
 void CreateLevel()
 {
-	//activeLevel = std::make_unique<Levels::Playground>();
+	activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
-	activeLevel = std::make_unique<Levels::Dzidzia>();
+	//activeLevel = std::make_unique<Levels::Dzidzia>();
 }
 
 void Initialize()

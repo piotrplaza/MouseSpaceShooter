@@ -120,6 +120,10 @@ namespace Systems
 			glGenFramebuffers(1, &subBuffers.fbo);
 			glBindFramebuffer(GL_FRAMEBUFFER, subBuffers.fbo);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, subBuffers.textureObject, 0);
+
+			glGenRenderbuffers(1, &subBuffers.depthBuffer);
+			glBindRenderbuffer(GL_RENDERBUFFER, subBuffers.depthBuffer);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, subBuffers.depthBuffer);
 		};
 
 		auto& framebuffers = Globals::Components().framebuffers();
