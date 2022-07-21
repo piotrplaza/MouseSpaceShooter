@@ -3,6 +3,8 @@
 #include "_typeComponentMappers.hpp"
 #include "_decorationDef.hpp"
 
+#include <tools/graphicsHelpers.hpp>
+
 #include <commonTypes/resolutionMode.hpp>
 #include <commonTypes/renderLayer.hpp>
 
@@ -63,4 +65,40 @@ struct Renderable
 	{
 		Buffers::GenericBuffers* buffers = nullptr;
 	} loaded;
+
+	virtual std::vector<glm::vec3> getVertices(bool transformed = false) const
+	{
+		return transformed
+			? Tools::Transform(vertices, getModelMatrix())
+			: vertices;
+	}
+
+	const std::vector<glm::vec4>& getColors() const
+	{
+		return colors;
+	}
+
+	virtual const std::vector<glm::vec2> getTexCoord(bool transformed = false) const
+	{
+		const auto vertices = getVertices(transformed);
+		if (texCoord.empty())
+		{
+			return std::vector<glm::vec2>(vertices.begin(), vertices.end());
+		}
+		else if (texCoord.size() < vertices.size())
+		{
+			std::vector<glm::vec2> cyclicTexCoord;
+			cyclicTexCoord.reserve(vertices.size());
+			for (size_t i = 0; i < vertices.size(); ++i)
+				cyclicTexCoord.push_back(texCoord[i % texCoord.size()]);
+			return cyclicTexCoord;
+		}
+		else
+		{
+			assert(texCoord.size() == vertices.size());
+			return texCoord;
+		}
+	}
+
+	virtual glm::mat4 getModelMatrix() const = 0;
 };

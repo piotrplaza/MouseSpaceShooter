@@ -3,7 +3,6 @@
 #include "_componentBase.hpp"
 #include "_renderable.hpp"
 
-#include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>
 
 #include <commonTypes/bodyUserData.hpp>
@@ -47,40 +46,11 @@ namespace Components
 			ComponentId weakConnectedGrappleId = 0;
 		} details;
 
-		std::vector<glm::vec3> getVertices() const
+		std::vector<glm::vec3> getVertices(bool transformed = false) const override
 		{
-			return Tools::GetVertices(*body);
-		}
-
-		const std::vector<glm::vec4>& getColors() const
-		{
-			return colors;
-		}
-
-		const std::vector<glm::vec2> getTexCoord() const
-		{
-			if (texCoord.empty())
-			{
-				const auto vertices = getVertices();
-				return std::vector<glm::vec2>(vertices.begin(), vertices.end());
-			}
-			else
-			{
-				const auto vertices = getVertices();
-				if (texCoord.size() < vertices.size())
-				{
-					std::vector<glm::vec2> cyclicTexCoord;
-					cyclicTexCoord.reserve(vertices.size());
-					for (size_t i = 0; i < vertices.size(); ++i)
-						cyclicTexCoord.push_back(texCoord[i % texCoord.size()]);
-					return cyclicTexCoord;
-				}
-				else
-				{
-					assert(texCoord.size() == vertices.size());
-					return texCoord;
-				}
-			}
+			return transformed
+				? Tools::Transform(Tools::GetVertices(*body), getModelMatrix())
+				: Tools::GetVertices(*body);
 		}
 
 		void setPosition(const glm::vec2& position)
@@ -114,12 +84,7 @@ namespace Components
 			return ToVec2<glm::vec2>(body->GetLinearVelocity());
 		}
 
-		std::vector<glm::vec3> getTransformedVertices() const
-		{
-			return Tools::Transform(getVertices(), getModelMatrix());
-		}
-
-		glm::mat4 getModelMatrix() const
+		glm::mat4 getModelMatrix() const override
 		{
 			return Tools::GetModelMatrix(*body);
 		}

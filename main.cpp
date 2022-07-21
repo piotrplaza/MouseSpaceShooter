@@ -4,6 +4,7 @@
 #include "levels/gravity/gravity.hpp"
 #include "levels/basic/basic.hpp"
 #include "levels/dzidzia/dzidzia.hpp"
+#include "levels/rim/rim.hpp"
 
 #include "components/mouseState.hpp"
 #include "components/physics.hpp"
@@ -74,6 +75,7 @@ void CreateLevel()
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
 	//activeLevel = std::make_unique<Levels::Dzidzia>();
+	//activeLevel = std::make_unique<Levels::Rim>();
 }
 
 void Initialize()
