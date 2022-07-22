@@ -21,10 +21,8 @@
 
 #include <ogl/uniforms.hpp>
 #include <ogl/shaders/basic.hpp>
-#include <ogl/shaders/julia.hpp>
 #include <ogl/shaders/texturedColorThreshold.hpp>
 #include <ogl/shaders/textured.hpp>
-#include <ogl/shaders/particles.hpp>
 #include <ogl/renderingHelpers.hpp>
 
 #include <globals/shaders.hpp>
@@ -122,7 +120,7 @@ namespace Levels
 
 		void createBackground()
 		{
-			Tools::CreateJuliaBackground(juliaShaders, [this]() {
+			Tools::CreateJuliaBackground([this]() {
 				return Globals::Components().planes()[player1Handler.planeId].getCenter() * 0.0001f; });
 		}
 
@@ -216,11 +214,11 @@ namespace Levels
 					for (const auto* fixture : { &fixtureA, &fixtureB })
 					if (fixture->GetFilterData().categoryBits == Globals::CollisionBits::missileBit)
 					{
-						const auto& otherFixture = fixture == &fixtureA ? fixtureB : fixtureA;
-						const auto& body = *fixture->GetBody();
-						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(body).bodyComponentVariant).id);
-						Tools::CreateExplosion(particlesShaders, ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture, 1.0f, 64, 4,
-							lowResBodies.count(otherFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1);
+						const auto& targetFixture = fixture == &fixtureA ? fixtureB : fixtureA;
+						const auto& missileBody = *fixture->GetBody();
+						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).id);
+						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture).resolutionMode(
+							lowResBodies.count(targetFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1));
 
 						explosionFrame = true;
 					}
@@ -282,7 +280,6 @@ namespace Levels
 		}
 
 	private:
-		Shaders::Programs::Julia juliaShaders;
 		Shaders::Programs::TexturedColorThreshold texturedColorThresholdShaders;
 		Shaders::Programs::Particles particlesShaders;
 

@@ -157,7 +157,7 @@ namespace Levels
 						const auto& targetFixture = fixture == &fixtureA ? fixtureB : fixtureA;
 						const auto& missileBody = *fixture->GetBody();
 						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).id);
-						Tools::CreateExplosion(Globals::Shaders().particles(), ToVec2<glm::vec2>(missileBody.GetWorldCenter()), explosionTexture, 1.0f, 32, 2);
+						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture));
 					}
 				}
 				});

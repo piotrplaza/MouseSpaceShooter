@@ -26,11 +26,8 @@
 #include <globals/collisionBits.hpp>
 
 #include <ogl/uniforms.hpp>
-#include <ogl/shaders/basic.hpp>
-#include <ogl/shaders/julia.hpp>
 #include <ogl/shaders/texturedColorThreshold.hpp>
 #include <ogl/shaders/textured.hpp>
-#include <ogl/shaders/particles.hpp>
 #include <ogl/renderingHelpers.hpp>
 
 #include <tools/graphicsHelpers.hpp>
@@ -144,7 +141,7 @@ namespace Levels
 
 		void createBackground()
 		{
-			Tools::CreateJuliaBackground(Globals::Shaders().julia(), [this]() {
+			Tools::CreateJuliaBackground([this]() {
 				return Globals::Components().planes()[player1Handler.planeId].getCenter() * 0.0001f; });
 		}
 
@@ -445,8 +442,8 @@ namespace Levels
 						const auto& targetFixture = fixture == &fixtureA ? fixtureB : fixtureA;
 						const auto& missileBody = *fixture->GetBody();
 						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).id);
-						Tools::CreateExplosion(Globals::Shaders().particles(), ToVec2<glm::vec2>(missileBody.GetWorldCenter()), explosionTexture, 1.0f, 64, 4,
-							lowResBodies.count(targetFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1);
+						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture).resolutionMode(
+							lowResBodies.count(targetFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1));
 
 						explosionFrame = true;
 					}
