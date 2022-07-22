@@ -111,7 +111,7 @@ namespace Tools
 		return body;
 	}
 
-	void PinBodies(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected)
+	void CreateRevoluteJoint(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected)
 	{
 		b2RevoluteJointDef revoluteJointDef;
 		revoluteJointDef.bodyA = &body1;
@@ -120,6 +120,20 @@ namespace Tools
 		revoluteJointDef.localAnchorB = body2.GetLocalPoint({ pinPoint.x, pinPoint.y });
 		revoluteJointDef.collideConnected = collideConnected;
 		Globals::Components().physics().world->CreateJoint(&revoluteJointDef);
+	}
+
+	void CreateDistanceJoint(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected, float length)
+	{
+		b2DistanceJointDef distanceJointDef;
+		distanceJointDef.bodyA = &body1;
+		distanceJointDef.bodyB = &body2;
+		distanceJointDef.localAnchorA = body1.GetLocalPoint({ pinPoint.x, pinPoint.y });
+		distanceJointDef.localAnchorB = body2.GetLocalPoint({ pinPoint.x, pinPoint.y });
+		distanceJointDef.collideConnected = collideConnected;
+		distanceJointDef.length = length;
+		distanceJointDef.minLength = length;
+		distanceJointDef.maxLength = length;
+		Globals::Components().physics().world->CreateJoint(&distanceJointDef);
 	}
 
 	glm::mat4 GetModelMatrix(const b2Body& body)

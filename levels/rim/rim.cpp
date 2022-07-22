@@ -87,25 +87,29 @@ namespace Levels
 			auto& walls = Globals::Components().walls();
 
 			const float rimRadius = 15.0f;
-			const float rimHThickness = 0.5f;
+			const float rimHThickness = 1.0f;
 			const int rimSegments = 50;
+			const float rimSegmentMariginsHLength = 0.4f;
 			
-			const float rimStep = glm::two_pi<float>() / rimSegments;
+			constexpr float rimStep = glm::two_pi<float>() / rimSegments;
 			const float rimSegmentHLength = glm::distance(glm::vec2(rimRadius, 0.0f),
 				glm::vec2(glm::cos(rimStep), glm::sin(rimStep)) * rimRadius) / 2.0f;
 
+			rimWallBegin = walls.size();
 			for (int i = 0; i < rimSegments; ++i)
 			{
 				const glm::vec2 pos1(glm::cos(i * rimStep) * rimRadius, glm::sin(i * rimStep) * rimRadius);
 				const glm::vec2 pos2(glm::cos((i + 1) * rimStep) * rimRadius, glm::sin((i + 1) * rimStep) * rimRadius);
-				walls.emplace_back(Tools::CreateBoxBody((pos1 + pos2) / 2.0f, { rimHThickness, rimSegmentHLength },
-					rimStep * (2 * i + 1) / 2, b2_dynamicBody, 0.02f), TCM::Texture(mosaicTexture)/*, sceneCoordTexturesRS*/);
+				walls.emplace_back(Tools::CreateBoxBody((pos1 + pos2) / 2.0f, { rimHThickness, rimSegmentHLength + rimSegmentMariginsHLength },
+					rimStep * (2 * i + 1) / 2, b2_dynamicBody, 0.01f), TCM::Texture(mosaicTexture));
 				walls.back().texCoord = walls.back().getTexCoord(true);
 
 				if (i > 0)
-					Tools::PinBodies(*(walls.rbegin() + 1)->body, *walls.back().body, pos1);
+					Tools::CreateRevoluteJoint(*(walls.rbegin() + 1)->body, *walls.back().body, pos1);
 			}
-			Tools::PinBodies(*(walls.rbegin() + rimSegments - 1)->body, *walls.back().body, glm::vec2(rimRadius, 0.0f));
+			rimWallEnd = walls.size();
+
+			Tools::CreateRevoluteJoint(*(walls.rbegin() + rimSegments - 1)->body, *walls.back().body, glm::vec2(rimRadius, 0.0f));
 		}
 
 		void createStationaryWalls() const
@@ -153,7 +157,7 @@ namespace Levels
 						const auto& targetFixture = fixture == &fixtureA ? fixtureB : fixtureA;
 						const auto& missileBody = *fixture->GetBody();
 						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).id);
-						Tools::CreateExplosion(Globals::Shaders().particles(), ToVec2<glm::vec2>(missileBody.GetWorldCenter()), explosionTexture, 1.0f, 64, 4);
+						Tools::CreateExplosion(Globals::Shaders().particles(), ToVec2<glm::vec2>(missileBody.GetWorldCenter()), explosionTexture, 1.0f, 32, 2);
 					}
 				}
 				});
@@ -193,6 +197,15 @@ namespace Levels
 					+ mouseState.pressed.wheel * 0.1f, 0.0f, 2.0f);
 			else
 				projectionHSizeBase = std::clamp(projectionHSizeBase + mouseState.pressed.wheel * -5.0f, 5.0f, 100.0f);
+
+			if (mouseState.pressed.xmb1)
+				for (unsigned i = rimWallBegin; i < rimWallEnd; ++i)
+				{
+					auto& renderingSetup = Globals::Components().walls()[i].renderingSetup;
+					renderingSetup = renderingSetup
+						? std::nullopt
+						: std::optional(sceneCoordTexturesRS);
+				}
 		}
 
 	private:
@@ -206,6 +219,9 @@ namespace Levels
 		unsigned mosaicTexture = 0;
 
 		unsigned flame1AnimatedTexture = 0;
+
+		unsigned rimWallBegin = 0;
+		unsigned rimWallEnd = 0;
 
 		Tools::PlaneHandler player1Handler;
 		std::unordered_map<ComponentId, Tools::MissileHandler> missilesToHandlers;

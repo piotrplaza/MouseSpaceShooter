@@ -247,7 +247,7 @@ namespace Levels
 				wall2Body.GetFixtureList()->SetRestitution(0.5f);
 				setRenderingSetupAndSubsequence();
 
-				Tools::PinBodies(wall1Body, wall2Body, { 5.0f, 0.0f });
+				Tools::CreateRevoluteJoint(wall1Body, wall2Body, { 5.0f, 0.0f });
 			}
 
 			const auto blendingTexture = Globals::Components().blendingTextures().size();

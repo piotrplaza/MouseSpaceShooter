@@ -39,7 +39,8 @@ namespace Tools
 		b2BodyType bodyType = b2_staticBody, float density = 1.0f, float restitution = 0.1f, float friction = 0.2f);
 	Body CreateCircleBody(glm::vec2 position, float radius,
 		b2BodyType bodyType = b2_staticBody, float density = 1.0f, float restitution = 0.1f, float friction = 0.2f);
-	void PinBodies(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected = false);
+	void CreateRevoluteJoint(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected = false);
+	void CreateDistanceJoint(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected = false, float length = 0.0f);
 	glm::mat4 GetModelMatrix(const b2Body& body);
 	std::vector<glm::vec3> GetVertices(const b2Body& body);
 	void SetCollisionFilteringBits(b2Body& body, unsigned short categoryBits, unsigned short maskBits);
