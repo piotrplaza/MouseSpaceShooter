@@ -5,6 +5,7 @@
 #include <components/camera.hpp>
 #include <components/plane.hpp>
 #include <components/wall.hpp>
+#include <components/decoration.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/renderingSetup.hpp>
 
@@ -41,6 +42,26 @@ namespace Levels
 
 				return [=]() mutable { sceneCoordTextures(false); };
 			});
+
+			visibilityReductionRS = Globals::Components().renderingSetups().size();
+			Globals::Components().renderingSetups().emplace_back([
+				visibilityReduction = Uniforms::Uniform1b(),
+				fullVisibilityDistance = Uniforms::Uniform1f(),
+				invisibilityDistance = Uniforms::Uniform1f()
+			](Shaders::ProgramId program) mutable {
+					if (!visibilityReduction.isValid())
+						visibilityReduction = Uniforms::Uniform1b(program, "visibilityReduction");
+					if (!fullVisibilityDistance.isValid())
+						fullVisibilityDistance = Uniforms::Uniform1f(program, "fullVisibilityDistance");
+					if (!invisibilityDistance.isValid())
+						invisibilityDistance = Uniforms::Uniform1f(program, "invisibilityDistance");
+
+					visibilityReduction(true);
+					fullVisibilityDistance(0.0f);
+					invisibilityDistance(4.0f);
+
+					return [=]() mutable { visibilityReduction(false); };
+				});
 		}
 
 		void loadTextures()
@@ -71,6 +92,10 @@ namespace Levels
 			mosaicTexture = textures.size();
 			textures.emplace_back("textures/mosaic.jpg", GL_MIRRORED_REPEAT);
 			textures.back().scale = glm::vec2(20.0f, 20.0f);
+
+			recursiveFaceAnimationTexture = textures.size();
+			textures.emplace_back("textures/recursive face animation.jpg");
+			textures.back().minFilter = GL_LINEAR;
 		}
 
 		void setAnimations()
@@ -78,6 +103,12 @@ namespace Levels
 			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
 			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
 				flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
+			Globals::Components().animatedTextures().back().start(true);
+
+			recursiveFaceAnimatedTexture = Globals::Components().animatedTextures().size();
+			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
+				recursiveFaceAnimationTexture, { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
 				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
 			Globals::Components().animatedTextures().back().start(true);
 		}
@@ -126,6 +157,17 @@ namespace Levels
 				walls.emplace_back(Tools::CreateBoxBody({ 0.0f, borderHSize.y * sign },
 					{ borderHSize.x + borderHThickness, borderHThickness }), TCM::Texture(spaceRockTexture), sceneCoordTexturesRS);
 			}
+		}
+
+		void createAdditionalDecorations()
+		{
+			auto& decorations = Globals::Components().decorations();
+
+			decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.0f, 5.0f }),
+				TCM::AnimatedTexture(recursiveFaceAnimatedTexture), Tools::CreateTexCoordOfRectangle(), visibilityReductionRS, RenderLayer::NearBackground);
+			decorations.back().modelMatrixF = [angle = 0.0f]() mutable {
+				return glm::rotate(glm::mat4(1.0f), angle += 0.01f, { 0.0f, 0.0f, -1.0f });
+			};
 		}
 
 		void createPlayers()
@@ -210,6 +252,7 @@ namespace Levels
 
 	private:
 		unsigned sceneCoordTexturesRS = 0;
+		unsigned visibilityReductionRS = 0;
 
 		unsigned rocketPlaneTexture = 0;
 		unsigned spaceRockTexture = 0;
@@ -217,8 +260,10 @@ namespace Levels
 		unsigned missileTexture = 0;
 		unsigned explosionTexture = 0;
 		unsigned mosaicTexture = 0;
+		unsigned recursiveFaceAnimationTexture = 0;
 
 		unsigned flame1AnimatedTexture = 0;
+		unsigned recursiveFaceAnimatedTexture = 0;
 
 		unsigned rimWallBegin = 0;
 		unsigned rimWallEnd = 0;
@@ -236,9 +281,10 @@ namespace Levels
 		impl->setGraphicsSettings();
 		impl->loadTextures();
 		impl->setAnimations();
+		impl->createPlayers();
 		impl->createMovableWalls();
 		impl->createStationaryWalls();
-		impl->createPlayers();
+		impl->createAdditionalDecorations();
 		impl->setCamera();
 		impl->setCollisionCallbacks();
 	}

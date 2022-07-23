@@ -25,6 +25,7 @@ namespace Uniforms
 		bool isValid() const;
 
 	protected:
+		bool isValidInternal() const;
 		Shaders::ProgramId programId = 0;
 		GLint uniformId = -1;
 	};
@@ -45,7 +46,7 @@ namespace Uniforms
 
 		void operator ()(int value)
 		{
-			assert(isValid());
+			assert(isValidInternal());
 			glUseProgram_proxy(programId);
 			std::array<int, Size> values;
 			values.fill(value);
@@ -54,7 +55,7 @@ namespace Uniforms
 
 		void operator ()(unsigned index, int value)
 		{
-			assert(isValid());
+			assert(isValidInternal());
 			assert(index < Size);
 			glUseProgram_proxy(programId);
 			glUniform1i(uniformId + index, value);
@@ -62,7 +63,7 @@ namespace Uniforms
 
 		void operator ()(const std::array<int, Size>& values)
 		{
-			assert(isValid());
+			assert(isValidInternal());
 			assert(values.size() == Size);
 			glUseProgram_proxy(programId);
 			glUniform1iv(uniformId, Size, values.data());
@@ -109,7 +110,7 @@ namespace Uniforms
 
 		void operator ()(glm::vec2 value)
 		{
-			assert(isValid());
+			assert(isValidInternal());
 			glUseProgram_proxy(programId);
 			std::array<glm::vec2, Size> values;
 			values.fill(value);
@@ -118,7 +119,7 @@ namespace Uniforms
 
 		void operator ()(unsigned index, glm::vec2 value)
 		{
-			assert(isValid());
+			assert(isValidInternal());
 			assert(index < Size);
 			glUseProgram_proxy(programId);
 			glUniform2f(uniformId + index, value.x, value.y);
@@ -126,7 +127,7 @@ namespace Uniforms
 
 		void operator ()(const std::array<glm::vec2, Size>& values)
 		{
-			assert(isValid());
+			assert(isValidInternal());
 			assert(values.size() == Size);
 			glUseProgram_proxy(programId);
 			glUniform2fv(uniformId, Size, values.data());
@@ -165,7 +166,7 @@ namespace Uniforms
 
 		void operator ()(glm::mat4 value)
 		{
-			assert(isValid());
+			assert(isValidInternal());
 			glUseProgram_proxy(programId);
 			std::array<glm::mat4, Size> values;
 			values.fill(value);
@@ -174,7 +175,7 @@ namespace Uniforms
 
 		void operator ()(unsigned index, glm::mat4 value)
 		{
-			assert(isValid());
+			assert(isValidInternal());
 			assert(index < Size);
 			glUseProgram_proxy(programId);
 			glUniformMatrix4fv(uniformId + index, 1, GL_FALSE, glm::value_ptr(value));
@@ -182,7 +183,7 @@ namespace Uniforms
 
 		void operator ()(const std::array<glm::mat4, Size>& values)
 		{
-			assert(isValid());
+			assert(isValidInternal());
 			assert(values.size() == Size);
 			glUseProgram_proxy(programId);
 			glUniformMatrix4fv(uniformId, Size, GL_FALSE, values.data());

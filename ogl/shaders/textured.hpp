@@ -10,7 +10,7 @@ namespace Shaders
 		{
 			using ProgramBase::ProgramBase;
 
-			TexturedAccessor(ProgramId program):
+			TexturedAccessor(ProgramId program) :
 				ProgramBase(program),
 				model(program, "model"),
 				vp(program, "vp"),
@@ -26,6 +26,10 @@ namespace Shaders
 				numOfPlayers(program, "numOfPlayers"),
 				playersCenter(program, "playersCenter"),
 				playerUnhidingRadius(program, "playerUnhidingRadius"),
+				visibilityReduction(program, "visibilityReduction"),
+				visibilityCenter(program, "visibilityCenter"),
+				fullVisibilityDistance(program, "fullVisibilityDistance"),
+				invisibilityDistance(program, "invisibilityDistance"),
 				sceneCoordTextures(program, "sceneCoordTextures")
 			{
 			}
@@ -44,6 +48,10 @@ namespace Shaders
 			Uniforms::Uniform1i numOfPlayers;
 			Uniforms::Uniform2fv<4> playersCenter;
 			Uniforms::Uniform1f playerUnhidingRadius;
+			Uniforms::Uniform1b visibilityReduction;
+			Uniforms::Uniform2f visibilityCenter;
+			Uniforms::Uniform1f fullVisibilityDistance;
+			Uniforms::Uniform1f invisibilityDistance;
 			Uniforms::Uniform1b sceneCoordTextures;
 		};
 
@@ -66,6 +74,10 @@ namespace Shaders
 				numOfPlayers(0);
 				playersCenter(glm::vec2(0.0f, 0.0f));
 				playerUnhidingRadius(0.0f);
+				visibilityReduction(false);
+				visibilityCenter({ 0.0f, 0.0f });
+				fullVisibilityDistance(0.0f);
+				invisibilityDistance(0.0f);
 				sceneCoordTextures(false);
 			}
 
