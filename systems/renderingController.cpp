@@ -65,7 +65,6 @@ namespace Systems
 
 		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
 		Globals::Shaders().basic().vp(Globals::Components().mvp().getVP());
-		Globals::Shaders().basic().color(Globals::Components().graphicsSettings().defaultColor);
 
 		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
@@ -78,7 +77,8 @@ namespace Systems
 			texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
 
 			buffers.draw(Globals::Shaders().basic().getProgramId(), [](const auto& buffers) {
-				Globals::Shaders().basic().model(buffers.modelMatrixF ? buffers.modelMatrixF() : glm::mat4(1.0f));
+				Globals::Shaders().basic().model(buffers.modelMatrixF());
+				Globals::Shaders().basic().color((*buffers.colorF) ? (*buffers.colorF)() : Globals::Components().graphicsSettings().defaultColor);
 				});
 		};
 
@@ -96,7 +96,6 @@ namespace Systems
 
 		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
 		Globals::Shaders().textured().vp(Globals::Components().mvp().getVP());
-		Globals::Shaders().textured().color(Globals::Components().graphicsSettings().defaultColor);
 
 		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
@@ -109,7 +108,8 @@ namespace Systems
 			texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
 
 			buffers.draw(Globals::Shaders().textured(), [](const auto& buffers) {
-				Globals::Shaders().textured().model(buffers.modelMatrixF ? buffers.modelMatrixF() : glm::mat4(1.0f));
+				Globals::Shaders().textured().model(buffers.modelMatrixF());
+				Globals::Shaders().textured().color((*buffers.colorF) ? (*buffers.colorF)() : Globals::Components().graphicsSettings().defaultColor);
 				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers, *buffers.texture);
 				});
 		};

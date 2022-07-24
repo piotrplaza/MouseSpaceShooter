@@ -22,11 +22,5 @@ namespace Components
 		}
 
 		std::function<void()> step;
-		std::function<glm::mat4()> modelMatrixF;
-
-		glm::mat4 getModelMatrix() const override
-		{
-			return modelMatrixF ? modelMatrixF() : glm::mat4(1.0f);
-		}
 	};
 }

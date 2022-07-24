@@ -32,7 +32,8 @@ namespace Buffers
 		void allocateOrUpdateColorsBuffer(const std::vector<glm::vec4>& colors);
 		void allocateOrUpdateTexCoordBuffer(const std::vector<glm::vec2>& texCoord);
 
-		std::function<glm::mat4()> modelMatrixF = nullptr;
+		std::function<glm::mat4()> modelMatrixF;
+		std::function<glm::vec4()> *colorF = nullptr;
 		TextureComponentVariant* texture = nullptr;
 		std::optional<ComponentId>* renderingSetup = nullptr;
 		std::optional<Shaders::ProgramId>* customShadersProgram = nullptr;
@@ -140,6 +141,7 @@ namespace Buffers
 		void componentCommonsToBuffersCommons(SubComponent& subComponent, Buffers::GenericSubBuffers& buffers)
 		{
 			buffers.modelMatrixF = [&]() { return subComponent.getModelMatrix(); };
+			buffers.colorF = &subComponent.colorF;
 			buffers.renderingSetup = &subComponent.renderingSetup;
 			buffers.texture = &subComponent.texture;
 			buffers.drawMode = &subComponent.drawMode;

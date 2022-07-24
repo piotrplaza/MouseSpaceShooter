@@ -23,10 +23,12 @@ namespace Buffers
 
 struct Renderable
 {
-	Renderable(TextureComponentVariant texture = std::monostate{},
-		std::optional<ComponentId> renderingSetup = std::nullopt,
-		RenderLayer renderLayer = RenderLayer::Midground,
-		std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt,
+	Renderable() = default;
+
+	Renderable(TextureComponentVariant texture,
+		std::optional<ComponentId> renderingSetup,
+		RenderLayer renderLayer,
+		std::optional<Shaders::ProgramId> customShadersProgram,
 		std::vector<glm::vec3> vertices = {},
 		std::vector<glm::vec4> colors = {},
 		std::vector<glm::vec2> texCoord = {}):
@@ -44,6 +46,8 @@ struct Renderable
 	std::vector<glm::vec4> colors;
 	std::vector<glm::vec2> texCoord;
 
+	std::function<glm::mat4()> modelMatrixF;
+	std::function<glm::vec4()> colorF;
 	TextureComponentVariant texture;
 	std::optional<ComponentId> renderingSetup;
 	std::optional<Shaders::ProgramId> customShadersProgram;
@@ -66,6 +70,13 @@ struct Renderable
 		Buffers::GenericBuffers* buffers = nullptr;
 	} loaded;
 
+	virtual glm::mat4 getModelMatrix() const
+	{
+		return modelMatrixF
+			? modelMatrixF()
+			: glm::mat4(1.0f);
+	}
+
 	virtual std::vector<glm::vec3> getVertices(bool transformed = false) const
 	{
 		return transformed
@@ -73,7 +84,7 @@ struct Renderable
 			: vertices;
 	}
 
-	const std::vector<glm::vec4>& getColors() const
+	virtual const std::vector<glm::vec4>& getColors() const
 	{
 		return colors;
 	}
@@ -99,6 +110,4 @@ struct Renderable
 			return texCoord;
 		}
 	}
-
-	virtual glm::mat4 getModelMatrix() const = 0;
 };

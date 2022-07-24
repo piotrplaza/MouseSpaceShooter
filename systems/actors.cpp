@@ -47,6 +47,9 @@ namespace Systems
 			magneticHook(plane);
 
 			connections.updateBuffers();
+
+			if (plane.step)
+				plane.step();
 		}
 	}
 

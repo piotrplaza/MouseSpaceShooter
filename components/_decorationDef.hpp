@@ -39,9 +39,10 @@ struct DecorationDef
 	std::vector<glm::vec4> colors;
 	std::vector<glm::vec2> texCoord;
 
+	std::function<glm::mat4()> modelMatrixF;
+	std::function<glm::vec4()> colorF;
 	TextureComponentVariant texture;
 	std::optional<ComponentId> renderingSetup;
-	std::function<glm::mat4()> modelMatrixF;
 
 	GLenum drawMode = GL_TRIANGLES;
 	GLenum bufferDataUsage = GL_STATIC_DRAW;
@@ -54,6 +55,13 @@ struct DecorationDef
 	{
 		Buffers::GenericSubBuffers* subBuffers = nullptr;
 	} loaded;
+
+	glm::mat4 getModelMatrix() const
+	{
+		return modelMatrixF
+			? modelMatrixF()
+			: glm::mat4(1.0f);
+	}
 
 	std::vector<glm::vec3> getVertices(bool transformed = false) const
 	{
@@ -87,10 +95,5 @@ struct DecorationDef
 			assert(texCoord.size() == vertices.size());
 			return texCoord;
 		}
-	}
-
-	glm::mat4 getModelMatrix() const
-	{
-		return modelMatrixF ? modelMatrixF() : glm::mat4(1.0f);
 	}
 };

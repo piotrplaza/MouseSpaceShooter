@@ -1,15 +1,11 @@
 #pragma once
 
 #include "_componentBase.hpp"
-#include "_renderable.hpp"
-
-#include <tools/b2Helpers.hpp>
-
-#include <commonTypes/bodyUserData.hpp>
+#include "_physical.hpp"
 
 namespace Components
 {
-	struct Plane : ComponentBase, Renderable
+	struct Plane : ComponentBase, Physical
 	{
 		Plane() = default;
 
@@ -19,13 +15,11 @@ namespace Components
 			std::optional<ComponentId> renderingSetup = std::nullopt,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			Renderable(texture, renderingSetup, renderLayer, customShadersProgram),
-			body(std::move(body))
+			Physical(std::move(body), TCM::Plane(getComponentId()), texture, renderingSetup, renderLayer, customShadersProgram)
 		{
-			Tools::AccessUserData(*this->body).bodyComponentVariant = TCM::Plane(getComponentId());
 		}
 
-		Body body;
+		std::function<void()> step;
 
 		bool connectIfApproaching = false;
 
@@ -45,48 +39,5 @@ namespace Components
 			ComponentId connectedGrappleId = 0;
 			ComponentId weakConnectedGrappleId = 0;
 		} details;
-
-		std::vector<glm::vec3> getVertices(bool transformed = false) const override
-		{
-			return transformed
-				? Tools::Transform(Tools::GetVertices(*body), getModelMatrix())
-				: Tools::GetVertices(*body);
-		}
-
-		void setPosition(const glm::vec2& position)
-		{
-			body->SetTransform({ position.x, position.y }, body->GetAngle());
-		}
-
-		void setRotation(float angle)
-		{
-			body->SetTransform(body->GetPosition(), angle);
-		}
-
-		void resetKinematic()
-		{
-			body->SetLinearVelocity({ 0.0f, 0.0f });
-			body->SetAngularVelocity(0.0f);
-		}
-
-		glm::vec2 getCenter() const
-		{
-			return ToVec2<glm::vec2>(body->GetWorldCenter());
-		}
-
-		float getAngle() const
-		{
-			return body->GetAngle();
-		}
-
-		glm::vec2 getVelocity() const
-		{
-			return ToVec2<glm::vec2>(body->GetLinearVelocity());
-		}
-
-		glm::mat4 getModelMatrix() const override
-		{
-			return Tools::GetModelMatrix(*body);
-		}
 	};
 }

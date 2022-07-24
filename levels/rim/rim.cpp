@@ -21,6 +21,11 @@
 
 #include <algorithm>
 
+namespace
+{
+	constexpr glm::vec2 borderHSize = { 50.0f, 50.0f };
+}
+
 namespace Levels
 {
 	class Rim::Impl
@@ -43,22 +48,50 @@ namespace Levels
 				return [=]() mutable { sceneCoordTextures(false); };
 			});
 
-			visibilityReductionRS = Globals::Components().renderingSetups().size();
+			recursiveFaceRS = Globals::Components().renderingSetups().size();
 			Globals::Components().renderingSetups().emplace_back([
+				modelMatrix = Uniforms::UniformMat4f(),
 				visibilityReduction = Uniforms::Uniform1b(),
+				visibilityCenter = Uniforms::Uniform2f(),
 				fullVisibilityDistance = Uniforms::Uniform1f(),
-				invisibilityDistance = Uniforms::Uniform1f()
+				invisibilityDistance = Uniforms::Uniform1f(),
+				startTime = Globals::Components().physics().simulationDuration,
+				cycleDuration = Tools::Random(1.0f, 5.0f),
+				scale = Tools::Random(1.0f, 20.0f),
+				angle = 0.0f,
+				pos = glm::vec2(Tools::Random(-borderHSize.x, borderHSize.x), Tools::Random(-borderHSize.y, borderHSize.y)) * 0.8f,
+				rotSpeed = Tools::Random(-5.0f, 5.0f)
 			](Shaders::ProgramId program) mutable {
-					if (!visibilityReduction.isValid())
+					if (!modelMatrix.isValid())
+					{
+						modelMatrix = Uniforms::UniformMat4f(program, "model");
 						visibilityReduction = Uniforms::Uniform1b(program, "visibilityReduction");
-					if (!fullVisibilityDistance.isValid())
+						visibilityCenter = Uniforms::Uniform2f(program, "visibilityCenter");
 						fullVisibilityDistance = Uniforms::Uniform1f(program, "fullVisibilityDistance");
-					if (!invisibilityDistance.isValid())
 						invisibilityDistance = Uniforms::Uniform1f(program, "invisibilityDistance");
+					}
 
+					float cycleTime = Globals::Components().physics().simulationDuration - startTime;
+
+					if (cycleTime > cycleDuration)
+					{
+						cycleDuration = Tools::Random(1.0f, 5.0f),
+						scale = Tools::Random(1.0f, 20.0f);
+						pos = glm::vec2(Tools::Random(-borderHSize.x, borderHSize.x), Tools::Random(-borderHSize.y, borderHSize.y)) * 0.8f;
+						rotSpeed = Tools::Random(-5.0f, 5.0f);
+
+						startTime = Globals::Components().physics().simulationDuration;
+					}
+
+					modelMatrix(glm::scale(
+						glm::rotate(
+							glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0)),
+							angle += Globals::Components().physics().frameDuration * rotSpeed, { 0.0f, 0.0f, -1.0f }),
+						{ scale, scale, 1.0f }));
 					visibilityReduction(true);
+					visibilityCenter(pos);
 					fullVisibilityDistance(0.0f);
-					invisibilityDistance(4.0f);
+					invisibilityDistance(scale * 0.8f);
 
 					return [=]() mutable { visibilityReduction(false); };
 				});
@@ -147,7 +180,6 @@ namespace Levels
 		{
 			auto& walls = Globals::Components().walls();
 
-			const glm::vec2 borderHSize = { 50.0f, 50.0f };
 			const float borderHThickness = 2.0f;
 
 			for (int sign : {-1, 1})
@@ -163,11 +195,8 @@ namespace Levels
 		{
 			auto& decorations = Globals::Components().decorations();
 
-			decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.0f, 5.0f }),
-				TCM::AnimatedTexture(recursiveFaceAnimatedTexture), Tools::CreateTexCoordOfRectangle(), visibilityReductionRS, RenderLayer::NearBackground);
-			decorations.back().modelMatrixF = [angle = 0.0f]() mutable {
-				return glm::rotate(glm::mat4(1.0f), angle += 0.01f, { 0.0f, 0.0f, -1.0f });
-			};
+			decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }),
+				TCM::AnimatedTexture(recursiveFaceAnimatedTexture), Tools::CreateTexCoordOfRectangle(), recursiveFaceRS, RenderLayer::NearBackground);
 		}
 
 		void createPlayers()
@@ -199,7 +228,8 @@ namespace Levels
 						const auto& targetFixture = fixture == &fixtureA ? fixtureB : fixtureA;
 						const auto& missileBody = *fixture->GetBody();
 						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).id);
-						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture));
+						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture)
+							.particlesRadius(0.5f).particlesDensity(0.02f));
 					}
 				}
 				});
@@ -252,7 +282,7 @@ namespace Levels
 
 	private:
 		unsigned sceneCoordTexturesRS = 0;
-		unsigned visibilityReductionRS = 0;
+		unsigned recursiveFaceRS = 0;
 
 		unsigned rocketPlaneTexture = 0;
 		unsigned spaceRockTexture = 0;

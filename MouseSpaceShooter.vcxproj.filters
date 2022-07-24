@@ -402,6 +402,9 @@
     <ClInclude Include="levels\rim\rim.hpp">
       <Filter>src\levels\rim</Filter>
     </ClInclude>
+    <ClInclude Include="components\_physical.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">

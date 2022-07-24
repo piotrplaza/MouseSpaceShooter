@@ -230,8 +230,7 @@ namespace Levels
 						{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }),
 						TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle());
 					Globals::Components().walls().back().subsequence.back().modelMatrixF = [wallId = Globals::Components().walls().size() - 1]() {
-						return Globals::Components().walls()[wallId].getModelMatrix();
-					};
+						return Globals::Components().walls()[wallId].getModelMatrix(); };
 				};
 
 				auto& wall1Body = *Globals::Components().walls().emplace_back(
@@ -415,7 +414,9 @@ namespace Levels
 			grapple.render = false;
 			grapple.subsequence.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 2.2f, 2.2f }),
 				TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle());
-			grapple.subsequence.back().modelMatrixF = [&]() { return grapple.getModelMatrix(); };
+			grapple.subsequence.back().modelMatrixF = [&grapple]() {
+				return grapple.getModelMatrix();
+			};
 		}
 
 		void setCamera() const

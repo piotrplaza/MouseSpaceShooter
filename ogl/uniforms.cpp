@@ -1,5 +1,10 @@
 #include "uniforms.hpp"
 
+namespace
+{
+	constexpr bool invalidUniformsAllowed = false;
+}
+
 namespace Uniforms
 {
 	Uniform::Uniform() = default;
@@ -18,8 +23,6 @@ namespace Uniforms
 
 	bool Uniform::isValidInternal() const
 	{
-		constexpr bool invalidUniformsAllowed = true;
-
 		return invalidUniformsAllowed
 			? true
 			: isValid();
