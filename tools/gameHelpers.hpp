@@ -113,8 +113,8 @@ namespace Tools
 		glm::vec2 center_ = { 0, 0 };
 		int numOfParticles_ = 64;
 		float initVelocity_ = 100.0f;
-		float particlesRadius_ = 0.5f;
-		float particlesDensity_ = 0.02f;
+		float particlesRadius_ = 1.0f;
+		float particlesDensity_ = 0.01f;
 		float particlesLinearDamping_ = 3.0f;
 		bool particlesAsBullets_ = false;
 		float explosionDuration_ = 1.0f;
