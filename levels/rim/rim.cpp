@@ -24,6 +24,7 @@
 namespace
 {
 	constexpr glm::vec2 borderHSize = { 50.0f, 50.0f };
+	constexpr unsigned numOfRecursiveFaces = 100;
 }
 
 namespace Levels
@@ -48,53 +49,66 @@ namespace Levels
 				return [=]() mutable { sceneCoordTextures(false); };
 			});
 
-			recursiveFaceRS = Globals::Components().renderingSetups().size();
-			Globals::Components().renderingSetups().emplace_back([
-				modelMatrix = Uniforms::UniformMat4f(),
-				visibilityReduction = Uniforms::Uniform1b(),
-				visibilityCenter = Uniforms::Uniform2f(),
-				fullVisibilityDistance = Uniforms::Uniform1f(),
-				invisibilityDistance = Uniforms::Uniform1f(),
-				startTime = Globals::Components().physics().simulationDuration,
-				cycleDuration = Tools::Random(1.0f, 5.0f),
-				scale = Tools::Random(1.0f, 20.0f),
-				angle = 0.0f,
-				pos = glm::vec2(Tools::Random(-borderHSize.x, borderHSize.x), Tools::Random(-borderHSize.y, borderHSize.y)) * 0.8f,
-				rotSpeed = Tools::Random(-5.0f, 5.0f)
-			](Shaders::ProgramId program) mutable {
-					if (!modelMatrix.isValid())
-					{
-						modelMatrix = Uniforms::UniformMat4f(program, "model");
-						visibilityReduction = Uniforms::Uniform1b(program, "visibilityReduction");
-						visibilityCenter = Uniforms::Uniform2f(program, "visibilityCenter");
-						fullVisibilityDistance = Uniforms::Uniform1f(program, "fullVisibilityDistance");
-						invisibilityDistance = Uniforms::Uniform1f(program, "invisibilityDistance");
-					}
+			recursiveFaceRSBegin = Globals::Components().renderingSetups().size();
 
-					float cycleTime = Globals::Components().physics().simulationDuration - startTime;
-
-					if (cycleTime > cycleDuration)
-					{
+			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
+			{
+				Globals::Components().renderingSetups().emplace_back([
+					modelMatrix = Uniforms::UniformMat4f(),
+						color = Uniforms::Uniform4f(),
+						visibilityReduction = Uniforms::Uniform1b(),
+						visibilityCenter = Uniforms::Uniform2f(),
+						fullVisibilityDistance = Uniforms::Uniform1f(),
+						invisibilityDistance = Uniforms::Uniform1f(),
+						startTime = Globals::Components().physics().simulationDuration,
 						cycleDuration = Tools::Random(1.0f, 5.0f),
-						scale = Tools::Random(1.0f, 20.0f);
-						pos = glm::vec2(Tools::Random(-borderHSize.x, borderHSize.x), Tools::Random(-borderHSize.y, borderHSize.y)) * 0.8f;
-						rotSpeed = Tools::Random(-5.0f, 5.0f);
+						scale = Tools::Random(5.0f, 20.0f),
+						angle = 0.0f,
+						pos = glm::vec2(Tools::Random(-borderHSize.x, borderHSize.x), Tools::Random(-borderHSize.y, borderHSize.y)) * 0.8f,
+						rotSpeed = Tools::Random(-5.0f, 5.0f),
+						targetColor = glm::vec3(Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f))
+				](Shaders::ProgramId program) mutable {
+						if (!modelMatrix.isValid())
+						{
+							modelMatrix = Uniforms::UniformMat4f(program, "model");
+							color = Uniforms::Uniform4f(program, "color");
+							visibilityReduction = Uniforms::Uniform1b(program, "visibilityReduction");
+							visibilityCenter = Uniforms::Uniform2f(program, "visibilityCenter");
+							fullVisibilityDistance = Uniforms::Uniform1f(program, "fullVisibilityDistance");
+							invisibilityDistance = Uniforms::Uniform1f(program, "invisibilityDistance");
+						}
 
-						startTime = Globals::Components().physics().simulationDuration;
-					}
+						float cycleTime = Globals::Components().physics().simulationDuration - startTime;
 
-					modelMatrix(glm::scale(
-						glm::rotate(
-							glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0)),
-							angle += Globals::Components().physics().frameDuration * rotSpeed, { 0.0f, 0.0f, -1.0f }),
-						{ scale, scale, 1.0f }));
-					visibilityReduction(true);
-					visibilityCenter(pos);
-					fullVisibilityDistance(0.0f);
-					invisibilityDistance(scale * 0.8f);
+						if (cycleTime > cycleDuration)
+						{
+							cycleTime = 0.0f;
+							cycleDuration = Tools::Random(1.0f, 5.0f),
+								scale = Tools::Random(5.0f, 20.0f);
+							pos = glm::vec2(Tools::Random(-borderHSize.x, borderHSize.x), Tools::Random(-borderHSize.y, borderHSize.y)) * 0.8f;
+							rotSpeed = Tools::Random(-5.0f, 5.0f);
+							targetColor = glm::vec3(Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f));
 
-					return [=]() mutable { visibilityReduction(false); };
-				});
+							startTime = Globals::Components().physics().simulationDuration;
+						}
+
+						modelMatrix(glm::scale(
+							glm::rotate(
+								glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0)),
+								angle += Globals::Components().physics().frameDuration * rotSpeed, { 0.0f, 0.0f, -1.0f }),
+							{ scale, scale, 1.0f }));
+						color(glm::vec4(targetColor, 1.0f)* glm::sin(cycleTime / cycleDuration * glm::pi<float>()));
+						visibilityReduction(true);
+						visibilityCenter(pos);
+						fullVisibilityDistance(0.0f);
+						invisibilityDistance(scale * 0.8f);
+
+						return [=]() mutable {
+							color(glm::vec4(1.0f));
+							visibilityReduction(false);
+						};
+					});
+			}
 		}
 
 		void loadTextures()
@@ -135,15 +149,19 @@ namespace Levels
 		{
 			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
 			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
-				flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, Tools::Random(0.01f, 0.03f), 32, 0,
 				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
 			Globals::Components().animatedTextures().back().start(true);
 
-			recursiveFaceAnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
-				recursiveFaceAnimationTexture, { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
-				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
-			Globals::Components().animatedTextures().back().start(true);
+			recursiveFaceAnimatedTextureBegin = Globals::Components().animatedTextures().size();
+
+			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
+			{
+				Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
+					recursiveFaceAnimationTexture, { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, rand() % 50,
+					(i % 2 == 0) ? AnimationDirection::Forward : AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
+				Globals::Components().animatedTextures().back().start(true);
+			}
 		}
 
 		void createMovableWalls()
@@ -195,8 +213,11 @@ namespace Levels
 		{
 			auto& decorations = Globals::Components().decorations();
 
-			decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }),
-				TCM::AnimatedTexture(recursiveFaceAnimatedTexture), Tools::CreateTexCoordOfRectangle(), recursiveFaceRS, RenderLayer::NearBackground);
+			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
+			{
+				decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }),
+					TCM::AnimatedTexture(recursiveFaceAnimatedTextureBegin + i), Tools::CreateTexCoordOfRectangle(), recursiveFaceRSBegin + i, RenderLayer::NearBackground);
+			}
 		}
 
 		void createPlayers()
@@ -282,7 +303,7 @@ namespace Levels
 
 	private:
 		unsigned sceneCoordTexturesRS = 0;
-		unsigned recursiveFaceRS = 0;
+		unsigned recursiveFaceRSBegin = 0;
 
 		unsigned rocketPlaneTexture = 0;
 		unsigned spaceRockTexture = 0;
@@ -293,7 +314,7 @@ namespace Levels
 		unsigned recursiveFaceAnimationTexture = 0;
 
 		unsigned flame1AnimatedTexture = 0;
-		unsigned recursiveFaceAnimatedTexture = 0;
+		unsigned recursiveFaceAnimatedTextureBegin = 0;
 
 		unsigned rimWallBegin = 0;
 		unsigned rimWallEnd = 0;
