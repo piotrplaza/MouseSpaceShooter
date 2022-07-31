@@ -18,6 +18,11 @@
 
 #include <tools/graphicsHelpers.hpp>
 
+namespace
+{
+	constexpr float mouseSensitivity = 0.01f;
+}
+
 namespace Levels
 {
 	class Dzidzia::Impl
@@ -82,7 +87,7 @@ namespace Levels
 			auto& decorations = Globals::Components().decorations();
 
 			absClamp = { (float)screenInfo.windowSize.x / screenInfo.windowSize.y * 10.0f, 10.0f };
-			mousePos += mouseState.getWorldSpaceDelta() * 0.01f;
+			mousePos += mouseState.getWorldSpaceDelta() * mouseSensitivity;
 			mousePos = glm::clamp(mousePos, -absClamp, absClamp);
 			
 			if (keyboardState.pressed[' '])

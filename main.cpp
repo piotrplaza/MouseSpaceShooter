@@ -34,13 +34,14 @@
 
 #include <glm/glm.hpp>
 
+#include <Windows.h>
+#include <ShellScalingApi.h>
+#include <hidusage.h>
+
 #include <memory>
 #include <stdexcept>
 #include <vector>
 #include <array>
-
-#include <windows.h>
-#include <shellscalingapi.h>
 
 const bool fullScreen =
 #ifdef _DEBUG
@@ -70,12 +71,12 @@ void OGLInitialize()
 
 void CreateLevel()
 {
-	//activeLevel = std::make_unique<Levels::Playground>();
+	activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
 	//activeLevel = std::make_unique<Levels::Dzidzia>();
-	activeLevel = std::make_unique<Levels::Rim>();
+	//activeLevel = std::make_unique<Levels::Rim>();
 }
 
 void Initialize()
@@ -227,6 +228,18 @@ LRESULT CALLBACK WndProc(
 			if ((int)wParam > 0) ++Globals::Components().mouseState().pressing.wheel;
 			else if ((int)wParam < 0) --Globals::Components().mouseState().pressing.wheel;
 			break;
+		case WM_INPUT:
+		{
+			RAWINPUT raw;
+			unsigned size = sizeof(RAWINPUT);
+			GetRawInputData((HRAWINPUT)lParam, RID_INPUT, &raw, &size, sizeof(RAWINPUTHEADER));
+
+			if (raw.header.dwType == RIM_TYPEMOUSE)
+			{
+				Globals::Components().mouseState().delta += glm::ivec2((int)raw.data.mouse.lLastX, (int)raw.data.mouse.lLastY);
+			}
+			break;
+		}
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -254,6 +267,16 @@ void SetDCPixelFormat(HDC hDC)
 	};
 	const int pixelFormt = ChoosePixelFormat(hDC, &pfd);
 	SetPixelFormat(hDC, pixelFormt, &pfd);
+}
+
+void RegisterRawInputDevices(HWND hWnd)
+{
+	RAWINPUTDEVICE rid;
+	rid.usUsagePage = HID_USAGE_PAGE_GENERIC;
+	rid.usUsage = HID_USAGE_GENERIC_MOUSE;
+	rid.dwFlags = RIDEV_INPUTSINK;
+	rid.hwndTarget = hWnd;
+	RegisterRawInputDevices(&rid, 1, sizeof(rid));
 }
 
 int APIENTRY WinMain(
@@ -307,6 +330,8 @@ int APIENTRY WinMain(
 		return false;
 	}
 
+	RegisterRawInputDevices(hWnd);
+
 	ShowWindow(hWnd, SW_SHOW);
 	
 	MSG msg{};
@@ -326,8 +351,11 @@ int APIENTRY WinMain(
 				resetMousePositionRequired = false;
 			}
 			Globals::Systems().stateController().handleKeyboard(keys);
-			Globals::Systems().stateController().handleMouse();
+			Globals::Systems().stateController().handleMouseButtons();
+
 			PrepareFrame();
+
+			Globals::Components().mouseState().delta = { 0, 0 };
 
 			glFinish(); //Not sure why, but it helps with stuttering in some scenarios, e.g. if missile was launched (release + lower display refresh rate => bigger stuttering without it).
 			SwapBuffers(hDC);

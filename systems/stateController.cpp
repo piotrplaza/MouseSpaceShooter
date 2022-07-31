@@ -121,12 +121,9 @@ namespace Systems
 		Tools::SetMousePos(Globals::Components().screenInfo().windowCenterInScreenSpace);
 	}
 
-	void StateController::handleMouse()
+	void StateController::handleMouseButtons()
 	{
 		auto& mouseState = Globals::Components().mouseState();
-
-		mouseState.delta = Tools::GetMousePos() - Globals::Components().screenInfo().windowCenterInScreenSpace;
-		resetMousePosition();
 
 		auto updateButton = [&](bool Components::MouseState::Buttons::* button)
 		{
