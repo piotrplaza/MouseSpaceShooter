@@ -188,7 +188,7 @@ namespace Levels
 		void createGrapples()
 		{
 			auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ 0.0f, 0.0f }, 20.0f), TCM::Texture(orbTexture) });
-			grapple.influenceRadius = 60.0f;
+			grapple.influenceRadius = 100.0f;
 			planetId = grapple.getComponentId();
 		}
 
@@ -276,7 +276,11 @@ namespace Levels
 					glm::normalize(ToVec2<glm::vec2>(missile.body->GetLinearVelocity()) - missilesToHandlers[id].referenceVelocity)));
 			}
 
-			projectionHSizeBase = std::clamp(projectionHSizeBase + mouseState.pressed.wheel * -5.0f, 5.0f, 100.0f);
+			if (mouseState.pressing.mmb)
+				Globals::Components().physics().gameSpeed = std::clamp(Globals::Components().physics().gameSpeed
+					+ mouseState.pressed.wheel * 0.1f, 0.0f, 2.0f);
+			else
+				projectionHSizeBase = std::clamp(projectionHSizeBase + mouseState.pressed.wheel * -5.0f, 5.0f, 100.0f);
 		}
 
 	private:
