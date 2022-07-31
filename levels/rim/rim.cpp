@@ -83,8 +83,8 @@ namespace Levels
 						if (cycleTime > cycleDuration)
 						{
 							cycleTime = 0.0f;
-							cycleDuration = Tools::Random(1.0f, 5.0f),
-								scale = Tools::Random(5.0f, 20.0f);
+							cycleDuration = Tools::Random(1.0f, 5.0f);
+							scale = Tools::Random(5.0f, 20.0f);
 							pos = glm::vec2(Tools::Random(-borderHSize.x, borderHSize.x), Tools::Random(-borderHSize.y, borderHSize.y)) * 0.8f;
 							rotSpeed = Tools::Random(-5.0f, 5.0f);
 							targetColor = glm::vec3(Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f));
