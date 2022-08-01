@@ -58,7 +58,7 @@ struct Physical : Renderable
 		body->SetAngularVelocity(0.0f);
 	}
 
-	virtual glm::vec2 getCenter() const
+	glm::vec2 getCenter() const override
 	{
 		return ToVec2<glm::vec2>(body->GetWorldCenter());
 	}

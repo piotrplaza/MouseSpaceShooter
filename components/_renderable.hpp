@@ -110,4 +110,9 @@ struct Renderable
 			return texCoord;
 		}
 	}
+
+	virtual glm::vec2 getCenter() const
+	{
+		return getModelMatrix() * glm::vec4(1.0f);
+	}
 };

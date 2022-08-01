@@ -7,6 +7,7 @@
 #include <components/decoration.hpp>
 #include <components/keyboardState.hpp>
 #include <components/mouseState.hpp>
+#include <components/renderingSetup.hpp>
 
 #include <systems/decorations.hpp>
 
@@ -17,6 +18,7 @@
 #include <ogl/shaders/textured.hpp>
 
 #include <tools/graphicsHelpers.hpp>
+#include <tools/gameHelpers.hpp>
 
 namespace
 {
@@ -53,24 +55,59 @@ namespace Levels
 			textures.back().minFilter = GL_LINEAR;
 		}
 
+		void createBackground()
+		{
+			Tools::CreateJuliaBackground([this]() {
+				return Globals::Components().decorations()[dzidziaDecoration].getCenter() * 0.0001f; });
+		}
+
 		void createDecorations()
 		{
 			auto& decorations = Globals::Components().decorations();
+			auto& renderingSetups = Globals::Components().renderingSetups();
+
+			auto pos = std::make_shared<glm::vec2>(0.0f);
+
+			renderingSetups.emplace_back([
+				visibilityReduction = Uniforms::Uniform1b(),
+				visibilityCenter = Uniforms::Uniform2f(),
+				fullVisibilityDistance = Uniforms::Uniform1f(),
+				invisibilityDistance = Uniforms::Uniform1f(),
+				pos
+			](Shaders::ProgramId program) mutable {
+				if (!visibilityReduction.isValid())
+				{
+					visibilityReduction = Uniforms::Uniform1b(program, "visibilityReduction");
+					visibilityCenter = Uniforms::Uniform2f(program, "visibilityCenter");
+					fullVisibilityDistance = Uniforms::Uniform1f(program, "fullVisibilityDistance");
+					invisibilityDistance = Uniforms::Uniform1f(program, "invisibilityDistance");
+				}
+
+				visibilityReduction(true);
+				visibilityCenter(*pos);
+				fullVisibilityDistance(4.5f);
+				invisibilityDistance(5.0f);
+
+				return [=]() mutable {
+					visibilityReduction(false);
+				};
+			});
 
 			decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.0f, 5.0f }),
-				TCM::Texture(dzidziaITata1Texture), Tools::CreateTexCoordOfRectangle()).preserveTextureRatio = true;
-			decorations.back().modelMatrixF = [pos = glm::vec2(0.0f), step = glm::vec2(10.0f)]() mutable {
+				TCM::Texture(dzidziaITata1Texture), Tools::CreateTexCoordOfRectangle(), renderingSetups.size() - 1).preserveTextureRatio = true;
+			decorations.back().modelMatrixF = [pos, step = glm::vec2(5.0f)]() mutable {
 				const auto& screenInfo = Globals::Components().screenInfo();
 				const glm::vec2 absClamp = { (float)screenInfo.windowSize.x / screenInfo.windowSize.y * 10.0f, 10.0f };
 
-				pos += step * Globals::Components().physics().frameDuration;
+				*pos += step * Globals::Components().physics().frameDuration;
 				for (int i : {0, 1})
-					if (pos[i] < -absClamp[i] || pos[i] > absClamp[i])
+					if ((*pos)[i] < -absClamp[i] || (*pos)[i] > absClamp[i])
 						step[i] = -step[i];
 
-				return glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f));
+				return glm::translate(glm::mat4(1.0f), glm::vec3(*pos, 0.0f));
 			};
 
+			dzidziaDecoration = decorations.size();
 			decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
 				TCM::Texture(dzidzia1Texture), Tools::CreateTexCoordOfRectangle()).preserveTextureRatio = true;
 			decorations.back().modelMatrixF = [this]() mutable {
@@ -102,6 +139,7 @@ namespace Levels
 					};
 
 					assert(decorations.size() < decorations.capacity());
+					dzidziaDecoration = decorations.size();
 					decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
 						TCM::Texture(dzidzia1Texture), Tools::CreateTexCoordOfRectangle()).preserveTextureRatio = true;
 					decorations.back().modelMatrixF = [this]() mutable {
@@ -119,6 +157,8 @@ namespace Levels
 		unsigned dzidzia1Texture = 0;
 		unsigned dzidziaITata1Texture = 0;
 
+		unsigned dzidziaDecoration = 0;
+
 		glm::vec2 absClamp{ 0.0f };
 		glm::vec2 mousePos{ 0.0f };
 
@@ -134,6 +174,7 @@ namespace Levels
 		impl->reserveMemory();
 		impl->setGraphicsSettings();
 		impl->loadTextures();
+		impl->createBackground();
 		impl->createDecorations();
 	}
 

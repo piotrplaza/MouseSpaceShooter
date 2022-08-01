@@ -55,59 +55,59 @@ namespace Levels
 			{
 				Globals::Components().renderingSetups().emplace_back([
 					modelMatrix = Uniforms::UniformMat4f(),
-						color = Uniforms::Uniform4f(),
-						visibilityReduction = Uniforms::Uniform1b(),
-						visibilityCenter = Uniforms::Uniform2f(),
-						fullVisibilityDistance = Uniforms::Uniform1f(),
-						invisibilityDistance = Uniforms::Uniform1f(),
-						startTime = Globals::Components().physics().simulationDuration,
-						cycleDuration = Tools::Random(1.0f, 5.0f),
-						scale = Tools::Random(5.0f, 20.0f),
-						angle = 0.0f,
-						pos = glm::vec2(Tools::Random(-borderHSize.x, borderHSize.x), Tools::Random(-borderHSize.y, borderHSize.y)) * 0.8f,
-						rotSpeed = Tools::Random(-5.0f, 5.0f),
-						targetColor = glm::vec3(Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f))
+					color = Uniforms::Uniform4f(),
+					visibilityReduction = Uniforms::Uniform1b(),
+					visibilityCenter = Uniforms::Uniform2f(),
+					fullVisibilityDistance = Uniforms::Uniform1f(),
+					invisibilityDistance = Uniforms::Uniform1f(),
+					startTime = Globals::Components().physics().simulationDuration,
+					cycleDuration = Tools::Random(1.0f, 5.0f),
+					scale = Tools::Random(5.0f, 20.0f),
+					angle = 0.0f,
+					pos = glm::vec2(Tools::Random(-borderHSize.x, borderHSize.x), Tools::Random(-borderHSize.y, borderHSize.y)) * 0.8f,
+					rotSpeed = Tools::Random(-5.0f, 5.0f),
+					targetColor = glm::vec3(Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f))
 				](Shaders::ProgramId program) mutable {
-						if (!modelMatrix.isValid())
-						{
-							modelMatrix = Uniforms::UniformMat4f(program, "model");
-							color = Uniforms::Uniform4f(program, "color");
-							visibilityReduction = Uniforms::Uniform1b(program, "visibilityReduction");
-							visibilityCenter = Uniforms::Uniform2f(program, "visibilityCenter");
-							fullVisibilityDistance = Uniforms::Uniform1f(program, "fullVisibilityDistance");
-							invisibilityDistance = Uniforms::Uniform1f(program, "invisibilityDistance");
-						}
+					if (!modelMatrix.isValid())
+					{
+						modelMatrix = Uniforms::UniformMat4f(program, "model");
+						color = Uniforms::Uniform4f(program, "color");
+						visibilityReduction = Uniforms::Uniform1b(program, "visibilityReduction");
+						visibilityCenter = Uniforms::Uniform2f(program, "visibilityCenter");
+						fullVisibilityDistance = Uniforms::Uniform1f(program, "fullVisibilityDistance");
+						invisibilityDistance = Uniforms::Uniform1f(program, "invisibilityDistance");
+					}
 
-						float cycleTime = Globals::Components().physics().simulationDuration - startTime;
+					float cycleTime = Globals::Components().physics().simulationDuration - startTime;
 
-						if (cycleTime > cycleDuration)
-						{
-							cycleTime = 0.0f;
-							cycleDuration = Tools::Random(1.0f, 5.0f);
-							scale = Tools::Random(5.0f, 20.0f);
-							pos = glm::vec2(Tools::Random(-borderHSize.x, borderHSize.x), Tools::Random(-borderHSize.y, borderHSize.y)) * 0.8f;
-							rotSpeed = Tools::Random(-5.0f, 5.0f);
-							targetColor = glm::vec3(Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f));
+					if (cycleTime > cycleDuration)
+					{
+						cycleTime = 0.0f;
+						cycleDuration = Tools::Random(1.0f, 5.0f);
+						scale = Tools::Random(5.0f, 20.0f);
+						pos = glm::vec2(Tools::Random(-borderHSize.x, borderHSize.x), Tools::Random(-borderHSize.y, borderHSize.y)) * 0.8f;
+						rotSpeed = Tools::Random(-5.0f, 5.0f);
+						targetColor = glm::vec3(Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f));
 
-							startTime = Globals::Components().physics().simulationDuration;
-						}
+						startTime = Globals::Components().physics().simulationDuration;
+					}
 
-						modelMatrix(glm::scale(
-							glm::rotate(
-								glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0)),
-								angle += Globals::Components().physics().frameDuration * rotSpeed, { 0.0f, 0.0f, -1.0f }),
-							{ scale, scale, 1.0f }));
-						color(glm::vec4(targetColor, 1.0f)* glm::sin(cycleTime / cycleDuration * glm::pi<float>()));
-						visibilityReduction(true);
-						visibilityCenter(pos);
-						fullVisibilityDistance(0.0f);
-						invisibilityDistance(scale * 0.8f);
+					modelMatrix(glm::scale(
+						glm::rotate(
+							glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0)),
+							angle += Globals::Components().physics().frameDuration * rotSpeed, { 0.0f, 0.0f, -1.0f }),
+						{ scale, scale, 1.0f }));
+					color(glm::vec4(targetColor, 1.0f)* glm::sin(cycleTime / cycleDuration * glm::pi<float>()));
+					visibilityReduction(true);
+					visibilityCenter(pos);
+					fullVisibilityDistance(0.0f);
+					invisibilityDistance(scale * 0.8f);
 
-						return [=]() mutable {
-							color(glm::vec4(1.0f));
-							visibilityReduction(false);
-						};
-					});
+					return [=]() mutable {
+						color(glm::vec4(1.0f));
+						visibilityReduction(false);
+					};
+				});
 			}
 		}
 
