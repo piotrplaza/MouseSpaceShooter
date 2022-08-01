@@ -75,8 +75,8 @@ void CreateLevel()
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
-	activeLevel = std::make_unique<Levels::Dzidzia>();
-	//activeLevel = std::make_unique<Levels::Rim>();
+	//activeLevel = std::make_unique<Levels::Dzidzia>();
+	activeLevel = std::make_unique<Levels::Rim>();
 }
 
 void Initialize()

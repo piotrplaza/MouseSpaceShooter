@@ -24,7 +24,8 @@
 namespace
 {
 	constexpr glm::vec2 borderHSize = { 50.0f, 50.0f };
-	constexpr unsigned numOfRecursiveFaces = 100;
+	constexpr float borderHThickness = 10.0f;
+	constexpr unsigned numOfRecursiveFaces = 200;
 }
 
 namespace Levels
@@ -97,7 +98,7 @@ namespace Levels
 							glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0)),
 							angle += Globals::Components().physics().frameDuration * rotSpeed, { 0.0f, 0.0f, -1.0f }),
 						{ scale, scale, 1.0f }));
-					color(glm::vec4(targetColor, 1.0f)* glm::sin(cycleTime / cycleDuration * glm::pi<float>()));
+					color(glm::vec4(targetColor, 1.0f) * glm::sin(cycleTime / cycleDuration * glm::pi<float>()) * 0.1f);
 					visibilityReduction(true);
 					visibilityCenter(pos);
 					fullVisibilityDistance(0.0f);
@@ -122,7 +123,7 @@ namespace Levels
 
 			spaceRockTexture = textures.size();
 			textures.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT);
-			textures.back().scale = glm::vec2(20.0f, 20.0f);
+			textures.back().scale = glm::vec2(50.0f, 50.0f);
 
 			flame1AnimationTexture = textures.size();
 			textures.emplace_back("textures/flame animation 1.jpg");
@@ -183,7 +184,7 @@ namespace Levels
 				const glm::vec2 pos1(glm::cos(i * rimStep) * rimRadius, glm::sin(i * rimStep) * rimRadius);
 				const glm::vec2 pos2(glm::cos((i + 1) * rimStep) * rimRadius, glm::sin((i + 1) * rimStep) * rimRadius);
 				walls.emplace_back(Tools::CreateBoxBody((pos1 + pos2) / 2.0f, { rimHThickness, rimSegmentHLength + rimSegmentMariginsHLength },
-					rimStep * (2 * i + 1) / 2, b2_dynamicBody, 0.01f), TCM::Texture(mosaicTexture));
+					rimStep * (2 * i + 1) / 2, b2_dynamicBody, 0.01f), TCM::Texture(mosaicTexture), sceneCoordTexturesRS);
 				walls.back().texCoord = walls.back().getTexCoord(true);
 
 				if (i > 0)
@@ -198,14 +199,14 @@ namespace Levels
 		{
 			auto& walls = Globals::Components().walls();
 
-			const float borderHThickness = 2.0f;
-
 			for (int sign : {-1, 1})
 			{
-				walls.emplace_back(Tools::CreateBoxBody({ borderHSize.x * sign, 0.0f },
-					{ borderHThickness, borderHSize.y + borderHThickness }), TCM::Texture(spaceRockTexture), sceneCoordTexturesRS);
-				walls.emplace_back(Tools::CreateBoxBody({ 0.0f, borderHSize.y * sign },
-					{ borderHSize.x + borderHThickness, borderHThickness }), TCM::Texture(spaceRockTexture), sceneCoordTexturesRS);
+				walls.emplace_back(Tools::CreateBoxBody({ (borderHSize.x + borderHThickness) * sign, 0.0f },
+					{ borderHThickness, borderHSize.y + borderHThickness * 2.0f }), TCM::Texture(spaceRockTexture),
+					sceneCoordTexturesRS).colorF = []() { return glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); };
+				walls.emplace_back(Tools::CreateBoxBody({ 0.0f, (borderHSize.y + borderHThickness) * sign },
+					{ borderHSize.x + borderHThickness * 2.0f, borderHThickness }), TCM::Texture(spaceRockTexture),
+					sceneCoordTexturesRS).colorF = []() { return glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); };
 			}
 		}
 
