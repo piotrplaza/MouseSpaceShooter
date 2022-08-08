@@ -98,7 +98,7 @@ namespace Levels
 							glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0)),
 							angle += Globals::Components().physics().frameDuration * rotSpeed, { 0.0f, 0.0f, -1.0f }),
 						{ scale, scale, 1.0f }));
-					color(glm::vec4(targetColor, 1.0f) * glm::sin(cycleTime / cycleDuration * glm::pi<float>()) * 0.1f);
+					color(glm::vec4(targetColor, 1.0f) * glm::sin(cycleTime / cycleDuration * glm::pi<float>()) * 0.2f);
 					visibilityReduction(true);
 					visibilityCenter(pos);
 					fullVisibilityDistance(0.0f);

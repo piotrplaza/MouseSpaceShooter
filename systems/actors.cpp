@@ -101,11 +101,7 @@ namespace Systems
 
 	void Actors::throttle(Components::Plane& plane) const
 	{
-		if (!plane.controls.throttling) return;
-
-		const float currentAngle = plane.body->GetAngle();
-		plane.body->ApplyForce(b2Vec2(glm::cos(currentAngle),
-			glm::sin(currentAngle)) * planeForwardForce, plane.body->GetWorldCenter(), true);
+		plane.throttle(plane.controls.throttling * planeForwardForce);
 	}
 
 	void Actors::magneticHook(Components::Plane& plane)

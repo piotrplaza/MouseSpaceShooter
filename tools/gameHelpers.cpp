@@ -50,23 +50,30 @@ namespace Tools
 			auto& decoration = Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }),
 				TCM::AnimatedTexture(flameAnimatedTexture));
 
-			Globals::Components().renderingSetups().emplace_back([&, i, modelUniform = Uniforms::UniformMat4f(),
-				thrustScale = 1.0f
-				](Shaders::ProgramId program) mutable {
-					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
-					modelUniform(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*plane.body),
-						{ -1.0f - thrustScale * 0.25f, i == 0 ? -0.5f : 0.5f, 0.0f }),
-						-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
-						{ std::min(thrustScale * 0.5f, 0.6f), thrustScale, 1.0f }));
+			Globals::Components().renderingSetups().emplace_back([&, i,
+				modelUniform = Uniforms::UniformMat4f(),
+				thrust = 1.0f
+			](Shaders::ProgramId program) mutable {
+				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
+				modelUniform(
+					glm::translate(
+						glm::scale(
+							glm::rotate(
+								glm::translate(Tools::GetModelMatrix(*plane.body), { -0.5f, i == 0 ? -0.4f : 0.4f, 0.0f }),
+								-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
+							{ 0.5f + thrust * 0.02f, thrust, 1.0f }),
+						{ 0.0f, -0.5f, 0.0f }));
 
-					const float targetFrameDurationFactor = Globals::Components().physics().frameDuration * 6;
-					if (plane.controls.throttling) thrustScale = std::min(thrustScale * (1.0f + targetFrameDurationFactor), 5.0f);
-					else thrustScale = 1.0f + (thrustScale - 1.0f) * (1.0f - targetFrameDurationFactor);
+				const float targetThrust = 1.0f + plane.details.throttleForce * 0.3f;
+				const float changeStep = Globals::Components().physics().frameDuration * 10.0f;
+				thrust += thrust < targetThrust
+					? changeStep
+					: -changeStep;
 
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-					return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
-				});
+				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+			});
 
 			decoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 			decoration.renderLayer = RenderLayer::FarMidground;
