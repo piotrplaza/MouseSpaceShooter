@@ -29,6 +29,8 @@
 
 #include "tools/utility.hpp"
 
+#include <SDL.h>
+
 #include <GL/glew.h>
 #include <gl/gl.h>
 
@@ -42,6 +44,7 @@
 #include <stdexcept>
 #include <vector>
 #include <array>
+#include <type_traits>
 
 const bool fullScreen =
 #ifdef _DEBUG
@@ -84,6 +87,7 @@ void Initialize()
 	if (console) Tools::RedirectIOToConsole({ 4000, 10 });
 	Tools::RandomInit();
 	OGLInitialize();
+	SDL_Init(SDL_INIT_JOYSTICK);
 
 	Globals::InitializeShaders();
 	Globals::InitializeComponents();
@@ -126,7 +130,6 @@ void SetDCPixelFormat(HDC hDC);
 static std::array<bool, 256> keys;
 static bool quit;
 static bool focus;
-static bool resetMousePositionRequired;
 static HDC hDC;
 
 LRESULT CALLBACK WndProc(
@@ -136,6 +139,13 @@ LRESULT CALLBACK WndProc(
 	LPARAM lParam)
 {
 	static HGLRC hRC;
+
+	auto dummyIfPaused = [](auto& state) -> decltype(state) {
+		static std::remove_reference<decltype(state)>::type dummy{};
+		return Globals::Components().physics().paused
+			? dummy
+			: state;
+	};
 
 	switch(message)
 	{
@@ -176,36 +186,36 @@ LRESULT CALLBACK WndProc(
 			break;
 		}
 		case WM_SETFOCUS:
+			Globals::Systems().stateController().setWindowFocus();
 			ShowCursor(false);
 			focus = true;
-			resetMousePositionRequired = true;
-			Globals::Components().physics().paused = false;
 			break;
 		case WM_KILLFOCUS:
+			Globals::Systems().stateController().killWindowFocus();
 			ShowCursor(true);
 			focus = false;
-			Globals::Components().physics().paused = true;
 			break;
 		case WM_KEYDOWN:
-			keys[wParam] = true;
+			if (wParam == 'P') keys[wParam] = true;
+			else dummyIfPaused(keys[wParam]) = true;
 			break;
 		case WM_KEYUP:
 			keys[wParam] = false;
 			break;
 		case WM_RBUTTONDOWN:
-			Globals::Components().mouseState().pressing.rmb = true;
+			dummyIfPaused(Globals::Components().mouseState().pressing.rmb) = true;
 			break;
 		case WM_RBUTTONUP:
 			Globals::Components().mouseState().pressing.rmb = false;
 			break;
 		case WM_LBUTTONDOWN:
-			Globals::Components().mouseState().pressing.lmb = true;
+			dummyIfPaused(Globals::Components().mouseState().pressing.lmb) = true;
 			break;
 		case WM_LBUTTONUP:
 			Globals::Components().mouseState().pressing.lmb = false;
 			break;
 		case WM_MBUTTONDOWN:
-			Globals::Components().mouseState().pressing.mmb = true;
+			dummyIfPaused(Globals::Components().mouseState().pressing.mmb) = true;
 			break;
 		case WM_MBUTTONUP:
 			Globals::Components().mouseState().pressing.mmb = false;
@@ -213,8 +223,8 @@ LRESULT CALLBACK WndProc(
 		case WM_XBUTTONDOWN:
 			switch (HIWORD(wParam))
 			{
-				case XBUTTON1: Globals::Components().mouseState().pressing.xmb1 = true; break;
-				case XBUTTON2: Globals::Components().mouseState().pressing.xmb2 = true; break;
+				case XBUTTON1: dummyIfPaused(Globals::Components().mouseState().pressing.xmb1) = true; break;
+				case XBUTTON2: dummyIfPaused(Globals::Components().mouseState().pressing.xmb2) = true; break;
 			}
 			break;
 		case WM_XBUTTONUP:
@@ -225,8 +235,8 @@ LRESULT CALLBACK WndProc(
 			}
 			break;
 		case WM_MOUSEWHEEL:
-			if ((int)wParam > 0) ++Globals::Components().mouseState().pressing.wheel;
-			else if ((int)wParam < 0) --Globals::Components().mouseState().pressing.wheel;
+			if ((int)wParam > 0) ++dummyIfPaused(Globals::Components().mouseState().pressing.wheel);
+			else if ((int)wParam < 0) --dummyIfPaused(Globals::Components().mouseState().pressing.wheel);
 			break;
 		case WM_INPUT:
 		{
@@ -236,7 +246,8 @@ LRESULT CALLBACK WndProc(
 
 			if (raw.header.dwType == RIM_TYPEMOUSE)
 			{
-				Globals::Components().mouseState().delta += glm::ivec2((int)raw.data.mouse.lLastX, (int)raw.data.mouse.lLastY);
+				dummyIfPaused(Globals::Components().mouseState().delta)
+					+= glm::ivec2((int)raw.data.mouse.lLastX, (int)raw.data.mouse.lLastY);
 			}
 			break;
 		}
@@ -343,15 +354,12 @@ int APIENTRY WinMain(
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		else if(focus)
+		else if (focus)
 		{
-			if (resetMousePositionRequired)
-			{
-				Globals::Systems().stateController().resetMousePosition();
-				resetMousePositionRequired = false;
-			}
+			Globals::Systems().stateController().resetMousePosition();
 			Globals::Systems().stateController().handleKeyboard(keys);
 			Globals::Systems().stateController().handleMouseButtons();
+			Globals::Systems().stateController().handleGamepads();
 
 			PrepareFrame();
 

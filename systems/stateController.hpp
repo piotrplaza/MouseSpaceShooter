@@ -20,9 +20,12 @@ namespace Systems
 		void stepTeardown() const;
 		void changeWindowSize(glm::ivec2 size) const;
 		void changeWindowLocation(glm::ivec2 location) const;
+		void setWindowFocus() const;
+		void killWindowFocus() const;
 		void resetMousePosition() const;
 		void handleMouseButtons();
 		void handleKeyboard(const std::array<bool, 256>& keys);
+		void handleGamepads();
 
 	private:
 		std::array<bool, 256> prevKeyboardKeys{};

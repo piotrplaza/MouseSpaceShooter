@@ -18,6 +18,8 @@
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
 
+#include <SDL_gamecontroller.h>
+
 namespace
 {
 	constexpr int lowerResDivisor = 2;
@@ -116,6 +118,19 @@ namespace Systems
 		screenInfo.windowCenterInScreenSpace = { location + screenInfo.windowSize / 2 };
 	}
 
+	void StateController::setWindowFocus() const
+	{
+		resetMousePosition();
+		Globals::Components().mouseState().pressing = Components::MouseState::Buttons();
+		Globals::Components().keyboardState().pressing = std::array<bool, 256>({});
+		Globals::Components().physics().prevFrameTime = std::chrono::high_resolution_clock::now();
+	}
+
+	void StateController::killWindowFocus() const
+	{
+		Globals::Components().physics().paused = true;
+	}
+
 	void StateController::resetMousePosition() const
 	{
 		Tools::SetMousePos(Globals::Components().screenInfo().windowCenterInScreenSpace);
@@ -157,5 +172,11 @@ namespace Systems
 		}
 
 		prevKeyboardKeys = keys;
+	}
+
+	void StateController::handleGamepads()
+	{
+		SDL_Joystick* joystick = SDL_JoystickOpen(0);
+		//cout << SDL_NumJoysticks() << endl;
 	}
 }

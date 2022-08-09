@@ -8,8 +8,8 @@ namespace Components
 {
 	struct KeyboardState : ComponentBase
 	{
-		std::array<bool, 256> pressed;
-		std::array<bool, 256> released;
-		std::array<bool, 256> pressing;
+		std::array<bool, 256> pressed{};
+		std::array<bool, 256> released{};
+		std::array<bool, 256> pressing{};
 	};
 }

@@ -39,7 +39,7 @@ namespace Systems
 	{
 		Globals::Components().physics().world->SetContactListener(&contactListener);
 #ifndef _DEBUG 
-		prevFrameTime = std::chrono::high_resolution_clock::now();
+		Globals::Components().physics().prevFrameTime = std::chrono::high_resolution_clock::now();
 #endif
 	}
 
@@ -48,8 +48,8 @@ namespace Systems
 		auto& physics = Globals::Components().physics();
 		const auto currentTime = std::chrono::high_resolution_clock::now();
 #ifndef _DEBUG
-		physics.frameDuration = !physics.paused * (std::chrono::duration<float>(currentTime - prevFrameTime).count()) * physics.gameSpeed;
-		prevFrameTime = currentTime;
+		physics.frameDuration = !physics.paused * (std::chrono::duration<float>(currentTime - physics.prevFrameTime).count()) * physics.gameSpeed;
+		physics.prevFrameTime = currentTime;
 #else
 		physics.frameDuration = !physics.paused * debugFrameDuration * physics.gameSpeed;
 #endif
