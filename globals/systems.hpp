@@ -26,7 +26,7 @@ namespace Globals
 		Systems::Physics& physics();
 		Systems::Textures& textures();
 		Systems::Actors& actors();
-		Systems::Structures& walls();
+		Systems::Structures& structures();
 		Systems::Camera& camera();
 		Systems::Decorations& decorations();
 		Systems::Temporaries& temporaries();

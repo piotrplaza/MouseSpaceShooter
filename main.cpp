@@ -98,7 +98,7 @@ void Initialize()
 	Globals::Systems().textures().postInit();
 	Globals::Systems().physics().postInit();
 	Globals::Systems().actors().postInit();
-	Globals::Systems().walls().postInit();
+	Globals::Systems().structures().postInit();
 	Globals::Systems().decorations().postInit();
 	Globals::Systems().camera().postInit();
 	Globals::Systems().renderingController().postInit();
@@ -113,7 +113,7 @@ void PrepareFrame()
 	Globals::Systems().physics().step();
 	Globals::Systems().actors().step();
 	Globals::Systems().temporaries().step();
-	Globals::Systems().walls().step();
+	Globals::Systems().structures().step();
 	Globals::Systems().decorations().step();
 	Globals::Systems().camera().step();
 	Globals::Systems().cleaner().step();
