@@ -177,9 +177,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="components\mouseState.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="components\mvp.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -396,13 +393,19 @@
     <ClInclude Include="levels\dzidzia\dzidzia.hpp">
       <Filter>src\levels\dzidzia</Filter>
     </ClInclude>
-    <ClInclude Include="components\keyboardState.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="levels\rim\rim.hpp">
       <Filter>src\levels\rim</Filter>
     </ClInclude>
     <ClInclude Include="components\_physical.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\gamepad.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\keyboard.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\mouse.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>

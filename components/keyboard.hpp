@@ -6,7 +6,7 @@
 
 namespace Components
 {
-	struct KeyboardState : ComponentBase
+	struct Keyboard : ComponentBase
 	{
 		std::array<bool, 256> pressed{};
 		std::array<bool, 256> released{};

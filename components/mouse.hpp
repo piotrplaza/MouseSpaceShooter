@@ -6,7 +6,7 @@
 
 namespace Components
 {
-	struct MouseState : ComponentBase
+	struct Mouse : ComponentBase
 	{
 		struct Buttons
 		{

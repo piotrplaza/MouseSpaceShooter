@@ -5,8 +5,8 @@
 #include <components/physics.hpp>
 #include <components/texture.hpp>
 #include <components/decoration.hpp>
-#include <components/keyboardState.hpp>
-#include <components/mouseState.hpp>
+#include <components/keyboard.hpp>
+#include <components/mouse.hpp>
 #include <components/renderingSetup.hpp>
 
 #include <systems/decorations.hpp>
@@ -117,22 +117,22 @@ namespace Levels
 
 		void step()
 		{
-			const auto& keyboardState = Globals::Components().keyboardState();
-			const auto& mouseState = Globals::Components().mouseState();
+			const auto& keyboard = Globals::Components().keyboard();
+			const auto& mouse = Globals::Components().mouse();
 			const auto& screenInfo = Globals::Components().screenInfo();
 			const auto& physics = Globals::Components().physics();
 			auto& decorations = Globals::Components().decorations();
 
 			absClamp = { (float)screenInfo.windowSize.x / screenInfo.windowSize.y * 10.0f, 10.0f };
-			mousePos += mouseState.getWorldSpaceDelta() * mouseSensitivity;
+			mousePos += mouse.getWorldSpaceDelta() * mouseSensitivity;
 			mousePos = glm::clamp(mousePos, -absClamp, absClamp);
 			
-			if (keyboardState.pressed[' '])
+			if (keyboard.pressed[' '])
 				draw = !draw;
 
 			if (draw)
 			{
-				if (mouseState.delta != glm::ivec2(0))
+				if (mouse.delta != glm::ivec2(0))
 				{
 					decorations.back().modelMatrixF = [pos = this->mousePos, angle = this->rotateAngle, scaleSin = this->scaleSin]() {
 						return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), angle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));

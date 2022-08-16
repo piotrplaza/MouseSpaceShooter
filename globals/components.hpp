@@ -4,14 +4,16 @@
 
 #include <memory>
 #include <vector>
+#include <array>
 #include <unordered_map>
 #include <list>
 
 namespace Components
 {
 	struct RenderingBuffers;
-	struct KeyboardState;
-	struct MouseState;
+	struct Keyboard;
+	struct Mouse;
+	struct Gamepad;
 	struct ScreenInfo;
 	struct MVP;
 	struct Physics;
@@ -41,8 +43,9 @@ namespace Globals
 	{
 	public:
 		Components::RenderingBuffers& renderingBuffers();
-		Components::KeyboardState& keyboardState();
-		Components::MouseState& mouseState();
+		Components::Keyboard& keyboard();
+		Components::Mouse& mouse();
+		std::array<Components::Gamepad, 4>& gamepads();
 		Components::ScreenInfo& screenInfo();
 		Components::MVP& mvp();
 		Components::Physics& physics();
@@ -72,8 +75,9 @@ namespace Globals
 
 	private:
 		std::unique_ptr<Components::RenderingBuffers> renderingBuffers_ = std::make_unique<Components::RenderingBuffers>();
-		std::unique_ptr<Components::KeyboardState> keyboardState_ = std::make_unique<Components::KeyboardState>();
-		std::unique_ptr<Components::MouseState> mouseState_ = std::make_unique<Components::MouseState>();
+		std::unique_ptr<Components::Keyboard> keyboardState_ = std::make_unique<Components::Keyboard>();
+		std::unique_ptr<Components::Mouse> mouseState_ = std::make_unique<Components::Mouse>();
+		std::unique_ptr<std::array<Components::Gamepad, 4>> gamepads_ = std::make_unique< std::array<Components::Gamepad, 4>>();
 		std::unique_ptr<Components::ScreenInfo> screenInfo_ = std::make_unique<Components::ScreenInfo>();
 		std::unique_ptr<Components::MVP> mvp_ = std::make_unique<Components::MVP>();
 		std::unique_ptr<Components::Physics> physics_ = std::make_unique<Components::Physics>();

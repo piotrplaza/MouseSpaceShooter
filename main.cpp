@@ -6,7 +6,7 @@
 #include "levels/dzidzia/dzidzia.hpp"
 #include "levels/rim/rim.hpp"
 
-#include "components/mouseState.hpp"
+#include "components/mouse.hpp"
 #include "components/physics.hpp"
 
 #include "systems/stateController.hpp"
@@ -87,7 +87,7 @@ void Initialize()
 	if (console) Tools::RedirectIOToConsole({ 4000, 10 });
 	Tools::RandomInit();
 	OGLInitialize();
-	SDL_Init(SDL_INIT_JOYSTICK);
+	SDL_Init(SDL_INIT_GAMECONTROLLER);
 
 	Globals::InitializeShaders();
 	Globals::InitializeComponents();
@@ -203,40 +203,40 @@ LRESULT CALLBACK WndProc(
 			keys[wParam] = false;
 			break;
 		case WM_RBUTTONDOWN:
-			dummyIfPaused(Globals::Components().mouseState().pressing.rmb) = true;
+			dummyIfPaused(Globals::Components().mouse().pressing.rmb) = true;
 			break;
 		case WM_RBUTTONUP:
-			Globals::Components().mouseState().pressing.rmb = false;
+			Globals::Components().mouse().pressing.rmb = false;
 			break;
 		case WM_LBUTTONDOWN:
-			dummyIfPaused(Globals::Components().mouseState().pressing.lmb) = true;
+			dummyIfPaused(Globals::Components().mouse().pressing.lmb) = true;
 			break;
 		case WM_LBUTTONUP:
-			Globals::Components().mouseState().pressing.lmb = false;
+			Globals::Components().mouse().pressing.lmb = false;
 			break;
 		case WM_MBUTTONDOWN:
-			dummyIfPaused(Globals::Components().mouseState().pressing.mmb) = true;
+			dummyIfPaused(Globals::Components().mouse().pressing.mmb) = true;
 			break;
 		case WM_MBUTTONUP:
-			Globals::Components().mouseState().pressing.mmb = false;
+			Globals::Components().mouse().pressing.mmb = false;
 			break;
 		case WM_XBUTTONDOWN:
 			switch (HIWORD(wParam))
 			{
-				case XBUTTON1: dummyIfPaused(Globals::Components().mouseState().pressing.xmb1) = true; break;
-				case XBUTTON2: dummyIfPaused(Globals::Components().mouseState().pressing.xmb2) = true; break;
+				case XBUTTON1: dummyIfPaused(Globals::Components().mouse().pressing.xmb1) = true; break;
+				case XBUTTON2: dummyIfPaused(Globals::Components().mouse().pressing.xmb2) = true; break;
 			}
 			break;
 		case WM_XBUTTONUP:
 			switch (HIWORD(wParam))
 			{
-				case XBUTTON1: Globals::Components().mouseState().pressing.xmb1 = false; break;
-				case XBUTTON2: Globals::Components().mouseState().pressing.xmb2 = false; break;
+				case XBUTTON1: Globals::Components().mouse().pressing.xmb1 = false; break;
+				case XBUTTON2: Globals::Components().mouse().pressing.xmb2 = false; break;
 			}
 			break;
 		case WM_MOUSEWHEEL:
-			if ((int)wParam > 0) ++dummyIfPaused(Globals::Components().mouseState().pressing.wheel);
-			else if ((int)wParam < 0) --dummyIfPaused(Globals::Components().mouseState().pressing.wheel);
+			if ((int)wParam > 0) ++dummyIfPaused(Globals::Components().mouse().pressing.wheel);
+			else if ((int)wParam < 0) --dummyIfPaused(Globals::Components().mouse().pressing.wheel);
 			break;
 		case WM_INPUT:
 		{
@@ -246,7 +246,7 @@ LRESULT CALLBACK WndProc(
 
 			if (raw.header.dwType == RIM_TYPEMOUSE)
 			{
-				dummyIfPaused(Globals::Components().mouseState().delta)
+				dummyIfPaused(Globals::Components().mouse().delta)
 					+= glm::ivec2((int)raw.data.mouse.lLastX, (int)raw.data.mouse.lLastY);
 			}
 			break;
@@ -359,11 +359,11 @@ int APIENTRY WinMain(
 			Globals::Systems().stateController().resetMousePosition();
 			Globals::Systems().stateController().handleKeyboard(keys);
 			Globals::Systems().stateController().handleMouseButtons();
-			Globals::Systems().stateController().handleGamepads();
+			Globals::Systems().stateController().handleSDL();
 
 			PrepareFrame();
 
-			Globals::Components().mouseState().delta = { 0, 0 };
+			Globals::Components().mouse().delta = { 0, 0 };
 
 			glFinish(); //Not sure why, but it helps with stuttering in some scenarios, e.g. if missile was launched (release + lower display refresh rate => bigger stuttering without it).
 			SwapBuffers(hDC);

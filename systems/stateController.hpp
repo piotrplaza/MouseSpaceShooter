@@ -1,10 +1,11 @@
 #pragma once
 
-#include <components/mouseState.hpp>
+#include <components/mouse.hpp>
 
 #include <glm/vec2.hpp>
 
 #include <array>
+#include <unordered_map>
 
 namespace Systems
 {
@@ -25,10 +26,11 @@ namespace Systems
 		void resetMousePosition() const;
 		void handleMouseButtons();
 		void handleKeyboard(const std::array<bool, 256>& keys);
-		void handleGamepads();
+		void handleSDL();
 
 	private:
 		std::array<bool, 256> prevKeyboardKeys{};
-		Components::MouseState::Buttons prevMouseKeys;
+		Components::Mouse::Buttons prevMouseKeys;
+		std::unordered_map<int, int> controllersToComponents;
 	};
 }

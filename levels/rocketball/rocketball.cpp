@@ -9,7 +9,7 @@
 #include <components/camera.hpp>
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
-#include <components/mouseState.hpp>
+#include <components/mouse.hpp>
 #include <components/animatedTexture.hpp>
 
 #include <globals/components.hpp>
@@ -119,13 +119,13 @@ namespace Levels
 
 		void step()
 		{
-			const auto& mouseState = Globals::Components().mouseState();
+			const auto& mouse = Globals::Components().mouse();
 			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
 
-			player1Controls.turningDelta = mouseState.getWorldSpaceDelta();
-			player1Controls.autoRotation = mouseState.pressing.rmb;
-			player1Controls.throttling = mouseState.pressing.rmb;
-			player1Controls.magneticHook = mouseState.pressing.xmb1 || mouseState.pressing.lmb;
+			player1Controls.turningDelta = mouse.getWorldSpaceDelta();
+			player1Controls.autoRotation = mouse.pressing.rmb;
+			player1Controls.throttling = mouse.pressing.rmb;
+			player1Controls.magneticHook = mouse.pressing.xmb1 || mouse.pressing.lmb;
 		}
 
 	private:

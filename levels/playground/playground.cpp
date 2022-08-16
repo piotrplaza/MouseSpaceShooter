@@ -9,7 +9,7 @@
 #include <components/camera.hpp>
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
-#include <components/mouseState.hpp>
+#include <components/mouse.hpp>
 #include <components/mvp.hpp>
 #include <components/missile.hpp>
 #include <components/collisionHandler.hpp>
@@ -512,15 +512,15 @@ namespace Levels
 
 		void step()
 		{
-			const auto& mouseState = Globals::Components().mouseState();
+			const auto& mouse = Globals::Components().mouse();
 			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
 
-			player1Controls.turningDelta = mouseState.getWorldSpaceDelta();
-			player1Controls.autoRotation = mouseState.pressing.rmb;
-			player1Controls.throttling = mouseState.pressing.rmb;
-			player1Controls.magneticHook = mouseState.pressing.xmb1;
+			player1Controls.turningDelta = mouse.getWorldSpaceDelta();
+			player1Controls.autoRotation = mouse.pressing.rmb;
+			player1Controls.throttling = mouse.pressing.rmb;
+			player1Controls.magneticHook = mouse.pressing.xmb1;
 
-			if (mouseState.pressing.lmb)
+			if (mouse.pressing.lmb)
 			{
 				if (durationToLaunchMissile <= 0.0f)
 				{
@@ -531,11 +531,11 @@ namespace Levels
 			}
 			else durationToLaunchMissile = 0.0f;
 			
-			if (mouseState.pressing.mmb)
+			if (mouse.pressing.mmb)
 				Globals::Components().physics().gameSpeed = std::clamp(Globals::Components().physics().gameSpeed
-					+ mouseState.pressed.wheel * 0.1f, 0.0f, 2.0f);
+					+ mouse.pressed.wheel * 0.1f, 0.0f, 2.0f);
 			else
-				projectionHSizeBase = std::clamp(projectionHSizeBase + mouseState.pressed.wheel * -5.0f, 5.0f, 100.0f);
+				projectionHSizeBase = std::clamp(projectionHSizeBase + mouse.pressed.wheel * -5.0f, 5.0f, 100.0f);
 
 			//textureAngle += Globals::Components().physics().frameDuration * 0.2f;
 		}

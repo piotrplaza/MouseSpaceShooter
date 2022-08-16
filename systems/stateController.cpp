@@ -5,20 +5,24 @@
 #include <components/plane.hpp>
 #include <components/grapple.hpp>
 #include <components/screenInfo.hpp>
-#include <components/keyboardState.hpp>
-#include <components/mouseState.hpp>
+#include <components/keyboard.hpp>
+#include <components/mouse.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/framebuffers.hpp>
 #include <components/texture.hpp>
 #include <components/functor.hpp>
 #include <components/physics.hpp>
+#include <components/gamepad.hpp>
 
 #include <ogl/shaders/textured.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
 
+#include <SDL_events.h>
 #include <SDL_gamecontroller.h>
+
+#include <algorithm>
 
 namespace
 {
@@ -121,8 +125,8 @@ namespace Systems
 	void StateController::setWindowFocus() const
 	{
 		resetMousePosition();
-		Globals::Components().mouseState().pressing = Components::MouseState::Buttons();
-		Globals::Components().keyboardState().pressing = std::array<bool, 256>({});
+		Globals::Components().mouse().pressing = Components::Mouse::Buttons();
+		Globals::Components().keyboard().pressing = std::array<bool, 256>({});
 		Globals::Components().physics().prevFrameTime = std::chrono::high_resolution_clock::now();
 	}
 
@@ -138,24 +142,24 @@ namespace Systems
 
 	void StateController::handleMouseButtons()
 	{
-		auto& mouseState = Globals::Components().mouseState();
+		auto& mouse = Globals::Components().mouse();
 
-		auto updateButton = [&](bool Components::MouseState::Buttons::* button)
+		auto updateButton = [&](bool Components::Mouse::Buttons::* button)
 		{
-			mouseState.pressed.*button = mouseState.pressing.*button && !(prevMouseKeys.*button);
-			mouseState.released.*button = !(mouseState.pressing.*button) && prevMouseKeys.*button;
+			mouse.pressed.*button = mouse.pressing.*button && !(prevMouseKeys.*button);
+			mouse.released.*button = !(mouse.pressing.*button) && prevMouseKeys.*button;
 		};
 
-		updateButton(&Components::MouseState::Buttons::lmb);
-		updateButton(&Components::MouseState::Buttons::rmb);
-		updateButton(&Components::MouseState::Buttons::mmb);
-		updateButton(&Components::MouseState::Buttons::xmb1);
-		updateButton(&Components::MouseState::Buttons::xmb2);
+		updateButton(&Components::Mouse::Buttons::lmb);
+		updateButton(&Components::Mouse::Buttons::rmb);
+		updateButton(&Components::Mouse::Buttons::mmb);
+		updateButton(&Components::Mouse::Buttons::xmb1);
+		updateButton(&Components::Mouse::Buttons::xmb2);
 
-		mouseState.pressed.wheel = mouseState.pressing.wheel - prevMouseKeys.wheel;
-		mouseState.released.wheel = mouseState.pressed.wheel;
+		mouse.pressed.wheel = mouse.pressing.wheel - prevMouseKeys.wheel;
+		mouse.released.wheel = mouse.pressed.wheel;
 
-		prevMouseKeys = mouseState.pressing;
+		prevMouseKeys = mouse.pressing;
 	}
 
 	void StateController::handleKeyboard(const std::array<bool, 256>& keys)
@@ -163,20 +167,154 @@ namespace Systems
 		if (keys['P'] && !prevKeyboardKeys['P'])
 			Globals::Components().physics().paused = !Globals::Components().physics().paused;
 
-		auto& keyboardState = Globals::Components().keyboardState();
+		auto& keyboard = Globals::Components().keyboard();
 		for (size_t i = 0; i < keys.size(); ++i)
 		{
-			keyboardState.pressing[i] = keys[i];
-			keyboardState.pressed[i] = keys[i] && !prevKeyboardKeys[i];
-			keyboardState.released[i] = !keys[i] && prevKeyboardKeys[i];
+			keyboard.pressing[i] = keys[i];
+			keyboard.pressed[i] = keys[i] && !prevKeyboardKeys[i];
+			keyboard.released[i] = !keys[i] && prevKeyboardKeys[i];
 		}
 
 		prevKeyboardKeys = keys;
 	}
 
-	void StateController::handleGamepads()
+	void StateController::handleSDL()
 	{
-		SDL_Joystick* joystick = SDL_JoystickOpen(0);
-		//cout << SDL_NumJoysticks() << endl;
+		auto getJoystickInstanceId = [](int joystickId) {
+			SDL_GameController* controller = SDL_GameControllerOpen(joystickId);
+			SDL_Joystick* joystick = SDL_GameControllerGetJoystick(controller);
+			return SDL_JoystickInstanceID(joystick);
+		};
+
+		auto changeButtonState = [this](int controllerId, int buttonId, bool state) {
+			auto& gamepads = Globals::Components().gamepads();
+			auto it = controllersToComponents.find(controllerId);
+			if (it == controllersToComponents.end())
+				return;
+
+			switch (buttonId)
+			{
+			case SDL_CONTROLLER_BUTTON_A:
+				gamepads[it->second].aButton = state;
+				break;
+			case SDL_CONTROLLER_BUTTON_B:
+				gamepads[it->second].bButton = state;
+				break;
+			case SDL_CONTROLLER_BUTTON_X:
+				gamepads[it->second].xButton = state;
+				break;
+			case SDL_CONTROLLER_BUTTON_Y:
+				gamepads[it->second].yButton = state;
+				break;
+			case SDL_CONTROLLER_BUTTON_BACK:
+				gamepads[it->second].backButton = state;
+				break;
+			case SDL_CONTROLLER_BUTTON_START:
+				gamepads[it->second].startButton = state;
+				break;
+			case SDL_CONTROLLER_BUTTON_LEFTSTICK:
+				gamepads[it->second].lStickButton = state;
+				break;
+			case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
+				gamepads[it->second].rStickButton = state;
+				break;
+			case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
+				gamepads[it->second].lShoulderButton = state;
+				break;
+			case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
+				gamepads[it->second].rShoulderButton = state;
+				break;
+			case SDL_CONTROLLER_BUTTON_DPAD_UP:
+				gamepads[it->second].dUpButton = state;
+				break;
+			case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+				gamepads[it->second].dDownButton = state;
+				break;
+			case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+				gamepads[it->second].dLeftButton = state;
+				break;
+			case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+				gamepads[it->second].dRightButton = state;
+				break;
+			}
+		};
+
+		auto changeAxisValue = [this](int controllerId, int axisId, int value) {
+			auto& gamepads = Globals::Components().gamepads();
+			auto it = controllersToComponents.find(controllerId);
+			if (it == controllersToComponents.end())
+				return;
+
+			value += 32768;
+
+			switch (axisId)
+			{
+			case SDL_CONTROLLER_AXIS_LEFTX:
+				gamepads[it->second].lAxis.x = value / 65535.0f - 0.5f;
+				break;
+			case SDL_CONTROLLER_AXIS_LEFTY:
+				gamepads[it->second].lAxis.y = value / 65535.0f - 0.5f;
+				break;
+			case SDL_CONTROLLER_AXIS_RIGHTX:
+				gamepads[it->second].rAxis.x = value / 65535.0f - 0.5f;
+				break;
+			case SDL_CONTROLLER_AXIS_RIGHTY:
+				gamepads[it->second].rAxis.y = value / 65535.0f - 0.5f;
+				break;
+			case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
+				gamepads[it->second].lTrigger = value / 65535.0f - 0.5f;
+				break;
+			case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
+				gamepads[it->second].rTrigger = value / 65535.0f - 0.5f;
+				break;
+			}
+		};
+
+		SDL_Event event;
+		while (SDL_PollEvent(&event) != 0)
+		{
+			switch (event.cdevice.type)
+			{
+			case SDL_CONTROLLERDEVICEADDED:
+			{
+				auto& gamepads = Globals::Components().gamepads();
+				const int joystickInstanceId = getJoystickInstanceId(event.cdevice.which);
+				for (int i = 0; i < (int)gamepads.size(); ++i)
+				{
+					auto it = std::find_if(controllersToComponents.begin(), controllersToComponents.end(), [&](const auto& val) {
+						return val.second == i;
+						});
+
+					if (it != controllersToComponents.end())
+						continue;
+
+					controllersToComponents.emplace(joystickInstanceId, i);
+					gamepads[i].enabled = true;
+					break;
+				}
+			} break;
+			case SDL_CONTROLLERDEVICEREMOVED:
+			{
+				auto& gamepads = Globals::Components().gamepads();
+				auto it = controllersToComponents.find(event.cdevice.which);
+				if (it == controllersToComponents.end())
+					continue;
+				gamepads[it->second] = Components::Gamepad();
+				controllersToComponents.erase(it);
+			} break;
+			case SDL_CONTROLLERDEVICEREMAPPED:
+				assert(!"remapping not implemented");
+				break;
+			case SDL_CONTROLLERBUTTONDOWN:
+				changeButtonState(event.cbutton.which, event.cbutton.button, true);
+				break;
+			case SDL_CONTROLLERBUTTONUP:
+				changeButtonState(event.cbutton.which, event.cbutton.button, false);
+				break;
+			case SDL_CONTROLLERAXISMOTION:
+				changeAxisValue(event.caxis.which, event.caxis.axis, event.caxis.value);
+				break;
+			}
+		}
 	}
 }
