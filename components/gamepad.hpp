@@ -10,24 +10,30 @@ namespace Components
 	{
 		bool enabled = false;
 
-		bool aButton = false;
-		bool bButton = false;
-		bool xButton = false;
-		bool yButton = false;
-		bool backButton = false;
-		bool startButton = false;
-		bool lStickButton = false;
-		bool rStickButton = false;
-		bool lShoulderButton = false;
-		bool rShoulderButton = false;
+		struct Buttons
+		{
+			bool a = false;
+			bool b = false;
+			bool x = false;
+			bool y = false;
 
-		bool dUpButton = false;
-		bool dDownButton = false;
-		bool dLeftButton = false;
-		bool dRightButton = false;
+			bool back = false;
+			bool start = false;
 
-		glm::vec2 lAxis{ 0.0f };
-		glm::vec2 rAxis{ 0.0f };
+			bool lStick = false;
+			bool rStick = false;
+
+			bool lShoulder = false;
+			bool rShoulder = false;
+
+			bool dUp = false;
+			bool dDown = false;
+			bool dLeft = false;
+			bool dRight = false;
+		} pressed, released, pressing;
+
+		glm::vec2 lStick{ 0.0f };
+		glm::vec2 rStick{ 0.0f };
 
 		float lTrigger = 0.0f;
 		float rTrigger = 0.0f;

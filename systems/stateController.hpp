@@ -1,6 +1,7 @@
 #pragma once
 
 #include <components/mouse.hpp>
+#include <components/gamepad.hpp>
 
 #include <glm/vec2.hpp>
 
@@ -31,6 +32,7 @@ namespace Systems
 	private:
 		std::array<bool, 256> prevKeyboardKeys{};
 		Components::Mouse::Buttons prevMouseKeys;
+		std::array<Components::Gamepad::Buttons, 4> prevGamepadsKeys;
 		std::unordered_map<int, int> controllersToComponents;
 	};
 }

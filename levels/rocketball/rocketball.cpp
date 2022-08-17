@@ -124,7 +124,7 @@ namespace Levels
 
 			player1Controls.turningDelta = mouse.getWorldSpaceDelta();
 			player1Controls.autoRotation = mouse.pressing.rmb;
-			player1Controls.throttling = mouse.pressing.rmb;
+			player1Controls.throttling = (float)mouse.pressing.rmb;
 			player1Controls.magneticHook = mouse.pressing.xmb1 || mouse.pressing.lmb;
 		}
 

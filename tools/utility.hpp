@@ -19,6 +19,9 @@ namespace Tools
 	unsigned StableRandom(unsigned seed);
 	float StableRandom(float min, float max, unsigned seed);
 
+	float ApplyDeadzone(float input, float deadzone = 0.3f);
+	glm::vec2 ApplyDeadzone(glm::vec2 input, float deadzone = 0.3f, bool axesSeparation = false);
+
 	template <class T>
 	inline void HashCombine(std::size_t& seed, const T& v)
 	{

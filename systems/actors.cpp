@@ -17,7 +17,7 @@
 namespace
 {
 	constexpr float planeForwardForce = 10.0f;
-	constexpr float mouseSensitivity = 0.01f;
+	constexpr float turningSensitivity = 1.0f;
 }
 
 namespace Systems
@@ -61,6 +61,8 @@ namespace Systems
 
 	void Actors::turn(Components::Plane& plane) const
 	{
+		const auto& physics = Globals::Components().physics();
+
 		if (glm::length(plane.controls.turningDelta) > 0)
 		{
 			const float planeAngle = plane.body->GetAngle();
@@ -68,7 +70,7 @@ namespace Systems
 			const glm::vec2 planeDirection = { std::cos(planeSideAngle), std::sin(planeSideAngle) };
 			const float controllerDot = glm::dot(planeDirection, plane.controls.turningDelta);
 
-			plane.body->SetTransform(plane.body->GetPosition(), planeAngle + controllerDot * mouseSensitivity);
+			plane.body->SetTransform(plane.body->GetPosition(), planeAngle + controllerDot * turningSensitivity * physics.frameDuration);
 		}
 
 		if (plane.details.grappleJoint && plane.controls.autoRotation)
@@ -94,7 +96,7 @@ namespace Systems
 				const float velocityBackDot = glm::dot(planeBackDirection, normalizedStepVelocity);
 
 				plane.body->SetTransform(plane.body->GetPosition(), planeAngle + (velocityDot > 0.0f ? velocityFrontDot : velocityBackDot) *
-					stepVelocityLength * plane.controls.autoRotationFactor);
+					stepVelocityLength * plane.controls.autoRotationFactor * physics.frameDuration * 100.0f);
 			}
 		}
 	}

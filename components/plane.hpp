@@ -33,8 +33,8 @@ namespace Components
 		{
 			glm::vec2 turningDelta{ 0.0f, 0.0f };
 			bool autoRotation = false;
-			float autoRotationFactor = 0.5f;
-			bool throttling = false;
+			float autoRotationFactor = 1.0f;
+			float throttling = 0.0f;
 			bool magneticHook = false;
 		} controls;
 

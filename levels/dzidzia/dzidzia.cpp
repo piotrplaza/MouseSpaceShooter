@@ -22,7 +22,7 @@
 
 namespace
 {
-	constexpr float mouseSensitivity = 0.01f;
+	constexpr float turningSensitivity = 0.01f;
 }
 
 namespace Levels
@@ -124,7 +124,7 @@ namespace Levels
 			auto& decorations = Globals::Components().decorations();
 
 			absClamp = { (float)screenInfo.windowSize.x / screenInfo.windowSize.y * 10.0f, 10.0f };
-			mousePos += mouse.getWorldSpaceDelta() * mouseSensitivity;
+			mousePos += mouse.getWorldSpaceDelta() * turningSensitivity;
 			mousePos = glm::clamp(mousePos, -absClamp, absClamp);
 			
 			if (keyboard.pressed[' '])

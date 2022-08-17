@@ -164,13 +164,8 @@ namespace Systems
 
 	void StateController::handleKeyboard(const std::array<bool, 256>& keys)
 	{
-		if (keys['P'] && !prevKeyboardKeys['P'])
-		{
-			Globals::Components().physics().paused = !Globals::Components().physics().paused;
-			Tools::SetMouseCursorVisibility(Globals::Components().physics().paused);
-		}
-
 		auto& keyboard = Globals::Components().keyboard();
+
 		for (size_t i = 0; i < keys.size(); ++i)
 		{
 			keyboard.pressing[i] = keys[i];
@@ -179,6 +174,12 @@ namespace Systems
 		}
 
 		prevKeyboardKeys = keys;
+
+		if (keyboard.pressed['P'])
+		{
+			Globals::Components().physics().paused = !Globals::Components().physics().paused;
+			Tools::SetMouseCursorVisibility(Globals::Components().physics().paused);
+		}
 	}
 
 	void StateController::handleSDL()
@@ -190,54 +191,55 @@ namespace Systems
 		};
 
 		auto changeButtonState = [this](int controllerId, int buttonId, bool state) {
-			auto& gamepads = Globals::Components().gamepads();
 			auto it = controllersToComponents.find(controllerId);
 			if (it == controllersToComponents.end())
 				return;
 
+			auto& gamepad = Globals::Components().gamepads()[it->second];
+
 			switch (buttonId)
 			{
 			case SDL_CONTROLLER_BUTTON_A:
-				gamepads[it->second].aButton = state;
+				gamepad.pressing.a = state;
 				break;
 			case SDL_CONTROLLER_BUTTON_B:
-				gamepads[it->second].bButton = state;
+				gamepad.pressing.b = state;
 				break;
 			case SDL_CONTROLLER_BUTTON_X:
-				gamepads[it->second].xButton = state;
+				gamepad.pressing.x = state;
 				break;
 			case SDL_CONTROLLER_BUTTON_Y:
-				gamepads[it->second].yButton = state;
+				gamepad.pressing.y = state;
 				break;
 			case SDL_CONTROLLER_BUTTON_BACK:
-				gamepads[it->second].backButton = state;
+				gamepad.pressing.back = state;
 				break;
 			case SDL_CONTROLLER_BUTTON_START:
-				gamepads[it->second].startButton = state;
+				gamepad.pressing.start = state;
 				break;
 			case SDL_CONTROLLER_BUTTON_LEFTSTICK:
-				gamepads[it->second].lStickButton = state;
+				gamepad.pressing.lStick = state;
 				break;
 			case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
-				gamepads[it->second].rStickButton = state;
+				gamepad.pressing.rStick = state;
 				break;
 			case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
-				gamepads[it->second].lShoulderButton = state;
+				gamepad.pressing.lShoulder = state;
 				break;
 			case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
-				gamepads[it->second].rShoulderButton = state;
+				gamepad.pressing.rShoulder = state;
 				break;
 			case SDL_CONTROLLER_BUTTON_DPAD_UP:
-				gamepads[it->second].dUpButton = state;
+				gamepad.pressing.dUp = state;
 				break;
 			case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-				gamepads[it->second].dDownButton = state;
+				gamepad.pressing.dDown = state;
 				break;
 			case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
-				gamepads[it->second].dLeftButton = state;
+				gamepad.pressing.dLeft = state;
 				break;
 			case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
-				gamepads[it->second].dRightButton = state;
+				gamepad.pressing.dRight = state;
 				break;
 			}
 		};
@@ -248,27 +250,25 @@ namespace Systems
 			if (it == controllersToComponents.end())
 				return;
 
-			value += 32768;
-
 			switch (axisId)
 			{
 			case SDL_CONTROLLER_AXIS_LEFTX:
-				gamepads[it->second].lAxis.x = value / 65535.0f - 0.5f;
+				gamepads[it->second].lStick.x = (value + 32768) / 65535.0f * 2.0f - 1.0f;
 				break;
 			case SDL_CONTROLLER_AXIS_LEFTY:
-				gamepads[it->second].lAxis.y = value / 65535.0f - 0.5f;
+				gamepads[it->second].lStick.y = (value + 32768) / 65535.0f * -2.0f + 1.0f;
 				break;
 			case SDL_CONTROLLER_AXIS_RIGHTX:
-				gamepads[it->second].rAxis.x = value / 65535.0f - 0.5f;
+				gamepads[it->second].rStick.x = (value + 32768) / 65535.0f * 2.0f - 1.0f;
 				break;
 			case SDL_CONTROLLER_AXIS_RIGHTY:
-				gamepads[it->second].rAxis.y = value / 65535.0f - 0.5f;
+				gamepads[it->second].rStick.y = (value + 32768) / 65535.0f * -2.0f + 1.0f;
 				break;
 			case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
-				gamepads[it->second].lTrigger = value / 65535.0f - 0.5f;
+				gamepads[it->second].lTrigger = value / 32767.0f;
 				break;
 			case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
-				gamepads[it->second].rTrigger = value / 65535.0f - 0.5f;
+				gamepads[it->second].rTrigger = value / 32767.0f;
 				break;
 			}
 		};
@@ -303,6 +303,7 @@ namespace Systems
 				if (it == controllersToComponents.end())
 					continue;
 				gamepads[it->second] = Components::Gamepad();
+				prevGamepadsKeys[it->second] = Components::Gamepad::Buttons();
 				controllersToComponents.erase(it);
 			} break;
 			case SDL_CONTROLLERDEVICEREMAPPED:
@@ -319,5 +320,31 @@ namespace Systems
 				break;
 			}
 		}
+
+		auto updateButton = [&](bool Components::Gamepad::Buttons::* button)
+		{
+			for (size_t i = 0; i < Globals::Components().gamepads().size(); ++i)
+			{
+				auto& gamepad = Globals::Components().gamepads()[i];
+				gamepad.pressed.*button = gamepad.pressing.*button && !(prevGamepadsKeys[i].*button);
+				gamepad.released.*button = !(gamepad.pressing.*button) && prevGamepadsKeys[i].*button;
+				prevGamepadsKeys[i].*button = gamepad.pressing.*button;
+			}
+		};
+
+		updateButton(&Components::Gamepad::Buttons::a);
+		updateButton(&Components::Gamepad::Buttons::b);
+		updateButton(&Components::Gamepad::Buttons::x);
+		updateButton(&Components::Gamepad::Buttons::y);
+		updateButton(&Components::Gamepad::Buttons::back);
+		updateButton(&Components::Gamepad::Buttons::start);
+		updateButton(&Components::Gamepad::Buttons::lStick);
+		updateButton(&Components::Gamepad::Buttons::rStick);
+		updateButton(&Components::Gamepad::Buttons::lShoulder);
+		updateButton(&Components::Gamepad::Buttons::rShoulder);
+		updateButton(&Components::Gamepad::Buttons::dUp);
+		updateButton(&Components::Gamepad::Buttons::dDown);
+		updateButton(&Components::Gamepad::Buttons::dLeft);
+		updateButton(&Components::Gamepad::Buttons::dRight);
 	}
 }
