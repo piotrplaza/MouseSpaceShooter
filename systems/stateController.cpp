@@ -165,7 +165,10 @@ namespace Systems
 	void StateController::handleKeyboard(const std::array<bool, 256>& keys)
 	{
 		if (keys['P'] && !prevKeyboardKeys['P'])
+		{
 			Globals::Components().physics().paused = !Globals::Components().physics().paused;
+			Tools::SetMouseCursorVisibility(Globals::Components().physics().paused);
+		}
 
 		auto& keyboard = Globals::Components().keyboard();
 		for (size_t i = 0; i < keys.size(); ++i)

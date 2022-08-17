@@ -7,9 +7,6 @@
 
 #include <glm/glm.hpp>
 
-#include <iostream>
-using namespace std;
-
 namespace Components
 {
 	struct Plane : ComponentBase, Physical

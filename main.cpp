@@ -356,7 +356,9 @@ int APIENTRY WinMain(
 		}
 		else if (focus)
 		{
-			Globals::Systems().stateController().resetMousePosition();
+			if (!Globals::Components().physics().paused)
+				Globals::Systems().stateController().resetMousePosition();
+
 			Globals::Systems().stateController().handleKeyboard(keys);
 			Globals::Systems().stateController().handleMouseButtons();
 			Globals::Systems().stateController().handleSDL();
