@@ -63,6 +63,7 @@ struct Renderable
 	bool render = true;
 
 	std::vector<DecorationDef> subsequence;
+	unsigned subsequenceBegin = 0;
 	unsigned posInSubsequence = 0;
 
 	struct

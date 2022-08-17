@@ -84,13 +84,16 @@ namespace Buffers
 					renderingTeardown();
 			};
 
-			for (auto it = subsequence.begin(); it != std::next(subsequence.begin(), *posInSubsequence); ++it)
-				setAndDraw(*it);
+			if (subsequence.empty())
+				setAndDraw(*this);
 
-			setAndDraw(*this);
-
-			for (auto it = std::next(subsequence.begin(), *posInSubsequence); it != subsequence.end(); ++it)
-				setAndDraw(*it);
+			for (unsigned i = 0; i < subsequence.size(); ++i)
+			{
+				const unsigned id = (i + *subsequenceBegin) % subsequence.size();
+				if (id == *posInSubsequence)
+					setAndDraw(*this);
+				setAndDraw(subsequence[id]);
+			}
 		}
 
 		template <typename Component>
@@ -112,6 +115,7 @@ namespace Buffers
 		{
 			customShadersProgram = &component.customShadersProgram;
 			resolutionMode = &component.resolutionMode;
+			subsequenceBegin = &component.subsequenceBegin;
 			posInSubsequence = &component.posInSubsequence;
 
 			componentCommonsToBuffersCommons(component, *this);
@@ -124,6 +128,7 @@ namespace Buffers
 		ResolutionMode* resolutionMode = nullptr;
 
 		std::vector<GenericSubBuffers> subsequence;
+		unsigned* subsequenceBegin = nullptr;
 		unsigned* posInSubsequence = nullptr;
 
 		ComponentId sourceComponent = 0;
