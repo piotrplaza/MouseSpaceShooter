@@ -4,6 +4,7 @@
 #include "levels/gravity/gravity.hpp"
 #include "levels/basic/basic.hpp"
 #include "levels/dzidzia/dzidzia.hpp"
+#include "levels/dzidzia2/dzidzia2.hpp"
 #include "levels/rim/rim.hpp"
 
 #include "components/mouse.hpp"
@@ -74,11 +75,12 @@ void OGLInitialize()
 
 void CreateLevel()
 {
-	activeLevel = std::make_unique<Levels::Playground>();
+	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
 	//activeLevel = std::make_unique<Levels::Dzidzia>();
+	activeLevel = std::make_unique<Levels::Dzidzia2>();
 	//activeLevel = std::make_unique<Levels::Rim>();
 }
 

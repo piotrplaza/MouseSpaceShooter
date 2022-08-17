@@ -71,6 +71,9 @@
     <Filter Include="src\levels\rim">
       <UniqueIdentifier>{2c81b55e-ac93-46f5-9428-83f110d16611}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\dzidzia2">
+      <UniqueIdentifier>{eb219852-c618-4367-a078-02059b3a9c85}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -174,6 +177,9 @@
     </ClCompile>
     <ClCompile Include="levels\rim\rim.cpp">
       <Filter>src\levels\rim</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\dzidzia2\dzidzia2.cpp">
+      <Filter>src\levels\dzidzia2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -407,6 +413,9 @@
     </ClInclude>
     <ClInclude Include="components\mouse.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\dzidzia2\dzidzia2.hpp">
+      <Filter>src\levels\dzidzia2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -26,6 +26,7 @@
     <ClCompile Include="globals\shaders.cpp" />
     <ClCompile Include="globals\systems.cpp" />
     <ClCompile Include="levels\basic\basic.cpp" />
+    <ClCompile Include="levels\dzidzia2\dzidzia2.cpp" />
     <ClCompile Include="levels\dzidzia\dzidzia.cpp" />
     <ClCompile Include="levels\gravity\gravity.cpp" />
     <ClCompile Include="levels\level.cpp" />
@@ -100,6 +101,7 @@
     <ClInclude Include="globals\shaders.hpp" />
     <ClInclude Include="globals\systems.hpp" />
     <ClInclude Include="levels\basic\basic.hpp" />
+    <ClInclude Include="levels\dzidzia2\dzidzia2.hpp" />
     <ClInclude Include="levels\dzidzia\dzidzia.hpp" />
     <ClInclude Include="levels\gravity\gravity.hpp" />
     <ClInclude Include="levels\level.hpp" />

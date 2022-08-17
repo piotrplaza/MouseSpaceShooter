@@ -84,9 +84,6 @@ namespace Buffers
 					renderingTeardown();
 			};
 
-			if (subsequence.empty())
-				setAndDraw(*this);
-
 			for (unsigned i = 0; i < subsequence.size(); ++i)
 			{
 				const unsigned id = (i + *subsequenceBegin) % subsequence.size();
@@ -94,6 +91,9 @@ namespace Buffers
 					setAndDraw(*this);
 				setAndDraw(subsequence[id]);
 			}
+
+			if (subsequence.empty() || *posInSubsequence == subsequence.size())
+				setAndDraw(*this);
 		}
 
 		template <typename Component>
