@@ -17,7 +17,6 @@
 namespace
 {
 	constexpr float planeForwardForce = 10.0f;
-	constexpr float turningSensitivity = 1.0f;
 }
 
 namespace Systems
@@ -63,14 +62,18 @@ namespace Systems
 	{
 		const auto& physics = Globals::Components().physics();
 
-		if (glm::length(plane.controls.turningDelta) > 0)
+		const float turningDeltaLength = glm::length(plane.controls.turningDelta);
+		const glm::vec2 normalizedTurningDelta = plane.controls.turningDelta / turningDeltaLength;
+		const float targetTurningDeltaLength = std::min(turningDeltaLength, 1.0f);
+
+		if (targetTurningDeltaLength > 0)
 		{
 			const float planeAngle = plane.body->GetAngle();
 			const float planeSideAngle = planeAngle + glm::half_pi<float>();
 			const glm::vec2 planeDirection = { std::cos(planeSideAngle), std::sin(planeSideAngle) };
-			const float controllerDot = glm::dot(planeDirection, plane.controls.turningDelta);
+			const float controllerDot = glm::dot(planeDirection, normalizedTurningDelta);
 
-			plane.body->SetTransform(plane.body->GetPosition(), planeAngle + controllerDot * turningSensitivity * physics.frameDuration);
+			plane.body->SetTransform(plane.body->GetPosition(), planeAngle + controllerDot * targetTurningDeltaLength);
 		}
 
 		if (plane.details.grappleJoint && plane.controls.autoRotation)
@@ -96,7 +99,7 @@ namespace Systems
 				const float velocityBackDot = glm::dot(planeBackDirection, normalizedStepVelocity);
 
 				plane.body->SetTransform(plane.body->GetPosition(), planeAngle + (velocityDot > 0.0f ? velocityFrontDot : velocityBackDot) *
-					stepVelocityLength * plane.controls.autoRotationFactor * physics.frameDuration * 100.0f);
+					stepVelocityLength * plane.controls.autoRotationFactor);
 			}
 		}
 	}

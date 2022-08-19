@@ -513,11 +513,16 @@ namespace Levels
 
 		void step()
 		{
+			float mouseSensitivity = 0.01f;
+			float gamepadSensitivity = 50.0f;
+
+			const auto& physics = Globals::Components().physics();
 			const auto& mouse = Globals::Components().mouse();
 			const auto& gamepad = Globals::Components().gamepads()[0];
 			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
 
-			player1Controls.turningDelta = mouse.getWorldSpaceDelta() + Tools::ApplyDeadzone(gamepad.lStick) * 40.0f;
+			player1Controls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity +
+				Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
 			player1Controls.autoRotation = (bool)std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
 			player1Controls.throttling = std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
 			player1Controls.magneticHook = mouse.pressing.xmb1 || gamepad.pressing.lShoulder || gamepad.lTrigger >= 0.5f;
@@ -534,8 +539,8 @@ namespace Levels
 			else durationToLaunchMissile = 0.0f;
 			
 			if (mouse.pressing.mmb || gamepad.pressing.rShoulder)
-				Globals::Components().physics().gameSpeed = std::clamp(Globals::Components().physics().gameSpeed
-					+ (mouse.pressed.wheel + gamepad.pressed.dUp * 1 + gamepad.pressed.dDown * -1) * 0.1f, 0.0f, 2.0f);
+				Globals::Components().physics().gameSpeed = std::clamp(Globals::Components().physics().gameSpeed +
+					(mouse.pressed.wheel + gamepad.pressed.dUp * 1 + gamepad.pressed.dDown * -1) * 0.1f, 0.0f, 2.0f);
 			else
 				projectionHSizeBase = std::clamp(projectionHSizeBase + (mouse.pressed.wheel +
 					gamepad.pressed.dUp * 1 + gamepad.pressed.dDown * -1) * -5.0f, 5.0f, 100.0f);

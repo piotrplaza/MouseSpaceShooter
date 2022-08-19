@@ -127,7 +127,7 @@ namespace Levels
 			mousePos += mouse.getWorldSpaceDelta() * turningSensitivity;
 			mousePos = glm::clamp(mousePos, -absClamp, absClamp);
 			
-			if (keyboard.pressed[' '])
+			if (keyboard.pressed[' '] || mouse.pressed.lmb)
 				draw = !draw;
 
 			if (draw)

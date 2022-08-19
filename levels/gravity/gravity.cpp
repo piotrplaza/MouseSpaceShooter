@@ -10,6 +10,7 @@
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/mouse.hpp>
+#include <components/gamepad.hpp>
 #include <components/mvp.hpp>
 #include <components/missile.hpp>
 #include <components/collisionHandler.hpp>
@@ -236,15 +237,21 @@ namespace Levels
 
 		void step()
 		{
+			float mouseSensitivity = 0.01f;
+			float gamepadSensitivity = 50.0f;
+
+			const auto& physics = Globals::Components().physics();
 			const auto& mouse = Globals::Components().mouse();
+			const auto& gamepad = Globals::Components().gamepads()[0];
 			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
 
-			player1Controls.turningDelta = mouse.getWorldSpaceDelta();
-			player1Controls.autoRotation = mouse.pressing.rmb;
-			player1Controls.throttling = (float)mouse.pressing.rmb;
-			player1Controls.magneticHook = mouse.pressing.xmb1;
+			player1Controls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity +
+				Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
+			player1Controls.autoRotation = (bool)std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
+			player1Controls.throttling = std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
+			player1Controls.magneticHook = mouse.pressing.xmb1 || gamepad.pressing.lShoulder || gamepad.lTrigger >= 0.5f;
 
-			if (mouse.pressing.lmb)
+			if (mouse.pressing.lmb || gamepad.pressing.x)
 			{
 				if (durationToLaunchMissile <= 0.0f)
 				{
@@ -276,11 +283,12 @@ namespace Levels
 					glm::normalize(ToVec2<glm::vec2>(missile.body->GetLinearVelocity()) - missilesToHandlers[id].referenceVelocity)));
 			}
 
-			if (mouse.pressing.mmb)
-				Globals::Components().physics().gameSpeed = std::clamp(Globals::Components().physics().gameSpeed
-					+ mouse.pressed.wheel * 0.1f, 0.0f, 2.0f);
+			if (mouse.pressing.mmb || gamepad.pressing.rShoulder)
+				Globals::Components().physics().gameSpeed = std::clamp(Globals::Components().physics().gameSpeed +
+					(mouse.pressed.wheel + gamepad.pressed.dUp * 1 + gamepad.pressed.dDown * -1) * 0.1f, 0.0f, 2.0f);
 			else
-				projectionHSizeBase = std::clamp(projectionHSizeBase + mouse.pressed.wheel * -5.0f, 5.0f, 100.0f);
+				projectionHSizeBase = std::clamp(projectionHSizeBase + (mouse.pressed.wheel +
+					gamepad.pressed.dUp * 1 + gamepad.pressed.dDown * -1) * -5.0f, 5.0f, 100.0f);
 		}
 
 	private:

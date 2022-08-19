@@ -27,6 +27,7 @@
 #include <tools/b2Helpers.hpp>
 #include <tools/utility.hpp>
 
+#include <algorithm>
 #include <cassert>
 
 namespace Tools
@@ -52,7 +53,8 @@ namespace Tools
 
 			Globals::Components().renderingSetups().emplace_back([&, i,
 				modelUniform = Uniforms::UniformMat4f(),
-				thrust = 1.0f
+				thrust = 1.0f,
+				flameAnimatedTexture
 			](Shaders::ProgramId program) mutable {
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
 				modelUniform(
@@ -66,9 +68,13 @@ namespace Tools
 
 				const float targetThrust = 1.0f + plane.details.throttleForce * 0.3f;
 				const float changeStep = Globals::Components().physics().frameDuration * 10.0f;
-				thrust += thrust < targetThrust
-					? changeStep
-					: -changeStep;
+
+				if (thrust < targetThrust)
+					thrust = std::min(thrust + changeStep, targetThrust);
+				else
+					thrust = std::max(thrust - changeStep, targetThrust);
+
+				Globals::Components().animatedTextures()[flameAnimatedTexture].setSpeedScaling(1.0f + (thrust - 1) * 0.2f);
 
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
