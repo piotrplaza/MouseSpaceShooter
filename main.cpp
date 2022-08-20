@@ -4,8 +4,10 @@
 #include "levels/gravity/gravity.hpp"
 #include "levels/basic/basic.hpp"
 #include "levels/dzidzia/dzidzia.hpp"
+#include "levels/dzidzia2/dzidzia2.hpp"
+#include "levels/rim/rim.hpp"
 
-#include "components/mouseState.hpp"
+#include "components/mouse.hpp"
 #include "components/physics.hpp"
 
 #include "systems/stateController.hpp"
@@ -28,18 +30,22 @@
 
 #include "tools/utility.hpp"
 
+#include <SDL.h>
+
 #include <GL/glew.h>
 #include <gl/gl.h>
 
 #include <glm/glm.hpp>
 
+#include <Windows.h>
+#include <ShellScalingApi.h>
+#include <hidusage.h>
+
 #include <memory>
 #include <stdexcept>
 #include <vector>
 #include <array>
-
-#include <windows.h>
-#include <shellscalingapi.h>
+#include <type_traits>
 
 const bool fullScreen =
 #ifdef _DEBUG
@@ -59,6 +65,8 @@ void OGLInitialize()
 
 	Tools::VSync(true);
 	//glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_GREATER);
+	//glClearDepth(0.0f);
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -67,11 +75,13 @@ void OGLInitialize()
 
 void CreateLevel()
 {
-	//activeLevel = std::make_unique<Levels::Playground>();
+	activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
-	activeLevel = std::make_unique<Levels::Dzidzia>();
+	//activeLevel = std::make_unique<Levels::Dzidzia>();
+	//activeLevel = std::make_unique<Levels::Dzidzia2>();
+	//activeLevel = std::make_unique<Levels::Rim>();
 }
 
 void Initialize()
@@ -79,6 +89,7 @@ void Initialize()
 	if (console) Tools::RedirectIOToConsole({ 4000, 10 });
 	Tools::RandomInit();
 	OGLInitialize();
+	SDL_Init(SDL_INIT_GAMECONTROLLER);
 
 	Globals::InitializeShaders();
 	Globals::InitializeComponents();
@@ -89,7 +100,7 @@ void Initialize()
 	Globals::Systems().textures().postInit();
 	Globals::Systems().physics().postInit();
 	Globals::Systems().actors().postInit();
-	Globals::Systems().walls().postInit();
+	Globals::Systems().structures().postInit();
 	Globals::Systems().decorations().postInit();
 	Globals::Systems().camera().postInit();
 	Globals::Systems().renderingController().postInit();
@@ -104,7 +115,7 @@ void PrepareFrame()
 	Globals::Systems().physics().step();
 	Globals::Systems().actors().step();
 	Globals::Systems().temporaries().step();
-	Globals::Systems().walls().step();
+	Globals::Systems().structures().step();
 	Globals::Systems().decorations().step();
 	Globals::Systems().camera().step();
 	Globals::Systems().cleaner().step();
@@ -121,7 +132,6 @@ void SetDCPixelFormat(HDC hDC);
 static std::array<bool, 256> keys;
 static bool quit;
 static bool focus;
-static bool resetMousePositionRequired;
 static HDC hDC;
 
 LRESULT CALLBACK WndProc(
@@ -131,6 +141,13 @@ LRESULT CALLBACK WndProc(
 	LPARAM lParam)
 {
 	static HGLRC hRC;
+
+	auto dummyIfPaused = [](auto& state) -> decltype(state) {
+		static std::remove_reference<decltype(state)>::type dummy{};
+		return Globals::Components().physics().paused
+			? dummy
+			: state;
+	};
 
 	switch(message)
 	{
@@ -171,58 +188,71 @@ LRESULT CALLBACK WndProc(
 			break;
 		}
 		case WM_SETFOCUS:
+			Globals::Systems().stateController().setWindowFocus();
 			ShowCursor(false);
 			focus = true;
-			resetMousePositionRequired = true;
-			Globals::Components().physics().paused = false;
 			break;
 		case WM_KILLFOCUS:
+			Globals::Systems().stateController().killWindowFocus();
 			ShowCursor(true);
 			focus = false;
-			Globals::Components().physics().paused = true;
 			break;
 		case WM_KEYDOWN:
-			keys[wParam] = true;
+			if (wParam == 'P' || wParam == VK_ESCAPE) keys[wParam] = true;
+			else dummyIfPaused(keys[wParam]) = true;
 			break;
 		case WM_KEYUP:
 			keys[wParam] = false;
 			break;
 		case WM_RBUTTONDOWN:
-			Globals::Components().mouseState().rmb = true;
+			dummyIfPaused(Globals::Components().mouse().pressing.rmb) = true;
 			break;
 		case WM_RBUTTONUP:
-			Globals::Components().mouseState().rmb = false;
+			Globals::Components().mouse().pressing.rmb = false;
 			break;
 		case WM_LBUTTONDOWN:
-			Globals::Components().mouseState().lmb = true;
+			dummyIfPaused(Globals::Components().mouse().pressing.lmb) = true;
 			break;
 		case WM_LBUTTONUP:
-			Globals::Components().mouseState().lmb = false;
+			Globals::Components().mouse().pressing.lmb = false;
 			break;
 		case WM_MBUTTONDOWN:
-			Globals::Components().mouseState().mmb = true;
+			dummyIfPaused(Globals::Components().mouse().pressing.mmb) = true;
 			break;
 		case WM_MBUTTONUP:
-			Globals::Components().mouseState().mmb = false;
+			Globals::Components().mouse().pressing.mmb = false;
 			break;
 		case WM_XBUTTONDOWN:
 			switch (HIWORD(wParam))
 			{
-				case XBUTTON1: Globals::Components().mouseState().xmb1 = true; break;
-				case XBUTTON2: Globals::Components().mouseState().xmb2 = true; break;
+				case XBUTTON1: dummyIfPaused(Globals::Components().mouse().pressing.xmb1) = true; break;
+				case XBUTTON2: dummyIfPaused(Globals::Components().mouse().pressing.xmb2) = true; break;
 			}
 			break;
 		case WM_XBUTTONUP:
 			switch (HIWORD(wParam))
 			{
-				case XBUTTON1: Globals::Components().mouseState().xmb1 = false; break;
-				case XBUTTON2: Globals::Components().mouseState().xmb2 = false; break;
+				case XBUTTON1: Globals::Components().mouse().pressing.xmb1 = false; break;
+				case XBUTTON2: Globals::Components().mouse().pressing.xmb2 = false; break;
 			}
 			break;
 		case WM_MOUSEWHEEL:
-			if ((int)wParam > 0) ++Globals::Components().mouseState().wheel;
-			else if ((int)wParam < 0) --Globals::Components().mouseState().wheel;
+			if ((int)wParam > 0) ++dummyIfPaused(Globals::Components().mouse().pressing.wheel);
+			else if ((int)wParam < 0) --dummyIfPaused(Globals::Components().mouse().pressing.wheel);
 			break;
+		case WM_INPUT:
+		{
+			RAWINPUT raw;
+			unsigned size = sizeof(RAWINPUT);
+			GetRawInputData((HRAWINPUT)lParam, RID_INPUT, &raw, &size, sizeof(RAWINPUTHEADER));
+
+			if (raw.header.dwType == RIM_TYPEMOUSE)
+			{
+				dummyIfPaused(Globals::Components().mouse().delta)
+					+= glm::ivec2((int)raw.data.mouse.lLastX, (int)raw.data.mouse.lLastY);
+			}
+			break;
+		}
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -250,6 +280,16 @@ void SetDCPixelFormat(HDC hDC)
 	};
 	const int pixelFormt = ChoosePixelFormat(hDC, &pfd);
 	SetPixelFormat(hDC, pixelFormt, &pfd);
+}
+
+void RegisterRawInputDevices(HWND hWnd)
+{
+	RAWINPUTDEVICE rid;
+	rid.usUsagePage = HID_USAGE_PAGE_GENERIC;
+	rid.usUsage = HID_USAGE_GENERIC_MOUSE;
+	rid.dwFlags = RIDEV_INPUTSINK;
+	rid.hwndTarget = hWnd;
+	RegisterRawInputDevices(&rid, 1, sizeof(rid));
 }
 
 int APIENTRY WinMain(
@@ -303,6 +343,8 @@ int APIENTRY WinMain(
 		return false;
 	}
 
+	RegisterRawInputDevices(hWnd);
+
 	ShowWindow(hWnd, SW_SHOW);
 	
 	MSG msg{};
@@ -314,16 +356,18 @@ int APIENTRY WinMain(
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		else if(focus)
+		else if (focus)
 		{
-			if (resetMousePositionRequired)
-			{
+			if (!Globals::Components().physics().paused)
 				Globals::Systems().stateController().resetMousePosition();
-				resetMousePositionRequired = false;
-			}
+
 			Globals::Systems().stateController().handleKeyboard(keys);
-			Globals::Systems().stateController().updateMouseDelta();
+			Globals::Systems().stateController().handleMouseButtons();
+			Globals::Systems().stateController().handleSDL();
+
 			PrepareFrame();
+
+			Globals::Components().mouse().delta = { 0, 0 };
 
 			glFinish(); //Not sure why, but it helps with stuttering in some scenarios, e.g. if missile was launched (release + lower display refresh rate => bigger stuttering without it).
 			SwapBuffers(hDC);

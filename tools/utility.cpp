@@ -74,4 +74,27 @@ namespace Tools
 	{
 		return (float)StableRandom(seed) / UINT_MAX * (max - min) + min;
 	}
+
+	float ApplyDeadzone(float input, float deadzone)
+	{
+		return std::abs(input) < deadzone
+			? 0.0f
+			: input;
+	}
+
+	glm::vec2 ApplyDeadzone(glm::vec2 input, float deadzone, bool axesSeparation)
+	{
+		if (axesSeparation)
+			return { std::abs(input.x) < deadzone
+				? 0.0f
+				: input.x,
+				std::abs(input.y) < deadzone
+				? 0.0f
+				: input.y
+			};
+		else
+			return std::abs(input.x) < deadzone && std::abs(input.y) < deadzone
+				? glm::vec2(0.0f)
+				: input;
+	}
 }

@@ -14,9 +14,6 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <iostream>
-using namespace std;
-
 namespace Components
 {
 	AnimatedTexture::AnimatedTexture(unsigned textureId, glm::ivec2 textureSize, glm::ivec2 framesGrid, glm::ivec2 leftTopFrameLeftTopCorner, int rightTopFrameLeftEdge, int leftBottomFrameTopEdge,

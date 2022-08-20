@@ -6,7 +6,7 @@
 #include <components/mvp.hpp>
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
-#include <components/mouseState.hpp>
+#include <components/mouse.hpp>
 
 #include <components/_typeComponentMappers.hpp>
 
@@ -218,7 +218,7 @@ namespace Tools
 
 			const float angleDelta = Globals::Components().physics().frameDuration * 2.0f;
 
-			if (angle == 0.0f && Globals::Components().mouseState().xmb2)
+			if (angle == 0.0f && Globals::Components().mouse().pressing.xmb2)
 			{
 				angle = angleDelta;
 			}

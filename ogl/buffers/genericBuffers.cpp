@@ -21,6 +21,7 @@ namespace Buffers
 		colorBuffer(other.colorBuffer),
 		texCoordBuffer(other.texCoordBuffer),
 		modelMatrixF(std::move(other.modelMatrixF)),
+		colorF(other.colorF),
 		texture(other.texture),
 		renderingSetup(other.renderingSetup),
 		customShadersProgram(other.customShadersProgram),

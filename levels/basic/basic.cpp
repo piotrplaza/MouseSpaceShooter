@@ -4,6 +4,8 @@
 #include <components/mainFramebufferRenderer.hpp>
 #include <components/camera.hpp>
 #include <components/plane.hpp>
+#include <components/mouse.hpp>
+#include <components/gamepad.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -70,13 +72,19 @@ namespace Levels
 
 		void step()
 		{
-			const auto& mouseState = Globals::Components().mouseState();
+			float mouseSensitivity = 0.01f;
+			float gamepadSensitivity = 50.0f;
+
+			const auto& physics = Globals::Components().physics();
+			const auto& mouse = Globals::Components().mouse();
+			const auto& gamepad = Globals::Components().gamepads()[0];
 			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
 
-			player1Controls.turningDelta = mouseState.getWorldSpaceDelta();
-			player1Controls.autoRotation = mouseState.rmb;
-			player1Controls.throttling = mouseState.rmb;
-			player1Controls.magneticHook = mouseState.xmb1;
+			player1Controls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity +
+				Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
+			player1Controls.autoRotation = (bool)std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
+			player1Controls.throttling = std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
+			player1Controls.magneticHook = mouse.pressing.xmb1 || gamepad.pressing.lShoulder || gamepad.lTrigger >= 0.5f;
 		}
 
 	private:

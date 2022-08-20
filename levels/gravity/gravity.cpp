@@ -9,7 +9,8 @@
 #include <components/camera.hpp>
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
-#include <components/mouseState.hpp>
+#include <components/mouse.hpp>
+#include <components/gamepad.hpp>
 #include <components/mvp.hpp>
 #include <components/missile.hpp>
 #include <components/collisionHandler.hpp>
@@ -21,10 +22,8 @@
 
 #include <ogl/uniforms.hpp>
 #include <ogl/shaders/basic.hpp>
-#include <ogl/shaders/julia.hpp>
 #include <ogl/shaders/texturedColorThreshold.hpp>
 #include <ogl/shaders/textured.hpp>
-#include <ogl/shaders/particles.hpp>
 #include <ogl/renderingHelpers.hpp>
 
 #include <globals/shaders.hpp>
@@ -122,7 +121,7 @@ namespace Levels
 
 		void createBackground()
 		{
-			Tools::CreateJuliaBackground(juliaShaders, [this]() {
+			Tools::CreateJuliaBackground([this]() {
 				return Globals::Components().planes()[player1Handler.planeId].getCenter() * 0.0001f; });
 		}
 
@@ -190,7 +189,7 @@ namespace Levels
 		void createGrapples()
 		{
 			auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ 0.0f, 0.0f }, 20.0f), TCM::Texture(orbTexture) });
-			grapple.influenceRadius = 60.0f;
+			grapple.influenceRadius = 100.0f;
 			planetId = grapple.getComponentId();
 		}
 
@@ -216,11 +215,11 @@ namespace Levels
 					for (const auto* fixture : { &fixtureA, &fixtureB })
 					if (fixture->GetFilterData().categoryBits == Globals::CollisionBits::missileBit)
 					{
-						const auto& otherFixture = fixture == &fixtureA ? fixtureB : fixtureA;
-						const auto& body = *fixture->GetBody();
-						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(body).bodyComponentVariant).id);
-						Tools::CreateExplosion(particlesShaders, ToVec2<glm::vec2>(body.GetWorldCenter()), explosionTexture, 1.0f, 64, 4,
-							lowResBodies.count(otherFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1);
+						const auto& targetFixture = fixture == &fixtureA ? fixtureB : fixtureA;
+						const auto& missileBody = *fixture->GetBody();
+						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).id);
+						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture).resolutionMode(
+							lowResBodies.count(targetFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1));
 
 						explosionFrame = true;
 					}
@@ -238,15 +237,21 @@ namespace Levels
 
 		void step()
 		{
-			const auto& mouseState = Globals::Components().mouseState();
+			float mouseSensitivity = 0.01f;
+			float gamepadSensitivity = 50.0f;
+
+			const auto& physics = Globals::Components().physics();
+			const auto& mouse = Globals::Components().mouse();
+			const auto& gamepad = Globals::Components().gamepads()[0];
 			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
 
-			player1Controls.turningDelta = mouseState.getWorldSpaceDelta();
-			player1Controls.autoRotation = mouseState.rmb;
-			player1Controls.throttling = mouseState.rmb;
-			player1Controls.magneticHook = mouseState.xmb1;
+			player1Controls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity +
+				Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
+			player1Controls.autoRotation = (bool)std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
+			player1Controls.throttling = std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
+			player1Controls.magneticHook = mouse.pressing.xmb1 || gamepad.pressing.lShoulder || gamepad.lTrigger >= 0.5f;
 
-			if (mouseState.lmb)
+			if (mouse.pressing.lmb || gamepad.pressing.x)
 			{
 				if (durationToLaunchMissile <= 0.0f)
 				{
@@ -278,12 +283,15 @@ namespace Levels
 					glm::normalize(ToVec2<glm::vec2>(missile.body->GetLinearVelocity()) - missilesToHandlers[id].referenceVelocity)));
 			}
 
-			projectionHSizeBase = std::clamp(projectionHSizeBase + (prevWheel - mouseState.wheel) * 5.0f, 5.0f, 100.0f);
-			prevWheel = mouseState.wheel;
+			if (mouse.pressing.mmb || gamepad.pressing.rShoulder)
+				Globals::Components().physics().gameSpeed = std::clamp(Globals::Components().physics().gameSpeed +
+					(mouse.pressed.wheel + gamepad.pressed.dUp * 1 + gamepad.pressed.dDown * -1) * 0.1f, 0.0f, 2.0f);
+			else
+				projectionHSizeBase = std::clamp(projectionHSizeBase + (mouse.pressed.wheel +
+					gamepad.pressed.dUp * 1 + gamepad.pressed.dDown * -1) * -5.0f, 5.0f, 100.0f);
 		}
 
 	private:
-		Shaders::Programs::Julia juliaShaders;
 		Shaders::Programs::TexturedColorThreshold texturedColorThresholdShaders;
 		Shaders::Programs::Particles particlesShaders;
 
@@ -305,7 +313,6 @@ namespace Levels
 
 		float durationToLaunchMissile = 0.0f;
 
-		int prevWheel = 0;
 		float projectionHSizeBase = 5.0f;
 
 		bool explosionFrame = false;

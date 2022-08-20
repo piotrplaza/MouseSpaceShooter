@@ -1,16 +1,15 @@
 #pragma once
 
 #include "_componentBase.hpp"
-#include "_renderable.hpp"
+#include "_physical.hpp"
 
-#include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>
 
-#include <commonTypes/bodyUserData.hpp>
+#include <glm/glm.hpp>
 
 namespace Components
 {
-	struct Plane : ComponentBase, Renderable
+	struct Plane : ComponentBase, Physical
 	{
 		Plane() = default;
 
@@ -20,22 +19,22 @@ namespace Components
 			std::optional<ComponentId> renderingSetup = std::nullopt,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			Renderable(texture, renderingSetup, renderLayer, customShadersProgram),
-			body(std::move(body))
+			Physical(std::move(body), TCM::Plane(getComponentId()), texture, renderingSetup, renderLayer, customShadersProgram)
 		{
-			Tools::AccessUserData(*this->body).bodyComponentVariant = TCM::Plane(getComponentId());
 		}
 
-		Body body;
+		std::function<void()> step;
 
 		bool connectIfApproaching = false;
+
+		float manoeuvrability = 1.0f;
 
 		struct
 		{
 			glm::vec2 turningDelta{ 0.0f, 0.0f };
 			bool autoRotation = false;
-			float autoRotationFactor = 0.5f;
-			bool throttling = false;
+			float autoRotationFactor = 1.0f;
+			float throttling = 0.0f;
 			bool magneticHook = false;
 		} controls;
 
@@ -45,83 +44,25 @@ namespace Components
 			std::unique_ptr<b2Joint, b2JointDeleter> grappleJoint;
 			ComponentId connectedGrappleId = 0;
 			ComponentId weakConnectedGrappleId = 0;
+			float throttleForce = 0.0f;
 		} details;
 
-		std::vector<glm::vec3> getVertices() const
+		void throttle(float forceFactor)
 		{
-			return Tools::GetVertices(*body);
-		}
+			const float angle = body->GetAngle();
+			const glm::vec2 planeDirection(glm::cos(angle), glm::sin(angle));
 
-		const std::vector<glm::vec4>& getColors() const
-		{
-			return colors;
-		}
-
-		const std::vector<glm::vec2> getTexCoord() const
-		{
-			if (texCoord.empty())
+			details.throttleForce = [&]()
 			{
-				const auto vertices = getVertices();
-				return std::vector<glm::vec2>(vertices.begin(), vertices.end());
-			}
-			else
-			{
-				const auto vertices = getVertices();
-				if (texCoord.size() < vertices.size())
-				{
-					std::vector<glm::vec2> cyclicTexCoord;
-					cyclicTexCoord.reserve(vertices.size());
-					for (size_t i = 0; i < vertices.size(); ++i)
-						cyclicTexCoord.push_back(texCoord[i % texCoord.size()]);
-					return cyclicTexCoord;
-				}
-				else
-				{
-					assert(texCoord.size() == vertices.size());
-					return texCoord;
-				}
-			}
-		}
+				glm::vec2 velocityDirection(ToVec2<glm::vec2>(body->GetLinearVelocity()));
+				if (velocityDirection == glm::vec2(0.0f))
+					return forceFactor;
 
-		void setPosition(const glm::vec2& position)
-		{
-			body->SetTransform({ position.x, position.y }, body->GetAngle());
-		}
+				const float forceModifier = 1.0f + (1.0f - glm::dot(planeDirection, glm::normalize(velocityDirection))) / 2.0f * manoeuvrability;
+				return forceFactor * forceModifier;
+			}();
 
-		void setRotation(float angle)
-		{
-			body->SetTransform(body->GetPosition(), angle);
-		}
-
-		void resetKinematic()
-		{
-			body->SetLinearVelocity({ 0.0f, 0.0f });
-			body->SetAngularVelocity(0.0f);
-		}
-
-		glm::vec2 getCenter() const
-		{
-			return ToVec2<glm::vec2>(body->GetWorldCenter());
-		}
-
-		float getAngle() const
-		{
-			return body->GetAngle();
-		}
-
-		glm::vec2 getVelocity() const
-		{
-			return ToVec2<glm::vec2>(body->GetLinearVelocity());
-		}
-
-		std::vector<glm::vec3> getTransformedVertices() const
-		{
-			return Tools::Transform(getVertices(), getModelMatrix());
-		}
-
-		glm::mat4 getModelMatrix() const
-		{
-			return Tools::GetModelMatrix(*body);
+			body->ApplyForce(ToVec2<b2Vec2>(planeDirection * details.throttleForce), body->GetWorldCenter(), true);
 		}
 	};
 }

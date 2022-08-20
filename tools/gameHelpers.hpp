@@ -42,13 +42,92 @@ namespace Tools
 		bool valid = true;
 	};
 
+	struct ExplosionParams
+	{
+		ExplosionParams& center(glm::vec2 value)
+		{
+			center_ = value;
+			return *this;
+		}
+
+		ExplosionParams& numOfParticles(int value)
+		{
+			numOfParticles_ = value;
+			return *this;
+		}
+
+		ExplosionParams& initVelocity(float value)
+		{
+			initVelocity_ = value;
+			return *this;
+		}
+
+		ExplosionParams& particlesRadius(float value)
+		{
+			particlesRadius_ = value;
+			return *this;
+		}
+
+		ExplosionParams& particlesDensity(float value)
+		{
+			particlesDensity_ = value;
+			return *this;
+		}
+
+		ExplosionParams& particlesLinearDamping(float value)
+		{
+			particlesLinearDamping_ = value;
+			return *this;
+		}
+
+		ExplosionParams& particlesAsBullets(bool value)
+		{
+			particlesAsBullets_ = value;
+			return *this;
+		}
+
+		ExplosionParams& explosionDuration(float value)
+		{
+			explosionDuration_ = value;
+			return *this;
+		}
+
+		ExplosionParams& explosionTexture(unsigned value)
+		{
+			explosionTexture_ = value;
+			return *this;
+		}
+
+		ExplosionParams& particlesPerDecoration(int value)
+		{
+			particlesPerDecoration_ = value;
+			return *this;
+		}
+
+		ExplosionParams& resolutionMode(ResolutionMode value)
+		{
+			resolutionMode_ = value;
+			return *this;
+		}
+
+		glm::vec2 center_ = { 0, 0 };
+		int numOfParticles_ = 64;
+		float initVelocity_ = 100.0f;
+		float particlesRadius_ = 1.0f;
+		float particlesDensity_ = 0.01f;
+		float particlesLinearDamping_ = 3.0f;
+		bool particlesAsBullets_ = false;
+		float explosionDuration_ = 1.0f;
+		unsigned explosionTexture_ = 0;
+		int particlesPerDecoration_ = 4;
+		ResolutionMode resolutionMode_ = ResolutionMode::Normal;
+	};
+
 	PlaneHandler CreatePlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position = glm::vec2(0.0f), float angle = 0.0f);
 	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 referenceVelocity,
 		glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimatedTexture);
-	void CreateExplosion(Shaders::Programs::ParticlesAccessor particlesProgram, glm::vec2 center, unsigned explosionTexture,
-		float explosionDuration = 1.0f, int numOfParticles = 64, int particlesPerDecoration = 4,
-		ResolutionMode resolutionMode = ResolutionMode::Normal);
+	void CreateExplosion(ExplosionParams params);
 	void CreateFogForeground(int numOfLayers, float alphaPerLayer, unsigned fogTexture,
 		std::function<glm::vec4()> fColor = []() { return glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); });
-	void CreateJuliaBackground(Shaders::Programs::Julia& juliaShaders, std::function<glm::vec2()> juliaCOffset);
+	void CreateJuliaBackground(std::function<glm::vec2()> juliaCOffset);
 }

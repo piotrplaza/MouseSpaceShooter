@@ -21,9 +21,8 @@ namespace
 
 void b2BodyDeleter::operator()(b2Body* body) const
 {
-	auto* bodyUserData = static_cast<BodyUserData*>(body->GetUserData());
+	auto* bodyUserData = reinterpret_cast<BodyUserData*>(body->GetUserData().pointer);
 	delete bodyUserData;
-	body->SetUserData(nullptr);
 	body->GetWorld()->DestroyBody(body);
 }
 
@@ -60,7 +59,7 @@ namespace Tools
 		body->SetLinearDamping(playerLinearDamping);
 		body->SetAngularDamping(playerAngularDamping);
 
-		body->SetUserData(new BodyUserData);
+		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
 
 		return body;
 	}
@@ -84,7 +83,7 @@ namespace Tools
 		fixtureDef.filter.categoryBits = Globals::CollisionBits::wallBit;
 		body->CreateFixture(&fixtureDef);
 
-		body->SetUserData(new BodyUserData);
+		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
 
 		return body;
 	}
@@ -107,12 +106,12 @@ namespace Tools
 		fixtureDef.filter.categoryBits = Globals::CollisionBits::wallBit;
 		body->CreateFixture(&fixtureDef);
 
-		body->SetUserData(new BodyUserData);
+		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
 
 		return body;
 	}
 
-	void PinBodies(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected)
+	void CreateRevoluteJoint(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected)
 	{
 		b2RevoluteJointDef revoluteJointDef;
 		revoluteJointDef.bodyA = &body1;
@@ -121,6 +120,20 @@ namespace Tools
 		revoluteJointDef.localAnchorB = body2.GetLocalPoint({ pinPoint.x, pinPoint.y });
 		revoluteJointDef.collideConnected = collideConnected;
 		Globals::Components().physics().world->CreateJoint(&revoluteJointDef);
+	}
+
+	void CreateDistanceJoint(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected, float length)
+	{
+		b2DistanceJointDef distanceJointDef;
+		distanceJointDef.bodyA = &body1;
+		distanceJointDef.bodyB = &body2;
+		distanceJointDef.localAnchorA = body1.GetLocalPoint({ pinPoint.x, pinPoint.y });
+		distanceJointDef.localAnchorB = body2.GetLocalPoint({ pinPoint.x, pinPoint.y });
+		distanceJointDef.collideConnected = collideConnected;
+		distanceJointDef.length = length;
+		distanceJointDef.minLength = length;
+		distanceJointDef.maxLength = length;
+		Globals::Components().physics().world->CreateJoint(&distanceJointDef);
 	}
 
 	glm::mat4 GetModelMatrix(const b2Body& body)
@@ -208,8 +221,13 @@ namespace Tools
 		return collisionObjectA > collisionObjectB ? std::make_pair(collisionObjectB, collisionObjectA) : std::make_pair(collisionObjectA, collisionObjectB);
 	}
 
-	BodyUserData& AccessUserData(const b2Body& body)
+	BodyUserData& AccessUserData(b2Body& body)
 	{
-		return *static_cast<BodyUserData*>(body.GetUserData());
+		return *reinterpret_cast<BodyUserData*>(body.GetUserData().pointer);
+	}
+
+	const BodyUserData& AccessUserData(const b2Body& body)
+	{
+		return *reinterpret_cast<BodyUserData*>(const_cast<b2Body&>(body).GetUserData().pointer);
 	}
 }

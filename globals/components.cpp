@@ -1,8 +1,9 @@
 #include "components.hpp"
 
 #include <components/renderingBuffers.hpp>
-#include <components/keyboardState.hpp>
-#include <components/mouseState.hpp>
+#include <components/keyboard.hpp>
+#include <components/mouse.hpp>
+#include <components/gamepad.hpp>
 #include <components/screenInfo.hpp>
 #include <components/mvp.hpp>
 #include <components/physics.hpp>
@@ -35,14 +36,19 @@ namespace Globals
 		return *renderingBuffers_;
 	}
 
-	Components::KeyboardState& ComponentsHolder::keyboardState()
+	Components::Keyboard& ComponentsHolder::keyboard()
 	{
 		return *keyboardState_;
 	}
 
-	Components::MouseState& ComponentsHolder::mouseState()
+	Components::Mouse& ComponentsHolder::mouse()
 	{
 		return *mouseState_;
+	}
+
+	std::array<Components::Gamepad, 4>& ComponentsHolder::gamepads()
+	{
+		return *gamepads_;
 	}
 
 	Components::ScreenInfo& ComponentsHolder::screenInfo()

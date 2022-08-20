@@ -16,26 +16,34 @@ uniform bool colorAccumulation;
 uniform int numOfPlayers;
 uniform vec2 playersCenter[4];
 uniform float playerUnhidingRadius;
+uniform bool visibilityReduction;
+uniform vec2 visibilityCenter;
+uniform float fullVisibilityDistance;
+uniform float invisibilityDistance;
 
 float playersDistanceAlpha()
 {
-	if (playerUnhidingRadius == 0.0)
-		return 1.0;
-
 	float minDist = 1000000;
 	for (int i = 0; i < numOfPlayers; ++i)
 		minDist = min(minDist, distance(vPos, playersCenter[i]));
 
-	if (minDist < playerUnhidingRadius)
-		return minDist / playerUnhidingRadius;
+	return clamp(minDist / playerUnhidingRadius, 0.0, 1.0);
+}
 
-	return 1.0;
+float visibility()
+{
+	if (!visibilityReduction)
+		return playersDistanceAlpha();
+
+	const float dist = distance(visibilityCenter, vPos);
+	const float visibilityFactor = clamp((dist - invisibilityDistance) / -max(invisibilityDistance - fullVisibilityDistance, 0.001), 0.0, 1.0);
+	return playersDistanceAlpha() * visibilityFactor;
 }
 
 void main()
 {
 	if (numOfTextures == 1)
-		fColor = texture(textures[0], vTexCoord[0]) * vColor * color * playersDistanceAlpha();
+		fColor = texture(textures[0], vTexCoord[0]) * vColor * color * visibility();
 	else
 	{
 		const vec4 finalBlendingColor = texture(textures[0], vTexCoord[0]) * mulBlendingColor + addBlendingColor;
@@ -46,6 +54,6 @@ void main()
 
 		fColor = vec4((accumulatedColor / (colorAccumulation ? 1 : (numOfTextures - 1))).rgb,
 			alphaFromBlendingTexture ? finalBlendingColor.a : accumulatedColor.a
-		) * vColor * color * playersDistanceAlpha();
+		) * vColor * color * visibility();
 	}
 }

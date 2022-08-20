@@ -21,8 +21,8 @@ namespace Components
 	{
 		Shockwave() = default;
 
-		Shockwave(glm::vec2 center, int numOfParticles = 50, float initVelocity = 100.0f, float particlesRadius = 2.0f, float particlesDensity = 0.002f,
-			float particlesLinearDamping = 3.0f, bool particlesAsBullets = false):
+		Shockwave(glm::vec2 center, int numOfParticles, float initVelocity, float particlesRadius, float particlesDensity,
+			float particlesLinearDamping, bool particlesAsBullets):
 			center(center)
 		{
 			float angle = Tools::Random(0.0f, glm::two_pi<float>());

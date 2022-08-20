@@ -17,7 +17,6 @@
 namespace
 {
 	constexpr float planeForwardForce = 10.0f;
-	constexpr float mouseSensitivity = 0.01f;
 }
 
 namespace Systems
@@ -47,6 +46,9 @@ namespace Systems
 			magneticHook(plane);
 
 			connections.updateBuffers();
+
+			if (plane.step)
+				plane.step();
 		}
 	}
 
@@ -58,14 +60,20 @@ namespace Systems
 
 	void Actors::turn(Components::Plane& plane) const
 	{
-		if (glm::length(plane.controls.turningDelta) > 0)
+		const auto& physics = Globals::Components().physics();
+
+		const float turningDeltaLength = glm::length(plane.controls.turningDelta);
+		const glm::vec2 normalizedTurningDelta = plane.controls.turningDelta / turningDeltaLength;
+		const float targetTurningDeltaLength = std::min(turningDeltaLength, 1.0f);
+
+		if (targetTurningDeltaLength > 0)
 		{
 			const float planeAngle = plane.body->GetAngle();
 			const float planeSideAngle = planeAngle + glm::half_pi<float>();
 			const glm::vec2 planeDirection = { std::cos(planeSideAngle), std::sin(planeSideAngle) };
-			const float controllerDot = glm::dot(planeDirection, plane.controls.turningDelta);
+			const float controllerDot = glm::dot(planeDirection, normalizedTurningDelta);
 
-			plane.body->SetTransform(plane.body->GetPosition(), planeAngle + controllerDot * mouseSensitivity);
+			plane.body->SetTransform(plane.body->GetPosition(), planeAngle + controllerDot * targetTurningDeltaLength);
 		}
 
 		if (plane.details.grappleJoint && plane.controls.autoRotation)
@@ -98,11 +106,7 @@ namespace Systems
 
 	void Actors::throttle(Components::Plane& plane) const
 	{
-		if (!plane.controls.throttling) return;
-
-		const float currentAngle = plane.body->GetAngle();
-		plane.body->ApplyForce(b2Vec2(glm::cos(currentAngle),
-			glm::sin(currentAngle)) * planeForwardForce, plane.body->GetWorldCenter(), true);
+		plane.throttle(plane.controls.throttling * planeForwardForce);
 	}
 
 	void Actors::magneticHook(Components::Plane& plane)
@@ -198,6 +202,8 @@ namespace Systems
 		distanceJointDef.localAnchorA = distanceJointDef.bodyA->GetLocalCenter();
 		distanceJointDef.localAnchorB = distanceJointDef.bodyB->GetLocalCenter();
 		distanceJointDef.length = glm::distance(plane.getCenter(), grapple.getCenter());
+		distanceJointDef.minLength = distanceJointDef.length;
+		distanceJointDef.maxLength = distanceJointDef.length;
 		distanceJointDef.collideConnected = true;
 		plane.details.grappleJoint.reset(Globals::Components().physics().world->CreateJoint(&distanceJointDef));
 	}

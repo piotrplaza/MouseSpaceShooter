@@ -1,4 +1,4 @@
-#include "dzidzia.hpp"
+#include "dzidzia2.hpp"
 
 #include <components/graphicsSettings.hpp>
 #include <components/screenInfo.hpp>
@@ -23,18 +23,14 @@
 namespace
 {
 	constexpr float turningSensitivity = 0.01f;
+	unsigned dzidziaTailSize = 200;
 }
 
 namespace Levels
 {
-	class Dzidzia::Impl
+	class Dzidzia2::Impl
 	{
 	public:
-		void reserveMemory() const
-		{
-			Globals::Components().decorations().reserve(1000000);
-		}
-
 		void setGraphicsSettings() const
 		{
 			Globals::Components().graphicsSettings().clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -58,7 +54,7 @@ namespace Levels
 		void createBackground()
 		{
 			Tools::CreateJuliaBackground([this]() {
-				return Globals::Components().decorations()[dzidziaDecoration].getCenter() * 0.0001f; });
+				return Globals::Components().decorations()[dzidziaDecorationId].getCenter() * 0.0001f; });
 		}
 
 		void createDecorations()
@@ -107,17 +103,30 @@ namespace Levels
 				return glm::translate(glm::mat4(1.0f), glm::vec3(*pos, 0.0f));
 			};
 
-			dzidziaDecoration = decorations.size();
-			decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
-				TCM::Texture(dzidzia1Texture), Tools::CreateTexCoordOfRectangle()).preserveTextureRatio = true;
-			decorations.back().modelMatrixF = [this]() mutable {
+			dzidziaDecorationId = decorations.size();
+			auto& dzidzia = decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
+				TCM::Texture(dzidzia1Texture), Tools::CreateTexCoordOfRectangle());
+			dzidzia.preserveTextureRatio = true;
+			dzidzia.modelMatrixF = [this]() mutable {
 				return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(mousePos, 0.0f)), rotateAngle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
 			};
+			dzidzia.posInSubsequence = dzidziaTailSize;
+			dzidzia.subsequence.reserve(dzidziaTailSize);
+			for (unsigned i = 0; i < dzidziaTailSize; ++i)
+			{
+				dzidzia.subsequence.emplace_back(dzidzia.vertices, dzidzia.texture, dzidzia.texCoord);
+				dzidzia.subsequence.back().preserveTextureRatio = dzidzia.preserveTextureRatio;
+				dzidzia.subsequence.back().modelMatrixF = [pos = this->mousePos, angle = this->rotateAngle, scaleSin = this->scaleSin]() {
+					return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), angle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
+				};
+				dzidzia.subsequence.back().colorF = []() {
+					return glm::vec4(0.2f);
+				};
+			}
 		}
 
 		void step()
 		{
-			const auto& keyboard = Globals::Components().keyboard();
 			const auto& mouse = Globals::Components().mouse();
 			const auto& screenInfo = Globals::Components().screenInfo();
 			const auto& physics = Globals::Components().physics();
@@ -126,30 +135,18 @@ namespace Levels
 			absClamp = { (float)screenInfo.windowSize.x / screenInfo.windowSize.y * 10.0f, 10.0f };
 			mousePos += mouse.getWorldSpaceDelta() * turningSensitivity;
 			mousePos = glm::clamp(mousePos, -absClamp, absClamp);
-			
-			if (keyboard.pressed[' '] || mouse.pressed.lmb)
-				draw = !draw;
 
-			if (draw)
+			if (mouse.delta != glm::ivec2(0))
 			{
-				if (mouse.delta != glm::ivec2(0))
-				{
-					decorations.back().modelMatrixF = [pos = this->mousePos, angle = this->rotateAngle, scaleSin = this->scaleSin]() {
-						return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), angle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
-					};
+				auto& dzidzia = Globals::Components().decorations()[dzidziaDecorationId];
 
-					assert(decorations.size() < decorations.capacity());
-					dzidziaDecoration = decorations.size();
-					decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
-						TCM::Texture(dzidzia1Texture), Tools::CreateTexCoordOfRectangle()).preserveTextureRatio = true;
-					decorations.back().modelMatrixF = [this]() mutable {
-						return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(mousePos, 0.0f)), rotateAngle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
-					};
-					Globals::Systems().decorations().updateStaticBuffers();
+				dzidzia.subsequence[dzidzia.subsequenceBegin].modelMatrixF = [pos = this->mousePos, angle = this->rotateAngle, scaleSin = this->scaleSin]() {
+					return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), angle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
+				};
+				++dzidzia.subsequenceBegin %= dzidzia.subsequence.size();
 
-					rotateAngle += 2.0f * physics.frameDuration;
-					scaleSin += 2.0f * physics.frameDuration;
-				}
+				rotateAngle += 2.0f * physics.frameDuration;
+				scaleSin += 2.0f * physics.frameDuration;
 			}
 		}
 
@@ -157,30 +154,27 @@ namespace Levels
 		unsigned dzidzia1Texture = 0;
 		unsigned dzidziaITata1Texture = 0;
 
-		unsigned dzidziaDecoration = 0;
+		unsigned dzidziaDecorationId = 0;
 
 		glm::vec2 absClamp{ 0.0f };
 		glm::vec2 mousePos{ 0.0f };
-
-		bool draw = false;
 
 		float rotateAngle = 0.0f;
 		float scaleSin = 0.0f;
 	};
 
-	Dzidzia::Dzidzia():
+	Dzidzia2::Dzidzia2():
 		impl(std::make_unique<Impl>())
 	{
-		impl->reserveMemory();
 		impl->setGraphicsSettings();
 		impl->loadTextures();
 		impl->createBackground();
 		impl->createDecorations();
 	}
 
-	Dzidzia::~Dzidzia() = default;
+	Dzidzia2::~Dzidzia2() = default;
 
-	void Dzidzia::step()
+	void Dzidzia2::step()
 	{
 		impl->step();
 	}

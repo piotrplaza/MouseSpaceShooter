@@ -17,6 +17,7 @@
 
 #include <components/_typeComponentMappers.hpp>
 
+#include <globals/shaders.hpp>
 #include <globals/collisionBits.hpp>
 
 #include <ogl/uniforms.hpp>
@@ -26,6 +27,7 @@
 #include <tools/b2Helpers.hpp>
 #include <tools/utility.hpp>
 
+#include <algorithm>
 #include <cassert>
 
 namespace Tools
@@ -49,23 +51,35 @@ namespace Tools
 			auto& decoration = Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }),
 				TCM::AnimatedTexture(flameAnimatedTexture));
 
-			Globals::Components().renderingSetups().emplace_back([&, i, modelUniform = Uniforms::UniformMat4f(),
-				thrustScale = 1.0f
-				](Shaders::ProgramId program) mutable {
-					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
-					modelUniform(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*plane.body),
-						{ -1.0f - thrustScale * 0.25f, i == 0 ? -0.5f : 0.5f, 0.0f }),
-						-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
-						{ std::min(thrustScale * 0.5f, 0.6f), thrustScale, 1.0f }));
+			Globals::Components().renderingSetups().emplace_back([&, i,
+				modelUniform = Uniforms::UniformMat4f(),
+				thrust = 1.0f,
+				flameAnimatedTexture
+			](Shaders::ProgramId program) mutable {
+				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
+				modelUniform(
+					glm::translate(
+						glm::scale(
+							glm::rotate(
+								glm::translate(Tools::GetModelMatrix(*plane.body), { -0.5f, i == 0 ? -0.4f : 0.4f, 0.0f }),
+								-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
+							{ 0.5f + thrust * 0.02f, thrust, 1.0f }),
+						{ 0.0f, -0.5f, 0.0f }));
 
-					const float targetFrameDurationFactor = Globals::Components().physics().frameDuration * 6;
-					if (plane.controls.throttling) thrustScale = std::min(thrustScale * (1.0f + targetFrameDurationFactor), 5.0f);
-					else thrustScale = 1.0f + (thrustScale - 1.0f) * (1.0f - targetFrameDurationFactor);
+				const float targetThrust = 1.0f + plane.details.throttleForce * 0.3f;
+				const float changeStep = Globals::Components().physics().frameDuration * 10.0f;
 
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				if (thrust < targetThrust)
+					thrust = std::min(thrust + changeStep, targetThrust);
+				else
+					thrust = std::max(thrust - changeStep, targetThrust);
 
-					return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
-				});
+				Globals::Components().animatedTextures()[flameAnimatedTexture].setSpeedScaling(1.0f + (thrust - 1) * 0.2f);
+
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+			});
 
 			decoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 			decoration.renderLayer = RenderLayer::FarMidground;
@@ -167,25 +181,27 @@ namespace Tools
 		return { missile.getComponentId(), decoration.getComponentId(), referenceVelocity };
 	}
 
-	void CreateExplosion(Shaders::Programs::ParticlesAccessor particlesProgram, glm::vec2 center, unsigned explosionTexture,
-		float explosionDuration, int numOfParticles, int particlesPerDecoration, ResolutionMode resolutionMode)
+	void CreateExplosion(ExplosionParams params)
 	{
-		Globals::Components().deferredActions().emplace_back([=](float) {
-			auto& shockwave = EmplaceDynamicComponent(Globals::Components().shockwaves(), { center, numOfParticles });
+		auto& particlesShaders = Globals::Shaders().particles();
+
+		Globals::Components().deferredActions().emplace_back([=, &particlesShaders](float) {
+			auto& shockwave = EmplaceDynamicComponent(Globals::Components().shockwaves(), { params.center_, params.numOfParticles_, params.initVelocity_,
+				params.particlesRadius_, params.particlesDensity_, params.particlesLinearDamping_, params.particlesAsBullets_ });
 			auto& explosionDecoration = EmplaceDynamicComponent(Globals::Components().dynamicDecorations(), {});
-			explosionDecoration.customShadersProgram = particlesProgram.getProgramId();
-			explosionDecoration.resolutionMode = resolutionMode;
+			explosionDecoration.customShadersProgram = particlesShaders.getProgramId();
+			explosionDecoration.resolutionMode = params.resolutionMode_;
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 
-			Globals::Components().renderingSetups().emplace_back([=, startTime = Globals::Components().physics().simulationDuration
-				](Shaders::ProgramId program) mutable
+			Globals::Components().renderingSetups().emplace_back([=, startTime = Globals::Components().physics().simulationDuration,
+				&particlesShaders](Shaders::ProgramId program) mutable
 				{
-					particlesProgram.vp(Globals::Components().mvp().getVP());
-					particlesProgram.texture1(explosionTexture);
+					particlesShaders.vp(Globals::Components().mvp().getVP());
+					particlesShaders.texture1(params.explosionTexture_);
 
 					const float elapsed = Globals::Components().physics().simulationDuration - startTime;
-					particlesProgram.color(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (explosionDuration * 2.0f), 10.0f)), 1.0f));
+					particlesShaders.color(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (params.explosionDuration_ * 2.0f), 10.0f)), 1.0f));
 
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -199,7 +215,7 @@ namespace Tools
 				const float elapsed = Globals::Components().physics().simulationDuration - startTime;
 				const float scale = 1.0f + elapsed * 20.0f;
 
-				if (elapsed > explosionDuration)
+				if (elapsed > params.explosionDuration_)
 				{
 					shockwave.state = ComponentState::Outdated;
 					explosionDecoration.state = ComponentState::Outdated;
@@ -210,7 +226,7 @@ namespace Tools
 				explosionDecoration.vertices.emplace_back(shockwave.center, scale);
 				for (size_t i = 0; i < shockwave.particles.size(); ++i)
 				{
-					if (i % particlesPerDecoration != 0) continue;
+					if (i % params.particlesPerDecoration_ != 0) continue;
 					const auto& particle = shockwave.particles[i];
 					const glm::vec2 position = shockwave.center + (ToVec2<glm::vec2>(particle->GetWorldCenter()) - shockwave.center) * 0.5f;
 					explosionDecoration.vertices.emplace_back(position, scale);
@@ -252,8 +268,9 @@ namespace Tools
 		}
 	}
 
-	void CreateJuliaBackground(Shaders::Programs::Julia& juliaShaders, std::function<glm::vec2()> juliaCOffset)
+	void CreateJuliaBackground(std::function<glm::vec2()> juliaCOffset)
 	{
+		auto& juliaShaders = Globals::Shaders().julia();
 		auto& background = Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
 		background.customShadersProgram = juliaShaders.getProgramId();
 

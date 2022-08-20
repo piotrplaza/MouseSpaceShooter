@@ -7,6 +7,7 @@
 #include <glm/vec2.hpp>
 
 #include <memory>
+#include <chrono>
 
 namespace Components
 {
@@ -24,5 +25,7 @@ namespace Components
 		float gameSpeed = 1.0f;
 
 		bool paused = false;
+
+		std::chrono::high_resolution_clock::time_point prevFrameTime;
 	};
 }

@@ -32,7 +32,8 @@ namespace Buffers
 		void allocateOrUpdateColorsBuffer(const std::vector<glm::vec4>& colors);
 		void allocateOrUpdateTexCoordBuffer(const std::vector<glm::vec2>& texCoord);
 
-		std::function<glm::mat4()> modelMatrixF = nullptr;
+		std::function<glm::mat4()> modelMatrixF;
+		std::function<glm::vec4()> *colorF = nullptr;
 		TextureComponentVariant* texture = nullptr;
 		std::optional<ComponentId>* renderingSetup = nullptr;
 		std::optional<Shaders::ProgramId>* customShadersProgram = nullptr;
@@ -83,13 +84,16 @@ namespace Buffers
 					renderingTeardown();
 			};
 
-			for (auto it = subsequence.begin(); it != std::next(subsequence.begin(), *posInSubsequence); ++it)
-				setAndDraw(*it);
+			for (unsigned i = 0; i < subsequence.size(); ++i)
+			{
+				const unsigned id = (i + *subsequenceBegin) % subsequence.size();
+				if (id == *posInSubsequence)
+					setAndDraw(*this);
+				setAndDraw(subsequence[id]);
+			}
 
-			setAndDraw(*this);
-
-			for (auto it = std::next(subsequence.begin(), *posInSubsequence); it != subsequence.end(); ++it)
-				setAndDraw(*it);
+			if (subsequence.empty() || *posInSubsequence == subsequence.size())
+				setAndDraw(*this);
 		}
 
 		template <typename Component>
@@ -111,6 +115,7 @@ namespace Buffers
 		{
 			customShadersProgram = &component.customShadersProgram;
 			resolutionMode = &component.resolutionMode;
+			subsequenceBegin = &component.subsequenceBegin;
 			posInSubsequence = &component.posInSubsequence;
 
 			componentCommonsToBuffersCommons(component, *this);
@@ -123,6 +128,7 @@ namespace Buffers
 		ResolutionMode* resolutionMode = nullptr;
 
 		std::vector<GenericSubBuffers> subsequence;
+		unsigned* subsequenceBegin = nullptr;
 		unsigned* posInSubsequence = nullptr;
 
 		ComponentId sourceComponent = 0;
@@ -140,6 +146,7 @@ namespace Buffers
 		void componentCommonsToBuffersCommons(SubComponent& subComponent, Buffers::GenericSubBuffers& buffers)
 		{
 			buffers.modelMatrixF = [&]() { return subComponent.getModelMatrix(); };
+			buffers.colorF = &subComponent.colorF;
 			buffers.renderingSetup = &subComponent.renderingSetup;
 			buffers.texture = &subComponent.texture;
 			buffers.drawMode = &subComponent.drawMode;
