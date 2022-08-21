@@ -74,6 +74,9 @@
     <Filter Include="src\levels\dzidzia2">
       <UniqueIdentifier>{eb219852-c618-4367-a078-02059b3a9c85}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\fpsScalingProblems">
+      <UniqueIdentifier>{3da844d4-37bc-4d1f-9231-ecfc29133109}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -180,6 +183,9 @@
     </ClCompile>
     <ClCompile Include="levels\dzidzia2\dzidzia2.cpp">
       <Filter>src\levels\dzidzia2</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\fpsScalingProblems\fpsScalingProblems.cpp">
+      <Filter>src\levels\fpsScalingProblems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -416,6 +422,9 @@
     </ClInclude>
     <ClInclude Include="levels\dzidzia2\dzidzia2.hpp">
       <Filter>src\levels\dzidzia2</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\fpsScalingProblems\fpsScalingProblems.hpp">
+      <Filter>src\levels\fpsScalingProblems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

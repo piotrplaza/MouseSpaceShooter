@@ -7,6 +7,8 @@
 
 #include <glm/glm.hpp>
 
+#include <optional>
+
 namespace Components
 {
 	struct Plane : ComponentBase, Physical
@@ -42,8 +44,8 @@ namespace Components
 		{
 			glm::vec2 previousCenter{ 0.0f, 0.0f };
 			std::unique_ptr<b2Joint, b2JointDeleter> grappleJoint;
-			ComponentId connectedGrappleId = 0;
-			ComponentId weakConnectedGrappleId = 0;
+			std::optional<ComponentId> connectedGrappleId;
+			std::optional<ComponentId> weakConnectedGrappleId;
 			float throttleForce = 0.0f;
 		} details;
 

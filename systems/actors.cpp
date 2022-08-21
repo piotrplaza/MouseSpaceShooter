@@ -11,6 +11,7 @@
 #include <globals/shaders.hpp>
 
 #include <tools/buffersHelpers.hpp>
+#include <tools/b2Helpers.hpp>
 
 #include <ogl/shaders/basic.hpp>
 
@@ -32,14 +33,14 @@ namespace Systems
 	{
 		for(auto& plane: Globals::Components().planes())
 		{
-			if (plane.details.connectedGrappleId && !Globals::Components().grapples().count(plane.details.connectedGrappleId))
+			if (plane.details.connectedGrappleId && !Globals::Components().grapples().count(*plane.details.connectedGrappleId))
 			{
 				plane.details.grappleJoint.release();
-				plane.details.connectedGrappleId = 0;
+				plane.details.connectedGrappleId = std::nullopt;
 			}
 
-			if (plane.details.weakConnectedGrappleId && !Globals::Components().grapples().count(plane.details.weakConnectedGrappleId))
-				plane.details.weakConnectedGrappleId = 0;
+			if (plane.details.weakConnectedGrappleId && !Globals::Components().grapples().count(*plane.details.weakConnectedGrappleId))
+				plane.details.weakConnectedGrappleId = std::nullopt;
 
 			turn(plane);
 			throttle(plane);
@@ -78,7 +79,7 @@ namespace Systems
 
 		if (plane.details.grappleJoint && plane.controls.autoRotation)
 		{
-			const auto& grapple = Globals::Components().grapples()[plane.details.connectedGrappleId];
+			const auto& grapple = Globals::Components().grapples()[*plane.details.connectedGrappleId];
 			const glm::vec2 stepVelocity = (plane.getCenter() - plane.details.previousCenter) - (grapple.getCenter() - grapple.details.previousCenter);
 			const float stepVelocityLength = glm::length(stepVelocity);
 
@@ -135,8 +136,8 @@ namespace Systems
 		if (!plane.controls.magneticHook)
 		{
 			plane.details.grappleJoint.reset();
-			plane.details.connectedGrappleId = 0;
-			plane.details.weakConnectedGrappleId = 0;
+			plane.details.connectedGrappleId = std::nullopt;
+			plane.details.weakConnectedGrappleId = std::nullopt;
 		}
 
 		for (ComponentId grappleInRange : grapplesInRange)
@@ -151,7 +152,7 @@ namespace Systems
 					plane.connectIfApproaching))
 				{
 					plane.details.connectedGrappleId = grappleInRange;
-					plane.details.weakConnectedGrappleId = 0;
+					plane.details.weakConnectedGrappleId = std::nullopt;
 					createGrappleJoint(plane);
 				}
 				else if(plane.details.connectedGrappleId != grappleInRange)
@@ -180,12 +181,12 @@ namespace Systems
 
 		if (plane.details.connectedGrappleId)
 		{
-			connections.params.emplace_back(plane.getCenter(), Globals::Components().grapples()[plane.details.connectedGrappleId].getCenter(),
+			connections.params.emplace_back(plane.getCenter(), Globals::Components().grapples()[*plane.details.connectedGrappleId].getCenter(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) * 0.7f, 20, 0.4f);
 		}
 		else if (plane.details.weakConnectedGrappleId)
 		{
-			connections.params.emplace_back(plane.getCenter(), Globals::Components().grapples()[plane.details.weakConnectedGrappleId].getCenter(),
+			connections.params.emplace_back(plane.getCenter(), Globals::Components().grapples()[*plane.details.weakConnectedGrappleId].getCenter(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) * 0.5f, 1);
 		}
 	}
@@ -194,18 +195,11 @@ namespace Systems
 	{
 		assert(plane.details.connectedGrappleId);
 
-		const auto& grapple = Globals::Components().grapples()[plane.details.connectedGrappleId];
+		const auto& grapple = Globals::Components().grapples()[*plane.details.connectedGrappleId];
 
-		b2DistanceJointDef distanceJointDef;
-		distanceJointDef.bodyA = plane.body.get();
-		distanceJointDef.bodyB = grapple.body.get();
-		distanceJointDef.localAnchorA = distanceJointDef.bodyA->GetLocalCenter();
-		distanceJointDef.localAnchorB = distanceJointDef.bodyB->GetLocalCenter();
-		distanceJointDef.length = glm::distance(plane.getCenter(), grapple.getCenter());
-		distanceJointDef.minLength = distanceJointDef.length;
-		distanceJointDef.maxLength = distanceJointDef.length;
-		distanceJointDef.collideConnected = true;
-		plane.details.grappleJoint.reset(Globals::Components().physics().world->CreateJoint(&distanceJointDef));
+		plane.details.grappleJoint.reset(Tools::CreateDistanceJoint(*plane.body, *grapple.body,
+			ToVec2<glm::vec2>(plane.body->GetWorldCenter()), ToVec2<glm::vec2>(grapple.body->GetWorldCenter()),
+			true, glm::distance(plane.getCenter(), grapple.getCenter())));
 	}
 
 	std::vector<glm::vec3> Actors::Connections::Params::getVertices() const

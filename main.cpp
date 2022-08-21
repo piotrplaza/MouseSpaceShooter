@@ -6,6 +6,7 @@
 #include "levels/dzidzia/dzidzia.hpp"
 #include "levels/dzidzia2/dzidzia2.hpp"
 #include "levels/rim/rim.hpp"
+#include "levels/fpsScalingProblems/fpsScalingProblems.hpp"
 
 #include "components/mouse.hpp"
 #include "components/physics.hpp"
@@ -82,6 +83,7 @@ void CreateLevel()
 	//activeLevel = std::make_unique<Levels::Dzidzia>();
 	//activeLevel = std::make_unique<Levels::Dzidzia2>();
 	//activeLevel = std::make_unique<Levels::Rim>();
+	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }
 
 void Initialize()

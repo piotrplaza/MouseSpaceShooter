@@ -28,6 +28,7 @@
     <ClCompile Include="levels\basic\basic.cpp" />
     <ClCompile Include="levels\dzidzia2\dzidzia2.cpp" />
     <ClCompile Include="levels\dzidzia\dzidzia.cpp" />
+    <ClCompile Include="levels\fpsScalingProblems\fpsScalingProblems.cpp" />
     <ClCompile Include="levels\gravity\gravity.cpp" />
     <ClCompile Include="levels\level.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
@@ -103,6 +104,7 @@
     <ClInclude Include="levels\basic\basic.hpp" />
     <ClInclude Include="levels\dzidzia2\dzidzia2.hpp" />
     <ClInclude Include="levels\dzidzia\dzidzia.hpp" />
+    <ClInclude Include="levels\fpsScalingProblems\fpsScalingProblems.hpp" />
     <ClInclude Include="levels\gravity\gravity.hpp" />
     <ClInclude Include="levels\level.hpp" />
     <ClInclude Include="levels\playground\playground.hpp" />
