@@ -3,7 +3,7 @@
 #include <components/_componentId.hpp>
 
 #include <memory>
-#include <vector>
+#include <deque>
 #include <array>
 #include <unordered_map>
 #include <list>
@@ -54,15 +54,15 @@ namespace Globals
 		Components::Framebuffers& framebuffers();
 		Components::MainFramebufferRenderer& mainFramebufferRenderer();
 
-		std::vector<Components::Texture>& textures();
-		std::vector<Components::AnimatedTexture>& animatedTextures();
-		std::vector<Components::BlendingTexture>& blendingTextures();
-		std::vector<Components::RenderingSetup>& renderingSetups();
-		std::vector<Components::Plane>& planes();
-		std::vector<Components::Wall>& walls();
+		std::deque<Components::Texture>& textures();
+		std::deque<Components::AnimatedTexture>& animatedTextures();
+		std::deque<Components::BlendingTexture>& blendingTextures();
+		std::deque<Components::RenderingSetup>& renderingSetups();
+		std::deque<Components::Plane>& planes();
+		std::deque<Components::Wall>& walls();
 		std::unordered_map<ComponentId, Components::Wall>& dynamicWalls();
 		std::unordered_map<ComponentId, Components::Grapple>& grapples();
-		std::vector<Components::Decoration>& decorations();
+		std::deque<Components::Decoration>& decorations();
 		std::unordered_map<ComponentId, Components::Decoration>& dynamicDecorations();
 		std::unordered_map<ComponentId, Components::Missile>& missiles();
 		std::unordered_map<ComponentId, Components::CollisionHandler>& beginCollisionHandlers();
@@ -86,15 +86,15 @@ namespace Globals
 		std::unique_ptr<Components::Framebuffers> framebuffers_ = std::make_unique<Components::Framebuffers>();
 		std::unique_ptr<Components::MainFramebufferRenderer> mainFramebufferRenderer_ = std::make_unique<Components::MainFramebufferRenderer>();
 
-		std::vector<Components::Texture> textures_;
-		std::vector<Components::AnimatedTexture> animatedTextures_;
-		std::vector<Components::BlendingTexture> blendingTextures_;
-		std::vector<Components::RenderingSetup> renderingSetups_;
-		std::vector<Components::Plane> planes_;
-		std::vector<Components::Wall> structures_;
+		std::unique_ptr<std::deque<Components::Texture>> textures_ = std::make_unique<std::deque<Components::Texture>>();
+		std::unique_ptr<std::deque<Components::AnimatedTexture>> animatedTextures_ = std::make_unique<std::deque<Components::AnimatedTexture>>();
+		std::unique_ptr<std::deque<Components::BlendingTexture>> blendingTextures_ = std::make_unique<std::deque<Components::BlendingTexture>>();
+		std::unique_ptr<std::deque<Components::RenderingSetup>> renderingSetups_ = std::make_unique<std::deque<Components::RenderingSetup>>();
+		std::unique_ptr<std::deque<Components::Plane>> planes_ = std::make_unique<std::deque<Components::Plane>>();
+		std::unique_ptr<std::deque<Components::Wall>> structures_ = std::make_unique<std::deque<Components::Wall>>();
 		std::unordered_map<ComponentId, Components::Wall> dynamicWalls_;
 		std::unordered_map<ComponentId, Components::Grapple> grapples_;
-		std::vector<Components::Decoration> decorations_;
+		std::unique_ptr<std::deque<Components::Decoration>> decorations_ = std::make_unique<std::deque<Components::Decoration>>();
 		std::unordered_map<ComponentId, Components::Decoration> dynamicDecorations_;
 		std::unordered_map<ComponentId, Components::Missile> missiles_;
 		std::unordered_map<ComponentId, Components::CollisionHandler> beginCollisionHandlers_;

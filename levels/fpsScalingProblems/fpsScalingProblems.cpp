@@ -20,10 +20,10 @@ namespace Levels
 		{
 			auto& walls = Globals::Components().walls();
 
-			walls.emplace_back(Tools::CreateCircleBody({ 0.0f, 0.0f }, 1.0f));
-			walls.emplace_back(Tools::CreateCircleBody({ 0.0f, 5.0f }, 1.0f, b2_dynamicBody));
+			auto& wall1 = walls.emplace_back(Tools::CreateCircleBody({ 0.0f, 0.0f }, 1.0f));
+			auto& wall2 = walls.emplace_back(Tools::CreateCircleBody({ 0.0f, 5.0f }, 1.0f, b2_dynamicBody));
 
-			Tools::CreateDistanceJoint(*walls[0].body, *walls[1].body, walls[0].getCenter(), walls[1].getCenter(), true, distance(walls[0].getCenter(), walls[1].getCenter()));
+			Tools::CreateDistanceJoint(*wall1.body, *wall2.body, wall1.getCenter(), wall2.getCenter(), true, distance(wall1.getCenter(), wall2.getCenter()));
 		}
 
 		void step()

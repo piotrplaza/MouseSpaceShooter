@@ -30,11 +30,6 @@ namespace Levels
 	class Dzidzia::Impl
 	{
 	public:
-		void reserveMemory() const
-		{
-			Globals::Components().decorations().reserve(1000000);
-		}
-
 		void setGraphicsSettings() const
 		{
 			Globals::Components().graphicsSettings().clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -138,7 +133,6 @@ namespace Levels
 						return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), angle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
 					};
 
-					assert(decorations.size() < decorations.capacity());
 					dzidziaDecoration = decorations.size();
 					decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
 						TCM::Texture(dzidzia1Texture), Tools::CreateTexCoordOfRectangle()).preserveTextureRatio = true;
@@ -171,7 +165,6 @@ namespace Levels
 	Dzidzia::Dzidzia():
 		impl(std::make_unique<Impl>())
 	{
-		impl->reserveMemory();
 		impl->setGraphicsSettings();
 		impl->loadTextures();
 		impl->createBackground();

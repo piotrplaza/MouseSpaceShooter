@@ -9,7 +9,7 @@
 namespace Tools
 {
 	template <typename Component>
-	inline void UpdateStaticBuffers(std::vector<Component>& components, size_t offset = 0)
+	inline void UpdateStaticBuffers(std::deque<Component>& components, size_t offset = 0)
 	{
 		auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers;
 

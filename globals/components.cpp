@@ -87,34 +87,34 @@ namespace Globals
 	}
 
 
-	std::vector<Components::Texture>& ComponentsHolder::textures()
+	std::deque<Components::Texture>& ComponentsHolder::textures()
 	{
-		return textures_;
+		return *textures_;
 	}
 
-	std::vector<Components::AnimatedTexture>& ComponentsHolder::animatedTextures()
+	std::deque<Components::AnimatedTexture>& ComponentsHolder::animatedTextures()
 	{
-		return animatedTextures_;
+		return *animatedTextures_;
 	}
 
-	std::vector<Components::BlendingTexture>& ComponentsHolder::blendingTextures()
+	std::deque<Components::BlendingTexture>& ComponentsHolder::blendingTextures()
 	{
-		return blendingTextures_;
+		return *blendingTextures_;
 	}
 
-	std::vector<Components::RenderingSetup>& ComponentsHolder::renderingSetups()
+	std::deque<Components::RenderingSetup>& ComponentsHolder::renderingSetups()
 	{
-		return renderingSetups_;
+		return *renderingSetups_;
 	}
 
-	std::vector<Components::Plane>& ComponentsHolder::planes()
+	std::deque<Components::Plane>& ComponentsHolder::planes()
 	{
-		return planes_;
+		return *planes_;
 	}
 
-	std::vector<Components::Wall>& ComponentsHolder::walls()
+	std::deque<Components::Wall>& ComponentsHolder::walls()
 	{
-		return structures_;
+		return *structures_;
 	}
 
 	std::unordered_map<ComponentId, Components::Wall>& ComponentsHolder::dynamicWalls()
@@ -127,9 +127,9 @@ namespace Globals
 		return grapples_;
 	}
 
-	std::vector<Components::Decoration>& ComponentsHolder::decorations()
+	std::deque<Components::Decoration>& ComponentsHolder::decorations()
 	{
-		return decorations_;
+		return *decorations_;
 	}
 
 	std::unordered_map<ComponentId, ::Components::Decoration>& ComponentsHolder::dynamicDecorations()
