@@ -14,6 +14,7 @@
 #include <glm/vec4.hpp>
 
 #include <vector>
+#include <deque>
 #include <optional>
 
 namespace Buffers
@@ -62,7 +63,7 @@ struct Renderable
 
 	bool render = true;
 
-	std::vector<DecorationDef> subsequence;
+	std::deque<DecorationDef> subsequence;
 	unsigned subsequenceBegin = 0;
 	unsigned posInSubsequence = 0;
 

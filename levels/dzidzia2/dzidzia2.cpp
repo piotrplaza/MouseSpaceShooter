@@ -23,7 +23,7 @@
 namespace
 {
 	constexpr float turningSensitivity = 0.01f;
-	unsigned dzidziaTailSize = 200;
+	unsigned dzidziaTailSize = 100;
 }
 
 namespace Levels
@@ -111,7 +111,6 @@ namespace Levels
 				return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(mousePos, 0.0f)), rotateAngle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
 			};
 			dzidzia.posInSubsequence = dzidziaTailSize;
-			dzidzia.subsequence.reserve(dzidziaTailSize);
 			for (unsigned i = 0; i < dzidziaTailSize; ++i)
 			{
 				dzidzia.subsequence.emplace_back(dzidzia.vertices, dzidzia.texture, dzidzia.texCoord);
@@ -119,8 +118,11 @@ namespace Levels
 				dzidzia.subsequence.back().modelMatrixF = [pos = this->mousePos, angle = this->rotateAngle, scaleSin = this->scaleSin]() {
 					return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), angle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
 				};
-				dzidzia.subsequence.back().colorF = []() {
-					return glm::vec4(0.2f);
+				dzidzia.subsequence.back().colorF = [this, alpha = (float)i / dzidziaTailSize, deltaAlpha = 1.0f / dzidziaTailSize]() mutable {
+					if (alpha < 0.000001)
+						alpha = 1.0f;
+					alpha -= deltaAlpha;
+					return glm::vec4(alpha);
 				};
 			}
 		}
@@ -136,15 +138,15 @@ namespace Levels
 			mousePos += mouse.getWorldSpaceDelta() * turningSensitivity;
 			mousePos = glm::clamp(mousePos, -absClamp, absClamp);
 
+			auto& dzidzia = Globals::Components().decorations()[dzidziaDecorationId];
+
+			dzidzia.subsequence[dzidzia.subsequenceBegin].modelMatrixF = [pos = this->mousePos, angle = this->rotateAngle, scaleSin = this->scaleSin]() {
+				return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), angle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
+			};
+			++dzidzia.subsequenceBegin %= dzidzia.subsequence.size();
+
 			if (mouse.delta != glm::ivec2(0))
 			{
-				auto& dzidzia = Globals::Components().decorations()[dzidziaDecorationId];
-
-				dzidzia.subsequence[dzidzia.subsequenceBegin].modelMatrixF = [pos = this->mousePos, angle = this->rotateAngle, scaleSin = this->scaleSin]() {
-					return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), angle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
-				};
-				++dzidzia.subsequenceBegin %= dzidzia.subsequence.size();
-
 				rotateAngle += 2.0f * physics.frameDuration;
 				scaleSin += 2.0f * physics.frameDuration;
 			}
