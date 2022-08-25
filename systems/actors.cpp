@@ -67,16 +67,6 @@ namespace Systems
 		const glm::vec2 normalizedTurningDelta = plane.controls.turningDelta / turningDeltaLength;
 		const float targetTurningDeltaLength = std::min(turningDeltaLength, 1.0f);
 
-		if (targetTurningDeltaLength > 0)
-		{
-			const float planeAngle = plane.body->GetAngle();
-			const float planeSideAngle = planeAngle + glm::half_pi<float>();
-			const glm::vec2 planeDirection = { std::cos(planeSideAngle), std::sin(planeSideAngle) };
-			const float controllerDot = glm::dot(planeDirection, normalizedTurningDelta);
-
-			plane.body->SetTransform(plane.body->GetPosition(), planeAngle + controllerDot * targetTurningDeltaLength);
-		}
-
 		if (plane.details.grappleJoint && plane.controls.autoRotation)
 		{
 			const auto& grapple = Globals::Components().grapples()[*plane.details.connectedGrappleId];
@@ -102,6 +92,15 @@ namespace Systems
 				plane.body->SetTransform(plane.body->GetPosition(), planeAngle + (velocityDot > 0.0f ? velocityFrontDot : velocityBackDot) *
 					stepVelocityLength * plane.controls.autoRotationFactor);
 			}
+		}
+		else if (targetTurningDeltaLength > 0)
+		{
+			const float planeAngle = plane.body->GetAngle();
+			const float planeSideAngle = planeAngle + glm::half_pi<float>();
+			const glm::vec2 planeDirection = { std::cos(planeSideAngle), std::sin(planeSideAngle) };
+			const float controllerDot = glm::dot(planeDirection, normalizedTurningDelta);
+
+			plane.body->SetTransform(plane.body->GetPosition(), planeAngle + controllerDot * targetTurningDeltaLength);
 		}
 	}
 
