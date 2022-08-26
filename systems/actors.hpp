@@ -56,10 +56,10 @@ namespace Systems
 
 		void turn(Components::Plane& plane) const;
 		void throttle(Components::Plane& plane) const;
-		void magneticHook(Components::Plane& plane);
+		void magneticHook(Components::Plane& plane, Connections& planeConnections);
 		void createGrappleJoint(Components::Plane& plane) const;
 
-		Connections connections;
+		std::vector<Connections> allConnections;
 
 		size_t loadedStaticPlanes = 0;
 	};

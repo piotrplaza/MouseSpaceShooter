@@ -36,8 +36,10 @@
 #include <tools/gameHelpers.hpp>
 
 #include <algorithm>
+#include <numeric>
 #include <unordered_map>
 #include <unordered_set>
+#include <array>
 
 namespace Levels
 {
@@ -143,7 +145,11 @@ namespace Levels
 		void createBackground()
 		{
 			Tools::CreateJuliaBackground([this]() {
-				return Globals::Components().planes()[player1Handler.planeId].getCenter() * 0.0001f; });
+				const auto averageCenter = std::accumulate(playersHandlers.begin(), playersHandlers.end(),
+					glm::vec2(0.0f), [](const auto& acc, const auto& currentHandler) {
+						return acc + Globals::Components().planes()[currentHandler.planeId].getCenter();
+					}) / (float)playersHandlers.size();
+				return averageCenter * 0.0001f; });
 		}
 
 		void createForeground()
@@ -182,7 +188,10 @@ namespace Levels
 						addBlendingColor = Uniforms::Uniform4f(program, "addBlendingColor");
 
 					const float skullOpacity = fogAlphaFactor - 1.0f;
-					const float avatarOpacity = glm::min(0.0f, glm::distance(Globals::Components().planes()[player1Handler.planeId].getCenter(), portraitCenter) / 3.0f - 5.0f);
+					float minDistance = std::numeric_limits<float>::max();
+					for (const auto& playerHandler : playersHandlers)
+						minDistance = std::min(minDistance, glm::distance(Globals::Components().planes()[playerHandler.planeId].getCenter(), portraitCenter));
+					const float avatarOpacity = glm::min(0.0f, minDistance / 3.0f - 5.0f);
 
 					i == 0
 						? addBlendingColor({ 1.0f, skullOpacity, avatarOpacity, 0.0f })
@@ -201,13 +210,31 @@ namespace Levels
 
 		void createPlayers()
 		{
-			player1Handler = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { -10.0f, 0.0f });
+			const float gap = 5.0f;
+			const float farPlayersDistance = gap * (playersHandlers.size() - 1);
+			for (unsigned i = 0; i < playersHandlers.size(); ++i)
+				playersHandlers[i] = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { -10.0f, -farPlayersDistance / 2.0f + gap * i });
 		}
 
-		void launchMissile()
+		void launchingMissile(unsigned playerId, bool tryToLaunch)
 		{
-			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[player1Handler.planeId].getCenter(),
-				Globals::Components().planes()[player1Handler.planeId].getAngle(), 5.0f, {0.0f, 0.0f}, Globals::Components().planes()[player1Handler.planeId].getVelocity(),
+			if (tryToLaunch)
+			{
+				if (durationToLaunchMissile[playerId] <= 0.0f)
+				{
+					launchMissile(playerId);
+					durationToLaunchMissile[playerId] = 0.1f;
+				}
+				else durationToLaunchMissile[playerId] -= Globals::Components().physics().frameDuration;
+			}
+			else durationToLaunchMissile[playerId] = 0.0f;
+		}
+
+		void launchMissile(unsigned playerId)
+		{
+			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[playersHandlers[playerId].planeId].getCenter(),
+				Globals::Components().planes()[playersHandlers[playerId].planeId].getAngle(), 5.0f, {0.0f, 0.0f},
+				Globals::Components().planes()[playersHandlers[playerId].planeId].getVelocity(),
 				missile2Texture, flame1AnimatedTexture);
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 		}
@@ -422,15 +449,36 @@ namespace Levels
 
 		void setCamera() const
 		{
-			const auto& plane = Globals::Components().planes()[player1Handler.planeId];
+			const auto& planes = Globals::Components().planes();
 
 			Globals::Components().camera().targetProjectionHSizeF = [&]() {
 				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
-				return projectionHSizeBase + glm::length(plane.getVelocity()) * 0.2f;
+
+				const float maxDistance = [&]() {
+					float maxDistance = 0.0f;
+					for (unsigned i = 0; i < planes.size() - 1; ++i)
+						for (unsigned j = i + 1; j < planes.size(); ++j)
+							maxDistance = std::max(maxDistance, glm::distance(planes[i].getCenter(), planes[j].getCenter()));
+					return maxDistance;
+				}();
+
+				const auto velocitySum = std::accumulate(playersHandlers.begin(), playersHandlers.end(),
+					glm::vec2(0.0f), [&](const auto& acc, const auto& currentHandler) {
+						return acc + planes[currentHandler.planeId].getVelocity();
+					});
+
+				return std::max(projectionHSizeBase, maxDistance * 0.5f) + glm::length(velocitySum) * 0.2f;
 			};
+
 			Globals::Components().camera().targetPositionF = [&]() {
 				Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
-				return plane.getCenter() + glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * 5.0f + plane.getVelocity() * 0.4f;
+
+				const auto averageCenter = std::accumulate(playersHandlers.begin(), playersHandlers.end(),
+					glm::vec2(0.0f), [&](const auto& acc, const auto& currentHandler) {
+						return acc + planes[currentHandler.planeId].getCenter();
+					}) / (float)playersHandlers.size();
+
+				return averageCenter;
 			};
 		}
 
@@ -518,32 +566,37 @@ namespace Levels
 
 			const auto& physics = Globals::Components().physics();
 			const auto& mouse = Globals::Components().mouse();
-			const auto& gamepad = Globals::Components().gamepads()[0];
-			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
+			const auto& gamepads = Globals::Components().gamepads();
 
-			player1Controls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity +
-				Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
-			player1Controls.autoRotation = (bool)std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
-			player1Controls.throttling = std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
-			player1Controls.magneticHook = mouse.pressing.xmb1 || gamepad.pressing.lShoulder || gamepad.lTrigger >= 0.5f;
-
-			if (mouse.pressing.lmb || gamepad.pressing.x)
+			for (unsigned i = 0; i < numOfPlayers; ++i)
 			{
-				if (durationToLaunchMissile <= 0.0f)
+				auto& playerControls = Globals::Components().planes()[playersHandlers[i].planeId].controls;
+
+				playerControls.turningDelta = Tools::ApplyDeadzone(gamepads[i].lStick) * physics.frameDuration * gamepadSensitivity;
+				playerControls.autoRotation = (bool)gamepads[i].rTrigger;
+				playerControls.throttling = gamepads[i].rTrigger;
+				playerControls.magneticHook = gamepads[i].pressing.lShoulder || gamepads[i].lTrigger >= 0.5f;
+
+				if (i == 0)
 				{
-					launchMissile();
-					durationToLaunchMissile = 0.1f;
+					playerControls.turningDelta += mouse.getWorldSpaceDelta() * mouseSensitivity;
+					playerControls.autoRotation |= (bool)mouse.pressing.rmb;
+					playerControls.throttling = std::max((float)mouse.pressing.rmb, playerControls.throttling);
+					playerControls.magneticHook |= mouse.pressing.xmb1;
+					launchingMissile(i, mouse.pressing.lmb || gamepads[i].pressing.x);
 				}
-				else durationToLaunchMissile -= Globals::Components().physics().frameDuration;
+				else
+				{
+					launchingMissile(i, gamepads[i].pressing.x);
+				}
 			}
-			else durationToLaunchMissile = 0.0f;
 			
-			if (mouse.pressing.mmb || gamepad.pressing.rShoulder)
+			if (mouse.pressing.mmb || gamepads[0].pressing.rShoulder)
 				Globals::Components().physics().gameSpeed = std::clamp(Globals::Components().physics().gameSpeed +
-					(mouse.pressed.wheel + gamepad.pressed.dUp * 1 + gamepad.pressed.dDown * -1) * 0.1f, 0.0f, 2.0f);
+					(mouse.pressed.wheel + gamepads[0].pressed.dUp * 1 + gamepads[0].pressed.dDown * -1) * 0.1f, 0.0f, 2.0f);
 			else
 				projectionHSizeBase = std::clamp(projectionHSizeBase + (mouse.pressed.wheel +
-					gamepad.pressed.dUp * 1 + gamepad.pressed.dDown * -1) * -5.0f, 5.0f, 100.0f);
+					gamepads[0].pressed.dUp * 1 + gamepads[0].pressed.dDown * -1) * -5.0f, 5.0f, 100.0f);
 
 			//textureAngle += Globals::Components().physics().frameDuration * 0.2f;
 		}
@@ -570,9 +623,9 @@ namespace Levels
 		unsigned flame1AnimatedTexture = 0;
 		unsigned flame2AnimatedTexture = 0;
 
-		Tools::PlaneHandler player1Handler;
-
-		float durationToLaunchMissile = 0.0f;
+		static constexpr unsigned numOfPlayers = 2;
+		std::array<Tools::PlaneHandler, numOfPlayers> playersHandlers;
+		std::array<float, numOfPlayers> durationToLaunchMissile{};
 
 		float projectionHSizeBase = 20.0f;
 

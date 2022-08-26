@@ -31,8 +31,16 @@ namespace Systems
 
 	void Actors::step()
 	{
-		for(auto& plane: Globals::Components().planes())
+		auto& planes = Globals::Components().planes();
+		auto& grapples = Globals::Components().grapples();
+
+		allConnections.resize(planes.size());
+
+		for(unsigned i = 0; i < planes.size(); ++i)
 		{
+			auto& plane = planes[i];
+			auto& planeConnections = allConnections[i];
+
 			if (plane.details.connectedGrappleId && !Globals::Components().grapples().count(*plane.details.connectedGrappleId))
 			{
 				plane.details.grappleJoint.release();
@@ -44,9 +52,9 @@ namespace Systems
 
 			turn(plane);
 			throttle(plane);
-			magneticHook(plane);
+			magneticHook(plane, planeConnections);
 
-			connections.updateBuffers();
+			planeConnections.updateBuffers();
 
 			if (plane.step)
 				plane.step();
@@ -109,9 +117,9 @@ namespace Systems
 		plane.throttle(plane.controls.throttling * planeForwardForce);
 	}
 
-	void Actors::magneticHook(Components::Plane& plane)
+	void Actors::magneticHook(Components::Plane& plane, Connections& planeConnections)
 	{
-		connections.params.clear();
+		planeConnections.params.clear();
 
 		ComponentId nearestGrappleId = 0;
 		float nearestGrappleDistance = std::numeric_limits<float>::infinity();
@@ -160,32 +168,32 @@ namespace Systems
 					{
 						if (plane.details.grappleJoint)
 						{
-							connections.params.emplace_back(plane.getCenter(), grapple.getCenter(),
+							planeConnections.params.emplace_back(plane.getCenter(), grapple.getCenter(),
 								glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) * 0.2f, 1);
 						}
 						plane.details.weakConnectedGrappleId = grappleInRange;
 					}
 					else
 					{
-						connections.params.emplace_back(plane.getCenter(), grapple.getCenter(),
+						planeConnections.params.emplace_back(plane.getCenter(), grapple.getCenter(),
 							glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) * 0.2f, 1);
 					}
 				}
 			}
 			else if (plane.details.connectedGrappleId != grappleInRange)
 			{
-				connections.params.emplace_back(plane.getCenter(), grapple.getCenter(), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) * 0.2f, 1);
+				planeConnections.params.emplace_back(plane.getCenter(), grapple.getCenter(), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) * 0.2f, 1);
 			}
 		}
 
 		if (plane.details.connectedGrappleId)
 		{
-			connections.params.emplace_back(plane.getCenter(), Globals::Components().grapples()[*plane.details.connectedGrappleId].getCenter(),
+			planeConnections.params.emplace_back(plane.getCenter(), Globals::Components().grapples()[*plane.details.connectedGrappleId].getCenter(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) * 0.7f, 20, 0.4f);
 		}
 		else if (plane.details.weakConnectedGrappleId)
 		{
-			connections.params.emplace_back(plane.getCenter(), Globals::Components().grapples()[*plane.details.weakConnectedGrappleId].getCenter(),
+			planeConnections.params.emplace_back(plane.getCenter(), Globals::Components().grapples()[*plane.details.weakConnectedGrappleId].getCenter(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) * 0.5f, 1);
 		}
 	}
