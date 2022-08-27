@@ -39,7 +39,12 @@
 #include <numeric>
 #include <unordered_map>
 #include <unordered_set>
-#include <array>
+#include <vector>
+
+namespace
+{
+	constexpr bool gamepadForPlayer1 = false;
+}
 
 namespace Levels
 {
@@ -208,26 +213,37 @@ namespace Levels
 			}
 		}
 
-		void createPlayers()
+		void updateNumOfPlayers(bool init)
 		{
+			const auto& gamepads = Globals::Components().gamepads();
 			const float gap = 5.0f;
-			const float farPlayersDistance = gap * (playersHandlers.size() - 1);
-			for (unsigned i = 0; i < playersHandlers.size(); ++i)
-				playersHandlers[i] = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { -10.0f, -farPlayersDistance / 2.0f + gap * i });
+			const unsigned numOfControllers = 1u - (unsigned)gamepadForPlayer1 + std::count_if(gamepads.begin(), gamepads.end(), [](const auto& gamepad) {
+				return gamepad.enabled;
+				});
+			const unsigned numOfPlayers = std::min(numOfControllers, 4u);
+			const float farPlayersDistance = gap * (numOfPlayers - 1);
+
+			if (playersHandlers.size() != numOfPlayers)
+			{
+				playersHandlers.resize(numOfPlayers);
+				for (unsigned i = 0; i < playersHandlers.size(); ++i)
+					static_cast<Tools::PlaneHandler&>(playersHandlers[i]) = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture,
+						{ -10.0f, init ? -farPlayersDistance / 2.0f + gap * i : 0.0f });
+			}
 		}
 
 		void launchingMissile(unsigned playerId, bool tryToLaunch)
 		{
 			if (tryToLaunch)
 			{
-				if (durationToLaunchMissile[playerId] <= 0.0f)
+				if (playersHandlers[playerId].durationToLaunchMissile <= 0.0f)
 				{
 					launchMissile(playerId);
-					durationToLaunchMissile[playerId] = 0.1f;
+					playersHandlers[playerId].durationToLaunchMissile = 0.1f;
 				}
-				else durationToLaunchMissile[playerId] -= Globals::Components().physics().frameDuration;
+				else playersHandlers[playerId].durationToLaunchMissile -= Globals::Components().physics().frameDuration;
 			}
-			else durationToLaunchMissile[playerId] = 0.0f;
+			else playersHandlers[playerId].durationToLaunchMissile = 0.0f;
 		}
 
 		void launchMissile(unsigned playerId)
@@ -478,7 +494,7 @@ namespace Levels
 						return acc + planes[currentHandler.planeId].getCenter();
 					}) / (float)playersHandlers.size();
 
-				return averageCenter;
+					return averageCenter;
 			};
 		}
 
@@ -559,37 +575,53 @@ namespace Levels
 			Globals::Components().deferredActions().emplace_back([spawner](float duration) mutable { return spawner(duration, spawner); });
 		}
 
-		void step()
+		void playersControls()
 		{
-			float mouseSensitivity = 0.01f;
-			float gamepadSensitivity = 50.0f;
+			const float mouseSensitivity = 0.01f;
+			const float gamepadSensitivity = 50.0f;
 
 			const auto& physics = Globals::Components().physics();
 			const auto& mouse = Globals::Components().mouse();
 			const auto& gamepads = Globals::Components().gamepads();
 
-			for (unsigned i = 0; i < numOfPlayers; ++i)
+			for (unsigned i = 0; i < playersHandlers.size(); ++i)
 			{
 				auto& playerControls = Globals::Components().planes()[playersHandlers[i].planeId].controls;
+				bool fire = false;
 
-				playerControls.turningDelta = Tools::ApplyDeadzone(gamepads[i].lStick) * physics.frameDuration * gamepadSensitivity;
-				playerControls.autoRotation = (bool)gamepads[i].rTrigger;
-				playerControls.throttling = gamepads[i].rTrigger;
-				playerControls.magneticHook = gamepads[i].pressing.lShoulder || gamepads[i].lTrigger >= 0.5f;
+				playerControls = Components::Plane::Controls();
 
 				if (i == 0)
 				{
-					playerControls.turningDelta += mouse.getWorldSpaceDelta() * mouseSensitivity;
-					playerControls.autoRotation |= (bool)mouse.pressing.rmb;
-					playerControls.throttling = std::max((float)mouse.pressing.rmb, playerControls.throttling);
-					playerControls.magneticHook |= mouse.pressing.xmb1;
-					launchingMissile(i, mouse.pressing.lmb || gamepads[i].pressing.x);
+					playerControls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity;
+					playerControls.autoRotation = (bool)mouse.pressing.rmb;
+					playerControls.throttling = (float)mouse.pressing.rmb;
+					playerControls.magneticHook = mouse.pressing.xmb1;
+					fire = mouse.pressing.lmb;
 				}
-				else
+
+				if (i != 0 || gamepadForPlayer1)
 				{
-					launchingMissile(i, gamepads[i].pressing.x);
+					const auto& gamepad = gamepads[i - !gamepadForPlayer1];
+
+					playerControls.turningDelta += Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
+					playerControls.autoRotation |= (bool)gamepad.rTrigger;
+					playerControls.throttling = std::max(gamepad.rTrigger, playerControls.throttling);
+					playerControls.magneticHook |= gamepad.pressing.lShoulder || gamepad.lTrigger >= 0.5f;
+					fire |= gamepad.pressing.x;
 				}
+
+				launchingMissile(i, fire);
 			}
+		}
+
+		void step()
+		{
+			const auto& mouse = Globals::Components().mouse();
+			const auto& gamepads = Globals::Components().gamepads();
+
+			//updateNumOfPlayers(false);
+			playersControls();
 			
 			if (mouse.pressing.mmb || gamepads[0].pressing.rShoulder)
 				Globals::Components().physics().gameSpeed = std::clamp(Globals::Components().physics().gameSpeed +
@@ -623,9 +655,12 @@ namespace Levels
 		unsigned flame1AnimatedTexture = 0;
 		unsigned flame2AnimatedTexture = 0;
 
-		static constexpr unsigned numOfPlayers = 2;
-		std::array<Tools::PlaneHandler, numOfPlayers> playersHandlers;
-		std::array<float, numOfPlayers> durationToLaunchMissile{};
+		struct PlayerHandler : Tools::PlaneHandler
+		{
+			float durationToLaunchMissile = 0.0f;
+		};
+
+		std::vector<PlayerHandler> playersHandlers;
 
 		float projectionHSizeBase = 20.0f;
 
@@ -648,7 +683,7 @@ namespace Levels
 		impl->loadTextures();
 		impl->setAnimations();
 		impl->createBackground();
-		impl->createPlayers();
+		impl->updateNumOfPlayers(true);
 		impl->createMovableWalls();
 		impl->createStationaryWalls();
 		impl->createGrapples();

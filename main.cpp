@@ -96,6 +96,7 @@ void Initialize()
 	Globals::InitializeShaders();
 	Globals::InitializeComponents();
 	Globals::InitializeSystems();
+	Globals::Systems().stateController().handleSDL();
 
 	CreateLevel();
 

@@ -31,7 +31,7 @@ namespace Components
 
 		float manoeuvrability = 1.0f;
 
-		struct
+		struct Controls
 		{
 			glm::vec2 turningDelta{ 0.0f, 0.0f };
 			bool autoRotation = false;
