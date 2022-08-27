@@ -122,7 +122,7 @@ namespace Levels
 		void createBackground()
 		{
 			Tools::CreateJuliaBackground([this]() {
-				return Globals::Components().planes()[player1Handler.planeId].getCenter() * 0.0001f; });
+				return Globals::Components().planes()[player1Id].getCenter() * 0.0001f; });
 		}
 
 		void createForeground()
@@ -152,13 +152,13 @@ namespace Levels
 
 		void createPlayers()
 		{
-			player1Handler = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, {0.0f, -50.0f}, glm::half_pi<float>());
+			player1Id = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, {0.0f, -50.0f}, glm::half_pi<float>());
 		}
 
 		void launchMissile()
 		{
 			const float initVelocity = 5.0f;
-			auto& plane = Globals::Components().planes()[player1Handler.planeId];
+			auto& plane = Globals::Components().planes()[player1Id];
 
 			auto missileHandler = Tools::CreateMissile(plane.getCenter(), plane.getAngle(), 5.0f, plane.getVelocity(),
 				glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * initVelocity, missile2Texture, flame1AnimatedTexture);
@@ -195,7 +195,7 @@ namespace Levels
 
 		void setCamera() const
 		{
-			const auto& plane = Globals::Components().planes()[player1Handler.planeId];
+			const auto& plane = Globals::Components().planes()[player1Id];
 			const auto& planet = Globals::Components().grapples()[planetId];
 
 			Globals::Components().camera().targetProjectionHSizeF = [&]() {
@@ -243,7 +243,7 @@ namespace Levels
 			const auto& physics = Globals::Components().physics();
 			const auto& mouse = Globals::Components().mouse();
 			const auto& gamepad = Globals::Components().gamepads()[0];
-			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
+			auto& player1Controls = Globals::Components().planes()[player1Id].controls;
 
 			player1Controls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity +
 				Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
@@ -309,7 +309,7 @@ namespace Levels
 
 		unsigned flame1AnimatedTexture = 0;
 
-		Tools::PlaneHandler player1Handler;
+		unsigned player1Id;
 
 		float durationToLaunchMissile = 0.0f;
 

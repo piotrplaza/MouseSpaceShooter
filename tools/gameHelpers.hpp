@@ -20,12 +20,6 @@ namespace Shaders
 
 namespace Tools
 {
-	struct PlaneHandler
-	{
-		size_t planeId = 0;
-		size_t backThrustsIds[2] = {};
-	};
-
 	struct MissileHandler
 	{
 		MissileHandler();
@@ -123,7 +117,7 @@ namespace Tools
 		ResolutionMode resolutionMode_ = ResolutionMode::Normal;
 	};
 
-	PlaneHandler CreatePlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position = glm::vec2(0.0f), float angle = 0.0f);
+	ComponentId CreatePlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position = glm::vec2(0.0f), float angle = 0.0f);
 	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 referenceVelocity,
 		glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimatedTexture);
 	void CreateExplosion(ExplosionParams params);

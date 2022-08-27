@@ -24,22 +24,18 @@ namespace Systems
 {
 	Actors::Actors() = default;
 
-	void Actors::postInit()
-	{
-		updateStaticBuffers();
-	}
-
 	void Actors::step()
 	{
 		auto& planes = Globals::Components().planes();
 		auto& grapples = Globals::Components().grapples();
 
-		allConnections.resize(planes.size());
+		std::erase_if(allConnections, [&](const auto& element) {
+			return !planes.contains(element.first);
+			});
 
-		for(unsigned i = 0; i < planes.size(); ++i)
+		for(auto& [planeId, plane]: planes)
 		{
-			auto& plane = planes[i];
-			auto& planeConnections = allConnections[i];
+			auto& planeConnections = allConnections[planeId];
 
 			if (plane.details.connectedGrappleId && !Globals::Components().grapples().count(*plane.details.connectedGrappleId))
 			{
@@ -59,12 +55,13 @@ namespace Systems
 			if (plane.step)
 				plane.step();
 		}
+
+		updateDynamicBuffers();
 	}
 
-	void Actors::updateStaticBuffers()
+	void Actors::updateDynamicBuffers()
 	{
-		Tools::UpdateStaticBuffers(Globals::Components().planes(), loadedStaticPlanes);
-		loadedStaticPlanes = Globals::Components().planes().size();
+		Tools::UpdateDynamicBuffers(Globals::Components().planes());
 	}
 
 	void Actors::turn(Components::Plane& plane) const
@@ -229,12 +226,18 @@ namespace Systems
 		decorationId = decoration.getComponentId();
 	}
 
+	Actors::Connections::~Connections()
+	{
+		auto& decoration = Globals::Components().dynamicDecorations()[decorationId];
+		decoration.state = ComponentState::Outdated;
+	}
+
 	void Actors::Connections::updateBuffers()
 	{
-		auto& connectionsDecoration = Globals::Components().dynamicDecorations()[decorationId];
+		auto& decoration = Globals::Components().dynamicDecorations()[decorationId];
 
-		connectionsDecoration.vertices.clear();
-		connectionsDecoration.colors.clear();
+		decoration.vertices.clear();
+		decoration.colors.clear();
 
 		for (auto& connectionParams : params)
 		{
@@ -242,14 +245,14 @@ namespace Systems
 				connectionParams.segmentsNum = std::max((int)glm::distance(connectionParams.p1, connectionParams.p2) * 2, 2);
 
 			const auto vertices = connectionParams.getVertices();
-			connectionsDecoration.vertices.insert(connectionsDecoration.vertices.end(), vertices.begin(), vertices.end());
+			decoration.vertices.insert(decoration.vertices.end(), vertices.begin(), vertices.end());
 
 			const auto colors = connectionParams.getColors();
-			connectionsDecoration.colors.insert(connectionsDecoration.colors.end(), colors.begin(), colors.end());
+			decoration.colors.insert(decoration.colors.end(), colors.begin(), colors.end());
 		}
 
-		assert(connectionsDecoration.vertices.size() == connectionsDecoration.colors.size());
+		assert(decoration.vertices.size() == decoration.colors.size());
 
-		connectionsDecoration.state = ComponentState::Changed;
+		decoration.state = ComponentState::Changed;
 	}
 }

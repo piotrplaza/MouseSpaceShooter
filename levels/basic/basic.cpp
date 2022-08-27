@@ -55,12 +55,12 @@ namespace Levels
 
 		void createPlayers()
 		{
-			player1Handler = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { 0.0f, 0.0f }, glm::half_pi<float>());
+			player1Id = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { 0.0f, 0.0f }, glm::half_pi<float>());
 		}
 
 		void setCamera() const
 		{
-			const auto& plane = Globals::Components().planes()[player1Handler.planeId];
+			const auto& plane = Globals::Components().planes()[player1Id];
 
 			Globals::Components().camera().targetProjectionHSizeF = [&]() {
 				return 10.0f;
@@ -78,7 +78,7 @@ namespace Levels
 			const auto& physics = Globals::Components().physics();
 			const auto& mouse = Globals::Components().mouse();
 			const auto& gamepad = Globals::Components().gamepads()[0];
-			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
+			auto& player1Controls = Globals::Components().planes()[player1Id].controls;
 
 			player1Controls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity +
 				Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
@@ -93,7 +93,7 @@ namespace Levels
 
 		unsigned flame1AnimatedTexture = 0;
 
-		Tools::PlaneHandler player1Handler;
+		unsigned player1Id;
 	};
 
 	Basic::Basic():

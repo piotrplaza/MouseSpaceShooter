@@ -225,12 +225,12 @@ namespace Levels
 
 		void createPlayers()
 		{
-			player1Handler = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { 0.0f, 0.0f }, glm::half_pi<float>());
+			player1Id = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { 0.0f, 0.0f }, glm::half_pi<float>());
 		}
 
 		void setCamera() const
 		{
-			const auto& plane = Globals::Components().planes()[player1Handler.planeId];
+			const auto& plane = Globals::Components().planes()[player1Id];
 
 			Globals::Components().camera().targetProjectionHSizeF = [&]() {
 				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
@@ -261,8 +261,8 @@ namespace Levels
 
 		void launchMissile()
 		{
-			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[player1Handler.planeId].getCenter(),
-				Globals::Components().planes()[player1Handler.planeId].getAngle(), 5.0f, { 0.0f, 0.0f }, Globals::Components().planes()[player1Handler.planeId].getVelocity(),
+			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[player1Id].getCenter(),
+				Globals::Components().planes()[player1Id].getAngle(), 5.0f, { 0.0f, 0.0f }, Globals::Components().planes()[player1Id].getVelocity(),
 				missileTexture, flame1AnimatedTexture);
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 		}
@@ -275,7 +275,7 @@ namespace Levels
 			const auto& physics = Globals::Components().physics();
 			const auto& mouse = Globals::Components().mouse();
 			const auto& gamepad = Globals::Components().gamepads()[0];
-			auto& player1Controls = Globals::Components().planes()[player1Handler.planeId].controls;
+			auto& player1Controls = Globals::Components().planes()[player1Id].controls;
 
 			player1Controls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity +
 				Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
@@ -329,7 +329,7 @@ namespace Levels
 		unsigned rimWallBegin = 0;
 		unsigned rimWallEnd = 0;
 
-		Tools::PlaneHandler player1Handler;
+		unsigned player1Id;
 		std::unordered_map<ComponentId, Tools::MissileHandler> missilesToHandlers;
 
 		float durationToLaunchMissile = 0.0f;

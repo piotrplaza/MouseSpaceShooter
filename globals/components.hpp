@@ -58,7 +58,7 @@ namespace Globals
 		std::deque<Components::AnimatedTexture>& animatedTextures();
 		std::deque<Components::BlendingTexture>& blendingTextures();
 		std::deque<Components::RenderingSetup>& renderingSetups();
-		std::deque<Components::Plane>& planes();
+		std::unordered_map<ComponentId, Components::Plane>& planes();
 		std::deque<Components::Wall>& walls();
 		std::unordered_map<ComponentId, Components::Wall>& dynamicWalls();
 		std::unordered_map<ComponentId, Components::Grapple>& grapples();
@@ -90,7 +90,7 @@ namespace Globals
 		std::unique_ptr<std::deque<Components::AnimatedTexture>> animatedTextures_ = std::make_unique<std::deque<Components::AnimatedTexture>>();
 		std::unique_ptr<std::deque<Components::BlendingTexture>> blendingTextures_ = std::make_unique<std::deque<Components::BlendingTexture>>();
 		std::unique_ptr<std::deque<Components::RenderingSetup>> renderingSetups_ = std::make_unique<std::deque<Components::RenderingSetup>>();
-		std::unique_ptr<std::deque<Components::Plane>> planes_ = std::make_unique<std::deque<Components::Plane>>();
+		std::unordered_map<ComponentId, Components::Plane> planes_;
 		std::unique_ptr<std::deque<Components::Wall>> structures_ = std::make_unique<std::deque<Components::Wall>>();
 		std::unordered_map<ComponentId, Components::Wall> dynamicWalls_;
 		std::unordered_map<ComponentId, Components::Grapple> grapples_;

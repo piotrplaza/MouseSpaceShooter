@@ -102,7 +102,6 @@ void Initialize()
 
 	Globals::Systems().textures().postInit();
 	Globals::Systems().physics().postInit();
-	Globals::Systems().actors().postInit();
 	Globals::Systems().structures().postInit();
 	Globals::Systems().decorations().postInit();
 	Globals::Systems().camera().postInit();

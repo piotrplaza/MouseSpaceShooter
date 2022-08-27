@@ -40,6 +40,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <optional>
 
 namespace
 {
@@ -152,7 +153,7 @@ namespace Levels
 			Tools::CreateJuliaBackground([this]() {
 				const auto averageCenter = std::accumulate(playersHandlers.begin(), playersHandlers.end(),
 					glm::vec2(0.0f), [](const auto& acc, const auto& currentHandler) {
-						return acc + Globals::Components().planes()[currentHandler.planeId].getCenter();
+						return acc + Globals::Components().planes()[currentHandler.playerId].getCenter();
 					}) / (float)playersHandlers.size();
 				return averageCenter * 0.0001f; });
 		}
@@ -195,7 +196,7 @@ namespace Levels
 					const float skullOpacity = fogAlphaFactor - 1.0f;
 					float minDistance = std::numeric_limits<float>::max();
 					for (const auto& playerHandler : playersHandlers)
-						minDistance = std::min(minDistance, glm::distance(Globals::Components().planes()[playerHandler.planeId].getCenter(), portraitCenter));
+						minDistance = std::min(minDistance, glm::distance(Globals::Components().planes()[playerHandler.playerId].getCenter(), portraitCenter));
 					const float avatarOpacity = glm::min(0.0f, minDistance / 3.0f - 5.0f);
 
 					i == 0
@@ -216,19 +217,52 @@ namespace Levels
 		void updateNumOfPlayers(bool init)
 		{
 			const auto& gamepads = Globals::Components().gamepads();
-			const float gap = 5.0f;
-			const unsigned numOfControllers = 1u - (unsigned)gamepadForPlayer1 + std::count_if(gamepads.begin(), gamepads.end(), [](const auto& gamepad) {
-				return gamepad.enabled;
-				});
-			const unsigned numOfPlayers = std::min(numOfControllers, 4u);
-			const float farPlayersDistance = gap * (numOfPlayers - 1);
+			auto& planes = Globals::Components().planes();
+			std::vector<unsigned> activeGamepads;
 
-			if (playersHandlers.size() != numOfPlayers)
+			for (unsigned i = 0; i < gamepads.size(); ++i)
 			{
-				playersHandlers.resize(numOfPlayers);
-				for (unsigned i = 0; i < playersHandlers.size(); ++i)
-					static_cast<Tools::PlaneHandler&>(playersHandlers[i]) = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture,
-						{ -10.0f, init ? -farPlayersDistance / 2.0f + gap * i : 0.0f });
+				const auto& gamepad = gamepads[i];
+				if (gamepad.enabled)
+					activeGamepads.push_back(i);
+			}
+
+			const unsigned numOfPlayers = std::clamp(activeGamepads.size() + !gamepadForPlayer1, 1u, 4u);
+
+			if (init)
+			{
+				const float gap = 5.0f;
+				const float farPlayersDistance = gap * (numOfPlayers - 1);
+
+				playersHandlers.reserve(numOfPlayers);
+				unsigned activeGamepadId = 0;
+				for (unsigned i = 0; i < numOfPlayers; ++i)
+					playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { -10.0f, -farPlayersDistance / 2.0f + gap * i }),
+						i == 0 && !gamepadForPlayer1 || activeGamepads.empty() ? std::nullopt : std::optional(activeGamepads[activeGamepadId++]), 0.0f);
+			}
+			else
+			{
+				std::erase_if(playersHandlers, [&, i = 0](const auto& playerHandler) mutable {
+					const bool erase = i++ != 0 && playerHandler.gamepadId && !gamepads[*playerHandler.gamepadId].enabled;
+					if (erase)
+					{
+						planes[playerHandler.playerId].state = ComponentState::Outdated;
+						return true;
+					}
+					return false;
+					});
+
+				for (auto activeGamepadId: activeGamepads)
+				{
+					auto it = std::find_if(playersHandlers.begin(), playersHandlers.end(), [&](const auto& playerHandler) {
+							return playerHandler.gamepadId && playerHandler.gamepadId == activeGamepadId;
+						});
+					if (it == playersHandlers.end())
+						if (gamepadForPlayer1 && !playersHandlers[0].gamepadId)
+							playersHandlers[0].gamepadId = activeGamepadId;
+						else
+							playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { -10.0f, 0.0f }), activeGamepadId, 0.0f);
+				}
 			}
 		}
 
@@ -248,9 +282,9 @@ namespace Levels
 
 		void launchMissile(unsigned playerId)
 		{
-			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[playersHandlers[playerId].planeId].getCenter(),
-				Globals::Components().planes()[playersHandlers[playerId].planeId].getAngle(), 5.0f, {0.0f, 0.0f},
-				Globals::Components().planes()[playersHandlers[playerId].planeId].getVelocity(),
+			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[playersHandlers[playerId].playerId].getCenter(),
+				Globals::Components().planes()[playersHandlers[playerId].playerId].getAngle(), 5.0f, {0.0f, 0.0f},
+				Globals::Components().planes()[playersHandlers[playerId].playerId].getVelocity(),
 				missile2Texture, flame1AnimatedTexture);
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 		}
@@ -270,7 +304,7 @@ namespace Levels
 				auto setRenderingSetupAndSubsequence = [&]()
 				{
 					Globals::Components().walls().back().subsequence.emplace_back(Tools::CreateVerticesOfLineOfRectangles({ 0.4f, 0.4f },
-						{ { -0.5f, -5.0f }, { 0.5f, -5.0f }, { 0.5f, 5.0f }, { -0.5f, 5.0f}, { -0.5f, -5.0f } },
+						{ { -0.5f, -5.0f }, { 0.5f, -5.0f }, { 0.5f, 5.0f }, { -0.5f, 5.0f }, { -0.5f, -5.0f } },
 						{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }),
 						TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle());
 					Globals::Components().walls().back().subsequence.back().modelMatrixF = [wallId = Globals::Components().walls().size() - 1]() {
@@ -278,12 +312,14 @@ namespace Levels
 				};
 
 				auto& wall1Body = *Globals::Components().walls().emplace_back(
-					Tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture), Globals::Components().renderingSetups().size() - 1).body;
+					Tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture),
+					Globals::Components().renderingSetups().size() - 1, RenderLayer::NearMidground).body;
 				wall1Body.GetFixtureList()->SetRestitution(0.5f);
 				setRenderingSetupAndSubsequence();
 
 				auto& wall2Body = *Globals::Components().walls().emplace_back(
-					Tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture)).body;
+					Tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture),
+					std::nullopt, RenderLayer::NearMidground).body;
 				wall2Body.GetFixtureList()->SetRestitution(0.5f);
 				setRenderingSetupAndSubsequence();
 
@@ -318,6 +354,7 @@ namespace Levels
 					});
 
 				auto& wall = Globals::Components().walls().emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f), TCM::Texture(0));
+				wall.renderLayer = RenderLayer::NearMidground;
 				wall.render = false;
 
 				Globals::Components().renderingSetups().emplace_back([
@@ -395,13 +432,13 @@ namespace Levels
 			Globals::Components().blendingTextures().push_back({ fractalTexture, woodTexture, spaceRockTexture, foiledEggsTexture });
 
 			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ -levelWidthHSize - bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHeightHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture), renderingSetup).preserveTextureRatio = true;
+				{ bordersHGauge, levelHeightHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
 			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ levelWidthHSize + bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHeightHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture), renderingSetup).preserveTextureRatio = true;
+				{ bordersHGauge, levelHeightHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
 			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHeightHSize - bordersHGauge },
-				{ levelHeightHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture), renderingSetup).preserveTextureRatio = true;
+				{ levelHeightHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
 			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHeightHSize + bordersHGauge },
-				{ levelHeightHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture), renderingSetup).preserveTextureRatio = true;
+				{ levelHeightHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
 
 			renderingSetup = Globals::Components().renderingSetups().size();
 			Globals::Components().renderingSetups().emplace_back([
@@ -465,36 +502,54 @@ namespace Levels
 
 		void setCamera() const
 		{
+			const float transitionFactor = 10.0f;
 			const auto& planes = Globals::Components().planes();
+			const auto& screenInfo = Globals::Components().screenInfo();
 
-			Globals::Components().camera().targetProjectionHSizeF = [&]() {
-				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
+			auto velocityCorrection = [](const auto& plane) {
+				return plane.getVelocity() * 0.2f;
+			};
+
+			Globals::Components().camera().targetProjectionHSizeF = [&, transitionFactor]() {
+				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
 
 				const float maxDistance = [&]() {
+					const float scalingFactor = 0.6f;
 					float maxDistance = 0.0f;
-					for (unsigned i = 0; i < planes.size() - 1; ++i)
-						for (unsigned j = i + 1; j < planes.size(); ++j)
-							maxDistance = std::max(maxDistance, glm::distance(planes[i].getCenter(), planes[j].getCenter()));
+					for (unsigned i = 0; i < playersHandlers.size() - 1; ++i)
+						for (unsigned j = i + 1; j < playersHandlers.size(); ++j)
+						{
+							const auto& plane1 = planes.at(playersHandlers[i].playerId);
+							const auto& plane2 = planes.at(playersHandlers[j].playerId);
+							const auto plane1Center = plane1.getCenter() + velocityCorrection(plane1);
+							const auto plane2Center = plane2.getCenter() + velocityCorrection(plane2);
+							/*maxDistance = std::max(maxDistance, glm::max(glm::abs(plane1Center.x - plane2Center.x) * screenInfo.windowSize.y / screenInfo.windowSize.x * scalingFactor,
+								glm::abs(plane1Center.y - plane2Center.y) * scalingFactor));*/
+							maxDistance = std::max(maxDistance, glm::distance(glm::vec2(plane1Center.x * screenInfo.windowSize.y / screenInfo.windowSize.x, plane1Center.y),
+								glm::vec2(plane2Center.x * screenInfo.windowSize.y / screenInfo.windowSize.x, plane2Center.y)) * scalingFactor);
+						}
 					return maxDistance;
 				}();
 
-				const auto velocitySum = std::accumulate(playersHandlers.begin(), playersHandlers.end(),
-					glm::vec2(0.0f), [&](const auto& acc, const auto& currentHandler) {
-						return acc + planes[currentHandler.planeId].getVelocity();
-					});
-
-				return std::max(projectionHSizeBase, maxDistance * 0.5f) + glm::length(velocitySum) * 0.2f;
+				return std::max(projectionHSizeBase, maxDistance);
 			};
 
-			Globals::Components().camera().targetPositionF = [&]() {
-				Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
+			Globals::Components().camera().targetPositionF = [&, transitionFactor]() {
+				Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
 
-				const auto averageCenter = std::accumulate(playersHandlers.begin(), playersHandlers.end(),
-					glm::vec2(0.0f), [&](const auto& acc, const auto& currentHandler) {
-						return acc + planes[currentHandler.planeId].getCenter();
-					}) / (float)playersHandlers.size();
+				glm::vec2 min(std::numeric_limits<float>::max());
+				glm::vec2 max(std::numeric_limits<float>::lowest());
+				glm::vec2 sumOfVelocityCorrections(0.0f);
 
-					return averageCenter;
+				for (const auto& playerHandler : playersHandlers)
+				{
+					const auto& plane = planes.at(playerHandler.playerId);
+					min = { std::min(min.x, plane.getCenter().x), std::min(min.y, plane.getCenter().y) };
+					max = { std::max(max.x, plane.getCenter().x), std::max(max.y, plane.getCenter().y) };
+					sumOfVelocityCorrections += velocityCorrection(plane);
+				}
+
+				return (min + max) / 2.0f + sumOfVelocityCorrections / (float)playersHandlers.size();
 			};
 		}
 
@@ -586,7 +641,7 @@ namespace Levels
 
 			for (unsigned i = 0; i < playersHandlers.size(); ++i)
 			{
-				auto& playerControls = Globals::Components().planes()[playersHandlers[i].planeId].controls;
+				auto& playerControls = Globals::Components().planes()[playersHandlers[i].playerId].controls;
 				bool fire = false;
 
 				playerControls = Components::Plane::Controls();
@@ -600,14 +655,14 @@ namespace Levels
 					fire = mouse.pressing.lmb;
 				}
 
-				if (i != 0 || gamepadForPlayer1)
+				if (playersHandlers[i].gamepadId)
 				{
-					const auto& gamepad = gamepads[i - !gamepadForPlayer1];
+					const auto& gamepad = gamepads[*playersHandlers[i].gamepadId];
 
 					playerControls.turningDelta += Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
 					playerControls.autoRotation |= (bool)gamepad.rTrigger;
 					playerControls.throttling = std::max(gamepad.rTrigger, playerControls.throttling);
-					playerControls.magneticHook |= gamepad.pressing.lShoulder || gamepad.lTrigger >= 0.5f;
+					playerControls.magneticHook |= gamepad.pressing.lShoulder || gamepad.pressing.a || gamepad.lTrigger >= 0.5f;
 					fire |= gamepad.pressing.x;
 				}
 
@@ -620,7 +675,7 @@ namespace Levels
 			const auto& mouse = Globals::Components().mouse();
 			const auto& gamepads = Globals::Components().gamepads();
 
-			//updateNumOfPlayers(false);
+			updateNumOfPlayers(false);
 			playersControls();
 			
 			if (mouse.pressing.mmb || gamepads[0].pressing.rShoulder)
@@ -655,8 +710,10 @@ namespace Levels
 		unsigned flame1AnimatedTexture = 0;
 		unsigned flame2AnimatedTexture = 0;
 
-		struct PlayerHandler : Tools::PlaneHandler
+		struct PlayerHandler
 		{
+			unsigned playerId = 0;
+			std::optional<unsigned> gamepadId;
 			float durationToLaunchMissile = 0.0f;
 		};
 

@@ -7,6 +7,7 @@
 #include <glm/vec4.hpp>
 
 #include <vector>
+#include <unordered_map>
 
 namespace Components
 {
@@ -20,10 +21,9 @@ namespace Systems
 	public:
 		Actors();
 
-		void postInit();
 		void step();
 
-		void updateStaticBuffers();
+		void updateDynamicBuffers();
 
 	private:
 		struct Connections
@@ -47,6 +47,7 @@ namespace Systems
 			};
 
 			Connections();
+			~Connections();
 
 			std::vector<Params> params;
 			ComponentId decorationId;
@@ -59,8 +60,6 @@ namespace Systems
 		void magneticHook(Components::Plane& plane, Connections& planeConnections);
 		void createGrappleJoint(Components::Plane& plane) const;
 
-		std::vector<Connections> allConnections;
-
-		size_t loadedStaticPlanes = 0;
+		std::unordered_map<ComponentId, Connections> allConnections;
 	};
 }

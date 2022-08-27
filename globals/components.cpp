@@ -107,9 +107,9 @@ namespace Globals
 		return *renderingSetups_;
 	}
 
-	std::deque<Components::Plane>& ComponentsHolder::planes()
+	std::unordered_map<ComponentId, Components::Plane>& ComponentsHolder::planes()
 	{
-		return *planes_;
+		return planes_;
 	}
 
 	std::deque<Components::Wall>& ComponentsHolder::walls()

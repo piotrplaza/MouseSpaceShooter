@@ -32,23 +32,20 @@
 
 namespace Tools
 {
-	PlaneHandler CreatePlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position, float angle)
+	ComponentId CreatePlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position, float angle)
 	{
-		PlaneHandler planeHandler;
-
-		planeHandler.planeId = Globals::Components().planes().size();
-		auto& plane = Globals::Components().planes().emplace_back(Tools::CreatePlaneBody(2.0f, 0.2f, 0.5f), TCM::Texture(planeTexture));
+		auto& plane = EmplaceDynamicComponent(Globals::Components().planes(), { Tools::CreatePlaneBody(2.0f, 0.2f, 0.5f), TCM::Texture(planeTexture) });
 		SetCollisionFilteringBits(*plane.body, Globals::CollisionBits::planeBit, Globals::CollisionBits::all);
 		plane.setPosition(position);
 		plane.setRotation(angle);
 		plane.preserveTextureRatio = true;
+		plane.posInSubsequence = 2;
 
 		for (int i = 0; i < 2; ++i)
 		{
 			auto& animationTexture = Globals::Components().animatedTextures().back();
 
-			planeHandler.backThrustsIds[i] = Globals::Components().decorations().size();
-			auto& decoration = Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }),
+			auto& planeDecoration = plane.subsequence.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }),
 				TCM::AnimatedTexture(flameAnimatedTexture));
 
 			Globals::Components().renderingSetups().emplace_back([&, i,
@@ -81,11 +78,10 @@ namespace Tools
 				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
 			});
 
-			decoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
-			decoration.renderLayer = RenderLayer::FarMidground;
+			planeDecoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 		}
 
-		return planeHandler;
+		return plane.getComponentId();
 	}
 
 	MissileHandler::MissileHandler() = default;
