@@ -8,8 +8,6 @@ namespace Components
 {
 	struct Functor : ComponentBase
 	{
-		Functor() = default;
-
 		Functor(std::function<void()> functor) :
 			functor(std::move(functor))
 		{

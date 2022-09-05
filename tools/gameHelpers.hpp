@@ -9,6 +9,7 @@
 #include <glm/vec2.hpp>
 
 #include <functional>
+#include <optional>
 
 namespace Shaders
 {
@@ -23,7 +24,7 @@ namespace Tools
 	struct MissileHandler
 	{
 		MissileHandler();
-		MissileHandler(ComponentId missileId, ComponentId backThrustId, glm::vec2 referenceVelocity);
+		MissileHandler(ComponentId missileId, ComponentId backThrustId, glm::vec2 referenceVelocity, std::optional<ComponentId> planeId = std::nullopt);
 		~MissileHandler();
 		MissileHandler(MissileHandler&& other) noexcept;
 		MissileHandler& operator=(MissileHandler&& other) noexcept;
@@ -31,6 +32,7 @@ namespace Tools
 		ComponentId missileId = 0;
 		ComponentId backThrustId = 0;
 		glm::vec2 referenceVelocity{};
+		std::optional<ComponentId> planeId;
 
 	private:
 		bool valid = true;
@@ -119,7 +121,7 @@ namespace Tools
 
 	ComponentId CreatePlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position = glm::vec2(0.0f), float angle = 0.0f);
 	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 referenceVelocity,
-		glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimatedTexture);
+		glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimatedTexture, std::optional<ComponentId> planeId = std::nullopt);
 	void CreateExplosion(ExplosionParams params);
 	void CreateFogForeground(int numOfLayers, float alphaPerLayer, unsigned fogTexture,
 		std::function<glm::vec4()> fColor = []() { return glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); });

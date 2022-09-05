@@ -115,18 +115,18 @@ void PrepareFrame()
 
 	Globals::Systems().stateController().stepSetup();
 	Globals::Systems().physics().step();
+	Globals::Systems().deferredActions().step();
 	Globals::Systems().actors().step();
 	Globals::Systems().temporaries().step();
 	Globals::Systems().structures().step();
 	Globals::Systems().decorations().step();
 	Globals::Systems().camera().step();
+	Globals::Systems().stateController().stepTeardown();
+
 	Globals::Systems().cleaner().step();
 
 	Globals::Systems().stateController().renderSetup();
 	Globals::Systems().renderingController().render();
-
-	Globals::Systems().deferredActions().step();
-	Globals::Systems().stateController().stepTeardown();
 }
 
 void SetDCPixelFormat(HDC hDC);

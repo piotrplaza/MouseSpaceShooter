@@ -19,8 +19,6 @@ namespace Components
 {
 	struct Shockwave : ComponentBase
 	{
-		Shockwave() = default;
-
 		Shockwave(glm::vec2 center, int numOfParticles, float initVelocity, float particlesRadius, float particlesDensity,
 			float particlesLinearDamping, bool particlesAsBullets):
 			center(center)
@@ -33,8 +31,8 @@ namespace Components
 				particles.back()->SetBullet(particlesAsBullets);
 				particles.back()->SetLinearVelocity(b2Vec2(glm::cos(angle), glm::sin(angle)) * initVelocity);
 				particles.back()->SetLinearDamping(particlesLinearDamping);
-				Tools::SetCollisionFilteringBits(*particles.back(), Globals::CollisionBits::shockwaveParticleBit,
-					Globals::CollisionBits::all - Globals::CollisionBits::shockwaveParticleBit - Globals::CollisionBits::missileBit);
+				Tools::SetCollisionFilteringBits(*particles.back(), Globals::CollisionBits::shockwaveParticle,
+					Globals::CollisionBits::all - Globals::CollisionBits::shockwaveParticle - Globals::CollisionBits::missile);
 				angle += angleStep;
 			}
 		}

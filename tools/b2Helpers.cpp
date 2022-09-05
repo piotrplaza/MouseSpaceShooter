@@ -80,7 +80,7 @@ namespace Tools
 		fixtureDef.density = density;
 		fixtureDef.restitution = restitution;
 		fixtureDef.friction = friction;
-		fixtureDef.filter.categoryBits = Globals::CollisionBits::wallBit;
+		fixtureDef.filter.categoryBits = Globals::CollisionBits::wall;
 		body->CreateFixture(&fixtureDef);
 
 		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
@@ -103,7 +103,7 @@ namespace Tools
 		fixtureDef.density = density;
 		fixtureDef.restitution = restitution;
 		fixtureDef.friction = friction;
-		fixtureDef.filter.categoryBits = Globals::CollisionBits::wallBit;
+		fixtureDef.filter.categoryBits = Globals::CollisionBits::wall;
 		body->CreateFixture(&fixtureDef);
 
 		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);

@@ -8,8 +8,6 @@ namespace Components
 {
 	struct DeferredAction : ComponentBase
 	{
-		DeferredAction() = default;
-
 		DeferredAction(std::function<bool(float duration)> deferredAction, float delay = 0.0f) :
 			deferredAction(std::move(deferredAction)),
 			delay(delay)

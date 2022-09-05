@@ -426,6 +426,9 @@
     <ClInclude Include="levels\fpsScalingProblems\fpsScalingProblems.hpp">
       <Filter>src\levels\fpsScalingProblems</Filter>
     </ClInclude>
+    <ClInclude Include="components\collisionFilter.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">

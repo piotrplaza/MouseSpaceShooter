@@ -12,29 +12,26 @@ namespace Components
 {
 	struct CollisionHandler : ComponentBase
 	{
-		CollisionHandler() = default;
-
-		CollisionHandler(const b2Fixture& fixtureA, const b2Fixture& fixtureB, std::function<void(b2Fixture&, b2Fixture&)> handler):
-			handler([relevantSortedFixtures = Tools::Sort(&fixtureA, &fixtureB), handler = std::move(handler)](b2Fixture& fixtureA, b2Fixture& fixtureB)
+		CollisionHandler(b2Fixture& fixtureA, b2Fixture& fixtureB, std::function<void(b2Fixture&, b2Fixture&)> handler):
+			rawHandler([&fixtureA, &fixtureB, relevantSortedFixtures = Tools::Sort(&fixtureA, &fixtureB), handler = std::move(handler)](b2Fixture& fixtureA_, b2Fixture& fixtureB_)
 			{
-				if (relevantSortedFixtures == Tools::Sort(&fixtureA, &fixtureB))
+				if (relevantSortedFixtures == Tools::Sort(&fixtureA_, &fixtureB_))
 					handler(fixtureA, fixtureB);
 			})
 		{
 		}
 
 		CollisionHandler(unsigned short categoryBits, unsigned short maskBits, std::function<void(b2Fixture&, b2Fixture&)> handler):
-			handler([categoryBits, maskBits, handler = std::move(handler)](b2Fixture& fixtureA, b2Fixture& fixtureB)
+			rawHandler([categoryBits, maskBits, handler = std::move(handler)](b2Fixture& fixtureA, b2Fixture& fixtureB)
 			{
-				if ((categoryBits & fixtureA.GetFilterData().categoryBits && fixtureB.GetFilterData().categoryBits & maskBits) || 
-					(categoryBits & fixtureB.GetFilterData().categoryBits && fixtureA.GetFilterData().categoryBits & maskBits))
-				{
+				if (categoryBits == fixtureA.GetFilterData().categoryBits && fixtureB.GetFilterData().categoryBits & maskBits)
 					handler(fixtureA, fixtureB);
-				}
+				else if (categoryBits == fixtureB.GetFilterData().categoryBits && fixtureA.GetFilterData().categoryBits & maskBits)
+					handler(fixtureB, fixtureA);
 			})
 		{
 		}
 
-		const std::function<void(b2Fixture&, b2Fixture&)> handler;
+		const std::function<void(b2Fixture&, b2Fixture&)> rawHandler;
 	};
 }

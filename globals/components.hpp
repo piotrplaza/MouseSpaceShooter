@@ -28,6 +28,7 @@ namespace Components
 	struct Decoration;
 	struct GraphicsSettings;
 	struct Missile;
+	struct CollisionFilter;
 	struct CollisionHandler;
 	struct Shockwave;
 	struct Light;
@@ -65,6 +66,7 @@ namespace Globals
 		std::deque<Components::Decoration>& decorations();
 		std::unordered_map<ComponentId, Components::Decoration>& dynamicDecorations();
 		std::unordered_map<ComponentId, Components::Missile>& missiles();
+		std::unordered_map<ComponentId, Components::CollisionFilter>& collisionFilters();
 		std::unordered_map<ComponentId, Components::CollisionHandler>& beginCollisionHandlers();
 		std::unordered_map<ComponentId, Components::CollisionHandler>& endCollisionHandlers();
 		std::unordered_map<ComponentId, Components::Shockwave>& shockwaves();
@@ -97,6 +99,7 @@ namespace Globals
 		std::unique_ptr<std::deque<Components::Decoration>> decorations_ = std::make_unique<std::deque<Components::Decoration>>();
 		std::unordered_map<ComponentId, Components::Decoration> dynamicDecorations_;
 		std::unordered_map<ComponentId, Components::Missile> missiles_;
+		std::unordered_map<ComponentId, Components::CollisionFilter> collisionFilters_;
 		std::unordered_map<ComponentId, Components::CollisionHandler> beginCollisionHandlers_;
 		std::unordered_map<ComponentId, Components::CollisionHandler> endCollisionHandlers_;
 		std::unordered_map<ComponentId, Components::Shockwave> shockwaves_;

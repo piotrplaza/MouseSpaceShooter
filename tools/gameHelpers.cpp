@@ -35,7 +35,6 @@ namespace Tools
 	ComponentId CreatePlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position, float angle)
 	{
 		auto& plane = EmplaceDynamicComponent(Globals::Components().planes(), { Tools::CreatePlaneBody(2.0f, 0.2f, 0.5f), TCM::Texture(planeTexture) });
-		SetCollisionFilteringBits(*plane.body, Globals::CollisionBits::planeBit, Globals::CollisionBits::all);
 		plane.setPosition(position);
 		plane.setRotation(angle);
 		plane.preserveTextureRatio = true;
@@ -86,10 +85,11 @@ namespace Tools
 
 	MissileHandler::MissileHandler() = default;
 
-	MissileHandler::MissileHandler(ComponentId missileId, ComponentId backThrustId, glm::vec2 referenceVelocity):
+	MissileHandler::MissileHandler(ComponentId missileId, ComponentId backThrustId, glm::vec2 referenceVelocity, std::optional<ComponentId> planeId):
 		missileId(missileId),
 		backThrustId(backThrustId),
-		referenceVelocity(referenceVelocity)
+		referenceVelocity(referenceVelocity),
+		planeId(planeId)
 	{
 	}
 
@@ -108,7 +108,8 @@ namespace Tools
 	MissileHandler::MissileHandler(MissileHandler&& other) noexcept:
 		missileId(other.missileId),
 		backThrustId(other.backThrustId),
-		referenceVelocity(other.referenceVelocity)
+		referenceVelocity(other.referenceVelocity),
+		planeId(other.planeId)
 	{
 		other.valid = false;
 	}
@@ -118,17 +119,17 @@ namespace Tools
 		missileId = other.missileId;
 		backThrustId = other.backThrustId;
 		referenceVelocity = other.referenceVelocity;
+		planeId = other.planeId;
 		other.valid = false;
 		return *this;
 	}
 
 	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 referenceVelocity,
-		glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimatedTexture)
+		glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimatedTexture, std::optional<ComponentId> planeId)
 	{
 		auto& missile = EmplaceDynamicComponent(Globals::Components().missiles(), { Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f) });
 		auto& body = *missile.body;
-		SetCollisionFilteringBits(body, Globals::CollisionBits::missileBit, Globals::CollisionBits::all - Globals::CollisionBits::missileBit - Globals::CollisionBits::planeBit);
-		body.SetBullet(true);
+		SetCollisionFilteringBits(body, Globals::CollisionBits::missile, Globals::CollisionBits::all - Globals::CollisionBits::missile - Globals::CollisionBits::plane);
 		body.SetLinearVelocity(ToVec2<b2Vec2>(referenceVelocity + initialVelocity));
 		missile.texture = TCM::Texture(missileTexture);
 		missile.preserveTextureRatio = true;
@@ -174,7 +175,7 @@ namespace Tools
 		decoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 		decoration.renderLayer = RenderLayer::FarMidground;
 
-		return { missile.getComponentId(), decoration.getComponentId(), referenceVelocity };
+		return { missile.getComponentId(), decoration.getComponentId(), referenceVelocity, planeId };
 	}
 
 	void CreateExplosion(ExplosionParams params)

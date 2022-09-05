@@ -2,6 +2,7 @@
 
 #include <components/physics.hpp>
 #include <components/collisionHandler.hpp>
+#include <components/collisionFilter.hpp>
 
 #include <globals/components.hpp>
 
@@ -25,10 +26,24 @@ namespace
 		{
 			for (auto& collisionHandler : collisionHandlers)
 			{
-				collisionHandler.second.handler(*contact->GetFixtureA(), *contact->GetFixtureB());
+				collisionHandler.second.rawHandler(*contact->GetFixtureA(), *contact->GetFixtureB());
 			}
 		}
 	} contactListener;
+
+	class ContactFilter : public b2ContactFilter
+	{
+		bool ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB) override
+		{
+			for (auto& [id, collisionFilter] : Globals::Components().collisionFilters())
+			{
+				const auto result = collisionFilter.rawFilter(*fixtureA, *fixtureB);
+				if (result != Components::CollisionFilter::Result::Fallback)
+					return (bool)result;
+			}
+			return b2ContactFilter::ShouldCollide(fixtureA, fixtureB);
+		}
+	} contactFilter;
 }
 
 namespace Systems
@@ -38,6 +53,7 @@ namespace Systems
 	void Physics::postInit()
 	{
 		Globals::Components().physics().world->SetContactListener(&contactListener);
+		Globals::Components().physics().world->SetContactFilter(&contactFilter);
 #ifndef _DEBUG 
 		Globals::Components().physics().prevFrameTime = std::chrono::high_resolution_clock::now();
 #endif

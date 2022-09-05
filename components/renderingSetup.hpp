@@ -10,8 +10,6 @@ namespace Components
 {
 	struct RenderingSetup : ComponentBase
 	{
-		RenderingSetup() = default;
-
 		RenderingSetup(std::function<std::function<void()>(Shaders::ProgramId)> setup) :
 			setup(std::move(setup))
 		{

@@ -74,29 +74,3 @@ namespace TCM = TypeComponentMappers;
 
 using TextureComponentVariant = std::variant<std::monostate, TCM::Texture, TCM::AnimatedTexture, TCM::BlendingTexture>;
 using BodyComponentVariant = std::variant<std::monostate, TCM::Grapple, TCM::Missile, TCM::Plane, TCM::Wall>;
-
-template<>
-struct std::hash<TCM::Texture>
-{
-	std::size_t operator()(const TCM::Texture& texture) const noexcept
-	{
-		return texture.id;
-	}
-};
-
-template<>
-struct std::hash<TCM::AnimatedTexture>
-{
-	std::size_t operator()(const TCM::AnimatedTexture& animationTexture) const noexcept
-	{
-		return animationTexture.id;
-	}
-};
-template<>
-struct std::hash<TCM::BlendingTexture>
-{
-	std::size_t operator()(const TCM::BlendingTexture& blendingTexture) const noexcept
-	{
-		return blendingTexture.id;
-	}
-};

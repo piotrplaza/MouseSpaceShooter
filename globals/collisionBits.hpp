@@ -2,10 +2,10 @@
 
 namespace Globals::CollisionBits
 {
-	constexpr unsigned short planeBit = 1 << 1;
-	constexpr unsigned short missileBit = 1 << 2;
-	constexpr unsigned short wallBit = 1 << 3;
-	constexpr unsigned short shockwaveParticleBit = 1 << 4;
+	constexpr unsigned short plane = 1 << 1;
+	constexpr unsigned short missile = 1 << 2;
+	constexpr unsigned short wall = 1 << 3;
+	constexpr unsigned short shockwaveParticle = 1 << 4;
 
 	constexpr unsigned short none = 0;
 	constexpr unsigned short all = ~none;

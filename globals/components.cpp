@@ -18,6 +18,7 @@
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/missile.hpp>
+#include <components/collisionFilter.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/shockwave.hpp>
 #include <components/light.hpp>
@@ -140,6 +141,11 @@ namespace Globals
 	std::unordered_map<::ComponentId, Components::Missile>& ComponentsHolder::missiles()
 	{
 		return missiles_;
+	}
+
+	std::unordered_map<::ComponentId, Components::CollisionFilter>& ComponentsHolder::collisionFilters()
+	{
+		return collisionFilters_;
 	}
 
 	std::unordered_map<::ComponentId, Components::CollisionHandler>& ComponentsHolder::beginCollisionHandlers()

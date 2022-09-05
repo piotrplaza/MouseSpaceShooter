@@ -12,8 +12,6 @@ namespace Components
 {
 	struct Texture : ComponentBase
 	{
-		Texture() = default;
-
 		Texture(std::string path, GLenum wrapMode = GL_CLAMP_TO_EDGE, GLenum minFilter = GL_LINEAR_MIPMAP_LINEAR,
 			GLenum magFilter = GL_LINEAR):
 			path(std::move(path)),

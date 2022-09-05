@@ -13,6 +13,7 @@
 #include <components/gamepad.hpp>
 #include <components/mvp.hpp>
 #include <components/missile.hpp>
+#include <components/collisionFilter.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/shockwave.hpp>
 #include <components/functor.hpp>
@@ -90,7 +91,7 @@ namespace Levels
 			fogTexture = textures.size();
 			textures.emplace_back("textures/fog.png");
 
-			flame1AnimationTexture = textures.size();
+			flameAnimationTexture = textures.size();
 			textures.emplace_back("textures/flame animation 1.jpg");
 			textures.back().minFilter = GL_LINEAR;
 
@@ -137,13 +138,19 @@ namespace Levels
 
 		void setAnimations()
 		{
-			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
-				flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
-				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
-			Globals::Components().animatedTextures().back().start(true);
+			for (unsigned& flameAnimatedTextureForPlayer: flameAnimatedTextureForPlayers)
+			{
+				flameAnimatedTextureForPlayer = Globals::Components().animatedTextures().size();
+				Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
+					flameAnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+					AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
+				Globals::Components().animatedTextures().back().start(true);
+			}
 
-			flame2AnimatedTexture = Globals::Components().animatedTextures().size();
+			flameAnimatedTexture = Globals::Components().animatedTextures().size();
+			Globals::Components().animatedTextures().push_back(Globals::Components().animatedTextures().back());
+
+			invertedFlameAnimatedTexture = Globals::Components().animatedTextures().size();
 			Globals::Components().animatedTextures().push_back(Globals::Components().animatedTextures().back());
 			Globals::Components().animatedTextures().back().setAdditionalTransformation({ 0.0f, 0.0f }, glm::pi<float>());
 		}
@@ -182,7 +189,7 @@ namespace Levels
 		void createAdditionalDecorations() const
 		{
 			const auto blendingTexture = Globals::Components().blendingTextures().size();
-			Globals::Components().blendingTextures().push_back({ { flame2AnimatedTexture, ppTexture, skullTexture, avatarTexture }, true });
+			Globals::Components().blendingTextures().push_back({ { invertedFlameAnimatedTexture, ppTexture, skullTexture, avatarTexture }, true });
 
 			for (int i = 0; i < 2; ++i)
 			{
@@ -237,7 +244,7 @@ namespace Levels
 				playersHandlers.reserve(numOfPlayers);
 				unsigned activeGamepadId = 0;
 				for (unsigned i = 0; i < numOfPlayers; ++i)
-					playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { -10.0f, -farPlayersDistance / 2.0f + gap * i }),
+					playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, flameAnimatedTextureForPlayers[i], { -10.0f, -farPlayersDistance / 2.0f + gap * i }),
 						i == 0 && !gamepadForPlayer1 || activeGamepads.empty() ? std::nullopt : std::optional(activeGamepads[activeGamepadId++]), 0.0f);
 			}
 			else
@@ -261,31 +268,32 @@ namespace Levels
 						if (gamepadForPlayer1 && !playersHandlers[0].gamepadId)
 							playersHandlers[0].gamepadId = activeGamepadId;
 						else
-							playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { -10.0f, 0.0f }), activeGamepadId, 0.0f);
+							playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, playersHandlers.size() - 1, { -10.0f, 0.0f }), activeGamepadId, 0.0f);
 				}
 			}
 		}
 
-		void launchingMissile(unsigned playerId, bool tryToLaunch)
+		void launchingMissile(unsigned playerHandlerId, bool tryToLaunch)
 		{
+			auto& playerHandler = playersHandlers[playerHandlerId];
 			if (tryToLaunch)
 			{
-				if (playersHandlers[playerId].durationToLaunchMissile <= 0.0f)
+				if (playerHandler.durationToLaunchMissile <= 0.0f)
 				{
-					launchMissile(playerId);
-					playersHandlers[playerId].durationToLaunchMissile = 0.1f;
+					launchMissile(playerHandler.playerId);
+					playerHandler.durationToLaunchMissile = 0.1f;
 				}
-				else playersHandlers[playerId].durationToLaunchMissile -= Globals::Components().physics().frameDuration;
+				else playerHandler.durationToLaunchMissile -= Globals::Components().physics().frameDuration;
 			}
-			else playersHandlers[playerId].durationToLaunchMissile = 0.0f;
+			else playerHandler.durationToLaunchMissile = 0.0f;
 		}
 
 		void launchMissile(unsigned playerId)
 		{
-			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[playersHandlers[playerId].playerId].getCenter(),
-				Globals::Components().planes()[playersHandlers[playerId].playerId].getAngle(), 5.0f, {0.0f, 0.0f},
-				Globals::Components().planes()[playersHandlers[playerId].playerId].getVelocity(),
-				missile2Texture, flame1AnimatedTexture);
+			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[playerId].getCenter(),
+				Globals::Components().planes()[playerId].getAngle(), 5.0f, {0.0f, 0.0f},
+				Globals::Components().planes()[playerId].getVelocity(),
+				missile2Texture, flameAnimatedTexture, playerId);
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 		}
 
@@ -553,21 +561,55 @@ namespace Levels
 			};
 		}
 
+		void setCollisionFilters()
+		{
+			EmplaceDynamicComponent(Globals::Components().collisionFilters(), { Globals::CollisionBits::missile, Globals::CollisionBits::missile | Globals::CollisionBits::plane,
+				[this](const auto& missileFixture, const auto& targetFixture) {
+					const auto missileId = std::get<TCM::Missile>(Tools::AccessUserData(*missileFixture.GetBody()).bodyComponentVariant).id;
+					const auto& targetBodyComponentVariant = Tools::AccessUserData(*targetFixture.GetBody()).bodyComponentVariant;
+					const auto missilePlaneId = missilesToHandlers.at(missileId).planeId;
+
+					if (!missilePlaneId)
+						return true;
+
+					if (const TCM::Missile* targetMissile = std::get_if<TCM::Missile>(&targetBodyComponentVariant))
+					{
+						const auto targetMissilePlaneId = missilesToHandlers.at(targetMissile->id).planeId;
+						return !targetMissilePlaneId || *missilePlaneId != *targetMissilePlaneId;
+					}
+
+					return *missilePlaneId != std::get<TCM::Plane>(targetBodyComponentVariant).id;
+				}
+			});
+		}
+
 		void setCollisionCallbacks()
 		{
-			EmplaceDynamicComponent(Globals::Components().beginCollisionHandlers(), { Globals::CollisionBits::missileBit, Globals::CollisionBits::all,
-				[this](const auto& fixtureA, const auto& fixtureB) {
-					for (const auto* fixture : { &fixtureA, &fixtureB })
-					if (fixture->GetFilterData().categoryBits == Globals::CollisionBits::missileBit)
-					{
-						const auto& targetFixture = fixture == &fixtureA ? fixtureB : fixtureA;
-						const auto& missileBody = *fixture->GetBody();
-						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).id);
-						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture).resolutionMode(
-							lowResBodies.count(targetFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1));
+			EmplaceDynamicComponent(Globals::Components().beginCollisionHandlers(), { Globals::CollisionBits::missile, Globals::CollisionBits::all,
+				[this](const auto& missileFixture, const auto& targetFixture) {
+					auto& deferredActions = Globals::Components().deferredActions();
+					const auto& missileBody = *missileFixture.GetBody();
 
-						explosionFrame = true;
+					deferredActions.emplace_back([&](auto) {
+						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).id);
+						return false;
+						});
+
+					Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture).resolutionMode(
+						lowResBodies.count(targetFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1));
+
+					const auto& targetBodyComponentVariant = Tools::AccessUserData(*targetFixture.GetBody()).bodyComponentVariant;
+					if (const TCM::Missile* targetMissile = std::get_if<TCM::Missile>(&targetBodyComponentVariant))
+					{
+						deferredActions.emplace_back([=](auto) {
+							missilesToHandlers.erase(targetMissile->id);
+							return false;
+							});
+
+						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(targetFixture.GetBody()->GetWorldCenter())).explosionTexture(explosionTexture));
 					}
+
+					explosionFrame = true;
 				}
 			});
 		}
@@ -641,6 +683,7 @@ namespace Levels
 
 			for (unsigned i = 0; i < playersHandlers.size(); ++i)
 			{
+				const auto gamepadId = playersHandlers[i].gamepadId;
 				auto& playerControls = Globals::Components().planes()[playersHandlers[i].playerId].controls;
 				bool fire = false;
 
@@ -655,9 +698,9 @@ namespace Levels
 					fire = mouse.pressing.lmb;
 				}
 
-				if (playersHandlers[i].gamepadId)
+				if (gamepadId)
 				{
-					const auto& gamepad = gamepads[*playersHandlers[i].gamepadId];
+					const auto& gamepad = gamepads[*gamepadId];
 
 					playerControls.turningDelta += Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
 					playerControls.autoRotation |= (bool)gamepad.rTrigger;
@@ -696,7 +739,7 @@ namespace Levels
 		unsigned weedTexture = 0;
 		unsigned roseTexture = 0;
 		unsigned fogTexture = 0;
-		unsigned flame1AnimationTexture = 0;
+		unsigned flameAnimationTexture = 0;
 		unsigned missile1Texture = 0;
 		unsigned missile2Texture = 0;
 		unsigned explosionTexture = 0;
@@ -707,8 +750,9 @@ namespace Levels
 		unsigned skullTexture = 0;
 		unsigned avatarTexture = 0;
 
-		unsigned flame1AnimatedTexture = 0;
-		unsigned flame2AnimatedTexture = 0;
+		std::array<unsigned, 4> flameAnimatedTextureForPlayers{ 0 };
+		unsigned flameAnimatedTexture = 0;
+		unsigned invertedFlameAnimatedTexture = 0;
 
 		struct PlayerHandler
 		{
@@ -747,6 +791,7 @@ namespace Levels
 		impl->createForeground();
 		impl->createAdditionalDecorations();
 		impl->setCamera();
+		impl->setCollisionFilters();
 		impl->setCollisionCallbacks();
 		impl->setFramesRoutines();
 		impl->createSpawners();

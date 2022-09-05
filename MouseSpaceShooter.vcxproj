@@ -69,6 +69,7 @@
     <ClInclude Include="components\animatedTexture.hpp" />
     <ClInclude Include="components\blendingTexture.hpp" />
     <ClInclude Include="components\camera.hpp" />
+    <ClInclude Include="components\collisionFilter.hpp" />
     <ClInclude Include="components\collisionHandler.hpp" />
     <ClInclude Include="components\decoration.hpp" />
     <ClInclude Include="components\deferredAction.hpp" />

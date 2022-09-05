@@ -6,8 +6,6 @@ namespace Components
 {
 	struct BlendingTexture : ComponentBase
 	{
-		BlendingTexture() = default;
-
 		BlendingTexture(std::initializer_list<ComponentId> texturesIds, bool blendingAnimation = false):
 			texturesIds(texturesIds),
 			blendingAnimation(blendingAnimation)

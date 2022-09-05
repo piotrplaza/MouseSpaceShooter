@@ -5,6 +5,8 @@
 
 #include <tools/b2Helpers.hpp>
 
+#include <globals/collisionBits.hpp>
+
 #include <glm/glm.hpp>
 
 #include <optional>
@@ -23,6 +25,7 @@ namespace Components
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			Physical(std::move(body), TCM::Plane(getComponentId()), texture, renderingSetup, renderLayer, customShadersProgram)
 		{
+			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::plane, Globals::CollisionBits::all);
 		}
 
 		std::function<void()> step;
