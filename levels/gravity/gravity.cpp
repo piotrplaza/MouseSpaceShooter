@@ -175,7 +175,8 @@ namespace Levels
 				const float angle = Tools::Random(0.0f, glm::two_pi<float>());
 				const glm::vec2 pos = glm::vec2(glm::cos(angle), glm::sin(angle)) * 20.0f;
 				Globals::Components().walls().emplace_back(
-					Tools::CreateBoxBody(pos, { Tools::Random(0.1f, 1.0f), Tools::Random(0.1f, 1.0f) }, angle, b2_dynamicBody, 0.02f),
+					Tools::CreateBoxBody({ Tools::Random(0.1f, 1.0f), Tools::Random(0.1f, 1.0f) },
+						Tools::BodyParams().position(pos).angle(angle).bodyType(b2_dynamicBody).density(0.02f)),
 					TCM::Texture(spaceRockTexture));
 			}
 
@@ -188,7 +189,8 @@ namespace Levels
 
 		void createGrapples()
 		{
-			auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ 0.0f, 0.0f }, 20.0f), TCM::Texture(orbTexture) });
+			auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody(20.0f,
+				Tools::BodyParams()), TCM::Texture(orbTexture) });
 			grapple.influenceRadius = 100.0f;
 			planetId = grapple.getComponentId();
 		}

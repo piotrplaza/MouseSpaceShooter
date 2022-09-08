@@ -77,6 +77,9 @@
     <Filter Include="src\levels\fpsScalingProblems">
       <UniqueIdentifier>{3da844d4-37bc-4d1f-9231-ecfc29133109}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\windmill">
+      <UniqueIdentifier>{739ddbe9-ae3c-49c3-8108-cca8325a0f25}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -186,6 +189,9 @@
     </ClCompile>
     <ClCompile Include="levels\fpsScalingProblems\fpsScalingProblems.cpp">
       <Filter>src\levels\fpsScalingProblems</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\windmill\windmill.cpp">
+      <Filter>src\levels\windmill</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -428,6 +434,9 @@
     </ClInclude>
     <ClInclude Include="components\collisionFilter.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\windmill\windmill.hpp">
+      <Filter>src\levels\windmill</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,5 @@
 #include "levels/level.hpp"
+#include "levels/windmill/windmill.hpp"
 #include "levels/playground/playground.hpp"
 #include "levels/rocketball/rocketball.hpp"
 #include "levels/gravity/gravity.hpp"
@@ -76,6 +77,8 @@ void OGLInitialize()
 
 void CreateLevel()
 {
+	//activeLevel = std::make_unique<Levels::Windmill>();
+
 	activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();

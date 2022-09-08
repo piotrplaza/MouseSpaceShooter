@@ -1,5 +1,7 @@
 #pragma once
 
+#include <globals/collisionBits.hpp>
+
 #include <Box2D/Box2D.h>
 
 #include <glm/vec2.hpp>
@@ -7,6 +9,7 @@
 
 #include <memory>
 #include <vector>
+#include <array>
 #include <utility>
 
 struct BodyUserData;
@@ -34,11 +37,64 @@ using Body = std::unique_ptr<b2Body, b2BodyDeleter>;
 
 namespace Tools
 {
+	struct BodyParams
+	{
+		BodyParams& position(glm::vec2 value)
+		{
+			position_ = value;
+			return *this;
+		}
+
+		BodyParams& angle(float value)
+		{
+			angle_ = value;
+			return *this;
+		}
+
+		BodyParams& bodyType(b2BodyType value)
+		{
+			bodyType_ = value;
+			return *this;
+		}
+
+		BodyParams& density(float value)
+		{
+			density_ = value;
+			return *this;
+		}
+
+		BodyParams& restitution(float value)
+		{
+			restitution_ = value;
+			return *this;
+		}
+
+		BodyParams& friction(float value)
+		{
+			friction_ = value;
+			return *this;
+		}
+
+		BodyParams& categoryBits(uint16 value)
+		{
+			categoryBits_ = value;
+			return *this;
+		}
+
+		glm::vec2 position_ = { 0.0f, 0.0f };
+		float angle_ = 0.0f;
+		b2BodyType bodyType_ = b2_staticBody;
+		float density_ = 1.0f;
+		float restitution_ = 0.1f;
+		float friction_ = 0.2f;
+		uint16 categoryBits_ = Globals::CollisionBits::wall;
+	};
+
 	Body CreatePlaneBody(float size, float density, float spreadFactor);
-	Body CreateBoxBody(glm::vec2 position, glm::vec2 hSize, float angle = 0.0f,
-		b2BodyType bodyType = b2_staticBody, float density = 1.0f, float restitution = 0.1f, float friction = 0.2f);
-	Body CreateCircleBody(glm::vec2 position, float radius,
-		b2BodyType bodyType = b2_staticBody, float density = 1.0f, float restitution = 0.1f, float friction = 0.2f);
+	Body CreateBoxBody(glm::vec2 hSize, BodyParams bodyParams);
+	Body CreateCircleBody(float radius, BodyParams bodyParams);
+	Body CreateConvex4Body(const std::array<glm::vec2, 4>& vertices, BodyParams bodyParams);
+	Body CreateTrianglesBody(const std::vector<std::array<glm::vec2, 3>>& vertices, BodyParams bodyParams);
 	b2Joint* CreateRevoluteJoint(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected = false);
 	b2Joint* CreateDistanceJoint(b2Body& body1, b2Body& body2, glm::vec2 body1Anchor, glm::vec2 body2Anchor, bool collideConnected = false, float length = 0.0f);
 	glm::mat4 GetModelMatrix(const b2Body& body);

@@ -14,6 +14,10 @@
 #include <components/animatedTexture.hpp>
 #include <components/deferredAction.hpp>
 #include <components/graphicsSettings.hpp>
+#include <components/collisionFilter.hpp>
+#include <components/collisionHandler.hpp>
+#include <components/mouse.hpp>
+#include <components/gamepad.hpp>
 
 #include <components/_typeComponentMappers.hpp>
 
@@ -32,55 +36,81 @@
 
 namespace Tools
 {
-	ComponentId CreatePlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position, float angle)
+	void PlayersHandler::initPlayers(unsigned rocketPlaneTexture, const std::array<unsigned, 4>& flameAnimatedTextureForPlayers, bool gamepadForPlayer1)
 	{
-		auto& plane = EmplaceDynamicComponent(Globals::Components().planes(), { Tools::CreatePlaneBody(2.0f, 0.2f, 0.5f), TCM::Texture(planeTexture) });
-		plane.setPosition(position);
-		plane.setRotation(angle);
-		plane.preserveTextureRatio = true;
-		plane.posInSubsequence = 2;
+		this->rocketPlaneTexture = rocketPlaneTexture;
+		this->flameAnimatedTextureForPlayers = flameAnimatedTextureForPlayers;
+		this->gamepadForPlayer1 = gamepadForPlayer1;
 
-		for (int i = 0; i < 2; ++i)
+		const auto& gamepads = Globals::Components().gamepads();
+		auto& planes = Globals::Components().planes();
+		std::vector<unsigned> activeGamepads;
+
+		for (unsigned i = 0; i < gamepads.size(); ++i)
 		{
-			auto& animationTexture = Globals::Components().animatedTextures().back();
-
-			auto& planeDecoration = plane.subsequence.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }),
-				TCM::AnimatedTexture(flameAnimatedTexture));
-
-			Globals::Components().renderingSetups().emplace_back([&, i,
-				modelUniform = Uniforms::UniformMat4f(),
-				thrust = 1.0f,
-				flameAnimatedTexture
-			](Shaders::ProgramId program) mutable {
-				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
-				modelUniform(
-					glm::translate(
-						glm::scale(
-							glm::rotate(
-								glm::translate(Tools::GetModelMatrix(*plane.body), { -0.5f, i == 0 ? -0.4f : 0.4f, 0.0f }),
-								-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
-							{ 0.5f + thrust * 0.02f, thrust, 1.0f }),
-						{ 0.0f, -0.5f, 0.0f }));
-
-				const float targetThrust = 1.0f + plane.details.throttleForce * 0.3f;
-				const float changeStep = Globals::Components().physics().frameDuration * 10.0f;
-
-				if (thrust < targetThrust)
-					thrust = std::min(thrust + changeStep, targetThrust);
-				else
-					thrust = std::max(thrust - changeStep, targetThrust);
-
-				Globals::Components().animatedTextures()[flameAnimatedTexture].setSpeedScaling(1.0f + (thrust - 1) * 0.2f);
-
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
-			});
-
-			planeDecoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
+			const auto& gamepad = gamepads[i];
+			if (gamepad.enabled)
+				activeGamepads.push_back(i);
 		}
 
-		return plane.getComponentId();
+		const unsigned numOfPlayers = std::clamp(activeGamepads.size() + !gamepadForPlayer1, 1u, 4u);
+
+		const float gap = 5.0f;
+		const float farPlayersDistance = gap * (numOfPlayers - 1);
+
+		playersHandlers.reserve(numOfPlayers);
+		unsigned activeGamepadId = 0;
+		for (unsigned i = 0; i < numOfPlayers; ++i)
+			playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, flameAnimatedTextureForPlayers[i], { -10.0f, -farPlayersDistance / 2.0f + gap * i }),
+				i == 0 && !gamepadForPlayer1 || activeGamepads.empty() ? std::nullopt : std::optional(activeGamepads[activeGamepadId++]), 0.0f);
+	}
+
+	void PlayersHandler::updatePlayers(glm::vec2 newPlayerPosition)
+	{
+		const auto& gamepads = Globals::Components().gamepads();
+		auto& planes = Globals::Components().planes();
+		std::vector<unsigned> activeGamepads;
+
+		for (unsigned i = 0; i < gamepads.size(); ++i)
+		{
+			const auto& gamepad = gamepads[i];
+			if (gamepad.enabled)
+				activeGamepads.push_back(i);
+		}
+
+		const unsigned numOfPlayers = std::clamp(activeGamepads.size() + !gamepadForPlayer1, 1u, 4u);
+
+		std::erase_if(playersHandlers, [&, i = 0](const auto& playerHandler) mutable {
+			const bool erase = i++ != 0 && playerHandler.gamepadId && !gamepads[*playerHandler.gamepadId].enabled;
+			if (erase)
+			{
+				planes[playerHandler.playerId].state = ComponentState::Outdated;
+				return true;
+			}
+			return false;
+			});
+
+		for (auto activeGamepadId : activeGamepads)
+		{
+			auto it = std::find_if(playersHandlers.begin(), playersHandlers.end(), [&](const auto& playerHandler) {
+				return playerHandler.gamepadId && playerHandler.gamepadId == activeGamepadId;
+				});
+			if (it == playersHandlers.end())
+				if (gamepadForPlayer1 && !playersHandlers[0].gamepadId)
+					playersHandlers[0].gamepadId = activeGamepadId;
+				else
+					playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, playersHandlers.size() - 1, newPlayerPosition), activeGamepadId, 0.0f);
+		}
+	}
+
+	const std::vector<Tools::PlayerHandler>& PlayersHandler::getPlayersHandlers() const
+	{
+		return playersHandlers;
+	}
+
+	std::vector<Tools::PlayerHandler>& PlayersHandler::accessPlayersHandlers()
+	{
+		return playersHandlers;
 	}
 
 	MissileHandler::MissileHandler() = default;
@@ -124,10 +154,166 @@ namespace Tools
 		return *this;
 	}
 
+	MissilesHandler::MissilesHandler()
+	{
+		EmplaceDynamicComponent(Globals::Components().collisionFilters(), { Globals::CollisionBits::missile, Globals::CollisionBits::missile | Globals::CollisionBits::plane,
+			[this](const auto& missileFixture, const auto& targetFixture) {
+				const auto missileId = std::get<TCM::Missile>(Tools::AccessUserData(*missileFixture.GetBody()).bodyComponentVariant).id;
+				const auto& targetBodyComponentVariant = Tools::AccessUserData(*targetFixture.GetBody()).bodyComponentVariant;
+				const auto missilePlaneId = missilesToHandlers.at(missileId).planeId;
+
+				if (!missilePlaneId)
+					return true;
+
+				if (const TCM::Missile* targetMissile = std::get_if<TCM::Missile>(&targetBodyComponentVariant))
+				{
+					const auto targetMissilePlaneId = missilesToHandlers.at(targetMissile->id).planeId;
+					return !targetMissilePlaneId || *missilePlaneId != *targetMissilePlaneId;
+				}
+
+				return *missilePlaneId != std::get<TCM::Plane>(targetBodyComponentVariant).id;
+			}
+		});
+
+		EmplaceDynamicComponent(Globals::Components().beginCollisionHandlers(), { Globals::CollisionBits::missile, Globals::CollisionBits::all,
+			[this](const auto& missileFixture, const auto& targetFixture) {
+				auto& deferredActions = Globals::Components().deferredActions();
+				const auto& missileBody = *missileFixture.GetBody();
+
+				deferredActions.emplace_back([&](auto) {
+					missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).id);
+					return false;
+					});
+
+				CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture)
+					.resolutionMode(resolutionModeF ? resolutionModeF(*targetFixture.GetBody()) : ResolutionMode::Normal));
+
+				const auto& targetBodyComponentVariant = Tools::AccessUserData(*targetFixture.GetBody()).bodyComponentVariant;
+				if (const TCM::Missile* targetMissile = std::get_if<TCM::Missile>(&targetBodyComponentVariant))
+				{
+					deferredActions.emplace_back([=](auto) {
+						missilesToHandlers.erase(targetMissile->id);
+						return false;
+						});
+
+					CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(targetFixture.GetBody()->GetWorldCenter())).explosionTexture(explosionTexture));
+				}
+
+				explosionF();
+			}
+		});
+	}
+
+	void MissilesHandler::setPlayersHandlers(std::vector<Tools::PlayerHandler>& playersHandlers)
+	{
+		this->playersHandlers = &playersHandlers;
+	}
+
+	void MissilesHandler::setExplosionTexture(unsigned explosionTexture)
+	{
+		this->explosionTexture = explosionTexture;
+	}
+
+	void MissilesHandler::setMissileTexture(unsigned missileTexture)
+	{
+		this->missileTexture = missileTexture;
+	}
+
+	void MissilesHandler::setFlameAnimatedTexture(unsigned flameAnimatedTexture)
+	{
+		this->flameAnimatedTexture = flameAnimatedTexture;
+	}
+
+	void MissilesHandler::setResolutionModeF(std::function<ResolutionMode(const b2Body&)> resolutionModeF)
+	{
+		this->resolutionModeF = resolutionModeF;
+	}
+
+	void MissilesHandler::setExplosionF(std::function<void()> explosionF)
+	{
+		this->explosionF = explosionF;
+	}
+
+	void MissilesHandler::launchingMissile(unsigned playerHandlerId, bool tryToLaunch)
+	{
+		auto& playerHandler = (*playersHandlers)[playerHandlerId];
+		if (tryToLaunch)
+		{
+			if (playerHandler.durationToLaunchMissile <= 0.0f)
+			{
+				launchMissile(playerHandler.playerId);
+				playerHandler.durationToLaunchMissile = 0.1f;
+			}
+			else playerHandler.durationToLaunchMissile -= Globals::Components().physics().frameDuration;
+		}
+		else playerHandler.durationToLaunchMissile = 0.0f;
+	}
+
+	void MissilesHandler::launchMissile(unsigned playerId)
+	{
+		auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[playerId].getCenter(),
+			Globals::Components().planes()[playerId].getAngle(), 5.0f, { 0.0f, 0.0f },
+			Globals::Components().planes()[playerId].getVelocity(),
+			missileTexture, flameAnimatedTexture, playerId);
+		missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
+	}
+
+	ComponentId CreatePlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position, float angle)
+	{
+		auto& plane = EmplaceDynamicComponent(Globals::Components().planes(), { Tools::CreatePlaneBody(2.0f, 0.2f, 0.5f), TCM::Texture(planeTexture) });
+		plane.setPosition(position);
+		plane.setRotation(angle);
+		plane.preserveTextureRatio = true;
+		plane.posInSubsequence = 2;
+
+		for (int i = 0; i < 2; ++i)
+		{
+			auto& animationTexture = Globals::Components().animatedTextures().back();
+
+			auto& planeDecoration = plane.subsequence.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }),
+				TCM::AnimatedTexture(flameAnimatedTexture));
+
+			Globals::Components().renderingSetups().emplace_back([&, i,
+				modelUniform = Uniforms::UniformMat4f(),
+				thrust = 1.0f,
+				flameAnimatedTexture
+			](Shaders::ProgramId program) mutable {
+					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
+					modelUniform(
+						glm::translate(
+							glm::scale(
+								glm::rotate(
+									glm::translate(Tools::GetModelMatrix(*plane.body), { -0.5f, i == 0 ? -0.4f : 0.4f, 0.0f }),
+									-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
+								{ 0.5f + thrust * 0.02f, thrust, 1.0f }),
+							{ 0.0f, -0.5f, 0.0f }));
+
+					const float targetThrust = 1.0f + plane.details.throttleForce * 0.3f;
+					const float changeStep = Globals::Components().physics().frameDuration * 10.0f;
+
+					if (thrust < targetThrust)
+						thrust = std::min(thrust + changeStep, targetThrust);
+					else
+						thrust = std::max(thrust - changeStep, targetThrust);
+
+					Globals::Components().animatedTextures()[flameAnimatedTexture].setSpeedScaling(1.0f + (thrust - 1) * 0.2f);
+
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+					return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+				});
+
+			planeDecoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
+		}
+
+		return plane.getComponentId();
+	}
+
 	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 referenceVelocity,
 		glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimatedTexture, std::optional<ComponentId> planeId)
 	{
-		auto& missile = EmplaceDynamicComponent(Globals::Components().missiles(), { Tools::CreateBoxBody(startPosition, { 0.5f, 0.2f }, startAngle, b2_dynamicBody, 0.2f) });
+		auto& missile = EmplaceDynamicComponent(Globals::Components().missiles(), { Tools::CreateBoxBody({ 0.5f, 0.2f },
+			Tools::BodyParams().position(startPosition).angle(startAngle).bodyType(b2_dynamicBody).density(0.2f)) });
 		auto& body = *missile.body;
 		SetCollisionFilteringBits(body, Globals::CollisionBits::missile, Globals::CollisionBits::all - Globals::CollisionBits::missile - Globals::CollisionBits::plane);
 		body.SetLinearVelocity(ToVec2<b2Vec2>(referenceVelocity + initialVelocity));
@@ -157,7 +343,7 @@ namespace Tools
 
 		Globals::Components().renderingSetups().emplace_back([&, modelUniform = Uniforms::UniformMat4f(),
 			thrustScale = 0.1f
-			](Shaders::ProgramId program) mutable {
+		](Shaders::ProgramId program) mutable {
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
 				modelUniform(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*missile.body),
 					{ -0.5f, 0.0f, 0.0f }),
@@ -285,5 +471,99 @@ namespace Tools
 		background.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 		background.renderLayer = RenderLayer::Background;
 		background.resolutionMode = ResolutionMode::LowerLinearBlend1;
+	}
+
+	void SetMultiplayerCamera(const std::vector<Tools::PlayerHandler>& playersHandlers, const float& projectionHSizeBase)
+	{
+		const float transitionFactor = 10.0f;
+		const auto& planes = Globals::Components().planes();
+		const auto& screenInfo = Globals::Components().screenInfo();
+
+		auto velocityCorrection = [](const auto& plane) {
+			return plane.getVelocity() * 0.2f;
+		};
+
+		Globals::Components().camera().targetProjectionHSizeF = [&, transitionFactor]() {
+			Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
+
+			const float maxDistance = [&]() {
+				const float scalingFactor = 0.6f;
+				float maxDistance = 0.0f;
+				for (unsigned i = 0; i < playersHandlers.size() - 1; ++i)
+					for (unsigned j = i + 1; j < playersHandlers.size(); ++j)
+					{
+						const auto& plane1 = planes.at(playersHandlers[i].playerId);
+						const auto& plane2 = planes.at(playersHandlers[j].playerId);
+						const auto plane1Center = plane1.getCenter() + velocityCorrection(plane1);
+						const auto plane2Center = plane2.getCenter() + velocityCorrection(plane2);
+						/*maxDistance = std::max(maxDistance, glm::max(glm::abs(plane1Center.x - plane2Center.x) * screenInfo.windowSize.y / screenInfo.windowSize.x * scalingFactor,
+							glm::abs(plane1Center.y - plane2Center.y) * scalingFactor));*/
+						maxDistance = std::max(maxDistance, glm::distance(glm::vec2(plane1Center.x * screenInfo.windowSize.y / screenInfo.windowSize.x, plane1Center.y),
+							glm::vec2(plane2Center.x * screenInfo.windowSize.y / screenInfo.windowSize.x, plane2Center.y)) * scalingFactor);
+					}
+				return maxDistance;
+			}();
+
+			return std::max(projectionHSizeBase, maxDistance);
+		};
+
+		Globals::Components().camera().targetPositionF = [&, transitionFactor]() {
+			Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
+
+			glm::vec2 min(std::numeric_limits<float>::max());
+			glm::vec2 max(std::numeric_limits<float>::lowest());
+			glm::vec2 sumOfVelocityCorrections(0.0f);
+
+			for (const auto& playerHandler : playersHandlers)
+			{
+				const auto& plane = planes.at(playerHandler.playerId);
+				min = { std::min(min.x, plane.getCenter().x), std::min(min.y, plane.getCenter().y) };
+				max = { std::max(max.x, plane.getCenter().x), std::max(max.y, plane.getCenter().y) };
+				sumOfVelocityCorrections += velocityCorrection(plane);
+			}
+
+			return (min + max) / 2.0f + sumOfVelocityCorrections / (float)playersHandlers.size();
+		};
+	}
+
+	void ControlPlayers(const std::vector<Tools::PlayerHandler>& playersHandlers, MissilesHandler& missilesHandler)
+	{
+		const float mouseSensitivity = 0.01f;
+		const float gamepadSensitivity = 50.0f;
+
+		const auto& physics = Globals::Components().physics();
+		const auto& mouse = Globals::Components().mouse();
+		const auto& gamepads = Globals::Components().gamepads();
+
+		for (unsigned i = 0; i < playersHandlers.size(); ++i)
+		{
+			const auto gamepadId = playersHandlers[i].gamepadId;
+			auto& playerControls = Globals::Components().planes()[playersHandlers[i].playerId].controls;
+			bool fire = false;
+
+			playerControls = Components::Plane::Controls();
+
+			if (i == 0)
+			{
+				playerControls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity;
+				playerControls.autoRotation = (bool)mouse.pressing.rmb;
+				playerControls.throttling = (float)mouse.pressing.rmb;
+				playerControls.magneticHook = mouse.pressing.xmb1;
+				fire = mouse.pressing.lmb;
+			}
+
+			if (gamepadId)
+			{
+				const auto& gamepad = gamepads[*gamepadId];
+
+				playerControls.turningDelta += Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
+				playerControls.autoRotation |= (bool)gamepad.rTrigger;
+				playerControls.throttling = std::max(gamepad.rTrigger, playerControls.throttling);
+				playerControls.magneticHook |= gamepad.pressing.lShoulder || gamepad.pressing.a || gamepad.lTrigger >= 0.5f;
+				fire |= gamepad.pressing.x;
+			}
+
+			missilesHandler.launchingMissile(i, fire);
+		}
 	}
 }

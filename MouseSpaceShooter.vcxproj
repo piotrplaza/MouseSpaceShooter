@@ -37,6 +37,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="levels\windmill\windmill.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ogl\buffers\genericBuffers.cpp" />
     <ClCompile Include="ogl\oglHelpers.cpp" />
@@ -111,6 +112,7 @@
     <ClInclude Include="levels\playground\playground.hpp" />
     <ClInclude Include="levels\rim\rim.hpp" />
     <ClInclude Include="levels\rocketball\rocketball.hpp" />
+    <ClInclude Include="levels\windmill\windmill.hpp" />
     <ClInclude Include="ogl\buffers\genericBuffers.hpp" />
     <ClInclude Include="ogl\oglHelpers.hpp" />
     <ClInclude Include="ogl\oglProxy.hpp" />

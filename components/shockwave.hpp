@@ -27,7 +27,8 @@ namespace Components
 			const float angleStep = glm::two_pi<float>() / numOfParticles;
 			for (int i = 0; i < numOfParticles; ++i)
 			{
-				particles.push_back(Tools::CreateCircleBody(center, particlesRadius, b2_dynamicBody, particlesDensity));
+				particles.push_back(Tools::CreateCircleBody(particlesRadius,
+					Tools::BodyParams().position(center).bodyType(b2_dynamicBody).density(particlesDensity)));
 				particles.back()->SetBullet(particlesAsBullets);
 				particles.back()->SetLinearVelocity(b2Vec2(glm::cos(angle), glm::sin(angle)) * initVelocity);
 				particles.back()->SetLinearDamping(particlesLinearDamping);

@@ -11,6 +11,8 @@
 #include <functional>
 #include <optional>
 
+class b2Body;
+
 namespace Shaders
 {
 	namespace Programs
@@ -21,12 +23,38 @@ namespace Shaders
 
 namespace Tools
 {
+	struct PlayerHandler
+	{
+		unsigned playerId = 0;
+		std::optional<unsigned> gamepadId;
+		float durationToLaunchMissile = 0.0f;
+	};
+
+	class PlayersHandler
+	{
+	public:
+		void initPlayers(unsigned rocketPlaneTexture, const std::array<unsigned, 4>& flameAnimatedTextureForPlayers, bool gamepadForPlayer1);
+		void updatePlayers(glm::vec2 newPlayerPosition = { 0.0f, 0.0f });
+
+		const std::vector<Tools::PlayerHandler>& getPlayersHandlers() const;
+		std::vector<Tools::PlayerHandler>& accessPlayersHandlers();
+
+	private:
+		std::vector<Tools::PlayerHandler> playersHandlers;
+
+		unsigned rocketPlaneTexture = 0;
+		std::array<unsigned, 4> flameAnimatedTextureForPlayers{ 0 };
+		bool gamepadForPlayer1 = false;
+	};
+
 	struct MissileHandler
 	{
 		MissileHandler();
 		MissileHandler(ComponentId missileId, ComponentId backThrustId, glm::vec2 referenceVelocity, std::optional<ComponentId> planeId = std::nullopt);
-		~MissileHandler();
 		MissileHandler(MissileHandler&& other) noexcept;
+
+		~MissileHandler();
+
 		MissileHandler& operator=(MissileHandler&& other) noexcept;
 
 		ComponentId missileId = 0;
@@ -36,6 +64,36 @@ namespace Tools
 
 	private:
 		bool valid = true;
+	};
+
+	class MissilesHandler
+	{
+	public:
+		MissilesHandler();
+
+		void setPlayersHandlers(std::vector<Tools::PlayerHandler>& playersHandlers);
+		void setExplosionTexture(unsigned explosionTexture);
+		void setMissileTexture(unsigned missileTexture);
+		void setFlameAnimatedTexture(unsigned flameAnimatedTexture);
+
+		void setResolutionModeF(std::function<ResolutionMode(const b2Body&)> resolutionModeF);
+		void setExplosionF(std::function<void()> explosionF);
+
+		void launchingMissile(unsigned playerHandlerId, bool tryToLaunch);
+
+	private:
+		void launchMissile(unsigned playerId);
+
+		std::unordered_map<ComponentId, Tools::MissileHandler> missilesToHandlers;
+
+		std::vector<Tools::PlayerHandler>* playersHandlers = nullptr;
+
+		unsigned explosionTexture = 0;
+		unsigned missileTexture = 0;
+		unsigned flameAnimatedTexture = 0;
+
+		std::function<ResolutionMode(const b2Body&)> resolutionModeF;
+		std::function<void()> explosionF;
 	};
 
 	struct ExplosionParams
@@ -126,4 +184,7 @@ namespace Tools
 	void CreateFogForeground(int numOfLayers, float alphaPerLayer, unsigned fogTexture,
 		std::function<glm::vec4()> fColor = []() { return glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); });
 	void CreateJuliaBackground(std::function<glm::vec2()> juliaCOffset);
+
+	void SetMultiplayerCamera(const std::vector<Tools::PlayerHandler>& playersHandlers, const float& projectionHSizeBase);
+	void ControlPlayers(const std::vector<Tools::PlayerHandler>& playersHandlers, MissilesHandler& missilesHandler);
 }

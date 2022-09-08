@@ -85,22 +85,23 @@ namespace Levels
 			const glm::vec2 levelHSize = { 100.0f, 60.0f };
 			const float bordersHGauge = 50.0f;
 
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ -levelHSize.x - bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHSize.y + bordersHGauge * 2 }), TCM::Texture(woodTexture));
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ bordersHGauge, levelHSize.y + bordersHGauge * 2 },
+				Tools::BodyParams().position({ -levelHSize.x - bordersHGauge, 0.0f })), TCM::Texture(woodTexture));
 
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHSize.y + bordersHGauge * 2 }), TCM::Texture(woodTexture));
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ bordersHGauge, levelHSize.y + bordersHGauge * 2 },
+				Tools::BodyParams().position({ levelHSize.x + bordersHGauge, 0.0f })), TCM::Texture(woodTexture));
 
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHSize.y - bordersHGauge },
-				{ levelHSize.x + bordersHGauge * 2, bordersHGauge }), TCM::Texture(woodTexture));
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge * 2, bordersHGauge },
+				Tools::BodyParams().position({ 0.0f, -levelHSize.y - bordersHGauge })), TCM::Texture(woodTexture));
 
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHSize.y + bordersHGauge },
-				{ levelHSize.x + bordersHGauge * 2, bordersHGauge }), TCM::Texture(woodTexture));
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge * 2, bordersHGauge },
+				Tools::BodyParams().position({ 0.0f, levelHSize.y + bordersHGauge })), TCM::Texture(woodTexture));
 		}
 
 		void createGrapples()
 		{
-			ball = &EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ 0.0f, 0.0f }, 2.0f, b2_dynamicBody, 0.02f, 0.5f), TCM::Texture(orbTexture) });
+			ball = &EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody(2.0f,
+				Tools::BodyParams().bodyType(b2_dynamicBody).density(0.02f).restitution(0.5f)), TCM::Texture(orbTexture) });
 			ball->influenceRadius = 15.0f;
 		}
 

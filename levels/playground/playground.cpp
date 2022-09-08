@@ -158,10 +158,10 @@ namespace Levels
 		void createBackground()
 		{
 			Tools::CreateJuliaBackground([this]() {
-				const auto averageCenter = std::accumulate(playersHandlers.begin(), playersHandlers.end(),
+				const auto averageCenter = std::accumulate(playersHandler.getPlayersHandlers().begin(), playersHandler.getPlayersHandlers().end(),
 					glm::vec2(0.0f), [](const auto& acc, const auto& currentHandler) {
 						return acc + Globals::Components().planes()[currentHandler.playerId].getCenter();
-					}) / (float)playersHandlers.size();
+					}) / (float)playersHandler.getPlayersHandlers().size();
 				return averageCenter * 0.0001f; });
 		}
 
@@ -202,7 +202,7 @@ namespace Levels
 
 					const float skullOpacity = fogAlphaFactor - 1.0f;
 					float minDistance = std::numeric_limits<float>::max();
-					for (const auto& playerHandler : playersHandlers)
+					for (const auto& playerHandler : playersHandler.getPlayersHandlers())
 						minDistance = std::min(minDistance, glm::distance(Globals::Components().planes()[playerHandler.playerId].getCenter(), portraitCenter));
 					const float avatarOpacity = glm::min(0.0f, minDistance / 3.0f - 5.0f);
 
@@ -219,82 +219,6 @@ namespace Levels
 					TCM::BlendingTexture(blendingTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1,
 					RenderLayer::NearMidground).preserveTextureRatio = true;
 			}
-		}
-
-		void updateNumOfPlayers(bool init)
-		{
-			const auto& gamepads = Globals::Components().gamepads();
-			auto& planes = Globals::Components().planes();
-			std::vector<unsigned> activeGamepads;
-
-			for (unsigned i = 0; i < gamepads.size(); ++i)
-			{
-				const auto& gamepad = gamepads[i];
-				if (gamepad.enabled)
-					activeGamepads.push_back(i);
-			}
-
-			const unsigned numOfPlayers = std::clamp(activeGamepads.size() + !gamepadForPlayer1, 1u, 4u);
-
-			if (init)
-			{
-				const float gap = 5.0f;
-				const float farPlayersDistance = gap * (numOfPlayers - 1);
-
-				playersHandlers.reserve(numOfPlayers);
-				unsigned activeGamepadId = 0;
-				for (unsigned i = 0; i < numOfPlayers; ++i)
-					playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, flameAnimatedTextureForPlayers[i], { -10.0f, -farPlayersDistance / 2.0f + gap * i }),
-						i == 0 && !gamepadForPlayer1 || activeGamepads.empty() ? std::nullopt : std::optional(activeGamepads[activeGamepadId++]), 0.0f);
-			}
-			else
-			{
-				std::erase_if(playersHandlers, [&, i = 0](const auto& playerHandler) mutable {
-					const bool erase = i++ != 0 && playerHandler.gamepadId && !gamepads[*playerHandler.gamepadId].enabled;
-					if (erase)
-					{
-						planes[playerHandler.playerId].state = ComponentState::Outdated;
-						return true;
-					}
-					return false;
-					});
-
-				for (auto activeGamepadId: activeGamepads)
-				{
-					auto it = std::find_if(playersHandlers.begin(), playersHandlers.end(), [&](const auto& playerHandler) {
-							return playerHandler.gamepadId && playerHandler.gamepadId == activeGamepadId;
-						});
-					if (it == playersHandlers.end())
-						if (gamepadForPlayer1 && !playersHandlers[0].gamepadId)
-							playersHandlers[0].gamepadId = activeGamepadId;
-						else
-							playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, playersHandlers.size() - 1, { -10.0f, 0.0f }), activeGamepadId, 0.0f);
-				}
-			}
-		}
-
-		void launchingMissile(unsigned playerHandlerId, bool tryToLaunch)
-		{
-			auto& playerHandler = playersHandlers[playerHandlerId];
-			if (tryToLaunch)
-			{
-				if (playerHandler.durationToLaunchMissile <= 0.0f)
-				{
-					launchMissile(playerHandler.playerId);
-					playerHandler.durationToLaunchMissile = 0.1f;
-				}
-				else playerHandler.durationToLaunchMissile -= Globals::Components().physics().frameDuration;
-			}
-			else playerHandler.durationToLaunchMissile = 0.0f;
-		}
-
-		void launchMissile(unsigned playerId)
-		{
-			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[playerId].getCenter(),
-				Globals::Components().planes()[playerId].getAngle(), 5.0f, {0.0f, 0.0f},
-				Globals::Components().planes()[playerId].getVelocity(),
-				missile2Texture, flameAnimatedTexture, playerId);
-			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 		}
 
 		void createMovableWalls()
@@ -320,14 +244,14 @@ namespace Levels
 				};
 
 				auto& wall1Body = *Globals::Components().walls().emplace_back(
-					Tools::CreateBoxBody({ 5.0f, -5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture),
-					Globals::Components().renderingSetups().size() - 1, RenderLayer::NearMidground).body;
+					Tools::CreateBoxBody({ 0.5f, 5.0f }, Tools::BodyParams().position({ 5.0f, -5.0f }).bodyType(b2_dynamicBody).density(0.2f)),
+					TCM::Texture(woodTexture), Globals::Components().renderingSetups().size() - 1, RenderLayer::NearMidground).body;
 				wall1Body.GetFixtureList()->SetRestitution(0.5f);
 				setRenderingSetupAndSubsequence();
 
 				auto& wall2Body = *Globals::Components().walls().emplace_back(
-					Tools::CreateBoxBody({ 5.0f, 5.0f }, { 0.5f, 5.0f }, 0.0f, b2_dynamicBody, 0.2f), TCM::Texture(woodTexture),
-					std::nullopt, RenderLayer::NearMidground).body;
+					Tools::CreateBoxBody({ 0.5f, 5.0f }, Tools::BodyParams().position({ 5.0f, 5.0f }).bodyType(b2_dynamicBody).density(0.2f)),
+					TCM::Texture(woodTexture), std::nullopt, RenderLayer::NearMidground).body;
 				wall2Body.GetFixtureList()->SetRestitution(0.5f);
 				setRenderingSetupAndSubsequence();
 
@@ -339,8 +263,8 @@ namespace Levels
 
 			for (const float pos : {-30.0f, 30.0f})
 			{
-				Globals::Components().walls().emplace_back(Tools::CreateCircleBody({ 0.0f, pos }, 5.0f, b2_dynamicBody, 0.01f), TCM::Texture(),
-					Globals::Components().renderingSetups().size(), RenderLayer::Midground, Globals::Shaders().texturedColorThreshold().getProgramId());
+				Globals::Components().walls().emplace_back(Tools::CreateCircleBody(5.0f, Tools::BodyParams().position({ 0.0f, pos }).bodyType(b2_dynamicBody).density(0.01f)),
+					TCM::Texture(), Globals::Components().renderingSetups().size(), RenderLayer::Midground, Globals::Shaders().texturedColorThreshold().getProgramId());
 
 				Globals::Components().renderingSetups().emplace_back([=, this, wallId = Globals::Components().walls().size() - 1](auto) {
 					Tools::MVPInitialization(Globals::Shaders().texturedColorThreshold(), Globals::Components().walls()[wallId].getModelMatrix());
@@ -361,7 +285,8 @@ namespace Levels
 					return [=]() mutable { Globals::Shaders().texturedColorThreshold().texturesCustomTransform(glm::mat4(1.0f)); };
 					});
 
-				auto& wall = Globals::Components().walls().emplace_back(Tools::CreateCircleBody({ pos, 0.0f }, 10.0f, b2_dynamicBody, 0.01f), TCM::Texture(0));
+				auto& wall = Globals::Components().walls().emplace_back(Tools::CreateCircleBody(10.0f, Tools::BodyParams().position({ pos, 0.0f }).bodyType(b2_dynamicBody).density(0.01f)),
+					TCM::Texture(0));
 				wall.renderLayer = RenderLayer::NearMidground;
 				wall.render = false;
 
@@ -439,14 +364,14 @@ namespace Levels
 			const auto blendingTexture = Globals::Components().blendingTextures().size();
 			Globals::Components().blendingTextures().push_back({ fractalTexture, woodTexture, spaceRockTexture, foiledEggsTexture });
 
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ -levelWidthHSize - bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHeightHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ levelWidthHSize + bordersHGauge, 0.0f },
-				{ bordersHGauge, levelHeightHSize + bordersHGauge * 2 }), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ 0.0f, -levelHeightHSize - bordersHGauge },
-				{ levelHeightHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ 0.0f, levelHeightHSize + bordersHGauge },
-				{ levelHeightHSize + bordersHGauge * 2, bordersHGauge }), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ bordersHGauge, levelHeightHSize + bordersHGauge * 2 },
+				Tools::BodyParams().position({ -levelWidthHSize - bordersHGauge, 0.0f })), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ bordersHGauge, levelHeightHSize + bordersHGauge * 2 },
+				Tools::BodyParams().position({ levelWidthHSize + bordersHGauge, 0.0f })), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ levelHeightHSize + bordersHGauge * 2, bordersHGauge },
+				Tools::BodyParams().position({ 0.0f, -levelHeightHSize - bordersHGauge })), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
+			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ levelHeightHSize + bordersHGauge * 2, bordersHGauge },
+				Tools::BodyParams().position({ 0.0f, levelHeightHSize + bordersHGauge })), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
 
 			renderingSetup = Globals::Components().renderingSetups().size();
 			Globals::Components().renderingSetups().emplace_back([
@@ -474,7 +399,8 @@ namespace Levels
 
 		void createGrapples() const
 		{
-			EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ 0.0f, 10.0f }, 1.0f), TCM::Texture(orbTexture) }).influenceRadius = 15.0f;
+			EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 0.0f, 10.0f })),
+				TCM::Texture(orbTexture) }).influenceRadius = 15.0f;
 
 			Globals::Components().renderingSetups().emplace_back([
 				colorUniform = Uniforms::Uniform4f()
@@ -484,8 +410,8 @@ namespace Levels
 					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColor); };
 				});
 
-			EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ 0.0f, -10.0f }, 1.0f), TCM::Texture(orbTexture),
-				Globals::Components().renderingSetups().size() - 1 }).influenceRadius = 15.0f;
+			EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 0.0f, -10.0f })),
+				TCM::Texture(orbTexture), Globals::Components().renderingSetups().size() - 1 }).influenceRadius = 15.0f;
 
 			Globals::Components().renderingSetups().emplace_back([
 				texturesCustomTransformUniform = Uniforms::UniformMat4f()
@@ -495,10 +421,12 @@ namespace Levels
 					return [=]() mutable { texturesCustomTransformUniform(glm::mat4(1.0f)); };
 				});
 
-			EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ -10.0f, -30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f),
+			EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody(2.0f,
+				Tools::BodyParams().position({ -10.0f, -30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)),
 				TCM::Texture(orbTexture), Globals::Components().renderingSetups().size() - 1 }).influenceRadius = 30.0f;
 
-			auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ -10.0f, 30.0f }, 2.0f, b2_dynamicBody, 0.1f, 0.2f), TCM::Texture(0) });
+			auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody(2.0f,
+				Tools::BodyParams().position({ -10.0f, 30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)), TCM::Texture(0) });
 			grapple.influenceRadius = 30.0f;
 			grapple.render = false;
 			grapple.subsequence.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 2.2f, 2.2f }),
@@ -510,108 +438,7 @@ namespace Levels
 
 		void setCamera() const
 		{
-			const float transitionFactor = 10.0f;
-			const auto& planes = Globals::Components().planes();
-			const auto& screenInfo = Globals::Components().screenInfo();
-
-			auto velocityCorrection = [](const auto& plane) {
-				return plane.getVelocity() * 0.2f;
-			};
-
-			Globals::Components().camera().targetProjectionHSizeF = [&, transitionFactor]() {
-				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
-
-				const float maxDistance = [&]() {
-					const float scalingFactor = 0.6f;
-					float maxDistance = 0.0f;
-					for (unsigned i = 0; i < playersHandlers.size() - 1; ++i)
-						for (unsigned j = i + 1; j < playersHandlers.size(); ++j)
-						{
-							const auto& plane1 = planes.at(playersHandlers[i].playerId);
-							const auto& plane2 = planes.at(playersHandlers[j].playerId);
-							const auto plane1Center = plane1.getCenter() + velocityCorrection(plane1);
-							const auto plane2Center = plane2.getCenter() + velocityCorrection(plane2);
-							/*maxDistance = std::max(maxDistance, glm::max(glm::abs(plane1Center.x - plane2Center.x) * screenInfo.windowSize.y / screenInfo.windowSize.x * scalingFactor,
-								glm::abs(plane1Center.y - plane2Center.y) * scalingFactor));*/
-							maxDistance = std::max(maxDistance, glm::distance(glm::vec2(plane1Center.x * screenInfo.windowSize.y / screenInfo.windowSize.x, plane1Center.y),
-								glm::vec2(plane2Center.x * screenInfo.windowSize.y / screenInfo.windowSize.x, plane2Center.y)) * scalingFactor);
-						}
-					return maxDistance;
-				}();
-
-				return std::max(projectionHSizeBase, maxDistance);
-			};
-
-			Globals::Components().camera().targetPositionF = [&, transitionFactor]() {
-				Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
-
-				glm::vec2 min(std::numeric_limits<float>::max());
-				glm::vec2 max(std::numeric_limits<float>::lowest());
-				glm::vec2 sumOfVelocityCorrections(0.0f);
-
-				for (const auto& playerHandler : playersHandlers)
-				{
-					const auto& plane = planes.at(playerHandler.playerId);
-					min = { std::min(min.x, plane.getCenter().x), std::min(min.y, plane.getCenter().y) };
-					max = { std::max(max.x, plane.getCenter().x), std::max(max.y, plane.getCenter().y) };
-					sumOfVelocityCorrections += velocityCorrection(plane);
-				}
-
-				return (min + max) / 2.0f + sumOfVelocityCorrections / (float)playersHandlers.size();
-			};
-		}
-
-		void setCollisionFilters()
-		{
-			EmplaceDynamicComponent(Globals::Components().collisionFilters(), { Globals::CollisionBits::missile, Globals::CollisionBits::missile | Globals::CollisionBits::plane,
-				[this](const auto& missileFixture, const auto& targetFixture) {
-					const auto missileId = std::get<TCM::Missile>(Tools::AccessUserData(*missileFixture.GetBody()).bodyComponentVariant).id;
-					const auto& targetBodyComponentVariant = Tools::AccessUserData(*targetFixture.GetBody()).bodyComponentVariant;
-					const auto missilePlaneId = missilesToHandlers.at(missileId).planeId;
-
-					if (!missilePlaneId)
-						return true;
-
-					if (const TCM::Missile* targetMissile = std::get_if<TCM::Missile>(&targetBodyComponentVariant))
-					{
-						const auto targetMissilePlaneId = missilesToHandlers.at(targetMissile->id).planeId;
-						return !targetMissilePlaneId || *missilePlaneId != *targetMissilePlaneId;
-					}
-
-					return *missilePlaneId != std::get<TCM::Plane>(targetBodyComponentVariant).id;
-				}
-			});
-		}
-
-		void setCollisionCallbacks()
-		{
-			EmplaceDynamicComponent(Globals::Components().beginCollisionHandlers(), { Globals::CollisionBits::missile, Globals::CollisionBits::all,
-				[this](const auto& missileFixture, const auto& targetFixture) {
-					auto& deferredActions = Globals::Components().deferredActions();
-					const auto& missileBody = *missileFixture.GetBody();
-
-					deferredActions.emplace_back([&](auto) {
-						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).id);
-						return false;
-						});
-
-					Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture).resolutionMode(
-						lowResBodies.count(targetFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1));
-
-					const auto& targetBodyComponentVariant = Tools::AccessUserData(*targetFixture.GetBody()).bodyComponentVariant;
-					if (const TCM::Missile* targetMissile = std::get_if<TCM::Missile>(&targetBodyComponentVariant))
-					{
-						deferredActions.emplace_back([=](auto) {
-							missilesToHandlers.erase(targetMissile->id);
-							return false;
-							});
-
-						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(targetFixture.GetBody()->GetWorldCenter())).explosionTexture(explosionTexture));
-					}
-
-					explosionFrame = true;
-				}
-			});
+			Tools::SetMultiplayerCamera(playersHandler.getPlayersHandlers(), projectionHSizeBase);
 		}
 
 		void setFramesRoutines()
@@ -648,11 +475,11 @@ namespace Levels
 				if (first)
 				{
 					first = false;
-					auto& wall = EmplaceDynamicComponent(Globals::Components().dynamicWalls(), { Tools::CreateBoxBody({ -50.0f, 30.0f }, { 5.0f, 5.0f }),
-						TCM::Texture(woodTexture, { 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }), renderingSetupId });
+					auto& wall = EmplaceDynamicComponent(Globals::Components().dynamicWalls(), { Tools::CreateBoxBody({ 5.0f, 5.0f },
+						Tools::BodyParams().position({ -50.0f, 30.0f })), TCM::Texture(woodTexture, { 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }), renderingSetupId });
 					dynamicWallId = wall.getComponentId();
 
-					auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody({ 50.0f, 30.0f }, existenceDuration),
+					auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody(2.0f, Tools::BodyParams().position({ 50.0f, 30.0f })),
 						TCM::Texture(orbTexture, { 0.0f, 0.0f }, 0.0f, { 2.0f, 2.0f }), renderingSetupId });
 					grapple.influenceRadius = 20.0f;
 					dynamicGrappleId = grapple.getComponentId();
@@ -672,45 +499,20 @@ namespace Levels
 			Globals::Components().deferredActions().emplace_back([spawner](float duration) mutable { return spawner(duration, spawner); });
 		}
 
-		void playersControls()
+		void initHandlers()
 		{
-			const float mouseSensitivity = 0.01f;
-			const float gamepadSensitivity = 50.0f;
+			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, gamepadForPlayer1);
 
-			const auto& physics = Globals::Components().physics();
-			const auto& mouse = Globals::Components().mouse();
-			const auto& gamepads = Globals::Components().gamepads();
-
-			for (unsigned i = 0; i < playersHandlers.size(); ++i)
-			{
-				const auto gamepadId = playersHandlers[i].gamepadId;
-				auto& playerControls = Globals::Components().planes()[playersHandlers[i].playerId].controls;
-				bool fire = false;
-
-				playerControls = Components::Plane::Controls();
-
-				if (i == 0)
-				{
-					playerControls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity;
-					playerControls.autoRotation = (bool)mouse.pressing.rmb;
-					playerControls.throttling = (float)mouse.pressing.rmb;
-					playerControls.magneticHook = mouse.pressing.xmb1;
-					fire = mouse.pressing.lmb;
-				}
-
-				if (gamepadId)
-				{
-					const auto& gamepad = gamepads[*gamepadId];
-
-					playerControls.turningDelta += Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
-					playerControls.autoRotation |= (bool)gamepad.rTrigger;
-					playerControls.throttling = std::max(gamepad.rTrigger, playerControls.throttling);
-					playerControls.magneticHook |= gamepad.pressing.lShoulder || gamepad.pressing.a || gamepad.lTrigger >= 0.5f;
-					fire |= gamepad.pressing.x;
-				}
-
-				launchingMissile(i, fire);
-			}
+			missilesHandler.setPlayersHandlers(playersHandler.accessPlayersHandlers());
+			missilesHandler.setExplosionTexture(explosionTexture);
+			missilesHandler.setMissileTexture(missile2Texture);
+			missilesHandler.setFlameAnimatedTexture(flameAnimatedTexture);
+			missilesHandler.setResolutionModeF([this](const auto& targetBody) {
+				return lowResBodies.count(&targetBody) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1;
+				});
+			missilesHandler.setExplosionF([this]() {
+				explosionFrame = true;
+				});
 		}
 
 		void step()
@@ -718,8 +520,8 @@ namespace Levels
 			const auto& mouse = Globals::Components().mouse();
 			const auto& gamepads = Globals::Components().gamepads();
 
-			updateNumOfPlayers(false);
-			playersControls();
+			playersHandler.updatePlayers();
+			Tools::ControlPlayers(playersHandler.getPlayersHandlers(), missilesHandler);
 			
 			if (mouse.pressing.mmb || gamepads[0].pressing.rShoulder)
 				Globals::Components().physics().gameSpeed = std::clamp(Globals::Components().physics().gameSpeed +
@@ -754,15 +556,6 @@ namespace Levels
 		unsigned flameAnimatedTexture = 0;
 		unsigned invertedFlameAnimatedTexture = 0;
 
-		struct PlayerHandler
-		{
-			unsigned playerId = 0;
-			std::optional<unsigned> gamepadId;
-			float durationToLaunchMissile = 0.0f;
-		};
-
-		std::vector<PlayerHandler> playersHandlers;
-
 		float projectionHSizeBase = 20.0f;
 
 		bool explosionFrame = false;
@@ -773,7 +566,9 @@ namespace Levels
 		unsigned dynamicWallId = 0;
 		unsigned dynamicGrappleId = 0;
 
-		std::unordered_map<ComponentId, Tools::MissileHandler> missilesToHandlers;
+		Tools::PlayersHandler playersHandler;
+		Tools::MissilesHandler missilesHandler;
+
 		std::unordered_set<const b2Body*> lowResBodies;
 	};
 
@@ -784,17 +579,15 @@ namespace Levels
 		impl->loadTextures();
 		impl->setAnimations();
 		impl->createBackground();
-		impl->updateNumOfPlayers(true);
 		impl->createMovableWalls();
 		impl->createStationaryWalls();
 		impl->createGrapples();
 		impl->createForeground();
 		impl->createAdditionalDecorations();
 		impl->setCamera();
-		impl->setCollisionFilters();
-		impl->setCollisionCallbacks();
 		impl->setFramesRoutines();
 		impl->createSpawners();
+		impl->initHandlers();
 	}
 
 	Playground::~Playground() = default;

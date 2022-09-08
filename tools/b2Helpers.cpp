@@ -4,7 +4,6 @@
 #include <components/physics.hpp>
 
 #include <globals/components.hpp>
-#include <globals/collisionBits.hpp>
 
 #include <tools/graphicsHelpers.hpp>
 
@@ -17,6 +16,24 @@ namespace
 	constexpr float playerLinearDamping = 0.1f;
 	constexpr float playerAngularDamping = 15.0f;
 	constexpr int circleGraphicsComplexity = 60;
+
+	template<size_t Size>
+	inline void CreatePolygonShapedFixture(Body& body, const std::array<glm::vec2, Size>& vertices, float density, float restitution, float friction,
+		unsigned short collisionBits)
+	{
+		b2FixtureDef fixtureDef;
+		b2PolygonShape polygonShape;
+
+		// UB: Breaks Strict Aliasing Rule, but is it better way to avoid copying?
+		polygonShape.Set(reinterpret_cast<const b2Vec2*>(&vertices[0]), vertices.size());
+		fixtureDef.shape = &polygonShape;
+		fixtureDef.density = density;
+		fixtureDef.restitution = restitution;
+		fixtureDef.friction = friction;
+		fixtureDef.filter.categoryBits = collisionBits;
+
+		body->CreateFixture(&fixtureDef);
+	}
 }
 
 void b2BodyDeleter::operator()(b2Body* body) const
@@ -64,23 +81,22 @@ namespace Tools
 		return body;
 	}
 
-	Body CreateBoxBody(glm::vec2 position, glm::vec2 hSize, float angle,
-		b2BodyType bodyType, float density, float restitution, float friction)
+	Body CreateBoxBody(glm::vec2 hSize, BodyParams bodyParams)
 	{
 		b2BodyDef bodyDef;
-		bodyDef.type = bodyType;
-		bodyDef.position.Set(position.x, position.y);
-		bodyDef.angle = angle;
+		bodyDef.type = bodyParams.bodyType_;
+		bodyDef.position.Set(bodyParams.position_.x, bodyParams.position_.y);
+		bodyDef.angle = bodyParams.angle_;
 		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
 
 		b2FixtureDef fixtureDef;
 		b2PolygonShape polygonShape;
 		polygonShape.SetAsBox(hSize.x, hSize.y);
 		fixtureDef.shape = &polygonShape;
-		fixtureDef.density = density;
-		fixtureDef.restitution = restitution;
-		fixtureDef.friction = friction;
-		fixtureDef.filter.categoryBits = Globals::CollisionBits::wall;
+		fixtureDef.density = bodyParams.density_;
+		fixtureDef.restitution = bodyParams.restitution_;
+		fixtureDef.friction = bodyParams.friction_;
+		fixtureDef.filter.categoryBits = bodyParams.categoryBits_;
 		body->CreateFixture(&fixtureDef);
 
 		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
@@ -88,23 +104,54 @@ namespace Tools
 		return body;
 	}
 
-	Body CreateCircleBody(glm::vec2 position, float radius,
-		b2BodyType bodyType, float density, float restitution, float friction)
+	Body CreateCircleBody(float radius, BodyParams bodyParams)
 	{
 		b2BodyDef bodyDef;
-		bodyDef.type = bodyType;
-		bodyDef.position.Set(position.x, position.y);
+		bodyDef.type = bodyParams.bodyType_;
+		bodyDef.position.Set(bodyParams.position_.x, bodyParams.position_.y);
+		bodyDef.angle = bodyParams.angle_;
 		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
 
 		b2FixtureDef fixtureDef;
 		b2CircleShape circleShape;
 		circleShape.m_radius = radius;
 		fixtureDef.shape = &circleShape;
-		fixtureDef.density = density;
-		fixtureDef.restitution = restitution;
-		fixtureDef.friction = friction;
-		fixtureDef.filter.categoryBits = Globals::CollisionBits::wall;
+		fixtureDef.density = bodyParams.density_;
+		fixtureDef.restitution = bodyParams.restitution_;
+		fixtureDef.friction = bodyParams.friction_;
+		fixtureDef.filter.categoryBits = bodyParams.categoryBits_;
 		body->CreateFixture(&fixtureDef);
+
+		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
+
+		return body;
+	}
+
+	Body CreateConvex4Body(const std::array<glm::vec2, 4>& vertices, BodyParams bodyParams)
+	{
+		b2BodyDef bodyDef;
+		bodyDef.type = bodyParams.bodyType_;
+		bodyDef.position.Set(bodyParams.position_.x, bodyParams.position_.y);
+		bodyDef.angle = bodyParams.angle_;
+		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
+
+		CreatePolygonShapedFixture(body, vertices, bodyParams.density_, bodyParams.restitution_, bodyParams.friction_, bodyParams.categoryBits_);
+
+		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
+
+		return body;
+	}
+
+	Body CreateTrianglesBody(const std::vector<std::array<glm::vec2, 3>>& vertices, BodyParams bodyParams)
+	{
+		b2BodyDef bodyDef;
+		bodyDef.type = bodyParams.bodyType_;
+		bodyDef.position.Set(bodyParams.position_.x, bodyParams.position_.y);
+		bodyDef.angle = bodyParams.angle_;
+		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
+
+		for (const auto& triangle : vertices)
+			CreatePolygonShapedFixture(body, triangle, bodyParams.density_, bodyParams.restitution_, bodyParams.friction_, bodyParams.categoryBits_);
 
 		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
 
