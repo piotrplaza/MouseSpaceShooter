@@ -43,11 +43,6 @@
 #include <vector>
 #include <optional>
 
-namespace
-{
-	constexpr bool gamepadForPlayer1 = false;
-}
-
 namespace Levels
 {
 	class Playground::Impl
@@ -501,7 +496,11 @@ namespace Levels
 
 		void initHandlers()
 		{
-			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, gamepadForPlayer1);
+			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, false, [](unsigned player, unsigned numOfPlayers) {
+				const float gap = 5.0f;
+				const float farPlayersDistance = gap * (numOfPlayers - 1);
+				return glm::vec2(-10.0f, -farPlayersDistance / 2.0f + gap * player);
+				});
 
 			missilesHandler.setPlayersHandlers(playersHandler.accessPlayersHandlers());
 			missilesHandler.setExplosionTexture(explosionTexture);
@@ -520,7 +519,7 @@ namespace Levels
 			const auto& mouse = Globals::Components().mouse();
 			const auto& gamepads = Globals::Components().gamepads();
 
-			playersHandler.updatePlayers();
+			playersHandler.updatePlayers([](auto) { return glm::vec2(0.0f); });
 			Tools::ControlPlayers(playersHandler.getPlayersHandlers(), missilesHandler);
 			
 			if (mouse.pressing.mmb || gamepads[0].pressing.rShoulder)

@@ -33,8 +33,9 @@ namespace Tools
 	class PlayersHandler
 	{
 	public:
-		void initPlayers(unsigned rocketPlaneTexture, const std::array<unsigned, 4>& flameAnimatedTextureForPlayers, bool gamepadForPlayer1);
-		void updatePlayers(glm::vec2 newPlayerPosition = { 0.0f, 0.0f });
+		void initPlayers(unsigned rocketPlaneTexture, const std::array<unsigned, 4>& flameAnimatedTextureForPlayers, bool gamepadForPlayer1,
+			std::function<glm::vec2(unsigned player, unsigned numOfPlayers)> initPosF);
+		void updatePlayers(std::function<glm::vec2(unsigned player)> initPosF);
 
 		const std::vector<Tools::PlayerHandler>& getPlayersHandlers() const;
 		std::vector<Tools::PlayerHandler>& accessPlayersHandlers();

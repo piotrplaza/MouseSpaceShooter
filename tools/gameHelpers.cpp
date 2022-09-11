@@ -36,7 +36,8 @@
 
 namespace Tools
 {
-	void PlayersHandler::initPlayers(unsigned rocketPlaneTexture, const std::array<unsigned, 4>& flameAnimatedTextureForPlayers, bool gamepadForPlayer1)
+	void PlayersHandler::initPlayers(unsigned rocketPlaneTexture, const std::array<unsigned, 4>& flameAnimatedTextureForPlayers, bool gamepadForPlayer1,
+		std::function<glm::vec2(unsigned player, unsigned numOfPlayers)> initPosF)
 	{
 		this->rocketPlaneTexture = rocketPlaneTexture;
 		this->flameAnimatedTextureForPlayers = flameAnimatedTextureForPlayers;
@@ -55,17 +56,14 @@ namespace Tools
 
 		const unsigned numOfPlayers = std::clamp(activeGamepads.size() + !gamepadForPlayer1, 1u, 4u);
 
-		const float gap = 5.0f;
-		const float farPlayersDistance = gap * (numOfPlayers - 1);
-
 		playersHandlers.reserve(numOfPlayers);
 		unsigned activeGamepadId = 0;
 		for (unsigned i = 0; i < numOfPlayers; ++i)
-			playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, flameAnimatedTextureForPlayers[i], { -10.0f, -farPlayersDistance / 2.0f + gap * i }),
+			playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, flameAnimatedTextureForPlayers[i], initPosF(i, numOfPlayers)),
 				i == 0 && !gamepadForPlayer1 || activeGamepads.empty() ? std::nullopt : std::optional(activeGamepads[activeGamepadId++]), 0.0f);
 	}
 
-	void PlayersHandler::updatePlayers(glm::vec2 newPlayerPosition)
+	void PlayersHandler::updatePlayers(std::function<glm::vec2(unsigned player)> initPosF)
 	{
 		const auto& gamepads = Globals::Components().gamepads();
 		auto& planes = Globals::Components().planes();
@@ -98,8 +96,9 @@ namespace Tools
 			if (it == playersHandlers.end())
 				if (gamepadForPlayer1 && !playersHandlers[0].gamepadId)
 					playersHandlers[0].gamepadId = activeGamepadId;
-				else
-					playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, playersHandlers.size() - 1, newPlayerPosition), activeGamepadId, 0.0f);
+				else if (playersHandlers.size() < 4)
+					playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, flameAnimatedTextureForPlayers[playersHandlers.size()],
+						initPosF(playersHandlers.size())), activeGamepadId, 0.0f);
 		}
 	}
 
