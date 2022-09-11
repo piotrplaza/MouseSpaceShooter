@@ -7,6 +7,9 @@
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
 #include <components/wall.hpp>
+#include <components/decoration.hpp>
+#include <components/renderingSetup.hpp>
+#include <components/physics.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -17,15 +20,42 @@
 #include <tools/gameHelpers.hpp>
 #include <tools/b2Helpers.hpp>
 
+#include <numeric>
+
 namespace Levels
 {
 	class Windmill::Impl
 	{
 	public:
-		void setGraphicsSettings() const
+		void setGraphicsSettings()
 		{
 			Globals::Components().graphicsSettings().defaultColor = { 0.7f, 0.7f, 0.7f, 1.0f };
 			Globals::Components().mainFramebufferRenderer().renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured());
+
+			recursiveFaceRS = Globals::Components().renderingSetups().size();
+			Globals::Components().renderingSetups().emplace_back([
+				visibilityReduction = Uniforms::Uniform1b(),
+				visibilityCenter = Uniforms::Uniform2f(),
+				fullVisibilityDistance = Uniforms::Uniform1f(),
+				invisibilityDistance = Uniforms::Uniform1f()
+			](Shaders::ProgramId program) mutable {
+				if (!visibilityReduction.isValid())
+				{
+					visibilityReduction = Uniforms::Uniform1b(program, "visibilityReduction");
+					visibilityCenter = Uniforms::Uniform2f(program, "visibilityCenter");
+					fullVisibilityDistance = Uniforms::Uniform1f(program, "fullVisibilityDistance");
+					invisibilityDistance = Uniforms::Uniform1f(program, "invisibilityDistance");
+				}
+
+				visibilityReduction(true);
+				visibilityCenter({ 0.0f, 0.0f });
+				fullVisibilityDistance(0.0f);
+				invisibilityDistance(12.0f);
+
+				return [=]() mutable {
+					visibilityReduction(false);
+				};
+			});
 		}
 
 		void loadTextures()
@@ -39,48 +69,82 @@ namespace Levels
 
 			woodTexture = textures.size();
 			textures.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
-			textures.back().scale = glm::vec2(5.0f);
+			textures.back().scale = glm::vec2(20.0f);
 
-			flame1AnimationTexture = textures.size();
+			explosionTexture = textures.size();
+			textures.emplace_back("textures/explosion.png");
+
+			missileTexture = textures.size();
+			textures.emplace_back("textures/missile2.png");
+			textures.back().minFilter = GL_LINEAR;
+			textures.back().scale = glm::vec2(0.4f, 0.45f);
+
+			flameAnimationTexture = textures.size();
 			textures.emplace_back("textures/flame animation 1.jpg");
+			textures.back().minFilter = GL_LINEAR;
+
+			recursiveFaceAnimationTexture = textures.size();
+			textures.emplace_back("textures/recursive face animation.jpg");
 			textures.back().minFilter = GL_LINEAR;
 		}
 
 		void setAnimations()
 		{
-			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
+			for (unsigned& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
+			{
+				flameAnimatedTextureForPlayer = Globals::Components().animatedTextures().size();
+				Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
+					flameAnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+					AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
+				Globals::Components().animatedTextures().back().start(true);
+			}
+
+			flameAnimatedTexture = Globals::Components().animatedTextures().size();
+			Globals::Components().animatedTextures().push_back(Globals::Components().animatedTextures().back());
+
+			recursiveFaceAnimatedTexture = Globals::Components().animatedTextures().size();
 			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
-				flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
-				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
+				recursiveFaceAnimationTexture, { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
+				AnimationDirection::Forward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
 			Globals::Components().animatedTextures().back().start(true);
 		}
 
-		void createAdditionalDecorations() const
+		void createBackground() const
 		{
+			Tools::CreateJuliaBackground([this]() {
+				const auto averageCenter = std::accumulate(playersHandler.getPlayersHandlers().begin(), playersHandler.getPlayersHandlers().end(),
+					glm::vec2(0.0f), [](const auto& acc, const auto& currentHandler) {
+						return acc + Globals::Components().planes()[currentHandler.playerId].getCenter();
+					}) / (float)playersHandler.getPlayersHandlers().size();
+					return averageCenter * 0.0001f; });
 		}
 
-		void createPlayers()
+		void createForeground() const
 		{
-			player1Id = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { 5.0f, 5.0f }, glm::half_pi<float>());
+			auto& decorations = Globals::Components().decorations();
+			const auto& physics = Globals::Components().physics();
+
+			decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 15.0f, 15.0f }),
+				TCM::AnimatedTexture(recursiveFaceAnimatedTexture), Tools::CreateTexCoordOfRectangle(), recursiveFaceRS, RenderLayer::NearForeground);
+			decorations.back().modelMatrixF = [&, angle = 0.0f]() mutable
+			{
+				return glm::rotate(glm::mat4(1.0f), angle += 2.0f * physics.frameDuration, { 0.0f, 0.0f, 1.0f });
+			};
+			decorations.back().colorF = []() {
+				return glm::vec4(0.4f);
+			};
 		}
 
 		void setCamera() const
 		{
-			const auto& plane = Globals::Components().planes()[player1Id];
-
-			Globals::Components().camera().targetProjectionHSizeF = [&]() {
-				return 10.0f;
-			};
-			Globals::Components().camera().targetPositionF = [&]() {
-				return glm::vec2(0.0f, 0.0f);
-			};
+			playersHandler.initMultiplayerCamera([]() { return 30.0f; }, 0.7f);
 		}
 
 		void createWindmill()
 		{
-			const float armLength = 5.0f;
-			const float armOverlap = 2.0f;
-			const float armHWidth = 1.0f;
+			const float armLength = 30.0f;
+			const float armOverlap = 5.0f;
+			const float armHWidth = 10.0f;
 
 			auto& walls = Globals::Components().walls();
 
@@ -96,59 +160,68 @@ namespace Levels
 
 		void initHandlers()
 		{
-			/*Tools::UpdateNumOfPlayers(playersHandlers, rocketPlaneTexture, flameAnimatedTextureForPlayers, gamepadForPlayer1, true);
-
-			missilesHandler.setPlayersHandlers(playersHandlers);
-			missilesHandler.setExplosionTexture(explosionTexture);
-			missilesHandler.setMissileTexture(missile2Texture);
-			missilesHandler.setFlameAnimatedTexture(flameAnimatedTexture);
-			missilesHandler.setResolutionModeF([this](const auto& targetBody) {
-				return lowResBodies.count(&targetBody) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1;
+			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, false, [this](unsigned player, auto) {
+				return initPos(player);
 				});
-			missilesHandler.setExplosionF([this]() {
-				explosionFrame = true;
-				});*/
+
+			missilesHandler.setPlayersHandler(playersHandler);
+			missilesHandler.setExplosionTexture(explosionTexture);
+			missilesHandler.setMissileTexture(missileTexture);
+			missilesHandler.setFlameAnimatedTexture(flameAnimatedTexture);
+			missilesHandler.setExplosionParams(Tools::ExplosionParams().particlesDensity(0.2f).particlesRadius(2.0f).initVelocity(80.0f));
 		}
 
 		void step()
 		{
-			{
-				float mouseSensitivity = 0.01f;
-				float gamepadSensitivity = 50.0f;
-
-				const auto& physics = Globals::Components().physics();
-				const auto& mouse = Globals::Components().mouse();
-				const auto& gamepad = Globals::Components().gamepads()[0];
-				auto& player1Controls = Globals::Components().planes()[player1Id].controls;
-
-				player1Controls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity +
-					Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
-				player1Controls.autoRotation = (bool)std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
-				player1Controls.throttling = std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
-				player1Controls.magneticHook = mouse.pressing.xmb1 || gamepad.pressing.lShoulder || gamepad.lTrigger >= 0.5f;
-			}
+			playersHandler.autodetectionStep([this](unsigned player) {
+				const auto& windmill = Globals::Components().walls()[windmillWall];
+				return glm::rotate(glm::mat4(1.0f), windmill.getAngle(), { 0.0f, 0.0f, 1.0f }) * glm::vec4(initPos(player), 0.0f, 1.0f);
+				});
+			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
+				missilesHandler.launchingMissile(playerHandlerId, fire);
+				});
 
 			{
 				const float rotationSpeed = 0.1f;
+				const float innerForce = 200.0f;
 
 				const auto& physics = Globals::Components().physics();
 				auto& windmill = Globals::Components().walls()[windmillWall];
+				auto& planes = Globals::Components().planes();
 
 				windmill.body->SetTransform(windmill.body->GetPosition(), windmill.body->GetAngle() + physics.frameDuration * rotationSpeed);
+
+				for (const auto& planeHandler : playersHandler.getPlayersHandlers())
+				{
+					auto& plane = planes[planeHandler.playerId];
+					plane.body->ApplyForceToCenter(ToVec2<b2Vec2>(glm::normalize(plane.getCenter()) * (innerForce / glm::pow(glm::length(plane.getCenter()) - 5.0f, 2.0f))), true);
+				}
 			}
 		}
 
 	private:
+		glm::vec2 initPos(unsigned player)
+		{
+			const float axesDistance = 20.0f;
+			return glm::vec2(player == 0 || player == 3 ? axesDistance : -axesDistance, player == 0 || player == 1 ? axesDistance : -axesDistance);
+		}
+
+		unsigned recursiveFaceRS = 0;
+
 		unsigned rocketPlaneTexture = 0;
 		unsigned woodTexture = 0;
-		unsigned flame1AnimationTexture = 0;
+		unsigned explosionTexture = 0;
+		unsigned missileTexture = 0;
+		unsigned flameAnimationTexture = 0;
+		unsigned recursiveFaceAnimationTexture = 0;
 
-		unsigned flame1AnimatedTexture = 0;
+		std::array<unsigned, 4> flameAnimatedTextureForPlayers{ 0 };
+		unsigned flameAnimatedTexture = 0;
+		unsigned recursiveFaceAnimatedTexture = 0;
 
 		unsigned windmillWall = 0;
 
-		unsigned player1Id;
-
+		Tools::PlayersHandler playersHandler;
 		Tools::MissilesHandler missilesHandler;
 	};
 
@@ -158,7 +231,8 @@ namespace Levels
 		impl->setGraphicsSettings();
 		impl->loadTextures();
 		impl->setAnimations();
-		impl->createPlayers();
+		impl->createBackground();
+		impl->createForeground();
 		impl->setCamera();
 		impl->createWindmill();
 		impl->initHandlers();

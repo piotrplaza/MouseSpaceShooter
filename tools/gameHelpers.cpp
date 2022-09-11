@@ -63,7 +63,58 @@ namespace Tools
 				i == 0 && !gamepadForPlayer1 || activeGamepads.empty() ? std::nullopt : std::optional(activeGamepads[activeGamepadId++]), 0.0f);
 	}
 
-	void PlayersHandler::updatePlayers(std::function<glm::vec2(unsigned player)> initPosF)
+	void PlayersHandler::initMultiplayerCamera(std::function<float()> projectionHSizeMin, float scalingFactor, float velocityFactor, float transitionFactor) const
+	{
+		const auto& planes = Globals::Components().planes();
+		const auto& screenInfo = Globals::Components().screenInfo();
+
+		auto velocityCorrection = [velocityFactor](const auto& plane) {
+			return plane.getVelocity() * velocityFactor;
+		};
+
+		Globals::Components().camera().targetProjectionHSizeF = [&, velocityCorrection, projectionHSizeMin, scalingFactor, transitionFactor]() {
+			Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
+
+			const float maxDistance = [&, velocityCorrection, scalingFactor]() {
+				float maxDistance = 0.0f;
+				for (unsigned i = 0; i < playersHandlers.size() - 1; ++i)
+					for (unsigned j = i + 1; j < playersHandlers.size(); ++j)
+					{
+						const auto& plane1 = planes.at(playersHandlers[i].playerId);
+						const auto& plane2 = planes.at(playersHandlers[j].playerId);
+						const auto plane1Center = plane1.getCenter() + velocityCorrection(plane1);
+						const auto plane2Center = plane2.getCenter() + velocityCorrection(plane2);
+						/*maxDistance = std::max(maxDistance, glm::max(glm::abs(plane1Center.x - plane2Center.x) * screenInfo.windowSize.y / screenInfo.windowSize.x * scalingFactor,
+							glm::abs(plane1Center.y - plane2Center.y) * scalingFactor));*/
+						maxDistance = std::max(maxDistance, glm::distance(glm::vec2(plane1Center.x * screenInfo.windowSize.y / screenInfo.windowSize.x, plane1Center.y),
+							glm::vec2(plane2Center.x * screenInfo.windowSize.y / screenInfo.windowSize.x, plane2Center.y)) * scalingFactor);
+					}
+				return maxDistance;
+			}();
+
+			return std::max(projectionHSizeMin(), maxDistance);
+		};
+
+		Globals::Components().camera().targetPositionF = [&, velocityCorrection, transitionFactor]() {
+			Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
+
+			glm::vec2 min(std::numeric_limits<float>::max());
+			glm::vec2 max(std::numeric_limits<float>::lowest());
+			glm::vec2 sumOfVelocityCorrections(0.0f);
+
+			for (const auto& playerHandler : playersHandlers)
+			{
+				const auto& plane = planes.at(playerHandler.playerId);
+				min = { std::min(min.x, plane.getCenter().x), std::min(min.y, plane.getCenter().y) };
+				max = { std::max(max.x, plane.getCenter().x), std::max(max.y, plane.getCenter().y) };
+				sumOfVelocityCorrections += velocityCorrection(plane);
+			}
+
+			return (min + max) / 2.0f + sumOfVelocityCorrections / (float)playersHandlers.size();
+		};
+	}
+
+	void PlayersHandler::autodetectionStep(std::function<glm::vec2(unsigned player)> initPosF)
 	{
 		const auto& gamepads = Globals::Components().gamepads();
 		auto& planes = Globals::Components().planes();
@@ -99,6 +150,48 @@ namespace Tools
 				else if (playersHandlers.size() < 4)
 					playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, flameAnimatedTextureForPlayers[playersHandlers.size()],
 						initPosF(playersHandlers.size())), activeGamepadId, 0.0f);
+		}
+	}
+
+	void PlayersHandler::controlStep(std::function<void(unsigned playerHandlerId, bool fire)> fireF) const
+	{
+		const float mouseSensitivity = 0.01f;
+		const float gamepadSensitivity = 50.0f;
+
+		const auto& physics = Globals::Components().physics();
+		const auto& mouse = Globals::Components().mouse();
+		const auto& gamepads = Globals::Components().gamepads();
+
+		for (unsigned i = 0; i < playersHandlers.size(); ++i)
+		{
+			const auto gamepadId = playersHandlers[i].gamepadId;
+			auto& playerControls = Globals::Components().planes()[playersHandlers[i].playerId].controls;
+			bool fire = false;
+
+			playerControls = Components::Plane::Controls();
+
+			if (i == 0)
+			{
+				playerControls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity;
+				playerControls.autoRotation = (bool)mouse.pressing.rmb;
+				playerControls.throttling = (float)mouse.pressing.rmb;
+				playerControls.magneticHook = mouse.pressing.xmb1;
+				fire = mouse.pressing.lmb;
+			}
+
+			if (gamepadId)
+			{
+				const auto& gamepad = gamepads[*gamepadId];
+
+				playerControls.turningDelta += Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
+				playerControls.autoRotation |= (bool)gamepad.rTrigger;
+				playerControls.throttling = std::max(gamepad.rTrigger, playerControls.throttling);
+				playerControls.magneticHook |= gamepad.pressing.lShoulder || gamepad.pressing.a || gamepad.lTrigger >= 0.5f;
+				fire |= gamepad.pressing.x;
+			}
+
+			if (fireF)
+				fireF(i, fire);
 		}
 	}
 
@@ -184,8 +277,8 @@ namespace Tools
 					return false;
 					});
 
-				CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture)
-					.resolutionMode(resolutionModeF ? resolutionModeF(*targetFixture.GetBody()) : ResolutionMode::Normal));
+				CreateExplosion(explosionParams.center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture)
+					.resolutionMode(resolutionModeF ? resolutionModeF(*targetFixture.GetBody()) : explosionParams.resolutionMode_));
 
 				const auto& targetBodyComponentVariant = Tools::AccessUserData(*targetFixture.GetBody()).bodyComponentVariant;
 				if (const TCM::Missile* targetMissile = std::get_if<TCM::Missile>(&targetBodyComponentVariant))
@@ -195,17 +288,18 @@ namespace Tools
 						return false;
 						});
 
-					CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(targetFixture.GetBody()->GetWorldCenter())).explosionTexture(explosionTexture));
+					CreateExplosion(explosionParams.center(ToVec2<glm::vec2>(targetFixture.GetBody()->GetWorldCenter())).explosionTexture(explosionTexture));
 				}
 
-				explosionF();
+				if (explosionF)
+					explosionF();
 			}
 		});
 	}
 
-	void MissilesHandler::setPlayersHandlers(std::vector<Tools::PlayerHandler>& playersHandlers)
+	void MissilesHandler::setPlayersHandler(Tools::PlayersHandler& playersHandler)
 	{
-		this->playersHandlers = &playersHandlers;
+		this->playersHandler = &playersHandler;
 	}
 
 	void MissilesHandler::setExplosionTexture(unsigned explosionTexture)
@@ -223,6 +317,11 @@ namespace Tools
 		this->flameAnimatedTexture = flameAnimatedTexture;
 	}
 
+	void MissilesHandler::setExplosionParams(Tools::ExplosionParams explosionParams)
+	{
+		this->explosionParams = explosionParams;
+	}
+
 	void MissilesHandler::setResolutionModeF(std::function<ResolutionMode(const b2Body&)> resolutionModeF)
 	{
 		this->resolutionModeF = resolutionModeF;
@@ -235,7 +334,7 @@ namespace Tools
 
 	void MissilesHandler::launchingMissile(unsigned playerHandlerId, bool tryToLaunch)
 	{
-		auto& playerHandler = (*playersHandlers)[playerHandlerId];
+		auto& playerHandler = playersHandler->accessPlayersHandlers()[playerHandlerId];
 		if (tryToLaunch)
 		{
 			if (playerHandler.durationToLaunchMissile <= 0.0f)
@@ -470,99 +569,5 @@ namespace Tools
 		background.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 		background.renderLayer = RenderLayer::Background;
 		background.resolutionMode = ResolutionMode::LowerLinearBlend1;
-	}
-
-	void SetMultiplayerCamera(const std::vector<Tools::PlayerHandler>& playersHandlers, const float& projectionHSizeBase)
-	{
-		const float transitionFactor = 10.0f;
-		const auto& planes = Globals::Components().planes();
-		const auto& screenInfo = Globals::Components().screenInfo();
-
-		auto velocityCorrection = [](const auto& plane) {
-			return plane.getVelocity() * 0.2f;
-		};
-
-		Globals::Components().camera().targetProjectionHSizeF = [&, transitionFactor]() {
-			Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
-
-			const float maxDistance = [&]() {
-				const float scalingFactor = 0.6f;
-				float maxDistance = 0.0f;
-				for (unsigned i = 0; i < playersHandlers.size() - 1; ++i)
-					for (unsigned j = i + 1; j < playersHandlers.size(); ++j)
-					{
-						const auto& plane1 = planes.at(playersHandlers[i].playerId);
-						const auto& plane2 = planes.at(playersHandlers[j].playerId);
-						const auto plane1Center = plane1.getCenter() + velocityCorrection(plane1);
-						const auto plane2Center = plane2.getCenter() + velocityCorrection(plane2);
-						/*maxDistance = std::max(maxDistance, glm::max(glm::abs(plane1Center.x - plane2Center.x) * screenInfo.windowSize.y / screenInfo.windowSize.x * scalingFactor,
-							glm::abs(plane1Center.y - plane2Center.y) * scalingFactor));*/
-						maxDistance = std::max(maxDistance, glm::distance(glm::vec2(plane1Center.x * screenInfo.windowSize.y / screenInfo.windowSize.x, plane1Center.y),
-							glm::vec2(plane2Center.x * screenInfo.windowSize.y / screenInfo.windowSize.x, plane2Center.y)) * scalingFactor);
-					}
-				return maxDistance;
-			}();
-
-			return std::max(projectionHSizeBase, maxDistance);
-		};
-
-		Globals::Components().camera().targetPositionF = [&, transitionFactor]() {
-			Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
-
-			glm::vec2 min(std::numeric_limits<float>::max());
-			glm::vec2 max(std::numeric_limits<float>::lowest());
-			glm::vec2 sumOfVelocityCorrections(0.0f);
-
-			for (const auto& playerHandler : playersHandlers)
-			{
-				const auto& plane = planes.at(playerHandler.playerId);
-				min = { std::min(min.x, plane.getCenter().x), std::min(min.y, plane.getCenter().y) };
-				max = { std::max(max.x, plane.getCenter().x), std::max(max.y, plane.getCenter().y) };
-				sumOfVelocityCorrections += velocityCorrection(plane);
-			}
-
-			return (min + max) / 2.0f + sumOfVelocityCorrections / (float)playersHandlers.size();
-		};
-	}
-
-	void ControlPlayers(const std::vector<Tools::PlayerHandler>& playersHandlers, MissilesHandler& missilesHandler)
-	{
-		const float mouseSensitivity = 0.01f;
-		const float gamepadSensitivity = 50.0f;
-
-		const auto& physics = Globals::Components().physics();
-		const auto& mouse = Globals::Components().mouse();
-		const auto& gamepads = Globals::Components().gamepads();
-
-		for (unsigned i = 0; i < playersHandlers.size(); ++i)
-		{
-			const auto gamepadId = playersHandlers[i].gamepadId;
-			auto& playerControls = Globals::Components().planes()[playersHandlers[i].playerId].controls;
-			bool fire = false;
-
-			playerControls = Components::Plane::Controls();
-
-			if (i == 0)
-			{
-				playerControls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity;
-				playerControls.autoRotation = (bool)mouse.pressing.rmb;
-				playerControls.throttling = (float)mouse.pressing.rmb;
-				playerControls.magneticHook = mouse.pressing.xmb1;
-				fire = mouse.pressing.lmb;
-			}
-
-			if (gamepadId)
-			{
-				const auto& gamepad = gamepads[*gamepadId];
-
-				playerControls.turningDelta += Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
-				playerControls.autoRotation |= (bool)gamepad.rTrigger;
-				playerControls.throttling = std::max(gamepad.rTrigger, playerControls.throttling);
-				playerControls.magneticHook |= gamepad.pressing.lShoulder || gamepad.pressing.a || gamepad.lTrigger >= 0.5f;
-				fire |= gamepad.pressing.x;
-			}
-
-			missilesHandler.launchingMissile(i, fire);
-		}
 	}
 }

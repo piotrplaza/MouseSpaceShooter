@@ -433,7 +433,7 @@ namespace Levels
 
 		void setCamera() const
 		{
-			Tools::SetMultiplayerCamera(playersHandler.getPlayersHandlers(), projectionHSizeBase);
+			playersHandler.initMultiplayerCamera([this]() { return projectionHSizeBase; });
 		}
 
 		void setFramesRoutines()
@@ -502,7 +502,7 @@ namespace Levels
 				return glm::vec2(-10.0f, -farPlayersDistance / 2.0f + gap * player);
 				});
 
-			missilesHandler.setPlayersHandlers(playersHandler.accessPlayersHandlers());
+			missilesHandler.setPlayersHandler(playersHandler);
 			missilesHandler.setExplosionTexture(explosionTexture);
 			missilesHandler.setMissileTexture(missile2Texture);
 			missilesHandler.setFlameAnimatedTexture(flameAnimatedTexture);
@@ -516,12 +516,14 @@ namespace Levels
 
 		void step()
 		{
+			playersHandler.autodetectionStep([](auto) { return glm::vec2(0.0f); });
+			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
+				missilesHandler.launchingMissile(playerHandlerId, fire);
+				});
+		
 			const auto& mouse = Globals::Components().mouse();
 			const auto& gamepads = Globals::Components().gamepads();
 
-			playersHandler.updatePlayers([](auto) { return glm::vec2(0.0f); });
-			Tools::ControlPlayers(playersHandler.getPlayersHandlers(), missilesHandler);
-			
 			if (mouse.pressing.mmb || gamepads[0].pressing.rShoulder)
 				Globals::Components().physics().gameSpeed = std::clamp(Globals::Components().physics().gameSpeed +
 					(mouse.pressed.wheel + gamepads[0].pressed.dUp * 1 + gamepads[0].pressed.dDown * -1) * 0.1f, 0.0f, 2.0f);
