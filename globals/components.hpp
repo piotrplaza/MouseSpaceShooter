@@ -24,6 +24,7 @@ namespace Components
 	struct Plane;
 	struct Wall;
 	struct Grapple;
+	struct Polyline;
 	struct Camera;
 	struct Decoration;
 	struct GraphicsSettings;
@@ -63,6 +64,7 @@ namespace Globals
 		std::deque<Components::Wall>& walls();
 		std::unordered_map<ComponentId, Components::Wall>& dynamicWalls();
 		std::unordered_map<ComponentId, Components::Grapple>& grapples();
+		std::deque<Components::Polyline>& polylines();
 		std::deque<Components::Decoration>& decorations();
 		std::unordered_map<ComponentId, Components::Decoration>& dynamicDecorations();
 		std::unordered_map<ComponentId, Components::Missile>& missiles();
@@ -93,9 +95,10 @@ namespace Globals
 		std::unique_ptr<std::deque<Components::BlendingTexture>> blendingTextures_ = std::make_unique<std::deque<Components::BlendingTexture>>();
 		std::unique_ptr<std::deque<Components::RenderingSetup>> renderingSetups_ = std::make_unique<std::deque<Components::RenderingSetup>>();
 		std::unordered_map<ComponentId, Components::Plane> planes_;
-		std::unique_ptr<std::deque<Components::Wall>> structures_ = std::make_unique<std::deque<Components::Wall>>();
+		std::unique_ptr<std::deque<Components::Wall>> walls_ = std::make_unique<std::deque<Components::Wall>>();
 		std::unordered_map<ComponentId, Components::Wall> dynamicWalls_;
 		std::unordered_map<ComponentId, Components::Grapple> grapples_;
+		std::unique_ptr<std::deque<Components::Polyline>> polylines_ = std::make_unique<std::deque<Components::Polyline>>();
 		std::unique_ptr<std::deque<Components::Decoration>> decorations_ = std::make_unique<std::deque<Components::Decoration>>();
 		std::unordered_map<ComponentId, Components::Decoration> dynamicDecorations_;
 		std::unordered_map<ComponentId, Components::Missile> missiles_;

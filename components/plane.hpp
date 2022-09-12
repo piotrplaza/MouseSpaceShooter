@@ -1,6 +1,5 @@
 #pragma once
 
-#include "_componentBase.hpp"
 #include "_physical.hpp"
 
 #include <tools/b2Helpers.hpp>
@@ -13,7 +12,7 @@
 
 namespace Components
 {
-	struct Plane : ComponentBase, Physical
+	struct Plane : Physical
 	{
 		Plane() = default;
 
@@ -23,12 +22,11 @@ namespace Components
 			std::optional<ComponentId> renderingSetup = std::nullopt,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			Physical(std::move(body), TCM::Plane(getComponentId()), texture, renderingSetup, renderLayer, customShadersProgram)
+			Physical(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram)
 		{
+			setBodyComponentVariant(TCM::Plane(getComponentId()));
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::plane, Globals::CollisionBits::all);
 		}
-
-		std::function<void()> step;
 
 		bool connectIfApproaching = false;
 

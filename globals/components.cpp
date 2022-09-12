@@ -14,6 +14,7 @@
 #include <components/plane.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
+#include <components/polyline.hpp>
 #include <components/camera.hpp>
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
@@ -115,7 +116,7 @@ namespace Globals
 
 	std::deque<Components::Wall>& ComponentsHolder::walls()
 	{
-		return *structures_;
+		return *walls_;
 	}
 
 	std::unordered_map<ComponentId, Components::Wall>& ComponentsHolder::dynamicWalls()
@@ -126,6 +127,11 @@ namespace Globals
 	std::unordered_map<ComponentId, Components::Grapple>& ComponentsHolder::grapples()
 	{
 		return grapples_;
+	}
+
+	std::deque<Components::Polyline>& ComponentsHolder::polylines()
+	{
+		return *polylines_;
 	}
 
 	std::deque<Components::Decoration>& ComponentsHolder::decorations()

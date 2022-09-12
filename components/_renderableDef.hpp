@@ -22,22 +22,24 @@ namespace Buffers
 	struct GenericSubBuffers;
 }
 
-struct DecorationDef
+struct RenderableDef
 {
-	DecorationDef(std::vector<glm::vec3> vertices = {},
-		TextureComponentVariant texture = std::monostate{},
+	RenderableDef() = default;
+
+	RenderableDef(std::vector<glm::vec3> vertices,
 		std::vector<glm::vec2> texCoord = {},
+		TextureComponentVariant texture = std::monostate{},
 		std::optional<ComponentId> renderingSetup = std::nullopt) :
 		vertices(std::move(vertices)),
-		texture(texture),
 		texCoord(std::move(texCoord)),
+		texture(texture),
 		renderingSetup(renderingSetup)
 	{
 	}
 
 	std::vector<glm::vec3> vertices;
-	std::vector<glm::vec4> colors;
 	std::vector<glm::vec2> texCoord;
+	std::vector<glm::vec4> colors;
 
 	std::function<glm::mat4()> modelMatrixF;
 	std::function<glm::vec4()> colorF;
@@ -56,26 +58,26 @@ struct DecorationDef
 		Buffers::GenericSubBuffers* subBuffers = nullptr;
 	} loaded;
 
-	glm::mat4 getModelMatrix() const
+	virtual glm::mat4 getModelMatrix() const
 	{
 		return modelMatrixF
 			? modelMatrixF()
 			: glm::mat4(1.0f);
 	}
 
-	std::vector<glm::vec3> getVertices(bool transformed = false) const
+	virtual std::vector<glm::vec3> getVertices(bool transformed = false) const
 	{
 		return transformed
 			? Tools::Transform(vertices, getModelMatrix())
 			: vertices;
 	}
 
-	const std::vector<glm::vec4>& getColors() const
+	virtual const std::vector<glm::vec4>& getColors() const
 	{
 		return colors;
 	}
 
-	const std::vector<glm::vec2> getTexCoord(bool transformed = false) const
+	virtual const std::vector<glm::vec2> getTexCoord(bool transformed = false) const
 	{
 		const auto vertices = getVertices(transformed);
 		if (texCoord.empty())
@@ -95,5 +97,14 @@ struct DecorationDef
 			assert(texCoord.size() == vertices.size());
 			return texCoord;
 		}
+	}
+
+	virtual glm::vec2 getCenter() const
+	{
+		return getModelMatrix() * glm::vec4(0.0f);
+	}
+
+	virtual void step()
+	{
 	}
 };

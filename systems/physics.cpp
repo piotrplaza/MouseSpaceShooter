@@ -69,6 +69,10 @@ namespace Systems
 #else
 		physics.frameDuration = !physics.paused * debugFrameDuration * physics.gameSpeed;
 #endif
+
+		if (physics.paused)
+			return;
+
 		physics.simulationDuration += physics.frameDuration;
 		physics.world->Step(physics.frameDuration, 3, 8);
 	}

@@ -232,8 +232,8 @@ namespace Levels
 				{
 					Globals::Components().walls().back().subsequence.emplace_back(Tools::CreateVerticesOfLineOfRectangles({ 0.4f, 0.4f },
 						{ { -0.5f, -5.0f }, { 0.5f, -5.0f }, { 0.5f, 5.0f }, { -0.5f, 5.0f }, { -0.5f, -5.0f } },
-						{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }),
-						TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle());
+						{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }), Tools::CreateTexCoordOfRectangle(),
+						TCM::Texture(roseTexture));
 					Globals::Components().walls().back().subsequence.back().modelMatrixF = [wallId = Globals::Components().walls().size() - 1]() {
 						return Globals::Components().walls()[wallId].getModelMatrix(); };
 				};
@@ -305,7 +305,7 @@ namespace Levels
 						float result = value;
 						value += 0.002f;
 						return result;
-					}), TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1);
+					}), Tools::CreateTexCoordOfRectangle(), TCM::Texture(roseTexture), Globals::Components().renderingSetups().size() - 1);
 			}
 
 			Globals::Components().walls().back().resolutionMode = ResolutionMode::PixelArtBlend0;
@@ -425,7 +425,7 @@ namespace Levels
 			grapple.influenceRadius = 30.0f;
 			grapple.render = false;
 			grapple.subsequence.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 2.2f, 2.2f }),
-				TCM::Texture(roseTexture), Tools::CreateTexCoordOfRectangle());
+				Tools::CreateTexCoordOfRectangle(), TCM::Texture(roseTexture));
 			grapple.subsequence.back().modelMatrixF = [&grapple]() {
 				return grapple.getModelMatrix();
 			};

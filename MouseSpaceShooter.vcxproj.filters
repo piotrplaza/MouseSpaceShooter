@@ -402,9 +402,6 @@
     <ClInclude Include="components\_renderable.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
-    <ClInclude Include="components\_decorationDef.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="tools\buffersHelpers.hpp">
       <Filter>src\tools</Filter>
     </ClInclude>
@@ -437,6 +434,12 @@
     </ClInclude>
     <ClInclude Include="levels\windmill\windmill.hpp">
       <Filter>src\levels\windmill</Filter>
+    </ClInclude>
+    <ClInclude Include="components\polyline.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\_renderableDef.hpp">
+      <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

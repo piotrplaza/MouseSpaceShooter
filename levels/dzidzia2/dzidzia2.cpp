@@ -113,7 +113,7 @@ namespace Levels
 			dzidzia.posInSubsequence = dzidziaTailSize;
 			for (unsigned i = 0; i < dzidziaTailSize; ++i)
 			{
-				dzidzia.subsequence.emplace_back(dzidzia.vertices, dzidzia.texture, dzidzia.texCoord);
+				dzidzia.subsequence.emplace_back(dzidzia.vertices, dzidzia.texCoord, dzidzia.texture);
 				dzidzia.subsequence.back().preserveTextureRatio = dzidzia.preserveTextureRatio;
 				dzidzia.subsequence.back().modelMatrixF = [pos = this->mousePos, angle = this->rotateAngle, scaleSin = this->scaleSin]() {
 					return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), angle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));

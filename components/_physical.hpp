@@ -15,7 +15,6 @@ struct Physical : Renderable
 	Physical() = default;
 
 	Physical(Body body,
-		BodyComponentVariant bodyComponentVariant,
 		TextureComponentVariant texture,
 		std::optional<ComponentId> renderingSetup,
 		RenderLayer renderLayer,
@@ -23,7 +22,6 @@ struct Physical : Renderable
 		Renderable(texture, renderingSetup, renderLayer, customShadersProgram),
 		body(std::move(body))
 	{
-		Tools::AccessUserData(*this->body).bodyComponentVariant = bodyComponentVariant;
 	}
 
 	Body body;
@@ -71,5 +69,16 @@ struct Physical : Renderable
 	virtual glm::vec2 getVelocity() const
 	{
 		return ToVec2<glm::vec2>(body->GetLinearVelocity());
+	}
+
+	virtual void enable(bool value) override
+	{
+		Renderable::enable(value);
+		body->SetEnabled(value);
+	}
+
+	void setBodyComponentVariant(BodyComponentVariant bodyComponentVariant)
+	{
+		Tools::AccessUserData(*this->body).bodyComponentVariant = bodyComponentVariant;
 	}
 };

@@ -15,7 +15,7 @@ namespace Components
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			Wall(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram)
 		{
-			Tools::AccessUserData(*this->body).bodyComponentVariant = TCM::Grapple(getComponentId());
+			setBodyComponentVariant(TCM::Grapple(getComponentId()));
 		}
 
 		float influenceRadius = 0.0f;

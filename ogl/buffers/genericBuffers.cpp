@@ -1,5 +1,32 @@
 #include "genericBuffers.hpp"
 
+namespace
+{
+	template <typename BuffersContainer>
+	inline typename BuffersContainer::value_type& ReuseOrEmplaceBack(BuffersContainer& buffersContainer, typename BuffersContainer::iterator& it)
+	{
+		return it == buffersContainer.end()
+			? buffersContainer.emplace_back(), it = buffersContainer.end(), buffersContainer.back()
+			: *it++;
+	}
+
+	inline void RenderableCommonsToBuffersCommons(RenderableDef& renderableDef, Buffers::GenericSubBuffers& buffers)
+	{
+		buffers.modelMatrixF = [&]() { return renderableDef.getModelMatrix(); };
+		buffers.colorF = &renderableDef.colorF;
+		buffers.renderingSetup = &renderableDef.renderingSetup;
+		buffers.texture = &renderableDef.texture;
+		buffers.drawMode = &renderableDef.drawMode;
+		buffers.bufferDataUsage = &renderableDef.bufferDataUsage;
+		buffers.preserveTextureRatio = &renderableDef.preserveTextureRatio;
+		buffers.render = &renderableDef.render;
+
+		buffers.setVerticesBuffer(renderableDef.getVertices());
+		buffers.setColorsBuffer(renderableDef.getColors());
+		buffers.setTexCoordBuffer(renderableDef.getTexCoord());
+	}
+}
+
 namespace Buffers
 {
 	GenericSubBuffers::GenericSubBuffers()
@@ -54,7 +81,7 @@ namespace Buffers
 		glDeleteVertexArrays(1, &vertexArray);
 	}
 
-	void GenericSubBuffers::allocateOrUpdateVerticesBuffer(const std::vector<glm::vec3>& vertices)
+	void GenericSubBuffers::setVerticesBuffer(const std::vector<glm::vec3>& vertices)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
 		if (numOfAllocatedVertices < vertices.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != *bufferDataUsage)
@@ -71,7 +98,7 @@ namespace Buffers
 		numOfVertices = vertices.size();
 	}
 
-	void GenericSubBuffers::allocateOrUpdateColorsBuffer(const std::vector<glm::vec4>& colors)
+	void GenericSubBuffers::setColorsBuffer(const std::vector<glm::vec4>& colors)
 	{
 		glBindVertexArray(vertexArray);
 
@@ -99,7 +126,7 @@ namespace Buffers
 		glEnableVertexAttribArray(1);
 	}
 
-	void GenericSubBuffers::allocateOrUpdateTexCoordBuffer(const std::vector<glm::vec2>& texCoord)
+	void GenericSubBuffers::setTexCoordBuffer(const std::vector<glm::vec2>& texCoord)
 	{
 		glBindVertexArray(vertexArray);
 
@@ -136,5 +163,30 @@ namespace Buffers
 		glGenBuffers(1, &*texCoordBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, *texCoordBuffer);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	}
+
+	void GenericBuffers::applyComponentSubsequence(Renderable& renderableComponent)
+	{
+		auto subBuffersIt = subsequence.begin();
+		for (auto& renderableDef : renderableComponent.subsequence)
+		{
+			auto& subBuffers = ReuseOrEmplaceBack(subsequence, subBuffersIt);
+			RenderableCommonsToBuffersCommons(renderableDef, subBuffers);
+			renderableDef.loaded.subBuffers = &subBuffers;
+		}
+		subsequence.resize(std::distance(subsequence.begin(), subBuffersIt));
+	}
+
+	void GenericBuffers::applyComponent(Renderable& renderableComponent)
+	{
+		customShadersProgram = &renderableComponent.customShadersProgram;
+		resolutionMode = &renderableComponent.resolutionMode;
+		subsequenceBegin = &renderableComponent.subsequenceBegin;
+		posInSubsequence = &renderableComponent.posInSubsequence;
+
+		RenderableCommonsToBuffersCommons(renderableComponent, *this);
+
+		renderableComponent.loaded.buffers = this;
+		renderableComponent.state = ComponentState::Ongoing;
 	}
 }

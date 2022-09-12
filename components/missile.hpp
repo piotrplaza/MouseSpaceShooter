@@ -1,6 +1,5 @@
 #pragma once
 
-#include "_componentBase.hpp"
 #include "_physical.hpp"
 
 #include <tools/b2Helpers.hpp>
@@ -8,19 +7,26 @@
 
 namespace Components
 {
-	struct Missile : ComponentBase, Physical
+	struct Missile : Physical
 	{
 		Missile(Body body,
+			float thrustForce = 5.0f,
 			TextureComponentVariant texture = std::monostate{},
 			std::optional<ComponentId> renderingSetup = std::nullopt,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			Physical(std::move(body), TCM::Missile(getComponentId()), texture, renderingSetup, renderLayer, customShadersProgram)
+			Physical(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram),
+			thrustForce(thrustForce)
 		{
+			setBodyComponentVariant(TCM::Missile(getComponentId()));
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::missile, Globals::CollisionBits::all);
-			this->body->SetBullet(true);
 		}
 
-		std::function<void()> step;
+		float thrustForce;
+
+		void step() override
+		{
+			body->ApplyForceToCenter(b2Vec2(std::cos(body->GetAngle()), std::sin(body->GetAngle())) * thrustForce, true);
+		}
 	};
 }

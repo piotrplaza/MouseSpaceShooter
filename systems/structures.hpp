@@ -16,5 +16,6 @@ namespace Systems
 		void updateDynamicBuffers();
 
 		size_t loadedStaticWalls = 0;
+		size_t loadedStaticPolylines = 0;
 	};
 }

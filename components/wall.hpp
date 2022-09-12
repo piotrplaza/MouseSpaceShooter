@@ -1,11 +1,10 @@
 #pragma once
 
-#include "_componentBase.hpp"
 #include "_physical.hpp"
 
 namespace Components
 {
-	struct Wall : ComponentBase, Physical
+	struct Wall : Physical
 	{
 		Wall() = default;
 
@@ -14,10 +13,10 @@ namespace Components
 			std::optional<ComponentId> renderingSetup = std::nullopt,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			Physical(std::move(body), TCM::Wall(getComponentId()), texture, renderingSetup, renderLayer, customShadersProgram)
+			Physical(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram)
 		{
+			setBodyComponentVariant(TCM::Wall(getComponentId()));
+			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
 		}
-
-		std::function<void()> step;
 	};
 }

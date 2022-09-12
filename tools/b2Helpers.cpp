@@ -19,7 +19,7 @@ namespace
 
 	template<size_t Size>
 	inline void CreatePolygonShapedFixture(Body& body, const std::array<glm::vec2, Size>& vertices, float density, float restitution, float friction,
-		unsigned short collisionBits)
+		unsigned short collisionBits, bool sensor)
 	{
 		b2FixtureDef fixtureDef;
 		b2PolygonShape polygonShape;
@@ -31,6 +31,7 @@ namespace
 		fixtureDef.restitution = restitution;
 		fixtureDef.friction = friction;
 		fixtureDef.filter.categoryBits = collisionBits;
+		fixtureDef.isSensor = sensor;
 
 		body->CreateFixture(&fixtureDef);
 	}
@@ -97,6 +98,7 @@ namespace Tools
 		fixtureDef.restitution = bodyParams.restitution_;
 		fixtureDef.friction = bodyParams.friction_;
 		fixtureDef.filter.categoryBits = bodyParams.categoryBits_;
+		fixtureDef.isSensor = bodyParams.sensor_;
 		body->CreateFixture(&fixtureDef);
 
 		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
@@ -120,6 +122,7 @@ namespace Tools
 		fixtureDef.restitution = bodyParams.restitution_;
 		fixtureDef.friction = bodyParams.friction_;
 		fixtureDef.filter.categoryBits = bodyParams.categoryBits_;
+		fixtureDef.isSensor = bodyParams.sensor_;
 		body->CreateFixture(&fixtureDef);
 
 		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
@@ -135,7 +138,7 @@ namespace Tools
 		bodyDef.angle = bodyParams.angle_;
 		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
 
-		CreatePolygonShapedFixture(body, vertices, bodyParams.density_, bodyParams.restitution_, bodyParams.friction_, bodyParams.categoryBits_);
+		CreatePolygonShapedFixture(body, vertices, bodyParams.density_, bodyParams.restitution_, bodyParams.friction_, bodyParams.categoryBits_, bodyParams.sensor_);
 
 		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
 
@@ -151,7 +154,41 @@ namespace Tools
 		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
 
 		for (const auto& triangle : vertices)
-			CreatePolygonShapedFixture(body, triangle, bodyParams.density_, bodyParams.restitution_, bodyParams.friction_, bodyParams.categoryBits_);
+			CreatePolygonShapedFixture(body, triangle, bodyParams.density_, bodyParams.restitution_, bodyParams.friction_, bodyParams.categoryBits_, bodyParams.sensor_);
+
+		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
+
+		return body;
+	}
+
+	Body CreatePolylineBody(const std::vector<glm::vec2>& vertices, BodyParams bodyParams)
+	{
+		assert(vertices.size() >= 2);
+
+		b2BodyDef bodyDef;
+		bodyDef.type = bodyParams.bodyType_;
+		bodyDef.position.Set(bodyParams.position_.x, bodyParams.position_.y);
+		bodyDef.angle = bodyParams.angle_;
+		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
+
+		for (auto it = vertices.begin(); it != std::prev(vertices.end()); ++it)
+		{
+			auto& v1 = *it;
+			auto& v2 = *(it + 1);
+
+			b2FixtureDef fixtureDef;
+			b2EdgeShape edgeShape;
+
+			edgeShape.SetTwoSided(ToVec2<b2Vec2>(v1), ToVec2<b2Vec2>(v2));
+			fixtureDef.shape = &edgeShape;
+			fixtureDef.density = bodyParams.density_;
+			fixtureDef.restitution = bodyParams.restitution_;
+			fixtureDef.friction = bodyParams.friction_;
+			fixtureDef.filter.categoryBits = bodyParams.categoryBits_;
+			fixtureDef.isSensor = bodyParams.sensor_;
+
+			body->CreateFixture(&fixtureDef);
+		}
 
 		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
 
@@ -233,6 +270,13 @@ namespace Tools
 			{
 				const auto& circleShape = static_cast<const b2CircleShape&>(*fixture->GetShape());
 				Tools::AppendVerticesOfCircle(vertices, ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity);
+				break;
+			}
+			case b2Shape::e_edge:
+			{
+				const auto& edgeShape = static_cast<const b2EdgeShape&>(*fixture->GetShape());
+				vertices.emplace_back(edgeShape.m_vertex1.x, edgeShape.m_vertex1.y, 0.0f);
+				vertices.emplace_back(edgeShape.m_vertex2.x, edgeShape.m_vertex2.y, 0.0f);
 				break;
 			}
 			default:

@@ -114,19 +114,27 @@ void Initialize()
 
 void PrepareFrame()
 {
-	activeLevel->step();
+	if (Globals::Components().physics().paused)
+	{
+		Globals::Systems().physics().step();
+		Globals::Systems().camera().step();
+	}
+	else
+	{
+		activeLevel->step();
 
-	Globals::Systems().stateController().stepSetup();
-	Globals::Systems().physics().step();
-	Globals::Systems().deferredActions().step();
-	Globals::Systems().actors().step();
-	Globals::Systems().temporaries().step();
-	Globals::Systems().structures().step();
-	Globals::Systems().decorations().step();
-	Globals::Systems().camera().step();
-	Globals::Systems().stateController().stepTeardown();
+		Globals::Systems().stateController().stepSetup();
+		Globals::Systems().physics().step();
+		Globals::Systems().deferredActions().step();
+		Globals::Systems().actors().step();
+		Globals::Systems().temporaries().step();
+		Globals::Systems().structures().step();
+		Globals::Systems().decorations().step();
+		Globals::Systems().camera().step();
+		Globals::Systems().stateController().stepTeardown();
 
-	Globals::Systems().cleaner().step();
+		Globals::Systems().cleaner().step();
+	}
 
 	Globals::Systems().stateController().renderSetup();
 	Globals::Systems().renderingController().render();
@@ -369,7 +377,7 @@ int APIENTRY WinMain(
 			Globals::Systems().stateController().handleKeyboard(keys);
 			Globals::Systems().stateController().handleMouseButtons();
 			Globals::Systems().stateController().handleSDL();
-
+			
 			PrepareFrame();
 
 			Globals::Components().mouse().delta = { 0, 0 };

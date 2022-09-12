@@ -52,8 +52,7 @@ namespace Systems
 
 			planeConnections.updateBuffers();
 
-			if (plane.step)
-				plane.step();
+			plane.step();
 		}
 
 		updateDynamicBuffers();

@@ -68,9 +68,16 @@ namespace TypeComponentMappers
 
 		bool operator==(const Wall&) const = default;
 	};
+
+	struct Polyline
+	{
+		ComponentId id;
+
+		bool operator==(const Polyline&) const = default;
+	};
 }
 
 namespace TCM = TypeComponentMappers;
 
 using TextureComponentVariant = std::variant<std::monostate, TCM::Texture, TCM::AnimatedTexture, TCM::BlendingTexture>;
-using BodyComponentVariant = std::variant<std::monostate, TCM::Grapple, TCM::Missile, TCM::Plane, TCM::Wall>;
+using BodyComponentVariant = std::variant<std::monostate, TCM::Grapple, TCM::Missile, TCM::Plane, TCM::Wall, TCM::Polyline>;

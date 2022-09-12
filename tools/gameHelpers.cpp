@@ -76,6 +76,9 @@ namespace Tools
 			Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
 
 			const float maxDistance = [&, velocityCorrection, scalingFactor]() {
+				if (playersHandlers.size() == 1)
+					return glm::length(velocityCorrection(planes.at(playersHandlers[0].playerId))) + projectionHSizeMin();
+
 				float maxDistance = 0.0f;
 				for (unsigned i = 0; i < playersHandlers.size() - 1; ++i)
 					for (unsigned j = i + 1; j < playersHandlers.size(); ++j)
@@ -359,6 +362,10 @@ namespace Tools
 	ComponentId CreatePlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position, float angle)
 	{
 		auto& plane = EmplaceDynamicComponent(Globals::Components().planes(), { Tools::CreatePlaneBody(2.0f, 0.2f, 0.5f), TCM::Texture(planeTexture) });
+
+		auto& body = *plane.body;
+		body.SetBullet(true);
+
 		plane.setPosition(position);
 		plane.setRotation(angle);
 		plane.preserveTextureRatio = true;
@@ -368,7 +375,7 @@ namespace Tools
 		{
 			auto& animationTexture = Globals::Components().animatedTextures().back();
 
-			auto& planeDecoration = plane.subsequence.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }),
+			auto& planeDecoration = plane.subsequence.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }), std::vector<glm::vec2>{},
 				TCM::AnimatedTexture(flameAnimatedTexture));
 
 			Globals::Components().renderingSetups().emplace_back([&, i,
@@ -411,10 +418,13 @@ namespace Tools
 		glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimatedTexture, std::optional<ComponentId> planeId)
 	{
 		auto& missile = EmplaceDynamicComponent(Globals::Components().missiles(), { Tools::CreateBoxBody({ 0.5f, 0.2f },
-			Tools::BodyParams().position(startPosition).angle(startAngle).bodyType(b2_dynamicBody).density(0.2f)) });
+			Tools::BodyParams().position(startPosition).angle(startAngle).bodyType(b2_dynamicBody).density(0.2f)), force });
+
 		auto& body = *missile.body;
 		SetCollisionFilteringBits(body, Globals::CollisionBits::missile, Globals::CollisionBits::all - Globals::CollisionBits::missile - Globals::CollisionBits::plane);
 		body.SetLinearVelocity(ToVec2<b2Vec2>(referenceVelocity + initialVelocity));
+		body.SetBullet(true);
+
 		missile.texture = TCM::Texture(missileTexture);
 		missile.preserveTextureRatio = true;
 
@@ -428,11 +438,6 @@ namespace Tools
 
 		missile.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 		missile.renderLayer = RenderLayer::FarMidground;
-
-		missile.step = [&body, force, launchTime = Globals::Components().physics().simulationDuration]() mutable
-		{
-			body.ApplyForceToCenter({ glm::cos(body.GetAngle()) * force, glm::sin(body.GetAngle()) * force }, true);
-		};
 
 		auto& animationTexture = Globals::Components().animatedTextures().back();
 

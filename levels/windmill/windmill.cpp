@@ -7,9 +7,13 @@
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
 #include <components/wall.hpp>
+#include <components/grapple.hpp>
+#include <components/polyline.hpp>
 #include <components/decoration.hpp>
 #include <components/renderingSetup.hpp>
 #include <components/physics.hpp>
+#include <components/collisionHandler.hpp>
+#include <components/deferredAction.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -19,8 +23,15 @@
 
 #include <tools/gameHelpers.hpp>
 #include <tools/b2Helpers.hpp>
+#include <tools/graphicsHelpers.hpp>
+#include <tools/b2Helpers.hpp>
 
 #include <numeric>
+
+namespace
+{
+	constexpr float rotationSpeed = 0.1f;
+}
 
 namespace Levels
 {
@@ -34,6 +45,7 @@ namespace Levels
 
 			recursiveFaceRS = Globals::Components().renderingSetups().size();
 			Globals::Components().renderingSetups().emplace_back([
+				this,
 				visibilityReduction = Uniforms::Uniform1b(),
 				visibilityCenter = Uniforms::Uniform2f(),
 				fullVisibilityDistance = Uniforms::Uniform1f(),
@@ -50,7 +62,7 @@ namespace Levels
 				visibilityReduction(true);
 				visibilityCenter({ 0.0f, 0.0f });
 				fullVisibilityDistance(0.0f);
-				invisibilityDistance(12.0f);
+				invisibilityDistance(12.0f * innerForceScale);
 
 				return [=]() mutable {
 					visibilityReduction(false);
@@ -70,6 +82,10 @@ namespace Levels
 			woodTexture = textures.size();
 			textures.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
 			textures.back().scale = glm::vec2(20.0f);
+
+			orbTexture = textures.size();
+			textures.emplace_back("textures/orb.png");
+			textures.back().scale = glm::vec2(2.0f);
 
 			explosionTexture = textures.size();
 			textures.emplace_back("textures/explosion.png");
@@ -128,7 +144,7 @@ namespace Levels
 				TCM::AnimatedTexture(recursiveFaceAnimatedTexture), Tools::CreateTexCoordOfRectangle(), recursiveFaceRS, RenderLayer::NearForeground);
 			decorations.back().modelMatrixF = [&, angle = 0.0f]() mutable
 			{
-				return glm::rotate(glm::mat4(1.0f), angle += 2.0f * physics.frameDuration, { 0.0f, 0.0f, 1.0f });
+				return glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(innerForceScale)), angle += 2.0f * physics.frameDuration, { 0.0f, 0.0f, 1.0f });
 			};
 			decorations.back().colorF = []() {
 				return glm::vec4(0.4f);
@@ -142,11 +158,14 @@ namespace Levels
 
 		void createWindmill()
 		{
-			const float armLength = 30.0f;
-			const float armOverlap = 5.0f;
-			const float armHWidth = 10.0f;
+			constexpr float armLength = 30.0f;
+			constexpr float armOverlap = 5.0f;
+			constexpr float armHWidth = 10.0f;
+
+			constexpr float grappleR = armLength + 5.0f;
 
 			auto& walls = Globals::Components().walls();
+			const auto& physics = Globals::Components().physics();
 
 			windmillWall = walls.size();
 			walls.emplace_back(Tools::CreateTrianglesBody({ 
@@ -156,11 +175,50 @@ namespace Levels
 				{ glm::vec2{armOverlap, 0.0f}, glm::vec2{-armLength, -armHWidth}, glm::vec2{-armLength, armHWidth} } },
 				Tools::BodyParams().bodyType(b2_kinematicBody))).renderLayer = RenderLayer::NearMidground;
 			walls.back().texture = TCM::Texture(woodTexture);
+
+			/*for (int i = 0; i < 4; ++i)
+			{
+				const float startAngle = glm::half_pi<float>() * i;
+
+				auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleR).bodyType(b2_kinematicBody)),
+					TCM::Texture(orbTexture) });
+				grapple.influenceRadius = 15.0f;
+				grapple.step = [&, grappleR, startAngle, angle = 0.0f]() mutable {
+					const b2Vec2 pos = grapple.body->GetTransform().p;
+					const b2Vec2 newPos(b2Vec2(glm::cos(startAngle + angle), glm::sin(startAngle + angle)) * grappleR);
+					grapple.body->SetLinearVelocity((newPos - pos) / physics.frameDuration);
+					angle += physics.frameDuration * rotationSpeed;
+				};
+			}*/
+
+			constexpr float ringR = armLength + 15.0f;
+			constexpr int numOfRingSegments = 50;
+			constexpr float ringStep = glm::two_pi<float>() / numOfRingSegments;
+
+			std::vector<glm::vec2> ringSegments;
+			ringSegments.reserve(numOfRingSegments);
+			for (int i = 0; i < numOfRingSegments; ++i)
+			{
+				ringSegments.emplace_back(glm::vec2(glm::cos(i * ringStep), glm::sin(i * ringStep)) * ringR);
+			}
+			ringSegments.push_back(ringSegments.front());
+
+			auto& ring = Globals::Components().polylines().emplace_back(ringSegments, Tools::BodyParams().sensor(false));
+			ring.segmentVerticesGenerator = [](const auto& v1, const auto& v2) {
+				return Tools::CreateVerticesOfLightning(v1, v2, 10, 0.4f);
+			};
+			ring.keyVerticesTransformer = [rD = 0.4f](const auto& v) {
+				return v + glm::vec3(Tools::Random(-rD, rD), Tools::Random(-rD, rD), 0.0f);
+			};
+			ring.loop = true;
+			ring.colorF = []() {
+				return glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) * 0.4f;
+			};
 		}
 
 		void initHandlers()
 		{
-			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, false, [this](unsigned player, auto) {
+			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, true, [this](unsigned player, auto) {
 				return initPos(player);
 				});
 
@@ -169,6 +227,17 @@ namespace Levels
 			missilesHandler.setMissileTexture(missileTexture);
 			missilesHandler.setFlameAnimatedTexture(flameAnimatedTexture);
 			missilesHandler.setExplosionParams(Tools::ExplosionParams().particlesDensity(0.2f).particlesRadius(2.0f).initVelocity(80.0f));
+		}
+
+		void collisionHandlers()
+		{
+			EmplaceDynamicComponent(Globals::Components().beginCollisionHandlers(), { Globals::CollisionBits::plane, Globals::CollisionBits::polyline,
+				[this](const auto& plane, const auto& targetFipolylinexture) {
+					Globals::Components().deferredActions().emplace_back([&](auto) {
+					Globals::Components().planes()[std::get<TCM::Plane>(Tools::AccessUserData(*plane.GetBody()).bodyComponentVariant).id].enable(false);
+					return false;
+					});
+				}});
 		}
 
 		void step()
@@ -182,8 +251,7 @@ namespace Levels
 				});
 
 			{
-				const float rotationSpeed = 0.1f;
-				const float innerForce = 200.0f;
+				const float innerForce = innerForceScale * 500.0f;
 
 				const auto& physics = Globals::Components().physics();
 				auto& windmill = Globals::Components().walls()[windmillWall];
@@ -194,8 +262,12 @@ namespace Levels
 				for (const auto& planeHandler : playersHandler.getPlayersHandlers())
 				{
 					auto& plane = planes[planeHandler.playerId];
-					plane.body->ApplyForceToCenter(ToVec2<b2Vec2>(glm::normalize(plane.getCenter()) * (innerForce / glm::pow(glm::length(plane.getCenter()) - 5.0f, 2.0f))), true);
+					plane.body->ApplyForceToCenter(ToVec2<b2Vec2>(glm::normalize(plane.getCenter()) *
+						(innerForce / glm::pow(glm::length(plane.getCenter()) - 10.0f * innerForceScale, 2.0f))), true);
 				}
+
+				innerForceScaleFactor += physics.frameDuration * 0.2f;
+				innerForceScale = 0.2f + (1.0f - glm::cos(innerForceScaleFactor)) / 2.0f;
 			}
 		}
 
@@ -210,6 +282,7 @@ namespace Levels
 
 		unsigned rocketPlaneTexture = 0;
 		unsigned woodTexture = 0;
+		unsigned orbTexture = 0;
 		unsigned explosionTexture = 0;
 		unsigned missileTexture = 0;
 		unsigned flameAnimationTexture = 0;
@@ -223,6 +296,9 @@ namespace Levels
 
 		Tools::PlayersHandler playersHandler;
 		Tools::MissilesHandler missilesHandler;
+
+		float innerForceScaleFactor = 0.0f;
+		float innerForceScale = 1.0f;
 	};
 
 	Windmill::Windmill():
@@ -236,6 +312,7 @@ namespace Levels
 		impl->setCamera();
 		impl->createWindmill();
 		impl->initHandlers();
+		impl->collisionHandlers();
 	}
 
 	Windmill::~Windmill() = default;

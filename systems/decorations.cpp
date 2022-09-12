@@ -17,13 +17,11 @@ namespace Systems
 
 	void Decorations::step()
 	{
-		for (const auto& decoration : Globals::Components().decorations())
-			if (decoration.step)
-				decoration.step();
+		for (auto& decoration : Globals::Components().decorations())
+			decoration.step();
 
-		for (const auto& [id, decoration] : Globals::Components().dynamicDecorations())
-			if (decoration.step)
-				decoration.step();
+		for (auto& [id, decoration] : Globals::Components().dynamicDecorations())
+			decoration.step();
 
 		updateDynamicBuffers();
 	}

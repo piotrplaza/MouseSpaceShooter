@@ -22,8 +22,8 @@ struct b2JointDeleter {
 	void operator()(b2Joint* joint) const;
 };
 
-template <typename TargetVec2, typename SourceVec2>
-inline TargetVec2 ToVec2(const SourceVec2 v)
+template <typename TargetVec2>
+inline TargetVec2 ToVec2(const auto v)
 {
 	return { v.x, v.y };
 }
@@ -31,6 +31,11 @@ inline TargetVec2 ToVec2(const SourceVec2 v)
 inline b2Vec2 operator *(const b2Vec2 v, const float s)
 {
 	return { v.x * s, v.y * s };
+}
+
+inline b2Vec2 operator /(const b2Vec2 v, const float s)
+{
+	return { v.x / s, v.y / s };
 }
 
 using Body = std::unique_ptr<b2Body, b2BodyDeleter>;
@@ -81,6 +86,12 @@ namespace Tools
 			return *this;
 		}
 
+		BodyParams& sensor(bool value)
+		{
+			sensor_ = value;
+			return *this;
+		}
+
 		glm::vec2 position_ = { 0.0f, 0.0f };
 		float angle_ = 0.0f;
 		b2BodyType bodyType_ = b2_staticBody;
@@ -88,6 +99,7 @@ namespace Tools
 		float restitution_ = 0.1f;
 		float friction_ = 0.2f;
 		uint16 categoryBits_ = Globals::CollisionBits::wall;
+		bool sensor_ = false;
 	};
 
 	Body CreatePlaneBody(float size, float density, float spreadFactor);
@@ -95,6 +107,7 @@ namespace Tools
 	Body CreateCircleBody(float radius, BodyParams bodyParams);
 	Body CreateConvex4Body(const std::array<glm::vec2, 4>& vertices, BodyParams bodyParams);
 	Body CreateTrianglesBody(const std::vector<std::array<glm::vec2, 3>>& vertices, BodyParams bodyParams);
+	Body CreatePolylineBody(const std::vector<glm::vec2>& vertices, BodyParams bodyParams = BodyParams{});
 	b2Joint* CreateRevoluteJoint(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected = false);
 	b2Joint* CreateDistanceJoint(b2Body& body1, b2Body& body2, glm::vec2 body1Anchor, glm::vec2 body2Anchor, bool collideConnected = false, float length = 0.0f);
 	glm::mat4 GetModelMatrix(const b2Body& body);
