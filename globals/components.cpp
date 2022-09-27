@@ -28,9 +28,10 @@
 #include <components/mainFramebufferRenderer.hpp>
 #include <components/deferredAction.hpp>
 
+#include "componentIdGenerator.hpp"
+
 namespace Globals
 {
-	static std::unique_ptr<::ComponentIdGenerator> componentIdGenerator;
 	static std::unique_ptr<ComponentsHolder> componentsHolder;
 
 	Components::RenderingBuffers& ComponentsHolder::renderingBuffers()
@@ -89,118 +90,113 @@ namespace Globals
 	}
 
 
-	std::deque<Components::Texture>& ComponentsHolder::textures()
+	StaticComponents<Components::Texture>& ComponentsHolder::textures()
 	{
 		return *textures_;
 	}
 
-	std::deque<Components::AnimatedTexture>& ComponentsHolder::animatedTextures()
+	StaticComponents<Components::AnimatedTexture>& ComponentsHolder::animatedTextures()
 	{
 		return *animatedTextures_;
 	}
 
-	std::deque<Components::BlendingTexture>& ComponentsHolder::blendingTextures()
+	StaticComponents<Components::BlendingTexture>& ComponentsHolder::blendingTextures()
 	{
 		return *blendingTextures_;
 	}
 
-	std::deque<Components::RenderingSetup>& ComponentsHolder::renderingSetups()
+	StaticComponents<Components::RenderingSetup>& ComponentsHolder::renderingSetups()
 	{
 		return *renderingSetups_;
 	}
 
-	std::unordered_map<ComponentId, Components::Plane>& ComponentsHolder::planes()
+	DynamicComponents<Components::Plane>& ComponentsHolder::planes()
 	{
 		return planes_;
 	}
 
-	std::deque<Components::Wall>& ComponentsHolder::walls()
+	StaticComponents<Components::Wall>& ComponentsHolder::walls()
 	{
 		return *walls_;
 	}
 
-	std::unordered_map<ComponentId, Components::Wall>& ComponentsHolder::dynamicWalls()
+	DynamicComponents<Components::Wall>& ComponentsHolder::dynamicWalls()
 	{
 		return dynamicWalls_;
 	}
 
-	std::unordered_map<ComponentId, Components::Grapple>& ComponentsHolder::grapples()
+	DynamicComponents<Components::Grapple>& ComponentsHolder::grapples()
 	{
 		return grapples_;
 	}
 
-	std::deque<Components::Polyline>& ComponentsHolder::polylines()
+	StaticComponents<Components::Polyline>& ComponentsHolder::polylines()
 	{
 		return *polylines_;
 	}
 
-	std::deque<Components::Decoration>& ComponentsHolder::decorations()
+	StaticComponents<Components::Decoration>& ComponentsHolder::decorations()
 	{
 		return *decorations_;
 	}
 
-	std::unordered_map<ComponentId, ::Components::Decoration>& ComponentsHolder::dynamicDecorations()
+	DynamicComponents<Components::Decoration>& ComponentsHolder::dynamicDecorations()
 	{
 		return dynamicDecorations_;
 	}
 
-	std::unordered_map<::ComponentId, Components::Missile>& ComponentsHolder::missiles()
+	DynamicComponents<Components::Missile>& ComponentsHolder::missiles()
 	{
 		return missiles_;
 	}
 
-	std::unordered_map<::ComponentId, Components::CollisionFilter>& ComponentsHolder::collisionFilters()
+	DynamicComponents<Components::CollisionFilter>& ComponentsHolder::collisionFilters()
 	{
 		return collisionFilters_;
 	}
 
-	std::unordered_map<::ComponentId, Components::CollisionHandler>& ComponentsHolder::beginCollisionHandlers()
+	DynamicComponents<Components::CollisionHandler>& ComponentsHolder::beginCollisionHandlers()
 	{
 		return beginCollisionHandlers_;
 	}
 
-	std::unordered_map<::ComponentId, Components::CollisionHandler>& ComponentsHolder::endCollisionHandlers()
+	DynamicComponents<Components::CollisionHandler>& ComponentsHolder::endCollisionHandlers()
 	{
 		return endCollisionHandlers_;
 	}
 
-	std::unordered_map<::ComponentId, Components::Shockwave>& ComponentsHolder::shockwaves()
+	DynamicComponents<Components::Shockwave>& ComponentsHolder::shockwaves()
 	{
 		return shockwaves_;
 	}
 
-	std::unordered_map<::ComponentId, Components::Light>& ComponentsHolder::lights()
+	DynamicComponents<Components::Light>& ComponentsHolder::lights()
 	{
 		return lights_;
 	}
 
-	std::unordered_map<::ComponentId, Components::Functor>& ComponentsHolder::frameSetups()
+	DynamicComponents<Components::Functor>& ComponentsHolder::frameSetups()
 	{
 		return frameSetups_;
 	}
 
-	std::unordered_map<::ComponentId, Components::Functor>& ComponentsHolder::frameTeardowns()
+	DynamicComponents<Components::Functor>& ComponentsHolder::frameTeardowns()
 	{
 		return frameTeardowns_;
 	}
 
-	std::list<Components::DeferredAction>& ComponentsHolder::deferredActions()
+	DynamicOrderedComponents<Components::DeferredAction>& ComponentsHolder::deferredActions()
 	{
 		return deferredActions_;
 	}
 
 	void InitializeComponents()
 	{
-		componentIdGenerator = std::make_unique<::ComponentIdGenerator>();
+		InitializeComponentIdGenerator();
 		componentsHolder = std::make_unique<ComponentsHolder>();
 	}
 
-	::ComponentIdGenerator& ComponentIdGenerator()
-	{
-		return *componentIdGenerator;
-	}
-
-	class ComponentsHolder& Components()
+	ComponentsHolder& Components()
 	{
 		return *componentsHolder;
 	}

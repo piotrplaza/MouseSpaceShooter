@@ -109,7 +109,7 @@ namespace Systems
 			glGenTextures(1, &textureObject);
 			glBindTexture(GL_TEXTURE_2D, textureObject);
 
-			const auto& texture = Globals::Components().textures().emplace_back(textureUnit, textureObject, GL_CLAMP_TO_EDGE, GL_NEAREST, textureMagFilter);
+			const auto& texture = Globals::Components().textures().emplace(textureUnit, textureObject, GL_CLAMP_TO_EDGE, GL_NEAREST, textureMagFilter);
 			subBuffers.textureUnit = texture.loaded.textureUnit;
 			subBuffers.textureObject = texture.loaded.textureObject;
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture.wrapMode);

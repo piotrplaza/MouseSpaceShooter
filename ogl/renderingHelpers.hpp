@@ -8,7 +8,9 @@
 #include <components/physics.hpp>
 #include <components/mouse.hpp>
 
-#include <components/_typeComponentMappers.hpp>
+#include <commonTypes/typeComponentMappers.hpp>
+
+#include <globals/components.hpp>
 
 #include <ogl/oglProxy.hpp>
 

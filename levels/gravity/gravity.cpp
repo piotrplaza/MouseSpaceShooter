@@ -57,59 +57,58 @@ namespace Levels
 			auto& textures = Globals::Components().textures();
 
 			rocketPlaneTexture = textures.size();
-			textures.emplace_back("textures/rocket plane.png");
-			textures.back().translate = glm::vec2(0.4f, 0.0f);
-			textures.back().scale = glm::vec2(1.6f, 1.8f);
+			textures.emplace("textures/rocket plane.png");
+			textures.last().translate = glm::vec2(0.4f, 0.0f);
+			textures.last().scale = glm::vec2(1.6f, 1.8f);
 
 			spaceRockTexture = textures.size();
-			textures.emplace_back("textures/space rock.jpg", GL_MIRRORED_REPEAT);
-			textures.back().scale = glm::vec2(5.0f);
+			textures.emplace("textures/space rock.jpg", GL_MIRRORED_REPEAT);
+			textures.last().scale = glm::vec2(5.0f);
 
 			woodTexture = textures.size();
-			textures.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
-			textures.back().scale = glm::vec2(16.0f);
+			textures.emplace("textures/wood.jpg", GL_MIRRORED_REPEAT);
+			textures.last().scale = glm::vec2(16.0f);
 
 			orbTexture = textures.size();
-			textures.emplace_back("textures/orb.png");
-			textures.back().scale = glm::vec2(40.0f);
+			textures.emplace("textures/orb.png");
+			textures.last().scale = glm::vec2(40.0f);
 
 			weedTexture = textures.size();
-			textures.emplace_back("textures/weed.png");
-			textures.back().minFilter = GL_LINEAR_MIPMAP_LINEAR;
+			textures.emplace("textures/weed.png");
+			textures.last().minFilter = GL_LINEAR_MIPMAP_LINEAR;
 
 			roseTexture = textures.size();
-			textures.emplace_back("textures/rose.png");
-			textures.back().minFilter = GL_LINEAR_MIPMAP_LINEAR;
+			textures.emplace("textures/rose.png");
+			textures.last().minFilter = GL_LINEAR_MIPMAP_LINEAR;
 
 			fogTexture = textures.size();
-			textures.emplace_back("textures/fog.png");
+			textures.emplace("textures/fog.png");
 
 			flame1AnimationTexture = textures.size();
-			textures.emplace_back("textures/flame animation 1.jpg");
-			textures.back().minFilter = GL_LINEAR;
+			textures.emplace("textures/flame animation 1.jpg");
+			textures.last().minFilter = GL_LINEAR;
 
 			missile1Texture = textures.size();
-			textures.emplace_back("textures/missile1.png");
-			textures.back().minFilter = GL_LINEAR;
-			textures.back().translate = glm::vec2(0.4f, 0.0f);
-			textures.back().scale = glm::vec2(0.3f, 0.4f);
+			textures.emplace("textures/missile1.png");
+			textures.last().minFilter = GL_LINEAR;
+			textures.last().translate = glm::vec2(0.4f, 0.0f);
+			textures.last().scale = glm::vec2(0.3f, 0.4f);
 
 			missile2Texture = textures.size();
-			textures.emplace_back("textures/missile2.png");
-			textures.back().minFilter = GL_LINEAR;
-			textures.back().scale = glm::vec2(0.4f, 0.45f);
+			textures.emplace("textures/missile2.png");
+			textures.last().minFilter = GL_LINEAR;
+			textures.last().scale = glm::vec2(0.4f, 0.45f);
 
 			explosionTexture = textures.size();
-			textures.emplace_back("textures/explosion.png");
+			textures.emplace("textures/explosion.png");
 		}
 
 		void setAnimations()
 		{
 			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
-				flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
-				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
-			Globals::Components().animatedTextures().back().start(true);
+			Globals::Components().animatedTextures().add({ flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
+			Globals::Components().animatedTextures().last().start(true);
 
 			/*flame2AnimatedTexture = Globals::Components().animatedTextures().size();
 			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
@@ -174,7 +173,7 @@ namespace Levels
 			{
 				const float angle = Tools::Random(0.0f, glm::two_pi<float>());
 				const glm::vec2 pos = glm::vec2(glm::cos(angle), glm::sin(angle)) * 20.0f;
-				Globals::Components().walls().emplace_back(
+				Globals::Components().walls().emplace(
 					Tools::CreateBoxBody({ Tools::Random(0.1f, 1.0f), Tools::Random(0.1f, 1.0f) },
 						Tools::BodyParams().position(pos).angle(angle).bodyType(b2_dynamicBody).density(0.02f)),
 					TCM::Texture(spaceRockTexture));
@@ -189,8 +188,8 @@ namespace Levels
 
 		void createGrapples()
 		{
-			auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody(20.0f,
-				Tools::BodyParams()), TCM::Texture(orbTexture) });
+			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(20.0f,
+				Tools::BodyParams()), TCM::Texture(orbTexture));
 			grapple.influenceRadius = 100.0f;
 			planetId = grapple.getComponentId();
 		}
@@ -212,7 +211,7 @@ namespace Levels
 
 		void setCollisionCallbacks()
 		{
-			EmplaceDynamicComponent(Globals::Components().beginCollisionHandlers(), { Globals::CollisionBits::missile, Globals::CollisionBits::all,
+			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::missile, Globals::CollisionBits::all,
 				[this](const auto& fixtureA, const auto& fixtureB) {
 					for (const auto* fixture : { &fixtureA, &fixtureB })
 					if (fixture->GetFilterData().categoryBits == Globals::CollisionBits::missile)
@@ -225,16 +224,15 @@ namespace Levels
 
 						explosionFrame = true;
 					}
-				}
-			});
+				});
 		}
 
 		void setFramesRoutines()
 		{
-			EmplaceDynamicComponent(Globals::Components().frameSetups(), { [&]()
+			Globals::Components().frameSetups().emplace([&]()
 				{
 					explosionFrame = false;
-				} });
+				});
 		}
 
 		void step()
@@ -278,11 +276,11 @@ namespace Levels
 			for (size_t i = debrisBegin; i != debrisEnd; ++i)
 				applyGravity(Globals::Components().walls()[i], 400.0f);
 
-			for (auto& [id, missile] : Globals::Components().missiles())
+			for (auto& missile: Globals::Components().missiles())
 			{
 				applyGravity(missile, 4000.0f);
 				missile.body->SetTransform(missile.body->GetPosition(), glm::orientedAngle({ 1.0f, 0.0f },
-					glm::normalize(ToVec2<glm::vec2>(missile.body->GetLinearVelocity()) - missilesToHandlers[id].referenceVelocity)));
+					glm::normalize(ToVec2<glm::vec2>(missile.body->GetLinearVelocity()) - missilesToHandlers[missile.getComponentId()].referenceVelocity)));
 			}
 
 			if (mouse.pressing.mmb || gamepad.pressing.rShoulder)

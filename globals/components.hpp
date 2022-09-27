@@ -1,6 +1,6 @@
 #pragma once
 
-#include <components/_componentId.hpp>
+#include <commonTypes/componentsContainers.hpp>
 
 #include <memory>
 #include <deque>
@@ -56,26 +56,26 @@ namespace Globals
 		Components::Framebuffers& framebuffers();
 		Components::MainFramebufferRenderer& mainFramebufferRenderer();
 
-		std::deque<Components::Texture>& textures();
-		std::deque<Components::AnimatedTexture>& animatedTextures();
-		std::deque<Components::BlendingTexture>& blendingTextures();
-		std::deque<Components::RenderingSetup>& renderingSetups();
-		std::unordered_map<ComponentId, Components::Plane>& planes();
-		std::deque<Components::Wall>& walls();
-		std::unordered_map<ComponentId, Components::Wall>& dynamicWalls();
-		std::unordered_map<ComponentId, Components::Grapple>& grapples();
-		std::deque<Components::Polyline>& polylines();
-		std::deque<Components::Decoration>& decorations();
-		std::unordered_map<ComponentId, Components::Decoration>& dynamicDecorations();
-		std::unordered_map<ComponentId, Components::Missile>& missiles();
-		std::unordered_map<ComponentId, Components::CollisionFilter>& collisionFilters();
-		std::unordered_map<ComponentId, Components::CollisionHandler>& beginCollisionHandlers();
-		std::unordered_map<ComponentId, Components::CollisionHandler>& endCollisionHandlers();
-		std::unordered_map<ComponentId, Components::Shockwave>& shockwaves();
-		std::unordered_map<ComponentId, Components::Light>& lights();
-		std::unordered_map<ComponentId, Components::Functor>& frameSetups();
-		std::unordered_map<ComponentId, Components::Functor>& frameTeardowns();
-		std::list<Components::DeferredAction>& deferredActions();
+		StaticComponents<Components::Texture>& textures();
+		StaticComponents<Components::AnimatedTexture>& animatedTextures();
+		StaticComponents<Components::BlendingTexture>& blendingTextures();
+		StaticComponents<Components::RenderingSetup>& renderingSetups();
+		DynamicComponents<Components::Plane>& planes();
+		StaticComponents<Components::Wall>& walls();
+		DynamicComponents<Components::Wall>& dynamicWalls();
+		DynamicComponents<Components::Grapple>& grapples();
+		StaticComponents<Components::Polyline>& polylines();
+		StaticComponents<Components::Decoration>& decorations();
+		DynamicComponents<Components::Decoration>& dynamicDecorations();
+		DynamicComponents<Components::Missile>& missiles();
+		DynamicComponents<Components::CollisionFilter>& collisionFilters();
+		DynamicComponents<Components::CollisionHandler>& beginCollisionHandlers();
+		DynamicComponents<Components::CollisionHandler>& endCollisionHandlers();
+		DynamicComponents<Components::Shockwave>& shockwaves();
+		DynamicComponents<Components::Light>& lights();
+		DynamicComponents<Components::Functor>& frameSetups();
+		DynamicComponents<Components::Functor>& frameTeardowns();
+		DynamicOrderedComponents<Components::DeferredAction>& deferredActions();
 
 	private:
 		std::unique_ptr<Components::RenderingBuffers> renderingBuffers_ = std::make_unique<Components::RenderingBuffers>();
@@ -90,30 +90,29 @@ namespace Globals
 		std::unique_ptr<Components::Framebuffers> framebuffers_ = std::make_unique<Components::Framebuffers>();
 		std::unique_ptr<Components::MainFramebufferRenderer> mainFramebufferRenderer_ = std::make_unique<Components::MainFramebufferRenderer>();
 
-		std::unique_ptr<std::deque<Components::Texture>> textures_ = std::make_unique<std::deque<Components::Texture>>();
-		std::unique_ptr<std::deque<Components::AnimatedTexture>> animatedTextures_ = std::make_unique<std::deque<Components::AnimatedTexture>>();
-		std::unique_ptr<std::deque<Components::BlendingTexture>> blendingTextures_ = std::make_unique<std::deque<Components::BlendingTexture>>();
-		std::unique_ptr<std::deque<Components::RenderingSetup>> renderingSetups_ = std::make_unique<std::deque<Components::RenderingSetup>>();
-		std::unordered_map<ComponentId, Components::Plane> planes_;
-		std::unique_ptr<std::deque<Components::Wall>> walls_ = std::make_unique<std::deque<Components::Wall>>();
-		std::unordered_map<ComponentId, Components::Wall> dynamicWalls_;
-		std::unordered_map<ComponentId, Components::Grapple> grapples_;
-		std::unique_ptr<std::deque<Components::Polyline>> polylines_ = std::make_unique<std::deque<Components::Polyline>>();
-		std::unique_ptr<std::deque<Components::Decoration>> decorations_ = std::make_unique<std::deque<Components::Decoration>>();
-		std::unordered_map<ComponentId, Components::Decoration> dynamicDecorations_;
-		std::unordered_map<ComponentId, Components::Missile> missiles_;
-		std::unordered_map<ComponentId, Components::CollisionFilter> collisionFilters_;
-		std::unordered_map<ComponentId, Components::CollisionHandler> beginCollisionHandlers_;
-		std::unordered_map<ComponentId, Components::CollisionHandler> endCollisionHandlers_;
-		std::unordered_map<ComponentId, Components::Shockwave> shockwaves_;
-		std::unordered_map<ComponentId, Components::Light> lights_;
-		std::unordered_map<ComponentId, Components::Functor> frameSetups_;
-		std::unordered_map<ComponentId, Components::Functor> frameTeardowns_;
-		std::list<Components::DeferredAction> deferredActions_;
+		std::unique_ptr<StaticComponents<Components::Texture>> textures_ = std::make_unique<StaticComponents<Components::Texture>>();
+		std::unique_ptr<StaticComponents<Components::AnimatedTexture>> animatedTextures_ = std::make_unique<StaticComponents<Components::AnimatedTexture>>();
+		std::unique_ptr<StaticComponents<Components::BlendingTexture>> blendingTextures_ = std::make_unique<StaticComponents<Components::BlendingTexture>>();
+		std::unique_ptr<StaticComponents<Components::RenderingSetup>> renderingSetups_ = std::make_unique<StaticComponents<Components::RenderingSetup>>();
+		DynamicComponents<Components::Plane> planes_;
+		std::unique_ptr<StaticComponents<Components::Wall>> walls_ = std::make_unique<StaticComponents<Components::Wall>>();
+		DynamicComponents<Components::Wall> dynamicWalls_;
+		DynamicComponents<Components::Grapple> grapples_;
+		std::unique_ptr<StaticComponents<Components::Polyline>> polylines_ = std::make_unique<StaticComponents<Components::Polyline>>();
+		std::unique_ptr<StaticComponents<Components::Decoration>> decorations_ = std::make_unique<StaticComponents<Components::Decoration>>();
+		DynamicComponents<Components::Decoration> dynamicDecorations_;
+		DynamicComponents<Components::Missile> missiles_;
+		DynamicComponents<Components::CollisionFilter> collisionFilters_;
+		DynamicComponents<Components::CollisionHandler> beginCollisionHandlers_;
+		DynamicComponents<Components::CollisionHandler> endCollisionHandlers_;
+		DynamicComponents<Components::Shockwave> shockwaves_;
+		DynamicComponents<Components::Light> lights_;
+		DynamicComponents<Components::Functor> frameSetups_;
+		DynamicComponents<Components::Functor> frameTeardowns_;
+		DynamicOrderedComponents<Components::DeferredAction> deferredActions_;
 	};
 
 	void InitializeComponents();
 
-	::ComponentIdGenerator& ComponentIdGenerator();
 	ComponentsHolder& Components();
 }

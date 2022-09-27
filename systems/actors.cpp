@@ -33,17 +33,17 @@ namespace Systems
 			return !planes.contains(element.first);
 			});
 
-		for(auto& [planeId, plane]: planes)
+		for(auto& plane: planes)
 		{
-			auto& planeConnections = allConnections[planeId];
+			auto& planeConnections = allConnections[plane.getComponentId()];
 
-			if (plane.details.connectedGrappleId && !Globals::Components().grapples().count(*plane.details.connectedGrappleId))
+			if (plane.details.connectedGrappleId && !Globals::Components().grapples().contains(*plane.details.connectedGrappleId))
 			{
 				plane.details.grappleJoint.release();
 				plane.details.connectedGrappleId = std::nullopt;
 			}
 
-			if (plane.details.weakConnectedGrappleId && !Globals::Components().grapples().count(*plane.details.weakConnectedGrappleId))
+			if (plane.details.weakConnectedGrappleId && !Globals::Components().grapples().contains(*plane.details.weakConnectedGrappleId))
 				plane.details.weakConnectedGrappleId = std::nullopt;
 
 			turn(plane);
@@ -121,18 +121,18 @@ namespace Systems
 		float nearestGrappleDistance = std::numeric_limits<float>::infinity();
 		std::vector<ComponentId> grapplesInRange;
 
-		for (const auto& [id, grapple]: Globals::Components().grapples())
+		for (const auto& grapple: Globals::Components().grapples())
 		{
 			const float grappleDistance = glm::distance(plane.getCenter(), grapple.getCenter());
 
 			if (grappleDistance > grapple.influenceRadius) continue;
 
-			grapplesInRange.push_back(id);
+			grapplesInRange.push_back(grapple.getComponentId());
 
 			if (grappleDistance < nearestGrappleDistance)
 			{
 				nearestGrappleDistance = grappleDistance;
-				nearestGrappleId = id;
+				nearestGrappleId = grapple.getComponentId();
 			}
 		}
 
@@ -218,7 +218,7 @@ namespace Systems
 
 	Actors::Connections::Connections()
 	{
-		auto& decoration = EmplaceDynamicComponent(Globals::Components().dynamicDecorations(), {});
+		auto& decoration = Globals::Components().dynamicDecorations().emplace();
 		decoration.drawMode = GL_LINES;
 		decoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 		decoration.renderLayer = RenderLayer::FarMidground;

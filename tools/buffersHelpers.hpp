@@ -4,16 +4,18 @@
 
 #include <globals/components.hpp>
 
+#include <commonTypes/componentsContainers.hpp>
+
 #include <ranges>
 
 namespace Tools
 {
 	template <typename Component>
-	inline void UpdateStaticBuffers(std::deque<Component>& components, size_t offset = 0)
+	inline void UpdateStaticBuffers(StaticComponents<Component>& components, size_t offset = 0)
 	{
 		auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers;
 
-		for(auto& component: components | std::views::drop(offset))
+		for (auto& component : components.underlyingContainer() | std::views::drop(offset))
 		{
 			if (component.state == ComponentState::Outdated)
 				continue;
@@ -33,11 +35,11 @@ namespace Tools
 	}
 
 	template <typename Component>
-	inline void UpdateDynamicBuffers(std::unordered_map<ComponentId, Component>& components)
+	inline void UpdateDynamicBuffers(DynamicComponents<Component>& components)
 	{
 		auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers;
 
-		for(auto& [id, component] : components)
+		for(auto& component: components)
 		{
 			if (component.state == ComponentState::Ongoing)
 				continue;
@@ -56,11 +58,11 @@ namespace Tools
 
 			if (component.state == ComponentState::Outdated)
 			{
-				mapOfSelectedBuffers.erase(id);
+				mapOfSelectedBuffers.erase(component.getComponentId());
 				continue;
 			}
 
-			auto& selectedBuffers = mapOfSelectedBuffers[id];
+			auto& selectedBuffers = mapOfSelectedBuffers[component.getComponentId()];
 
 			selectedBuffers.applyComponent(component);
 			selectedBuffers.applyComponentSubsequence(component);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <components/_typeComponentMappers.hpp>
+#include <commonTypes/typeComponentMappers.hpp>
 
 struct BodyUserData
 {

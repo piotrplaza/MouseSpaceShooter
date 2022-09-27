@@ -15,7 +15,6 @@ namespace Components
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			Wall(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram)
 		{
-			setBodyComponentVariant(TCM::Grapple(getComponentId()));
 		}
 
 		float influenceRadius = 0.0f;
@@ -24,5 +23,11 @@ namespace Components
 		{
 			glm::vec2 previousCenter{ 0.0f, 0.0f };
 		} details;
+
+		void setComponentId(ComponentId id) override
+		{
+			ComponentBase::setComponentId(id);
+			setBodyComponentVariant(TCM::Grapple(id));
+		}
 	};
 }

@@ -193,6 +193,9 @@
     <ClCompile Include="levels\windmill\windmill.cpp">
       <Filter>src\levels\windmill</Filter>
     </ClCompile>
+    <ClCompile Include="globals\componentIdGenerator.cpp">
+      <Filter>src\globals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mvp.hpp">
@@ -393,12 +396,6 @@
     <ClInclude Include="components\_componentBase.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
-    <ClInclude Include="components\_componentId.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="components\_typeComponentMappers.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="components\_renderable.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -440,6 +437,18 @@
     </ClInclude>
     <ClInclude Include="components\_renderableDef.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="commonTypes\componentsContainers.hpp">
+      <Filter>src\commonTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="globals\componentIdGenerator.hpp">
+      <Filter>src\globals</Filter>
+    </ClInclude>
+    <ClInclude Include="commonTypes\typeComponentMappers.hpp">
+      <Filter>src\commonTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="commonTypes\componentId.hpp">
+      <Filter>src\commonTypes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

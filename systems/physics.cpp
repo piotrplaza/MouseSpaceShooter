@@ -10,7 +10,7 @@ namespace
 {
 	constexpr float debugFrameDuration = 1.0f / 144;
 
-	class ContactListener : public b2ContactListener
+	class : public b2ContactListener
 	{
 		void BeginContact(b2Contact* contact) override
 		{
@@ -22,20 +22,20 @@ namespace
 			Contact(contact, Globals::Components().endCollisionHandlers());
 		}
 
-		void Contact(b2Contact* contact, std::unordered_map<::ComponentId, ::Components::CollisionHandler>& collisionHandlers)
+		void Contact(b2Contact* contact, DynamicComponents<Components::CollisionHandler>& collisionHandlers)
 		{
 			for (auto& collisionHandler : collisionHandlers)
 			{
-				collisionHandler.second.rawHandler(*contact->GetFixtureA(), *contact->GetFixtureB());
+				collisionHandler.rawHandler(*contact->GetFixtureA(), *contact->GetFixtureB());
 			}
 		}
 	} contactListener;
 
-	class ContactFilter : public b2ContactFilter
+	class : public b2ContactFilter
 	{
 		bool ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB) override
 		{
-			for (auto& [id, collisionFilter] : Globals::Components().collisionFilters())
+			for (auto& collisionFilter: Globals::Components().collisionFilters())
 			{
 				const auto result = collisionFilter.rawFilter(*fixtureA, *fixtureB);
 				if (result != Components::CollisionFilter::Result::Fallback)

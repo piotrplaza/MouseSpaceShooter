@@ -41,14 +41,14 @@ namespace Levels
 			auto& textures = Globals::Components().textures();
 
 			dzidzia1Texture = textures.size();
-			textures.emplace_back("textures/photos/dzidzia1.png");
-			textures.back().scale = glm::vec2(1.0f, 1.0f);
-			textures.back().minFilter = GL_LINEAR;
+			textures.emplace("textures/photos/dzidzia1.png");
+			textures.last().scale = glm::vec2(1.0f, 1.0f);
+			textures.last().minFilter = GL_LINEAR;
 
 			dzidziaITata1Texture = textures.size();
-			textures.emplace_back("textures/photos/dzidzia i tata 1.png");
-			textures.back().scale = glm::vec2(1.0f, 1.0f);
-			textures.back().minFilter = GL_LINEAR;
+			textures.emplace("textures/photos/dzidzia i tata 1.png");
+			textures.last().scale = glm::vec2(1.0f, 1.0f);
+			textures.last().minFilter = GL_LINEAR;
 		}
 
 		void createBackground()
@@ -64,7 +64,7 @@ namespace Levels
 
 			auto pos = std::make_shared<glm::vec2>(0.0f);
 
-			renderingSetups.emplace_back([
+			renderingSetups.emplace([
 				visibilityReduction = Uniforms::Uniform1b(),
 				visibilityCenter = Uniforms::Uniform2f(),
 				fullVisibilityDistance = Uniforms::Uniform1f(),
@@ -89,9 +89,9 @@ namespace Levels
 				};
 			});
 
-			decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.0f, 5.0f }),
+			decorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.0f, 5.0f }),
 				TCM::Texture(dzidziaITata1Texture), Tools::CreateTexCoordOfRectangle(), renderingSetups.size() - 1).preserveTextureRatio = true;
-			decorations.back().modelMatrixF = [pos, step = glm::vec2(5.0f)]() mutable {
+			decorations.last().modelMatrixF = [pos, step = glm::vec2(5.0f)]() mutable {
 				const auto& screenInfo = Globals::Components().screenInfo();
 				const glm::vec2 absClamp = { (float)screenInfo.windowSize.x / screenInfo.windowSize.y * 10.0f, 10.0f };
 
@@ -104,7 +104,7 @@ namespace Levels
 			};
 
 			dzidziaDecorationId = decorations.size();
-			auto& dzidzia = decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
+			auto& dzidzia = decorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
 				TCM::Texture(dzidzia1Texture), Tools::CreateTexCoordOfRectangle());
 			dzidzia.preserveTextureRatio = true;
 			dzidzia.modelMatrixF = [this]() mutable {

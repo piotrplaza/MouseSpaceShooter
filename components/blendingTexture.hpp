@@ -2,6 +2,8 @@
 
 #include "_componentBase.hpp"
 
+#include <vector>
+
 namespace Components
 {
 	struct BlendingTexture : ComponentBase

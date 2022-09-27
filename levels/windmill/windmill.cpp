@@ -44,7 +44,7 @@ namespace Levels
 			Globals::Components().mainFramebufferRenderer().renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured());
 
 			recursiveFaceRS = Globals::Components().renderingSetups().size();
-			Globals::Components().renderingSetups().emplace_back([
+			Globals::Components().renderingSetups().emplace([
 				this,
 				visibilityReduction = Uniforms::Uniform1b(),
 				visibilityCenter = Uniforms::Uniform2f(),
@@ -75,33 +75,33 @@ namespace Levels
 			auto& textures = Globals::Components().textures();
 
 			rocketPlaneTexture = textures.size();
-			textures.emplace_back("textures/rocket plane.png");
-			textures.back().translate = glm::vec2(0.4f, 0.0f);
-			textures.back().scale = glm::vec2(1.6f, 1.8f);
+			textures.emplace("textures/rocket plane.png");
+			textures.last().translate = glm::vec2(0.4f, 0.0f);
+			textures.last().scale = glm::vec2(1.6f, 1.8f);
 
 			woodTexture = textures.size();
-			textures.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
-			textures.back().scale = glm::vec2(20.0f);
+			textures.emplace("textures/wood.jpg", GL_MIRRORED_REPEAT);
+			textures.last().scale = glm::vec2(20.0f);
 
 			orbTexture = textures.size();
-			textures.emplace_back("textures/orb.png");
-			textures.back().scale = glm::vec2(2.0f);
+			textures.emplace("textures/orb.png");
+			textures.last().scale = glm::vec2(2.0f);
 
 			explosionTexture = textures.size();
-			textures.emplace_back("textures/explosion.png");
+			textures.emplace("textures/explosion.png");
 
 			missileTexture = textures.size();
-			textures.emplace_back("textures/missile2.png");
-			textures.back().minFilter = GL_LINEAR;
-			textures.back().scale = glm::vec2(0.4f, 0.45f);
+			textures.emplace("textures/missile2.png");
+			textures.last().minFilter = GL_LINEAR;
+			textures.last().scale = glm::vec2(0.4f, 0.45f);
 
 			flameAnimationTexture = textures.size();
-			textures.emplace_back("textures/flame animation 1.jpg");
-			textures.back().minFilter = GL_LINEAR;
+			textures.emplace("textures/flame animation 1.jpg");
+			textures.last().minFilter = GL_LINEAR;
 
 			recursiveFaceAnimationTexture = textures.size();
-			textures.emplace_back("textures/recursive face animation.jpg");
-			textures.back().minFilter = GL_LINEAR;
+			textures.emplace("textures/recursive face animation.jpg");
+			textures.last().minFilter = GL_LINEAR;
 		}
 
 		void setAnimations()
@@ -109,20 +109,18 @@ namespace Levels
 			for (unsigned& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
 			{
 				flameAnimatedTextureForPlayer = Globals::Components().animatedTextures().size();
-				Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
-					flameAnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
-					AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
-				Globals::Components().animatedTextures().back().start(true);
+				Globals::Components().animatedTextures().add({ flameAnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+					AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
+				Globals::Components().animatedTextures().last().start(true);
 			}
 
 			flameAnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().push_back(Globals::Components().animatedTextures().back());
+			Globals::Components().animatedTextures().add(Globals::Components().animatedTextures().last());
 
 			recursiveFaceAnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
-				recursiveFaceAnimationTexture, { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
-				AnimationDirection::Forward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
-			Globals::Components().animatedTextures().back().start(true);
+			Globals::Components().animatedTextures().add({ recursiveFaceAnimationTexture, { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
+				AnimationDirection::Forward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
+			Globals::Components().animatedTextures().last().start(true);
 		}
 
 		void createBackground() const
@@ -140,13 +138,13 @@ namespace Levels
 			auto& decorations = Globals::Components().decorations();
 			const auto& physics = Globals::Components().physics();
 
-			decorations.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 15.0f, 15.0f }),
+			decorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 15.0f, 15.0f }),
 				TCM::AnimatedTexture(recursiveFaceAnimatedTexture), Tools::CreateTexCoordOfRectangle(), recursiveFaceRS, RenderLayer::NearForeground);
-			decorations.back().modelMatrixF = [&, angle = 0.0f]() mutable
+			decorations.last().modelMatrixF = [&, angle = 0.0f]() mutable
 			{
 				return glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(innerForceScale)), angle += 2.0f * physics.frameDuration, { 0.0f, 0.0f, 1.0f });
 			};
-			decorations.back().colorF = []() {
+			decorations.last().colorF = []() {
 				return glm::vec4(0.4f);
 			};
 		}
@@ -168,13 +166,13 @@ namespace Levels
 			const auto& physics = Globals::Components().physics();
 
 			windmillWall = walls.size();
-			walls.emplace_back(Tools::CreateTrianglesBody({ 
+			walls.emplace(Tools::CreateTrianglesBody({ 
 				{ glm::vec2{0.0f, -armOverlap}, glm::vec2{armHWidth, armLength}, glm::vec2{-armHWidth, armLength} },
 				{ glm::vec2{0.0f, armOverlap}, glm::vec2{-armHWidth, -armLength}, glm::vec2{armHWidth, -armLength} },
 				{ glm::vec2{-armOverlap, 0.0f}, glm::vec2{armLength, armHWidth}, glm::vec2{armLength, -armHWidth} },
 				{ glm::vec2{armOverlap, 0.0f}, glm::vec2{-armLength, -armHWidth}, glm::vec2{-armLength, armHWidth} } },
 				Tools::BodyParams().bodyType(b2_kinematicBody))).renderLayer = RenderLayer::NearMidground;
-			walls.back().texture = TCM::Texture(woodTexture);
+			walls.last().texture = TCM::Texture(woodTexture);
 
 			/*for (int i = 0; i < 4; ++i)
 			{
@@ -203,7 +201,7 @@ namespace Levels
 			}
 			ringSegments.push_back(ringSegments.front());
 
-			auto& ring = Globals::Components().polylines().emplace_back(ringSegments, Tools::BodyParams().sensor(false));
+			auto& ring = Globals::Components().polylines().emplace(ringSegments, Tools::BodyParams().sensor(true));
 			ring.segmentVerticesGenerator = [](const auto& v1, const auto& v2) {
 				return Tools::CreateVerticesOfLightning(v1, v2, 10, 0.4f);
 			};
@@ -231,13 +229,13 @@ namespace Levels
 
 		void collisionHandlers()
 		{
-			EmplaceDynamicComponent(Globals::Components().beginCollisionHandlers(), { Globals::CollisionBits::plane, Globals::CollisionBits::polyline,
+			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline,
 				[this](const auto& plane, const auto& targetFipolylinexture) {
-					Globals::Components().deferredActions().emplace_back([&](auto) {
+					Globals::Components().deferredActions().emplace([&](auto) {
 					Globals::Components().planes()[std::get<TCM::Plane>(Tools::AccessUserData(*plane.GetBody()).bodyComponentVariant).id].enable(false);
 					return false;
 					});
-				}});
+				});
 		}
 
 		void step()

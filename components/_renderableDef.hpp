@@ -1,9 +1,8 @@
 #pragma once
 
-#include "_typeComponentMappers.hpp"
-
 #include <tools/graphicsHelpers.hpp>
 
+#include <commonTypes/typeComponentMappers.hpp>
 #include <commonTypes/renderLayer.hpp>
 
 #include <ogl/shaders.hpp>

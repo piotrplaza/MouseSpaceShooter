@@ -21,7 +21,6 @@ namespace Components
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt) :
 			Physical(Tools::CreatePolylineBody(vertices, bodyParams), std::monostate{}, renderingSetup, renderLayer, customShadersProgram)
 		{
-			setBodyComponentVariant(TCM::Polyline(getComponentId()));
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::polyline, Globals::CollisionBits::all);
 			drawMode = GL_LINES;
 			bufferDataUsage = GL_DYNAMIC_DRAW;
@@ -30,6 +29,12 @@ namespace Components
 		std::function<std::vector<glm::vec3>(const glm::vec3&, const glm::vec3&)> segmentVerticesGenerator;
 		std::function<glm::vec3(const glm::vec3&)> keyVerticesTransformer;
 		bool loop = false;
+
+		void setComponentId(ComponentId id) override
+		{
+			ComponentBase::setComponentId(id);
+			setBodyComponentVariant(TCM::Polyline(id));
+		}
 
 		std::vector<glm::vec3> getVertices(bool transformed = false) const override
 		{

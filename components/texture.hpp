@@ -12,8 +12,8 @@ namespace Components
 {
 	struct Texture : ComponentBase
 	{
-		Texture(std::string path, GLenum wrapMode = GL_CLAMP_TO_EDGE, GLenum minFilter = GL_LINEAR_MIPMAP_LINEAR,
-			GLenum magFilter = GL_LINEAR):
+		Texture(std::string path, GLint wrapMode = GL_CLAMP_TO_EDGE, GLint minFilter = GL_LINEAR_MIPMAP_LINEAR,
+			GLint magFilter = GL_LINEAR):
 			path(std::move(path)),
 			wrapMode(wrapMode),
 			minFilter(minFilter),
@@ -21,7 +21,7 @@ namespace Components
 		{
 		}
 
-		Texture(unsigned textureUnit, unsigned textureObject, GLenum wrapMode, GLenum minFilter, GLenum magFilter):
+		Texture(unsigned textureUnit, unsigned textureObject, GLint wrapMode, GLint minFilter, GLint magFilter):
 			wrapMode(wrapMode),
 			minFilter(minFilter),
 			magFilter(magFilter)
@@ -33,9 +33,9 @@ namespace Components
 		}
 
 		std::string path;
-		GLenum wrapMode = GL_CLAMP_TO_EDGE;
-		GLenum minFilter = GL_LINEAR_MIPMAP_LINEAR;
-		GLenum magFilter = GL_LINEAR;
+		GLint wrapMode = GL_CLAMP_TO_EDGE;
+		GLint minFilter = GL_LINEAR_MIPMAP_LINEAR;
+		GLint magFilter = GL_LINEAR;
 
 		glm::vec2 translate{ 0.0f };
 		glm::vec2 scale{ 1.0f };

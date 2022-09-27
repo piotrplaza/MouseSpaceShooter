@@ -2,10 +2,9 @@
 
 #include "_renderable.hpp"
 
-#include <components/_typeComponentMappers.hpp>
-
 #include <tools/b2Helpers.hpp>
 
+#include <commonTypes/typeComponentMappers.hpp>
 #include <commonTypes/bodyUserData.hpp>
 
 #include <vector>

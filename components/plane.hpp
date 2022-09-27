@@ -24,7 +24,6 @@ namespace Components
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			Physical(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram)
 		{
-			setBodyComponentVariant(TCM::Plane(getComponentId()));
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::plane, Globals::CollisionBits::all);
 		}
 
@@ -49,6 +48,12 @@ namespace Components
 			std::optional<ComponentId> weakConnectedGrappleId;
 			float throttleForce = 0.0f;
 		} details;
+
+		void setComponentId(ComponentId id) override
+		{
+			ComponentBase::setComponentId(id);
+			setBodyComponentVariant(TCM::Plane(id));
+		}
 
 		void throttle(float forceFactor)
 		{

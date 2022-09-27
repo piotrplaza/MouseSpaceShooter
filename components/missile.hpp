@@ -18,11 +18,16 @@ namespace Components
 			Physical(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram),
 			thrustForce(thrustForce)
 		{
-			setBodyComponentVariant(TCM::Missile(getComponentId()));
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::missile, Globals::CollisionBits::all);
 		}
 
 		float thrustForce;
+
+		void setComponentId(ComponentId id) override
+		{
+			ComponentBase::setComponentId(id);
+			setBodyComponentVariant(TCM::Missile(id));
+		}
 
 		void step() override
 		{

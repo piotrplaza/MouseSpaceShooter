@@ -1,12 +1,12 @@
 #include "b2Helpers.hpp"
 
-#include <components/_typeComponentMappers.hpp>
 #include <components/physics.hpp>
 
 #include <globals/components.hpp>
 
 #include <tools/graphicsHelpers.hpp>
 
+#include <commonTypes/typeComponentMappers.hpp>
 #include <commonTypes/bodyUserData.hpp>
 
 #include <glm/gtx/transform.hpp>

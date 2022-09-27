@@ -2,12 +2,12 @@
 
 #include <ogl/shaders.hpp>
 
-#include <components/_typeComponentMappers.hpp>
 #include <components/_renderable.hpp>
 #include <components/renderingSetup.hpp>
 
 #include <globals/components.hpp>
 
+#include <commonTypes/typeComponentMappers.hpp>
 #include <commonTypes/resolutionMode.hpp>
 
 #include <glm/vec2.hpp>

@@ -12,7 +12,7 @@ namespace Systems
 
 	void Temporaries::step()
 	{
-		for (auto& [id, missile] : Globals::Components().missiles())
+		for (auto& missile: Globals::Components().missiles())
 			missile.step();
 
 		updateDynamicBuffers();

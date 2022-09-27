@@ -22,6 +22,7 @@
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
     <ClCompile Include="commonTypes\resolutionMode.cpp" />
     <ClCompile Include="components\animatedTexture.cpp" />
+    <ClCompile Include="globals\componentIdGenerator.cpp" />
     <ClCompile Include="globals\components.cpp" />
     <ClCompile Include="globals\shaders.cpp" />
     <ClCompile Include="globals\systems.cpp" />
@@ -64,9 +65,12 @@
     <ClInclude Include="3rdParty\stb_image\stb_image.h" />
     <ClInclude Include="commonTypes\bodyUserData.hpp" />
     <ClInclude Include="commonTypes\buffersCollections.hpp" />
+    <ClInclude Include="commonTypes\componentId.hpp" />
+    <ClInclude Include="commonTypes\componentsContainers.hpp" />
     <ClInclude Include="commonTypes\idGenerator.hpp" />
     <ClInclude Include="commonTypes\renderLayer.hpp" />
     <ClInclude Include="commonTypes\resolutionMode.hpp" />
+    <ClInclude Include="commonTypes\typeComponentMappers.hpp" />
     <ClInclude Include="components\animatedTexture.hpp" />
     <ClInclude Include="components\blendingTexture.hpp" />
     <ClInclude Include="components\camera.hpp" />
@@ -95,12 +99,11 @@
     <ClInclude Include="components\texture.hpp" />
     <ClInclude Include="components\wall.hpp" />
     <ClInclude Include="components\_componentBase.hpp" />
-    <ClInclude Include="components\_componentId.hpp" />
     <ClInclude Include="components\_physical.hpp" />
     <ClInclude Include="components\_renderable.hpp" />
     <ClInclude Include="components\_renderableDef.hpp" />
-    <ClInclude Include="components\_typeComponentMappers.hpp" />
     <ClInclude Include="globals\collisionBits.hpp" />
+    <ClInclude Include="globals\componentIdGenerator.hpp" />
     <ClInclude Include="globals\components.hpp" />
     <ClInclude Include="globals\shaders.hpp" />
     <ClInclude Include="globals\systems.hpp" />

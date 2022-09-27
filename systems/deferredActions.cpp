@@ -22,7 +22,7 @@ namespace Systems
 				if (it->deferredAction(Globals::Components().physics().simulationDuration - it->details.startTime))
 					++it;
 				else
-					it = deferredActions.erase(it);
+					it = deferredActions.remove(it);
 			}
 			else
 				++it;

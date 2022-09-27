@@ -10,26 +10,7 @@
 #include <components/light.hpp>
 #include <components/functor.hpp>
 
-#include <components/_componentBase.hpp>
-#include <components/_componentId.hpp>
-
 #include <globals/components.hpp>
-
-template <typename ComponentsMap>
-inline void RemoveOutdatedComponents(ComponentsMap& components)
-{
-	auto it = components.begin();
-	while (it != components.end())
-	{
-		if (it->second.state == ComponentState::Outdated)
-		{
-			ComponentIdGenerator().release(it->first);
-			it = components.erase(it);
-		}
-		else
-			++it;
-	}
-}
 
 namespace Systems
 {
@@ -37,16 +18,16 @@ namespace Systems
 
 	void Cleaner::step() const
 	{
-		RemoveOutdatedComponents(Globals::Components().planes());
-		RemoveOutdatedComponents(Globals::Components().dynamicWalls());
-		RemoveOutdatedComponents(Globals::Components().grapples());
-		RemoveOutdatedComponents(Globals::Components().dynamicDecorations());
-		RemoveOutdatedComponents(Globals::Components().missiles());
-		RemoveOutdatedComponents(Globals::Components().beginCollisionHandlers());
-		RemoveOutdatedComponents(Globals::Components().endCollisionHandlers());
-		RemoveOutdatedComponents(Globals::Components().shockwaves());
-		RemoveOutdatedComponents(Globals::Components().lights());
-		RemoveOutdatedComponents(Globals::Components().frameSetups());
-		RemoveOutdatedComponents(Globals::Components().frameTeardowns());
+		Globals::Components().planes().removeOutdated();
+		Globals::Components().dynamicWalls().removeOutdated();
+		Globals::Components().grapples().removeOutdated();
+		Globals::Components().dynamicDecorations().removeOutdated();
+		Globals::Components().missiles().removeOutdated();
+		Globals::Components().beginCollisionHandlers().removeOutdated();
+		Globals::Components().endCollisionHandlers().removeOutdated();
+		Globals::Components().shockwaves().removeOutdated();
+		Globals::Components().lights().removeOutdated();
+		Globals::Components().frameSetups().removeOutdated();
+		Globals::Components().frameTeardowns().removeOutdated();
 	}
 }

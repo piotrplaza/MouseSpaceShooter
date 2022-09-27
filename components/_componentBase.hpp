@@ -7,7 +7,7 @@
 #include <iostream>
 #endif
 
-#include <globals/components.hpp>
+#include <commonTypes/componentId.hpp>
 
 enum class ComponentState { Ongoing, Changed, Outdated };
 
@@ -28,6 +28,11 @@ struct ComponentBase
 	ComponentBase() = default;
 #endif
 
+	virtual void setComponentId(ComponentId id)
+	{
+		componentId = id;
+	}
+
 	ComponentId getComponentId() const
 	{
 		return componentId;
@@ -36,5 +41,5 @@ struct ComponentBase
 	ComponentState state = ComponentState::Changed;
 
 private:
-	ComponentId componentId = Globals::ComponentIdGenerator().acquire();
+	ComponentId componentId = 0;
 };

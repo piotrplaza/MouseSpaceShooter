@@ -39,38 +39,37 @@ namespace Levels
 			auto& textures = Globals::Components().textures();
 
 			rocketPlaneTexture = textures.size();
-			textures.emplace_back("textures/rocket plane.png");
-			textures.back().translate = glm::vec2(0.4f, 0.0f);
-			textures.back().scale = glm::vec2(1.6f, 1.8f);
+			textures.emplace("textures/rocket plane.png");
+			textures.last().translate = glm::vec2(0.4f, 0.0f);
+			textures.last().scale = glm::vec2(1.6f, 1.8f);
 
 			woodTexture = textures.size();
-			textures.emplace_back("textures/wood.jpg", GL_MIRRORED_REPEAT);
-			textures.back().scale = glm::vec2(50.0f);
+			textures.emplace("textures/wood.jpg", GL_MIRRORED_REPEAT);
+			textures.last().scale = glm::vec2(50.0f);
 
 			orbTexture = textures.size();
-			textures.emplace_back("textures/orb.png");
-			textures.back().scale = glm::vec2(4.0f);
+			textures.emplace("textures/orb.png");
+			textures.last().scale = glm::vec2(4.0f);
 
 			playFieldTexture = textures.size();
-			textures.emplace_back("textures/play field.jpg");
+			textures.emplace("textures/play field.jpg");
 
 			flame1AnimationTexture = textures.size();
-			textures.emplace_back("textures/flame animation 1.jpg");
-			textures.back().minFilter = GL_LINEAR;
+			textures.emplace("textures/flame animation 1.jpg");
+			textures.last().minFilter = GL_LINEAR;
 		}
 
 		void setAnimations()
 		{
 			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
-				flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
-				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal));
-			Globals::Components().animatedTextures().back().start(true);
+			Globals::Components().animatedTextures().add({ flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
+			Globals::Components().animatedTextures().last().start(true);
 		}
 
 		void createBackground() const
 		{
-			Globals::Components().decorations().emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 100.0f, 60.0f }),
+			Globals::Components().decorations().emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 100.0f, 60.0f }),
 				TCM::Texture(playFieldTexture), Tools::CreateTexCoordOfRectangle(), std::nullopt, RenderLayer::Background);
 		}
 
@@ -85,23 +84,23 @@ namespace Levels
 			const glm::vec2 levelHSize = { 100.0f, 60.0f };
 			const float bordersHGauge = 50.0f;
 
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ bordersHGauge, levelHSize.y + bordersHGauge * 2 },
+			Globals::Components().walls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHSize.y + bordersHGauge * 2 },
 				Tools::BodyParams().position({ -levelHSize.x - bordersHGauge, 0.0f })), TCM::Texture(woodTexture));
 
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ bordersHGauge, levelHSize.y + bordersHGauge * 2 },
+			Globals::Components().walls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHSize.y + bordersHGauge * 2 },
 				Tools::BodyParams().position({ levelHSize.x + bordersHGauge, 0.0f })), TCM::Texture(woodTexture));
 
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge * 2, bordersHGauge },
+			Globals::Components().walls().emplace(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge * 2, bordersHGauge },
 				Tools::BodyParams().position({ 0.0f, -levelHSize.y - bordersHGauge })), TCM::Texture(woodTexture));
 
-			Globals::Components().walls().emplace_back(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge * 2, bordersHGauge },
+			Globals::Components().walls().emplace(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge * 2, bordersHGauge },
 				Tools::BodyParams().position({ 0.0f, levelHSize.y + bordersHGauge })), TCM::Texture(woodTexture));
 		}
 
 		void createGrapples()
 		{
-			ball = &EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody(2.0f,
-				Tools::BodyParams().bodyType(b2_dynamicBody).density(0.02f).restitution(0.5f)), TCM::Texture(orbTexture) });
+			ball = &Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f,
+				Tools::BodyParams().bodyType(b2_dynamicBody).density(0.02f).restitution(0.5f)), TCM::Texture(orbTexture));
 			ball->influenceRadius = 15.0f;
 		}
 

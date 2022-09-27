@@ -22,10 +22,10 @@ namespace Systems
 		for (auto& wall : Globals::Components().walls())
 			wall.step();
 
-		for (auto& [id, wall] : Globals::Components().dynamicWalls())
+		for (auto& wall : Globals::Components().dynamicWalls())
 			wall.step();
 
-		for (auto& [id, grapple] : Globals::Components().grapples())
+		for (auto& grapple : Globals::Components().grapples())
 			grapple.step();
 
 		for (auto& polyline : Globals::Components().polylines())

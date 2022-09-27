@@ -17,10 +17,10 @@ namespace Systems
 
 	void Decorations::step()
 	{
-		for (auto& decoration : Globals::Components().decorations())
+		for (auto& decoration: Globals::Components().decorations())
 			decoration.step();
 
-		for (auto& [id, decoration] : Globals::Components().dynamicDecorations())
+		for (auto& decoration: Globals::Components().dynamicDecorations())
 			decoration.step();
 
 		updateDynamicBuffers();

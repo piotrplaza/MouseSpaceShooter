@@ -1,10 +1,9 @@
 #pragma once
 
-#include <components/_componentId.hpp>
+#include <commonTypes/typeComponentMappers.hpp>
+#include <commonTypes/resolutionMode.hpp>
 
 #include <ogl/shaders/particles.hpp>
-
-#include <commonTypes/resolutionMode.hpp>
 
 #include <glm/vec2.hpp>
 
