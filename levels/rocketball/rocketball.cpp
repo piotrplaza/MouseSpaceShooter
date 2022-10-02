@@ -4,7 +4,7 @@
 #include <components/physics.hpp>
 #include <components/texture.hpp>
 #include <components/plane.hpp>
-#include <components/wall.hpp>
+#include <components/staticWall.hpp>
 #include <components/grapple.hpp>
 #include <components/camera.hpp>
 #include <components/decoration.hpp>
@@ -84,16 +84,16 @@ namespace Levels
 			const glm::vec2 levelHSize = { 100.0f, 60.0f };
 			const float bordersHGauge = 50.0f;
 
-			Globals::Components().walls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHSize.y + bordersHGauge * 2 },
+			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHSize.y + bordersHGauge * 2 },
 				Tools::BodyParams().position({ -levelHSize.x - bordersHGauge, 0.0f })), TCM::Texture(woodTexture));
 
-			Globals::Components().walls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHSize.y + bordersHGauge * 2 },
+			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHSize.y + bordersHGauge * 2 },
 				Tools::BodyParams().position({ levelHSize.x + bordersHGauge, 0.0f })), TCM::Texture(woodTexture));
 
-			Globals::Components().walls().emplace(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge * 2, bordersHGauge },
+			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge * 2, bordersHGauge },
 				Tools::BodyParams().position({ 0.0f, -levelHSize.y - bordersHGauge })), TCM::Texture(woodTexture));
 
-			Globals::Components().walls().emplace(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge * 2, bordersHGauge },
+			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge * 2, bordersHGauge },
 				Tools::BodyParams().position({ 0.0f, levelHSize.y + bordersHGauge })), TCM::Texture(woodTexture));
 		}
 

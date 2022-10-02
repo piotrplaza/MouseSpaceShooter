@@ -33,7 +33,7 @@ namespace Components
 		void setComponentId(ComponentId id) override
 		{
 			ComponentBase::setComponentId(id);
-			setBodyComponentVariant(TCM::Polyline(id));
+			setBodyComponentVariant(TCM::Polyline(id, this));
 		}
 
 		std::vector<glm::vec3> getVertices(bool transformed = false) const override

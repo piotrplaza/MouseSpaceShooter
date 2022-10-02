@@ -4,7 +4,7 @@
 #include <components/physics.hpp>
 #include <components/renderingSetup.hpp>
 #include <components/plane.hpp>
-#include <components/wall.hpp>
+#include <components/staticWall.hpp>
 #include <components/grapple.hpp>
 #include <components/camera.hpp>
 #include <components/decoration.hpp>
@@ -167,19 +167,19 @@ namespace Levels
 
 		void createMovableWalls()
 		{
-			debrisBegin = Globals::Components().walls().size();
+			debrisBegin = Globals::Components().staticWalls().size();
 
 			for (int i = 0; i < 500; ++i)
 			{
 				const float angle = Tools::Random(0.0f, glm::two_pi<float>());
 				const glm::vec2 pos = glm::vec2(glm::cos(angle), glm::sin(angle)) * 20.0f;
-				Globals::Components().walls().emplace(
+				Globals::Components().staticWalls().emplace(
 					Tools::CreateBoxBody({ Tools::Random(0.1f, 1.0f), Tools::Random(0.1f, 1.0f) },
 						Tools::BodyParams().position(pos).angle(angle).bodyType(b2_dynamicBody).density(0.02f)),
 					TCM::Texture(spaceRockTexture));
 			}
 
-			debrisEnd = Globals::Components().walls().size();
+			debrisEnd = Globals::Components().staticWalls().size();
 		}
 
 		void createStationaryWalls() const
@@ -274,7 +274,7 @@ namespace Levels
 			};
 
 			for (size_t i = debrisBegin; i != debrisEnd; ++i)
-				applyGravity(Globals::Components().walls()[i], 400.0f);
+				applyGravity(Globals::Components().staticWalls()[i], 400.0f);
 
 			for (auto& missile: Globals::Components().missiles())
 			{

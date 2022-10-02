@@ -4,7 +4,8 @@
 #include <components/physics.hpp>
 #include <components/renderingSetup.hpp>
 #include <components/plane.hpp>
-#include <components/wall.hpp>
+#include <components/staticWall.hpp>
+#include <components/dynamicWall.hpp>
 #include <components/grapple.hpp>
 #include <components/camera.hpp>
 #include <components/decoration.hpp>
@@ -229,21 +230,21 @@ namespace Levels
 			{
 				auto setRenderingSetupAndSubsequence = [&]()
 				{
-					Globals::Components().walls().last().subsequence.emplace_back(Tools::CreateVerticesOfLineOfRectangles({ 0.4f, 0.4f },
+					Globals::Components().staticWalls().last().subsequence.emplace_back(Tools::CreateVerticesOfLineOfRectangles({ 0.4f, 0.4f },
 						{ { -0.5f, -5.0f }, { 0.5f, -5.0f }, { 0.5f, 5.0f }, { -0.5f, 5.0f }, { -0.5f, -5.0f } },
 						{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }), Tools::CreateTexCoordOfRectangle(),
 						TCM::Texture(roseTexture));
-					Globals::Components().walls().last().subsequence.back().modelMatrixF = [wallId = Globals::Components().walls().size() - 1]() {
-						return Globals::Components().walls()[wallId].getModelMatrix(); };
+					Globals::Components().staticWalls().last().subsequence.back().modelMatrixF = [wallId = Globals::Components().staticWalls().size() - 1]() {
+						return Globals::Components().staticWalls()[wallId].getModelMatrix(); };
 				};
 
-				auto& wall1Body = *Globals::Components().walls().emplace(
+				auto& wall1Body = *Globals::Components().staticWalls().emplace(
 					Tools::CreateBoxBody({ 0.5f, 5.0f }, Tools::BodyParams().position({ 5.0f, -5.0f }).bodyType(b2_dynamicBody).density(0.2f)),
 					TCM::Texture(woodTexture), Globals::Components().renderingSetups().size() - 1, RenderLayer::NearMidground).body;
 				wall1Body.GetFixtureList()->SetRestitution(0.5f);
 				setRenderingSetupAndSubsequence();
 
-				auto& wall2Body = *Globals::Components().walls().emplace(
+				auto& wall2Body = *Globals::Components().staticWalls().emplace(
 					Tools::CreateBoxBody({ 0.5f, 5.0f }, Tools::BodyParams().position({ 5.0f, 5.0f }).bodyType(b2_dynamicBody).density(0.2f)),
 					TCM::Texture(woodTexture), std::nullopt, RenderLayer::NearMidground).body;
 				wall2Body.GetFixtureList()->SetRestitution(0.5f);
@@ -257,11 +258,11 @@ namespace Levels
 
 			for (const float pos : {-30.0f, 30.0f})
 			{
-				Globals::Components().walls().emplace(Tools::CreateCircleBody(5.0f, Tools::BodyParams().position({ 0.0f, pos }).bodyType(b2_dynamicBody).density(0.01f)),
+				Globals::Components().staticWalls().emplace(Tools::CreateCircleBody(5.0f, Tools::BodyParams().position({ 0.0f, pos }).bodyType(b2_dynamicBody).density(0.01f)),
 					TCM::Texture(), Globals::Components().renderingSetups().size(), RenderLayer::Midground, Globals::Shaders().texturedColorThreshold().getProgramId());
 
-				Globals::Components().renderingSetups().emplace([=, this, wallId = Globals::Components().walls().size() - 1](auto) {
-					Tools::MVPInitialization(Globals::Shaders().texturedColorThreshold(), Globals::Components().walls()[wallId].getModelMatrix());
+				Globals::Components().renderingSetups().emplace([=, this, wallId = Globals::Components().staticWalls().size() - 1](auto) {
+					Tools::MVPInitialization(Globals::Shaders().texturedColorThreshold(), Globals::Components().staticWalls()[wallId].getModelMatrix());
 
 					if (pos < 0.0f)
 					{
@@ -279,19 +280,19 @@ namespace Levels
 					return [=]() mutable { Globals::Shaders().texturedColorThreshold().texturesCustomTransform(glm::mat4(1.0f)); };
 					});
 
-				auto& wall = Globals::Components().walls().emplace(Tools::CreateCircleBody(10.0f, Tools::BodyParams().position({ pos, 0.0f }).bodyType(b2_dynamicBody).density(0.01f)),
+				auto& wall = Globals::Components().staticWalls().emplace(Tools::CreateCircleBody(10.0f, Tools::BodyParams().position({ pos, 0.0f }).bodyType(b2_dynamicBody).density(0.01f)),
 					TCM::Texture(0));
 				wall.renderLayer = RenderLayer::NearMidground;
 				wall.render = false;
 
 				Globals::Components().renderingSetups().emplace([
-						wallId = Globals::Components().walls().size() - 1,
+						wallId = Globals::Components().staticWalls().size() - 1,
 						texturedProgram = Shaders::Programs::TexturedAccessor()
 					](Shaders::ProgramId program) mutable {
 						if (!texturedProgram.isValid()) texturedProgram = program;
 						texturedProgram.color(glm::vec4(
 							glm::sin(Globals::Components().physics().simulationDuration* glm::two_pi<float>() * 0.2f) + 1.0f) / 2.0f);
-						texturedProgram.model(Globals::Components().walls()[wallId].getModelMatrix());
+						texturedProgram.model(Globals::Components().staticWalls()[wallId].getModelMatrix());
 						return [=]() mutable { texturedProgram.color(Globals::Components().graphicsSettings().defaultColor); };
 					});
 
@@ -307,8 +308,8 @@ namespace Levels
 					}), Tools::CreateTexCoordOfRectangle(), TCM::Texture(roseTexture), Globals::Components().renderingSetups().size() - 1);
 			}
 
-			Globals::Components().walls().last().resolutionMode = ResolutionMode::PixelArtBlend0;
-			lowResBodies.insert(Globals::Components().walls().last().body.get());
+			Globals::Components().staticWalls().last().resolutionMode = ResolutionMode::PixelArtBlend0;
+			lowResBodies.insert(Globals::Components().staticWalls().last().body.get());
 		}
 
 		void createStationaryWalls()
@@ -358,13 +359,13 @@ namespace Levels
 			const auto blendingTexture = Globals::Components().blendingTextures().size();
 			Globals::Components().blendingTextures().add({ fractalTexture, woodTexture, spaceRockTexture, foiledEggsTexture });
 
-			Globals::Components().walls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHeightHSize + bordersHGauge * 2 },
+			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHeightHSize + bordersHGauge * 2 },
 				Tools::BodyParams().position({ -levelWidthHSize - bordersHGauge, 0.0f })), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
-			Globals::Components().walls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHeightHSize + bordersHGauge * 2 },
+			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHeightHSize + bordersHGauge * 2 },
 				Tools::BodyParams().position({ levelWidthHSize + bordersHGauge, 0.0f })), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
-			Globals::Components().walls().emplace(Tools::CreateBoxBody({ levelHeightHSize + bordersHGauge * 2, bordersHGauge },
+			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHeightHSize + bordersHGauge * 2, bordersHGauge },
 				Tools::BodyParams().position({ 0.0f, -levelHeightHSize - bordersHGauge })), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
-			Globals::Components().walls().emplace(Tools::CreateBoxBody({ levelHeightHSize + bordersHGauge * 2, bordersHGauge },
+			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHeightHSize + bordersHGauge * 2, bordersHGauge },
 				Tools::BodyParams().position({ 0.0f, levelHeightHSize + bordersHGauge })), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
 
 			renderingSetup = Globals::Components().renderingSetups().size();

@@ -52,7 +52,7 @@ namespace Components
 		void setComponentId(ComponentId id) override
 		{
 			ComponentBase::setComponentId(id);
-			setBodyComponentVariant(TCM::Plane(id));
+			setBodyComponentVariant(TCM::Plane(id, this));
 		}
 
 		void throttle(float forceFactor)

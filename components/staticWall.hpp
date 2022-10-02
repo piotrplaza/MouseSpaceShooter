@@ -4,11 +4,11 @@
 
 namespace Components
 {
-	struct Wall : Physical
+	struct StaticWall : Physical
 	{
-		Wall() = default;
+		StaticWall() = default;
 
-		Wall(Body body,
+		StaticWall(Body body,
 			TextureComponentVariant texture = std::monostate{},
 			std::optional<ComponentId> renderingSetup = std::nullopt,
 			RenderLayer renderLayer = RenderLayer::Midground,
@@ -21,7 +21,7 @@ namespace Components
 		void setComponentId(ComponentId id) override
 		{
 			ComponentBase::setComponentId(id);
-			setBodyComponentVariant(TCM::Wall(id));
+			setBodyComponentVariant(TCM::StaticWall(id, this));
 		}
 	};
 }

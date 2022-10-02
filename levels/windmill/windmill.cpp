@@ -6,7 +6,7 @@
 #include <components/plane.hpp>
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
-#include <components/wall.hpp>
+#include <components/staticWall.hpp>
 #include <components/grapple.hpp>
 #include <components/polyline.hpp>
 #include <components/decoration.hpp>
@@ -162,17 +162,17 @@ namespace Levels
 
 			constexpr float grappleR = armLength + 5.0f;
 
-			auto& walls = Globals::Components().walls();
+			auto& staticWalls = Globals::Components().staticWalls();
 			const auto& physics = Globals::Components().physics();
 
-			windmillWall = walls.size();
-			walls.emplace(Tools::CreateTrianglesBody({ 
+			windmillWall = staticWalls.size();
+			staticWalls.emplace(Tools::CreateTrianglesBody({ 
 				{ glm::vec2{0.0f, -armOverlap}, glm::vec2{armHWidth, armLength}, glm::vec2{-armHWidth, armLength} },
 				{ glm::vec2{0.0f, armOverlap}, glm::vec2{-armHWidth, -armLength}, glm::vec2{armHWidth, -armLength} },
 				{ glm::vec2{-armOverlap, 0.0f}, glm::vec2{armLength, armHWidth}, glm::vec2{armLength, -armHWidth} },
 				{ glm::vec2{armOverlap, 0.0f}, glm::vec2{-armLength, -armHWidth}, glm::vec2{-armLength, armHWidth} } },
 				Tools::BodyParams().bodyType(b2_kinematicBody))).renderLayer = RenderLayer::NearMidground;
-			walls.last().texture = TCM::Texture(woodTexture);
+			staticWalls.last().texture = TCM::Texture(woodTexture);
 
 			/*for (int i = 0; i < 4; ++i)
 			{
@@ -241,7 +241,7 @@ namespace Levels
 		void step()
 		{
 			playersHandler.autodetectionStep([this](unsigned player) {
-				const auto& windmill = Globals::Components().walls()[windmillWall];
+				const auto& windmill = Globals::Components().staticWalls()[windmillWall];
 				return glm::rotate(glm::mat4(1.0f), windmill.getAngle(), { 0.0f, 0.0f, 1.0f }) * glm::vec4(initPos(player), 0.0f, 1.0f);
 				});
 			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
@@ -252,7 +252,7 @@ namespace Levels
 				const float innerForce = innerForceScale * 500.0f;
 
 				const auto& physics = Globals::Components().physics();
-				auto& windmill = Globals::Components().walls()[windmillWall];
+				auto& windmill = Globals::Components().staticWalls()[windmillWall];
 				auto& planes = Globals::Components().planes();
 
 				windmill.body->SetTransform(windmill.body->GetPosition(), windmill.body->GetAngle() + physics.frameDuration * rotationSpeed);

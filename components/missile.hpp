@@ -26,7 +26,7 @@ namespace Components
 		void setComponentId(ComponentId id) override
 		{
 			ComponentBase::setComponentId(id);
-			setBodyComponentVariant(TCM::Missile(id));
+			setBodyComponentVariant(TCM::Missile(id, this));
 		}
 
 		void step() override

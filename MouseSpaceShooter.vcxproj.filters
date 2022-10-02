@@ -210,9 +210,6 @@
     <ClInclude Include="systems\physics.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
-    <ClInclude Include="components\wall.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="tools\utility.hpp">
       <Filter>src\tools</Filter>
     </ClInclude>
@@ -449,6 +446,12 @@
     </ClInclude>
     <ClInclude Include="commonTypes\componentId.hpp">
       <Filter>src\commonTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="components\dynamicWall.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\staticWall.hpp">
+      <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

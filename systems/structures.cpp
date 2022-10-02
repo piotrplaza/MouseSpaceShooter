@@ -1,6 +1,6 @@
 #include "structures.hpp"
 
-#include <components/wall.hpp>
+#include <components/staticWall.hpp>
 #include <components/grapple.hpp>
 #include <components/polyline.hpp>
 
@@ -19,7 +19,7 @@ namespace Systems
 
 	void Structures::step()
 	{
-		for (auto& wall : Globals::Components().walls())
+		for (auto& wall : Globals::Components().staticWalls())
 			wall.step();
 
 		for (auto& wall : Globals::Components().dynamicWalls())
@@ -36,8 +36,8 @@ namespace Systems
 
 	void Structures::updateStaticBuffers()
 	{
-		Tools::UpdateStaticBuffers(Globals::Components().walls(), loadedStaticWalls);
-		loadedStaticWalls = Globals::Components().walls().size();
+		Tools::UpdateStaticBuffers(Globals::Components().staticWalls(), loadedStaticWalls);
+		loadedStaticWalls = Globals::Components().staticWalls().size();
 
 		Tools::UpdateStaticBuffers(Globals::Components().polylines(), loadedStaticPolylines);
 		loadedStaticPolylines = Globals::Components().polylines().size();

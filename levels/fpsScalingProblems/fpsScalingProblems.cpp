@@ -1,6 +1,6 @@
 #include "fpsScalingProblems.hpp"
 
-#include <components/wall.hpp>
+#include <components/staticWall.hpp>
 #include <components/physics.hpp>
 
 #include <globals/components.hpp>
@@ -18,10 +18,10 @@ namespace Levels
 	public:
 		void createWalls()
 		{
-			auto& walls = Globals::Components().walls();
+			auto& staticWalls = Globals::Components().staticWalls();
 
-			auto& wall1 = walls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams()));
-			auto& wall2 = walls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 0.0f, 5.0f }).bodyType(b2_dynamicBody)));
+			auto& wall1 = staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams()));
+			auto& wall2 = staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 0.0f, 5.0f }).bodyType(b2_dynamicBody)));
 
 			Tools::CreateDistanceJoint(*wall1.body, *wall2.body, wall1.getCenter(), wall2.getCenter(), true, distance(wall1.getCenter(), wall2.getCenter()));
 		}
@@ -30,21 +30,21 @@ namespace Levels
 		{
 			const float force = 20.0f;
 
-			auto& walls = Globals::Components().walls();
+			auto& staticWalls = Globals::Components().staticWalls();
 			auto& physics = Globals::Components().physics();
 
-			const glm::vec2 fromCenterVec = glm::normalize(walls[1].getCenter() - walls[0].getCenter());
+			const glm::vec2 fromCenterVec = glm::normalize(staticWalls[1].getCenter() - staticWalls[0].getCenter());
 			const glm::vec2 forceVec = rotate(fromCenterVec, -glm::half_pi<float>());
-			walls[1].body->ApplyForceToCenter(ToVec2<b2Vec2>(forceVec * force), false);
+			staticWalls[1].body->ApplyForceToCenter(ToVec2<b2Vec2>(forceVec * force), false);
 			
-			const float v = length(walls[1].getVelocity());
+			const float v = length(staticWalls[1].getVelocity());
 
 			if (timeToSpecificVelocity == 0.0f && v >= 26.0f)
 			{
 				timeToSpecificVelocity = physics.simulationDuration;
 			}
 
-			std::cout << length(walls[1].getVelocity()) << " " << timeToSpecificVelocity << std::endl;
+			std::cout << length(staticWalls[1].getVelocity()) << " " << timeToSpecificVelocity << std::endl;
 		}
 
 	private:

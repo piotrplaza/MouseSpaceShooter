@@ -22,7 +22,8 @@ namespace Components
 	struct BlendingTexture;
 	struct RenderingSetup;
 	struct Plane;
-	struct Wall;
+	struct StaticWall;
+	struct DynamicWall;
 	struct Grapple;
 	struct Polyline;
 	struct Camera;
@@ -61,8 +62,8 @@ namespace Globals
 		StaticComponents<Components::BlendingTexture>& blendingTextures();
 		StaticComponents<Components::RenderingSetup>& renderingSetups();
 		DynamicComponents<Components::Plane>& planes();
-		StaticComponents<Components::Wall>& walls();
-		DynamicComponents<Components::Wall>& dynamicWalls();
+		StaticComponents<Components::StaticWall>& staticWalls();
+		DynamicComponents<Components::DynamicWall>& dynamicWalls();
 		DynamicComponents<Components::Grapple>& grapples();
 		StaticComponents<Components::Polyline>& polylines();
 		StaticComponents<Components::Decoration>& decorations();
@@ -95,8 +96,8 @@ namespace Globals
 		std::unique_ptr<StaticComponents<Components::BlendingTexture>> blendingTextures_ = std::make_unique<StaticComponents<Components::BlendingTexture>>();
 		std::unique_ptr<StaticComponents<Components::RenderingSetup>> renderingSetups_ = std::make_unique<StaticComponents<Components::RenderingSetup>>();
 		DynamicComponents<Components::Plane> planes_;
-		std::unique_ptr<StaticComponents<Components::Wall>> walls_ = std::make_unique<StaticComponents<Components::Wall>>();
-		DynamicComponents<Components::Wall> dynamicWalls_;
+		std::unique_ptr<StaticComponents<Components::StaticWall>> staticWalls_ = std::make_unique<StaticComponents<Components::StaticWall>>();
+		DynamicComponents<Components::DynamicWall> dynamicWalls_;
 		DynamicComponents<Components::Grapple> grapples_;
 		std::unique_ptr<StaticComponents<Components::Polyline>> polylines_ = std::make_unique<StaticComponents<Components::Polyline>>();
 		std::unique_ptr<StaticComponents<Components::Decoration>> decorations_ = std::make_unique<StaticComponents<Components::Decoration>>();

@@ -6,6 +6,16 @@
 
 #include <variant>
 
+namespace Components
+{
+	struct Grapple;
+	struct Missile;
+	struct Plane;
+	struct StaticWall;
+	struct DynamicWall;
+	struct Polyline;
+}
+
 namespace TypeComponentMappers
 {
 	struct Texture
@@ -44,6 +54,7 @@ namespace TypeComponentMappers
 	struct Grapple
 	{
 		ComponentId id;
+		Components::Grapple* component = nullptr;
 
 		bool operator==(const Grapple&) const = default;
 	};
@@ -51,6 +62,7 @@ namespace TypeComponentMappers
 	struct Missile
 	{
 		ComponentId id;
+		Components::Missile* component = nullptr;
 
 		bool operator==(const Missile&) const = default;
 	};
@@ -58,20 +70,31 @@ namespace TypeComponentMappers
 	struct Plane
 	{
 		ComponentId id;
+		Components::Plane* component = nullptr;
 
 		bool operator==(const Plane&) const = default;
 	};
 
-	struct Wall
+	struct StaticWall
 	{
 		ComponentId id;
+		Components::StaticWall* component = nullptr;
 
-		bool operator==(const Wall&) const = default;
+		bool operator==(const StaticWall&) const = default;
+	};
+
+	struct DynamicWall
+	{
+		ComponentId id;
+		Components::DynamicWall* component = nullptr;
+
+		bool operator==(const DynamicWall&) const = default;
 	};
 
 	struct Polyline
 	{
 		ComponentId id;
+		Components::Polyline* component = nullptr;
 
 		bool operator==(const Polyline&) const = default;
 	};
@@ -80,4 +103,4 @@ namespace TypeComponentMappers
 namespace TCM = TypeComponentMappers;
 
 using TextureComponentVariant = std::variant<std::monostate, TCM::Texture, TCM::AnimatedTexture, TCM::BlendingTexture>;
-using BodyComponentVariant = std::variant<std::monostate, TCM::Grapple, TCM::Missile, TCM::Plane, TCM::Wall, TCM::Polyline>;
+using BodyComponentVariant = std::variant<std::monostate, TCM::Grapple, TCM::Missile, TCM::Plane, TCM::StaticWall, TCM::DynamicWall, TCM::Polyline>;

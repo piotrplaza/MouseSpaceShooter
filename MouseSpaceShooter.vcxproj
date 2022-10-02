@@ -78,6 +78,7 @@
     <ClInclude Include="components\collisionHandler.hpp" />
     <ClInclude Include="components\decoration.hpp" />
     <ClInclude Include="components\deferredAction.hpp" />
+    <ClInclude Include="components\dynamicWall.hpp" />
     <ClInclude Include="components\framebuffers.hpp" />
     <ClInclude Include="components\functor.hpp" />
     <ClInclude Include="components\gamepad.hpp" />
@@ -96,8 +97,8 @@
     <ClInclude Include="components\renderingSetup.hpp" />
     <ClInclude Include="components\screenInfo.hpp" />
     <ClInclude Include="components\shockwave.hpp" />
+    <ClInclude Include="components\staticWall.hpp" />
     <ClInclude Include="components\texture.hpp" />
-    <ClInclude Include="components\wall.hpp" />
     <ClInclude Include="components\_componentBase.hpp" />
     <ClInclude Include="components\_physical.hpp" />
     <ClInclude Include="components\_renderable.hpp" />

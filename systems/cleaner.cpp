@@ -1,7 +1,7 @@
 #include "cleaner.hpp"
 
 #include <components/plane.hpp>
-#include <components/wall.hpp>
+#include <components/dynamicWall.hpp>
 #include <components/grapple.hpp>
 #include <components/decoration.hpp>
 #include <components/missile.hpp>

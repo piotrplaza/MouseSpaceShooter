@@ -1,10 +1,10 @@
 #pragma once
 
-#include "components/wall.hpp"
+#include "components/dynamicWall.hpp"
 
 namespace Components
 {
-	struct Grapple : Wall
+	struct Grapple : DynamicWall
 	{
 		Grapple() = default;
 
@@ -13,7 +13,7 @@ namespace Components
 			std::optional<ComponentId>  renderingSetup = std::nullopt,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			Wall(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram)
+			DynamicWall(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram)
 		{
 		}
 
@@ -27,7 +27,7 @@ namespace Components
 		void setComponentId(ComponentId id) override
 		{
 			ComponentBase::setComponentId(id);
-			setBodyComponentVariant(TCM::Grapple(id));
+			setBodyComponentVariant(TCM::Grapple(id, this));
 		}
 	};
 }

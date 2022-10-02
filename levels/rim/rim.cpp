@@ -4,7 +4,7 @@
 #include <components/mainFramebufferRenderer.hpp>
 #include <components/camera.hpp>
 #include <components/plane.hpp>
-#include <components/wall.hpp>
+#include <components/staticWall.hpp>
 #include <components/decoration.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/renderingSetup.hpp>
@@ -167,7 +167,7 @@ namespace Levels
 
 		void createMovableWalls()
 		{
-			auto& walls = Globals::Components().walls();
+			auto& staticWalls = Globals::Components().staticWalls();
 
 			const float rimRadius = 15.0f;
 			const float rimHThickness = 1.0f;
@@ -178,33 +178,33 @@ namespace Levels
 			const float rimSegmentHLength = glm::distance(glm::vec2(rimRadius, 0.0f),
 				glm::vec2(glm::cos(rimStep), glm::sin(rimStep)) * rimRadius) / 2.0f;
 
-			rimWallBegin = walls.size();
+			rimWallBegin = staticWalls.size();
 			for (int i = 0; i < rimSegments; ++i)
 			{
 				const glm::vec2 pos1(glm::cos(i * rimStep) * rimRadius, glm::sin(i * rimStep) * rimRadius);
 				const glm::vec2 pos2(glm::cos((i + 1) * rimStep) * rimRadius, glm::sin((i + 1) * rimStep) * rimRadius);
-				walls.emplace(Tools::CreateBoxBody({ rimHThickness, rimSegmentHLength + rimSegmentMariginsHLength },
+				staticWalls.emplace(Tools::CreateBoxBody({ rimHThickness, rimSegmentHLength + rimSegmentMariginsHLength },
 					Tools::BodyParams().position((pos1 + pos2) / 2.0f).angle(rimStep * (2 * i + 1) / 2).bodyType(b2_dynamicBody).density(0.01f)), TCM::Texture(mosaicTexture), sceneCoordTexturesRS);
-				walls.last().texCoord = walls.last().getTexCoord(true);
+				staticWalls.last().texCoord = staticWalls.last().getTexCoord(true);
 
 				if (i > 0)
-					Tools::CreateRevoluteJoint(*(walls.rbegin() + 1)->body, *walls.last().body, pos1);
+					Tools::CreateRevoluteJoint(*(staticWalls.rbegin() + 1)->body, *staticWalls.last().body, pos1);
 			}
-			rimWallEnd = walls.size();
+			rimWallEnd = staticWalls.size();
 
-			Tools::CreateRevoluteJoint(*(walls.rbegin() + rimSegments - 1)->body, *walls.last().body, glm::vec2(rimRadius, 0.0f));
+			Tools::CreateRevoluteJoint(*(staticWalls.rbegin() + rimSegments - 1)->body, *staticWalls.last().body, glm::vec2(rimRadius, 0.0f));
 		}
 
 		void createStationaryWalls() const
 		{
-			auto& walls = Globals::Components().walls();
+			auto& staticWalls = Globals::Components().staticWalls();
 
 			for (int sign : {-1, 1})
 			{
-				walls.emplace(Tools::CreateBoxBody({ borderHThickness, borderHSize.y + borderHThickness * 2.0f },
+				staticWalls.emplace(Tools::CreateBoxBody({ borderHThickness, borderHSize.y + borderHThickness * 2.0f },
 					Tools::BodyParams().position({ (borderHSize.x + borderHThickness) * sign, 0.0f })), TCM::Texture(spaceRockTexture),
 					sceneCoordTexturesRS).colorF = []() { return glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); };
-				walls.emplace(Tools::CreateBoxBody({ borderHSize.x + borderHThickness * 2.0f, borderHThickness },
+				staticWalls.emplace(Tools::CreateBoxBody({ borderHSize.x + borderHThickness * 2.0f, borderHThickness },
 					Tools::BodyParams().position({ 0.0f, (borderHSize.y + borderHThickness) * sign })), TCM::Texture(spaceRockTexture),
 					sceneCoordTexturesRS).colorF = []() { return glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); };
 			}
@@ -301,7 +301,7 @@ namespace Levels
 			if (mouse.pressed.xmb1 || gamepad.pressed.lShoulder)
 				for (unsigned i = rimWallBegin; i < rimWallEnd; ++i)
 				{
-					auto& renderingSetup = Globals::Components().walls()[i].renderingSetup;
+					auto& renderingSetup = Globals::Components().staticWalls()[i].renderingSetup;
 					renderingSetup = renderingSetup
 						? std::nullopt
 						: std::optional(sceneCoordTexturesRS);

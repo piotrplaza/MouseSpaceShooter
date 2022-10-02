@@ -12,7 +12,8 @@
 #include <components/blendingTexture.hpp>
 #include <components/renderingSetup.hpp>
 #include <components/plane.hpp>
-#include <components/wall.hpp>
+#include <components/staticWall.hpp>
+#include <components/dynamicWall.hpp>
 #include <components/grapple.hpp>
 #include <components/polyline.hpp>
 #include <components/camera.hpp>
@@ -115,12 +116,12 @@ namespace Globals
 		return planes_;
 	}
 
-	StaticComponents<Components::Wall>& ComponentsHolder::walls()
+	StaticComponents<Components::StaticWall>& ComponentsHolder::staticWalls()
 	{
-		return *walls_;
+		return *staticWalls_;
 	}
 
-	DynamicComponents<Components::Wall>& ComponentsHolder::dynamicWalls()
+	DynamicComponents<Components::DynamicWall>& ComponentsHolder::dynamicWalls()
 	{
 		return dynamicWalls_;
 	}
