@@ -224,16 +224,19 @@ namespace Levels
 			missilesHandler.setExplosionTexture(explosionTexture);
 			missilesHandler.setMissileTexture(missileTexture);
 			missilesHandler.setFlameAnimatedTexture(flameAnimatedTexture);
-			missilesHandler.setExplosionParams(Tools::ExplosionParams().particlesDensity(0.2f).particlesRadius(2.0f).initVelocity(80.0f));
+			missilesHandler.setExplosionParams(Tools::ExplosionParams().particlesDensity(0.2f).particlesRadius(2.0f).initExplosionVelocity(100.0f));
 		}
 
 		void collisionHandlers()
 		{
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline,
-				[this](const auto& plane, const auto& targetFipolylinexture) {
+				[this](const auto& plane, auto) {
 					Globals::Components().deferredActions().emplace([&](auto) {
-					Globals::Components().planes()[std::get<TCM::Plane>(Tools::AccessUserData(*plane.GetBody()).bodyComponentVariant).id].enable(false);
-					return false;
+						auto& planeComponent = *std::get<TCM::Plane>(Tools::AccessUserData(*plane.GetBody()).bodyComponentVariant).component;
+						Tools::CreateExplosion(Tools::ExplosionParams().center(planeComponent.getCenter()).sourceVelocity(planeComponent.getVelocity()).
+							initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
+						planeComponent.enable(false);
+						return false;
 					});
 				});
 		}
@@ -249,7 +252,7 @@ namespace Levels
 				});
 
 			{
-				const float innerForce = innerForceScale * 500.0f;
+				const float innerForce = innerForceScale * 800.0f;
 
 				const auto& physics = Globals::Components().physics();
 				auto& windmill = Globals::Components().staticWalls()[windmillWall];

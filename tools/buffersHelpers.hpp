@@ -39,7 +39,7 @@ namespace Tools
 	{
 		auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers;
 
-		for(auto& component: components)
+		for (auto& component : components)
 		{
 			if (component.state == ComponentState::Ongoing)
 				continue;

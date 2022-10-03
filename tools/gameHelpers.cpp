@@ -167,8 +167,13 @@ namespace Tools
 
 		for (unsigned i = 0; i < playersHandlers.size(); ++i)
 		{
+			auto& plane = Globals::Components().planes()[playersHandlers[i].playerId];
+
+			if (!plane.isEnabled())
+				continue;
+
 			const auto gamepadId = playersHandlers[i].gamepadId;
-			auto& playerControls = Globals::Components().planes()[playersHandlers[i].playerId].controls;
+			auto& playerControls = plane.controls;
 			bool fire = false;
 
 			playerControls = Components::Plane::Controls();
@@ -470,8 +475,8 @@ namespace Tools
 		auto& particlesShaders = Globals::Shaders().particles();
 
 		Globals::Components().deferredActions().emplace([=, &particlesShaders](float) {
-			auto& shockwave = Globals::Components().shockwaves().emplace(params.center_, params.numOfParticles_, params.initVelocity_,
-				params.particlesRadius_, params.particlesDensity_, params.particlesLinearDamping_, params.particlesAsBullets_);
+			auto& shockwave = Globals::Components().shockwaves().emplace(params.center_, params.sourceVelocity_, params.numOfParticles_, params.initExplosionVelocity_,
+				params.initExplosionVelocityRandomMinFactor_, params.particlesRadius_, params.particlesDensity_, params.particlesLinearDamping_, params.particlesAsBullets_);
 			auto& explosionDecoration = Globals::Components().dynamicDecorations().emplace();
 			explosionDecoration.customShadersProgram = particlesShaders.getProgramId();
 			explosionDecoration.resolutionMode = params.resolutionMode_;
@@ -507,7 +512,6 @@ namespace Tools
 				}
 
 				explosionDecoration.vertices.clear();
-				explosionDecoration.vertices.emplace_back(shockwave.center, scale);
 				for (size_t i = 0; i < shockwave.particles.size(); ++i)
 				{
 					if (i % params.particlesPerDecoration_ != 0) continue;

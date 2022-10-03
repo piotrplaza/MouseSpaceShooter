@@ -33,7 +33,7 @@ namespace Systems
 			return !planes.contains(element.first);
 			});
 
-		for(auto& plane: planes)
+		for (auto& plane : planes)
 		{
 			auto& planeConnections = allConnections[plane.getComponentId()];
 

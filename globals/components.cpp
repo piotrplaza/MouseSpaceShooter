@@ -90,7 +90,6 @@ namespace Globals
 		return *mainFramebufferRenderer_;
 	}
 
-
 	StaticComponents<Components::Texture>& ComponentsHolder::textures()
 	{
 		return *textures_;

@@ -55,8 +55,17 @@ struct Renderable : ComponentBase, RenderableDef
 
 	virtual void enable(bool value)
 	{
+		enable_ = value;
 		render = value;
 		for (auto& e : subsequence)
 			e.render = value;
 	}
+
+	bool isEnabled() const
+	{
+		return enable_;
+	}
+
+private:
+	bool enable_ = true;
 };

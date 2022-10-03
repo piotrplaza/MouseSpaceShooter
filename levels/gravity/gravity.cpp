@@ -156,11 +156,11 @@ namespace Levels
 
 		void launchMissile()
 		{
-			const float initVelocity = 5.0f;
+			const float initExplosionVelocity = 5.0f;
 			auto& plane = Globals::Components().planes()[player1Id];
 
 			auto missileHandler = Tools::CreateMissile(plane.getCenter(), plane.getAngle(), 5.0f, plane.getVelocity(),
-				glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * initVelocity, missile2Texture, flame1AnimatedTexture);
+				glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * initExplosionVelocity, missile2Texture, flame1AnimatedTexture);
 
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
 		}
@@ -219,8 +219,7 @@ namespace Levels
 						const auto& targetFixture = fixture == &fixtureA ? fixtureB : fixtureA;
 						const auto& missileBody = *fixture->GetBody();
 						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).id);
-						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture).resolutionMode(
-							lowResBodies.count(targetFixture.GetBody()) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1));
+						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture));
 
 						explosionFrame = true;
 					}
@@ -324,7 +323,6 @@ namespace Levels
 		size_t planetId = 0;
 
 		std::unordered_map<ComponentId, Tools::MissileHandler> missilesToHandlers;
-		std::unordered_set<const b2Body*> lowResBodies;
 	};
 
 	Gravity::Gravity():

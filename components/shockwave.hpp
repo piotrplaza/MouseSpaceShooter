@@ -19,8 +19,8 @@ namespace Components
 {
 	struct Shockwave : ComponentBase
 	{
-		Shockwave(glm::vec2 center, int numOfParticles, float initVelocity, float particlesRadius, float particlesDensity,
-			float particlesLinearDamping, bool particlesAsBullets):
+		Shockwave(glm::vec2 center, glm::vec2 sourceVelocity, int numOfParticles, float initExplosionVelocity, float initExplosionVelocityRandomMinFactor,
+			float particlesRadius, float particlesDensity, float particlesLinearDamping, bool particlesAsBullets):
 			center(center)
 		{
 			float angle = Tools::Random(0.0f, glm::two_pi<float>());
@@ -30,7 +30,8 @@ namespace Components
 				particles.push_back(Tools::CreateCircleBody(particlesRadius,
 					Tools::BodyParams().position(center).bodyType(b2_dynamicBody).density(particlesDensity)));
 				particles.back()->SetBullet(particlesAsBullets);
-				particles.back()->SetLinearVelocity(b2Vec2(glm::cos(angle), glm::sin(angle)) * initVelocity);
+				particles.back()->SetLinearVelocity(ToVec2<b2Vec2>(sourceVelocity + glm::vec2(glm::cos(angle), glm::sin(angle)) * initExplosionVelocity *
+					Tools::Random(initExplosionVelocityRandomMinFactor, 1.0f)));
 				particles.back()->SetLinearDamping(particlesLinearDamping);
 				Tools::SetCollisionFilteringBits(*particles.back(), Globals::CollisionBits::shockwaveParticle,
 					Globals::CollisionBits::all - Globals::CollisionBits::shockwaveParticle - Globals::CollisionBits::missile);

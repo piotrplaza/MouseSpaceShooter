@@ -30,15 +30,27 @@ namespace Tools
 			return *this;
 		}
 
+		ExplosionParams& sourceVelocity(glm::vec2 value)
+		{
+			sourceVelocity_ = value;
+			return *this;
+		}
+
 		ExplosionParams& numOfParticles(int value)
 		{
 			numOfParticles_ = value;
 			return *this;
 		}
 
-		ExplosionParams& initVelocity(float value)
+		ExplosionParams& initExplosionVelocity(float value)
 		{
-			initVelocity_ = value;
+			initExplosionVelocity_ = value;
+			return *this;
+		}
+
+		ExplosionParams& initExplosionVelocityRandomMinFactor(float value)
+		{
+			initExplosionVelocityRandomMinFactor_ = value;
 			return *this;
 		}
 
@@ -90,9 +102,11 @@ namespace Tools
 			return *this;
 		}
 
-		glm::vec2 center_ = { 0, 0 };
+		glm::vec2 center_ = { 0.0f, 0.0f };
+		glm::vec2 sourceVelocity_ = { 0.0f, 0.0f };
 		int numOfParticles_ = 64;
-		float initVelocity_ = 100.0f;
+		float initExplosionVelocity_ = 100.0f;
+		float initExplosionVelocityRandomMinFactor_ = 0.5f;
 		float particlesRadius_ = 1.0f;
 		float particlesDensity_ = 0.01f;
 		float particlesLinearDamping_ = 3.0f;

@@ -64,13 +64,13 @@ namespace Systems
 
 	void StateController::stepTeardown() const
 	{
-		for(auto& plane: Globals::Components().planes())
+		for (auto& plane : Globals::Components().planes())
 			plane.details.previousCenter = plane.getCenter();
 
-		for (auto& grapple: Globals::Components().grapples())
+		for (auto& grapple : Globals::Components().grapples())
 			grapple.details.previousCenter = grapple.getCenter();
 
-		for (auto& stepTeardown: Globals::Components().frameTeardowns())
+		for (auto& stepTeardown : Globals::Components().frameTeardowns())
 			stepTeardown();
 	}
 
