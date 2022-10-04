@@ -11,6 +11,7 @@
 #include <vector>
 #include <array>
 #include <utility>
+#include <optional>
 
 struct BodyUserData;
 
@@ -117,4 +118,6 @@ namespace Tools
 	std::pair<const unsigned short, const unsigned short> Sort(const unsigned short collisionObjectA, const unsigned short collisionObjectB);
 	BodyUserData& AccessUserData(b2Body& body);
 	const BodyUserData& AccessUserData(const b2Body& body);
+	std::optional<glm::vec2> GetCollisionPoint(const b2Body& body1, const b2Body& body2);
+	float GetRelativeVelocity(const b2Body& body1, const b2Body& body2);
 }

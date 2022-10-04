@@ -23,6 +23,7 @@
 #include "systems/deferredActions.hpp"
 #include "systems/renderingController.hpp"
 #include "systems/textures.hpp"
+#include "systems/audio.hpp"
 
 #include "globals/shaders.hpp"
 #include "globals/components.hpp"
@@ -48,6 +49,9 @@
 #include <vector>
 #include <array>
 #include <type_traits>
+
+#include <thread>
+#include <chrono>
 
 const bool fullScreen =
 #ifdef _DEBUG
@@ -94,7 +98,8 @@ void Initialize()
 	if (console) Tools::RedirectIOToConsole({ 4000, 10 });
 	Tools::RandomInit();
 	OGLInitialize();
-	SDL_Init(SDL_INIT_GAMECONTROLLER);
+	int sdlInitResult = SDL_Init(SDL_INIT_GAMECONTROLLER);
+	assert(!sdlInitResult);
 
 	Globals::InitializeShaders();
 	Globals::InitializeComponents();
@@ -104,6 +109,7 @@ void Initialize()
 	CreateLevel();
 
 	Globals::Systems().textures().postInit();
+	Globals::Systems().audio().postInit();
 	Globals::Systems().physics().postInit();
 	Globals::Systems().structures().postInit();
 	Globals::Systems().decorations().postInit();
@@ -131,6 +137,7 @@ void PrepareFrame()
 		Globals::Systems().structures().step();
 		Globals::Systems().decorations().step();
 		Globals::Systems().camera().step();
+		Globals::Systems().audio().step();
 		Globals::Systems().stateController().stepTeardown();
 
 		Globals::Systems().cleaner().step();

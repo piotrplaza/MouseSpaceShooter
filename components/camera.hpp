@@ -16,7 +16,13 @@ namespace Components
 		float positionTransitionFactor = 1.0f;
 		float projectionTransitionFactor = 1.0f;
 
-		glm::vec2 prevPosition{ 0.0f };
-		float prevProjectionHSize = 0.0f;
+		struct
+		{
+			glm::vec2 position{ 0.0f };
+			glm::vec2 prevPosition{ 0.0f };
+
+			float projectionHSize = 0.0f;
+			float prevProjectionHSize = 0.0f;
+		} details;
 	};
 }

@@ -36,6 +36,8 @@
 #include <tools/graphicsHelpers.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
+#include <tools/playersHandler.hpp>
+#include <tools/missilesHandler.hpp>
 
 #include <algorithm>
 #include <numeric>
@@ -509,7 +511,7 @@ namespace Levels
 			missilesHandler.setResolutionModeF([this](const auto& targetBody) {
 				return lowResBodies.count(&targetBody) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1;
 				});
-			missilesHandler.setExplosionF([this]() {
+			missilesHandler.setExplosionF([this](auto) {
 				explosionFrame = true;
 				});
 		}

@@ -321,4 +321,31 @@ namespace Tools
 	{
 		return *reinterpret_cast<BodyUserData*>(const_cast<b2Body&>(body).GetUserData().pointer);
 	}
+
+	std::optional<glm::vec2> GetCollisionPoint(const b2Body& body1, const b2Body& body2)
+	{
+		for (auto contactEdge = body1.GetContactList(); contactEdge != nullptr; contactEdge = contactEdge->next)
+		{
+			if (contactEdge->contact->IsTouching())
+			{
+				if ((contactEdge->contact->GetFixtureA()->GetBody() == &body1 &&
+					contactEdge->contact->GetFixtureB()->GetBody() == &body2)
+					||
+					(contactEdge->contact->GetFixtureA()->GetBody() == &body2 &&
+						contactEdge->contact->GetFixtureB()->GetBody() == &body1))
+				{
+					b2WorldManifold worldManifold;
+					contactEdge->contact->GetWorldManifold(&worldManifold);
+
+					return ToVec2<glm::vec2>(worldManifold.points[0]);
+				}
+			}
+		}
+		return std::nullopt;
+	}
+
+	float GetRelativeVelocity(const b2Body& body1, const b2Body& body2)
+	{
+		return glm::length(ToVec2<glm::vec2>(body2.GetLinearVelocity()) - ToVec2<glm::vec2>(body1.GetLinearVelocity()));
+	}
 }

@@ -35,12 +35,12 @@ public:
 			return *this;
 		}
 
-		Self operator +(size_t rhs)
+		Self operator +(ComponentId rhs)
 		{
 			return Self(containerIt + rhs);
 		}
 
-		Self operator -(size_t rhs)
+		Self operator -(ComponentId rhs)
 		{
 			return Self(containerIt - rhs);
 		}
@@ -143,7 +143,7 @@ public:
 		return *last_;
 	}
 
-	size_t size() const
+	ComponentId size() const
 	{
 		return components.size();
 	}
@@ -261,7 +261,7 @@ public:
 	Component& emplace(Params&&... params)
 	{
 		ComponentId id = Globals::ComponentIdGenerator().acquire();
-		auto it = components.emplace(id, Component(std::forward<Params>(params)...));
+		auto it = components.try_emplace(id, std::forward<Params>(params)...);
 		assert(it.second);
 		last_ = &it.first->second;
 		last_->setComponentId(id);
@@ -274,7 +274,7 @@ public:
 		return *last_;
 	}
 
-	size_t size() const
+	ComponentId size() const
 	{
 		return components.size();
 	}
@@ -415,7 +415,7 @@ public:
 		return *last_;
 	}
 
-	size_t size() const
+	ComponentId size() const
 	{
 		return components.size();
 	}

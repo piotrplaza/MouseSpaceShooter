@@ -10,6 +10,9 @@
 #include <components/texture.hpp>
 #include <components/animatedTexture.hpp>
 #include <components/blendingTexture.hpp>
+#include <components/music.hpp>
+#include <components/soundBuffer.hpp>
+#include <components/sound.hpp>
 #include <components/renderingSetup.hpp>
 #include <components/plane.hpp>
 #include <components/staticWall.hpp>
@@ -103,6 +106,21 @@ namespace Globals
 	StaticComponents<Components::BlendingTexture>& ComponentsHolder::blendingTextures()
 	{
 		return *blendingTextures_;
+	}
+
+	StaticComponents<Components::Music>& ComponentsHolder::musics()
+	{
+		return *musics_;
+	}
+
+	StaticComponents<Components::SoundBuffer>& ComponentsHolder::soundsBuffers()
+	{
+		return *soundsBuffers_;
+	}
+
+	DynamicComponents<Components::Sound>& ComponentsHolder::sounds()
+	{
+		return sounds_;
 	}
 
 	StaticComponents<Components::RenderingSetup>& ComponentsHolder::renderingSetups()

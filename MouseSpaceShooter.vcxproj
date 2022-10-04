@@ -22,6 +22,9 @@
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
     <ClCompile Include="commonTypes\resolutionMode.cpp" />
     <ClCompile Include="components\animatedTexture.cpp" />
+    <ClCompile Include="components\music.cpp" />
+    <ClCompile Include="components\sound.cpp" />
+    <ClCompile Include="components\soundBuffer.cpp" />
     <ClCompile Include="globals\componentIdGenerator.cpp" />
     <ClCompile Include="globals\components.cpp" />
     <ClCompile Include="globals\shaders.cpp" />
@@ -46,6 +49,7 @@
     <ClCompile Include="ogl\shaders.cpp" />
     <ClCompile Include="ogl\uniforms.cpp" />
     <ClCompile Include="systems\actors.cpp" />
+    <ClCompile Include="systems\audio.cpp" />
     <ClCompile Include="systems\camera.cpp" />
     <ClCompile Include="systems\cleaner.cpp" />
     <ClCompile Include="systems\decorations.cpp" />
@@ -59,6 +63,8 @@
     <ClCompile Include="tools\b2Helpers.cpp" />
     <ClCompile Include="tools\gameHelpers.cpp" />
     <ClCompile Include="tools\graphicsHelpers.cpp" />
+    <ClCompile Include="tools\missilesHandler.cpp" />
+    <ClCompile Include="tools\playersHandler.cpp" />
     <ClCompile Include="tools\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -89,6 +95,7 @@
     <ClInclude Include="components\mainFramebufferRenderer.hpp" />
     <ClInclude Include="components\missile.hpp" />
     <ClInclude Include="components\mouse.hpp" />
+    <ClInclude Include="components\music.hpp" />
     <ClInclude Include="components\mvp.hpp" />
     <ClInclude Include="components\physics.hpp" />
     <ClInclude Include="components\plane.hpp" />
@@ -97,6 +104,8 @@
     <ClInclude Include="components\renderingSetup.hpp" />
     <ClInclude Include="components\screenInfo.hpp" />
     <ClInclude Include="components\shockwave.hpp" />
+    <ClInclude Include="components\sound.hpp" />
+    <ClInclude Include="components\soundBuffer.hpp" />
     <ClInclude Include="components\staticWall.hpp" />
     <ClInclude Include="components\texture.hpp" />
     <ClInclude Include="components\_componentBase.hpp" />
@@ -131,6 +140,7 @@
     <ClInclude Include="ogl\shaders\texturedColorThreshold.hpp" />
     <ClInclude Include="ogl\uniforms.hpp" />
     <ClInclude Include="systems\actors.hpp" />
+    <ClInclude Include="systems\audio.hpp" />
     <ClInclude Include="systems\camera.hpp" />
     <ClInclude Include="systems\cleaner.hpp" />
     <ClInclude Include="systems\decorations.hpp" />
@@ -146,6 +156,8 @@
     <ClInclude Include="tools\gameHelpers.hpp" />
     <ClInclude Include="tools\glmHelpers.hpp" />
     <ClInclude Include="tools\graphicsHelpers.hpp" />
+    <ClInclude Include="tools\missilesHandler.hpp" />
+    <ClInclude Include="tools\playersHandler.hpp" />
     <ClInclude Include="tools\utility.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -230,7 +242,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\libraries\glew-2.2.0\include;C:\libraries\glm-0.9.9.8;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.0.22\include;$(ProjectDir)\3rdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\libraries\glew-2.2.0\include;C:\libraries\glm-0.9.9.8;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.0.22\include;C:\libraries\SFML-2.5.1\include;$(ProjectDir)\3rdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -239,8 +251,8 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>shcore.lib;opengl32.lib;glew32.lib;Box2DLib.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.0.22\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>shcore.lib;opengl32.lib;glew32.lib;Box2DLib.lib;SDL2.lib;sfml-audio-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.0.22\lib\x86;C:\libraries\SFML-2.5.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ProjectReference>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
@@ -266,7 +278,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\libraries\glew-2.2.0\include;C:\libraries\glm-0.9.9.8;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.0.22\include;$(ProjectDir)\3rdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\libraries\glew-2.2.0\include;C:\libraries\glm-0.9.9.8;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.0.22\include;C:\libraries\SFML-2.5.1\include;$(ProjectDir)\3rdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -276,8 +288,8 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>shcore.lib;opengl32.lib;glew32.lib;Box2DLib.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.0.22\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>shcore.lib;opengl32.lib;glew32.lib;Box2DLib.lib;SDL2.lib;sfml-audio.lib;sfml-system.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.0.22\lib\x86;C:\libraries\SFML-2.5.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ProjectReference>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>

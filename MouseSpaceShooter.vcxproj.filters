@@ -196,6 +196,24 @@
     <ClCompile Include="globals\componentIdGenerator.cpp">
       <Filter>src\globals</Filter>
     </ClCompile>
+    <ClCompile Include="components\music.cpp">
+      <Filter>src\components</Filter>
+    </ClCompile>
+    <ClCompile Include="components\sound.cpp">
+      <Filter>src\components</Filter>
+    </ClCompile>
+    <ClCompile Include="components\soundBuffer.cpp">
+      <Filter>src\components</Filter>
+    </ClCompile>
+    <ClCompile Include="systems\audio.cpp">
+      <Filter>src\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\missilesHandler.cpp">
+      <Filter>src\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\playersHandler.cpp">
+      <Filter>src\tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mvp.hpp">
@@ -452,6 +470,24 @@
     </ClInclude>
     <ClInclude Include="components\staticWall.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\music.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\sound.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\soundBuffer.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\audio.hpp">
+      <Filter>src\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\missilesHandler.hpp">
+      <Filter>src\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\playersHandler.hpp">
+      <Filter>src\tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

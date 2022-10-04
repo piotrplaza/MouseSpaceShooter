@@ -15,6 +15,7 @@ namespace Systems
 	class Cleaner;
 	class DeferredActions;
 	class RenderingController;
+	class Audio;
 }
 
 namespace Globals
@@ -33,6 +34,7 @@ namespace Globals
 		Systems::Cleaner& cleaner();
 		Systems::DeferredActions& deferredActions();
 		Systems::RenderingController& renderingController();
+		Systems::Audio& audio();
 
 	private:
 		std::unique_ptr<Systems::StateController> stateController_ = std::make_unique<Systems::StateController>();
@@ -46,6 +48,7 @@ namespace Globals
 		std::unique_ptr<Systems::Cleaner> cleaner_ = std::make_unique<Systems::Cleaner>();
 		std::unique_ptr<Systems::DeferredActions> deferredActions_ = std::make_unique<Systems::DeferredActions>();
 		std::unique_ptr<Systems::RenderingController> renderingController_ = std::make_unique<Systems::RenderingController>();
+		std::unique_ptr<Systems::Audio> audio_ = std::make_unique<Systems::Audio>();
 	};
 
 	void InitializeSystems();

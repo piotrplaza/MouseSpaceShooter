@@ -11,6 +11,7 @@
 #include "systems/cleaner.hpp"
 #include "systems/deferredActions.hpp"
 #include "systems/renderingController.hpp"
+#include "systems/audio.hpp"
 
 namespace Globals
 {
@@ -69,6 +70,11 @@ namespace Globals
 	Systems::RenderingController& SystemsHolder::renderingController()
 	{
 		return *renderingController_;
+	}
+
+	Systems::Audio& SystemsHolder::audio()
+	{
+		return *audio_;
 	}
 
 	void InitializeSystems()

@@ -14,6 +14,10 @@
 #include <components/physics.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/deferredAction.hpp>
+#include <components/music.hpp>
+#include <components/soundBuffer.hpp>
+#include <components/sound.hpp>
+#include <components/missile.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -25,6 +29,8 @@
 #include <tools/b2Helpers.hpp>
 #include <tools/graphicsHelpers.hpp>
 #include <tools/b2Helpers.hpp>
+#include <tools/playersHandler.hpp>
+#include <tools/missilesHandler.hpp>
 
 #include <numeric>
 
@@ -102,6 +108,19 @@ namespace Levels
 			recursiveFaceAnimationTexture = textures.size();
 			textures.emplace("textures/recursive face animation.jpg");
 			textures.last().minFilter = GL_LINEAR;
+		}
+
+		void loadAudio()
+		{
+			auto& musics = Globals::Components().musics();
+			musics.emplace("audio/Ghosthack-Ambient Beds_Celestial_Dm 70Bpm (DRY).ogg").play();
+
+			auto& soundsBuffers = Globals::Components().soundsBuffers();
+			missileExplosionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Detonate.wav").getComponentId();
+			playerExplosionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack-AC21_Impact_Cracked.wav").getComponentId();
+			missileLaunchingSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav").getComponentId();
+			collisionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
+			thrustSoundBuffer = soundsBuffers.emplace("audio/thrust.wav").getComponentId();
 		}
 
 		void setAnimations()
@@ -216,15 +235,19 @@ namespace Levels
 
 		void initHandlers()
 		{
-			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, true, [this](unsigned player, auto) {
-				return initPos(player);
-				});
+			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, false,
+				[this](unsigned player, auto) {
+					return initPos(player);
+				}, thrustSoundBuffer);
 
 			missilesHandler.setPlayersHandler(playersHandler);
 			missilesHandler.setExplosionTexture(explosionTexture);
 			missilesHandler.setMissileTexture(missileTexture);
 			missilesHandler.setFlameAnimatedTexture(flameAnimatedTexture);
 			missilesHandler.setExplosionParams(Tools::ExplosionParams().particlesDensity(0.2f).particlesRadius(2.0f).initExplosionVelocity(100.0f));
+			missilesHandler.setExplosionF([this](auto pos) {
+				Tools::PlaySingleSound(missileExplosionSoundBuffer, [pos](){ return pos; });
+			});
 		}
 
 		void collisionHandlers()
@@ -235,9 +258,21 @@ namespace Levels
 						auto& planeComponent = *std::get<TCM::Plane>(Tools::AccessUserData(*plane.GetBody()).bodyComponentVariant).component;
 						Tools::CreateExplosion(Tools::ExplosionParams().center(planeComponent.getCenter()).sourceVelocity(planeComponent.getVelocity()).
 							initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
+						Tools::PlaySingleSound(playerExplosionSoundBuffer, [&]() { return planeComponent.getCenter(); });
 						planeComponent.enable(false);
 						return false;
 					});
+				});
+
+			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::plane | Globals::CollisionBits::wall,
+				[this](const auto& plane, const auto& obstacle) {
+					Tools::PlaySingleSound(collisionSoundBuffer,
+						[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {
+							return pos;
+						},
+						[&](auto& sound) {
+							sound.volume(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f);
+						});
 				});
 		}
 
@@ -248,7 +283,7 @@ namespace Levels
 				return glm::rotate(glm::mat4(1.0f), windmill.getAngle(), { 0.0f, 0.0f, 1.0f }) * glm::vec4(initPos(player), 0.0f, 1.0f);
 				});
 			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
-				missilesHandler.launchingMissile(playerHandlerId, fire);
+				missilesHandler.launchingMissile(playerHandlerId, fire, missileLaunchingSoundBuffer);
 				});
 
 			{
@@ -279,21 +314,27 @@ namespace Levels
 			return glm::vec2(player == 0 || player == 3 ? axesDistance : -axesDistance, player == 0 || player == 1 ? axesDistance : -axesDistance);
 		}
 
-		unsigned recursiveFaceRS = 0;
+		ComponentId recursiveFaceRS = 0;
 
-		unsigned rocketPlaneTexture = 0;
-		unsigned woodTexture = 0;
-		unsigned orbTexture = 0;
-		unsigned explosionTexture = 0;
-		unsigned missileTexture = 0;
-		unsigned flameAnimationTexture = 0;
-		unsigned recursiveFaceAnimationTexture = 0;
+		ComponentId rocketPlaneTexture = 0;
+		ComponentId woodTexture = 0;
+		ComponentId orbTexture = 0;
+		ComponentId explosionTexture = 0;
+		ComponentId missileTexture = 0;
+		ComponentId flameAnimationTexture = 0;
+		ComponentId recursiveFaceAnimationTexture = 0;
+
+		ComponentId playerExplosionSoundBuffer = 0;
+		ComponentId missileExplosionSoundBuffer = 0;
+		ComponentId missileLaunchingSoundBuffer = 0;
+		ComponentId collisionSoundBuffer = 0;
+		ComponentId thrustSoundBuffer = 0;
 
 		std::array<unsigned, 4> flameAnimatedTextureForPlayers{ 0 };
-		unsigned flameAnimatedTexture = 0;
-		unsigned recursiveFaceAnimatedTexture = 0;
+		ComponentId flameAnimatedTexture = 0;
+		ComponentId recursiveFaceAnimatedTexture = 0;
 
-		unsigned windmillWall = 0;
+		ComponentId windmillWall = 0;
 
 		Tools::PlayersHandler playersHandler;
 		Tools::MissilesHandler missilesHandler;
@@ -307,6 +348,7 @@ namespace Levels
 	{
 		impl->setGraphicsSettings();
 		impl->loadTextures();
+		impl->loadAudio();
 		impl->setAnimations();
 		impl->createBackground();
 		impl->createForeground();

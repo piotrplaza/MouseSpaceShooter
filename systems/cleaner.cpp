@@ -8,6 +8,7 @@
 #include <components/collisionHandler.hpp>
 #include <components/shockwave.hpp>
 #include <components/light.hpp>
+#include <components/sound.hpp>
 #include <components/functor.hpp>
 
 #include <globals/components.hpp>
@@ -27,6 +28,7 @@ namespace Systems
 		Globals::Components().endCollisionHandlers().removeOutdated();
 		Globals::Components().shockwaves().removeOutdated();
 		Globals::Components().lights().removeOutdated();
+		Globals::Components().sounds().removeOutdated();
 		Globals::Components().frameSetups().removeOutdated();
 		Globals::Components().frameTeardowns().removeOutdated();
 	}

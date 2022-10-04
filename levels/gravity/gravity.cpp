@@ -24,6 +24,7 @@
 #include <ogl/shaders/basic.hpp>
 #include <ogl/shaders/texturedColorThreshold.hpp>
 #include <ogl/shaders/textured.hpp>
+#include <ogl/shaders/particles.hpp>
 #include <ogl/renderingHelpers.hpp>
 
 #include <globals/shaders.hpp>
@@ -308,7 +309,7 @@ namespace Levels
 
 		unsigned flame1AnimatedTexture = 0;
 
-		unsigned player1Id;
+		unsigned player1Id = 0;
 
 		float durationToLaunchMissile = 0.0f;
 

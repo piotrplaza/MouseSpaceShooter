@@ -13,11 +13,7 @@
 #include <components/screenInfo.hpp>
 #include <components/animatedTexture.hpp>
 #include <components/deferredAction.hpp>
-#include <components/graphicsSettings.hpp>
-#include <components/collisionFilter.hpp>
-#include <components/collisionHandler.hpp>
-#include <components/mouse.hpp>
-#include <components/gamepad.hpp>
+#include <components/sound.hpp>
 
 #include <commonTypes/typeComponentMappers.hpp>
 
@@ -25,201 +21,21 @@
 #include <globals/shaders.hpp>
 #include <globals/collisionBits.hpp>
 
-#include <ogl/uniforms.hpp>
 #include <ogl/shaders/textured.hpp>
 #include <ogl/shaders/julia.hpp>
-
-#include <tools/b2Helpers.hpp>
-#include <tools/utility.hpp>
-
-#include <algorithm>
-#include <cassert>
+#include <ogl/shaders/particles.hpp>
 
 namespace Tools
 {
-	void PlayersHandler::initPlayers(unsigned rocketPlaneTexture, const std::array<unsigned, 4>& flameAnimatedTextureForPlayers, bool gamepadForPlayer1,
-		std::function<glm::vec2(unsigned player, unsigned numOfPlayers)> initPosF)
-	{
-		this->rocketPlaneTexture = rocketPlaneTexture;
-		this->flameAnimatedTextureForPlayers = flameAnimatedTextureForPlayers;
-		this->gamepadForPlayer1 = gamepadForPlayer1;
-
-		const auto& gamepads = Globals::Components().gamepads();
-		std::vector<unsigned> activeGamepads;
-
-		for (unsigned i = 0; i < gamepads.size(); ++i)
-		{
-			const auto& gamepad = gamepads[i];
-			if (gamepad.enabled)
-				activeGamepads.push_back(i);
-		}
-
-		const unsigned numOfPlayers = std::clamp(activeGamepads.size() + !gamepadForPlayer1, 1u, 4u);
-
-		playersHandlers.reserve(numOfPlayers);
-		unsigned activeGamepadId = 0;
-		for (unsigned i = 0; i < numOfPlayers; ++i)
-			playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, flameAnimatedTextureForPlayers[i], initPosF(i, numOfPlayers)),
-				i == 0 && !gamepadForPlayer1 || activeGamepads.empty() ? std::nullopt : std::optional(activeGamepads[activeGamepadId++]), 0.0f);
-	}
-
-	void PlayersHandler::initMultiplayerCamera(std::function<float()> projectionHSizeMin, float scalingFactor, float velocityFactor, float transitionFactor) const
-	{
-		const auto& planes = Globals::Components().planes();
-		const auto& screenInfo = Globals::Components().screenInfo();
-
-		auto velocityCorrection = [velocityFactor](const auto& plane) {
-			return plane.getVelocity() * velocityFactor;
-		};
-
-		Globals::Components().camera().targetProjectionHSizeF = [&, velocityCorrection, projectionHSizeMin, scalingFactor, transitionFactor]() {
-			Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
-
-			const float maxDistance = [&, velocityCorrection, scalingFactor]() {
-				if (playersHandlers.size() == 1)
-					return glm::length(velocityCorrection(planes[playersHandlers[0].playerId])) + projectionHSizeMin();
-
-				float maxDistance = 0.0f;
-				for (unsigned i = 0; i < playersHandlers.size() - 1; ++i)
-					for (unsigned j = i + 1; j < playersHandlers.size(); ++j)
-					{
-						const auto& plane1 = planes[playersHandlers[i].playerId];
-						const auto& plane2 = planes[playersHandlers[j].playerId];
-						const auto plane1Center = plane1.getCenter() + velocityCorrection(plane1);
-						const auto plane2Center = plane2.getCenter() + velocityCorrection(plane2);
-						/*maxDistance = std::max(maxDistance, glm::max(glm::abs(plane1Center.x - plane2Center.x) * screenInfo.windowSize.y / screenInfo.windowSize.x * scalingFactor,
-							glm::abs(plane1Center.y - plane2Center.y) * scalingFactor));*/
-						maxDistance = std::max(maxDistance, glm::distance(glm::vec2(plane1Center.x * screenInfo.windowSize.y / screenInfo.windowSize.x, plane1Center.y),
-							glm::vec2(plane2Center.x * screenInfo.windowSize.y / screenInfo.windowSize.x, plane2Center.y)) * scalingFactor);
-					}
-				return maxDistance;
-			}();
-
-			return std::max(projectionHSizeMin(), maxDistance);
-		};
-
-		Globals::Components().camera().targetPositionF = [&, velocityCorrection, transitionFactor]() {
-			Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
-
-			glm::vec2 min(std::numeric_limits<float>::max());
-			glm::vec2 max(std::numeric_limits<float>::lowest());
-			glm::vec2 sumOfVelocityCorrections(0.0f);
-
-			for (const auto& playerHandler : playersHandlers)
-			{
-				const auto& plane = planes[playerHandler.playerId];
-				min = { std::min(min.x, plane.getCenter().x), std::min(min.y, plane.getCenter().y) };
-				max = { std::max(max.x, plane.getCenter().x), std::max(max.y, plane.getCenter().y) };
-				sumOfVelocityCorrections += velocityCorrection(plane);
-			}
-
-			return (min + max) / 2.0f + sumOfVelocityCorrections / (float)playersHandlers.size();
-		};
-	}
-
-	void PlayersHandler::autodetectionStep(std::function<glm::vec2(unsigned player)> initPosF)
-	{
-		const auto& gamepads = Globals::Components().gamepads();
-		auto& planes = Globals::Components().planes();
-		std::vector<unsigned> activeGamepads;
-
-		for (unsigned i = 0; i < gamepads.size(); ++i)
-		{
-			const auto& gamepad = gamepads[i];
-			if (gamepad.enabled)
-				activeGamepads.push_back(i);
-		}
-
-		const unsigned numOfPlayers = std::clamp(activeGamepads.size() + !gamepadForPlayer1, 1u, 4u);
-
-		std::erase_if(playersHandlers, [&, i = 0](const auto& playerHandler) mutable {
-			const bool erase = i++ != 0 && playerHandler.gamepadId && !gamepads[*playerHandler.gamepadId].enabled;
-			if (erase)
-			{
-				planes[playerHandler.playerId].state = ComponentState::Outdated;
-				return true;
-			}
-			return false;
-			});
-
-		for (auto activeGamepadId : activeGamepads)
-		{
-			auto it = std::find_if(playersHandlers.begin(), playersHandlers.end(), [&](const auto& playerHandler) {
-				return playerHandler.gamepadId && playerHandler.gamepadId == activeGamepadId;
-				});
-			if (it == playersHandlers.end())
-				if (gamepadForPlayer1 && !playersHandlers[0].gamepadId)
-					playersHandlers[0].gamepadId = activeGamepadId;
-				else if (playersHandlers.size() < 4)
-					playersHandlers.emplace_back(Tools::CreatePlane(rocketPlaneTexture, flameAnimatedTextureForPlayers[playersHandlers.size()],
-						initPosF(playersHandlers.size())), activeGamepadId, 0.0f);
-		}
-	}
-
-	void PlayersHandler::controlStep(std::function<void(unsigned playerHandlerId, bool fire)> fireF) const
-	{
-		const float mouseSensitivity = 0.01f;
-		const float gamepadSensitivity = 50.0f;
-
-		const auto& physics = Globals::Components().physics();
-		const auto& mouse = Globals::Components().mouse();
-		const auto& gamepads = Globals::Components().gamepads();
-
-		for (unsigned i = 0; i < playersHandlers.size(); ++i)
-		{
-			auto& plane = Globals::Components().planes()[playersHandlers[i].playerId];
-
-			if (!plane.isEnabled())
-				continue;
-
-			const auto gamepadId = playersHandlers[i].gamepadId;
-			auto& playerControls = plane.controls;
-			bool fire = false;
-
-			playerControls = Components::Plane::Controls();
-
-			if (i == 0)
-			{
-				playerControls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity;
-				playerControls.autoRotation = (bool)mouse.pressing.rmb;
-				playerControls.throttling = (float)mouse.pressing.rmb;
-				playerControls.magneticHook = mouse.pressing.xmb1;
-				fire = mouse.pressing.lmb;
-			}
-
-			if (gamepadId)
-			{
-				const auto& gamepad = gamepads[*gamepadId];
-
-				playerControls.turningDelta += Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
-				playerControls.autoRotation |= (bool)gamepad.rTrigger;
-				playerControls.throttling = std::max(gamepad.rTrigger, playerControls.throttling);
-				playerControls.magneticHook |= gamepad.pressing.lShoulder || gamepad.pressing.a || gamepad.lTrigger >= 0.5f;
-				fire |= gamepad.pressing.x;
-			}
-
-			if (fireF)
-				fireF(i, fire);
-		}
-	}
-
-	const std::vector<Tools::PlayerHandler>& PlayersHandler::getPlayersHandlers() const
-	{
-		return playersHandlers;
-	}
-
-	std::vector<Tools::PlayerHandler>& PlayersHandler::accessPlayersHandlers()
-	{
-		return playersHandlers;
-	}
-
 	MissileHandler::MissileHandler() = default;
 
-	MissileHandler::MissileHandler(ComponentId missileId, ComponentId backThrustId, glm::vec2 referenceVelocity, std::optional<ComponentId> planeId):
+	MissileHandler::MissileHandler(ComponentId missileId, ComponentId backThrustId, glm::vec2 referenceVelocity, std::optional<ComponentId> planeId,
+		std::optional<ComponentId> soundId):
 		missileId(missileId),
 		backThrustId(backThrustId),
 		referenceVelocity(referenceVelocity),
-		planeId(planeId)
+		planeId(planeId),
+		soundId(soundId)
 	{
 	}
 
@@ -227,19 +43,19 @@ namespace Tools
 	{
 		if (!valid) return;
 
-		auto missileIt = Globals::Components().missiles().find(missileId);
-		assert(missileIt != Globals::Components().missiles().end());
-		missileIt->state = ComponentState::Outdated;
-		auto thrustIt = Globals::Components().dynamicDecorations().find(backThrustId);
-		assert(thrustIt != Globals::Components().dynamicDecorations().end());
-		thrustIt->state = ComponentState::Outdated;
+		Globals::Components().missiles()[missileId].state = ComponentState::Outdated;
+		Globals::Components().dynamicDecorations()[backThrustId].state = ComponentState::Outdated;
+
+		if (soundId)
+			Globals::Components().sounds()[*soundId].state = ComponentState::Outdated;
 	}
 
 	MissileHandler::MissileHandler(MissileHandler&& other) noexcept:
 		missileId(other.missileId),
 		backThrustId(other.backThrustId),
 		referenceVelocity(other.referenceVelocity),
-		planeId(other.planeId)
+		planeId(other.planeId),
+		soundId(other.soundId)
 	{
 		other.valid = false;
 	}
@@ -250,123 +66,12 @@ namespace Tools
 		backThrustId = other.backThrustId;
 		referenceVelocity = other.referenceVelocity;
 		planeId = other.planeId;
+		soundId = other.soundId;
 		other.valid = false;
 		return *this;
 	}
 
-	MissilesHandler::MissilesHandler()
-	{
-		Globals::Components().collisionFilters().emplace(Globals::CollisionBits::missile, Globals::CollisionBits::missile |
-			Globals::CollisionBits::plane | Globals::CollisionBits::polyline,
-			[this](const auto& missileFixture, const auto& targetFixture) {
-				const auto missileId = std::get<TCM::Missile>(Tools::AccessUserData(*missileFixture.GetBody()).bodyComponentVariant).id;
-				const auto& targetBodyComponentVariant = Tools::AccessUserData(*targetFixture.GetBody()).bodyComponentVariant;
-				const auto missilePlaneId = missilesToHandlers.at(missileId).planeId;
-
-				if (!missilePlaneId)
-					return true;
-
-				if (std::holds_alternative<TCM::Polyline>(targetBodyComponentVariant))
-					return false;
-
-				if (const TCM::Missile* targetMissile = std::get_if<TCM::Missile>(&targetBodyComponentVariant))
-				{
-					const auto targetMissilePlaneId = missilesToHandlers.at(targetMissile->id).planeId;
-					return !targetMissilePlaneId || *missilePlaneId != *targetMissilePlaneId;
-				}
-
-				return *missilePlaneId != std::get<TCM::Plane>(targetBodyComponentVariant).id;
-			});
-
-		Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::missile, Globals::CollisionBits::all,
-			[this](const auto& missileFixture, const auto& targetFixture) {
-				auto& deferredActions = Globals::Components().deferredActions();
-				const auto& missileBody = *missileFixture.GetBody();
-
-				deferredActions.emplace([&](auto) {
-					missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).id);
-					return false;
-					});
-
-				CreateExplosion(explosionParams.center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture)
-					.resolutionMode(resolutionModeF ? resolutionModeF(*targetFixture.GetBody()) : explosionParams.resolutionMode_));
-
-				const auto& targetBodyComponentVariant = Tools::AccessUserData(*targetFixture.GetBody()).bodyComponentVariant;
-				if (const TCM::Missile* targetMissile = std::get_if<TCM::Missile>(&targetBodyComponentVariant))
-				{
-					deferredActions.emplace([=](auto) {
-						missilesToHandlers.erase(targetMissile->id);
-						return false;
-						});
-
-					CreateExplosion(explosionParams.center(ToVec2<glm::vec2>(targetFixture.GetBody()->GetWorldCenter())).explosionTexture(explosionTexture));
-				}
-
-				if (explosionF)
-					explosionF();
-			});
-	}
-
-	void MissilesHandler::setPlayersHandler(Tools::PlayersHandler& playersHandler)
-	{
-		this->playersHandler = &playersHandler;
-	}
-
-	void MissilesHandler::setExplosionTexture(unsigned explosionTexture)
-	{
-		this->explosionTexture = explosionTexture;
-	}
-
-	void MissilesHandler::setMissileTexture(unsigned missileTexture)
-	{
-		this->missileTexture = missileTexture;
-	}
-
-	void MissilesHandler::setFlameAnimatedTexture(unsigned flameAnimatedTexture)
-	{
-		this->flameAnimatedTexture = flameAnimatedTexture;
-	}
-
-	void MissilesHandler::setExplosionParams(Tools::ExplosionParams explosionParams)
-	{
-		this->explosionParams = explosionParams;
-	}
-
-	void MissilesHandler::setResolutionModeF(std::function<ResolutionMode(const b2Body&)> resolutionModeF)
-	{
-		this->resolutionModeF = resolutionModeF;
-	}
-
-	void MissilesHandler::setExplosionF(std::function<void()> explosionF)
-	{
-		this->explosionF = explosionF;
-	}
-
-	void MissilesHandler::launchingMissile(unsigned playerHandlerId, bool tryToLaunch)
-	{
-		auto& playerHandler = playersHandler->accessPlayersHandlers()[playerHandlerId];
-		if (tryToLaunch)
-		{
-			if (playerHandler.durationToLaunchMissile <= 0.0f)
-			{
-				launchMissile(playerHandler.playerId);
-				playerHandler.durationToLaunchMissile = 0.1f;
-			}
-			else playerHandler.durationToLaunchMissile -= Globals::Components().physics().frameDuration;
-		}
-		else playerHandler.durationToLaunchMissile = 0.0f;
-	}
-
-	void MissilesHandler::launchMissile(unsigned playerId)
-	{
-		auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[playerId].getCenter(),
-			Globals::Components().planes()[playerId].getAngle(), 5.0f, { 0.0f, 0.0f },
-			Globals::Components().planes()[playerId].getVelocity(),
-			missileTexture, flameAnimatedTexture, playerId);
-		missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
-	}
-
-	ComponentId CreatePlane(unsigned planeTexture, unsigned flameAnimatedTexture, glm::vec2 position, float angle)
+	ComponentId CreatePlane(ComponentId planeTexture, ComponentId flameAnimatedTexture, glm::vec2 position, float angle)
 	{
 		auto& plane = Globals::Components().planes().emplace(Tools::CreatePlaneBody(2.0f, 0.2f, 0.5f), TCM::Texture(planeTexture));
 
@@ -420,7 +125,8 @@ namespace Tools
 	}
 
 	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 referenceVelocity,
-		glm::vec2 initialVelocity, unsigned missileTexture, unsigned flameAnimatedTexture, std::optional<ComponentId> planeId)
+		glm::vec2 initialVelocity, ComponentId missileTexture, ComponentId flameAnimatedTexture, std::optional<ComponentId> planeId,
+		std::optional<ComponentId> missileSoundBuffer)
 	{
 		auto& missile = Globals::Components().missiles().emplace(Tools::CreateBoxBody({ 0.5f, 0.2f },
 			Tools::BodyParams().position(startPosition).angle(startAngle).bodyType(b2_dynamicBody).density(0.2f)), force);
@@ -467,7 +173,20 @@ namespace Tools
 		decoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 		decoration.renderLayer = RenderLayer::FarMidground;
 
-		return { missile.getComponentId(), decoration.getComponentId(), referenceVelocity, planeId };
+		std::optional<ComponentId> soundId;
+		if (missileSoundBuffer)
+		{
+			soundId = Tools::PlaySingleSound(*missileSoundBuffer,
+				[&]() {
+					return missile.getCenter();
+				},
+				[](auto& sound) {
+					sound.removeOnStop(false);
+					sound.volume(0.1f);
+				}).getComponentId();
+		}
+
+		return { missile.getComponentId(), decoration.getComponentId(), referenceVelocity, planeId, soundId };
 	}
 
 	void CreateExplosion(ExplosionParams params)
@@ -528,7 +247,7 @@ namespace Tools
 			});
 	}
 
-	void CreateFogForeground(int numOfLayers, float alphaPerLayer, unsigned fogTexture,
+	void CreateFogForeground(int numOfLayers, float alphaPerLayer, ComponentId fogTexture,
 		std::function<glm::vec4()> fColor)
 	{
 		for (int layer = 0; layer < numOfLayers; ++layer)
@@ -539,7 +258,7 @@ namespace Tools
 			](Shaders::ProgramId program) mutable {
 				if (!texturedProgram.isValid()) texturedProgram = program;
 				texturedProgram.vp(glm::translate(glm::scale(Globals::Components().mvp().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
-					glm::vec3(-Globals::Components().camera().prevPosition * (0.002f + layer * 0.002f), 0.0f)));
+					glm::vec3(-Globals::Components().camera().details.prevPosition * (0.002f + layer * 0.002f), 0.0f)));
 				texturedProgram.color(fColor()* glm::vec4(1.0f, 1.0f, 1.0f, alphaPerLayer));
 
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -566,7 +285,7 @@ namespace Tools
 			](auto) mutable {
 				juliaShaders.vp(glm::translate(glm::scale(glm::mat4(1.0f),
 					glm::vec3((float)Globals::Components().screenInfo().windowSize.y / Globals::Components().screenInfo().windowSize.x, 1.0f, 1.0f) * 1.5f),
-					glm::vec3(-Globals::Components().camera().prevPosition * 0.005f, 0.0f)));
+					glm::vec3(-Globals::Components().camera().details.prevPosition * 0.005f, 0.0f)));
 				juliaShaders.juliaCOffset(juliaCOffset());
 				juliaShaders.minColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 				juliaShaders.maxColor({ 0, 0.1f, 0.2f, 1.0f });
@@ -576,5 +295,33 @@ namespace Tools
 		background.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 		background.renderLayer = RenderLayer::Background;
 		background.resolutionMode = ResolutionMode::LowerLinearBlend1;
+	}
+
+	glm::vec2 GetRelativePos(glm::vec2 scenePos, bool projectionSizeScaling)
+	{
+		const auto& camera = Globals::Components().camera();
+		return (scenePos - camera.details.position) / (projectionSizeScaling ? camera.details.projectionHSize : 1.0f);
+	}
+
+	Components::Sound& PlaySingleSound(ComponentId soundBuffer, std::function<glm::vec2()> posF,
+		std::function<void(Components::Sound&)> config, std::function<void(Components::Sound&)> stepF)
+	{
+		auto& sound = Globals::Components().sounds().emplace(soundBuffer);
+
+		sound.removeOnStop(true);
+		sound.stepF = [posF = std::move(posF), stepF = std::move(stepF)](auto& sound)
+		{
+			if (posF)
+				sound.position(Tools::GetRelativePos(posF()));
+			if (stepF)
+				stepF(sound);
+		};
+
+		if (config)
+			config(sound);
+
+		sound.play();
+
+		return sound;
 	}
 }

@@ -18,10 +18,9 @@ namespace Systems
 	{
 		auto& camera = Globals::Components().camera();
 		const float targetProjectionHSize = camera.targetProjectionHSizeF();
-		const glm::vec2 targetPosition = camera.targetPositionF();
-
-		camera.prevProjectionHSize = targetProjectionHSize;
-		camera.prevPosition = targetPosition;
+		camera.details.position = camera.targetPositionF();
+		camera.details.prevPosition = camera.details.position;
+		camera.details.prevProjectionHSize = targetProjectionHSize;
 	}
 
 	void Camera::step() const
@@ -39,16 +38,16 @@ namespace Systems
 		const float targetProjectionHSize = camera.targetProjectionHSizeF();
 		const glm::vec2 targetPosition = camera.targetPositionF();
 
-		const float projectionHSize = camera.prevProjectionHSize + (targetProjectionHSize - camera.prevProjectionHSize)
+		camera.details.projectionHSize = camera.details.prevProjectionHSize + (targetProjectionHSize - camera.details.prevProjectionHSize)
 			* std::clamp(camera.projectionTransitionFactor, 0.0f, 1.0f);
-		const glm::vec2 position = camera.prevPosition + (targetPosition - camera.prevPosition)
+		camera.details.position = camera.details.prevPosition + (targetPosition - camera.details.prevPosition)
 			* std::clamp(camera.positionTransitionFactor, 0.0f, 1.0f);
 
-		camera.prevProjectionHSize = projectionHSize;
-		camera.prevPosition = position;
+		camera.details.prevProjectionHSize = camera.details.projectionHSize;
+		camera.details.prevPosition = camera.details.position;
 
-		mvp.view = glm::translate(glm::mat4(1.0f), glm::vec3(-position, 0.0f));
-		mvp.projection = glm::ortho(-projectionHSize * windowWidthRatio, projectionHSize * windowWidthRatio,
-			-projectionHSize * windowHeightRatio, projectionHSize * windowHeightRatio);
+		mvp.view = glm::translate(glm::mat4(1.0f), glm::vec3(-camera.details.position, 0.0f));
+		mvp.projection = glm::ortho(-camera.details.projectionHSize * windowWidthRatio, camera.details.projectionHSize * windowWidthRatio,
+			-camera.details.projectionHSize * windowHeightRatio, camera.details.projectionHSize * windowHeightRatio);
 	}
 }
