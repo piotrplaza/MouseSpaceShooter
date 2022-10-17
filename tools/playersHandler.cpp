@@ -15,12 +15,13 @@
 namespace Tools
 {
 	void PlayersHandler::initPlayers(ComponentId rocketPlaneTexture, const std::array<unsigned, 4>& flameAnimatedTextureForPlayers, bool gamepadForPlayer1,
-		std::function<glm::vec2(unsigned player, unsigned numOfPlayers)> initPosF, std::optional<ComponentId> thrustSoundBuffer)
+		std::function<glm::vec2(unsigned player, unsigned numOfPlayers)> initPosF, std::optional<ComponentId> thrustSoundBuffer, std::optional<ComponentId> grappleSoundBuffer)
 	{
 		this->rocketPlaneTexture = rocketPlaneTexture;
 		this->flameAnimatedTextureForPlayers = flameAnimatedTextureForPlayers;
 		this->gamepadForPlayer1 = gamepadForPlayer1;
 		this->thrustSoundBuffer = thrustSoundBuffer;
+		this->grappleSoundBuffer = grappleSoundBuffer;
 
 		const auto& gamepads = Globals::Components().gamepads();
 		std::vector<unsigned> activeGamepads;
@@ -40,7 +41,7 @@ namespace Tools
 		{
 			ComponentId planeId = Tools::CreatePlane(rocketPlaneTexture, flameAnimatedTextureForPlayers[i], initPosF(i, numOfPlayers));
 			playersHandlers.emplace_back(planeId, i == 0 && !gamepadForPlayer1 || activeGamepads.empty() ? std::nullopt : std::optional(activeGamepads[activeGamepadId++]),
-				0.0f, createThrustSound(planeId));
+				0.0f, createSound(thrustSoundBuffer, planeId), 0.0f, createSound(grappleSoundBuffer, planeId), 0.0f);
 		}
 	}
 
@@ -135,7 +136,8 @@ namespace Tools
 				{
 					ComponentId planeId = Tools::CreatePlane(rocketPlaneTexture, flameAnimatedTextureForPlayers[playersHandlers.size()],
 						initPosF(playersHandlers.size()));
-					playersHandlers.emplace_back(planeId, activeGamepadId, 0.0f, createThrustSound(planeId));
+					playersHandlers.emplace_back(planeId, activeGamepadId, 0.0f,
+						createSound(thrustSoundBuffer, planeId), 0.0f, createSound(grappleSoundBuffer, planeId), 0.0f);
 				}
 		}
 	}
@@ -193,15 +195,21 @@ namespace Tools
 			if (playerHandler.thrustSound)
 			{
 				const float maxVolume = playerControls.throttling * 0.1f;
-				const float volumeStep = 2.0f;
+				const float volumeStep = physics.frameDuration * 0.5f;
 
-				if (playerHandler.volume < maxVolume && playerControls.throttling)
-					playerHandler.volume += physics.frameDuration * volumeStep;
+				if (playerHandler.thrustVolume < maxVolume && playerControls.throttling)
+					playerHandler.thrustVolume += volumeStep;
 				else if (!playerControls.throttling)
-					playerHandler.volume -= physics.frameDuration * volumeStep;
-				playerHandler.volume = glm::clamp(playerHandler.volume, 0.0f, maxVolume);
+					playerHandler.thrustVolume -= volumeStep;
+				playerHandler.thrustVolume = glm::clamp(playerHandler.thrustVolume, 0.0f, maxVolume);
 
-				Globals::Components().sounds()[*playerHandler.thrustSound].volume(playerHandler.volume);
+				Globals::Components().sounds()[*playerHandler.thrustSound].volume(playerHandler.thrustVolume);
+			}
+
+			if (playerHandler.grappleSound)
+			{
+				playerHandler.grappleVolume = (bool)plane.details.connectedGrappleId * 0.7f;
+				Globals::Components().sounds()[*playerHandler.grappleSound].volume(playerHandler.grappleVolume);
 			}
 		}
 	}
@@ -216,14 +224,14 @@ namespace Tools
 		return playersHandlers;
 	}
 
-	std::optional<ComponentId> PlayersHandler::createThrustSound(ComponentId planeId) const
+	std::optional<ComponentId> PlayersHandler::createSound(std::optional<ComponentId> soundBuffer, ComponentId planeId) const
 	{
-		if (!thrustSoundBuffer)
+		if (!soundBuffer)
 			return std::nullopt;
 
 		const auto& plane = Globals::Components().planes()[planeId];
 
-		auto& sound = Globals::Components().sounds().emplace(*thrustSoundBuffer);
+		auto& sound = Globals::Components().sounds().emplace(*soundBuffer);
 		sound.loop(true);
 		sound.volume(0.0f);
 		sound.stepF = [&plane](auto& sound) {

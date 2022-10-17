@@ -148,6 +148,7 @@ namespace Levels
 			missileLaunchingSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav").getComponentId();
 			collisionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
 			thrustSoundBuffer = soundsBuffers.emplace("audio/thrust.wav").getComponentId();
+			grappleSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
 		}
 
 		void setAnimations()
@@ -518,7 +519,7 @@ namespace Levels
 					const float gap = 5.0f;
 					const float farPlayersDistance = gap * (numOfPlayers - 1);
 					return glm::vec2(-10.0f, -farPlayersDistance / 2.0f + gap * player);
-				}, thrustSoundBuffer);
+				}, thrustSoundBuffer, grappleSoundBuffer);
 
 			missilesHandler.setPlayersHandler(playersHandler);
 			missilesHandler.setExplosionTexture(explosionTexture);
@@ -535,16 +536,21 @@ namespace Levels
 
 		void collisionHandlers()
 		{
+			auto collisionSound = [this](const auto& plane, const auto& obstacle) {
+				Tools::PlaySingleSound(collisionSoundBuffer,
+					[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {
+						return pos;
+					},
+					[&](auto& sound) {
+						sound.volume(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f);
+						sound.pitch(Tools::Random(0.9f, 1.5f));
+					});
+			};
+
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::plane | Globals::CollisionBits::wall,
-				[this](const auto& plane, const auto& obstacle) {
-					Tools::PlaySingleSound(collisionSoundBuffer,
-						[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {
-							return pos;
-						},
-						[&](auto& sound) {
-							sound.volume(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f);
-						});
-				});
+				collisionSound);
+			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::wall, Globals::CollisionBits::wall,
+				collisionSound);
 		}
 
 		void step()
@@ -595,6 +601,7 @@ namespace Levels
 		ComponentId missileLaunchingSoundBuffer = 0;
 		ComponentId collisionSoundBuffer = 0;
 		ComponentId thrustSoundBuffer = 0;
+		ComponentId grappleSoundBuffer = 0;
 
 		float projectionHSizeBase = 20.0f;
 

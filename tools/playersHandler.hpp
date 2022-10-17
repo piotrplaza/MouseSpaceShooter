@@ -19,14 +19,17 @@ namespace Tools
 		std::optional<ComponentId> gamepadId;
 		float durationToLaunchMissile = 0.0f;
 		std::optional<ComponentId> thrustSound;
-		float volume = 0.0f;
+		float thrustVolume = 0.0f;
+		std::optional<ComponentId> grappleSound;
+		float grappleVolume = 0.0f;
 	};
 
 	class PlayersHandler
 	{
 	public:
 		void initPlayers(ComponentId rocketPlaneTexture, const std::array<unsigned, 4>& flameAnimatedTextureForPlayers, bool gamepadForPlayer1,
-			std::function<glm::vec2(unsigned player, unsigned numOfPlayers)> initPosF, std::optional<ComponentId> thrustSoundBuffer = std::nullopt);
+			std::function<glm::vec2(unsigned player, unsigned numOfPlayers)> initPosF, std::optional<ComponentId> thrustSoundBuffer = std::nullopt,
+			std::optional<ComponentId> grappleSoundBuffer = std::nullopt);
 		void initMultiplayerCamera(std::function<float()> projectionHSizeMin, float scalingFactor = 0.6f, float velocityFactor = 0.2f, float transitionFactor = 10.0f) const;
 
 		void autodetectionStep(std::function<glm::vec2(unsigned player)> initPosF);
@@ -36,12 +39,13 @@ namespace Tools
 		std::vector<Tools::PlayerHandler>& accessPlayersHandlers();
 
 	private:
-		std::optional<ComponentId> createThrustSound(ComponentId planeId) const;
-		std::vector<Tools::PlayerHandler> playersHandlers;
+		std::optional<ComponentId> createSound(std::optional<ComponentId> soundBuffer, ComponentId planeId) const;
 
+		std::vector<Tools::PlayerHandler> playersHandlers;
 		ComponentId rocketPlaneTexture = 0;
 		std::array<unsigned, 4> flameAnimatedTextureForPlayers{ 0 };
 		bool gamepadForPlayer1 = false;
 		std::optional<ComponentId> thrustSoundBuffer;
+		std::optional<ComponentId> grappleSoundBuffer;
 	};
 }
