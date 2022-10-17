@@ -12,7 +12,7 @@ namespace Components
 
 	struct Music : ComponentBase
 	{
-		Music(std::string path);
+		Music(std::string path, float maxVolume = 1.0f);
 		~Music();
 
 		std::function<void(Music&)> step;
@@ -24,5 +24,6 @@ namespace Components
 
 	private:
 		std::unique_ptr<MusicDetails> details;
+		const float maxVolume;
 	};
 }

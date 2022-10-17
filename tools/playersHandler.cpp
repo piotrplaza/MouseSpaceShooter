@@ -194,22 +194,25 @@ namespace Tools
 
 			if (playerHandler.thrustSound)
 			{
-				const float maxVolume = playerControls.throttling * 0.1f;
-				const float volumeStep = physics.frameDuration * 0.5f;
+				const float volumeStep = physics.frameDuration * 2.0f;
 
-				if (playerHandler.thrustVolume < maxVolume && playerControls.throttling)
+				if (playerControls.throttling > playerHandler.thrustVolume)
+				{
 					playerHandler.thrustVolume += volumeStep;
-				else if (!playerControls.throttling)
+					playerHandler.thrustVolume = std::min(playerHandler.thrustVolume, playerControls.throttling);
+				}
+				else
+				{
 					playerHandler.thrustVolume -= volumeStep;
-				playerHandler.thrustVolume = glm::clamp(playerHandler.thrustVolume, 0.0f, maxVolume);
+					playerHandler.thrustVolume = std::max(playerHandler.thrustVolume, 0.0f);
+				}
 
 				Globals::Components().sounds()[*playerHandler.thrustSound].volume(playerHandler.thrustVolume);
 			}
 
 			if (playerHandler.grappleSound)
 			{
-				playerHandler.grappleVolume = (bool)plane.details.connectedGrappleId * 0.7f;
-				Globals::Components().sounds()[*playerHandler.grappleSound].volume(playerHandler.grappleVolume);
+				Globals::Components().sounds()[*playerHandler.grappleSound].volume((bool)plane.details.connectedGrappleId);
 			}
 		}
 	}

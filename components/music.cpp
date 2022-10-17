@@ -2,6 +2,8 @@
 
 #include <SFML/Audio.hpp>
 
+#include <algorithm>
+
 namespace Components
 {
 	struct MusicDetails
@@ -9,10 +11,12 @@ namespace Components
 		sf::Music sfMusic;
 	};
 
-	Music::Music(std::string path) :
-		details(std::make_unique<MusicDetails>())
+	Music::Music(std::string path, float maxVolume) :
+		details(std::make_unique<MusicDetails>()),
+		maxVolume(maxVolume)
 	{
 		details->sfMusic.openFromFile(path);
+		volume(1.0f);
 		loop(true);
 		state = ComponentState::Ongoing;
 	}
@@ -31,6 +35,6 @@ namespace Components
 
 	void Music::volume(float value)
 	{
-		details->sfMusic.setVolume(value * 100.0f);
+		details->sfMusic.setVolume(std::clamp(value, 0.0f, 1.0f) * maxVolume * 100.0f);
 	}
 }

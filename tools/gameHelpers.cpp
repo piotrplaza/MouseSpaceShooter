@@ -182,7 +182,6 @@ namespace Tools
 				},
 				[](auto& sound) {
 					sound.removeOnStop(false);
-					sound.volume(0.1f);
 				}).getComponentId();
 		}
 

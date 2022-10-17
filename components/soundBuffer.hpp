@@ -19,11 +19,14 @@ namespace Components
 	{
 		friend Components::Sound;
 
-		SoundBuffer(std::string path);
+		SoundBuffer(std::string path, float maxVolume = 1.0f);
 		~SoundBuffer();
+
+		float getMaxVolume() const;
 
 	private:
 		sf::SoundBuffer& getBuffer();
 		std::unique_ptr<SoundBufferDetails> details;
+		const float maxVolume;
 	};
 }

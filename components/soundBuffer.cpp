@@ -9,8 +9,9 @@ namespace Components
 		sf::SoundBuffer sfSoundBuffer;
 	};
 
-	SoundBuffer::SoundBuffer(std::string path) :
-		details(std::make_unique<SoundBufferDetails>())
+	SoundBuffer::SoundBuffer(std::string path, float maxVolume) :
+		details(std::make_unique<SoundBufferDetails>()),
+		maxVolume(maxVolume)
 	{
 		details->sfSoundBuffer.loadFromFile(path);
 		state = ComponentState::Ongoing;
@@ -21,5 +22,10 @@ namespace Components
 	sf::SoundBuffer& SoundBuffer::getBuffer()
 	{
 		return details->sfSoundBuffer;
+	}
+
+	float SoundBuffer::getMaxVolume() const
+	{
+		return maxVolume;
 	}
 }

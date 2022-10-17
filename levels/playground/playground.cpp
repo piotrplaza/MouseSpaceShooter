@@ -140,14 +140,14 @@ namespace Levels
 		void loadAudio()
 		{
 			auto& musics = Globals::Components().musics();
-			musics.emplace("audio/Ghosthack-Ambient Beds_Celestial_Dm 70Bpm (DRY).ogg").play();
+			musics.emplace("audio/Ghosthack-Ambient Beds_Darkest Hour_Am 70Bpm (WET).ogg", 0.8f).play();
 
 			auto& soundsBuffers = Globals::Components().soundsBuffers();
 			missileExplosionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Detonate.wav").getComponentId();
 			playerExplosionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack-AC21_Impact_Cracked.wav").getComponentId();
-			missileLaunchingSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav").getComponentId();
+			missileLaunchingSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav", 0.2f).getComponentId();
 			collisionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
-			thrustSoundBuffer = soundsBuffers.emplace("audio/thrust.wav").getComponentId();
+			thrustSoundBuffer = soundsBuffers.emplace("audio/thrust.wav", 0.2f).getComponentId();
 			grappleSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
 		}
 

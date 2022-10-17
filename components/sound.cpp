@@ -7,6 +7,8 @@
 
 #include <SFML/Audio.hpp>
 
+#include <algorithm>
+
 namespace Components
 {
 	struct SoundDetails
@@ -15,11 +17,13 @@ namespace Components
 	};
 
 	Sound::Sound(ComponentId soundBufferId):
-		details(std::make_unique<SoundDetails>())
+		details(std::make_unique<SoundDetails>()),
+		maxVolume(Globals::Components().soundsBuffers()[soundBufferId].getMaxVolume())
 	{
-		auto& soundsBuffers = Globals::Components().soundsBuffers();
+		auto& soundBuffer = Globals::Components().soundsBuffers()[soundBufferId];
 
-		details->sfSound.setBuffer(soundsBuffers[soundBufferId].getBuffer());
+		details->sfSound.setBuffer(soundBuffer.getBuffer());
+		volume(1.0f);
 		minDistance(2.0f);
 		setAttenuation(1.0f);
 		state = ComponentState::Ongoing;
@@ -44,7 +48,7 @@ namespace Components
 
 	void Sound::volume(float value)
 	{
-		details->sfSound.setVolume(value * 100.0f);
+		details->sfSound.setVolume(std::clamp(value, 0.0f, 1.0f) * maxVolume * 100.0f);
 	}
 
 	void Sound::pitch(float value)

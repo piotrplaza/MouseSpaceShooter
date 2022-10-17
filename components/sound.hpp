@@ -42,6 +42,7 @@ namespace Components
 
 	private:
 		std::unique_ptr<SoundDetails> details;
+		const float maxVolume;
 		bool removeOnStop_ = false;
 		float zFactor_ = 20.0f;
 	};
