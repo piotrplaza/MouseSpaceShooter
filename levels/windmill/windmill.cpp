@@ -34,11 +34,6 @@
 
 #include <numeric>
 
-namespace
-{
-	constexpr float rotationSpeed = 0.1f;
-}
-
 namespace Levels
 {
 	class Windmill::Impl
@@ -162,15 +157,15 @@ namespace Levels
 
 		void createForeground() const
 		{
-			auto& decorations = Globals::Components().decorations();
+			auto& staticDecorations = Globals::Components().staticDecorations();
 			const auto& physics = Globals::Components().physics();
 
-			decorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 15.0f, 15.0f }),
+			staticDecorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 15.0f, 15.0f }),
 				TCM::AnimatedTexture(recursiveFaceAnimatedTexture), Tools::CreateTexCoordOfRectangle(), recursiveFaceRS, RenderLayer::NearForeground);
-			decorations.last().modelMatrixF = [&, angle = 0.0f]() mutable {
+			staticDecorations.last().modelMatrixF = [&, angle = 0.0f]() mutable {
 				return glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(innerForceScale)), angle += 2.0f * physics.frameDuration, { 0.0f, 0.0f, 1.0f });
 			};
-			decorations.last().colorF = []() {
+			staticDecorations.last().colorF = []() {
 				return glm::vec4(0.4f);
 			};
 		}
@@ -294,7 +289,8 @@ namespace Levels
 				});
 
 			{
-				const float innerForce = innerForceScale * 800.0f;
+				const float rotationSpeed = 0.1f;
+				const float innerForce = innerForceScale * 700.0f;
 
 				const auto& physics = Globals::Components().physics();
 				auto& windmill = Globals::Components().staticWalls()[windmillWall];
@@ -306,7 +302,7 @@ namespace Levels
 				{
 					auto& plane = planes[planeHandler.playerId];
 					plane.body->ApplyForceToCenter(ToVec2<b2Vec2>(glm::normalize(plane.getCenter()) *
-						(innerForce / glm::pow(glm::length(plane.getCenter()) - 10.0f * innerForceScale, 2.0f))), true);
+						(innerForce / glm::pow(glm::length(plane.getCenter()) - 8.0f * innerForceScale, 2.0f))), true);
 				}
 
 				innerForceScale += physics.frameDuration * 0.05f;

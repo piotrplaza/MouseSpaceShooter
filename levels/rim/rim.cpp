@@ -212,11 +212,11 @@ namespace Levels
 
 		void createAdditionalDecorations()
 		{
-			auto& decorations = Globals::Components().decorations();
+			auto& staticDecorations = Globals::Components().staticDecorations();
 
 			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
 			{
-				decorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }),
+				staticDecorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }),
 					TCM::AnimatedTexture(recursiveFaceAnimatedTextureBegin + i), Tools::CreateTexCoordOfRectangle(), recursiveFaceRSBegin + i, RenderLayer::NearBackground);
 			}
 		}

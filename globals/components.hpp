@@ -72,7 +72,7 @@ namespace Globals
 		DynamicComponents<Components::DynamicWall>& dynamicWalls();
 		DynamicComponents<Components::Grapple>& grapples();
 		StaticComponents<Components::Polyline>& polylines();
-		StaticComponents<Components::Decoration>& decorations();
+		StaticComponents<Components::Decoration>& staticDecorations();
 		DynamicComponents<Components::Decoration>& dynamicDecorations();
 		DynamicComponents<Components::Missile>& missiles();
 		DynamicComponents<Components::CollisionFilter>& collisionFilters();
@@ -109,7 +109,7 @@ namespace Globals
 		DynamicComponents<Components::DynamicWall> dynamicWalls_;
 		DynamicComponents<Components::Grapple> grapples_;
 		std::unique_ptr<StaticComponents<Components::Polyline>> polylines_ = std::make_unique<StaticComponents<Components::Polyline>>();
-		std::unique_ptr<StaticComponents<Components::Decoration>> decorations_ = std::make_unique<StaticComponents<Components::Decoration>>();
+		std::unique_ptr<StaticComponents<Components::Decoration>> staticDecorations_ = std::make_unique<StaticComponents<Components::Decoration>>();
 		DynamicComponents<Components::Decoration> dynamicDecorations_;
 		DynamicComponents<Components::Missile> missiles_;
 		DynamicComponents<Components::CollisionFilter> collisionFilters_;

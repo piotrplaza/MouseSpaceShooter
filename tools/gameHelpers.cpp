@@ -268,16 +268,16 @@ namespace Tools
 				};
 			});
 
-			Globals::Components().decorations().emplace(Tools::CreateVerticesOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
+			Globals::Components().staticDecorations().emplace(Tools::CreateVerticesOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
 				TCM::Texture(fogTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1).renderLayer = RenderLayer::Foreground;
-			Globals::Components().decorations().last().resolutionMode = ResolutionMode::LowestLinearBlend1;
+			Globals::Components().staticDecorations().last().resolutionMode = ResolutionMode::LowestLinearBlend1;
 		}
 	}
 
 	void CreateJuliaBackground(std::function<glm::vec2()> juliaCOffset)
 	{
 		auto& juliaShaders = Globals::Shaders().julia();
-		auto& background = Globals::Components().decorations().emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
+		auto& background = Globals::Components().staticDecorations().emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
 		background.customShadersProgram = juliaShaders.getProgramId();
 
 		Globals::Components().renderingSetups().emplace([=, &juliaShaders

@@ -54,12 +54,12 @@ namespace Levels
 		void createBackground()
 		{
 			Tools::CreateJuliaBackground([this]() {
-				return Globals::Components().decorations()[dzidziaDecorationId].getCenter() * 0.0001f; });
+				return Globals::Components().staticDecorations()[dzidziaDecorationId].getCenter() * 0.0001f; });
 		}
 
 		void createDecorations()
 		{
-			auto& decorations = Globals::Components().decorations();
+			auto& staticDecorations = Globals::Components().staticDecorations();
 			auto& renderingSetups = Globals::Components().renderingSetups();
 
 			auto pos = std::make_shared<glm::vec2>(0.0f);
@@ -89,9 +89,9 @@ namespace Levels
 				};
 			});
 
-			decorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.0f, 5.0f }),
+			staticDecorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.0f, 5.0f }),
 				TCM::Texture(dzidziaITata1Texture), Tools::CreateTexCoordOfRectangle(), renderingSetups.size() - 1).preserveTextureRatio = true;
-			decorations.last().modelMatrixF = [pos, step = glm::vec2(5.0f)]() mutable {
+			staticDecorations.last().modelMatrixF = [pos, step = glm::vec2(5.0f)]() mutable {
 				const auto& screenInfo = Globals::Components().screenInfo();
 				const glm::vec2 absClamp = { (float)screenInfo.windowSize.x / screenInfo.windowSize.y * 10.0f, 10.0f };
 
@@ -103,8 +103,8 @@ namespace Levels
 				return glm::translate(glm::mat4(1.0f), glm::vec3(*pos, 0.0f));
 			};
 
-			dzidziaDecorationId = decorations.size();
-			auto& dzidzia = decorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
+			dzidziaDecorationId = staticDecorations.size();
+			auto& dzidzia = staticDecorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
 				TCM::Texture(dzidzia1Texture), Tools::CreateTexCoordOfRectangle());
 			dzidzia.preserveTextureRatio = true;
 			dzidzia.modelMatrixF = [this]() mutable {
@@ -132,13 +132,13 @@ namespace Levels
 			const auto& mouse = Globals::Components().mouse();
 			const auto& screenInfo = Globals::Components().screenInfo();
 			const auto& physics = Globals::Components().physics();
-			auto& decorations = Globals::Components().decorations();
+			auto& staticDecorations = Globals::Components().staticDecorations();
 
 			absClamp = { (float)screenInfo.windowSize.x / screenInfo.windowSize.y * 10.0f, 10.0f };
 			mousePos += mouse.getWorldSpaceDelta() * turningSensitivity;
 			mousePos = glm::clamp(mousePos, -absClamp, absClamp);
 
-			auto& dzidzia = Globals::Components().decorations()[dzidziaDecorationId];
+			auto& dzidzia = Globals::Components().staticDecorations()[dzidziaDecorationId];
 
 			dzidzia.subsequence[dzidzia.subsequenceBegin].modelMatrixF = [pos = this->mousePos, angle = this->rotateAngle, scaleSin = this->scaleSin]() {
 				return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), angle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));

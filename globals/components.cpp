@@ -153,9 +153,9 @@ namespace Globals
 		return *polylines_;
 	}
 
-	StaticComponents<Components::Decoration>& ComponentsHolder::decorations()
+	StaticComponents<Components::Decoration>& ComponentsHolder::staticDecorations()
 	{
-		return *decorations_;
+		return *staticDecorations_;
 	}
 
 	DynamicComponents<Components::Decoration>& ComponentsHolder::dynamicDecorations()

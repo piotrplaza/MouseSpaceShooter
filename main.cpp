@@ -112,7 +112,7 @@ void Initialize()
 	Globals::Systems().audio().postInit();
 	Globals::Systems().physics().postInit();
 	Globals::Systems().structures().postInit();
-	Globals::Systems().decorations().postInit();
+	Globals::Systems().staticDecorations().postInit();
 	Globals::Systems().camera().postInit();
 	Globals::Systems().renderingController().postInit();
 	Globals::Systems().stateController().postInit();
@@ -135,7 +135,7 @@ void PrepareFrame()
 		Globals::Systems().actors().step();
 		Globals::Systems().temporaries().step();
 		Globals::Systems().structures().step();
-		Globals::Systems().decorations().step();
+		Globals::Systems().staticDecorations().step();
 		Globals::Systems().camera().step();
 		Globals::Systems().audio().step();
 		Globals::Systems().stateController().stepTeardown();

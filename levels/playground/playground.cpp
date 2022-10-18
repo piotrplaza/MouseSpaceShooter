@@ -240,7 +240,7 @@ namespace Levels
 					};
 				});
 
-				Globals::Components().decorations().emplace(Tools::CreateVerticesOfRectangle(portraitCenter, { 10.0f, 10.0f }),
+				Globals::Components().staticDecorations().emplace(Tools::CreateVerticesOfRectangle(portraitCenter, { 10.0f, 10.0f }),
 					TCM::BlendingTexture(blendingTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1,
 					RenderLayer::NearMidground).preserveTextureRatio = true;
 			}
@@ -414,11 +414,11 @@ namespace Levels
 					};
 				});
 
-			Globals::Components().decorations().emplace(Tools::CreateVerticesOfLineOfRectangles({ 1.5f, 1.5f },
+			Globals::Components().staticDecorations().emplace(Tools::CreateVerticesOfLineOfRectangles({ 1.5f, 1.5f },
 				{ { -levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, levelHeightHSize },
 				{ -levelWidthHSize, levelHeightHSize }, { -levelWidthHSize, -levelHeightHSize } },
 				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture), Tools::CreateTexCoordOfRectangle(), renderingSetup);
-			Globals::Components().decorations().last().renderLayer = RenderLayer::FarForeground;
+			Globals::Components().staticDecorations().last().renderLayer = RenderLayer::FarForeground;
 			//Globals::Components().decorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
 		}
 
