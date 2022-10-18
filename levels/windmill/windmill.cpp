@@ -121,6 +121,14 @@ namespace Levels
 			missileLaunchingSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav", 0.2f).getComponentId();
 			collisionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
 			thrustSoundBuffer = soundsBuffers.emplace("audio/thrust.wav", 0.2f).getComponentId();
+			grappleSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
+			innerForceSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav", 0.8f).getComponentId();
+			
+			innerForceSound = Tools::PlaySingleSound(innerForceSoundBuffer, []() { return glm::vec2(0.0f); },
+				[](auto& sound) {
+					sound.loop(true);
+					sound.volume(0.0f);
+				}).getComponentId();
 		}
 
 		void setAnimations()
@@ -159,8 +167,7 @@ namespace Levels
 
 			decorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 15.0f, 15.0f }),
 				TCM::AnimatedTexture(recursiveFaceAnimatedTexture), Tools::CreateTexCoordOfRectangle(), recursiveFaceRS, RenderLayer::NearForeground);
-			decorations.last().modelMatrixF = [&, angle = 0.0f]() mutable
-			{
+			decorations.last().modelMatrixF = [&, angle = 0.0f]() mutable {
 				return glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(innerForceScale)), angle += 2.0f * physics.frameDuration, { 0.0f, 0.0f, 1.0f });
 			};
 			decorations.last().colorF = []() {
@@ -238,7 +245,7 @@ namespace Levels
 			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, false,
 				[this](unsigned player, auto) {
 					return initPos(player);
-				}, thrustSoundBuffer);
+				}, thrustSoundBuffer, grappleSoundBuffer);
 
 			missilesHandler.setPlayersHandler(playersHandler);
 			missilesHandler.setExplosionTexture(explosionTexture);
@@ -302,8 +309,9 @@ namespace Levels
 						(innerForce / glm::pow(glm::length(plane.getCenter()) - 10.0f * innerForceScale, 2.0f))), true);
 				}
 
-				innerForceScaleFactor += physics.frameDuration * 0.2f;
-				innerForceScale = 0.2f + (1.0f - glm::cos(innerForceScaleFactor)) / 2.0f;
+				innerForceScale += physics.frameDuration * 0.05f;
+
+				Globals::Components().sounds()[innerForceSound].volume(innerForceScale / 3.0f);
 			}
 		}
 
@@ -329,6 +337,10 @@ namespace Levels
 		ComponentId missileLaunchingSoundBuffer = 0;
 		ComponentId collisionSoundBuffer = 0;
 		ComponentId thrustSoundBuffer = 0;
+		ComponentId grappleSoundBuffer = 0;
+		ComponentId innerForceSoundBuffer = 0;
+
+		ComponentId innerForceSound = 0;
 
 		std::array<unsigned, 4> flameAnimatedTextureForPlayers{ 0 };
 		ComponentId flameAnimatedTexture = 0;
@@ -339,8 +351,7 @@ namespace Levels
 		Tools::PlayersHandler playersHandler;
 		Tools::MissilesHandler missilesHandler;
 
-		float innerForceScaleFactor = 0.0f;
-		float innerForceScale = 1.0f;
+		float innerForceScale = 0.0f;
 	};
 
 	Windmill::Windmill():

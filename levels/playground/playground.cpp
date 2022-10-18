@@ -149,6 +149,17 @@ namespace Levels
 			collisionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
 			thrustSoundBuffer = soundsBuffers.emplace("audio/thrust.wav", 0.2f).getComponentId();
 			grappleSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
+			avatarSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav", 0.4f).getComponentId();
+
+			for (float x : {-40.0f, 40.0f})
+				Tools::PlaySingleSound(avatarSoundBuffer, [x]() { return glm::vec2(x, -40.0f); },
+					[](auto& sound) {
+						sound.loop(true);
+						sound.zFactor(0.01f);
+						sound.minDistance(1.0f);
+						sound.attenuation(10.0f);
+						sound.position({ 0.0f, 100.0f });
+					});
 		}
 
 		void setAnimations()
@@ -602,6 +613,7 @@ namespace Levels
 		ComponentId collisionSoundBuffer = 0;
 		ComponentId thrustSoundBuffer = 0;
 		ComponentId grappleSoundBuffer = 0;
+		ComponentId avatarSoundBuffer = 0;
 
 		float projectionHSizeBase = 20.0f;
 

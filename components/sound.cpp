@@ -25,7 +25,7 @@ namespace Components
 		details->sfSound.setBuffer(soundBuffer.getBuffer());
 		volume(1.0f);
 		minDistance(2.0f);
-		setAttenuation(1.0f);
+		attenuation(1.0f);
 		state = ComponentState::Ongoing;
 	}
 
@@ -63,7 +63,7 @@ namespace Components
 
 	void Sound::position(glm::vec2 pos)
 	{
-		details->sfSound.setPosition(pos.x, pos.y, Globals::Components().camera().details.projectionHSize / zFactor_);
+		details->sfSound.setPosition(pos.x, pos.y, Globals::Components().camera().details.projectionHSize * zFactor_);
 	}
 
 	void Sound::zFactor(float value)
@@ -76,7 +76,7 @@ namespace Components
 		details->sfSound.setMinDistance(value);
 	}
 
-	void Sound::setAttenuation(float value)
+	void Sound::attenuation(float value)
 	{
 		details->sfSound.setAttenuation(value);
 	}

@@ -32,7 +32,7 @@ namespace Components
 		void position(glm::vec2 pos);
 		void zFactor(float value);
 		void minDistance(float value);
-		void setAttenuation(float value);
+		void attenuation(float value);
 
 		bool isStopped() const;
 		bool isPaused() const;
@@ -44,6 +44,6 @@ namespace Components
 		std::unique_ptr<SoundDetails> details;
 		const float maxVolume;
 		bool removeOnStop_ = false;
-		float zFactor_ = 20.0f;
+		float zFactor_ = 0.05f;
 	};
 }
