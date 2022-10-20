@@ -1,8 +1,10 @@
 #include "structures.hpp"
 
 #include <components/staticWall.hpp>
+#include <components/dynamicWall.hpp>
 #include <components/grapple.hpp>
-#include <components/polyline.hpp>
+#include <components/staticPolyline.hpp>
+#include <components/dynamicPolyline.hpp>
 
 #include <globals/components.hpp>
 
@@ -28,7 +30,10 @@ namespace Systems
 		for (auto& grapple : Globals::Components().grapples())
 			grapple.step();
 
-		for (auto& polyline : Globals::Components().polylines())
+		for (auto& polyline : Globals::Components().staticPolylines())
+			polyline.step();
+
+		for (auto& polyline : Globals::Components().dynamicPolylines())
 			polyline.step();
 
 		updateDynamicBuffers();
@@ -39,13 +44,14 @@ namespace Systems
 		Tools::UpdateStaticBuffers(Globals::Components().staticWalls(), loadedStaticWalls);
 		loadedStaticWalls = Globals::Components().staticWalls().size();
 
-		Tools::UpdateStaticBuffers(Globals::Components().polylines(), loadedStaticPolylines);
-		loadedStaticPolylines = Globals::Components().polylines().size();
+		Tools::UpdateStaticBuffers(Globals::Components().staticPolylines(), loadedStaticPolylines);
+		loadedStaticPolylines = Globals::Components().staticPolylines().size();
 	}
 
 	void Structures::updateDynamicBuffers()
 	{
 		Tools::UpdateDynamicBuffers(Globals::Components().dynamicWalls());
 		Tools::UpdateDynamicBuffers(Globals::Components().grapples());
+		Tools::UpdateDynamicBuffers(Globals::Components().dynamicPolylines());
 	}
 }

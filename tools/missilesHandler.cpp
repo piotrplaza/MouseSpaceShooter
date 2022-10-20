@@ -25,7 +25,7 @@ namespace Tools
 				if (!missilePlaneId)
 					return true;
 
-				if (std::holds_alternative<TCM::Polyline>(targetBodyComponentVariant))
+				if (std::holds_alternative<TCM::StaticPolyline>(targetBodyComponentVariant) || std::holds_alternative<TCM::DynamicPolyline>(targetBodyComponentVariant))
 					return false;
 
 				if (const TCM::Missile* targetMissile = std::get_if<TCM::Missile>(&targetBodyComponentVariant))

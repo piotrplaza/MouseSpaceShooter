@@ -13,7 +13,8 @@ namespace Components
 	struct Plane;
 	struct StaticWall;
 	struct DynamicWall;
-	struct Polyline;
+	struct StaticPolyline;
+	struct DynamicPolyline;
 }
 
 namespace TypeComponentMappers
@@ -91,16 +92,25 @@ namespace TypeComponentMappers
 		bool operator==(const DynamicWall&) const = default;
 	};
 
-	struct Polyline
+	struct StaticPolyline
 	{
 		ComponentId id;
-		Components::Polyline* component = nullptr;
+		Components::StaticPolyline* component = nullptr;
 
-		bool operator==(const Polyline&) const = default;
+		bool operator==(const StaticPolyline&) const = default;
+	};
+
+	struct DynamicPolyline
+	{
+		ComponentId id;
+		Components::DynamicPolyline* component = nullptr;
+
+		bool operator==(const DynamicPolyline&) const = default;
 	};
 }
 
 namespace TCM = TypeComponentMappers;
 
 using TextureComponentVariant = std::variant<std::monostate, TCM::Texture, TCM::AnimatedTexture, TCM::BlendingTexture>;
-using BodyComponentVariant = std::variant<std::monostate, TCM::Grapple, TCM::Missile, TCM::Plane, TCM::StaticWall, TCM::DynamicWall, TCM::Polyline>;
+using BodyComponentVariant = std::variant<std::monostate, TCM::Grapple, TCM::Missile, TCM::Plane, TCM::StaticWall, TCM::DynamicWall,
+	TCM::StaticPolyline, TCM::DynamicPolyline>;

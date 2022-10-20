@@ -6,16 +6,7 @@ namespace Components
 {
 	struct Grapple : DynamicWall
 	{
-		Grapple() = default;
-
-		Grapple(Body body,
-			TextureComponentVariant texture = std::monostate{},
-			std::optional<ComponentId>  renderingSetup = std::nullopt,
-			RenderLayer renderLayer = RenderLayer::Midground,
-			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			DynamicWall(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram)
-		{
-		}
+		using DynamicWall::DynamicWall;
 
 		float influenceRadius = 0.0f;
 

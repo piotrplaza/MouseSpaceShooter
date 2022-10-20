@@ -28,7 +28,8 @@ namespace Components
 	struct StaticWall;
 	struct DynamicWall;
 	struct Grapple;
-	struct Polyline;
+	struct StaticPolyline;
+	struct DynamicPolyline;
 	struct Camera;
 	struct Decoration;
 	struct GraphicsSettings;
@@ -71,7 +72,8 @@ namespace Globals
 		StaticComponents<Components::StaticWall>& staticWalls();
 		DynamicComponents<Components::DynamicWall>& dynamicWalls();
 		DynamicComponents<Components::Grapple>& grapples();
-		StaticComponents<Components::Polyline>& polylines();
+		StaticComponents<Components::StaticPolyline>& staticPolylines();
+		DynamicComponents<Components::DynamicPolyline>& dynamicPolylines();
 		StaticComponents<Components::Decoration>& staticDecorations();
 		DynamicComponents<Components::Decoration>& dynamicDecorations();
 		DynamicComponents<Components::Missile>& missiles();
@@ -108,7 +110,8 @@ namespace Globals
 		std::unique_ptr<StaticComponents<Components::StaticWall>> staticWalls_ = std::make_unique<StaticComponents<Components::StaticWall>>();
 		DynamicComponents<Components::DynamicWall> dynamicWalls_;
 		DynamicComponents<Components::Grapple> grapples_;
-		std::unique_ptr<StaticComponents<Components::Polyline>> polylines_ = std::make_unique<StaticComponents<Components::Polyline>>();
+		std::unique_ptr<StaticComponents<Components::StaticPolyline>> staticPolylines_ = std::make_unique<StaticComponents<Components::StaticPolyline>>();
+		DynamicComponents<Components::DynamicPolyline> dynamicPolylines_;
 		std::unique_ptr<StaticComponents<Components::Decoration>> staticDecorations_ = std::make_unique<StaticComponents<Components::Decoration>>();
 		DynamicComponents<Components::Decoration> dynamicDecorations_;
 		DynamicComponents<Components::Missile> missiles_;

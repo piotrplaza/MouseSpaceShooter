@@ -84,6 +84,7 @@
     <ClInclude Include="components\collisionHandler.hpp" />
     <ClInclude Include="components\decoration.hpp" />
     <ClInclude Include="components\deferredAction.hpp" />
+    <ClInclude Include="components\dynamicPolyline.hpp" />
     <ClInclude Include="components\dynamicWall.hpp" />
     <ClInclude Include="components\framebuffers.hpp" />
     <ClInclude Include="components\functor.hpp" />
@@ -99,13 +100,13 @@
     <ClInclude Include="components\mvp.hpp" />
     <ClInclude Include="components\physics.hpp" />
     <ClInclude Include="components\plane.hpp" />
-    <ClInclude Include="components\polyline.hpp" />
     <ClInclude Include="components\renderingBuffers.hpp" />
     <ClInclude Include="components\renderingSetup.hpp" />
     <ClInclude Include="components\screenInfo.hpp" />
     <ClInclude Include="components\shockwave.hpp" />
     <ClInclude Include="components\sound.hpp" />
     <ClInclude Include="components\soundBuffer.hpp" />
+    <ClInclude Include="components\staticPolyline.hpp" />
     <ClInclude Include="components\staticWall.hpp" />
     <ClInclude Include="components\texture.hpp" />
     <ClInclude Include="components\_componentBase.hpp" />

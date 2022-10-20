@@ -37,6 +37,13 @@ namespace Systems
 		{
 			auto& planeConnections = allConnections[plane.getComponentId()];
 
+			if (!plane.isEnabled())
+			{
+				planeConnections.params.clear();
+				planeConnections.updateBuffers();
+				continue;
+			}
+
 			if (plane.details.connectedGrappleId && !Globals::Components().grapples().contains(*plane.details.connectedGrappleId))
 			{
 				plane.details.grappleJoint.release();

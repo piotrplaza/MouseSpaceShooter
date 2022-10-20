@@ -160,6 +160,8 @@ namespace Tools
 			{
 				if (playerHandler.thrustSound)
 					Globals::Components().sounds()[*playerHandler.thrustSound].volume(0.0f);
+				if (playerHandler.grappleSound)
+					Globals::Components().sounds()[*playerHandler.grappleSound].volume(0.0f);
 				continue;
 			}
 

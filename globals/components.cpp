@@ -18,7 +18,8 @@
 #include <components/staticWall.hpp>
 #include <components/dynamicWall.hpp>
 #include <components/grapple.hpp>
-#include <components/polyline.hpp>
+#include <components/staticPolyline.hpp>
+#include <components/dynamicPolyline.hpp>
 #include <components/camera.hpp>
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
@@ -148,9 +149,14 @@ namespace Globals
 		return grapples_;
 	}
 
-	StaticComponents<Components::Polyline>& ComponentsHolder::polylines()
+	StaticComponents<Components::StaticPolyline>& ComponentsHolder::staticPolylines()
 	{
-		return *polylines_;
+		return *staticPolylines_;
+	}
+	
+	DynamicComponents<Components::DynamicPolyline>& ComponentsHolder::dynamicPolylines()
+	{
+		return dynamicPolylines_;
 	}
 
 	StaticComponents<Components::Decoration>& ComponentsHolder::staticDecorations()

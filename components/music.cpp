@@ -28,6 +28,11 @@ namespace Components
 		details->sfMusic.play();
 	}
 
+	void Music::stop()
+	{
+		details->sfMusic.stop();
+	}
+
 	void Music::loop(bool value)
 	{
 		details->sfMusic.setLoop(value);

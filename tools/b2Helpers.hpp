@@ -103,21 +103,33 @@ namespace Tools
 		bool sensor_ = false;
 	};
 
+	Body CreateEmptyBody(const BodyParams& bodyParams = BodyParams{});
+
 	Body CreatePlaneBody(float size, float density, float spreadFactor);
-	Body CreateBoxBody(glm::vec2 hSize, BodyParams bodyParams);
-	Body CreateCircleBody(float radius, BodyParams bodyParams);
-	Body CreateConvex4Body(const std::array<glm::vec2, 4>& vertices, BodyParams bodyParams);
-	Body CreateTrianglesBody(const std::vector<std::array<glm::vec2, 3>>& vertices, BodyParams bodyParams);
-	Body CreatePolylineBody(const std::vector<glm::vec2>& vertices, BodyParams bodyParams = BodyParams{});
+	Body CreateBoxBody(glm::vec2 hSize, const BodyParams& bodyParams);
+	Body CreateCircleBody(float radius, const BodyParams& bodyParams);
+	Body CreateConvex4Body(const std::array<glm::vec2, 4>& vertices, const BodyParams& bodyParams);
+	Body CreateTrianglesBody(const std::vector<std::array<glm::vec2, 3>>& vertices, const BodyParams& bodyParams);
+	Body CreatePolylineBody(const std::vector<glm::vec2>& vertices, const BodyParams& bodyParams = BodyParams{});
+
+	void CreatePolylineFixtures(Body& body, const std::vector<glm::vec2>& vertices, const BodyParams& bodyParams = BodyParams{});
+
 	b2Joint* CreateRevoluteJoint(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected = false);
 	b2Joint* CreateDistanceJoint(b2Body& body1, b2Body& body2, glm::vec2 body1Anchor, glm::vec2 body2Anchor, bool collideConnected = false, float length = 0.0f);
+
 	glm::mat4 GetModelMatrix(const b2Body& body);
 	std::vector<glm::vec3> GetVertices(const b2Body& body);
+
 	void SetCollisionFilteringBits(b2Body& body, unsigned short categoryBits, unsigned short maskBits);
+
 	std::pair<const b2Fixture*, const b2Fixture*> Sort(const b2Fixture* fixtureA, const b2Fixture* fixtureB);
 	std::pair<const unsigned short, const unsigned short> Sort(const unsigned short collisionObjectA, const unsigned short collisionObjectB);
+
 	BodyUserData& AccessUserData(b2Body& body);
 	const BodyUserData& AccessUserData(const b2Body& body);
+
 	std::optional<glm::vec2> GetCollisionPoint(const b2Body& body1, const b2Body& body2);
 	float GetRelativeVelocity(const b2Body& body1, const b2Body& body2);
+
+	void DestroyFixtures(Body& body);
 }

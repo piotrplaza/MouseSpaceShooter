@@ -8,7 +8,7 @@
 #include <components/gamepad.hpp>
 #include <components/staticWall.hpp>
 #include <components/grapple.hpp>
-#include <components/polyline.hpp>
+#include <components/dynamicPolyline.hpp>
 #include <components/decoration.hpp>
 #include <components/renderingSetup.hpp>
 #include <components/physics.hpp>
@@ -39,6 +39,11 @@ namespace Levels
 	class Windmill::Impl
 	{
 	public:
+		Windmill::Impl():
+			physics(Globals::Components().physics())
+		{
+		}
+
 		void setGraphicsSettings()
 		{
 			Globals::Components().graphicsSettings().defaultColor = { 0.7f, 0.7f, 0.7f, 1.0f };
@@ -118,6 +123,7 @@ namespace Levels
 			thrustSoundBuffer = soundsBuffers.emplace("audio/thrust.wav", 0.2f).getComponentId();
 			grappleSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
 			innerForceSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav", 0.8f).getComponentId();
+			emissionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Pad - Adventure_C.wav", 0.5f).getComponentId();
 			
 			innerForceSound = Tools::PlaySingleSound(innerForceSoundBuffer, []() { return glm::vec2(0.0f); },
 				[](auto& sound) {
@@ -158,7 +164,6 @@ namespace Levels
 		void createForeground() const
 		{
 			auto& staticDecorations = Globals::Components().staticDecorations();
-			const auto& physics = Globals::Components().physics();
 
 			staticDecorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 15.0f, 15.0f }),
 				TCM::AnimatedTexture(recursiveFaceAnimatedTexture), Tools::CreateTexCoordOfRectangle(), recursiveFaceRS, RenderLayer::NearForeground);
@@ -184,7 +189,6 @@ namespace Levels
 			constexpr float grappleR = armLength + 5.0f;
 
 			auto& staticWalls = Globals::Components().staticWalls();
-			const auto& physics = Globals::Components().physics();
 
 			windmillWall = staticWalls.size();
 			staticWalls.emplace(Tools::CreateTrianglesBody({ 
@@ -192,17 +196,17 @@ namespace Levels
 				{ glm::vec2{0.0f, armOverlap}, glm::vec2{-armHWidth, -armLength}, glm::vec2{armHWidth, -armLength} },
 				{ glm::vec2{-armOverlap, 0.0f}, glm::vec2{armLength, armHWidth}, glm::vec2{armLength, -armHWidth} },
 				{ glm::vec2{armOverlap, 0.0f}, glm::vec2{-armLength, -armHWidth}, glm::vec2{-armLength, armHWidth} } },
-				Tools::BodyParams().bodyType(b2_kinematicBody))).renderLayer = RenderLayer::NearMidground;
+				Tools::BodyParams().bodyType(b2_kinematicBody)));
 			staticWalls.last().texture = TCM::Texture(woodTexture);
 
 			/*for (int i = 0; i < 4; ++i)
 			{
 				const float startAngle = glm::half_pi<float>() * i;
 
-				auto& grapple = EmplaceDynamicComponent(Globals::Components().grapples(), { Tools::CreateCircleBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleR).bodyType(b2_kinematicBody)),
-					TCM::Texture(orbTexture) });
+				auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleR).bodyType(b2_kinematicBody)),
+					TCM::Texture(orbTexture));
 				grapple.influenceRadius = 15.0f;
-				grapple.step = [&, grappleR, startAngle, angle = 0.0f]() mutable {
+				grapple.stepF = [&, grappleR, startAngle, angle = 0.0f, rotationSpeed = 0.2f]() mutable {
 					const b2Vec2 pos = grapple.body->GetTransform().p;
 					const b2Vec2 newPos(b2Vec2(glm::cos(startAngle + angle), glm::sin(startAngle + angle)) * grappleR);
 					grapple.body->SetLinearVelocity((newPos - pos) / physics.frameDuration);
@@ -210,19 +214,25 @@ namespace Levels
 				};
 			}*/
 
-			constexpr float ringR = armLength + 15.0f;
-			constexpr int numOfRingSegments = 50;
-			constexpr float ringStep = glm::two_pi<float>() / numOfRingSegments;
+			auto& ring = Globals::Components().staticPolylines().emplace();
 
-			std::vector<glm::vec2> ringSegments;
-			ringSegments.reserve(numOfRingSegments);
-			for (int i = 0; i < numOfRingSegments; ++i)
-			{
-				ringSegments.emplace_back(glm::vec2(glm::cos(i * ringStep), glm::sin(i * ringStep)) * ringR);
-			}
-			ringSegments.push_back(ringSegments.front());
+			ring.stepF = [&, startTime = physics.simulationDuration]() {
+				constexpr int numOfRingSegments = 50;
+				constexpr float ringStep = glm::two_pi<float>() / numOfRingSegments;
+				float deltaR = glm::sin((physics.simulationDuration - startTime) * 0.04f) * 50.0f;
+				float ringR = armLength + 15.0f + deltaR;
 
-			auto& ring = Globals::Components().polylines().emplace(ringSegments, Tools::BodyParams().sensor(true));
+				std::vector<glm::vec2> ringSegments;
+				ringSegments.reserve(numOfRingSegments);
+				for (int i = 0; i < numOfRingSegments; ++i)
+				{
+					ringSegments.emplace_back(glm::vec2(glm::cos(i * ringStep), glm::sin(i * ringStep)) * ringR);
+				}
+				ringSegments.push_back(ringSegments.front());
+
+				ring.replaceFixtures(ringSegments, Tools::BodyParams().sensor(true));
+			};
+
 			ring.segmentVerticesGenerator = [](const auto& v1, const auto& v2) {
 				return Tools::CreateVerticesOfLightning(v1, v2, 10, 0.4f);
 			};
@@ -237,7 +247,7 @@ namespace Levels
 
 		void initHandlers()
 		{
-			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, false,
+			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, true,
 				[this](unsigned player, auto) {
 					return initPos(player);
 				}, thrustSoundBuffer, grappleSoundBuffer);
@@ -284,31 +294,14 @@ namespace Levels
 				const auto& windmill = Globals::Components().staticWalls()[windmillWall];
 				return glm::rotate(glm::mat4(1.0f), windmill.getAngle(), { 0.0f, 0.0f, 1.0f }) * glm::vec4(initPos(player), 0.0f, 1.0f);
 				});
+
 			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
 				missilesHandler.launchingMissile(playerHandlerId, fire, missileLaunchingSoundBuffer);
 				});
 
-			{
-				const float rotationSpeed = 0.1f;
-				const float innerForce = innerForceScale * 700.0f;
-
-				const auto& physics = Globals::Components().physics();
-				auto& windmill = Globals::Components().staticWalls()[windmillWall];
-				auto& planes = Globals::Components().planes();
-
-				windmill.body->SetTransform(windmill.body->GetPosition(), windmill.body->GetAngle() + physics.frameDuration * rotationSpeed);
-
-				for (const auto& planeHandler : playersHandler.getPlayersHandlers())
-				{
-					auto& plane = planes[planeHandler.playerId];
-					plane.body->ApplyForceToCenter(ToVec2<b2Vec2>(glm::normalize(plane.getCenter()) *
-						(innerForce / glm::pow(glm::length(plane.getCenter()) - 8.0f * innerForceScale, 2.0f))), true);
-				}
-
-				innerForceScale += physics.frameDuration * 0.05f;
-
-				Globals::Components().sounds()[innerForceSound].volume(innerForceScale / 3.0f);
-			}
+			windmillRotation();
+			innerForceStep();
+			emissions();
 		}
 
 	private:
@@ -317,6 +310,93 @@ namespace Levels
 			const float axesDistance = 20.0f;
 			return glm::vec2(player == 0 || player == 3 ? axesDistance : -axesDistance, player == 0 || player == 1 ? axesDistance : -axesDistance);
 		}
+
+		void windmillRotation()
+		{
+			const float rotationSpeed = 0.1f;
+			auto& windmill = Globals::Components().staticWalls()[windmillWall];
+
+			windmill.body->SetTransform(windmill.body->GetPosition(), windmill.body->GetAngle() + physics.frameDuration * rotationSpeed);
+		}
+
+		void innerForceStep()
+		{
+			const float innerForce = innerForceScale * 700.0f;
+			auto& planes = Globals::Components().planes();
+
+			for (const auto& planeHandler : playersHandler.getPlayersHandlers())
+			{
+				auto& plane = planes[planeHandler.playerId];
+				plane.body->ApplyForceToCenter(ToVec2<b2Vec2>(glm::normalize(plane.getCenter()) *
+					(innerForce / glm::pow(glm::length(plane.getCenter()) - 8.0f * innerForceScale, 2.0f))), true);
+			}
+
+			innerForceScale += physics.frameDuration * 0.05f;
+
+			Globals::Components().sounds()[innerForceSound].volume(innerForceScale / 3.0f);
+		}
+
+		void emissions()
+		{
+			auto& polylines = Globals::Components().dynamicPolylines();
+
+			if (physics.simulationDuration >= nextEmissionTime)
+			{
+				auto& emission = polylines.emplace();
+				auto stop = std::make_shared<bool>(false);
+				emission.stepF = [&, emissionR = 0.0f, stop]() mutable {
+					constexpr int numOfRingSegments = 50;
+					constexpr float ringStep = glm::two_pi<float>() / numOfRingSegments;
+
+					emissionR += physics.frameDuration * 5.0f;
+
+					if (emissionR > innerForceScale * 10.0f)
+					{
+						*stop = true;
+						emission.state = ComponentState::Outdated;
+						return;
+					}
+
+					std::vector<glm::vec2> ringSegments;
+					ringSegments.reserve(numOfRingSegments);
+					for (int i = 0; i < numOfRingSegments; ++i)
+					{
+						ringSegments.emplace_back(glm::vec2(glm::cos(i * ringStep), glm::sin(i * ringStep)) * emissionR);
+					}
+					ringSegments.push_back(ringSegments.front());
+
+					emission.replaceFixtures(ringSegments, Tools::BodyParams().sensor(true));
+				};
+
+				emission.segmentVerticesGenerator = [](const auto& v1, const auto& v2) {
+					return Tools::CreateVerticesOfLightning(v1, v2, 10, 0.4f);
+				};
+				emission.keyVerticesTransformer = [rD = 0.4f](const auto& v) {
+					return v + glm::vec3(Tools::Random(-rD, rD), Tools::Random(-rD, rD), 0.0f);
+				};
+				emission.loop = true;
+				emission.colorF = []() {
+					return glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) * 0.4f;
+				};
+
+				Tools::PlaySingleSound(emissionSoundBuffer, []() { return glm::vec2(0.0f); }, nullptr,
+					[this, stop, volume = 1.0f](auto& sound) mutable {
+						if (*stop)
+						{
+							volume -= physics.frameDuration * 0.5f;
+							sound.volume(volume);
+							if (volume <= 0.0f)
+								sound.stop();
+						}
+					});
+
+				nextEmissionTime += emissionInterval;
+			}
+		}
+
+		const Components::Physics& physics;
+
+		const float emissionInterval = 10.0f;
 
 		ComponentId recursiveFaceRS = 0;
 
@@ -335,6 +415,7 @@ namespace Levels
 		ComponentId thrustSoundBuffer = 0;
 		ComponentId grappleSoundBuffer = 0;
 		ComponentId innerForceSoundBuffer = 0;
+		ComponentId emissionSoundBuffer = 0;
 
 		ComponentId innerForceSound = 0;
 
@@ -348,6 +429,7 @@ namespace Levels
 		Tools::MissilesHandler missilesHandler;
 
 		float innerForceScale = 0.0f;
+		float nextEmissionTime = emissionInterval;
 	};
 
 	Windmill::Windmill():

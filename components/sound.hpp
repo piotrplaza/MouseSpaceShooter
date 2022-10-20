@@ -22,6 +22,7 @@ namespace Components
 		std::function<void(Sound&)> stepF;
 
 		void play();
+		void stop();
 
 		void removeOnStop(bool value);
 

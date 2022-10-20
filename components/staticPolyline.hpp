@@ -10,11 +10,9 @@
 
 namespace Components
 {
-	struct Polyline : Physical
+	struct StaticPolyline : Physical
 	{
-		Polyline() = default;
-
-		Polyline(const std::vector<glm::vec2>& vertices,
+		StaticPolyline(const std::vector<glm::vec2>& vertices,
 			Tools::BodyParams bodyParams = Tools::BodyParams{},
 			std::optional<ComponentId> renderingSetup = std::nullopt,
 			RenderLayer renderLayer = RenderLayer::Midground,
@@ -26,14 +24,25 @@ namespace Components
 			bufferDataUsage = GL_DYNAMIC_DRAW;
 		}
 
+		StaticPolyline(Tools::BodyParams bodyParams = Tools::BodyParams{},
+			std::optional<ComponentId> renderingSetup = std::nullopt,
+			RenderLayer renderLayer = RenderLayer::Midground,
+			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt) :
+			Physical(Tools::CreateEmptyBody(bodyParams), std::monostate{}, renderingSetup, renderLayer, customShadersProgram)
+		{
+			drawMode = GL_LINES;
+			bufferDataUsage = GL_DYNAMIC_DRAW;
+		}
+
 		std::function<std::vector<glm::vec3>(const glm::vec3&, const glm::vec3&)> segmentVerticesGenerator;
 		std::function<glm::vec3(const glm::vec3&)> keyVerticesTransformer;
 		bool loop = false;
+		std::function<void()> stepF;
 
 		void setComponentId(ComponentId id) override
 		{
 			ComponentBase::setComponentId(id);
-			setBodyComponentVariant(TCM::Polyline(id, this));
+			setBodyComponentVariant(TCM::StaticPolyline(id, this));
 		}
 
 		std::vector<glm::vec3> getVertices(bool transformed = false) const override
@@ -42,7 +51,7 @@ namespace Components
 				? Tools::Transform(Tools::GetVertices(*body), getModelMatrix())
 				: Tools::GetVertices(*body);
 
-			assert(vertices.size() >= 2 && vertices.size() % 2 == 0);
+			assert(vertices.size() % 2 == 0);
 
 			if (!segmentVerticesGenerator && !keyVerticesTransformer)
 				return vertices;
@@ -85,7 +94,18 @@ namespace Components
 
 		void step() override
 		{
-			loaded.buffers->setVerticesBuffer(getVertices());
+			if (stepF)
+				stepF();
+
+			if (loaded.buffers)
+				loaded.buffers->setVerticesBuffer(getVertices());
+		}
+
+		void replaceFixtures(const std::vector<glm::vec2>& vertices, const Tools::BodyParams& bodyParams)
+		{
+			Tools::DestroyFixtures(body);
+			Tools::CreatePolylineFixtures(body, vertices, bodyParams);
+			Tools::SetCollisionFilteringBits(*body, Globals::CollisionBits::polyline, Globals::CollisionBits::all);
 		}
 	};
 }

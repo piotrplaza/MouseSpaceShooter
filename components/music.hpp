@@ -18,6 +18,7 @@ namespace Components
 		std::function<void(Music&)> step;
 
 		void play();
+		void stop();
 
 		void loop(bool value);
 		void volume(float value);

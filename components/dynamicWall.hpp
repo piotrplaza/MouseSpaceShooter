@@ -1,22 +1,12 @@
 #pragma once
 
-#include "_physical.hpp"
+#include "staticWall.hpp"
 
 namespace Components
 {
-	struct DynamicWall : Physical
+	struct DynamicWall : StaticWall
 	{
-		DynamicWall() = default;
-
-		DynamicWall(Body body,
-			TextureComponentVariant texture = std::monostate{},
-			std::optional<ComponentId> renderingSetup = std::nullopt,
-			RenderLayer renderLayer = RenderLayer::Midground,
-			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			Physical(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram)
-		{
-			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
-		}
+		using StaticWall::StaticWall;
 
 		void setComponentId(ComponentId id) override
 		{

@@ -3,6 +3,7 @@
 #include <components/plane.hpp>
 #include <components/dynamicWall.hpp>
 #include <components/grapple.hpp>
+#include <components/dynamicPolyline.hpp>
 #include <components/decoration.hpp>
 #include <components/missile.hpp>
 #include <components/collisionHandler.hpp>
@@ -22,6 +23,7 @@ namespace Systems
 		Globals::Components().planes().removeOutdated();
 		Globals::Components().dynamicWalls().removeOutdated();
 		Globals::Components().grapples().removeOutdated();
+		Globals::Components().dynamicPolylines().removeOutdated();
 		Globals::Components().dynamicDecorations().removeOutdated();
 		Globals::Components().missiles().removeOutdated();
 		Globals::Components().beginCollisionHandlers().removeOutdated();

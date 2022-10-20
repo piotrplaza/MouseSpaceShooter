@@ -2,6 +2,8 @@
 
 #include "_physical.hpp"
 
+#include <functional>
+
 namespace Components
 {
 	struct StaticWall : Physical
@@ -18,10 +20,18 @@ namespace Components
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
 		}
 
+		std::function<void()> stepF;
+
 		void setComponentId(ComponentId id) override
 		{
 			ComponentBase::setComponentId(id);
 			setBodyComponentVariant(TCM::StaticWall(id, this));
+		}
+
+		void step() override
+		{
+			if (stepF)
+				stepF();
 		}
 	};
 }

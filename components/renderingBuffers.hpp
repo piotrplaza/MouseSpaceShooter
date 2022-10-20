@@ -6,14 +6,14 @@
 
 #include <commonTypes/buffersCollections.hpp>
 
-#include <vector>
+#include <deque>
 #include <unordered_map>
 
 namespace Components
 {
 	struct RenderingBuffers : ComponentBase
 	{
-		BuffersColections<std::vector<Buffers::GenericBuffers>> staticBuffers;
+		BuffersColections<std::deque<Buffers::GenericBuffers>> staticBuffers;
 		BuffersColections<std::unordered_map<ComponentId, Buffers::GenericBuffers>> dynamicBuffers;
 	};
 }

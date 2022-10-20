@@ -51,6 +51,19 @@ void b2JointDeleter::operator()(b2Joint* joint) const
 
 namespace Tools
 {
+	Body CreateEmptyBody(const BodyParams& bodyParams)
+	{
+		b2BodyDef bodyDef;
+		bodyDef.type = bodyParams.bodyType_;
+		bodyDef.position.Set(bodyParams.position_.x, bodyParams.position_.y);
+		bodyDef.angle = bodyParams.angle_;
+		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
+
+		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
+
+		return body;
+	}
+
 	Body CreatePlaneBody(float size, float density, float spreadFactor)
 	{
 		b2BodyDef bodyDef;
@@ -82,13 +95,9 @@ namespace Tools
 		return body;
 	}
 
-	Body CreateBoxBody(glm::vec2 hSize, BodyParams bodyParams)
+	Body CreateBoxBody(glm::vec2 hSize, const BodyParams& bodyParams)
 	{
-		b2BodyDef bodyDef;
-		bodyDef.type = bodyParams.bodyType_;
-		bodyDef.position.Set(bodyParams.position_.x, bodyParams.position_.y);
-		bodyDef.angle = bodyParams.angle_;
-		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
+		Body body = CreateEmptyBody(bodyParams);
 
 		b2FixtureDef fixtureDef;
 		b2PolygonShape polygonShape;
@@ -101,18 +110,13 @@ namespace Tools
 		fixtureDef.isSensor = bodyParams.sensor_;
 		body->CreateFixture(&fixtureDef);
 
-		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
-
 		return body;
 	}
 
-	Body CreateCircleBody(float radius, BodyParams bodyParams)
+	Body CreateCircleBody(float radius, const BodyParams& bodyParams)
 	{
-		b2BodyDef bodyDef;
-		bodyDef.type = bodyParams.bodyType_;
-		bodyDef.position.Set(bodyParams.position_.x, bodyParams.position_.y);
-		bodyDef.angle = bodyParams.angle_;
-		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
+
+		Body body = CreateEmptyBody(bodyParams);
 
 		b2FixtureDef fixtureDef;
 		b2CircleShape circleShape;
@@ -125,52 +129,40 @@ namespace Tools
 		fixtureDef.isSensor = bodyParams.sensor_;
 		body->CreateFixture(&fixtureDef);
 
-		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
-
 		return body;
 	}
 
-	Body CreateConvex4Body(const std::array<glm::vec2, 4>& vertices, BodyParams bodyParams)
+	Body CreateConvex4Body(const std::array<glm::vec2, 4>& vertices, const BodyParams& bodyParams)
 	{
-		b2BodyDef bodyDef;
-		bodyDef.type = bodyParams.bodyType_;
-		bodyDef.position.Set(bodyParams.position_.x, bodyParams.position_.y);
-		bodyDef.angle = bodyParams.angle_;
-		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
+		Body body = CreateEmptyBody(bodyParams);
 
 		CreatePolygonShapedFixture(body, vertices, bodyParams.density_, bodyParams.restitution_, bodyParams.friction_, bodyParams.categoryBits_, bodyParams.sensor_);
 
-		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
-
 		return body;
 	}
 
-	Body CreateTrianglesBody(const std::vector<std::array<glm::vec2, 3>>& vertices, BodyParams bodyParams)
+	Body CreateTrianglesBody(const std::vector<std::array<glm::vec2, 3>>& vertices, const BodyParams& bodyParams)
 	{
-		b2BodyDef bodyDef;
-		bodyDef.type = bodyParams.bodyType_;
-		bodyDef.position.Set(bodyParams.position_.x, bodyParams.position_.y);
-		bodyDef.angle = bodyParams.angle_;
-		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
+		Body body = CreateEmptyBody(bodyParams);
 
 		for (const auto& triangle : vertices)
 			CreatePolygonShapedFixture(body, triangle, bodyParams.density_, bodyParams.restitution_, bodyParams.friction_, bodyParams.categoryBits_, bodyParams.sensor_);
 
-		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
+		return body;
+	}
+
+	Body CreatePolylineBody(const std::vector<glm::vec2>& vertices, const BodyParams& bodyParams)
+	{
+		assert(vertices.size() >= 2);
+
+		Body body = CreateEmptyBody(bodyParams);
+		CreatePolylineFixtures(body, vertices, bodyParams);
 
 		return body;
 	}
 
-	Body CreatePolylineBody(const std::vector<glm::vec2>& vertices, BodyParams bodyParams)
+	void CreatePolylineFixtures(Body& body, const std::vector<glm::vec2>& vertices, const BodyParams& bodyParams)
 	{
-		assert(vertices.size() >= 2);
-
-		b2BodyDef bodyDef;
-		bodyDef.type = bodyParams.bodyType_;
-		bodyDef.position.Set(bodyParams.position_.x, bodyParams.position_.y);
-		bodyDef.angle = bodyParams.angle_;
-		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
-
 		for (auto it = vertices.begin(); it != std::prev(vertices.end()); ++it)
 		{
 			auto& v1 = *it;
@@ -189,10 +181,6 @@ namespace Tools
 
 			body->CreateFixture(&fixtureDef);
 		}
-
-		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
-
-		return body;
 	}
 
 	b2Joint* CreateRevoluteJoint(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected)
@@ -232,7 +220,7 @@ namespace Tools
 		std::vector<glm::vec3> vertices;
 
 		auto* fixture = body.GetFixtureList();
-		do
+		while(fixture)
 		{
 			switch (fixture->GetType())
 			{
@@ -282,8 +270,9 @@ namespace Tools
 			default:
 				assert(!"unsupported shape");
 			}
+
+			fixture = fixture->GetNext();
 		}
-		while (fixture = fixture->GetNext());
 
 		return vertices;
 	}
@@ -347,5 +336,16 @@ namespace Tools
 	float GetRelativeVelocity(const b2Body& body1, const b2Body& body2)
 	{
 		return glm::length(ToVec2<glm::vec2>(body2.GetLinearVelocity()) - ToVec2<glm::vec2>(body1.GetLinearVelocity()));
+	}
+
+	void DestroyFixtures(Body& body)
+	{
+		auto* fixture = body->GetFixtureList();
+		while (fixture)
+		{
+			auto* currentFixture = fixture;
+			fixture = fixture->GetNext();
+			body->DestroyFixture(currentFixture);
+		}
 	}
 }

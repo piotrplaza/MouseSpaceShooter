@@ -36,6 +36,11 @@ namespace Components
 		details->sfSound.play();
 	}
 
+	void Sound::stop()
+	{
+		details->sfSound.stop();
+	}
+
 	void Sound::removeOnStop(bool value)
 	{
 		removeOnStop_ = value;

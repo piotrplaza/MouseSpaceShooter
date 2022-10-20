@@ -447,9 +447,6 @@
     <ClInclude Include="levels\windmill\windmill.hpp">
       <Filter>src\levels\windmill</Filter>
     </ClInclude>
-    <ClInclude Include="components\polyline.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="components\_renderableDef.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -488,6 +485,12 @@
     </ClInclude>
     <ClInclude Include="tools\playersHandler.hpp">
       <Filter>src\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="components\staticPolyline.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\dynamicPolyline.hpp">
+      <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
