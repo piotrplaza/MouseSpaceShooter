@@ -9,6 +9,7 @@
 
 #include <functional>
 #include <optional>
+#include <list>
 
 class b2Body;
 
@@ -141,6 +142,19 @@ namespace Tools
 
 	private:
 		bool valid = true;
+	};
+
+	class SoundsLimitter
+	{
+	public:
+		SoundsLimitter(unsigned limit);
+		~SoundsLimitter();
+
+		void newSound(Components::Sound& sound);
+
+	private:
+		const unsigned limit;
+		std::list<Components::Sound*> sounds;
 	};
 
 	ComponentId CreatePlane(ComponentId planeTexture, ComponentId flameAnimatedTexture, glm::vec2 position = glm::vec2(0.0f), float angle = 0.0f);

@@ -23,7 +23,10 @@ namespace Components
 		void loop(bool value);
 		void volume(float value);
 
+		static unsigned getNumOfInstances();
+
 	private:
+		static inline unsigned numOfInstances = 0;
 		std::unique_ptr<MusicDetails> details;
 		const float maxVolume;
 	};

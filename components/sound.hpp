@@ -20,6 +20,7 @@ namespace Components
 		ComponentId soundBufferId = 0;
 
 		std::function<void(Sound&)> stepF;
+		std::function<void()> tearDownF;
 
 		void play();
 		void stop();
@@ -41,7 +42,12 @@ namespace Components
 
 		void step();
 
+		void immediateFreeResources();
+
+		static unsigned getNumOfInstances();
+
 	private:
+		static inline unsigned numOfInstances = 0;
 		std::unique_ptr<SoundDetails> details;
 		const float maxVolume;
 		bool removeOnStop_ = false;

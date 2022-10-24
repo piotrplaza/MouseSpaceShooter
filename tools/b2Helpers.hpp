@@ -81,6 +81,18 @@ namespace Tools
 			return *this;
 		}
 
+		BodyParams& linearDamping(float value)
+		{
+			linearDamping_ = value;
+			return *this;
+		}
+
+		BodyParams& angularDamping(float value)
+		{
+			angularDamping_ = value;
+			return *this;
+		}
+
 		BodyParams& categoryBits(uint16 value)
 		{
 			categoryBits_ = value;
@@ -99,6 +111,8 @@ namespace Tools
 		float density_ = 1.0f;
 		float restitution_ = 0.1f;
 		float friction_ = 0.2f;
+		float linearDamping_ = 0.0f;
+		float angularDamping_ = 0.0f;
 		uint16 categoryBits_ = Globals::CollisionBits::wall;
 		bool sensor_ = false;
 	};
@@ -111,6 +125,7 @@ namespace Tools
 	Body CreateConvex4Body(const std::array<glm::vec2, 4>& vertices, const BodyParams& bodyParams);
 	Body CreateTrianglesBody(const std::vector<std::array<glm::vec2, 3>>& vertices, const BodyParams& bodyParams);
 	Body CreatePolylineBody(const std::vector<glm::vec2>& vertices, const BodyParams& bodyParams = BodyParams{});
+	Body CreateRandomPolygonBody(float radius, int numOfVertices, const BodyParams& bodyParams = BodyParams{}, int radResolution = 100);
 
 	void CreatePolylineFixtures(Body& body, const std::vector<glm::vec2>& vertices, const BodyParams& bodyParams = BodyParams{});
 

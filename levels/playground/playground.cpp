@@ -485,7 +485,7 @@ namespace Levels
 					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColor); };
 				});
 
-			auto spawner = [this, alpha, renderingSetupId, first = true](float duration, auto& spawner) mutable -> bool //Type deduction doesn't get it is always bool.
+			auto spawner = [this, alpha, renderingSetupId, first = true](float duration, auto& spawner) mutable -> bool // Type deduction doesn't get it is always bool.
 			{
 				const float existenceDuration = 2.0f;
 				const float fadeDuration = 0.2f;

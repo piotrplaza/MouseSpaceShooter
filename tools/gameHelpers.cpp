@@ -71,6 +71,29 @@ namespace Tools
 		return *this;
 	}
 
+	SoundsLimitter::SoundsLimitter(unsigned limit):
+		limit(limit)
+	{
+	}
+
+	SoundsLimitter::~SoundsLimitter()
+	{
+		for (auto& sound : sounds)
+			sound->immediateFreeResources();
+	}
+
+	void SoundsLimitter::newSound(Components::Sound& sound)
+	{
+		sounds.push_back(&sound);
+
+		sound.tearDownF = [this, it = std::prev(sounds.end())]() {
+			sounds.erase(it);
+		};
+
+		if (sounds.size() > limit)
+			sounds.front()->immediateFreeResources();
+	}
+
 	ComponentId CreatePlane(ComponentId planeTexture, ComponentId flameAnimatedTexture, glm::vec2 position, float angle)
 	{
 		auto& plane = Globals::Components().planes().emplace(Tools::CreatePlaneBody(2.0f, 0.2f, 0.5f), TCM::Texture(planeTexture));

@@ -5,11 +5,14 @@
 #include <globals/components.hpp>
 
 #include <tools/graphicsHelpers.hpp>
+#include <tools/utility.hpp>
 
 #include <commonTypes/typeComponentMappers.hpp>
 #include <commonTypes/bodyUserData.hpp>
 
 #include <glm/gtx/transform.hpp>
+
+#include <set>
 
 namespace
 {
@@ -57,6 +60,8 @@ namespace Tools
 		bodyDef.type = bodyParams.bodyType_;
 		bodyDef.position.Set(bodyParams.position_.x, bodyParams.position_.y);
 		bodyDef.angle = bodyParams.angle_;
+		bodyDef.linearDamping = bodyParams.linearDamping_;
+		bodyDef.angularDamping = bodyParams.angularDamping_;
 		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
 
 		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
@@ -157,6 +162,35 @@ namespace Tools
 
 		Body body = CreateEmptyBody(bodyParams);
 		CreatePolylineFixtures(body, vertices, bodyParams);
+
+		return body;
+	}
+
+	Body CreateRandomPolygonBody(float radius, int numOfVertices, const BodyParams& bodyParams, int radResolution)
+	{
+		assert(numOfVertices >= 3);
+
+		Body body = CreateEmptyBody(bodyParams);
+		std::set<float> radians;
+
+		for (int i = 0; i < numOfVertices; ++i)
+			radians.insert(float(rand() % radResolution) / radResolution * glm::two_pi<float>());
+
+		auto it = radians.begin();
+		const glm::vec2 v1(glm::cos(*it) * radius, glm::sin(*it) * radius);
+		++it;
+		auto nextIt = std::next(it);
+
+		while (nextIt != radians.end())
+		{
+			const glm::vec2 v2(glm::cos(*it) * radius, glm::sin(*it) * radius);
+			const glm::vec2 v3(glm::cos(*nextIt) * radius, glm::sin(*nextIt) * radius);
+
+			CreatePolygonShapedFixture(body, std::array<glm::vec2, 3>{v1, v2, v3}, bodyParams.density_,
+				bodyParams.restitution_, bodyParams.friction_, bodyParams.categoryBits_, bodyParams.sensor_);
+
+			it = nextIt++;
+		}
 
 		return body;
 	}

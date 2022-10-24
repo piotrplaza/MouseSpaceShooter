@@ -34,6 +34,14 @@
 
 #include <numeric>
 
+namespace
+{
+	constexpr float armLength = 30.0f;
+	constexpr float armOverlap = 5.0f;
+	constexpr float armHWidth = 10.0f;
+	constexpr float outerRingInitR = armLength + 15.0f;
+}
+
 namespace Levels
 {
 	class Windmill::Impl
@@ -85,6 +93,10 @@ namespace Levels
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
 
+			spaceRockTexture = textures.size();
+			textures.emplace("textures/space rock.jpg", GL_MIRRORED_REPEAT);
+			textures.last().scale = glm::vec2(5.0f);
+
 			woodTexture = textures.size();
 			textures.emplace("textures/wood.jpg", GL_MIRRORED_REPEAT);
 			textures.last().scale = glm::vec2(20.0f);
@@ -123,7 +135,7 @@ namespace Levels
 			thrustSoundBuffer = soundsBuffers.emplace("audio/thrust.wav", 0.2f).getComponentId();
 			grappleSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
 			innerForceSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav", 0.8f).getComponentId();
-			emissionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Pad - Adventure_C.wav", 0.5f).getComponentId();
+			emissionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Pad - Adventure_C.wav", 0.8f).getComponentId();
 			
 			innerForceSound = Tools::PlaySingleSound(innerForceSoundBuffer, []() { return glm::vec2(0.0f); },
 				[](auto& sound) {
@@ -182,12 +194,6 @@ namespace Levels
 
 		void createWindmill()
 		{
-			constexpr float armLength = 30.0f;
-			constexpr float armOverlap = 5.0f;
-			constexpr float armHWidth = 10.0f;
-
-			constexpr float grappleR = armLength + 5.0f;
-
 			auto& staticWalls = Globals::Components().staticWalls();
 
 			windmillWall = staticWalls.size();
@@ -198,51 +204,87 @@ namespace Levels
 				{ glm::vec2{armOverlap, 0.0f}, glm::vec2{-armLength, -armHWidth}, glm::vec2{-armLength, armHWidth} } },
 				Tools::BodyParams().bodyType(b2_kinematicBody)));
 			staticWalls.last().texture = TCM::Texture(woodTexture);
+		}
 
-			/*for (int i = 0; i < 4; ++i)
-			{
-				const float startAngle = glm::half_pi<float>() * i;
+		void createOuterRing()
+		{
+			auto& outerRing = Globals::Components().staticPolylines().emplace();
 
-				auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleR).bodyType(b2_kinematicBody)),
-					TCM::Texture(orbTexture));
-				grapple.influenceRadius = 15.0f;
-				grapple.stepF = [&, grappleR, startAngle, angle = 0.0f, rotationSpeed = 0.2f]() mutable {
-					const b2Vec2 pos = grapple.body->GetTransform().p;
-					const b2Vec2 newPos(b2Vec2(glm::cos(startAngle + angle), glm::sin(startAngle + angle)) * grappleR);
-					grapple.body->SetLinearVelocity((newPos - pos) / physics.frameDuration);
-					angle += physics.frameDuration * rotationSpeed;
-				};
-			}*/
-
-			auto& ring = Globals::Components().staticPolylines().emplace();
-
-			ring.stepF = [&, startTime = physics.simulationDuration]() {
+			outerRing.stepF = [&, startTime = physics.simulationDuration]() {
 				constexpr int numOfRingSegments = 50;
 				constexpr float ringStep = glm::two_pi<float>() / numOfRingSegments;
 				float deltaR = glm::sin((physics.simulationDuration - startTime) * 0.04f) * 50.0f;
-				float ringR = armLength + 15.0f + deltaR;
+				outerRingR = outerRingInitR + deltaR;
 
 				std::vector<glm::vec2> ringSegments;
 				ringSegments.reserve(numOfRingSegments);
 				for (int i = 0; i < numOfRingSegments; ++i)
 				{
-					ringSegments.emplace_back(glm::vec2(glm::cos(i * ringStep), glm::sin(i * ringStep)) * ringR);
+					ringSegments.emplace_back(glm::vec2(glm::cos(i * ringStep), glm::sin(i * ringStep)) * outerRingR);
 				}
 				ringSegments.push_back(ringSegments.front());
 
-				ring.replaceFixtures(ringSegments, Tools::BodyParams().sensor(true));
+				outerRing.replaceFixtures(ringSegments, Tools::BodyParams().sensor(true));
 			};
 
-			ring.segmentVerticesGenerator = [](const auto& v1, const auto& v2) {
+			outerRing.segmentVerticesGenerator = [](const auto& v1, const auto& v2) {
 				return Tools::CreateVerticesOfLightning(v1, v2, 10, 0.4f);
 			};
-			ring.keyVerticesTransformer = [rD = 0.4f](const auto& v) {
+			outerRing.keyVerticesTransformer = [rD = 0.4f](const auto& v) {
 				return v + glm::vec3(Tools::Random(-rD, rD), Tools::Random(-rD, rD), 0.0f);
 			};
-			ring.loop = true;
-			ring.colorF = []() {
+			outerRing.loop = true;
+			outerRing.colorF = []() {
 				return glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) * 0.4f;
 			};
+		}
+
+		void createGrapples()
+		{
+			constexpr float grappleRDist = armLength + 5.0f;
+
+			/*for (int i = 0; i < 4; ++i)
+			{
+				const float startAngle = glm::half_pi<float>() * i;
+
+				auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleRDist).bodyType(b2_kinematicBody)),
+					TCM::Texture(orbTexture));
+				grapple.influenceRadius = 15.0f;
+				grapple.stepF = [&, grappleRDist, startAngle, angle = 0.0f, rotationSpeed = 0.2f]() mutable {
+					const b2Vec2 pos = grapple.body->GetTransform().p;
+					const b2Vec2 newPos(b2Vec2(glm::cos(startAngle + angle), glm::sin(startAngle + angle)) * grappleRDist);
+					grapple.body->SetLinearVelocity((newPos - pos) / physics.frameDuration);
+					angle += physics.frameDuration * rotationSpeed;
+				};
+			}*/
+
+			/*for (int i = 0; i < 4; ++i)
+			{
+				const float startAngle = glm::half_pi<float>() * i;
+
+				auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleRDist)
+					.bodyType(b2_dynamicBody).density(10.0f)), TCM::Texture(orbTexture));
+				grapple.influenceRadius = 15.0f;
+				grapplesDebris.push_back(grapple.getComponentId());
+			}*/
+		}
+
+		void createDebris()
+		{
+			constexpr int numOfDebris = 20;
+			auto& staticWalls = Globals::Components().staticWalls();
+
+			for (int i = 0; i < numOfDebris; ++i)
+			{
+				const float angle = i / (float)numOfDebris * glm::two_pi<float>();
+				glm::vec2 center(glm::cos(angle), glm::sin(angle));
+				center *= (outerRingInitR + armLength) / 2.0f;
+				staticWalls.emplace(Tools::CreateRandomPolygonBody(2.0f, /*rand() % 10 + 5*/8,
+					Tools::BodyParams().bodyType(b2_dynamicBody).position(center).density(2.0f).linearDamping(0.1f).angularDamping(0.1f)));
+				staticWalls.last().texture = TCM::Texture(spaceRockTexture);
+
+				staticWallsDebris.push_back(staticWalls.last().getComponentId());
+			}
 		}
 
 		void initHandlers()
@@ -286,6 +328,17 @@ namespace Levels
 							sound.volume(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f);
 						});
 				});
+
+			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::wall, Globals::CollisionBits::wall,
+				[this, soundsLimitter = Tools::SoundsLimitter(8)](const auto& wall1, const auto& wall2) mutable {
+					soundsLimitter.newSound(Tools::PlaySingleSound(collisionSoundBuffer,
+						[pos = *Tools::GetCollisionPoint(*wall1.GetBody(), *wall2.GetBody())]() {
+							return pos;
+						},
+						[&](auto& sound) {
+							sound.volume(Tools::GetRelativeVelocity(*wall1.GetBody(), *wall2.GetBody()) / 40.0f);
+						}));
+				});
 		}
 
 		void step()
@@ -300,7 +353,7 @@ namespace Levels
 				});
 
 			windmillRotation();
-			innerForceStep();
+			forceFieldsStep();
 			emissions();
 		}
 
@@ -319,17 +372,27 @@ namespace Levels
 			windmill.body->SetTransform(windmill.body->GetPosition(), windmill.body->GetAngle() + physics.frameDuration * rotationSpeed);
 		}
 
-		void innerForceStep()
+		void forceFieldsStep()
 		{
-			const float innerForce = innerForceScale * 700.0f;
-			auto& planes = Globals::Components().planes();
+			const float orbitR = (armLength + outerRingR) / 2.0f;
 
 			for (const auto& planeHandler : playersHandler.getPlayersHandlers())
 			{
-				auto& plane = planes[planeHandler.playerId];
+				const float innerForceForPlanes = innerForceScale * 700.0f;
+				auto& plane = Globals::Components().planes()[planeHandler.playerId];
 				plane.body->ApplyForceToCenter(ToVec2<b2Vec2>(glm::normalize(plane.getCenter()) *
-					(innerForce / glm::pow(glm::length(plane.getCenter()) - 8.0f * innerForceScale, 2.0f))), true);
+					(innerForceForPlanes / glm::pow(glm::length(plane.getCenter()) - 8.0f * innerForceScale, 2.0f))), true);
 			}
+
+			auto applyForceForDebris = [&](auto& debris, float forceFactor) {
+				debris.body->ApplyForceToCenter(ToVec2<b2Vec2>(glm::normalize(debris.getCenter()) *
+					(orbitR - glm::length(debris.getCenter())) * forceFactor), true);
+			};
+
+			for (auto id : grapplesDebris)
+				applyForceForDebris(Globals::Components().grapples()[id], 100.0f);
+			for (auto id : staticWallsDebris)
+				applyForceForDebris(Globals::Components().staticWalls()[id], 10.0f);
 
 			innerForceScale += physics.frameDuration * 0.05f;
 
@@ -383,7 +446,7 @@ namespace Levels
 					[this, stop, volume = 1.0f](auto& sound) mutable {
 						if (*stop)
 						{
-							volume -= physics.frameDuration * 0.5f;
+							volume -= physics.frameDuration * 2.0f;
 							sound.volume(volume);
 							if (volume <= 0.0f)
 								sound.stop();
@@ -401,6 +464,7 @@ namespace Levels
 		ComponentId recursiveFaceRS = 0;
 
 		ComponentId rocketPlaneTexture = 0;
+		ComponentId spaceRockTexture = 0;
 		ComponentId woodTexture = 0;
 		ComponentId orbTexture = 0;
 		ComponentId explosionTexture = 0;
@@ -425,10 +489,14 @@ namespace Levels
 
 		ComponentId windmillWall = 0;
 
+		std::vector<ComponentId> staticWallsDebris;
+		std::vector<ComponentId> grapplesDebris;
+
 		Tools::PlayersHandler playersHandler;
 		Tools::MissilesHandler missilesHandler;
 
 		float innerForceScale = 0.0f;
+		float outerRingR = 0.0f;
 		float nextEmissionTime = emissionInterval;
 	};
 
@@ -443,6 +511,9 @@ namespace Levels
 		impl->createForeground();
 		impl->setCamera();
 		impl->createWindmill();
+		impl->createOuterRing();
+		impl->createGrapples();
+		impl->createDebris();
 		impl->initHandlers();
 		impl->collisionHandlers();
 	}

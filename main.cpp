@@ -389,7 +389,7 @@ int APIENTRY WinMain(
 
 			Globals::Components().mouse().delta = { 0, 0 };
 
-			glFinish(); //Not sure why, but it helps with stuttering in some scenarios, e.g. if missile was launched (release + lower display refresh rate => bigger stuttering without it).
+			glFinish(); // Not sure why, but it helps with stuttering in some scenarios, e.g. if missile was launched (release + lower display refresh rate => bigger stuttering without it).
 			SwapBuffers(hDC);
 		}
 	}
