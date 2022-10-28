@@ -12,6 +12,7 @@
 #include <list>
 
 class b2Body;
+class b2Fixture;
 
 namespace Shaders
 {
@@ -168,4 +169,5 @@ namespace Tools
 	glm::vec2 GetRelativePos(glm::vec2 scenePos, bool projectionSizeScaling = true);
 	Components::Sound& PlaySingleSound(ComponentId soundBuffer, std::function<glm::vec2()> posF = nullptr,
 		std::function<void(Components::Sound&)> config = nullptr, std::function<void(Components::Sound&)> stepF = nullptr);
+	std::function<void(b2Fixture&, b2Fixture&)> SkipDuplicatedBodiesCollisions(std::function<void(b2Fixture&, b2Fixture&)> handler);
 }

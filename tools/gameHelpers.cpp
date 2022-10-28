@@ -25,6 +25,8 @@
 #include <ogl/shaders/julia.hpp>
 #include <ogl/shaders/particles.hpp>
 
+#include <set>
+
 namespace Tools
 {
 	MissileHandler::MissileHandler() = default;
@@ -345,5 +347,26 @@ namespace Tools
 		sound.play();
 
 		return sound;
+	}
+
+	std::function<void(b2Fixture&, b2Fixture&)> SkipDuplicatedBodiesCollisions(std::function<void(b2Fixture&, b2Fixture&)> handler)
+	{
+		return [prevSimulationDuration = -1.0f, prevCollisions = std::set<std::pair<const b2Body*, const b2Body*>>(), handler](b2Fixture& fixture1, b2Fixture& fixture2) mutable
+		{
+			const float simulationDuration = Globals::Components().physics().simulationDuration;
+			const auto bodies = Sort(fixture1.GetBody(), fixture2.GetBody());
+
+			if (prevSimulationDuration != simulationDuration)
+			{
+				prevCollisions.clear();
+				prevSimulationDuration = simulationDuration;
+			}
+
+			if (!prevCollisions.contains(bodies))
+			{
+				handler(fixture1, fixture2);
+				prevCollisions.insert(bodies);
+			}
+		};
 	}
 }

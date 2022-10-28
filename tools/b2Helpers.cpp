@@ -330,6 +330,11 @@ namespace Tools
 		return fixtureA > fixtureB ? std::make_pair(fixtureB, fixtureA) : std::make_pair(fixtureA, fixtureB);
 	}
 
+	std::pair<const b2Body*, const b2Body*> Sort(const b2Body* bodyA, const b2Body* bodyB)
+	{
+		return bodyA > bodyB ? std::make_pair(bodyB, bodyA) : std::make_pair(bodyA, bodyB);
+	}
+
 	std::pair<const unsigned short, const unsigned short> Sort(const unsigned short collisionObjectA, const unsigned short collisionObjectB)
 	{
 		return collisionObjectA > collisionObjectB ? std::make_pair(collisionObjectB, collisionObjectA) : std::make_pair(collisionObjectA, collisionObjectB);

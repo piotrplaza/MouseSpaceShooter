@@ -319,7 +319,7 @@ namespace Levels
 				});
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::plane | Globals::CollisionBits::wall,
-				[this](const auto& plane, const auto& obstacle) {
+				Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
 					Tools::PlaySingleSound(collisionSoundBuffer,
 						[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {
 							return pos;
@@ -327,7 +327,7 @@ namespace Levels
 						[&](auto& sound) {
 							sound.volume(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f);
 						});
-				});
+				}));
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::wall, Globals::CollisionBits::wall,
 				[this, soundsLimitter = Tools::SoundsLimitter(8)](const auto& wall1, const auto& wall2) mutable {
