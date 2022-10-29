@@ -463,7 +463,7 @@ namespace Levels
 
 		void setCamera() const
 		{
-			playersHandler.initMultiplayerCamera([this]() { return projectionHSizeBase; });
+			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([this]() { return projectionHSizeBase; }));
 		}
 
 		void setFramesRoutines()
@@ -547,16 +547,16 @@ namespace Levels
 
 		void collisionHandlers()
 		{
-			auto collisionSound = [this](const auto& plane, const auto& obstacle) {
+			auto collisionSound = Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
 				Tools::PlaySingleSound(collisionSoundBuffer,
 					[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {
 						return pos;
 					},
 					[&](auto& sound) {
-						sound.volume(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f);
+						sound.volume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
 						sound.pitch(Tools::Random(0.9f, 1.5f));
 					});
-			};
+			});
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::plane | Globals::CollisionBits::wall,
 				collisionSound);

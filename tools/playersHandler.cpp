@@ -45,34 +45,49 @@ namespace Tools
 		}
 	}
 
-	void PlayersHandler::initMultiplayerCamera(std::function<float()> projectionHSizeMin, float scalingFactor, float velocityFactor, float transitionFactor) const
+	void PlayersHandler::setCamera(CameraParams cameraParams) const
 	{
 		const auto& planes = Globals::Components().planes();
 		const auto& screenInfo = Globals::Components().screenInfo();
 
-		auto velocityCorrection = [velocityFactor](const auto& plane) {
+		auto velocityCorrection = [velocityFactor = cameraParams.velocityFactor_](const auto& plane) {
 			return plane.getVelocity() * velocityFactor;
 		};
 
-		Globals::Components().camera().targetProjectionHSizeF = [&, velocityCorrection, projectionHSizeMin, scalingFactor, transitionFactor]() {
+		Globals::Components().camera().targetProjectionHSizeF = [&, velocityCorrection,
+				projectionHSizeMin = std::move(cameraParams.projectionHSizeMin_),
+				scalingFactor = cameraParams.scalingFactor_,
+				transitionFactor = cameraParams.transitionFactor_,
+				additionalActors = cameraParams.additionalActors_]() {
 			Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
 
-			const float maxDistance = [&, velocityCorrection, scalingFactor]() {
-				if (playersHandlers.size() == 1)
-					return glm::length(velocityCorrection(planes[playersHandlers[0].playerId])) + projectionHSizeMin();
+			const float maxDistance = [&]() {
+				const auto activePlayersHandlers = getActivePlayersHandlers();
+
+				if (activePlayersHandlers.size() == 1 && additionalActors.empty())
+					return glm::length(velocityCorrection(planes[activePlayersHandlers[0]->playerId])) + projectionHSizeMin();
+
+				std::vector<glm::vec2> allActorsPos;
+				allActorsPos.reserve(activePlayersHandlers.size() + additionalActors.size());
+
+				for (const auto& playerHandler : activePlayersHandlers)
+				{
+					const auto& plane = planes[playerHandler->playerId];
+					allActorsPos.emplace_back(plane.getCenter() + velocityCorrection(plane));
+				}
+				for (const auto& additionalActor : additionalActors)
+					allActorsPos.emplace_back(additionalActor());
 
 				float maxDistance = 0.0f;
-				for (unsigned i = 0; i < playersHandlers.size() - 1; ++i)
-					for (unsigned j = i + 1; j < playersHandlers.size(); ++j)
+				for (unsigned i = 0; i < allActorsPos.size() - 1; ++i)
+					for (unsigned j = i + 1; j < allActorsPos.size(); ++j)
 					{
-						const auto& plane1 = planes[playersHandlers[i].playerId];
-						const auto& plane2 = planes[playersHandlers[j].playerId];
-						const auto plane1Center = plane1.getCenter() + velocityCorrection(plane1);
-						const auto plane2Center = plane2.getCenter() + velocityCorrection(plane2);
-						/*maxDistance = std::max(maxDistance, glm::max(glm::abs(plane1Center.x - plane2Center.x) * screenInfo.windowSize.y / screenInfo.windowSize.x * scalingFactor,
-							glm::abs(plane1Center.y - plane2Center.y) * scalingFactor));*/
-						maxDistance = std::max(maxDistance, glm::distance(glm::vec2(plane1Center.x * screenInfo.windowSize.y / screenInfo.windowSize.x, plane1Center.y),
-							glm::vec2(plane2Center.x * screenInfo.windowSize.y / screenInfo.windowSize.x, plane2Center.y)) * scalingFactor);
+						const auto pos1 = allActorsPos[i];
+						const auto pos2 = allActorsPos[j];
+						/*maxDistance = std::max(maxDistance, glm::max(glm::abs(pos1.x - pos2.x) * screenInfo.windowSize.y / screenInfo.windowSize.x * scalingFactor,
+							glm::abs(pos1.y - pos2.y) * scalingFactor));*/
+						maxDistance = std::max(maxDistance, glm::distance(glm::vec2(pos1.x * screenInfo.windowSize.y / screenInfo.windowSize.x, pos1.y),
+							glm::vec2(pos2.x * screenInfo.windowSize.y / screenInfo.windowSize.x, pos2.y)) * scalingFactor);
 					}
 				return maxDistance;
 			}();
@@ -80,22 +95,33 @@ namespace Tools
 			return std::max(projectionHSizeMin(), maxDistance);
 		};
 
-		Globals::Components().camera().targetPositionF = [&, velocityCorrection, transitionFactor]() {
+		Globals::Components().camera().targetPositionF = [&, velocityCorrection, transitionFactor = cameraParams.transitionFactor_,
+			additionalActors = cameraParams.additionalActors_]() {
 			Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
 
 			glm::vec2 min(std::numeric_limits<float>::max());
 			glm::vec2 max(std::numeric_limits<float>::lowest());
 			glm::vec2 sumOfVelocityCorrections(0.0f);
+			auto activePlayersHandlers = getActivePlayersHandlers();
+			std::vector<glm::vec2> allActorsPos;
+			allActorsPos.reserve(activePlayersHandlers.size() + additionalActors.size());
 
-			for (const auto& playerHandler : playersHandlers)
+			for (const auto& playerHandler : activePlayersHandlers)
 			{
-				const auto& plane = planes[playerHandler.playerId];
-				min = { std::min(min.x, plane.getCenter().x), std::min(min.y, plane.getCenter().y) };
-				max = { std::max(max.x, plane.getCenter().x), std::max(max.y, plane.getCenter().y) };
+				const auto& plane = planes[playerHandler->playerId];
+				allActorsPos.emplace_back(plane.getCenter());
 				sumOfVelocityCorrections += velocityCorrection(plane);
 			}
+			for (const auto& additionalActor : additionalActors)
+				allActorsPos.emplace_back(additionalActor());
 
-			return (min + max) / 2.0f + sumOfVelocityCorrections / (float)playersHandlers.size();
+			for (const auto& actorPos : allActorsPos)
+			{
+				min = { std::min(min.x, actorPos.x), std::min(min.y, actorPos.y) };
+				max = { std::max(max.x, actorPos.x), std::max(max.y, actorPos.y) };
+			}
+
+			return (min + max) / 2.0f + sumOfVelocityCorrections / (float)activePlayersHandlers.size();
 		};
 	}
 
@@ -103,6 +129,7 @@ namespace Tools
 	{
 		const auto& gamepads = Globals::Components().gamepads();
 		auto& planes = Globals::Components().planes();
+		auto& sounds = Globals::Components().sounds();
 		std::vector<unsigned> activeGamepads;
 
 		for (unsigned i = 0; i < gamepads.size(); ++i)
@@ -119,6 +146,10 @@ namespace Tools
 			if (erase)
 			{
 				planes[playerHandler.playerId].state = ComponentState::Outdated;
+				if (playerHandler.thrustSound)
+					sounds[*playerHandler.thrustSound].state = ComponentState::Outdated;
+				if (playerHandler.grappleSound)
+					sounds[*playerHandler.grappleSound].state = ComponentState::Outdated;
 				return true;
 			}
 			return false;
@@ -227,6 +258,28 @@ namespace Tools
 	std::vector<Tools::PlayerHandler>& PlayersHandler::accessPlayersHandlers()
 	{
 		return playersHandlers;
+	}
+
+	const std::vector<const Tools::PlayerHandler*> PlayersHandler::getActivePlayersHandlers() const
+	{
+		std::vector<const Tools::PlayerHandler*> activePlayersHandlers;
+
+		for (const auto& playerHandler : playersHandlers)
+			if (Globals::Components().planes()[playerHandler.playerId].isEnabled())
+				activePlayersHandlers.push_back(&playerHandler);
+
+		return activePlayersHandlers;
+	}
+
+	std::vector<Tools::PlayerHandler*> PlayersHandler::accessActivePlayersHandlers()
+	{
+		std::vector<Tools::PlayerHandler*> activePlayersHandlers;
+
+		for (auto& playerHandler : playersHandlers)
+			if (Globals::Components().planes()[playerHandler.playerId].isEnabled())
+				activePlayersHandlers.push_back(&playerHandler);
+
+		return activePlayersHandlers;
 	}
 
 	std::optional<ComponentId> PlayersHandler::createSound(std::optional<ComponentId> soundBuffer, ComponentId planeId) const

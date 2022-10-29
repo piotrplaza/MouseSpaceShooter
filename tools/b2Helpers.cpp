@@ -166,7 +166,7 @@ namespace Tools
 		return body;
 	}
 
-	Body CreateRandomPolygonBody(float radius, int numOfVertices, const BodyParams& bodyParams, int radResolution)
+	Body CreateRandomPolygonBody(int numOfVertices, float radius, const BodyParams& bodyParams, int radResolution)
 	{
 		assert(numOfVertices >= 3);
 

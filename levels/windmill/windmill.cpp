@@ -95,7 +95,7 @@ namespace Levels
 
 			spaceRockTexture = textures.size();
 			textures.emplace("textures/space rock.jpg", GL_MIRRORED_REPEAT);
-			textures.last().scale = glm::vec2(5.0f);
+			textures.last().scale = glm::vec2(20.0f);
 
 			woodTexture = textures.size();
 			textures.emplace("textures/wood.jpg", GL_MIRRORED_REPEAT);
@@ -189,7 +189,7 @@ namespace Levels
 
 		void setCamera() const
 		{
-			playersHandler.initMultiplayerCamera([]() { return 30.0f; }, 0.7f);
+			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 30.0f; }).scalingFactor(0.7f).additionalActors([]() { return glm::vec2(0.0f); }));
 		}
 
 		void createWindmill()
@@ -234,8 +234,10 @@ namespace Levels
 				return v + glm::vec3(Tools::Random(-rD, rD), Tools::Random(-rD, rD), 0.0f);
 			};
 			outerRing.loop = true;
-			outerRing.colorF = []() {
-				return glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) * 0.4f;
+			outerRing.colorF = [this]() {
+				return (playersHandler.getActivePlayersHandlers().size() == 1
+					? glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
+					: glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)) * 0.4f;
 			};
 		}
 
@@ -271,7 +273,7 @@ namespace Levels
 
 		void createDebris()
 		{
-			constexpr int numOfDebris = 20;
+			constexpr int numOfDebris = 8;
 			auto& staticWalls = Globals::Components().staticWalls();
 
 			for (int i = 0; i < numOfDebris; ++i)
@@ -279,7 +281,7 @@ namespace Levels
 				const float angle = i / (float)numOfDebris * glm::two_pi<float>();
 				glm::vec2 center(glm::cos(angle), glm::sin(angle));
 				center *= (outerRingInitR + armLength) / 2.0f;
-				staticWalls.emplace(Tools::CreateRandomPolygonBody(2.0f, /*rand() % 10 + 5*/8,
+				staticWalls.emplace(Tools::CreateRandomPolygonBody(12, 5.0f,
 					Tools::BodyParams().bodyType(b2_dynamicBody).position(center).density(2.0f).linearDamping(0.1f).angularDamping(0.1f)));
 				staticWalls.last().texture = TCM::Texture(spaceRockTexture);
 
@@ -289,7 +291,7 @@ namespace Levels
 
 		void initHandlers()
 		{
-			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, true,
+			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, false,
 				[this](unsigned player, auto) {
 					return initPos(player);
 				}, thrustSoundBuffer, grappleSoundBuffer);
@@ -308,6 +310,9 @@ namespace Levels
 		{
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline,
 				[this](const auto& plane, auto) {
+					if (playersHandler.getActivePlayersHandlers().size() == 1)
+						return;
+
 					Globals::Components().deferredActions().emplace([&](auto) {
 						auto& planeComponent = *std::get<TCM::Plane>(Tools::AccessUserData(*plane.GetBody()).bodyComponentVariant).component;
 						Tools::CreateExplosion(Tools::ExplosionParams().center(planeComponent.getCenter()).sourceVelocity(planeComponent.getVelocity()).
@@ -315,7 +320,7 @@ namespace Levels
 						Tools::PlaySingleSound(playerExplosionSoundBuffer, [&]() { return planeComponent.getCenter(); });
 						planeComponent.enable(false);
 						return false;
-					});
+						});
 				});
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::plane | Globals::CollisionBits::wall,
@@ -325,7 +330,7 @@ namespace Levels
 							return pos;
 						},
 						[&](auto& sound) {
-							sound.volume(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f);
+							sound.volume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
 						});
 				}));
 
@@ -336,7 +341,8 @@ namespace Levels
 							return pos;
 						},
 						[&](auto& sound) {
-							sound.volume(Tools::GetRelativeVelocity(*wall1.GetBody(), *wall2.GetBody()) / 40.0f);
+							sound.volume(std::sqrt(Tools::GetRelativeVelocity(*wall1.GetBody(), *wall2.GetBody()) / 20.0f));
+							sound.pitch(0.5f);
 						}));
 				});
 		}
@@ -438,8 +444,10 @@ namespace Levels
 					return v + glm::vec3(Tools::Random(-rD, rD), Tools::Random(-rD, rD), 0.0f);
 				};
 				emission.loop = true;
-				emission.colorF = []() {
-					return glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) * 0.4f;
+				emission.colorF = [this]() {
+					return (playersHandler.getActivePlayersHandlers().size() == 1
+						? glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
+						: glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)) * 0.4f;
 				};
 
 				Tools::PlaySingleSound(emissionSoundBuffer, []() { return glm::vec2(0.0f); }, nullptr,
