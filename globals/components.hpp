@@ -126,6 +126,7 @@ namespace Globals
 	};
 
 	void InitializeComponents();
+	void MarkDynamicComponentsAsDirty();
 
 	ComponentsHolder& Components();
 }

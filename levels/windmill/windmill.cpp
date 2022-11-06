@@ -47,7 +47,7 @@ namespace Levels
 	class Windmill::Impl
 	{
 	public:
-		Windmill::Impl():
+		Impl():
 			physics(Globals::Components().physics())
 		{
 		}
@@ -136,12 +136,6 @@ namespace Levels
 			grappleSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
 			innerForceSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav", 0.8f).getComponentId();
 			emissionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Pad - Adventure_C.wav", 0.8f).getComponentId();
-			
-			innerForceSound = Tools::PlaySingleSound(innerForceSoundBuffer, []() { return glm::vec2(0.0f); },
-				[](auto& sound) {
-					sound.loop(true);
-					sound.volume(0.0f);
-				}).getComponentId();
 		}
 
 		void setAnimations()
@@ -187,11 +181,6 @@ namespace Levels
 			};
 		}
 
-		void setCamera() const
-		{
-			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 30.0f; }).scalingFactor(0.7f).additionalActors([]() { return glm::vec2(0.0f); }));
-		}
-
 		void createWindmill()
 		{
 			auto& staticWalls = Globals::Components().staticWalls();
@@ -210,7 +199,7 @@ namespace Levels
 		{
 			auto& outerRing = Globals::Components().staticPolylines().emplace();
 
-			outerRing.stepF = [&, startTime = physics.simulationDuration]() {
+			outerRing.stepF = [&]() {
 				constexpr int numOfRingSegments = 50;
 				constexpr float ringStep = glm::two_pi<float>() / numOfRingSegments;
 				float deltaR = glm::sin((physics.simulationDuration - startTime) * 0.04f) * 50.0f;
@@ -274,27 +263,32 @@ namespace Levels
 		void createDebris()
 		{
 			constexpr int numOfDebris = 8;
-			auto& staticWalls = Globals::Components().staticWalls();
+			auto& dynamicWalls = Globals::Components().dynamicWalls();
+
+			for (const auto debrisId : dynamicWallsDebris)
+			{
+				dynamicWalls[debrisId].enable(false);
+				dynamicWalls[debrisId].state = ComponentState::Outdated;
+			}
+
+			dynamicWallsDebris.clear();
 
 			for (int i = 0; i < numOfDebris; ++i)
 			{
 				const float angle = i / (float)numOfDebris * glm::two_pi<float>();
 				glm::vec2 center(glm::cos(angle), glm::sin(angle));
 				center *= (outerRingInitR + armLength) / 2.0f;
-				staticWalls.emplace(Tools::CreateRandomPolygonBody(12, 5.0f,
+				dynamicWalls.emplace(Tools::CreateRandomPolygonBody(12, 5.0f,
 					Tools::BodyParams().bodyType(b2_dynamicBody).position(center).density(2.0f).linearDamping(0.1f).angularDamping(0.1f)));
-				staticWalls.last().texture = TCM::Texture(spaceRockTexture);
+				dynamicWalls.last().texture = TCM::Texture(spaceRockTexture);
 
-				staticWallsDebris.push_back(staticWalls.last().getComponentId());
+				dynamicWallsDebris.push_back(dynamicWalls.last().getComponentId());
 			}
 		}
 
 		void initHandlers()
 		{
-			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, false,
-				[this](unsigned player, auto) {
-					return initPos(player);
-				}, thrustSoundBuffer, grappleSoundBuffer);
+			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 30.0f; }).scalingFactor(0.7f).additionalActors([]() { return glm::vec2(0.0f); }));
 
 			missilesHandler.setPlayersHandler(playersHandler);
 			missilesHandler.setExplosionTexture(explosionTexture);
@@ -317,7 +311,7 @@ namespace Levels
 						auto& planeComponent = *std::get<TCM::Plane>(Tools::AccessUserData(*plane.GetBody()).bodyComponentVariant).component;
 						Tools::CreateExplosion(Tools::ExplosionParams().center(planeComponent.getCenter()).sourceVelocity(planeComponent.getVelocity()).
 							initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
-						Tools::PlaySingleSound(playerExplosionSoundBuffer, [&]() { return planeComponent.getCenter(); });
+						Tools::PlaySingleSound(playerExplosionSoundBuffer, [pos = planeComponent.getCenter()]() { return pos; });
 						planeComponent.enable(false);
 						return false;
 						});
@@ -335,8 +329,8 @@ namespace Levels
 				}));
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::wall, Globals::CollisionBits::wall,
-				[this, soundsLimitter = Tools::SoundsLimitter(8)](const auto& wall1, const auto& wall2) mutable {
-					soundsLimitter.newSound(Tools::PlaySingleSound(collisionSoundBuffer,
+				[this, soundsLimitter = Tools::SoundsLimitter::create(8)](const auto& wall1, const auto& wall2) mutable {
+					soundsLimitter->newSound(Tools::PlaySingleSound(collisionSoundBuffer,
 						[pos = *Tools::GetCollisionPoint(*wall1.GetBody(), *wall2.GetBody())]() {
 							return pos;
 						},
@@ -351,11 +345,15 @@ namespace Levels
 		{
 			playersHandler.autodetectionStep([this](unsigned player) {
 				const auto& windmill = Globals::Components().staticWalls()[windmillWall];
-				return glm::rotate(glm::mat4(1.0f), windmill.getAngle(), { 0.0f, 0.0f, 1.0f }) * glm::vec4(initPos(player), 0.0f, 1.0f);
+				glm::vec3 initLoc = this->initLoc(player);
+				return glm::rotate(glm::mat4(1.0f), windmill.getAngle(), { 0.0f, 0.0f, 1.0f }) * glm::vec4(glm::vec2(initLoc),
+					windmill.getAngle() + initLoc.z, 1.0f);
 				});
 
 			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
 				missilesHandler.launchingMissile(playerHandlerId, fire, missileLaunchingSoundBuffer);
+				if (playersHandler.getActivePlayersHandlers().size() == 1 && Globals::Components().planes()[playersHandler.getActivePlayersHandlers().front()->playerId].controls.startPressed)
+					reset();
 				});
 
 			windmillRotation();
@@ -363,11 +361,41 @@ namespace Levels
 			emissions();
 		}
 
+		void reset()
+		{
+			innerForceScale = 0.0f;
+			nextEmissionTime = emissionInterval;
+			startTime = physics.simulationDuration;
+			missilesHandler.removeActiveMissiles();
+			Globals::MarkDynamicComponentsAsDirty();
+
+			innerForceSound = Tools::PlaySingleSound(innerForceSoundBuffer, []() { return glm::vec2(0.0f); },
+				[](auto& sound) {
+					sound.loop(true);
+					sound.volume(0.0f);
+				}).getComponentId();
+
+			const auto& windmill = Globals::Components().staticWalls()[windmillWall];
+			windmill.body->SetTransform({ 0.0f, 0.0f }, 0.0f);
+
+			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, false,
+				[this](unsigned player, auto) {
+					return initLoc(player);
+				}, thrustSoundBuffer, grappleSoundBuffer);
+
+			missilesHandler.initCollisions();
+
+			createGrapples();
+			createDebris();
+			collisionHandlers();
+		}
+
 	private:
-		glm::vec2 initPos(unsigned player)
+		glm::vec3 initLoc(unsigned player)
 		{
 			const float axesDistance = 20.0f;
-			return glm::vec2(player == 0 || player == 3 ? axesDistance : -axesDistance, player == 0 || player == 1 ? axesDistance : -axesDistance);
+			return glm::vec3(player == 0 || player == 3 ? axesDistance : -axesDistance, player == 0 || player == 1 ? axesDistance : -axesDistance,
+				player * glm::half_pi<float>() + glm::quarter_pi<float>());
 		}
 
 		void windmillRotation()
@@ -397,8 +425,8 @@ namespace Levels
 
 			for (auto id : grapplesDebris)
 				applyForceForDebris(Globals::Components().grapples()[id], 100.0f);
-			for (auto id : staticWallsDebris)
-				applyForceForDebris(Globals::Components().staticWalls()[id], 10.0f);
+			for (auto id : dynamicWallsDebris)
+				applyForceForDebris(Globals::Components().dynamicWalls()[id], 10.0f);
 
 			innerForceScale += physics.frameDuration * 0.05f;
 
@@ -497,12 +525,13 @@ namespace Levels
 
 		ComponentId windmillWall = 0;
 
-		std::vector<ComponentId> staticWallsDebris;
+		std::vector<ComponentId> dynamicWallsDebris;
 		std::vector<ComponentId> grapplesDebris;
 
 		Tools::PlayersHandler playersHandler;
 		Tools::MissilesHandler missilesHandler;
 
+		float startTime = 0.0f;
 		float innerForceScale = 0.0f;
 		float outerRingR = 0.0f;
 		float nextEmissionTime = emissionInterval;
@@ -517,13 +546,11 @@ namespace Levels
 		impl->setAnimations();
 		impl->createBackground();
 		impl->createForeground();
-		impl->setCamera();
 		impl->createWindmill();
 		impl->createOuterRing();
-		impl->createGrapples();
-		impl->createDebris();
 		impl->initHandlers();
-		impl->collisionHandlers();
+
+		impl->reset();
 	}
 
 	Windmill::~Windmill() = default;

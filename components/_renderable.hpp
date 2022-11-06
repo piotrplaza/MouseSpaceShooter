@@ -53,19 +53,11 @@ struct Renderable : ComponentBase, RenderableDef
 		Buffers::GenericBuffers* buffers = nullptr;
 	} loaded;
 
-	virtual void enable(bool value)
+	void enable(bool value) override
 	{
-		enable_ = value;
+		ComponentBase::enable(value);
 		render = value;
 		for (auto& e : subsequence)
 			e.render = value;
 	}
-
-	bool isEnabled() const
-	{
-		return enable_;
-	}
-
-private:
-	bool enable_ = true;
 };

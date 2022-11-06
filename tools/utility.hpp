@@ -5,9 +5,14 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <string>
+
 namespace Tools
 {
 	void RedirectIOToConsole(glm::ivec2 windowPos = {10, 10}, int maxConsoleLines = 500);
+
+	void PrintWarning(const std::string& warning);
+	void PrintError(const std::string& error);
 
 	glm::vec2 GetNormalizedMousePosition();
 	void SetMousePos(glm::ivec2 mousePos);

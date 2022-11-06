@@ -8,6 +8,8 @@
 #include "levels/dzidzia2/dzidzia2.hpp"
 #include "levels/rim/rim.hpp"
 #include "levels/fpsScalingProblems/fpsScalingProblems.hpp"
+#include "levels/squareRace/squareRace.hpp"
+#include "levels/raceBase/raceBase.hpp"
 
 #include "components/mouse.hpp"
 #include "components/physics.hpp"
@@ -81,7 +83,8 @@ void OGLInitialize()
 
 void CreateLevel()
 {
-	activeLevel = std::make_unique<Levels::Windmill>();
+	//activeLevel = std::make_unique<Levels::Windmill>();
+	activeLevel = std::make_unique<Levels::SquareRace>();
 
 	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
@@ -90,6 +93,8 @@ void CreateLevel()
 	//activeLevel = std::make_unique<Levels::Dzidzia>();
 	//activeLevel = std::make_unique<Levels::Dzidzia2>();
 	//activeLevel = std::make_unique<Levels::Rim>();
+	//activeLevel = std::make_unique<Levels::RaceBase>();
+
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }
 
@@ -104,7 +109,6 @@ void Initialize()
 	Globals::InitializeShaders();
 	Globals::InitializeComponents();
 	Globals::InitializeSystems();
-	Globals::Systems().stateController().handleSDL();
 
 	CreateLevel();
 

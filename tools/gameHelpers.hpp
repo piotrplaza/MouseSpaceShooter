@@ -10,6 +10,7 @@
 #include <functional>
 #include <optional>
 #include <list>
+#include <memory>
 
 class b2Body;
 class b2Fixture;
@@ -145,15 +146,16 @@ namespace Tools
 		bool valid = true;
 	};
 
-	class SoundsLimitter
+	class SoundsLimitter: public std::enable_shared_from_this<SoundsLimitter>
 	{
 	public:
-		SoundsLimitter(unsigned limit);
-		~SoundsLimitter();
+		static std::shared_ptr<SoundsLimitter> create(unsigned limit);
 
 		void newSound(Components::Sound& sound);
 
 	private:
+		SoundsLimitter(unsigned limit);
+
 		const unsigned limit;
 		std::list<Components::Sound*> sounds;
 	};

@@ -33,6 +33,16 @@ struct ComponentBase
 		componentId = id;
 	}
 
+	virtual void enable(bool value)
+	{
+		enable_ = value;
+	}
+
+	virtual bool isEnabled() const
+	{
+		return enable_;
+	}
+
 	ComponentId getComponentId() const
 	{
 		return componentId;
@@ -42,4 +52,5 @@ struct ComponentBase
 
 private:
 	ComponentId componentId = 0;
+	bool enable_ = true;
 };

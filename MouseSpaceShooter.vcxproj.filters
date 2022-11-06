@@ -80,6 +80,12 @@
     <Filter Include="src\levels\windmill">
       <UniqueIdentifier>{739ddbe9-ae3c-49c3-8108-cca8325a0f25}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\squareRace">
+      <UniqueIdentifier>{8c70a967-f162-4a87-b7fd-05bc26f5d915}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\levels\raceBase">
+      <UniqueIdentifier>{0fb5deb0-9fb9-468f-975f-88bd92f2a103}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -213,6 +219,12 @@
     </ClCompile>
     <ClCompile Include="tools\playersHandler.cpp">
       <Filter>src\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\squareRace\squareRace.cpp">
+      <Filter>src\levels\squareRace</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\raceBase\raceBase.cpp">
+      <Filter>src\levels\raceBase</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -491,6 +503,12 @@
     </ClInclude>
     <ClInclude Include="components\dynamicPolyline.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\squareRace\squareRace.hpp">
+      <Filter>src\levels\squareRace</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\raceBase\raceBase.hpp">
+      <Filter>src\levels\raceBase</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

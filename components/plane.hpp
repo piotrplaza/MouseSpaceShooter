@@ -38,6 +38,7 @@ namespace Components
 			float autoRotationFactor = 1.0f;
 			float throttling = 0.0f;
 			bool magneticHook = false;
+			bool startPressed = false;
 		} controls;
 
 		struct

@@ -2,6 +2,8 @@
 
 #include <globals/collisionBits.hpp>
 
+#include <commonTypes/bodyUserData.hpp>
+
 #include <Box2D/Box2D.h>
 
 #include <glm/vec2.hpp>
@@ -120,10 +122,10 @@ namespace Tools
 	Body CreateEmptyBody(const BodyParams& bodyParams = BodyParams{});
 
 	Body CreatePlaneBody(float size, float density, float spreadFactor);
-	Body CreateBoxBody(glm::vec2 hSize, const BodyParams& bodyParams);
-	Body CreateCircleBody(float radius, const BodyParams& bodyParams);
-	Body CreateConvex4Body(const std::array<glm::vec2, 4>& vertices, const BodyParams& bodyParams);
-	Body CreateTrianglesBody(const std::vector<std::array<glm::vec2, 3>>& vertices, const BodyParams& bodyParams);
+	Body CreateBoxBody(glm::vec2 hSize, const BodyParams& bodyParams = BodyParams{});
+	Body CreateCircleBody(float radius, const BodyParams& bodyParams = BodyParams{});
+	Body CreateConvex4Body(const std::array<glm::vec2, 4>& vertices, const BodyParams& bodyParams = BodyParams{});
+	Body CreateTrianglesBody(const std::vector<std::array<glm::vec2, 3>>& vertices, const BodyParams& bodyParams = BodyParams{});
 	Body CreatePolylineBody(const std::vector<glm::vec2>& vertices, const BodyParams& bodyParams = BodyParams{});
 	Body CreateRandomPolygonBody(int numOfVertices, float radius, const BodyParams& bodyParams = BodyParams{}, int radResolution = 100);
 
@@ -148,4 +150,16 @@ namespace Tools
 	float GetRelativeVelocity(const b2Body& body1, const b2Body& body2);
 
 	void DestroyFixtures(Body& body);
+
+	template <typename TypeComponentMapper>
+	decltype(auto) AccessComponent(const b2Body& body)
+	{
+		return *std::get<TypeComponentMapper>(AccessUserData(body).bodyComponentVariant).component;
+	}
+
+	template <typename TypeComponentMapper>
+	decltype(auto) AccessComponent(const b2Fixture& fixture)
+	{
+		return AccessComponent<TypeComponentMapper>(*fixture.GetBody());
+	}
 }

@@ -6,7 +6,7 @@ namespace Levels
 	{
 	public:
 		Level();
-		~Level();
+		virtual ~Level();
 
 		virtual void step() = 0;
 	};

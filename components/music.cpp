@@ -2,6 +2,8 @@
 
 #include "sound.hpp"
 
+#include <tools/utility.hpp>
+
 #include <SFML/Audio.hpp>
 
 #include <algorithm>
@@ -18,7 +20,10 @@ namespace Components
 		maxVolume(maxVolume)
 	{
 		if (!details)
+		{
+			Tools::PrintWarning("Audio limit was exceeded. Dummy music was allocated.");
 			return;
+		}
 
 		details->sfMusic.openFromFile(path);
 		volume(1.0f);
@@ -52,7 +57,12 @@ namespace Components
 	void Music::loop(bool value)
 	{
 		if (!details)
+		{
+			if (value)
+				Tools::PrintError("Loop for dummy music was set. It may cause permanent issue.");
+
 			return;
+		}
 
 		details->sfMusic.setLoop(value);
 	}

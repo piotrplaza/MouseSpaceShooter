@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <climits>
+#include <iostream>
 
 namespace Tools
 {
@@ -27,6 +28,18 @@ namespace Tools
 
 		HWND consoleWindow = GetConsoleWindow();
 		SetWindowPos(consoleWindow, 0, windowPos.x, windowPos.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+	}
+
+	void PrintWarning(const std::string& warning)
+	{
+#ifdef _DEBUG
+		std::cout << "Warning: " << warning << std::endl;
+#endif
+	}
+
+	void PrintError(const std::string& error)
+	{
+		std::cout << "Error: " << error << std::endl;
 	}
 
 	glm::vec2 GetNormalizedMousePosition()

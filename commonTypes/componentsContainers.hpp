@@ -158,6 +158,11 @@ public:
 		return components;
 	}
 
+	void clear()
+	{
+		components.clear();
+	}
+
 private:
 	Container components;
 	Component* last_ = nullptr;
@@ -319,6 +324,20 @@ public:
 		}
 	}
 
+	void markAsDirty()
+	{
+		for (auto& component : components)
+		{
+			component.second.enable(false);
+			component.second.state = ::ComponentState::Outdated;
+		}
+	}
+
+	void clear()
+	{
+		components.clear();
+	}
+
 private:
 	Container components;
 	Component* last_ = nullptr;
@@ -440,14 +459,28 @@ public:
 		auto it = components.begin();
 		while (it != components.end())
 		{
-			if (it->second.state == ::ComponentState::Outdated)
+			if (it->state == ::ComponentState::Outdated)
 			{
-				Globals::ComponentIdGenerator().release(it->first);
+				Globals::ComponentIdGenerator().release(it->getComponentId());
 				it = components.erase(it);
 			}
 			else
 				++it;
 		}
+	}
+
+	void markAsDirty()
+	{
+		for (auto& component : components)
+		{
+			component.enable(false);
+			component.state = ::ComponentState::Outdated;
+		}
+	}
+
+	void clear()
+	{
+		components.clear();
 	}
 
 private:

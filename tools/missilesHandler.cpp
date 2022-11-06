@@ -13,7 +13,7 @@
 
 namespace Tools
 {
-	MissilesHandler::MissilesHandler()
+	void MissilesHandler::initCollisions()
 	{
 		Globals::Components().collisionFilters().emplace(Globals::CollisionBits::missile, Globals::CollisionBits::missile |
 			Globals::CollisionBits::plane | Globals::CollisionBits::polyline,
@@ -119,6 +119,11 @@ namespace Tools
 		else playerHandler.durationToLaunchMissile = 0.0f;
 
 		return nullptr;
+	}
+
+	void MissilesHandler::removeActiveMissiles()
+	{
+		missilesToHandlers.clear();
 	}
 
 	const MissileHandler& MissilesHandler::launchMissile(ComponentId playerId, std::optional<ComponentId> soundBufferId, float maxLifetime)

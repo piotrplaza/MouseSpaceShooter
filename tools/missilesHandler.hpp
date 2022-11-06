@@ -15,8 +15,7 @@ namespace Tools
 	class MissilesHandler
 	{
 	public:
-		MissilesHandler();
-
+		void initCollisions();
 		void setPlayersHandler(Tools::PlayersHandler& playersHandler);
 		void setExplosionTexture(ComponentId explosionTexture);
 		void setMissileTexture(ComponentId missileTexture);
@@ -29,6 +28,8 @@ namespace Tools
 
 		const MissileHandler* launchingMissile(unsigned playerHandlerId, bool tryToLaunch, std::optional<ComponentId> soundBufferId = std::nullopt,
 			float maxLifetime = 5.0f);
+
+		void removeActiveMissiles();
 
 	private:
 		const MissileHandler& launchMissile(ComponentId playerId, std::optional<ComponentId> soundBufferId = std::nullopt, float maxLifetime = 5.0f);

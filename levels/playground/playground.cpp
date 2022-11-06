@@ -529,9 +529,10 @@ namespace Levels
 				[](unsigned player, unsigned numOfPlayers) {
 					const float gap = 5.0f;
 					const float farPlayersDistance = gap * (numOfPlayers - 1);
-					return glm::vec2(-10.0f, -farPlayersDistance / 2.0f + gap * player);
+					return glm::vec3(-10.0f, -farPlayersDistance / 2.0f + gap * player, 0.0f);
 				}, thrustSoundBuffer, grappleSoundBuffer);
 
+			missilesHandler.initCollisions();
 			missilesHandler.setPlayersHandler(playersHandler);
 			missilesHandler.setExplosionTexture(explosionTexture);
 			missilesHandler.setMissileTexture(missile2Texture);
@@ -566,7 +567,7 @@ namespace Levels
 
 		void step()
 		{
-			playersHandler.autodetectionStep([](auto) { return glm::vec2(0.0f); });
+			playersHandler.autodetectionStep([](auto) { return glm::vec3(0.0f); });
 			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
 				missilesHandler.launchingMissile(playerHandlerId, fire, missileLaunchingSoundBuffer);
 				});

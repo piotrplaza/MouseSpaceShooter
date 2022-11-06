@@ -8,7 +8,6 @@
 #include <tools/utility.hpp>
 
 #include <commonTypes/typeComponentMappers.hpp>
-#include <commonTypes/bodyUserData.hpp>
 
 #include <glm/gtx/transform.hpp>
 
@@ -276,11 +275,22 @@ namespace Tools
 				case 4:
 				{
 					vertices.reserve(vertices.size() + 6);
-					for (int i = 0; i < 6; ++i)
+
+					const auto& b2v = polygonShape.m_vertices;
+
+					vertices.emplace_back(b2v[0].x, b2v[0].y, 0.0f);
+					vertices.emplace_back(b2v[1].x, b2v[1].y, 0.0f);
+					vertices.emplace_back(b2v[3].x, b2v[3].y, 0.0f);
+
+					vertices.emplace_back(b2v[3].x, b2v[3].y, 0.0f);
+					vertices.emplace_back(b2v[1].x, b2v[1].y, 0.0f);
+					vertices.emplace_back(b2v[2].x, b2v[2].y, 0.0f);
+
+					/*for (int i = 0; i < 6; ++i)
 					{
 						const auto& b2v = polygonShape.m_vertices[i < 3 ? i : (i - 1) % 4];
 						vertices.emplace_back(b2v.x, b2v.y, 0.0f);
-					}
+					}*/
 					break;
 				}
 				default:

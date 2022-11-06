@@ -220,6 +220,25 @@ namespace Globals
 		componentsHolder = std::make_unique<ComponentsHolder>();
 	}
 
+	void MarkDynamicComponentsAsDirty()
+	{
+		Components().sounds().markAsDirty();
+		Components().planes().markAsDirty();
+		Components().dynamicWalls().markAsDirty();
+		Components().grapples().markAsDirty();
+		Components().dynamicPolylines().markAsDirty();
+		Components().dynamicDecorations().markAsDirty();
+		Components().missiles().markAsDirty();
+		Components().collisionFilters().markAsDirty();
+		Components().beginCollisionHandlers().markAsDirty();
+		Components().endCollisionHandlers().markAsDirty();
+		Components().shockwaves().markAsDirty();
+		Components().lights().markAsDirty();
+		Components().frameSetups().markAsDirty();
+		Components().frameTeardowns().markAsDirty();
+		Components().deferredActions().markAsDirty();
+	}
+
 	ComponentsHolder& Components()
 	{
 		return *componentsHolder;

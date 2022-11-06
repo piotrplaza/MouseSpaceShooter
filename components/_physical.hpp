@@ -70,7 +70,7 @@ struct Physical : Renderable
 		return ToVec2<glm::vec2>(body->GetLinearVelocity());
 	}
 
-	virtual void enable(bool value) override
+	void enable(bool value) override
 	{
 		Renderable::enable(value);
 		body->SetEnabled(value);

@@ -67,11 +67,11 @@ namespace Tools
 		};
 
 		void initPlayers(ComponentId rocketPlaneTexture, const std::array<unsigned, 4>& flameAnimatedTextureForPlayers, bool gamepadForPlayer1,
-			std::function<glm::vec2(unsigned player, unsigned numOfPlayers)> initPosF, std::optional<ComponentId> thrustSoundBuffer = std::nullopt,
+			std::function<glm::vec3(unsigned player, unsigned numOfPlayers)> initLocF, std::optional<ComponentId> thrustSoundBuffer = std::nullopt,
 			std::optional<ComponentId> grappleSoundBuffer = std::nullopt);
 		void setCamera(CameraParams cameraParams) const;
 
-		void autodetectionStep(std::function<glm::vec2(unsigned player)> initPosF);
+		void autodetectionStep(std::function<glm::vec3(unsigned player)> initLocF);
 		void controlStep(std::function<void(unsigned playerHandlerId, bool fire)> fireF = nullptr);
 
 		const std::vector<Tools::PlayerHandler>& getPlayersHandlers() const;

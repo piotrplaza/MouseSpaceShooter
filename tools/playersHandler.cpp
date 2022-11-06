@@ -15,15 +15,28 @@
 namespace Tools
 {
 	void PlayersHandler::initPlayers(ComponentId rocketPlaneTexture, const std::array<unsigned, 4>& flameAnimatedTextureForPlayers, bool gamepadForPlayer1,
-		std::function<glm::vec2(unsigned player, unsigned numOfPlayers)> initPosF, std::optional<ComponentId> thrustSoundBuffer, std::optional<ComponentId> grappleSoundBuffer)
+		std::function<glm::vec3(unsigned player, unsigned numOfPlayers)> initLocF, std::optional<ComponentId> thrustSoundBuffer, std::optional<ComponentId> grappleSoundBuffer)
 	{
+		const auto& gamepads = Globals::Components().gamepads();
+		auto& planes = Globals::Components().planes();
+		auto& sounds = Globals::Components().sounds();
+
+		std::erase_if(playersHandlers, [&](const auto& playerHandler) mutable {
+			planes[playerHandler.playerId].enable(false);
+			planes[playerHandler.playerId].state = ComponentState::Outdated;
+			if (playerHandler.thrustSound)
+				sounds[*playerHandler.thrustSound].state = ComponentState::Outdated;
+			if (playerHandler.grappleSound)
+				sounds[*playerHandler.grappleSound].state = ComponentState::Outdated;
+				return true;
+			});
+
 		this->rocketPlaneTexture = rocketPlaneTexture;
 		this->flameAnimatedTextureForPlayers = flameAnimatedTextureForPlayers;
 		this->gamepadForPlayer1 = gamepadForPlayer1;
 		this->thrustSoundBuffer = thrustSoundBuffer;
 		this->grappleSoundBuffer = grappleSoundBuffer;
 
-		const auto& gamepads = Globals::Components().gamepads();
 		std::vector<unsigned> activeGamepads;
 
 		for (unsigned i = 0; i < gamepads.size(); ++i)
@@ -39,7 +52,8 @@ namespace Tools
 		unsigned activeGamepadId = 0;
 		for (unsigned i = 0; i < numOfPlayers; ++i)
 		{
-			ComponentId planeId = Tools::CreatePlane(rocketPlaneTexture, flameAnimatedTextureForPlayers[i], initPosF(i, numOfPlayers));
+			const glm::vec3 initLoc = initLocF(i, numOfPlayers);
+			ComponentId planeId = Tools::CreatePlane(rocketPlaneTexture, flameAnimatedTextureForPlayers[i], initLoc, initLoc.z);
 			playersHandlers.emplace_back(planeId, i == 0 && !gamepadForPlayer1 || activeGamepads.empty() ? std::nullopt : std::optional(activeGamepads[activeGamepadId++]),
 				0.0f, createSound(thrustSoundBuffer, planeId), 0.0f, createSound(grappleSoundBuffer, planeId), 0.0f);
 		}
@@ -125,7 +139,7 @@ namespace Tools
 		};
 	}
 
-	void PlayersHandler::autodetectionStep(std::function<glm::vec2(unsigned player)> initPosF)
+	void PlayersHandler::autodetectionStep(std::function<glm::vec3(unsigned player)> initLocF)
 	{
 		const auto& gamepads = Globals::Components().gamepads();
 		auto& planes = Globals::Components().planes();
@@ -165,8 +179,9 @@ namespace Tools
 					playersHandlers[0].gamepadId = activeGamepadId;
 				else if (playersHandlers.size() < 4)
 				{
+					glm::vec3 initLoc = initLocF(playersHandlers.size());
 					ComponentId planeId = Tools::CreatePlane(rocketPlaneTexture, flameAnimatedTextureForPlayers[playersHandlers.size()],
-						initPosF(playersHandlers.size()));
+						initLoc, initLoc.z);
 					playersHandlers.emplace_back(planeId, activeGamepadId, 0.0f,
 						createSound(thrustSoundBuffer, planeId), 0.0f, createSound(grappleSoundBuffer, planeId), 0.0f);
 				}
@@ -208,6 +223,7 @@ namespace Tools
 				playerControls.autoRotation = (bool)mouse.pressing.rmb;
 				playerControls.throttling = (float)mouse.pressing.rmb;
 				playerControls.magneticHook = mouse.pressing.xmb1;
+				playerControls.startPressed = mouse.pressed.mmb;
 				fire = mouse.pressing.lmb;
 			}
 
@@ -219,6 +235,7 @@ namespace Tools
 				playerControls.autoRotation |= (bool)gamepad.rTrigger;
 				playerControls.throttling = std::max(gamepad.rTrigger, playerControls.throttling);
 				playerControls.magneticHook |= gamepad.pressing.lShoulder || gamepad.pressing.a || gamepad.lTrigger >= 0.5f;
+				playerControls.startPressed |= gamepad.pressed.start;
 				fire |= gamepad.pressing.x;
 			}
 

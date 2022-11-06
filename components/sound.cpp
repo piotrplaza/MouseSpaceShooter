@@ -6,6 +6,8 @@
 
 #include <globals/components.hpp>
 
+#include <tools/utility.hpp>
+
 #include <SFML/Audio.hpp>
 
 #include <algorithm>
@@ -22,7 +24,10 @@ namespace Components
 		maxVolume(Globals::Components().soundsBuffers()[soundBufferId].getMaxVolume())
 	{
 		if (!details)
+		{
+			Tools::PrintWarning("Audio limit was exceeded. Dummy sound was allocated.");
 			return;
+		}
 
 		auto& soundBuffer = Globals::Components().soundsBuffers()[soundBufferId];
 
@@ -38,11 +43,11 @@ namespace Components
 
 	Sound::~Sound()
 	{
-		if (!details)
-			return;
-
 		if (tearDownF)
 			tearDownF();
+
+		if (!details)
+			return;
 
 		--numOfInstances;
 	}
@@ -57,6 +62,9 @@ namespace Components
 
 	void Sound::stop()
 	{
+		if (removeOnStop_)
+			state = ComponentState::Outdated;
+
 		if (!details)
 			return;
 
@@ -70,8 +78,15 @@ namespace Components
 
 	void Sound::loop(bool value)
 	{
+		loop_ = value;
+
 		if (!details)
+		{
+			if (value)
+				Tools::PrintError("Loop for dummy sound was set. It may cause permanent issue.");
+
 			return;
+		}
 
 		details->sfSound.setLoop(value);
 	}
@@ -155,7 +170,7 @@ namespace Components
 
 	void Sound::step()
 	{
-		if (removeOnStop_ && isStopped())
+		if (removeOnStop_ && !loop_ && isStopped())
 			state = ComponentState::Outdated;
 
 		if (stepF)
@@ -165,7 +180,10 @@ namespace Components
 	void Sound::immediateFreeResources()
 	{
 		if (tearDownF)
+		{
 			tearDownF();
+			tearDownF = nullptr;
+		}
 
 		details.reset();
 		state = ComponentState::Outdated;

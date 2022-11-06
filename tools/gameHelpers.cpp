@@ -73,27 +73,25 @@ namespace Tools
 		return *this;
 	}
 
-	SoundsLimitter::SoundsLimitter(unsigned limit):
+	SoundsLimitter::SoundsLimitter(unsigned limit) :
 		limit(limit)
 	{
 	}
 
-	SoundsLimitter::~SoundsLimitter()
-	{
-		for (auto& sound : sounds)
-			sound->immediateFreeResources();
+	std::shared_ptr<SoundsLimitter> SoundsLimitter::create(unsigned limit) {
+		return std::shared_ptr<SoundsLimitter>(new SoundsLimitter(limit));
 	}
 
 	void SoundsLimitter::newSound(Components::Sound& sound)
 	{
+		if (sounds.size() == limit)
+			sounds.front()->immediateFreeResources();
+
 		sounds.push_back(&sound);
 
-		sound.tearDownF = [this, it = std::prev(sounds.end())]() {
+		sound.tearDownF = [this, soundsLimitter = shared_from_this(), it = std::prev(sounds.end())]() {
 			sounds.erase(it);
 		};
-
-		if (sounds.size() > limit)
-			sounds.front()->immediateFreeResources();
 	}
 
 	ComponentId CreatePlane(ComponentId planeTexture, ComponentId flameAnimatedTexture, glm::vec2 position, float angle)

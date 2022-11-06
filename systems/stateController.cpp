@@ -34,7 +34,11 @@ namespace
 
 namespace Systems
 {
-	StateController::StateController() = default;
+	StateController::StateController()
+	{
+		handleSDL();
+	}
+
 	StateController::~StateController() = default;
 
 	void StateController::postInit() const
