@@ -135,58 +135,57 @@ namespace Levels
 
 		void destroyPlane(Components::Plane& plane)
 		{
-			Globals::Components().deferredActions().emplace([&](auto) {
-				Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getCenter()).sourceVelocity(plane.getVelocity()).
+			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getCenter()).sourceVelocity(plane.getVelocity()).
 				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
-				Tools::PlaySingleSound(playerExplosionSoundBuffer, [pos = plane.getCenter()]() { return pos; });
-				plane.enable(false);
-				return false;
-				});
+			Tools::PlaySingleSound(playerExplosionSoundBuffer, [pos = plane.getCenter()]() { return pos; });
+			plane.enable(false);
+			playersToCircuits.erase(plane.getComponentId());
 		}
 
 		void collisionHandlers()
 		{
-			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline,
-				[this](const auto& plane, const auto& polyline) {
+			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline, [this](const auto& plane, const auto& polyline) {
+				Globals::Components().deferredActions().emplace([&](auto) {
 					auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
 
 					if (activePlayersHandlers.size() == 1)
-						return;
+						return false;
 
-					if (Tools::AccessComponent<TCM::StaticPolyline>(polyline).getComponentId() != finishStaticPolyline)
+					auto& planeComponent = Tools::AccessComponent<TCM::Plane>(plane);
+					const auto& polylineComponent = Tools::AccessComponent<TCM::StaticPolyline>(polyline);
+
+					if (polylineComponent.getComponentId() != finishStaticPolyline || planeComponent.getVelocity().y < 0.0f)
 					{
-						destroyPlane(Tools::AccessComponent<TCM::Plane>(plane));
-						return;
+						destroyPlane(planeComponent);
+						return false;
 					}
 
-					for (auto* activePlayerHandler : activePlayersHandlers)
+					const unsigned newCircuits = ++playersToCircuits[planeComponent.getComponentId()];
+					maxCircuits = std::max(maxCircuits, newCircuits);
+
+					if (maxCircuits > 0)
 					{
-						auto& player = Globals::Components().planes()[activePlayerHandler->playerId];
-
-						if (player.getVelocity().y < 0.0f)
-						{
-							destroyPlane(player);
-							continue;
-						}
-
-						const unsigned newCircuits = ++playersToCircuits[Tools::AccessComponent<TCM::Plane>(plane).getComponentId()];
-						maxCircuits = std::max(maxCircuits, newCircuits);
+						unsigned numOfWorsePlayers = 0;
 						unsigned worsePlayerId = 0;
-						if (maxCircuits > 0)
-						{
-							int numOfWorsePlayers = 0;
-							for (const auto& [playerId, circuits] : playersToCircuits)
-								if (circuits < newCircuits)
-								{
-									++numOfWorsePlayers;
-									worsePlayerId = playerId;
-								}
 
-							if (numOfWorsePlayers == 1)
-								destroyPlane(Globals::Components().planes()[worsePlayerId]);
+						for (auto* activePlayerHandler : activePlayersHandlers)
+						{
+							if (activePlayerHandler->playerId == planeComponent.getComponentId())
+								continue;
+
+							if (playersToCircuits.at(activePlayerHandler->playerId) < maxCircuits)
+							{
+								++numOfWorsePlayers;
+								worsePlayerId = activePlayerHandler->playerId;
+							}
 						}
+
+						if (numOfWorsePlayers == 1)
+							destroyPlane(Globals::Components().planes()[worsePlayerId]);
 					}
+					return false;
 				});
+			});
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::plane | Globals::CollisionBits::wall,
 				Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
@@ -202,10 +201,12 @@ namespace Levels
 
 		void step()
 		{
-			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
-				if (playersHandler.getActivePlayersHandlers().size() == 1 && Globals::Components().planes()[playersHandler.getActivePlayersHandlers().front()->playerId].controls.startPressed)
-					reset();
-			});
+			playersHandler.controlStep();
+
+			auto& planes = Globals::Components().planes();
+			auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
+			if (activePlayersHandlers.size() == 1 && planes[activePlayersHandlers.front()->playerId].controls.startPressed)
+				reset();
 		}
 
 		void reset()
