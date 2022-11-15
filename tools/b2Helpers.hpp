@@ -107,6 +107,18 @@ namespace Tools
 			return *this;
 		}
 
+		BodyParams& sleepingAllowed(bool value)
+		{
+			sleepingAllowed_ = value;
+			return *this;
+		}
+
+		BodyParams& bullet(bool value)
+		{
+			bullet_ = value;
+			return *this;
+		}
+
 		glm::vec2 position_ = { 0.0f, 0.0f };
 		float angle_ = 0.0f;
 		b2BodyType bodyType_ = b2_staticBody;
@@ -117,11 +129,12 @@ namespace Tools
 		float angularDamping_ = 0.0f;
 		uint16 categoryBits_ = Globals::CollisionBits::wall;
 		bool sensor_ = false;
+		bool sleepingAllowed_ = false;
+		bool bullet_ = false;
 	};
 
 	Body CreateEmptyBody(const BodyParams& bodyParams = BodyParams{});
 
-	Body CreatePlaneBody(float size, float density, float spreadFactor);
 	Body CreateBoxBody(glm::vec2 hSize, const BodyParams& bodyParams = BodyParams{});
 	Body CreateCircleBody(float radius, const BodyParams& bodyParams = BodyParams{});
 	Body CreateConvex4Body(const std::array<glm::vec2, 4>& vertices, const BodyParams& bodyParams = BodyParams{});
@@ -135,7 +148,7 @@ namespace Tools
 	b2Joint* CreateDistanceJoint(b2Body& body1, b2Body& body2, glm::vec2 body1Anchor, glm::vec2 body2Anchor, bool collideConnected = false, float length = 0.0f);
 
 	glm::mat4 GetModelMatrix(const b2Body& body);
-	std::vector<glm::vec3> GetVertices(const b2Body& body);
+	std::vector<glm::vec3> GetVertices(const b2Body& body, int circleGraphicsComplexity = 60);
 
 	void SetCollisionFilteringBits(b2Body& body, unsigned short categoryBits, unsigned short maskBits);
 

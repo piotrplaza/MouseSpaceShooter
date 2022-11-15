@@ -94,35 +94,39 @@ namespace Tools
 		};
 	}
 
-	ComponentId CreatePlane(ComponentId planeTexture, ComponentId flameAnimatedTexture, glm::vec2 position, float angle)
+	const Tools::BodyParams& GetDefaultParamsForPlaneBody()
 	{
-		auto& plane = Globals::Components().planes().emplace(Tools::CreatePlaneBody(2.0f, 0.2f, 0.5f), TCM::Texture(planeTexture));
+		static const auto planeBodyDefaultParams = Tools::BodyParams().bodyType(b2_dynamicBody).density(0.2f).restitution(0.1f).sleepingAllowed(false).bullet(true).linearDamping(0.1f).angularDamping(15.0);
+		return planeBodyDefaultParams;
+	}
 
-		auto& body = *plane.body;
-		body.SetBullet(true);
+	ComponentId CreatePlane(Body body, ComponentId planeTexture, ComponentId thrustAnimatedTexture, PlaneParams params)
+	{
+		auto& plane = Globals::Components().planes().emplace(std::move(body), TCM::Texture(planeTexture));
 
-		plane.setPosition(position);
-		plane.setRotation(angle);
+		plane.setPosition(params.position_);
+		plane.setRotation(params.angle_);
 		plane.preserveTextureRatio = true;
-		plane.posInSubsequence = 2;
+		plane.posInSubsequence = params.numOfThrusts_;
 
-		for (int i = 0; i < 2; ++i)
+		for (int i = 0; i < params.numOfThrusts_; ++i)
 		{
 			auto& planeDecoration = plane.subsequence.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }), std::vector<glm::vec2>{},
-				TCM::AnimatedTexture(flameAnimatedTexture));
+				TCM::AnimatedTexture(thrustAnimatedTexture));
 
 			Globals::Components().renderingSetups().emplace([&, i,
 				modelUniform = Uniforms::UniformMat4f(),
 				thrust = 1.0f,
-				flameAnimatedTexture
+				thrustAnimatedTexture,
+				params
 			](Shaders::ProgramId program) mutable {
 					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
 					modelUniform(
 						glm::translate(
 							glm::scale(
 								glm::rotate(
-									glm::translate(Tools::GetModelMatrix(*plane.body), { -0.5f, i == 0 ? -0.4f : 0.4f, 0.0f }),
-									-glm::half_pi<float>() + (i == 0 ? 0.1f : -0.1f), { 0.0f, 0.0f, 1.0f }),
+									glm::translate(Tools::GetModelMatrix(*plane.body), { -0.5f, (i == 0 ? -1 : 1) * params.thrustOffset_, 0.0f }),
+									-glm::half_pi<float>() + (i == 0 ? 1 : -1) * params.thrustAngle_, { 0.0f, 0.0f, 1.0f }),
 								{ 0.5f + thrust * 0.02f, thrust, 1.0f }),
 							{ 0.0f, -0.5f, 0.0f }));
 
@@ -134,7 +138,7 @@ namespace Tools
 					else
 						thrust = std::max(thrust - changeStep, targetThrust);
 
-					Globals::Components().animatedTextures()[flameAnimatedTexture].setSpeedScaling(1.0f + (thrust - 1) * 0.2f);
+					Globals::Components().animatedTextures()[thrustAnimatedTexture].setSpeedScaling(1.0f + (thrust - 1) * 0.2f);
 
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -148,7 +152,7 @@ namespace Tools
 	}
 
 	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 referenceVelocity,
-		glm::vec2 initialVelocity, ComponentId missileTexture, ComponentId flameAnimatedTexture, std::optional<ComponentId> planeId,
+		glm::vec2 initialVelocity, ComponentId missileTexture, ComponentId thrustAnimatedTexture, std::optional<ComponentId> planeId,
 		std::optional<ComponentId> missileSoundBuffer)
 	{
 		auto& missile = Globals::Components().missiles().emplace(Tools::CreateBoxBody({ 0.5f, 0.2f },
@@ -174,7 +178,7 @@ namespace Tools
 		missile.renderLayer = RenderLayer::FarMidground;
 
 		auto& decoration = Globals::Components().dynamicDecorations().emplace(Tools::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
-			TCM::AnimatedTexture(flameAnimatedTexture), Tools::CreateTexCoordOfRectangle());
+			TCM::AnimatedTexture(thrustAnimatedTexture), Tools::CreateTexCoordOfRectangle());
 
 		Globals::Components().renderingSetups().emplace([&, modelUniform = Uniforms::UniformMat4f(),
 			thrustScale = 0.1f

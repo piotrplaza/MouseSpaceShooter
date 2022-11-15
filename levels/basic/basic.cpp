@@ -35,6 +35,10 @@ namespace Levels
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
 
+			alienSpaceshipTexture = textures.size();
+			textures.emplace("textures/alien ship 1.png");
+			textures.last().scale = glm::vec2(1.8f);
+
 			flame1AnimationTexture = textures.size();
 			textures.emplace("textures/flame animation 1.jpg");
 			textures.last().minFilter = GL_LINEAR;
@@ -54,7 +58,11 @@ namespace Levels
 
 		void createPlayers()
 		{
-			player1Id = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, { 0.0f, 0.0f }, glm::half_pi<float>());
+			/*player1Id = Tools::CreatePlane(Tools::CreateTrianglesBody({ { glm::vec2{2.0f, 0.0f}, glm::vec2{-1.0f, 1.0f}, glm::vec2{-1.0f, -1.0f} } }, Tools::GetDefaultParamsForPlaneBody()),
+				rocketPlaneTexture, flame1AnimatedTexture, Tools::PlaneParams().angle(glm::half_pi<float>()));*/
+
+			player1Id = Tools::CreatePlane(Tools::CreateCircleBody(1.0f, Tools::GetDefaultParamsForPlaneBody()),
+				alienSpaceshipTexture, flame1AnimatedTexture, Tools::PlaneParams().angle(glm::half_pi<float>()).numOfThrusts(1).thrustOffset(0.0f).thrustAngle(0.0f));
 		}
 
 		void setCamera() const
@@ -88,11 +96,12 @@ namespace Levels
 
 	private:
 		unsigned rocketPlaneTexture = 0;
+		unsigned alienSpaceshipTexture = 0;
 		unsigned flame1AnimationTexture = 0;
 
 		unsigned flame1AnimatedTexture = 0;
 
-		unsigned player1Id;
+		unsigned player1Id = 0;
 	};
 
 	Basic::Basic():

@@ -15,10 +15,6 @@
 
 namespace
 {
-	constexpr float playerLinearDamping = 0.1f;
-	constexpr float playerAngularDamping = 15.0f;
-	constexpr int circleGraphicsComplexity = 60;
-
 	template<size_t Size>
 	inline void CreatePolygonShapedFixture(Body& body, const std::array<glm::vec2, Size>& vertices, float density, float restitution, float friction,
 		unsigned short collisionBits, bool sensor)
@@ -61,38 +57,9 @@ namespace Tools
 		bodyDef.angle = bodyParams.angle_;
 		bodyDef.linearDamping = bodyParams.linearDamping_;
 		bodyDef.angularDamping = bodyParams.angularDamping_;
+		bodyDef.allowSleep = bodyParams.sleepingAllowed_;
+		bodyDef.bullet = bodyParams.bullet_;
 		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
-
-		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
-
-		return body;
-	}
-
-	Body CreatePlaneBody(float size, float density, float spreadFactor)
-	{
-		b2BodyDef bodyDef;
-		bodyDef.type = b2_dynamicBody;
-		bodyDef.position.Set(0.0f, 0.0f);
-		bodyDef.angle = 0.0f;
-		bodyDef.bullet = true;
-		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
-
-		b2FixtureDef fixtureDef;
-		const b2Vec2 playerTriangle[3] = {
-			{ size, 0 },
-			{ -size * spreadFactor, size * spreadFactor },
-			{ -size * spreadFactor, -size * spreadFactor }
-		};
-		b2PolygonShape polygonShape;
-		polygonShape.Set(playerTriangle, 3);
-		fixtureDef.shape = &polygonShape;
-		fixtureDef.density = density;
-		fixtureDef.restitution = 0.1f;
-		body->CreateFixture(&fixtureDef);
-
-		body->SetSleepingAllowed(false);
-		body->SetLinearDamping(playerLinearDamping);
-		body->SetAngularDamping(playerAngularDamping);
 
 		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);
 
@@ -248,7 +215,7 @@ namespace Tools
 			bodyTransform.q.GetAngle(), { 0.0f, 0.0f, 1.0f });
 	}
 
-	std::vector<glm::vec3> GetVertices(const b2Body& body)
+	std::vector<glm::vec3> GetVertices(const b2Body& body, int circleGraphicsComplexity)
 	{
 		std::vector<glm::vec3> vertices;
 
@@ -285,12 +252,6 @@ namespace Tools
 					vertices.emplace_back(b2v[3].x, b2v[3].y, 0.0f);
 					vertices.emplace_back(b2v[1].x, b2v[1].y, 0.0f);
 					vertices.emplace_back(b2v[2].x, b2v[2].y, 0.0f);
-
-					/*for (int i = 0; i < 6; ++i)
-					{
-						const auto& b2v = polygonShape.m_vertices[i < 3 ? i : (i - 1) % 4];
-						vertices.emplace_back(b2v.x, b2v.y, 0.0f);
-					}*/
 					break;
 				}
 				default:

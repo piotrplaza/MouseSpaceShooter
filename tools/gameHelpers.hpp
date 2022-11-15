@@ -1,5 +1,7 @@
 #pragma once
 
+#include "b2Helpers.hpp"
+
 #include <commonTypes/typeComponentMappers.hpp>
 #include <commonTypes/resolutionMode.hpp>
 #include <commonTypes/componentId.hpp>
@@ -125,6 +127,45 @@ namespace Tools
 		ResolutionMode resolutionMode_ = ResolutionMode::Normal;
 	};
 
+	struct PlaneParams
+	{
+		PlaneParams& position(glm::vec2 value)
+		{
+			position_ = value;
+			return *this;
+		}
+
+		PlaneParams& angle(float value)
+		{
+			angle_ = value;
+			return *this;
+		}
+
+		PlaneParams& numOfThrusts(int value)
+		{
+			numOfThrusts_ = value;
+			return *this;
+		}
+
+		PlaneParams& thrustAngle(float value)
+		{
+			thrustAngle_ = value;
+			return *this;
+		}
+
+		PlaneParams& thrustOffset(float value)
+		{
+			thrustOffset_ = value;
+			return *this;
+		}
+
+		glm::vec2 position_ = glm::vec2(0.0f);
+		float angle_ = 0.0f;
+		int numOfThrusts_ = 2;
+		float thrustAngle_ = 0.1f;
+		float thrustOffset_ = 0.4f;
+	};
+
 	struct MissileHandler
 	{
 		MissileHandler();
@@ -160,9 +201,10 @@ namespace Tools
 		std::list<Components::Sound*> sounds;
 	};
 
-	ComponentId CreatePlane(ComponentId planeTexture, ComponentId flameAnimatedTexture, glm::vec2 position = glm::vec2(0.0f), float angle = 0.0f);
+	const Tools::BodyParams& GetDefaultParamsForPlaneBody();
+	ComponentId CreatePlane(Body body, ComponentId planeTexture, ComponentId thrustAnimatedTexture, PlaneParams params = PlaneParams());
 	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 referenceVelocity,
-		glm::vec2 initialVelocity, ComponentId missileTexture, ComponentId flameAnimatedTexture, std::optional<ComponentId> planeId = std::nullopt,
+		glm::vec2 initialVelocity, ComponentId missileTexture, ComponentId thrustAnimatedTexture, std::optional<ComponentId> planeId = std::nullopt,
 		std::optional<ComponentId> missileSoundBuffer = std::nullopt);
 	void CreateExplosion(ExplosionParams params);
 	void CreateFogForeground(int numOfLayers, float alphaPerLayer, ComponentId fogTexture,

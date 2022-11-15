@@ -152,7 +152,8 @@ namespace Levels
 
 		void createPlayers()
 		{
-			player1Id = Tools::CreatePlane(rocketPlaneTexture, flame1AnimatedTexture, {0.0f, -50.0f}, glm::half_pi<float>());
+			player1Id = Tools::CreatePlane(Tools::CreateTrianglesBody({ { glm::vec2{2.0f, 0.0f}, glm::vec2{-1.0f, 1.0f}, glm::vec2{-1.0f, -1.0f} } }, Tools::GetDefaultParamsForPlaneBody()),
+				rocketPlaneTexture, flame1AnimatedTexture, Tools::PlaneParams().position({ 0.0f, -50.0f }).angle(glm::half_pi<float>()));
 		}
 
 		void launchMissile()
