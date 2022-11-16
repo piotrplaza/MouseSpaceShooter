@@ -105,7 +105,7 @@ namespace Tools
 
 		void operator ()(std::monostate)
 		{
-			assert(!"Wrong variant state.");
+			assert(!"wrong variant state");
 		}
 
 	private:

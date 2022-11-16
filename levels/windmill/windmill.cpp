@@ -88,10 +88,14 @@ namespace Levels
 		{
 			auto& textures = Globals::Components().textures();
 
-			rocketPlaneTexture = textures.size();
+			planeTextures[0] = textures.size();
 			textures.emplace("textures/rocket plane.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
+
+			planeTextures[1] = textures.size();
+			textures.emplace("textures/alien ship 1.png");
+			textures.last().scale = glm::vec2(1.9f);
 
 			spaceRockTexture = textures.size();
 			textures.emplace("textures/space rock.jpg", GL_MIRRORED_REPEAT);
@@ -378,7 +382,7 @@ namespace Levels
 			const auto& windmill = Globals::Components().staticWalls()[windmillWall];
 			windmill.body->SetTransform({ 0.0f, 0.0f }, 0.0f);
 
-			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, false,
+			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
 				[this](unsigned player, auto) {
 					return initLoc(player);
 				}, thrustSoundBuffer, grappleSoundBuffer);
@@ -499,7 +503,7 @@ namespace Levels
 
 		ComponentId recursiveFaceRS = 0;
 
-		ComponentId rocketPlaneTexture = 0;
+		std::array<unsigned, 4> planeTextures{ 0 };
 		ComponentId spaceRockTexture = 0;
 		ComponentId woodTexture = 0;
 		ComponentId orbTexture = 0;

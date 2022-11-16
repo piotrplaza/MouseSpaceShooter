@@ -39,10 +39,14 @@ namespace Levels
 		{
 			auto& textures = Globals::Components().textures();
 
-			rocketPlaneTexture = textures.size();
+			planeTextures[0] = textures.size();
 			textures.emplace("textures/rocket plane.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
+
+			planeTextures[1] = textures.size();
+			textures.emplace("textures/alien ship 1.png");
+			textures.last().scale = glm::vec2(1.9f);
 
 			flameAnimationTexture = textures.size();
 			textures.emplace("textures/flame animation 1.jpg");
@@ -213,7 +217,7 @@ namespace Levels
 		{
 			Globals::MarkDynamicComponentsAsDirty();
 
-			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, false,
+			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, true,
 				[this](unsigned player, auto) {
 					return glm::vec3(110.0f + player * 5.0f, 3.0f, glm::half_pi<float>());
 				}, thrustSoundBuffer, grappleSoundBuffer);
@@ -228,7 +232,7 @@ namespace Levels
 		}
 
 	private:
-		unsigned rocketPlaneTexture = 0;
+		std::array<unsigned, 4> planeTextures{ 0 };
 		ComponentId flameAnimationTexture = 0;
 		ComponentId explosionTexture = 0;
 		ComponentId cityTexture = 0;

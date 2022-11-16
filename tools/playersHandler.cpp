@@ -12,9 +12,47 @@
 
 #include <globals/components.hpp>
 
+namespace
+{
+	ComponentId CreatePresettedPlane(unsigned id, ComponentId planeTexture, ComponentId flameAnimatedTexture, glm::vec3 initLoc)
+	{
+		switch (id)
+		{
+		case 0:
+			return Tools::CreatePlane(Tools::CreateTrianglesBody({ { glm::vec2{2.0f, 0.0f}, glm::vec2{-1.0f, 1.0f}, glm::vec2{-1.0f, -1.0f} } }, Tools::GetDefaultParamsForPlaneBody()),
+				planeTexture, flameAnimatedTexture, Tools::PlaneParams().position(initLoc).angle(initLoc.z));
+		case 1:
+			return Tools::CreatePlane(Tools::CreateCircleBody(0.978f, Tools::GetDefaultParamsForPlaneBody()),
+				planeTexture, flameAnimatedTexture, Tools::PlaneParams().position(initLoc).angle(initLoc.z).numOfThrusts(1).thrustOffset(0.0f).thrustAngle(0.0f));
+		}
+
+		assert(!"wrong id");
+
+		return 0;
+	}
+
+	std::optional<ComponentId> CreateSound(std::optional<ComponentId> soundBuffer, ComponentId planeId)
+	{
+		if (!soundBuffer)
+			return std::nullopt;
+
+		const auto& plane = Globals::Components().planes()[planeId];
+
+		auto& sound = Globals::Components().sounds().emplace(*soundBuffer);
+		sound.loop(true);
+		sound.volume(0.0f);
+		sound.stepF = [&plane](auto& sound) {
+			sound.position(Tools::GetRelativePos(plane.getCenter()));
+		};
+		sound.play();
+
+		return sound.getComponentId();
+	}
+}
+
 namespace Tools
 {
-	void PlayersHandler::initPlayers(ComponentId rocketPlaneTexture, const std::array<unsigned, 4>& flameAnimatedTextureForPlayers, bool gamepadForPlayer1,
+	void PlayersHandler::initPlayers(const std::array<unsigned, 4>& planeTextureTextureForPlayers, const std::array<unsigned, 4>& flameAnimatedTextureForPlayers, bool gamepadForPlayer1,
 		std::function<glm::vec3(unsigned player, unsigned numOfPlayers)> initLocF, std::optional<ComponentId> thrustSoundBuffer, std::optional<ComponentId> grappleSoundBuffer)
 	{
 		const auto& gamepads = Globals::Components().gamepads();
@@ -31,7 +69,7 @@ namespace Tools
 				return true;
 			});
 
-		this->rocketPlaneTexture = rocketPlaneTexture;
+		this->rocketPlaneTextures = planeTextureTextureForPlayers;
 		this->flameAnimatedTextureForPlayers = flameAnimatedTextureForPlayers;
 		this->gamepadForPlayer1 = gamepadForPlayer1;
 		this->thrustSoundBuffer = thrustSoundBuffer;
@@ -53,10 +91,9 @@ namespace Tools
 		for (unsigned i = 0; i < numOfPlayers; ++i)
 		{
 			const glm::vec3 initLoc = initLocF(i, numOfPlayers);
-			ComponentId planeId = Tools::CreatePlane(Tools::CreateTrianglesBody({ { glm::vec2{2.0f, 0.0f}, glm::vec2{-1.0f, 1.0f}, glm::vec2{-1.0f, -1.0f} } }, Tools::GetDefaultParamsForPlaneBody()),
-				rocketPlaneTexture, flameAnimatedTextureForPlayers[i], PlaneParams().position(initLoc).angle(initLoc.z));
+			ComponentId planeId = CreatePresettedPlane(i, rocketPlaneTextures[i], flameAnimatedTextureForPlayers[i], initLoc);
 			playersHandlers.emplace_back(planeId, i == 0 && !gamepadForPlayer1 || activeGamepads.empty() ? std::nullopt : std::optional(activeGamepads[activeGamepadId++]),
-				0.0f, createSound(thrustSoundBuffer, planeId), 0.0f, createSound(grappleSoundBuffer, planeId), 0.0f);
+				0.0f, CreateSound(thrustSoundBuffer, planeId), 0.0f, CreateSound(grappleSoundBuffer, planeId), 0.0f);
 		}
 	}
 
@@ -181,10 +218,9 @@ namespace Tools
 				else if (playersHandlers.size() < 4)
 				{
 					glm::vec3 initLoc = initLocF(playersHandlers.size());
-					ComponentId planeId = Tools::CreatePlane(Tools::CreateTrianglesBody({ { glm::vec2{2.0f, 0.0f}, glm::vec2{-1.0f, 1.0f}, glm::vec2{-1.0f, -1.0f} } }, Tools::GetDefaultParamsForPlaneBody()),
-						rocketPlaneTexture, flameAnimatedTextureForPlayers[playersHandlers.size()], PlaneParams().position(initLoc).angle(initLoc.z));
+					ComponentId planeId = CreatePresettedPlane(playersHandlers.size(), rocketPlaneTextures[playersHandlers.size()], flameAnimatedTextureForPlayers[playersHandlers.size()], initLoc);
 					playersHandlers.emplace_back(planeId, activeGamepadId, 0.0f,
-						createSound(thrustSoundBuffer, planeId), 0.0f, createSound(grappleSoundBuffer, planeId), 0.0f);
+						CreateSound(thrustSoundBuffer, planeId), 0.0f, CreateSound(grappleSoundBuffer, planeId), 0.0f);
 				}
 		}
 	}
@@ -298,23 +334,5 @@ namespace Tools
 				activePlayersHandlers.push_back(&playerHandler);
 
 		return activePlayersHandlers;
-	}
-
-	std::optional<ComponentId> PlayersHandler::createSound(std::optional<ComponentId> soundBuffer, ComponentId planeId) const
-	{
-		if (!soundBuffer)
-			return std::nullopt;
-
-		const auto& plane = Globals::Components().planes()[planeId];
-
-		auto& sound = Globals::Components().sounds().emplace(*soundBuffer);
-		sound.loop(true);
-		sound.volume(0.0f);
-		sound.stepF = [&plane](auto& sound) {
-			sound.position(Tools::GetRelativePos(plane.getCenter()));
-		};
-		sound.play();
-
-		return sound.getComponentId();
 	}
 }

@@ -32,14 +32,14 @@ namespace Levels
 		{
 			auto& textures = Globals::Components().textures();
 
-			rocketPlaneTexture = textures.size();
+			planeTextures[0] = textures.size();
 			textures.emplace("textures/rocket plane.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
 
-			flameAnimationTexture = textures.size();
-			textures.emplace("textures/flame animation 1.jpg");
-			textures.last().minFilter = GL_LINEAR;
+			planeTextures[1] = textures.size();
+			textures.emplace("textures/alien ship 1.png");
+			textures.last().scale = glm::vec2(1.9f);
 		}
 
 		void loadAudio()
@@ -76,14 +76,14 @@ namespace Levels
 
 		void reset()
 		{
-			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, false,
+			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
 				[this](unsigned player, auto) {
 					return glm::vec3(0.0f);
 				}, thrustSoundBuffer, grappleSoundBuffer);
 		}
 
 	private:
-		unsigned rocketPlaneTexture = 0;
+		std::array<unsigned, 4> planeTextures{ 0 };
 		ComponentId flameAnimationTexture = 0;
 
 		std::array<unsigned, 4> flameAnimatedTextureForPlayers{ 0 };

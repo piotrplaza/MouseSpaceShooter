@@ -64,10 +64,14 @@ namespace Levels
 		{
 			auto& textures = Globals::Components().textures();
 
-			rocketPlaneTexture = textures.size();
+			planeTextures[0] = textures.size();
 			textures.emplace("textures/rocket plane.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
+
+			planeTextures[1] = textures.size();
+			textures.emplace("textures/alien ship 1.png");
+			textures.last().scale = glm::vec2(1.9f);
 
 			spaceRockTexture = textures.size();
 			textures.emplace("textures/space rock.jpg", GL_MIRRORED_REPEAT);
@@ -525,7 +529,7 @@ namespace Levels
 
 		void initHandlers()
 		{
-			playersHandler.initPlayers(rocketPlaneTexture, flameAnimatedTextureForPlayers, false,
+			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
 				[](unsigned player, unsigned numOfPlayers) {
 					const float gap = 5.0f;
 					const float farPlayersDistance = gap * (numOfPlayers - 1);
@@ -586,7 +590,7 @@ namespace Levels
 		}
 
 	private:
-		ComponentId rocketPlaneTexture = 0;
+		std::array<unsigned, 4> planeTextures{ 0 };
 		ComponentId spaceRockTexture = 0;
 		ComponentId woodTexture = 0;
 		ComponentId orbTexture = 0;

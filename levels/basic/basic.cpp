@@ -15,6 +15,9 @@
 
 #include <tools/gameHelpers.hpp>
 
+#include <iostream>
+using namespace std;
+
 namespace Levels
 {
 	class Basic::Impl
@@ -37,7 +40,7 @@ namespace Levels
 
 			alienSpaceshipTexture = textures.size();
 			textures.emplace("textures/alien ship 1.png");
-			textures.last().scale = glm::vec2(1.8f);
+			textures.last().scale = glm::vec2(1.9f);
 
 			flame1AnimationTexture = textures.size();
 			textures.emplace("textures/flame animation 1.jpg");
@@ -61,8 +64,10 @@ namespace Levels
 			/*player1Id = Tools::CreatePlane(Tools::CreateTrianglesBody({ { glm::vec2{2.0f, 0.0f}, glm::vec2{-1.0f, 1.0f}, glm::vec2{-1.0f, -1.0f} } }, Tools::GetDefaultParamsForPlaneBody()),
 				rocketPlaneTexture, flame1AnimatedTexture, Tools::PlaneParams().angle(glm::half_pi<float>()));*/
 
-			player1Id = Tools::CreatePlane(Tools::CreateCircleBody(1.0f, Tools::GetDefaultParamsForPlaneBody()),
+			player1Id = Tools::CreatePlane(Tools::CreateCircleBody(0.978f, Tools::GetDefaultParamsForPlaneBody()),
 				alienSpaceshipTexture, flame1AnimatedTexture, Tools::PlaneParams().angle(glm::half_pi<float>()).numOfThrusts(1).thrustOffset(0.0f).thrustAngle(0.0f));
+
+			cout << Globals::Components().planes()[player1Id].body->GetMass() << endl;
 		}
 
 		void setCamera() const

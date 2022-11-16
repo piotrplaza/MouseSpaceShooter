@@ -57,7 +57,7 @@ namespace Systems
 			textureCache.channels.reset(stbi_loadf(texture.path.c_str(), &textureCache.size.x, &textureCache.size.y, &textureCache.bitDepth, 0));
 			if (!textureCache.channels)
 			{
-				assert(!"Unable to load image.");
+				assert(!"unable to load image");
 				throw std::runtime_error("Unable to load image \"" + texture.path + "\".");
 			}
 
