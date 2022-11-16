@@ -8,6 +8,7 @@
 
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/gtc/constants.hpp>
 
 #include <memory>
 #include <vector>
@@ -137,6 +138,7 @@ namespace Tools
 
 	Body CreateBoxBody(glm::vec2 hSize, const BodyParams& bodyParams = BodyParams{});
 	Body CreateCircleBody(float radius, const BodyParams& bodyParams = BodyParams{});
+	Body CreatePieBody(float radius, float angleStart = 0.0f, float angleStop = glm::two_pi<float>(), int pieces = 20, const BodyParams& bodyParams = BodyParams{});
 	Body CreateConvex4Body(const std::array<glm::vec2, 4>& vertices, const BodyParams& bodyParams = BodyParams{});
 	Body CreateTrianglesBody(const std::vector<std::array<glm::vec2, 3>>& vertices, const BodyParams& bodyParams = BodyParams{});
 	Body CreatePolylineBody(const std::vector<glm::vec2>& vertices, const BodyParams& bodyParams = BodyParams{});

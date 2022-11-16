@@ -89,13 +89,16 @@ namespace Levels
 			auto& textures = Globals::Components().textures();
 
 			planeTextures[0] = textures.size();
-			textures.emplace("textures/rocket plane.png");
+			textures.emplace("textures/plane 1.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
+			textures.last().minFilter = GL_LINEAR;
 
 			planeTextures[1] = textures.size();
 			textures.emplace("textures/alien ship 1.png");
+			textures.last().translate = glm::vec2(-0.2f, 0.0f);
 			textures.last().scale = glm::vec2(1.9f);
+			textures.last().minFilter = GL_LINEAR;
 
 			spaceRockTexture = textures.size();
 			textures.emplace("textures/space rock.jpg", GL_MIRRORED_REPEAT);
@@ -113,7 +116,7 @@ namespace Levels
 			textures.emplace("textures/explosion.png");
 
 			missileTexture = textures.size();
-			textures.emplace("textures/missile2.png");
+			textures.emplace("textures/missile 2.png");
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().scale = glm::vec2(0.4f, 0.45f);
 

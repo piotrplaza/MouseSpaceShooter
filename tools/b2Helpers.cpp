@@ -103,6 +103,24 @@ namespace Tools
 		return body;
 	}
 
+	Body CreatePieBody(float radius, float angleStart, float angleStop, int pieces, const BodyParams& bodyParams)
+	{
+		Body body = CreateEmptyBody(bodyParams);
+
+		const float step = (angleStop - angleStart) / pieces;
+		std::vector<std::array<glm::vec2, 3>> triangles;
+		triangles.reserve(pieces);
+		for (int i = 0; i < pieces; ++i)
+			triangles.push_back({ glm::vec2{ 0.0f, 0.0f },
+				glm::vec2{ glm::cos(angleStart + step * i), glm::sin(angleStart + step * i) } * radius,
+				glm::vec2{ glm::cos(angleStart + step * (i + 1)), glm::sin(angleStart + step * (i + 1)) } * radius });
+
+		for (const auto& triangle : triangles)
+			CreatePolygonShapedFixture(body, triangle, bodyParams.density_, bodyParams.restitution_, bodyParams.friction_, bodyParams.categoryBits_, bodyParams.sensor_);
+
+		return body;
+	}
+
 	Body CreateConvex4Body(const std::array<glm::vec2, 4>& vertices, const BodyParams& bodyParams)
 	{
 		Body body = CreateEmptyBody(bodyParams);

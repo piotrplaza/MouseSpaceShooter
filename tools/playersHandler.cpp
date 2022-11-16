@@ -22,7 +22,7 @@ namespace
 			return Tools::CreatePlane(Tools::CreateTrianglesBody({ { glm::vec2{2.0f, 0.0f}, glm::vec2{-1.0f, 1.0f}, glm::vec2{-1.0f, -1.0f} } }, Tools::GetDefaultParamsForPlaneBody()),
 				planeTexture, flameAnimatedTexture, Tools::PlaneParams().position(initLoc).angle(initLoc.z));
 		case 1:
-			return Tools::CreatePlane(Tools::CreateCircleBody(0.978f, Tools::GetDefaultParamsForPlaneBody()),
+			return Tools::CreatePlane(Tools::CreatePieBody(1.125f, 0.75f, glm::two_pi<float>() - 0.75f, 20, Tools::GetDefaultParamsForPlaneBody()),
 				planeTexture, flameAnimatedTexture, Tools::PlaneParams().position(initLoc).angle(initLoc.z).numOfThrusts(1).thrustOffset(0.0f).thrustAngle(0.0f));
 		}
 

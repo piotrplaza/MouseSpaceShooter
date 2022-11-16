@@ -40,13 +40,16 @@ namespace Levels
 			auto& textures = Globals::Components().textures();
 
 			planeTextures[0] = textures.size();
-			textures.emplace("textures/rocket plane.png");
+			textures.emplace("textures/plane 1.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
+			textures.last().minFilter = GL_LINEAR;
 
 			planeTextures[1] = textures.size();
 			textures.emplace("textures/alien ship 1.png");
+			textures.last().translate = glm::vec2(-0.2f, 0.0f);
 			textures.last().scale = glm::vec2(1.9f);
+			textures.last().minFilter = GL_LINEAR;
 
 			flameAnimationTexture = textures.size();
 			textures.emplace("textures/flame animation 1.jpg");
@@ -217,7 +220,7 @@ namespace Levels
 		{
 			Globals::MarkDynamicComponentsAsDirty();
 
-			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, true,
+			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
 				[this](unsigned player, auto) {
 					return glm::vec3(110.0f + player * 5.0f, 3.0f, glm::half_pi<float>());
 				}, thrustSoundBuffer, grappleSoundBuffer);

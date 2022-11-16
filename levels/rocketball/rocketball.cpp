@@ -39,9 +39,10 @@ namespace Levels
 			auto& textures = Globals::Components().textures();
 
 			rocketPlaneTexture = textures.size();
-			textures.emplace("textures/rocket plane.png");
+			textures.emplace("textures/plane 1.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
+			textures.last().minFilter = GL_LINEAR;
 
 			woodTexture = textures.size();
 			textures.emplace("textures/wood.jpg", GL_MIRRORED_REPEAT);
