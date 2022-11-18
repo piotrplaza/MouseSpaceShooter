@@ -153,17 +153,17 @@ namespace Tools
 			return *this;
 		}
 
-		PlaneParams& thrustOffset(float value)
+		PlaneParams& thrustOffset(glm::vec2 value)
 		{
 			thrustOffset_ = value;
 			return *this;
 		}
 
-		glm::vec2 position_ = glm::vec2(0.0f);
+		glm::vec2 position_ = { 0.0f, 0.0f };
 		float angle_ = 0.0f;
 		int numOfThrusts_ = 2;
 		float thrustAngle_ = 0.1f;
-		float thrustOffset_ = 0.4f;
+		glm::vec2 thrustOffset_ = { -0.5f, 0.4f };
 	};
 
 	struct MissileHandler

@@ -6,6 +6,7 @@
 #include <components/plane.hpp>
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
+#include <components/staticWall.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -14,6 +15,7 @@
 #include <ogl/shaders/textured.hpp>
 
 #include <tools/gameHelpers.hpp>
+#include <tools/playersHandler.hpp>
 
 #include <iostream>
 using namespace std;
@@ -23,103 +25,99 @@ namespace Levels
 	class Basic::Impl
 	{
 	public:
-		void setGraphicsSettings() const
+		void setup()
 		{
 			Globals::Components().graphicsSettings().defaultColor = { 0.7f, 0.7f, 0.7f, 1.0f };
 			Globals::Components().mainFramebufferRenderer().renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured());
+
+			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
+				[this](unsigned player, unsigned numOfPlayers) {
+					const float gap = 5.0f;
+					const float farPlayersDistance = gap * (numOfPlayers - 1);
+					return glm::vec3(-10.0f, -farPlayersDistance / 2.0f + gap * player, 0.0f);
+				});
+
+			for (const auto& plane : Globals::Components().planes())
+				cout << plane.body->GetMass() << endl;
 		}
 
 		void loadTextures()
 		{
 			auto& textures = Globals::Components().textures();
 
-			rocketPlaneTexture = textures.size();
+			planeTextures[0] = textures.size();
 			textures.emplace("textures/plane 1.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
 			textures.last().minFilter = GL_LINEAR;
 
-			alienSpaceshipTexture = textures.size();
+			planeTextures[1] = textures.size();
 			textures.emplace("textures/alien ship 1.png");
 			textures.last().translate = glm::vec2(-0.2f, 0.0f);
 			textures.last().scale = glm::vec2(1.9f);
 			textures.last().minFilter = GL_LINEAR;
 
-			flame1AnimationTexture = textures.size();
+			planeTextures[2] = textures.size();
+			textures.emplace("textures/plane 2.png");
+			textures.last().translate = glm::vec2(0.4f, 0.0f);
+			textures.last().scale = glm::vec2(1.8f, 1.8f);
+			textures.last().minFilter = GL_LINEAR;
+
+			planeTextures[3] = textures.size();
+			textures.emplace("textures/alien ship 2.png");
+			textures.last().translate = glm::vec2(0.0f, 0.0f);
+			textures.last().scale = glm::vec2(1.45f, 1.4f);
+			textures.last().minFilter = GL_LINEAR;
+
+			flameAnimationTexture = textures.size();
 			textures.emplace("textures/flame animation 1.jpg");
 			textures.last().minFilter = GL_LINEAR;
 		}
 
 		void setAnimations()
 		{
-			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().add({ flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
-				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
-			Globals::Components().animatedTextures().last().start(true);
+			for (unsigned& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
+			{
+				flameAnimatedTextureForPlayer = Globals::Components().animatedTextures().size();
+				Globals::Components().animatedTextures().add({ flameAnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+					AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
+				Globals::Components().animatedTextures().last().start(true);
+			}
 		}
 
-		void createAdditionalDecorations() const
+		void createWalls()
 		{
-		}
-
-		void createPlayers()
-		{
-			/*player1Id = Tools::CreatePlane(Tools::CreateTrianglesBody({ { glm::vec2{2.0f, 0.0f}, glm::vec2{-1.0f, 1.0f}, glm::vec2{-1.0f, -1.0f} } }, Tools::GetDefaultParamsForPlaneBody()),
-				rocketPlaneTexture, flame1AnimatedTexture, Tools::PlaneParams().angle(glm::half_pi<float>()));*/
-
-			player1Id = Tools::CreatePlane(Tools::CreatePieBody(1.125f, 0.75f, glm::two_pi<float>() - 0.75f, 20, Tools::GetDefaultParamsForPlaneBody()),
-				alienSpaceshipTexture, flame1AnimatedTexture, Tools::PlaneParams().angle(glm::half_pi<float>()).numOfThrusts(1).thrustOffset(0.0f).thrustAngle(0.0f));
-
-			cout << Globals::Components().planes()[player1Id].body->GetMass() << endl;
+			auto& staticWalls = Globals::Components().staticWalls();
+			staticWalls.emplace(Tools::CreateBoxBody({ 1.0f, 1.0f }));
 		}
 
 		void setCamera() const
 		{
-			const auto& plane = Globals::Components().planes()[player1Id];
-
-			Globals::Components().camera().targetProjectionHSizeF = [&]() {
-				return 10.0f;
-			};
-			Globals::Components().camera().targetPositionF = [&]() {
-				return glm::vec2(0.0f, 0.0f);
-			};
+			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 10.0f; }).scalingFactor(0.7f));
 		}
 
 		void step()
 		{
-			float mouseSensitivity = 0.01f;
-			float gamepadSensitivity = 50.0f;
-
-			const auto& physics = Globals::Components().physics();
-			const auto& mouse = Globals::Components().mouse();
-			const auto& gamepad = Globals::Components().gamepads()[0];
-			auto& player1Controls = Globals::Components().planes()[player1Id].controls;
-
-			player1Controls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity +
-				Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
-			player1Controls.autoRotation = (bool)std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
-			player1Controls.throttling = std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
-			player1Controls.magneticHook = mouse.pressing.xmb1 || gamepad.pressing.lShoulder || gamepad.lTrigger >= 0.5f;
+			playersHandler.controlStep();
 		}
 
 	private:
-		unsigned rocketPlaneTexture = 0;
-		unsigned alienSpaceshipTexture = 0;
-		unsigned flame1AnimationTexture = 0;
+		std::array<unsigned, 4> planeTextures{ 0 };
+		unsigned flameAnimationTexture = 0;
 
-		unsigned flame1AnimatedTexture = 0;
+		std::array<unsigned, 4> flameAnimatedTextureForPlayers{ 0 };
 
-		unsigned player1Id = 0;
+		Tools::PlayersHandler playersHandler;
 	};
 
 	Basic::Basic():
 		impl(std::make_unique<Impl>())
 	{
-		impl->setGraphicsSettings();
 		impl->loadTextures();
 		impl->setAnimations();
-		impl->createPlayers();
 		impl->setCamera();
+		impl->setup();
+		impl->createWalls();
 	}
 
 	Basic::~Basic() = default;

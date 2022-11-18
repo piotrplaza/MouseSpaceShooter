@@ -57,7 +57,7 @@ namespace Levels
 		{
 			auto& textures = Globals::Components().textures();
 
-			rocketPlaneTexture = textures.size();
+			plane1Texture = textures.size();
 			textures.emplace("textures/plane 1.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
@@ -154,7 +154,7 @@ namespace Levels
 		void createPlayers()
 		{
 			player1Id = Tools::CreatePlane(Tools::CreateTrianglesBody({ { glm::vec2{2.0f, 0.0f}, glm::vec2{-1.0f, 1.0f}, glm::vec2{-1.0f, -1.0f} } }, Tools::GetDefaultParamsForPlaneBody()),
-				rocketPlaneTexture, flame1AnimatedTexture, Tools::PlaneParams().position({ 0.0f, -50.0f }).angle(glm::half_pi<float>()));
+				plane1Texture, flame1AnimatedTexture, Tools::PlaneParams().position({ 0.0f, -50.0f }).angle(glm::half_pi<float>()));
 		}
 
 		void launchMissile()
@@ -297,7 +297,7 @@ namespace Levels
 		Shaders::Programs::TexturedColorThreshold texturedColorThresholdShaders;
 		Shaders::Programs::Particles particlesShaders;
 
-		unsigned rocketPlaneTexture = 0;
+		unsigned plane1Texture = 0;
 		unsigned spaceRockTexture = 0;
 		unsigned woodTexture = 0;
 		unsigned orbTexture = 0;

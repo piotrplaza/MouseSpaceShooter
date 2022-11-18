@@ -66,7 +66,7 @@ namespace Tools
 			std::vector<std::function<glm::vec2()>> additionalActors_;
 		};
 
-		void initPlayers(const std::array<unsigned, 4>& planeTextureTextureForPlayers, const std::array<unsigned, 4>& flameAnimatedTextureForPlayers, bool gamepadForPlayer1,
+		void initPlayers(const std::array<unsigned, 4>& planeTexturesForPlayers, const std::array<unsigned, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
 			std::function<glm::vec3(unsigned player, unsigned numOfPlayers)> initLocF, std::optional<ComponentId> thrustSoundBuffer = std::nullopt,
 			std::optional<ComponentId> grappleSoundBuffer = std::nullopt);
 		void setCamera(CameraParams cameraParams) const;
@@ -82,8 +82,8 @@ namespace Tools
 
 	private:
 		std::vector<Tools::PlayerHandler> playersHandlers;
-		std::array<unsigned, 4> rocketPlaneTextures{ 0 };
-		std::array<unsigned, 4> flameAnimatedTextureForPlayers{ 0 };
+		std::array<unsigned, 4> planeTextures{ 0 };
+		std::array<unsigned, 4> flameAnimatedTexturesForPlayers{ 0 };
 		bool gamepadForPlayer1 = false;
 		std::optional<ComponentId> thrustSoundBuffer;
 		std::optional<ComponentId> grappleSoundBuffer;

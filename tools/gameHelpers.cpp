@@ -125,7 +125,7 @@ namespace Tools
 						glm::translate(
 							glm::scale(
 								glm::rotate(
-									glm::translate(Tools::GetModelMatrix(*plane.body), { -0.5f, (i == 0 ? -1 : 1) * params.thrustOffset_, 0.0f }),
+									glm::translate(Tools::GetModelMatrix(*plane.body), { params.thrustOffset_.x, (i == 0 ? -1 : 1) * params.thrustOffset_.y, 0.0f }),
 									-glm::half_pi<float>() + (i == 0 ? 1 : -1) * params.thrustAngle_, { 0.0f, 0.0f, 1.0f }),
 								{ 0.5f + thrust * 0.02f, thrust, 1.0f }),
 							{ 0.0f, -0.5f, 0.0f }));

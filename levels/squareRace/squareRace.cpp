@@ -51,6 +51,18 @@ namespace Levels
 			textures.last().scale = glm::vec2(1.9f);
 			textures.last().minFilter = GL_LINEAR;
 
+			planeTextures[2] = textures.size();
+			textures.emplace("textures/plane 2.png");
+			textures.last().translate = glm::vec2(0.4f, 0.0f);
+			textures.last().scale = glm::vec2(1.8f, 1.8f);
+			textures.last().minFilter = GL_LINEAR;
+
+			planeTextures[3] = textures.size();
+			textures.emplace("textures/alien ship 2.png");
+			textures.last().translate = glm::vec2(0.0f, 0.0f);
+			textures.last().scale = glm::vec2(1.45f, 1.4f);
+			textures.last().minFilter = GL_LINEAR;
+
 			flameAnimationTexture = textures.size();
 			textures.emplace("textures/flame animation 1.jpg");
 			textures.last().minFilter = GL_LINEAR;
