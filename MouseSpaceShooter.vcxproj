@@ -163,6 +163,7 @@
     <ClInclude Include="tools\graphicsHelpers.hpp" />
     <ClInclude Include="tools\missilesHandler.hpp" />
     <ClInclude Include="tools\playersHandler.hpp" />
+    <ClInclude Include="tools\splines.hpp" />
     <ClInclude Include="tools\utility.hpp" />
   </ItemGroup>
   <ItemGroup>

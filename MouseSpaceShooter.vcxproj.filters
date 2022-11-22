@@ -510,6 +510,9 @@
     <ClInclude Include="levels\raceBase\raceBase.hpp">
       <Filter>src\levels\raceBase</Filter>
     </ClInclude>
+    <ClInclude Include="tools\splines.hpp">
+      <Filter>src\tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">

@@ -41,6 +41,7 @@
 #include <tools/gameHelpers.hpp>
 #include <tools/playersHandler.hpp>
 #include <tools/missilesHandler.hpp>
+#include <tools/splines.hpp>
 
 #include <algorithm>
 #include <numeric>
@@ -262,6 +263,17 @@ namespace Levels
 				Globals::Components().staticDecorations().emplace(Tools::CreateVerticesOfRectangle(portraitCenter, { 10.0f, 10.0f }),
 					TCM::BlendingTexture(blendingTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1,
 					RenderLayer::NearMidground).preserveTextureRatio = true;
+			}
+
+			{
+				Tools::CubicHermiteSpline spline({ { -5.0f, 5.0f }, { -5.0f, -5.0f }, { 5.0f, -5.0f }, { 5.0f, 5.0f }, { -5.0f, 5.0f }, {-5.0f, -5.0f}, { 5.0f, -5.0f } }, true, true);
+				std::vector<glm::vec3> splineInterpolation;
+				const int complexity = 100;
+				splineInterpolation.reserve(complexity);
+				for (int i = 0; i < complexity; ++i)
+					splineInterpolation.push_back(glm::vec3(spline.getInterpolation((float)i / (complexity - 1)) + glm::vec2(0.0f, 30.0f), 0.0f));
+				Globals::Components().staticDecorations().emplace(std::move(splineInterpolation));
+				Globals::Components().staticDecorations().last().drawMode = GL_LINE_STRIP;
 			}
 		}
 
