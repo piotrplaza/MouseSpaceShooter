@@ -10,6 +10,7 @@
 #include "levels/fpsScalingProblems/fpsScalingProblems.hpp"
 #include "levels/squareRace/squareRace.hpp"
 #include "levels/raceBase/raceBase.hpp"
+#include "levels/splineTest/splineTest.hpp"
 
 #include "components/mouse.hpp"
 #include "components/physics.hpp"
@@ -78,7 +79,7 @@ void OGLInitialize()
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	glLineWidth(5.0f);
+	glLineWidth(3.0f);
 }
 
 void CreateLevel()
@@ -86,7 +87,7 @@ void CreateLevel()
 	//activeLevel = std::make_unique<Levels::Windmill>();
 	//activeLevel = std::make_unique<Levels::SquareRace>();
 
-	activeLevel = std::make_unique<Levels::Playground>();
+	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
@@ -94,6 +95,7 @@ void CreateLevel()
 	//activeLevel = std::make_unique<Levels::Dzidzia2>();
 	//activeLevel = std::make_unique<Levels::Rim>();
 	//activeLevel = std::make_unique<Levels::RaceBase>();
+	activeLevel = std::make_unique<Levels::SplineTest>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }

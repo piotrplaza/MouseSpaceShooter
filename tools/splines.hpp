@@ -49,6 +49,16 @@ namespace Tools
 			return cubicHermite(keypoints[i0], keypoints[i1], keypoints[i2], keypoints[i3], localT);
 		}
 
+		std::vector<Vec>& accessKeypoints()
+		{
+			return keypoints;
+		}
+
+		const std::vector<Vec>& getKeypoints() const
+		{
+			return keypoints;
+		}
+
 	private:
 		Vec cubicHermite(Vec v0, Vec v1, Vec v2, Vec v3, float t) const
 		{

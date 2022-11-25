@@ -7,6 +7,11 @@ inline glm::vec2 operator +(const glm::vec2& lhs, const glm::ivec2& rhs)
 	return { lhs.x + rhs.x, lhs.y + rhs.y };
 }
 
+inline glm::vec2 operator -(const glm::vec2& lhs, const glm::ivec2& rhs)
+{
+	return { lhs.x - rhs.x, lhs.y - rhs.y };
+}
+
 inline glm::vec2 operator *(const glm::ivec2& lhs, const glm::vec2& rhs)
 {
 	return { lhs.x * rhs.x, lhs.y * rhs.y };
@@ -15,4 +20,24 @@ inline glm::vec2 operator *(const glm::ivec2& lhs, const glm::vec2& rhs)
 inline glm::vec2 operator /(const glm::vec2& lhs, const glm::ivec2& rhs)
 {
 	return { lhs.x / rhs.x, lhs.y / rhs.y };
+}
+
+inline glm::vec2 operator +(const glm::ivec2& lhs, float rhs)
+{
+	return { lhs.x + rhs, lhs.y + rhs };
+}
+
+inline glm::vec2 operator -(const glm::ivec2& lhs, float rhs)
+{
+	return { lhs.x - rhs, lhs.y - rhs };
+}
+
+inline glm::vec2 operator *(const glm::ivec2& lhs, float rhs)
+{
+	return { lhs.x * rhs, lhs.y * rhs };
+}
+
+inline glm::vec2 operator /(const glm::ivec2& lhs, float rhs)
+{
+	return { lhs.x / rhs, lhs.y / rhs };
 }

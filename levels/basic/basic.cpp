@@ -9,7 +9,6 @@
 #include <components/staticWall.hpp>
 
 #include <globals/components.hpp>
-#include <globals/shaders.hpp>
 
 #include <ogl/renderingHelpers.hpp>
 #include <ogl/shaders/textured.hpp>
@@ -28,7 +27,6 @@ namespace Levels
 		void setup()
 		{
 			Globals::Components().graphicsSettings().defaultColor = { 0.7f, 0.7f, 0.7f, 1.0f };
-			Globals::Components().mainFramebufferRenderer().renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured());
 
 			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
 				[this](unsigned player, unsigned numOfPlayers) {

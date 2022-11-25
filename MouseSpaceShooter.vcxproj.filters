@@ -86,6 +86,9 @@
     <Filter Include="src\levels\raceBase">
       <UniqueIdentifier>{0fb5deb0-9fb9-468f-975f-88bd92f2a103}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\splineTest">
+      <UniqueIdentifier>{70e16033-0582-41f5-b7d2-ba0afe677c0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -225,6 +228,9 @@
     </ClCompile>
     <ClCompile Include="levels\raceBase\raceBase.cpp">
       <Filter>src\levels\raceBase</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\splineTest\splineTest.cpp">
+      <Filter>src\levels\splineTest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -512,6 +518,9 @@
     </ClInclude>
     <ClInclude Include="tools\splines.hpp">
       <Filter>src\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\splineTest\splineTest.hpp">
+      <Filter>src\levels\splineTest</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
