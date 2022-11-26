@@ -1,6 +1,7 @@
 #include "splineTest.hpp"
 
 #include <components/mouse.hpp>
+#include <components/keyboard.hpp>
 #include <components/decoration.hpp>
 #include <components/screenInfo.hpp>
 
@@ -42,6 +43,7 @@ namespace Levels
 			const float controlPointSize = 0.1f;
 
 			const auto& mouse = Globals::Components().mouse();
+			const auto& keyboard = Globals::Components().keyboard();
 			const auto& screenInfo = Globals::Components().screenInfo();
 			const float screenRatio = (float)screenInfo.windowSize.x / screenInfo.windowSize.y;
 			const glm::vec2 oldMousePos = mousePos;
@@ -104,18 +106,29 @@ namespace Levels
 				if (controlPoints.size() < 2)
 					return;
 
-				const int complexity = 50 * controlPoints.size();
+				const int complexity = 10 * controlPoints.size();
 
 				std::vector<glm::vec2> controlPoints;
 				controlPoints.reserve(this->controlPoints.size());
 				for (const auto& idAndPos : this->controlPoints)
 					controlPoints.push_back(idAndPos.second);
+
 				Tools::CubicHermiteSpline spline(std::move(controlPoints));
-				std::vector<glm::vec3> vertices;
-				vertices.reserve(complexity);
+				std::vector<glm::vec3> splineVertices;
+				splineVertices.reserve(complexity);
 				for (int i = 0; i < complexity; ++i)
-					vertices.push_back(glm::vec3(spline.getInterpolation((float)i / (complexity - 1)), 0.0f));
+					splineVertices.push_back(glm::vec3(spline.getInterpolation((float)i / (complexity - 1)), 0.0f));
 				auto& splineDecoration = Globals::Components().dynamicDecorations()[splineDecorationId];
+
+				std::vector<glm::vec3> vertices;
+				if (lightning)
+					for (int i = 0; i < complexity - 1; ++i)
+					{
+						std::vector<glm::vec3> subVertices = Tools::CreateVerticesOfLightning(splineVertices[i], splineVertices[i + 1], 10);
+						vertices.insert(vertices.end(), subVertices.begin(), subVertices.end());
+					}
+				else
+					vertices = std::move(splineVertices);
 
 				splineDecoration.vertices = std::move(vertices);
 				splineDecoration.state = ComponentState::Changed;
@@ -132,6 +145,9 @@ namespace Levels
 			if (mouse.pressed.mmb)
 				tryAddPrevControlPoint();
 
+			if (keyboard.pressed[' '])
+				lightning = !lightning;
+
 			updateSpline();
 		}
 
@@ -140,6 +156,7 @@ namespace Levels
 		std::list<std::pair<ComponentId, glm::vec2>> controlPoints;
 		std::optional<decltype(controlPoints)::iterator> movingControlPoint;
 		ComponentId splineDecorationId = 0;
+		bool lightning = false;
 	};
 
 	SplineTest::SplineTest():
