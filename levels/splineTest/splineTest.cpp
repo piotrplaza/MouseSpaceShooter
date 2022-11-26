@@ -4,6 +4,7 @@
 #include <components/keyboard.hpp>
 #include <components/decoration.hpp>
 #include <components/screenInfo.hpp>
+#include <components/camera.hpp>
 
 #include <globals/components.hpp>
 
@@ -36,6 +37,10 @@ namespace Levels
 			splineDecorationId = dynamicDecoration.emplace().getComponentId();
 			dynamicDecoration.last().drawMode = GL_LINE_STRIP;
 			dynamicDecoration.last().renderLayer = RenderLayer::Foreground;
+
+			Globals::Components().camera().targetProjectionHSizeF = [&]() {
+				return projectionHSize;
+			};
 		}
 
 		void step()
@@ -50,9 +55,9 @@ namespace Levels
 
 			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
 
-			mousePos += mouse.getWorldSpaceDelta() * 0.01f;
-			mousePos.x = std::clamp(mousePos.x, -10.0f * screenRatio, 10.0f * screenRatio);
-			mousePos.y = std::clamp(mousePos.y, -10.0f, 10.0f);
+			mousePos += mouse.getWorldSpaceDelta() * projectionHSize * 0.001f;
+			mousePos.x = std::clamp(mousePos.x, -projectionHSize * screenRatio, projectionHSize * screenRatio);
+			mousePos.y = std::clamp(mousePos.y, -projectionHSize, projectionHSize);
 
 			const glm::vec2 mouseDelta = mousePos - oldMousePos;
 
@@ -149,6 +154,8 @@ namespace Levels
 				lightning = !lightning;
 
 			updateSpline();
+
+			projectionHSize = std::clamp(projectionHSize + mouse.pressed.wheel * -5.0f, 5.0f, 100.0f);
 		}
 
 	private:
@@ -157,6 +164,7 @@ namespace Levels
 		std::optional<decltype(controlPoints)::iterator> movingControlPoint;
 		ComponentId splineDecorationId = 0;
 		bool lightning = false;
+		float projectionHSize = 10.0f;
 	};
 
 	SplineTest::SplineTest():
