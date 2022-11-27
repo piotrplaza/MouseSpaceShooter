@@ -91,7 +91,9 @@ namespace Levels
 					return;
 				}
 
-				addControlPoint(controlPoints.end());
+				addControlPoint(keyboard.pressing[/*VK_SHIFT*/0x10]
+					? controlPoints.end()
+					: controlPoints.begin());
 			};
 
 			auto removeControlPointOrMoveCamera = [&]() {
@@ -120,7 +122,9 @@ namespace Levels
 					for (auto it = controlPoints.begin(); it != controlPoints.end(); ++it)
 						if (glm::distance(it->second, oldMousePos) < controlPointSize)
 						{
-							movingPrevControlPoint = addControlPoint(it);
+							movingPrevControlPoint = addControlPoint(keyboard.pressing[/*VK_SHIFT*/0x10]
+								? std::next(it)
+								: it);
 							break;
 						}
 
