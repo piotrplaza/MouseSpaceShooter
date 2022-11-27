@@ -49,6 +49,13 @@ namespace Tools
 			return cubicHermite(keypoints[i0], keypoints[i1], keypoints[i2], keypoints[i3], localT);
 		}
 
+		Vec getPostprocessedInterpolation(float t, std::function<Vec(Vec)> postprocessF)
+		{
+			assert(t >= 0.0f && t <= 1.0f);
+
+			return postprocessF(getInterpolation(t));
+		}
+
 		std::vector<Vec>& accessKeypoints()
 		{
 			return keypoints;

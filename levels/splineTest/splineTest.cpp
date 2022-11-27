@@ -11,6 +11,7 @@
 #include <tools/graphicsHelpers.hpp>
 #include <tools/glmHelpers.hpp>
 #include <tools/splines.hpp>
+#include <tools/utility.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -122,14 +123,19 @@ namespace Levels
 				std::vector<glm::vec3> splineVertices;
 				splineVertices.reserve(complexity);
 				for (int i = 0; i < complexity; ++i)
-					splineVertices.push_back(glm::vec3(spline.getInterpolation((float)i / (complexity - 1)), 0.0f));
+				{
+					const float t = (float)i / (complexity - 1);
+					splineVertices.push_back(glm::vec3(lightning ? spline.getPostprocessedInterpolation(t, [rD = 0.1f](auto v) {
+						return v + glm::vec2(Tools::Random(-rD, rD), Tools::Random(-rD, rD));
+						}) : spline.getInterpolation(t), 0.0f));
+				}
 				auto& splineDecoration = Globals::Components().dynamicDecorations()[splineDecorationId];
 
 				std::vector<glm::vec3> vertices;
 				if (lightning)
 					for (int i = 0; i < complexity - 1; ++i)
 					{
-						std::vector<glm::vec3> subVertices = Tools::CreateVerticesOfLightning(splineVertices[i], splineVertices[i + 1], 10);
+						std::vector<glm::vec3> subVertices = Tools::CreateVerticesOfLightning(splineVertices[i], splineVertices[i + 1], 10, 0.2f);
 						vertices.insert(vertices.end(), subVertices.begin(), subVertices.end());
 					}
 				else
