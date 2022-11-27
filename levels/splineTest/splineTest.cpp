@@ -139,7 +139,9 @@ namespace Levels
 				for (const auto& idAndPos : this->controlPoints)
 					controlPoints.push_back(idAndPos.second);
 
-				Tools::CubicHermiteSpline spline(std::move(controlPoints));
+				Tools::CubicHermiteSpline spline = loop
+					? Tools::CubicHermiteSpline(std::move(controlPoints), Tools::CubicHermiteSpline<>::loop)
+					: Tools::CubicHermiteSpline(std::move(controlPoints));
 				std::vector<glm::vec3> splineVertices;
 				splineVertices.reserve(complexity);
 				for (int i = 0; i < complexity; ++i)
@@ -183,6 +185,9 @@ namespace Levels
 			if (keyboard.pressed[' '])
 				lightning = !lightning;
 
+			if (keyboard.pressed['L'])
+				loop = !loop;
+
 			updateSpline();
 
 			projectionHSize = std::clamp(projectionHSize + mouse.pressed.wheel * -5.0f, 5.0f, 100.0f);
@@ -197,6 +202,7 @@ namespace Levels
 		bool movingCamera = false;
 		ComponentId splineDecorationId = 0;
 		bool lightning = false;
+		bool loop = false;
 		float projectionHSize = 10.0f;
 	};
 

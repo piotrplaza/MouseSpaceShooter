@@ -11,6 +11,8 @@ namespace Tools
 	class CubicHermiteSpline
 	{
 	public:
+		inline static struct Loop {} loop;
+
 		CubicHermiteSpline(std::vector<Vec> keypoints, bool preBeginIncluded = false, bool postEndIncluded = false)
 		{
 			assert(keypoints.size() + !preBeginIncluded + !postEndIncluded >= 4);
@@ -30,6 +32,17 @@ namespace Tools
 
 			if (!postEndIncluded)
 				this->keypoints.push_back(keypoints.back() + keypoints.back() - keypoints[keypoints.size() - 2]);
+		}
+
+		CubicHermiteSpline(std::vector<Vec> keypoints, Loop)
+		{
+			assert(keypoints.size() >= 2);
+
+			this->keypoints.reserve(keypoints.size() + 3);
+			this->keypoints.push_back(keypoints.back());
+			this->keypoints.insert(this->keypoints.end(), keypoints.begin(), keypoints.end());
+			this->keypoints.push_back(keypoints[0]);
+			this->keypoints.push_back(keypoints[1]);
 		}
 
 		Vec getInterpolation(float t)
