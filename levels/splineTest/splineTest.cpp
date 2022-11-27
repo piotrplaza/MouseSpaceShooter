@@ -28,6 +28,7 @@ namespace Levels
 		{
 			auto& staticDecoration = Globals::Components().staticDecorations();
 			auto& dynamicDecoration = Globals::Components().dynamicDecorations();
+			auto& camera = Globals::Components().camera();
 
 			staticDecoration.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, 0.05f, 20));
 			staticDecoration.last().modelMatrixF = [this]() {
@@ -39,8 +40,11 @@ namespace Levels
 			dynamicDecoration.last().drawMode = GL_LINE_STRIP;
 			dynamicDecoration.last().renderLayer = RenderLayer::Foreground;
 
-			Globals::Components().camera().targetProjectionHSizeF = [&]() {
+			camera.targetProjectionHSizeF = [&]() {
 				return projectionHSize;
+			};
+			camera.targetPositionF = [&]() {
+				return cameraPos;
 			};
 		}
 
@@ -57,8 +61,8 @@ namespace Levels
 			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
 
 			mousePos += mouse.getWorldSpaceDelta() * projectionHSize * 0.001f;
-			mousePos.x = std::clamp(mousePos.x, -projectionHSize * screenRatio, projectionHSize * screenRatio);
-			mousePos.y = std::clamp(mousePos.y, -projectionHSize, projectionHSize);
+			mousePos.x = std::clamp(mousePos.x, -projectionHSize * screenRatio + cameraPos.x, projectionHSize * screenRatio + cameraPos.x);
+			mousePos.y = std::clamp(mousePos.y, -projectionHSize + cameraPos.y, projectionHSize + cameraPos.y);
 
 			const glm::vec2 mouseDelta = mousePos - oldMousePos;
 
@@ -89,14 +93,25 @@ namespace Levels
 				addControlPoint(controlPoints.end());
 			};
 
-			auto removeControlPoint = [&]() {
+			auto removeControlPointOrMoveCamera = [&]() {
+				if (movingCamera)
+				{
+					cameraPos += mouseDelta;
+					return;
+				}
+
+				bool removed = false;
 				for (auto it = controlPoints.begin(); it != controlPoints.end(); ++it)
 					if (glm::distance(it->second, oldMousePos) < controlPointSize)
 					{
 						dynamicDecorations[it->first].state = ComponentState::Outdated;
 						controlPoints.erase(it);
+						removed = true;
 						break;
 					}
+
+				if (!removed)
+					movingCamera = true;
 			};
 
 			auto tryAddPrevControlPoint = [&]() {
@@ -150,8 +165,10 @@ namespace Levels
 			else
 				movingControlPoint = std::nullopt;
 
-			if (mouse.pressed.rmb)
-				removeControlPoint();
+			if (mouse.pressing.rmb)
+				removeControlPointOrMoveCamera();
+			else
+				movingCamera = false;
 
 			if (mouse.pressed.mmb)
 				tryAddPrevControlPoint();
@@ -166,8 +183,10 @@ namespace Levels
 
 	private:
 		glm::vec2 mousePos{};
+		glm::vec2 cameraPos{};
 		std::list<std::pair<ComponentId, glm::vec2>> controlPoints;
 		std::optional<decltype(controlPoints)::iterator> movingControlPoint;
+		bool movingCamera = false;
 		ComponentId splineDecorationId = 0;
 		bool lightning = false;
 		float projectionHSize = 10.0f;
