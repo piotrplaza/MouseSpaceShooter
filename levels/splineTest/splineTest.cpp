@@ -73,6 +73,7 @@ namespace Levels
 				dynamicDecorations.last().modelMatrixF = [&pos = insertedIt->second]() {
 					return glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f));
 				};
+				return insertedIt;
 			};
 
 			auto addOrMoveControlPoint = [&]() {
@@ -114,13 +115,17 @@ namespace Levels
 					movingCamera = true;
 			};
 
-			auto tryAddPrevControlPoint = [&]() {
-				for (auto it = controlPoints.begin(); it != controlPoints.end(); ++it)
-					if (glm::distance(it->second, oldMousePos) < controlPointSize)
-					{
-						addControlPoint(it);
-						break;
-					}
+			auto tryAddOrMovePrevControlPoint = [&]() {
+				if (!movingPrevControlPoint)
+					for (auto it = controlPoints.begin(); it != controlPoints.end(); ++it)
+						if (glm::distance(it->second, oldMousePos) < controlPointSize)
+						{
+							movingPrevControlPoint = addControlPoint(it);
+							break;
+						}
+
+				if (movingPrevControlPoint)
+					(*movingPrevControlPoint)->second += mouseDelta;
 			};
 
 			auto updateSpline = [&]() {
@@ -170,8 +175,10 @@ namespace Levels
 			else
 				movingCamera = false;
 
-			if (mouse.pressed.mmb)
-				tryAddPrevControlPoint();
+			if (mouse.pressing.mmb)
+				tryAddOrMovePrevControlPoint();
+			else
+				movingPrevControlPoint = std::nullopt;
 
 			if (keyboard.pressed[' '])
 				lightning = !lightning;
@@ -186,6 +193,7 @@ namespace Levels
 		glm::vec2 cameraPos{};
 		std::list<std::pair<ComponentId, glm::vec2>> controlPoints;
 		std::optional<decltype(controlPoints)::iterator> movingControlPoint;
+		std::optional<decltype(controlPoints)::iterator> movingPrevControlPoint;
 		bool movingCamera = false;
 		ComponentId splineDecorationId = 0;
 		bool lightning = false;
