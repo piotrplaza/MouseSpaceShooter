@@ -105,7 +105,7 @@ namespace Tools
 
 		void operator ()(std::monostate)
 		{
-			assert(!"wrong variant state");
+			shadersProgram.numOfTextures(0);
 		}
 
 	private:

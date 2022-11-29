@@ -107,7 +107,13 @@ namespace Tools
 		plane.setPosition(params.position_);
 		plane.setRotation(params.angle_);
 		plane.preserveTextureRatio = true;
-		plane.posInSubsequence = params.numOfThrusts_;
+		plane.posInSubsequence = params.numOfThrusts_ + params.collisionBoxRendering_;
+
+		if (params.collisionBoxRendering_)
+		{
+			plane.subsequence.emplace_back(plane.getVertices());
+			plane.subsequence.back().modelMatrixF = [&]() { return plane.getModelMatrix(); };
+		}
 
 		for (int i = 0; i < params.numOfThrusts_; ++i)
 		{

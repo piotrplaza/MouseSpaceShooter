@@ -133,8 +133,14 @@ namespace Levels
 			};
 
 			auto updateSpline = [&]() {
+				auto& splineDecoration = Globals::Components().dynamicDecorations()[splineDecorationId];
+
 				if (controlPoints.size() < 2)
+				{
+					splineDecoration.vertices.clear();
+					splineDecoration.state = ComponentState::Changed;
 					return;
+				}
 
 				const int complexity = 10 * controlPoints.size();
 
@@ -155,7 +161,6 @@ namespace Levels
 						return v + glm::vec2(Tools::Random(-rD, rD), Tools::Random(-rD, rD));
 						}) : spline.getInterpolation(t), 0.0f));
 				}
-				auto& splineDecoration = Globals::Components().dynamicDecorations()[splineDecorationId];
 
 				std::vector<glm::vec3> vertices;
 				if (lightning)

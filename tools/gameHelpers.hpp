@@ -159,11 +159,18 @@ namespace Tools
 			return *this;
 		}
 
+		PlaneParams& collisionBoxRendering(bool value)
+		{
+			collisionBoxRendering_ = value;
+			return *this;
+		}
+
 		glm::vec2 position_ = { 0.0f, 0.0f };
 		float angle_ = 0.0f;
 		int numOfThrusts_ = 2;
 		float thrustAngle_ = 0.1f;
 		glm::vec2 thrustOffset_ = { -0.5f, 0.4f };
+		bool collisionBoxRendering_ = false;
 	};
 
 	struct MissileHandler

@@ -44,6 +44,8 @@ void main()
 {
 	if (numOfTextures == 1)
 		fColor = texture(textures[0], vTexCoord[0]) * vColor * color * visibility();
+	else if (numOfTextures == 0)
+		fColor = vColor * color * visibility();
 	else
 	{
 		const vec4 finalBlendingColor = texture(textures[0], vTexCoord[0]) * mulBlendingColor + addBlendingColor;
