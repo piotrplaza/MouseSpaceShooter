@@ -27,7 +27,7 @@ namespace Levels
 		void setup()
 		{
 			auto& staticDecoration = Globals::Components().staticDecorations();
-			auto& dynamicDecoration = Globals::Components().dynamicDecorations();
+			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
 			auto& camera = Globals::Components().camera();
 
 			staticDecoration.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, 0.05f, 20));
@@ -36,9 +36,9 @@ namespace Levels
 			};
 			staticDecoration.last().renderLayer = RenderLayer::NearForeground;
 
-			splineDecorationId = dynamicDecoration.emplace().getComponentId();
-			dynamicDecoration.last().drawMode = GL_LINE_STRIP;
-			dynamicDecoration.last().renderLayer = RenderLayer::Foreground;
+			splineDecorationId = dynamicDecorations.emplace().getComponentId();
+			dynamicDecorations.last().drawMode = GL_LINE_STRIP;
+			dynamicDecorations.last().renderLayer = RenderLayer::Foreground;
 
 			camera.targetProjectionHSizeF = [&]() {
 				return projectionHSize;
@@ -70,7 +70,7 @@ namespace Levels
 				dynamicDecorations.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointSize, 20));
 				dynamicDecorations.last().colorF = []() { return glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); };
 				auto insertedIt = controlPoints.insert(it, { dynamicDecorations.last().getComponentId(), mousePos });
-				dynamicDecorations.last().modelMatrixF = [&pos = insertedIt->second]() {
+				dynamicDecorations.last().modelMatrixF = [&pos = insertedIt->pos]() {
 					return glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f));
 				};
 				return insertedIt;
@@ -79,7 +79,7 @@ namespace Levels
 			auto addOrMoveControlPoint = [&]() {
 				if (!movingControlPoint)
 					for (auto it = controlPoints.begin(); it != controlPoints.end(); ++it)
-						if (glm::distance(it->second, oldMousePos) < controlPointSize)
+						if (glm::distance(it->pos, oldMousePos) < controlPointSize)
 						{
 							movingControlPoint = it;
 							break;
@@ -87,7 +87,7 @@ namespace Levels
 
 				if (movingControlPoint)
 				{
-					(*movingControlPoint)->second += mouseDelta;
+					(*movingControlPoint)->pos += mouseDelta;
 					return;
 				}
 
@@ -105,9 +105,9 @@ namespace Levels
 
 				bool removed = false;
 				for (auto it = controlPoints.begin(); it != controlPoints.end(); ++it)
-					if (glm::distance(it->second, oldMousePos) < controlPointSize)
+					if (glm::distance(it->pos, oldMousePos) < controlPointSize)
 					{
-						dynamicDecorations[it->first].state = ComponentState::Outdated;
+						dynamicDecorations[it->decorationId].state = ComponentState::Outdated;
 						controlPoints.erase(it);
 						removed = true;
 						break;
@@ -117,19 +117,19 @@ namespace Levels
 					movingCamera = true;
 			};
 
-			auto tryAddOrMovePrevControlPoint = [&]() {
-				if (!movingPrevControlPoint)
+			auto tryAddOrMoveAdjacentControlPoint = [&]() {
+				if (!movingAdjacentControlPoint)
 					for (auto it = controlPoints.begin(); it != controlPoints.end(); ++it)
-						if (glm::distance(it->second, oldMousePos) < controlPointSize)
+						if (glm::distance(it->pos, oldMousePos) < controlPointSize)
 						{
-							movingPrevControlPoint = addControlPoint(keyboard.pressing[/*VK_SHIFT*/0x10]
+							movingAdjacentControlPoint = addControlPoint(keyboard.pressing[/*VK_SHIFT*/0x10]
 								? std::next(it)
 								: it);
 							break;
 						}
 
-				if (movingPrevControlPoint)
-					(*movingPrevControlPoint)->second += mouseDelta;
+				if (movingAdjacentControlPoint)
+					(*movingAdjacentControlPoint)->pos += mouseDelta;
 			};
 
 			auto updateSpline = [&]() {
@@ -142,37 +142,40 @@ namespace Levels
 					return;
 				}
 
-				const int complexity = 10 * controlPoints.size();
-
 				std::vector<glm::vec2> controlPoints;
 				controlPoints.reserve(this->controlPoints.size());
-				for (const auto& idAndPos : this->controlPoints)
-					controlPoints.push_back(idAndPos.second);
+				for (const auto& controlPoint : this->controlPoints)
+					controlPoints.push_back(controlPoint.pos);
+
+				std::vector<glm::vec2> intermediateVeritces;
+
+				const int numOfSplineVertices = complexity * (controlPoints.size() - 1 + loop) + 1;
 
 				Tools::CubicHermiteSpline spline = loop
 					? Tools::CubicHermiteSpline(std::move(controlPoints), Tools::CubicHermiteSpline<>::loop)
 					: Tools::CubicHermiteSpline(std::move(controlPoints));
-				std::vector<glm::vec3> splineVertices;
-				splineVertices.reserve(complexity);
-				for (int i = 0; i < complexity; ++i)
+
+				intermediateVeritces.reserve(numOfSplineVertices);
+
+				for (int i = 0; i < numOfSplineVertices; ++i)
 				{
-					const float t = (float)i / (complexity - 1);
-					splineVertices.push_back(glm::vec3(lightning ? spline.getPostprocessedInterpolation(t, [rD = 0.1f](auto v) {
+					const float t = (float)i / (numOfSplineVertices - 1);
+					intermediateVeritces.push_back(glm::vec3(lightning ? spline.getPostprocessedInterpolation(t, [rD = 0.1f](auto v) {
 						return v + glm::vec2(Tools::Random(-rD, rD), Tools::Random(-rD, rD));
 						}) : spline.getInterpolation(t), 0.0f));
 				}
 
-				std::vector<glm::vec3> vertices;
+				std::vector<glm::vec3> finalVertices;
 				if (lightning)
-					for (int i = 0; i < complexity - 1; ++i)
+					for (size_t i = 0; i < intermediateVeritces.size() - 1; ++i)
 					{
-						std::vector<glm::vec3> subVertices = Tools::CreateVerticesOfLightning(splineVertices[i], splineVertices[i + 1], 10, 0.2f);
-						vertices.insert(vertices.end(), subVertices.begin(), subVertices.end());
+						std::vector<glm::vec3> subVertices = Tools::CreateVerticesOfLightning(intermediateVeritces[i], intermediateVeritces[i + 1], 10, 0.2f);
+						finalVertices.insert(finalVertices.end(), subVertices.begin(), subVertices.end());
 					}
 				else
-					vertices = std::move(splineVertices);
+					finalVertices = convertToVec3Vector(intermediateVeritces);
 
-				splineDecoration.vertices = std::move(vertices);
+				splineDecoration.vertices = std::move(finalVertices);
 				splineDecoration.state = ComponentState::Changed;
 			};
 
@@ -187,9 +190,9 @@ namespace Levels
 				movingCamera = false;
 
 			if (mouse.pressing.mmb)
-				tryAddOrMovePrevControlPoint();
+				tryAddOrMoveAdjacentControlPoint();
 			else
-				movingPrevControlPoint = std::nullopt;
+				movingAdjacentControlPoint = std::nullopt;
 
 			if (keyboard.pressed[' '])
 				lightning = !lightning;
@@ -197,25 +200,42 @@ namespace Levels
 			if (keyboard.pressed['L'])
 				loop = !loop;
 
+			if (keyboard.pressed['S'])
+				splineAsPolyline = !splineAsPolyline;
+
+			if (keyboard.pressed[0x26/*VK_UP*/] && complexity < 20)
+				++complexity;
+
+			if (keyboard.pressed[0x28/*VK_DOWN*/] && complexity > 1)
+				--complexity;
+
 			updateSpline();
 
 			projectionHSize = std::clamp(projectionHSize + mouse.pressed.wheel * -5.0f, 5.0f, 100.0f);
 		}
 
 	private:
+		struct ControlPoint
+		{
+			ComponentId decorationId;
+			glm::vec2 pos;
+		};
+
 		glm::vec2 mousePos{};
 		glm::vec2 cameraPos{};
-		std::list<std::pair<ComponentId, glm::vec2>> controlPoints;
+		std::list<ControlPoint> controlPoints;
 		std::optional<decltype(controlPoints)::iterator> movingControlPoint;
-		std::optional<decltype(controlPoints)::iterator> movingPrevControlPoint;
+		std::optional<decltype(controlPoints)::iterator> movingAdjacentControlPoint;
 		bool movingCamera = false;
 		ComponentId splineDecorationId = 0;
 		bool lightning = false;
 		bool loop = false;
+		bool splineAsPolyline = true;
 		float projectionHSize = 10.0f;
+		int complexity = 10;
 	};
 
-	SplineTest::SplineTest():
+	SplineTest::SplineTest() :
 		impl(std::make_unique<Impl>())
 	{
 		impl->setup();
