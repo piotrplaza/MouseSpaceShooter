@@ -20,10 +20,15 @@
 #include <list>
 #include <unordered_map>
 
+#include <iostream>
+using namespace std;
+
 namespace
 {
 	constexpr glm::vec4 activeSplineColor(1.0f);
 	constexpr glm::vec4 inactiveSplineColor(0.5f);
+	constexpr glm::vec4 activeControlPointColor(0.0f, 1.0f, 0.0f, 1.0f);
+	constexpr glm::vec4 inactiveControlPointColor(0.0f, 0.5f, 0.0f, 0.5f);
 }
 
 namespace Levels
@@ -71,11 +76,14 @@ namespace Levels
 			auto addControlPoint = [&](std::optional<std::list<ControlPoint>::iterator> it = std::nullopt) {
 				if (!it)
 				{
-					if (activeSplineDecorationId)
-						dynamicDecorations[*activeSplineDecorationId].colorF = []() { return inactiveSplineColor; };
+					if (!activeSplineDecorationId)
+						activeSplineDecorationId = dynamicDecorations.emplace().getComponentId();
 
-					activeSplineDecorationId = dynamicDecorations.emplace().getComponentId();
-					dynamicDecorations.last().colorF = []() { return activeSplineColor; };
+					dynamicDecorations.last().colorF = [&, id = *activeSplineDecorationId]() {
+						return (activeSplineDecorationId && id == *activeSplineDecorationId)
+							? activeSplineColor 
+							: inactiveSplineColor;
+					};
 					dynamicDecorations.last().drawMode = GL_LINE_STRIP;
 					dynamicDecorations.last().renderLayer = RenderLayer::Foreground;
 				}
@@ -83,11 +91,16 @@ namespace Levels
 				auto& controlPoints = splineDecorationIdToSplineDef[*activeSplineDecorationId].controlPoints;
 
 				dynamicDecorations.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointSize, 20));
-				dynamicDecorations.last().colorF = []() { return glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); };
+				dynamicDecorations.last().colorF = [&, id = *activeSplineDecorationId]() {
+					return (activeSplineDecorationId && id == *activeSplineDecorationId)
+						? activeControlPointColor
+						: inactiveControlPointColor;
+				};
 				auto insertedIt = controlPoints.insert(it ? *it : controlPoints.begin(), { dynamicDecorations.last().getComponentId(), mousePos });
 				dynamicDecorations.last().modelMatrixF = [&pos = insertedIt->pos]() {
 					return glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f));
 				};
+
 				return insertedIt;
 			};
 
@@ -97,13 +110,7 @@ namespace Levels
 					for (auto it = splineDef.controlPoints.begin(); it != splineDef.controlPoints.end(); ++it)
 						if (glm::distance(it->pos, oldMousePos) < controlPointSize)
 						{
-							if (activeSplineDecorationId && activeSplineDecorationId != splineDecorationId)
-							{
-								dynamicDecorations[*activeSplineDecorationId].colorF = []() { return inactiveSplineColor; };
-								activeSplineDecorationId = splineDecorationId;
-							}
-
-							dynamicDecorations[splineDecorationId].colorF = []() { return activeSplineColor; };
+							activeSplineDecorationId = splineDecorationId;
 							action(splineDecorationId, splineDef, it);
 
 							return;
@@ -142,9 +149,11 @@ namespace Levels
 				}
 
 				bool removed = false;
-				controlPointAction([&](auto, auto& splineDef, auto it) {
+				controlPointAction([&](auto splineDecorationId, auto& splineDef, auto it) {
 					dynamicDecorations[it->decorationId].state = ComponentState::Outdated;
 					splineDef.controlPoints.erase(it);
+					if (splineDef.controlPoints.empty())
+						splineDecorationIdToSplineDef.erase(splineDecorationId);
 					removed = true;
 					});
 
@@ -174,7 +183,7 @@ namespace Levels
 					{
 						splineDecoration.vertices.clear();
 						splineDecoration.state = ComponentState::Changed;
-						return;
+						continue;
 					}
 
 					std::vector<glm::vec2> controlPoints;
@@ -215,13 +224,19 @@ namespace Levels
 				}
 			};
 
-			auto tryDeactivate = [&]() {
-				if (!activeSplineDecorationId)
-					return;
-
+			auto deactivate = [&]() {
 				auto& splineDecoration = Globals::Components().dynamicDecorations()[*activeSplineDecorationId];
+				activeSplineDecorationId = std::nullopt;
+			};
 
-				splineDecoration.colorF = []() { return inactiveSplineColor; };
+			auto delete_ = [&]() {
+				auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+
+				for (const auto& controlPoint : splineDecorationIdToSplineDef[*activeSplineDecorationId].controlPoints)
+					dynamicDecorations[controlPoint.decorationId].state = ComponentState::Outdated;
+
+				dynamicDecorations[*activeSplineDecorationId].state = ComponentState::Outdated;
+				splineDecorationIdToSplineDef.erase(*activeSplineDecorationId);
 				activeSplineDecorationId = std::nullopt;
 			};
 
@@ -240,9 +255,13 @@ namespace Levels
 			else
 				movingAdjacentControlPoint = std::nullopt;
 
+			if (keyboard.pressed['G'])
+				generateCode();
+
 			if (activeSplineDecorationId)
 			{
 				auto& splineDef = splineDecorationIdToSplineDef[*activeSplineDecorationId];
+
 				if (keyboard.pressed[' '])
 					splineDef.lightning = !splineDef.lightning;
 
@@ -250,7 +269,10 @@ namespace Levels
 					splineDef.loop = !splineDef.loop;
 
 				if (keyboard.pressed['D'])
-					tryDeactivate();
+					deactivate();
+
+				if (keyboard.pressed[/*VK_DELETE*/0x2E])
+					delete_();
 
 				if (keyboard.pressed[/*VK_UP*/0x26] && splineDef.complexity < 20)
 					++splineDef.complexity;
@@ -265,6 +287,18 @@ namespace Levels
 		}
 
 	private:
+		void generateCode() const
+		{
+
+			auto generateSplineCode = [](const auto& splineDef)
+			{
+
+			};
+
+			for (const auto& [splineDecorationId, splineDef] : splineDecorationIdToSplineDef)
+				generateSplineCode(splineDef);
+		}
+
 		struct ControlPoint
 		{
 			ComponentId decorationId;
