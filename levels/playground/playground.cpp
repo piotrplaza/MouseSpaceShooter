@@ -344,7 +344,7 @@ namespace Levels
 				auto& wall = Globals::Components().staticWalls().emplace(Tools::CreateCircleBody(10.0f, Tools::BodyParams().position({ pos, 0.0f }).bodyType(b2_dynamicBody).density(0.01f)),
 					TCM::Texture(0));
 				wall.renderLayer = RenderLayer::NearMidground;
-				wall.render = false;
+				wall.renderF = []() { return false; };
 
 				Globals::Components().renderingSetups().emplace([
 						wallId = Globals::Components().staticWalls().size() - 1,
@@ -484,7 +484,7 @@ namespace Levels
 			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f,
 				Tools::BodyParams().position({ -10.0f, 30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)), TCM::Texture(0));
 			grapple.influenceRadius = 30.0f;
-			grapple.render = false;
+			grapple.renderF = []() { return false; };
 			grapple.subsequence.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 2.2f, 2.2f }),
 				Tools::CreateTexCoordOfRectangle(), TCM::Texture(roseTexture));
 			grapple.subsequence.back().modelMatrixF = [&grapple]() {

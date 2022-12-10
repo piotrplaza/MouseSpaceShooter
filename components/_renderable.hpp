@@ -56,8 +56,8 @@ struct Renderable : ComponentBase, RenderableDef
 	void enable(bool value) override
 	{
 		ComponentBase::enable(value);
-		render = value;
+		renderF = [value]() { return value; };
 		for (auto& e : subsequence)
-			e.render = value;
+			e.renderF = [value]() { return value; };
 	}
 };

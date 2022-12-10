@@ -19,7 +19,7 @@ namespace
 		buffers.drawMode = &renderableDef.drawMode;
 		buffers.bufferDataUsage = &renderableDef.bufferDataUsage;
 		buffers.preserveTextureRatio = &renderableDef.preserveTextureRatio;
-		buffers.render = &renderableDef.render;
+		buffers.renderF = &renderableDef.renderF;
 
 		buffers.setVerticesBuffer(renderableDef.getVertices());
 		buffers.setColorsBuffer(renderableDef.getColors());
@@ -60,7 +60,7 @@ namespace Buffers
 		bufferDataUsage(other.bufferDataUsage),
 		allocatedBufferDataUsage(std::move(other.allocatedBufferDataUsage)),
 		preserveTextureRatio(other.preserveTextureRatio),
-		render(other.render)
+		renderF(other.renderF)
 	{
 		other.expired = true;
 	}

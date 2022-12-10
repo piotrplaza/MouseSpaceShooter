@@ -5,6 +5,8 @@
 #include <components/decoration.hpp>
 #include <components/screenInfo.hpp>
 #include <components/camera.hpp>
+#include <components/texture.hpp>
+#include <components/animatedTexture.hpp>
 
 #include <globals/components.hpp>
 
@@ -12,6 +14,8 @@
 #include <tools/glmHelpers.hpp>
 #include <tools/splines.hpp>
 #include <tools/utility.hpp>
+
+#include <tools/playersHandler.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -29,6 +33,9 @@ namespace
 	constexpr glm::vec4 inactiveSplineColor(0.5f);
 	constexpr glm::vec4 activeControlPointColor(0.0f, 1.0f, 0.0f, 1.0f);
 	constexpr glm::vec4 inactiveControlPointColor(0.0f, 0.5f, 0.0f, 0.5f);
+
+	constexpr float cursorRadius = 0.25f;
+	constexpr float controlPointRadius = 0.5f;
 }
 
 namespace Levels
@@ -39,13 +46,60 @@ namespace Levels
 		void setup()
 		{
 			auto& staticDecoration = Globals::Components().staticDecorations();
-			auto& camera = Globals::Components().camera();
+			auto& textures = Globals::Components().textures();
 
-			staticDecoration.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, 0.05f, 20));
+			staticDecoration.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, cursorRadius, 20));
 			staticDecoration.last().modelMatrixF = [this]() {
 				return glm::translate(glm::mat4{ 1.0f }, { mousePos, 0.0f });
 			};
 			staticDecoration.last().renderLayer = RenderLayer::NearForeground;
+			staticDecoration.last().renderF = [&]()
+			{
+				return !playersHandler;
+			};
+
+			setEditorCamera();
+
+			planeTextures[0] = textures.size();
+			textures.emplace("textures/plane 1.png");
+			textures.last().translate = glm::vec2(0.4f, 0.0f);
+			textures.last().scale = glm::vec2(1.6f, 1.8f);
+			textures.last().minFilter = GL_LINEAR;
+
+			planeTextures[1] = textures.size();
+			textures.emplace("textures/alien ship 1.png");
+			textures.last().translate = glm::vec2(-0.2f, 0.0f);
+			textures.last().scale = glm::vec2(1.9f);
+			textures.last().minFilter = GL_LINEAR;
+
+			planeTextures[2] = textures.size();
+			textures.emplace("textures/plane 2.png");
+			textures.last().translate = glm::vec2(0.4f, 0.0f);
+			textures.last().scale = glm::vec2(1.8f, 1.8f);
+			textures.last().minFilter = GL_LINEAR;
+
+			planeTextures[3] = textures.size();
+			textures.emplace("textures/alien ship 2.png");
+			textures.last().translate = glm::vec2(0.0f, 0.0f);
+			textures.last().scale = glm::vec2(1.45f, 1.4f);
+			textures.last().minFilter = GL_LINEAR;
+
+			flameAnimationTexture = textures.size();
+			textures.emplace("textures/flame animation 1.jpg");
+			textures.last().minFilter = GL_LINEAR;
+
+			for (unsigned& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
+			{
+				flameAnimatedTextureForPlayer = Globals::Components().animatedTextures().size();
+				Globals::Components().animatedTextures().add({ flameAnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+					AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
+				Globals::Components().animatedTextures().last().start(true);
+			}
+		}
+
+		void setEditorCamera() const
+		{
+			auto& camera = Globals::Components().camera();
 
 			camera.targetProjectionHSizeF = [&]() {
 				return projectionHSize;
@@ -53,12 +107,24 @@ namespace Levels
 			camera.targetPositionF = [&]() {
 				return cameraPos;
 			};
+			camera.positionTransitionFactor = 1.0f;
+			camera.projectionTransitionFactor = 1.0f;
+		}
+
+		void initPlayersHandler()
+		{
+			playersHandler = Tools::PlayersHandler();
+			playersHandler->setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 10.0f; }).scalingFactor(0.7f));
+			playersHandler->initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
+				[this](unsigned player, unsigned numOfPlayers) {
+					const float gap = 5.0f;
+			const float farPlayersDistance = gap * (numOfPlayers - 1);
+			return glm::vec3(-10.0f, -farPlayersDistance / 2.0f + gap * player, 0.0f);
+				});
 		}
 
 		void step()
 		{
-			const float controlPointSize = 0.1f;
-
 			const auto& mouse = Globals::Components().mouse();
 			const auto& keyboard = Globals::Components().keyboard();
 			const auto& screenInfo = Globals::Components().screenInfo();
@@ -67,9 +133,14 @@ namespace Levels
 
 			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
 
-			mousePos += mouse.getWorldSpaceDelta() * projectionHSize * 0.001f;
-			mousePos.x = std::clamp(mousePos.x, -projectionHSize * screenRatio + cameraPos.x, projectionHSize * screenRatio + cameraPos.x);
-			mousePos.y = std::clamp(mousePos.y, -projectionHSize + cameraPos.y, projectionHSize + cameraPos.y);
+			if (playersHandler)
+				playersHandler->controlStep();
+			else
+			{
+				mousePos += mouse.getWorldSpaceDelta() * projectionHSize * 0.001f;
+				mousePos.x = std::clamp(mousePos.x, -projectionHSize * screenRatio + cameraPos.x, projectionHSize * screenRatio + cameraPos.x);
+				mousePos.y = std::clamp(mousePos.y, -projectionHSize + cameraPos.y, projectionHSize + cameraPos.y);
+			}
 
 			const glm::vec2 mouseDelta = mousePos - oldMousePos;
 
@@ -90,7 +161,7 @@ namespace Levels
 
 				auto& controlPoints = splineDecorationIdToSplineDef[*activeSplineDecorationId].controlPoints;
 
-				dynamicDecorations.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointSize, 20));
+				dynamicDecorations.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointRadius, 20));
 				dynamicDecorations.last().colorF = [&, id = *activeSplineDecorationId]() {
 					return (activeSplineDecorationId && id == *activeSplineDecorationId)
 						? activeControlPointColor
@@ -100,6 +171,10 @@ namespace Levels
 				dynamicDecorations.last().modelMatrixF = [&pos = insertedIt->pos]() {
 					return glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f));
 				};
+				dynamicDecorations.last().renderF = [&]()
+				{
+					return !playersHandler;
+				};
 
 				return insertedIt;
 			};
@@ -108,7 +183,7 @@ namespace Levels
 			{
 				for (auto& [splineDecorationId, splineDef] : splineDecorationIdToSplineDef)
 					for (auto it = splineDef.controlPoints.begin(); it != splineDef.controlPoints.end(); ++it)
-						if (glm::distance(it->pos, oldMousePos) < controlPointSize)
+						if (glm::distance(it->pos, oldMousePos) < controlPointRadius)
 						{
 							activeSplineDecorationId = splineDecorationId;
 							action(splineDecorationId, splineDef, it);
@@ -240,50 +315,62 @@ namespace Levels
 				activeSplineDecorationId = std::nullopt;
 			};
 
-			if (mouse.pressing.lmb)
-				addOrMoveControlPoint();
-			else
-				movingControlPoint = std::nullopt;
+			if (keyboard.pressed['T'])
+				if (playersHandler)
+				{
+					playersHandler = std::nullopt;
+					setEditorCamera();
+				}
+				else
+					initPlayersHandler();
 
-			if (mouse.pressing.rmb)
-				removeControlPointOrMoveCamera();
-			else
-				movingCamera = false;
-
-			if (mouse.pressing.mmb)
-				tryAddOrMoveAdjacentControlPoint();
-			else
-				movingAdjacentControlPoint = std::nullopt;
-
-			if (keyboard.pressed['G'])
-				generateCode();
-
-			if (activeSplineDecorationId)
+			if (!playersHandler)
 			{
-				auto& splineDef = splineDecorationIdToSplineDef[*activeSplineDecorationId];
+				if (mouse.pressing.lmb)
+					addOrMoveControlPoint();
+				else
+					movingControlPoint = std::nullopt;
 
-				if (keyboard.pressed[' '])
-					splineDef.lightning = !splineDef.lightning;
+				if (mouse.pressing.rmb)
+					removeControlPointOrMoveCamera();
+				else
+					movingCamera = false;
 
-				if (keyboard.pressed['L'])
-					splineDef.loop = !splineDef.loop;
+				if (mouse.pressing.mmb)
+					tryAddOrMoveAdjacentControlPoint();
+				else
+					movingAdjacentControlPoint = std::nullopt;
 
-				if (keyboard.pressed['D'])
-					deactivate();
+				if (keyboard.pressed['G'])
+					generateCode();
 
-				if (keyboard.pressed[/*VK_DELETE*/0x2E])
-					delete_();
+				if (activeSplineDecorationId)
+				{
+					auto& splineDef = splineDecorationIdToSplineDef[*activeSplineDecorationId];
 
-				if (keyboard.pressed[/*VK_UP*/0x26] && splineDef.complexity < 20)
-					++splineDef.complexity;
+					if (keyboard.pressed[' '])
+						splineDef.lightning = !splineDef.lightning;
 
-				if (keyboard.pressed[/*VK_DOWN*/0x28] && splineDef.complexity > 1)
-					--splineDef.complexity;
+					if (keyboard.pressed['L'])
+						splineDef.loop = !splineDef.loop;
+
+					if (keyboard.pressed['D'])
+						deactivate();
+
+					if (keyboard.pressed[/*VK_DELETE*/0x2E])
+						delete_();
+
+					if (keyboard.pressed[/*VK_UP*/0x26] && splineDef.complexity < 20)
+						++splineDef.complexity;
+
+					if (keyboard.pressed[/*VK_DOWN*/0x28] && splineDef.complexity > 1)
+						--splineDef.complexity;
+				}
+
+				projectionHSize = std::clamp(projectionHSize + mouse.pressed.wheel * -10.0f, 10.0f, 200.0f);
 			}
 
 			tryUpdateSpline();
-
-			projectionHSize = std::clamp(projectionHSize + mouse.pressed.wheel * -5.0f, 5.0f, 100.0f);
 		}
 
 	private:
@@ -320,7 +407,14 @@ namespace Levels
 		std::optional<std::list<ControlPoint>::iterator> movingControlPoint;
 		std::optional<std::list<ControlPoint>::iterator> movingAdjacentControlPoint;
 		bool movingCamera = false;
-		float projectionHSize = 10.0f;
+		float projectionHSize = 50.0f;
+
+		std::array<unsigned, 4> planeTextures{ 0 };
+		unsigned flameAnimationTexture = 0;
+
+		std::array<unsigned, 4> flameAnimatedTextureForPlayers{ 0 };
+
+		std::optional<Tools::PlayersHandler> playersHandler;
 	};
 
 	RaceEditor::RaceEditor() :

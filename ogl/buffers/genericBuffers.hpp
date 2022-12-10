@@ -42,7 +42,7 @@ namespace Buffers
 		GLenum* drawMode = nullptr;
 		GLenum* bufferDataUsage = nullptr;
 		bool* preserveTextureRatio = nullptr;
-		bool* render = nullptr;
+		std::function<bool()>* renderF = nullptr;
 
 		GLuint vertexArray = 0;
 		size_t numOfVertices = 0;
@@ -72,7 +72,7 @@ namespace Buffers
 		{
 			auto setAndDraw = [&](const GenericSubBuffers& buffers)
 			{
-				if (!*buffers.render)
+				if (!(*buffers.renderF)())
 					return;
 
 				glBindVertexArray(buffers.vertexArray);

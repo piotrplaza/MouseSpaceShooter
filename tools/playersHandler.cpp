@@ -58,6 +58,23 @@ namespace
 
 namespace Tools
 {
+	PlayersHandler::~PlayersHandler()
+	{
+		auto& planes = Globals::Components().planes();
+		auto& sounds = Globals::Components().sounds();
+
+		for (const auto& playerHandler : playersHandlers)
+		{
+			planes[playerHandler.playerId].state = ComponentState::Outdated;
+
+			if (playerHandler.grappleSound)
+				sounds[*playerHandler.grappleSound].state = ComponentState::Outdated;
+
+			if (playerHandler.thrustSound)
+				sounds[*playerHandler.thrustSound].state = ComponentState::Outdated;
+		}
+	}
+
 	void PlayersHandler::initPlayers(const std::array<unsigned, 4>& planeTexturesForPlayers, const std::array<unsigned, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
 		std::function<glm::vec3(unsigned player, unsigned numOfPlayers)> initLocF, std::optional<ComponentId> thrustSoundBuffer, std::optional<ComponentId> grappleSoundBuffer)
 	{

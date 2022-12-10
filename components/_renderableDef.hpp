@@ -50,7 +50,7 @@ struct RenderableDef
 
 	bool preserveTextureRatio = false;
 
-	bool render = true;
+	std::function<bool()> renderF = []() { return true; };
 
 	struct
 	{
