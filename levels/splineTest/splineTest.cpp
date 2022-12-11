@@ -160,18 +160,24 @@ namespace Levels
 				for (int i = 0; i < numOfSplineVertices; ++i)
 				{
 					const float t = (float)i / (numOfSplineVertices - 1);
-					intermediateVeritces.push_back(glm::vec3(lightning ? spline.getPostprocessedInterpolation(t, [rD = 0.1f](auto v) {
-						return v + glm::vec2(Tools::Random(-rD, rD), Tools::Random(-rD, rD));
-						}) : spline.getInterpolation(t), 0.0f));
+					intermediateVeritces.push_back(glm::vec3(spline.getInterpolation(t), 0.0f));
 				}
 
 				std::vector<glm::vec3> finalVertices;
 				if (lightning)
+				{
+					for (auto& v : intermediateVeritces)
+					{
+						const float rD = 0.1f;
+						v += glm::vec2(Tools::Random(-rD, rD), Tools::Random(-rD, rD));
+					}
+
 					for (size_t i = 0; i < intermediateVeritces.size() - 1; ++i)
 					{
 						std::vector<glm::vec3> subVertices = Tools::CreateVerticesOfLightning(intermediateVeritces[i], intermediateVeritces[i + 1], 10, 0.2f);
 						finalVertices.insert(finalVertices.end(), subVertices.begin(), subVertices.end());
 					}
+				}
 				else
 					finalVertices = convertToVec3Vector(intermediateVeritces);
 

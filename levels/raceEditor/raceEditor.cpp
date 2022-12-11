@@ -115,11 +115,9 @@ namespace Levels
 		{
 			playersHandler = Tools::PlayersHandler();
 			playersHandler->setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 10.0f; }).scalingFactor(0.7f));
-			playersHandler->initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
-				[this](unsigned player, unsigned numOfPlayers) {
-					const float gap = 5.0f;
-			const float farPlayersDistance = gap * (numOfPlayers - 1);
-			return glm::vec3(-10.0f, -farPlayersDistance / 2.0f + gap * player, 0.0f);
+			playersHandler->initPlayers(planeTextures, flameAnimatedTextureForPlayers, true,
+				[this](auto, auto) {
+					return glm::vec3(mousePos, 0.0f);
 				});
 		}
 
@@ -193,6 +191,9 @@ namespace Levels
 			};
 
 			auto addOrMoveControlPoint = [&]() {
+				if (movingAdjacentControlPoint)
+					return;
+
 				if (!movingControlPoint)
 					controlPointAction([&](auto, auto, auto it) {
 						movingControlPoint = it;
@@ -225,6 +226,9 @@ namespace Levels
 
 				bool removed = false;
 				controlPointAction([&](auto splineDecorationId, auto& splineDef, auto it) {
+					if (movingControlPoint || movingAdjacentControlPoint)
+						return;
+
 					dynamicDecorations[it->decorationId].state = ComponentState::Outdated;
 					splineDef.controlPoints.erase(it);
 					if (splineDef.controlPoints.empty())
@@ -279,18 +283,47 @@ namespace Levels
 					for (int i = 0; i < numOfSplineVertices; ++i)
 					{
 						const float t = (float)i / (numOfSplineVertices - 1);
-						intermediateVeritces.push_back(glm::vec3(splineDef.lightning ? spline.getPostprocessedInterpolation(t, [rD = 0.1f](auto v) {
-							return v + glm::vec2(Tools::Random(-rD, rD), Tools::Random(-rD, rD));
-							}) : spline.getInterpolation(t), 0.0f));
+						intermediateVeritces.push_back(glm::vec3(spline.getInterpolation(t), 0.0f));
 					}
 
 					std::vector<glm::vec3> finalVertices;
 					if (splineDef.lightning)
+					{
+						for (size_t i = 0; i < intermediateVeritces.size(); ++i)
+						{
+							if (!splineDef.loop && (i == 0 || i == intermediateVeritces.size() - 1))
+								continue;
+
+							const float rD = 0.05f;
+							auto& v = intermediateVeritces[i];
+
+							if (splineDef.loop && i == 0)
+							{
+								const auto& prevV = intermediateVeritces[intermediateVeritces.size() - 2];
+								const auto& nextV = intermediateVeritces[1];
+								const float avgLength = (glm::distance(prevV, v) + glm::distance(v, nextV)) * 0.5f;
+								v += glm::vec2(Tools::Random(-rD, rD), Tools::Random(-rD, rD)) * avgLength;
+								continue;
+							}
+
+							if (splineDef.loop && i == intermediateVeritces.size() - 1)
+							{
+								v = intermediateVeritces.front();
+								continue;
+							}
+
+							const auto& prevV = intermediateVeritces[i - 1];
+							const auto& nextV = intermediateVeritces[i + 1];
+							const float avgLength = (glm::distance(prevV, v) + glm::distance(v, nextV)) * 0.5f;
+							v += glm::vec2(Tools::Random(-rD, rD), Tools::Random(-rD, rD)) * avgLength;
+						}
+
 						for (size_t i = 0; i < intermediateVeritces.size() - 1; ++i)
 						{
 							std::vector<glm::vec3> subVertices = Tools::CreateVerticesOfLightning(intermediateVeritces[i], intermediateVeritces[i + 1], 10, 0.2f);
 							finalVertices.insert(finalVertices.end(), subVertices.begin(), subVertices.end());
 						}
+					}
 					else
 						finalVertices = convertToVec3Vector(intermediateVeritces);
 
