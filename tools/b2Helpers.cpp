@@ -285,9 +285,11 @@ namespace Tools
 			}
 			case b2Shape::e_edge:
 			{
+				// Edges must be chained.
 				const auto& edgeShape = static_cast<const b2EdgeShape&>(*fixture->GetShape());
+				if (fixture == body.GetFixtureList())
+					vertices.emplace_back(edgeShape.m_vertex2.x, edgeShape.m_vertex2.y, 0.0f);
 				vertices.emplace_back(edgeShape.m_vertex1.x, edgeShape.m_vertex1.y, 0.0f);
-				vertices.emplace_back(edgeShape.m_vertex2.x, edgeShape.m_vertex2.y, 0.0f);
 				break;
 			}
 			default:

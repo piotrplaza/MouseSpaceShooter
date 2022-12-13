@@ -235,13 +235,8 @@ namespace Levels
 				outerRing.replaceFixtures(ringSegments, Tools::BodyParams().sensor(true));
 			};
 
-			outerRing.segmentVerticesGenerator = [](const auto& v1, const auto& v2) {
-				return Tools::CreateVerticesOfLightning(v1, v2, 10, 0.4f);
-			};
-			outerRing.keyVerticesTransformer = [rD = 0.4f](const auto& v) {
-				return v + glm::vec3(Tools::Random(-rD, rD), Tools::Random(-rD, rD), 0.0f);
-			};
-			outerRing.loop = true;
+			outerRing.segmentVerticesGenerator = [](const auto& v1, const auto& v2) { return Tools::CreateVerticesOfLightning(v1, v2, 10, 0.2f); };
+			outerRing.keyVerticesTransformer = [](std::vector<glm::vec3>& vertices) { Tools::VerticesDefaultRandomTranslate(vertices, true, 0.04f); };
 			outerRing.colorF = [this]() {
 				return (playersHandler.getActivePlayersHandlers().size() == 1
 					? glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
@@ -484,13 +479,8 @@ namespace Levels
 					emission.replaceFixtures(ringSegments, Tools::BodyParams().sensor(true));
 				};
 
-				emission.segmentVerticesGenerator = [](const auto& v1, const auto& v2) {
-					return Tools::CreateVerticesOfLightning(v1, v2, 10, 0.4f);
-				};
-				emission.keyVerticesTransformer = [rD = 0.4f](const auto& v) {
-					return v + glm::vec3(Tools::Random(-rD, rD), Tools::Random(-rD, rD), 0.0f);
-				};
-				emission.loop = true;
+				emission.segmentVerticesGenerator = [](const auto& v1, const auto& v2) { return Tools::CreateVerticesOfLightning(v1, v2, 10, 0.2f); };
+				emission.keyVerticesTransformer = [](std::vector<glm::vec3>& vertices) { Tools::VerticesDefaultRandomTranslate(vertices, true, 0.04f); };
 				emission.colorF = [this]() {
 					return (playersHandler.getActivePlayersHandlers().size() == 1
 						? glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)

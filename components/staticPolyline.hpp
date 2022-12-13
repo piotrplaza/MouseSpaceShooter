@@ -20,7 +20,7 @@ namespace Components
 			Physical(Tools::CreatePolylineBody(vertices, bodyParams), std::monostate{}, renderingSetup, renderLayer, customShadersProgram)
 		{
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::polyline, Globals::CollisionBits::all);
-			drawMode = GL_LINES;
+			drawMode = GL_LINE_STRIP;
 			bufferDataUsage = GL_DYNAMIC_DRAW;
 		}
 
@@ -30,13 +30,12 @@ namespace Components
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt) :
 			Physical(Tools::CreateEmptyBody(bodyParams), std::monostate{}, renderingSetup, renderLayer, customShadersProgram)
 		{
-			drawMode = GL_LINES;
+			drawMode = GL_LINE_STRIP;
 			bufferDataUsage = GL_DYNAMIC_DRAW;
 		}
 
 		std::function<std::vector<glm::vec3>(const glm::vec3&, const glm::vec3&)> segmentVerticesGenerator;
-		std::function<glm::vec3(const glm::vec3&)> keyVerticesTransformer;
-		bool loop = false;
+		std::function<void(std::vector<glm::vec3>&)> keyVerticesTransformer;
 		std::function<void()> stepF;
 
 		void setComponentId(ComponentId id) override
@@ -47,40 +46,22 @@ namespace Components
 
 		std::vector<glm::vec3> getVertices(bool transformed = false) const override
 		{
-			const auto vertices = transformed
+			auto vertices = transformed
 				? Tools::Transform(Tools::GetVertices(*body), getModelMatrix())
 				: Tools::GetVertices(*body);
 
-			assert(vertices.size() % 2 == 0);
-
-			if (!segmentVerticesGenerator && !keyVerticesTransformer)
+			if ((!segmentVerticesGenerator && !keyVerticesTransformer) || vertices.empty())
 				return vertices;
 			
 			std::vector<glm::vec3> customVertices;
 
 			// Box2d keeps body's fixture in reverse order.
-			glm::vec3 nextSegmentBegin;
-			glm::vec3 lastSegmentEnd;
-			for (auto it = vertices.begin(); it != vertices.end(); it += 2)
+			if (keyVerticesTransformer)
+				keyVerticesTransformer(vertices);
+
+			for (auto it = vertices.begin(); it != vertices.end() - 1; ++it)
 			{
-				std::pair<glm::vec3, glm::vec3> segmentV = [&]() {
-					if (!keyVerticesTransformer)
-						return std::make_pair(*it, *(it + 1));
-					else
-					{
-						const glm::vec3 v1 = loop && it == std::prev(vertices.end(), 2)
-							? lastSegmentEnd
-							: keyVerticesTransformer(*it);
-						const glm::vec3 v2 = it == vertices.begin()
-							? lastSegmentEnd = keyVerticesTransformer(*(it + 1))
-							: nextSegmentBegin;
-						nextSegmentBegin = v1;
-
-						return std::make_pair(v1, v2);
-					}
-				}();
-
-				auto segmentVertices = segmentVerticesGenerator(segmentV.first, segmentV.second);
+				auto segmentVertices = segmentVerticesGenerator(*it, *(it + 1));
 				customVertices.insert(customVertices.end(), segmentVertices.begin(), segmentVertices.end());
 			}
 

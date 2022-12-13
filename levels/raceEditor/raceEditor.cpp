@@ -23,9 +23,8 @@
 #include <optional>
 #include <list>
 #include <unordered_map>
-
-#include <iostream>
-using namespace std;
+#include <type_traits>
+#include <fstream>
 
 namespace
 {
@@ -50,7 +49,7 @@ namespace Levels
 
 			staticDecoration.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, cursorRadius, 20));
 			staticDecoration.last().modelMatrixF = [this]() {
-				return glm::translate(glm::mat4{ 1.0f }, { mousePos, 0.0f });
+				return glm::scale(glm::translate(glm::mat4{ 1.0f }, { mousePos, 0.0f }), glm::vec3(zoomScale));
 			};
 			staticDecoration.last().renderLayer = RenderLayer::NearForeground;
 			staticDecoration.last().renderF = [&]()
@@ -149,7 +148,7 @@ namespace Levels
 						activeSplineDecorationId = dynamicDecorations.emplace().getComponentId();
 
 					dynamicDecorations.last().colorF = [&, id = *activeSplineDecorationId]() {
-						return (activeSplineDecorationId && id == *activeSplineDecorationId)
+						return activeSplineDecorationId && id == *activeSplineDecorationId
 							? activeSplineColor 
 							: inactiveSplineColor;
 					};
@@ -166,8 +165,8 @@ namespace Levels
 						: inactiveControlPointColor;
 				};
 				auto insertedIt = controlPoints.insert(it ? *it : controlPoints.begin(), { dynamicDecorations.last().getComponentId(), mousePos });
-				dynamicDecorations.last().modelMatrixF = [&pos = insertedIt->pos]() {
-					return glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f));
+				dynamicDecorations.last().modelMatrixF = [&, &pos = insertedIt->pos]() {
+					return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), glm::vec3(zoomScale));
 				};
 				dynamicDecorations.last().renderF = [&]()
 				{
@@ -181,7 +180,7 @@ namespace Levels
 			{
 				for (auto& [splineDecorationId, splineDef] : splineDecorationIdToSplineDef)
 					for (auto it = splineDef.controlPoints.begin(); it != splineDef.controlPoints.end(); ++it)
-						if (glm::distance(it->pos, oldMousePos) < controlPointRadius)
+						if (glm::distance(it->pos, oldMousePos) < controlPointRadius * zoomScale)
 						{
 							activeSplineDecorationId = splineDecorationId;
 							action(splineDecorationId, splineDef, it);
@@ -299,7 +298,7 @@ namespace Levels
 							auto vTransform = [&](const auto& prevV, const auto& v, const auto& nextV) {
 								const float avgLength = (glm::distance(prevV, v) + glm::distance(v, nextV)) * 0.5f;
 								const float rD =  avgLength * splineDef.complexity * 0.005f;
-								return glm::vec2(Tools::Random(-rD, rD), Tools::Random(-rD, rD));
+								return std::remove_cvref<decltype(v)>::type(Tools::Random(-rD, rD), Tools::Random(-rD, rD));
 							};
 
 							if (splineDef.loop && i == 0)
@@ -339,6 +338,10 @@ namespace Levels
 			auto deactivate = [&]() {
 				auto& splineDecoration = Globals::Components().dynamicDecorations()[*activeSplineDecorationId];
 				activeSplineDecorationId = std::nullopt;
+			};
+
+			auto resetView = [&]() {
+				cameraPos = glm::vec2(0.0f);
 			};
 
 			auto delete_ = [&]() {
@@ -394,17 +397,23 @@ namespace Levels
 					if (keyboard.pressed['D'])
 						deactivate();
 
+					if (keyboard.pressed['R'])
+						resetView();
+
 					if (keyboard.pressed[/*VK_DELETE*/0x2E])
 						delete_();
 
-					if (keyboard.pressed[/*VK_UP*/0x26] && splineDef.complexity < 20)
-						++splineDef.complexity;
-
-					if (keyboard.pressed[/*VK_DOWN*/0x28] && splineDef.complexity > 1)
-						--splineDef.complexity;
+					if (keyboard.pressing[/*VK_SHIFT*/0x10])
+					{
+						splineDef.complexity = std::clamp(splineDef.complexity + mouse.pressed.wheel, 1, 100);
+					}
 				}
-
-				projectionHSize = std::clamp(projectionHSize + mouse.pressed.wheel * -10.0f, 10.0f, 200.0f);
+				
+				if (!keyboard.pressing[/*VK_SHIFT*/0x10])
+				{
+					projectionHSize = std::clamp(projectionHSize + mouse.pressed.wheel * -10.0f * zoomScale, 1.0f, 10000.0f);
+					zoomScale = projectionHSize / 50.0f;
+				}
 			}
 
 			tryUpdateSpline();
@@ -413,14 +422,48 @@ namespace Levels
 	private:
 		void generateCode() const
 		{
+			std::ofstream fs("race.txt");
 
-			auto generateSplineCode = [](const auto& splineDef)
-			{
+			fs << "void createSplines() const\n";
+			fs << "{\n";
+			fs << "	auto& polylines = Globals::Components().staticPolylines();\n";
 
+			auto createControlPoints = [&](const auto& splineDef) {
+				fs << "		std::vector<glm::vec2> controlPoints;\n";
+				fs << "		controlPoints.reserve(" << splineDef.controlPoints.size() << ");\n";
+				for (const auto& cp : splineDef.controlPoints)
+					fs << "		controlPoints.push_back({" << cp.pos.x << ", " << cp.pos.y << "});\n";
 			};
 
 			for (const auto& [splineDecorationId, splineDef] : splineDecorationIdToSplineDef)
-				generateSplineCode(splineDef);
+			{
+				if (splineDef.controlPoints.size() < 2)
+					continue;
+
+				fs << "\n	{\n";
+				createControlPoints(splineDef);
+				fs << "\n		const int numOfVertices = " << splineDef.complexity << " * (controlPoints.size() - 1 + " << splineDef.loop << ") + 1;\n";
+				fs << "		Tools::CubicHermiteSpline spline(std::move(controlPoints)" << (splineDef.loop ? ", Tools::CubicHermiteSpline<>::loop);\n" : ");\n");
+				fs << "		std::vector<glm::vec2> veritces;\n";
+				fs << "		veritces.reserve(numOfVertices);\n";
+				fs << "		for (int i = 0; i < numOfVertices; ++i)\n";
+				fs << "			veritces.push_back(glm::vec3(spline.getInterpolation((float)i / (numOfVertices - 1)), 0.0f));\n";
+
+				fs << "		polylines.emplace(std::move(veritces), Tools::BodyParams().sensor(true));\n";
+
+				if (splineDef.lightning)
+				{
+					fs << "		polylines.last().segmentVerticesGenerator = [](const auto& v1, const auto& v2) { " <<
+						"return Tools::CreateVerticesOfLightning(v1, v2, std::max(1, (int)glm::distance(v1, v2)), 0.2f); };\n";
+					fs << "		polylines.last().keyVerticesTransformer = [](std::vector<glm::vec3>& vertices) {\n";
+					fs << "			Tools::VerticesDefaultRandomTranslate(vertices, " << splineDef.loop << ", (float)" << (splineDef.complexity * 0.005f) << ");\n";
+					fs << "		};\n";
+				}
+
+				fs << "	}\n";
+			}
+
+			fs << "}";
 		}
 
 		struct ControlPoint
@@ -445,6 +488,7 @@ namespace Levels
 		std::optional<std::list<ControlPoint>::iterator> movingAdjacentControlPoint;
 		bool movingCamera = false;
 		float projectionHSize = 50.0f;
+		float zoomScale = 1.0f;
 
 		std::array<unsigned, 4> planeTextures{ 0 };
 		unsigned flameAnimationTexture = 0;

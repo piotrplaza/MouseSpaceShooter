@@ -7,6 +7,7 @@
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
 #include <components/soundBuffer.hpp>
+#include <components/staticPolyline.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -16,6 +17,7 @@
 
 #include <tools/gameHelpers.hpp>
 #include <tools/playersHandler.hpp>
+#include <tools/splines.hpp>
 
 namespace Levels
 {
@@ -85,6 +87,10 @@ namespace Levels
 			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 30.0f; }).scalingFactor(0.7f));
 		}
 
+		void createSplines() const
+		{
+		}
+
 		void step()
 		{
 			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
@@ -121,6 +127,7 @@ namespace Levels
 		impl->loadAudio();
 		impl->setAnimations();
 		impl->setCamera();
+		impl->createSplines();
 
 		impl->reset();
 	}
