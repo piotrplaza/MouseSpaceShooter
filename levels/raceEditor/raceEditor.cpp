@@ -294,15 +294,19 @@ namespace Levels
 							if (!splineDef.loop && (i == 0 || i == intermediateVeritces.size() - 1))
 								continue;
 
-							const float rD = 0.05f;
 							auto& v = intermediateVeritces[i];
+
+							auto vTransform = [&](const auto& prevV, const auto& v, const auto& nextV) {
+								const float avgLength = (glm::distance(prevV, v) + glm::distance(v, nextV)) * 0.5f;
+								const float rD =  avgLength * splineDef.complexity * 0.005f;
+								return glm::vec2(Tools::Random(-rD, rD), Tools::Random(-rD, rD));
+							};
 
 							if (splineDef.loop && i == 0)
 							{
 								const auto& prevV = intermediateVeritces[intermediateVeritces.size() - 2];
 								const auto& nextV = intermediateVeritces[1];
-								const float avgLength = (glm::distance(prevV, v) + glm::distance(v, nextV)) * 0.5f;
-								v += glm::vec2(Tools::Random(-rD, rD), Tools::Random(-rD, rD)) * avgLength;
+								v += vTransform(prevV, v, nextV);
 								continue;
 							}
 
@@ -314,13 +318,13 @@ namespace Levels
 
 							const auto& prevV = intermediateVeritces[i - 1];
 							const auto& nextV = intermediateVeritces[i + 1];
-							const float avgLength = (glm::distance(prevV, v) + glm::distance(v, nextV)) * 0.5f;
-							v += glm::vec2(Tools::Random(-rD, rD), Tools::Random(-rD, rD)) * avgLength;
+							v += vTransform(prevV, v, nextV);
 						}
 
 						for (size_t i = 0; i < intermediateVeritces.size() - 1; ++i)
 						{
-							std::vector<glm::vec3> subVertices = Tools::CreateVerticesOfLightning(intermediateVeritces[i], intermediateVeritces[i + 1], 10, 0.2f);
+							const float d = glm::distance(intermediateVeritces[i], intermediateVeritces[i + 1]);
+							std::vector<glm::vec3> subVertices = Tools::CreateVerticesOfLightning(intermediateVeritces[i], intermediateVeritces[i + 1], std::max(1, (int)d), 0.2f);
 							finalVertices.insert(finalVertices.end(), subVertices.begin(), subVertices.end());
 						}
 					}
