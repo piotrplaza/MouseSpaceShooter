@@ -37,6 +37,7 @@
     <ClCompile Include="levels\level.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
     <ClCompile Include="levels\raceBase\raceBase.cpp" />
+    <ClCompile Include="levels\raceEditor\presets.cpp" />
     <ClCompile Include="levels\raceEditor\raceEditor.cpp" />
     <ClCompile Include="levels\rim\rim.cpp" />
     <ClCompile Include="levels\rocketball\rocketball.cpp">

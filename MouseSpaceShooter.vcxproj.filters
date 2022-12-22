@@ -238,6 +238,9 @@
     <ClCompile Include="levels\raceEditor\raceEditor.cpp">
       <Filter>src\levels\raceEditor</Filter>
     </ClCompile>
+    <ClCompile Include="levels\raceEditor\presets.cpp">
+      <Filter>src\levels\raceEditor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mvp.hpp">

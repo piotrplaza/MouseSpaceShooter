@@ -39,6 +39,8 @@ namespace
 
 namespace Levels
 {
+	void createSplines();
+
 	class RaceEditor::Impl
 	{
 	public:
@@ -424,7 +426,7 @@ namespace Levels
 		{
 			std::ofstream fs("race.txt");
 
-			fs << "void createSplines() const\n";
+			fs << "void createSplines()\n";
 			fs << "{\n";
 			fs << "	auto& polylines = Globals::Components().staticPolylines();\n";
 
@@ -502,6 +504,7 @@ namespace Levels
 		impl(std::make_unique<Impl>())
 	{
 		impl->setup();
+		createSplines();
 	}
 
 	RaceEditor::~RaceEditor() = default;
