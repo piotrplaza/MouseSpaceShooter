@@ -202,7 +202,15 @@ namespace Levels
 
 				if (movingControlPoint)
 				{
-					(*movingControlPoint)->pos += mouseDelta;
+					if (keyboard.pressing[/*VK_SHIFT*/0x10] && activeSplineDecorationId)
+					{
+						auto& splineDef = splineDecorationIdToSplineDef[*activeSplineDecorationId];
+						for (auto& controlPoint : splineDef.controlPoints)
+							controlPoint.pos += mouseDelta;
+					}
+					else
+						(*movingControlPoint)->pos += mouseDelta;
+
 					return;
 				}
 
