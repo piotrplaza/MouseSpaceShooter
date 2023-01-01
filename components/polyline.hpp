@@ -19,7 +19,6 @@ namespace Components
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt) :
 			Physical(Tools::CreatePolylineBody(vertices, bodyParams), std::monostate{}, renderingSetup, renderLayer, customShadersProgram)
 		{
-			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::polyline, Globals::CollisionBits::all);
 			drawMode = GL_LINE_STRIP;
 			bufferDataUsage = GL_DYNAMIC_DRAW;
 		}
@@ -38,9 +37,10 @@ namespace Components
 		std::function<void(std::vector<glm::vec3>&)> keyVerticesTransformer;
 		std::function<void()> stepF;
 
-		void setComponentId(ComponentId id) override
+		void init(ComponentId id) override
 		{
-			ComponentBase::setComponentId(id);
+			ComponentBase::init(id);
+			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::polyline, Globals::CollisionBits::all);
 			setBodyComponentVariant(TCM::StaticPolyline(id, this));
 		}
 
@@ -87,6 +87,18 @@ namespace Components
 			Tools::DestroyFixtures(body);
 			Tools::CreatePolylineFixtures(body, vertices, bodyParams);
 			Tools::SetCollisionFilteringBits(*body, Globals::CollisionBits::polyline, Globals::CollisionBits::all);
+		}
+	};
+
+	struct DynamicPolyline : StaticPolyline
+	{
+		using StaticPolyline::StaticPolyline;
+
+		void init(ComponentId id) override
+		{
+			ComponentBase::init(id);
+			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::polyline, Globals::CollisionBits::all);
+			setBodyComponentVariant(TCM::DynamicPolyline(id, this));
 		}
 	};
 }

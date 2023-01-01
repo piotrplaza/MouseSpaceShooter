@@ -1,6 +1,6 @@
 #include <globals/components.hpp>
 
-#include <components/staticPolyline.hpp>
+#include <components/polyline.hpp>
 
 #include <tools/splines.hpp>
 #include <tools/b2Helpers.hpp>

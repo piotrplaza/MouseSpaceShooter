@@ -7,7 +7,7 @@
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
 #include <components/soundBuffer.hpp>
-#include <components/staticPolyline.hpp>
+#include <components/polyline.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>

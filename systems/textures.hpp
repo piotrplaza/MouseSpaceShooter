@@ -34,6 +34,7 @@ namespace Systems
 		void loadAndConfigureTexture(Components::Texture& texture);
 		void createTextureFramebuffers() const;
 
+		unsigned customTexturesOffset = 0;
 		std::unordered_map<std::string, TextureCache> pathsToTexturesCache;
 	};
 }

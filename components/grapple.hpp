@@ -1,6 +1,6 @@
 #pragma once
 
-#include "components/dynamicWall.hpp"
+#include "components/wall.hpp"
 
 namespace Components
 {
@@ -15,9 +15,10 @@ namespace Components
 			glm::vec2 previousCenter{ 0.0f, 0.0f };
 		} details;
 
-		void setComponentId(ComponentId id) override
+		void init(ComponentId id) override
 		{
-			ComponentBase::setComponentId(id);
+			ComponentBase::init(id);
+			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
 			setBodyComponentVariant(TCM::Grapple(id, this));
 		}
 	};

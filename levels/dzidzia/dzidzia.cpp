@@ -92,7 +92,7 @@ namespace Levels
 				TCM::Texture(dzidziaITata1Texture), Tools::CreateTexCoordOfRectangle(), renderingSetups.size() - 1).preserveTextureRatio = true;
 			staticDecorations.last().modelMatrixF = [pos, step = glm::vec2(5.0f)]() mutable {
 				const auto& screenInfo = Globals::Components().screenInfo();
-				const glm::vec2 absClamp = { (float)screenInfo.windowSize.x / screenInfo.windowSize.y * 10.0f, 10.0f };
+				const glm::vec2 absClamp = { screenInfo.getAspectRatio() * 10.0f, 10.0f };
 
 				*pos += step * Globals::Components().physics().frameDuration;
 				for (int i : {0, 1})
@@ -118,7 +118,7 @@ namespace Levels
 			const auto& physics = Globals::Components().physics();
 			auto& staticDecorations = Globals::Components().staticDecorations();
 
-			absClamp = { (float)screenInfo.windowSize.x / screenInfo.windowSize.y * 10.0f, 10.0f };
+			absClamp = { screenInfo.getAspectRatio() * 10.0f, 10.0f };
 			mousePos += mouse.getWorldSpaceDelta() * turningSensitivity;
 			mousePos = glm::clamp(mousePos, -absClamp, absClamp);
 			

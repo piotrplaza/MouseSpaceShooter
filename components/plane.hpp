@@ -14,8 +14,6 @@ namespace Components
 {
 	struct Plane : Physical
 	{
-		Plane() = default;
-
 		Plane(Body body,
 			TextureComponentVariant texture = std::monostate{},
 			std::vector<glm::vec2> texCoord = {},
@@ -24,7 +22,6 @@ namespace Components
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			Physical(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram)
 		{
-			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::plane, Globals::CollisionBits::all);
 		}
 
 		bool connectIfApproaching = false;
@@ -50,9 +47,10 @@ namespace Components
 			float throttleForce = 0.0f;
 		} details;
 
-		void setComponentId(ComponentId id) override
+		void init(ComponentId id) override
 		{
-			ComponentBase::setComponentId(id);
+			ComponentBase::init(id);
+			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::plane, Globals::CollisionBits::all);
 			setBodyComponentVariant(TCM::Plane(id, this));
 		}
 

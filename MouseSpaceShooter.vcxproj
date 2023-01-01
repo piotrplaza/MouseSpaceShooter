@@ -30,6 +30,7 @@
     <ClCompile Include="globals\shaders.cpp" />
     <ClCompile Include="globals\systems.cpp" />
     <ClCompile Include="levels\basic\basic.cpp" />
+    <ClCompile Include="levels\collisions\collisions.cpp" />
     <ClCompile Include="levels\dzidzia2\dzidzia2.cpp" />
     <ClCompile Include="levels\dzidzia\dzidzia.cpp" />
     <ClCompile Include="levels\fpsScalingProblems\fpsScalingProblems.cpp" />
@@ -39,6 +40,8 @@
     <ClCompile Include="levels\raceBase\raceBase.cpp" />
     <ClCompile Include="levels\raceEditor\presets.cpp" />
     <ClCompile Include="levels\raceEditor\raceEditor.cpp" />
+    <ClCompile Include="levels\raceEditor\splinesEditing.cpp" />
+    <ClCompile Include="levels\raceEditor\startingLineEditing.cpp" />
     <ClCompile Include="levels\rim\rim.cpp" />
     <ClCompile Include="levels\rocketball\rocketball.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -89,8 +92,6 @@
     <ClInclude Include="components\collisionHandler.hpp" />
     <ClInclude Include="components\decoration.hpp" />
     <ClInclude Include="components\deferredAction.hpp" />
-    <ClInclude Include="components\dynamicPolyline.hpp" />
-    <ClInclude Include="components\dynamicWall.hpp" />
     <ClInclude Include="components\framebuffers.hpp" />
     <ClInclude Include="components\functor.hpp" />
     <ClInclude Include="components\gamepad.hpp" />
@@ -105,15 +106,15 @@
     <ClInclude Include="components\mvp.hpp" />
     <ClInclude Include="components\physics.hpp" />
     <ClInclude Include="components\plane.hpp" />
+    <ClInclude Include="components\polyline.hpp" />
     <ClInclude Include="components\renderingBuffers.hpp" />
     <ClInclude Include="components\renderingSetup.hpp" />
     <ClInclude Include="components\screenInfo.hpp" />
     <ClInclude Include="components\shockwave.hpp" />
     <ClInclude Include="components\sound.hpp" />
     <ClInclude Include="components\soundBuffer.hpp" />
-    <ClInclude Include="components\staticPolyline.hpp" />
-    <ClInclude Include="components\staticWall.hpp" />
     <ClInclude Include="components\texture.hpp" />
+    <ClInclude Include="components\wall.hpp" />
     <ClInclude Include="components\_componentBase.hpp" />
     <ClInclude Include="components\_physical.hpp" />
     <ClInclude Include="components\_renderable.hpp" />
@@ -124,6 +125,7 @@
     <ClInclude Include="globals\shaders.hpp" />
     <ClInclude Include="globals\systems.hpp" />
     <ClInclude Include="levels\basic\basic.hpp" />
+    <ClInclude Include="levels\collisions\collisions.hpp" />
     <ClInclude Include="levels\dzidzia2\dzidzia2.hpp" />
     <ClInclude Include="levels\dzidzia\dzidzia.hpp" />
     <ClInclude Include="levels\fpsScalingProblems\fpsScalingProblems.hpp" />
@@ -131,7 +133,10 @@
     <ClInclude Include="levels\level.hpp" />
     <ClInclude Include="levels\playground\playground.hpp" />
     <ClInclude Include="levels\raceBase\raceBase.hpp" />
+    <ClInclude Include="levels\raceEditor\common.hpp" />
     <ClInclude Include="levels\raceEditor\raceEditor.hpp" />
+    <ClInclude Include="levels\raceEditor\splinesEditing.hpp" />
+    <ClInclude Include="levels\raceEditor\startingLineEditing.hpp" />
     <ClInclude Include="levels\rim\rim.hpp" />
     <ClInclude Include="levels\rocketball\rocketball.hpp" />
     <ClInclude Include="levels\splineTest\splineTest.hpp" />

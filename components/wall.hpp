@@ -8,8 +8,6 @@ namespace Components
 {
 	struct StaticWall : Physical
 	{
-		StaticWall() = default;
-
 		StaticWall(Body body,
 			TextureComponentVariant texture = std::monostate{},
 			std::optional<ComponentId> renderingSetup = std::nullopt,
@@ -17,14 +15,14 @@ namespace Components
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
 			Physical(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram)
 		{
-			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
 		}
 
 		std::function<void()> stepF;
 
-		void setComponentId(ComponentId id) override
+		void init(ComponentId id) override
 		{
-			ComponentBase::setComponentId(id);
+			ComponentBase::init(id);
+			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
 			setBodyComponentVariant(TCM::StaticWall(id, this));
 		}
 
@@ -32,6 +30,18 @@ namespace Components
 		{
 			if (stepF)
 				stepF();
+		}
+	};
+
+	struct DynamicWall : StaticWall
+	{
+		using StaticWall::StaticWall;
+
+		void init(ComponentId id) override
+		{
+			ComponentBase::init(id);
+			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
+			setBodyComponentVariant(TCM::DynamicWall(id, this));
 		}
 	};
 }

@@ -96,7 +96,7 @@ namespace Tools
 
 	const Tools::BodyParams& GetDefaultParamsForPlaneBody()
 	{
-		static const auto planeBodyDefaultParams = Tools::BodyParams().bodyType(b2_dynamicBody).density(0.2f).restitution(0.1f).sleepingAllowed(false).bullet(true).linearDamping(0.1f).angularDamping(15.0);
+		static const auto planeBodyDefaultParams = Tools::BodyParams().bodyType(b2_dynamicBody).density(0.2f).restitution(0.1f).autoSleeping(false).bullet(true).linearDamping(0.1f).angularDamping(15.0);
 		return planeBodyDefaultParams;
 	}
 
@@ -105,7 +105,7 @@ namespace Tools
 		auto& plane = Globals::Components().planes().emplace(std::move(body), TCM::Texture(planeTexture));
 
 		plane.setPosition(params.position_);
-		plane.setRotation(params.angle_);
+		plane.setAngle(params.angle_);
 		plane.preserveTextureRatio = true;
 		plane.posInSubsequence = params.numOfThrusts_ + params.collisionBoxRendering_;
 
@@ -313,10 +313,10 @@ namespace Tools
 		auto& background = Globals::Components().staticDecorations().emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
 		background.customShadersProgram = juliaShaders.getProgramId();
 
-		Globals::Components().renderingSetups().emplace([=, &juliaShaders
+		Globals::Components().renderingSetups().emplace([=, &juliaShaders, &screenInfo = Globals::Components().screenInfo()
 			](auto) mutable {
 				juliaShaders.vp(glm::translate(glm::scale(glm::mat4(1.0f),
-					glm::vec3((float)Globals::Components().screenInfo().windowSize.y / Globals::Components().screenInfo().windowSize.x, 1.0f, 1.0f) * 1.5f),
+					glm::vec3(1.0f / screenInfo.getAspectRatio(), 1.0f, 1.0f) * 1.5f),
 					glm::vec3(-Globals::Components().camera().details.prevPosition * 0.005f, 0.0f)));
 				juliaShaders.juliaCOffset(juliaCOffset());
 				juliaShaders.minColor({ 0.0f, 0.0f, 0.0f, 1.0f });

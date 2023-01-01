@@ -30,10 +30,10 @@ namespace Systems
 		auto& mvp = Globals::Components().mvp();
 
 		const float windowWidthRatio = screenInfo.windowSize.x > screenInfo.windowSize.y
-			? (float)screenInfo.windowSize.x / screenInfo.windowSize.y
+			? screenInfo.getAspectRatio()
 			: 1.0f;
 		const float windowHeightRatio = screenInfo.windowSize.x < screenInfo.windowSize.y
-			? (float)screenInfo.windowSize.y / screenInfo.windowSize.x
+			? 1.0f / screenInfo.getAspectRatio()
 			: 1.0f;
 		const float targetProjectionHSize = camera.targetProjectionHSizeF();
 		const glm::vec2 targetPosition = camera.targetPositionF();

@@ -161,8 +161,8 @@ namespace Tools
 						const auto pos2 = allActorsPos[j];
 						/*maxDistance = std::max(maxDistance, glm::max(glm::abs(pos1.x - pos2.x) * screenInfo.windowSize.y / screenInfo.windowSize.x * scalingFactor,
 							glm::abs(pos1.y - pos2.y) * scalingFactor));*/
-						maxDistance = std::max(maxDistance, glm::distance(glm::vec2(pos1.x * screenInfo.windowSize.y / screenInfo.windowSize.x, pos1.y),
-							glm::vec2(pos2.x * screenInfo.windowSize.y / screenInfo.windowSize.x, pos2.y)) * scalingFactor);
+						maxDistance = std::max(maxDistance, glm::distance(glm::vec2(pos1.x / screenInfo.getAspectRatio(), pos1.y),
+							glm::vec2(pos2.x / screenInfo.getAspectRatio(), pos2.y)) * scalingFactor);
 					}
 				return maxDistance;
 			}();

@@ -15,11 +15,9 @@
 #include <components/sound.hpp>
 #include <components/renderingSetup.hpp>
 #include <components/plane.hpp>
-#include <components/staticWall.hpp>
-#include <components/dynamicWall.hpp>
+#include <components/wall.hpp>
 #include <components/grapple.hpp>
-#include <components/staticPolyline.hpp>
-#include <components/dynamicPolyline.hpp>
+#include <components/polyline.hpp>
 #include <components/camera.hpp>
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>

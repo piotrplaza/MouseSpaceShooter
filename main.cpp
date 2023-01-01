@@ -12,6 +12,7 @@
 #include "levels/raceBase/raceBase.hpp"
 #include "levels/splineTest/splineTest.hpp"
 #include "levels/raceEditor/raceEditor.hpp"
+#include "levels/collisions/collisions.hpp"
 
 #include "components/mouse.hpp"
 #include "components/physics.hpp"
@@ -88,7 +89,7 @@ void CreateLevel()
 	//activeLevel = std::make_unique<Levels::Windmill>();
 	//activeLevel = std::make_unique<Levels::SquareRace>();
 
-	activeLevel = std::make_unique<Levels::RaceEditor>();
+	//activeLevel = std::make_unique<Levels::RaceEditor>();
 
 	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
@@ -99,11 +100,12 @@ void CreateLevel()
 	//activeLevel = std::make_unique<Levels::Rim>();
 	//activeLevel = std::make_unique<Levels::RaceBase>();
 	//activeLevel = std::make_unique<Levels::SplineTest>();
+	activeLevel = std::make_unique<Levels::Collisions>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }
 
-void Initialize()
+void Init()
 {
 	if (console) Tools::RedirectIOToConsole({ 4000, 10 });
 	Tools::RandomInit();
@@ -114,7 +116,10 @@ void Initialize()
 	Globals::InitializeShaders();
 	Globals::InitializeComponents();
 	Globals::InitializeSystems();
+}
 
+void PostInit()
+{
 	CreateLevel();
 
 	Globals::Systems().textures().postInit();
@@ -161,6 +166,7 @@ void SetDCPixelFormat(HDC hDC);
 static std::array<bool, 256> keys;
 static bool quit;
 static bool focus;
+static int init = 0;
 static HDC hDC;
 
 LRESULT CALLBACK WndProc(
@@ -188,9 +194,9 @@ LRESULT CALLBACK WndProc(
 			wglMakeCurrent(hDC, hRC);
 			try
 			{
-				Initialize();
+				Init();
 			}
-			catch (const std::runtime_error & error)
+			catch (const std::runtime_error& error)
 			{
 				MessageBox(nullptr, error.what(), "Runtime error",
 					MB_OK | MB_ICONEXCLAMATION);
@@ -206,8 +212,30 @@ LRESULT CALLBACK WndProc(
 			break;
 		case WM_SIZE:
 		{
+			if (fullScreen && init == 0) // Workaround for detecting initial, relevant WM_SIZE - in case of fullscreen, first one is messy.
+			{
+				++init;
+				break;
+			}
+
 			const glm::ivec2 size{ LOWORD(lParam), HIWORD(lParam) };
 			Globals::Systems().stateController().changeWindowSize(size);
+
+			if (init == 0 || init == 1)
+			{
+				try
+				{
+					PostInit();
+				}
+				catch (const std::runtime_error& error)
+				{
+					MessageBox(nullptr, error.what(), "Runtime error",
+						MB_OK | MB_ICONEXCLAMATION);
+					ExitProcess(0);
+				}
+				init = 2;
+			}
+
 			break;
 		}
 		case WM_MOVE:

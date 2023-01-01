@@ -24,13 +24,17 @@ namespace Systems
 		static_assert(maxTextureObjects <= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 		stbi_set_flip_vertically_on_load(true);
 		stbi_ldr_to_hdr_gamma(1.0f);
+
+		createTextureFramebuffers();
+
+		customTexturesOffset = Globals::Components().textures().size();
 	}
 
 	void Textures::postInit()
 	{
 		assert(Globals::Components().textures().size() <= maxTextureObjects);
 
-		for (unsigned i = 0; i < Globals::Components().textures().size(); ++i)
+		for (unsigned i = customTexturesOffset; i < Globals::Components().textures().size(); ++i)
 		{
 			auto& texture = Globals::Components().textures()[i];
 
@@ -41,8 +45,6 @@ namespace Systems
 				texture.state = ComponentState::Ongoing;
 			}
 		}
-
-		createTextureFramebuffers();
 	}
 
 	void Textures::loadAndConfigureTexture(Components::Texture& texture)

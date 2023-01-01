@@ -4,7 +4,7 @@
 #include <components/physics.hpp>
 #include <components/renderingSetup.hpp>
 #include <components/plane.hpp>
-#include <components/staticWall.hpp>
+#include <components/wall.hpp>
 #include <components/grapple.hpp>
 #include <components/camera.hpp>
 #include <components/decoration.hpp>

@@ -74,6 +74,6 @@ namespace Systems
 			return;
 
 		physics.simulationDuration += physics.frameDuration;
-		physics.world->Step(physics.frameDuration, 3, 8);
+		physics.world->Step(physics.frameDuration, physics.velocityIterationsPerStep, physics.positionIterationsPerStep);
 	}
 }

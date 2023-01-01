@@ -92,6 +92,9 @@
     <Filter Include="src\levels\raceEditor">
       <UniqueIdentifier>{f716f153-935a-4ad5-8571-126c422253dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\collisions">
+      <UniqueIdentifier>{1bcdbaf5-a21d-455e-9741-bb7922ec6b67}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -240,6 +243,15 @@
     </ClCompile>
     <ClCompile Include="levels\raceEditor\presets.cpp">
       <Filter>src\levels\raceEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\raceEditor\splinesEditing.cpp">
+      <Filter>src\levels\raceEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\raceEditor\startingLineEditing.cpp">
+      <Filter>src\levels\raceEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\collisions\collisions.cpp">
+      <Filter>src\levels\collisions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -489,12 +501,6 @@
     <ClInclude Include="commonTypes\componentId.hpp">
       <Filter>src\commonTypes</Filter>
     </ClInclude>
-    <ClInclude Include="components\dynamicWall.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="components\staticWall.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="components\music.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -513,12 +519,6 @@
     <ClInclude Include="tools\playersHandler.hpp">
       <Filter>src\tools</Filter>
     </ClInclude>
-    <ClInclude Include="components\staticPolyline.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="components\dynamicPolyline.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="levels\squareRace\squareRace.hpp">
       <Filter>src\levels\squareRace</Filter>
     </ClInclude>
@@ -533,6 +533,24 @@
     </ClInclude>
     <ClInclude Include="levels\raceEditor\raceEditor.hpp">
       <Filter>src\levels\raceEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\raceEditor\splinesEditing.hpp">
+      <Filter>src\levels\raceEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\raceEditor\common.hpp">
+      <Filter>src\levels\raceEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\raceEditor\startingLineEditing.hpp">
+      <Filter>src\levels\raceEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="components\wall.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\polyline.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\collisions\collisions.hpp">
+      <Filter>src\levels\collisions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

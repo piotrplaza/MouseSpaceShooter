@@ -57,7 +57,8 @@ namespace Tools
 		bodyDef.angle = bodyParams.angle_;
 		bodyDef.linearDamping = bodyParams.linearDamping_;
 		bodyDef.angularDamping = bodyParams.angularDamping_;
-		bodyDef.allowSleep = bodyParams.sleepingAllowed_;
+		bodyDef.allowSleep = bodyParams.autoSleeping_;
+		bodyDef.awake = !bodyParams.sleeping_;
 		bodyDef.bullet = bodyParams.bullet_;
 		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
 

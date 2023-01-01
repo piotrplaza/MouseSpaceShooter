@@ -192,8 +192,8 @@ namespace Tools
 				{
 					const float quakeIntensity = 0.001f * Globals::Components().shockwaves().size();
 					const glm::vec2 quakeIntensityXY = screenInfo.windowSize.x > screenInfo.windowSize.y
-						? glm::vec2(quakeIntensity, quakeIntensity * (float)screenInfo.windowSize.x / screenInfo.windowSize.y)
-						: glm::vec2(quakeIntensity * (float)screenInfo.windowSize.y / screenInfo.windowSize.x, quakeIntensity);
+						? glm::vec2(quakeIntensity, quakeIntensity * screenInfo.getAspectRatio())
+						: glm::vec2(quakeIntensity / screenInfo.getAspectRatio(), quakeIntensity);
 
 					const glm::vec3 p1 = { -1.0f - Tools::Random(0.0f, quakeIntensityXY.x), -1.0f - Tools::Random(0.0f, quakeIntensityXY.y), 0.0f };
 					const glm::vec3 p2 = { 1.0f + Tools::Random(0.0f, quakeIntensityXY.x), p1.y, 0.0f };
@@ -213,10 +213,10 @@ namespace Tools
 
 		return[&, angle = 0.0f](unsigned textureId) mutable
 		{
-			glm::mat4 vp = glm::perspective(glm::radians(28.0f), (float)screenInfo.windowSize.x / screenInfo.windowSize.y, 1.0f, 10.0f);
+			glm::mat4 vp = glm::perspective(glm::radians(28.0f), screenInfo.getAspectRatio(), 1.0f, 10.0f);
 			glm::mat4 model = glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -4.0f });
 			model = glm::rotate(model, angle, { 1.0f, 1.0f, 1.0f });
-			model = glm::scale(model, { (float)screenInfo.windowSize.x / screenInfo.windowSize.y, 1.0f, 1.0f });
+			model = glm::scale(model, { screenInfo.getAspectRatio(), 1.0f, 1.0f });
 
 			const float angleDelta = Globals::Components().physics().frameDuration * 2.0f;
 
@@ -242,8 +242,8 @@ namespace Tools
 				{
 					const float quakeIntensity = 0.001f * Globals::Components().shockwaves().size();
 					const glm::vec2 quakeIntensityXY = screenInfo.windowSize.x > screenInfo.windowSize.y
-						? glm::vec2(quakeIntensity, quakeIntensity * (float)screenInfo.windowSize.x / screenInfo.windowSize.y)
-						: glm::vec2(quakeIntensity * (float)screenInfo.windowSize.y / screenInfo.windowSize.x, quakeIntensity);
+						? glm::vec2(quakeIntensity, quakeIntensity * screenInfo.getAspectRatio())
+						: glm::vec2(quakeIntensity / screenInfo.getAspectRatio(), quakeIntensity);
 
 					const glm::vec3 p1 = { -1.0f - Tools::Random(0.0f, quakeIntensityXY.x), -1.0f - Tools::Random(0.0f, quakeIntensityXY.y), 0.0f };
 					const glm::vec3 p2 = { 1.0f + Tools::Random(0.0f, quakeIntensityXY.x), p1.y, 0.0f };

@@ -14,12 +14,12 @@ public:
 	using Container = std::deque<Component>;
 
 	template <typename ContainerIterator, typename Value>
-	class BaseIterator
+	class IteratorBase
 	{
 	public:
-		using Self = BaseIterator<ContainerIterator, Value>;
+		using Self = IteratorBase<ContainerIterator, Value>;
 
-		BaseIterator(ContainerIterator initIt) :
+		IteratorBase(ContainerIterator initIt) :
 			containerIt(initIt)
 		{
 		}
@@ -64,10 +64,10 @@ public:
 		typename ContainerIterator containerIt;
 	};
 
-	using iterator = BaseIterator<typename Container::iterator, Component>;
-	using const_iterator = BaseIterator<typename Container::const_iterator, const Component>;
-	using reverse_iterator = BaseIterator<typename Container::reverse_iterator, Component>;
-	using const_reverse_iterator = BaseIterator<typename Container::const_reverse_iterator, const Component>;
+	using iterator = IteratorBase<typename Container::iterator, Component>;
+	using const_iterator = IteratorBase<typename Container::const_iterator, const Component>;
+	using reverse_iterator = IteratorBase<typename Container::reverse_iterator, Component>;
+	using const_reverse_iterator = IteratorBase<typename Container::const_reverse_iterator, const Component>;
 
 	Component& operator [](ComponentId id)
 	{
@@ -125,7 +125,7 @@ public:
 	{
 		components.push_back(component);
 		last_ = &components.back();
-		last_->setComponentId(components.size() - 1);
+		last_->init(components.size() - 1);
 		return *last_;
 	}
 
@@ -133,7 +133,7 @@ public:
 	Component& emplace(Params&&... params)
 	{
 		last_ = &components.emplace_back(std::forward<Params>(params)...);
-		last_->setComponentId(components.size() - 1);
+		last_->init(components.size() - 1);
 		return *last_;
 	}
 
@@ -258,7 +258,7 @@ public:
 		auto it = components.insert({ id, component });
 		assert(it.second);
 		last_ = &it.first->second;
-		last_->setComponentId(id);
+		last_->init(id);
 		return *last_;
 	}
 
@@ -269,7 +269,7 @@ public:
 		auto it = components.try_emplace(id, std::forward<Params>(params)...);
 		assert(it.second);
 		last_ = &it.first->second;
-		last_->setComponentId(id);
+		last_->init(id);
 		return *last_;
 	}
 

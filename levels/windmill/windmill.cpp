@@ -6,9 +6,9 @@
 #include <components/plane.hpp>
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
-#include <components/staticWall.hpp>
+#include <components/wall.hpp>
 #include <components/grapple.hpp>
-#include <components/dynamicPolyline.hpp>
+#include <components/polyline.hpp>
 #include <components/decoration.hpp>
 #include <components/renderingSetup.hpp>
 #include <components/physics.hpp>

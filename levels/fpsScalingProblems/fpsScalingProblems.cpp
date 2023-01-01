@@ -1,6 +1,6 @@
 #include "fpsScalingProblems.hpp"
 
-#include <components/staticWall.hpp>
+#include <components/wall.hpp>
 #include <components/physics.hpp>
 
 #include <globals/components.hpp>

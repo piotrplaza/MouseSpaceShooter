@@ -1,19 +1,15 @@
 #include "basic.hpp"
 
 #include <components/graphicsSettings.hpp>
-#include <components/mainFramebufferRenderer.hpp>
-#include <components/camera.hpp>
 #include <components/plane.hpp>
-#include <components/mouse.hpp>
-#include <components/gamepad.hpp>
-#include <components/staticWall.hpp>
+#include <components/wall.hpp>
+#include <components/texture.hpp>
+#include <components/animatedTexture.hpp>
 
 #include <globals/components.hpp>
 
-#include <ogl/renderingHelpers.hpp>
 #include <ogl/shaders/textured.hpp>
 
-#include <tools/gameHelpers.hpp>
 #include <tools/playersHandler.hpp>
 
 #include <iostream>

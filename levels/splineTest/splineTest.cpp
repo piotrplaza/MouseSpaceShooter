@@ -55,7 +55,7 @@ namespace Levels
 			const auto& mouse = Globals::Components().mouse();
 			const auto& keyboard = Globals::Components().keyboard();
 			const auto& screenInfo = Globals::Components().screenInfo();
-			const float screenRatio = (float)screenInfo.windowSize.x / screenInfo.windowSize.y;
+			const float screenRatio = screenInfo.getAspectRatio();
 			const glm::vec2 oldMousePos = mousePos;
 
 			auto& dynamicDecorations = Globals::Components().dynamicDecorations();

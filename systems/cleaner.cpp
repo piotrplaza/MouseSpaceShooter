@@ -2,9 +2,9 @@
 
 #include <components/sound.hpp>
 #include <components/plane.hpp>
-#include <components/dynamicWall.hpp>
+#include <components/wall.hpp>
 #include <components/grapple.hpp>
-#include <components/dynamicPolyline.hpp>
+#include <components/polyline.hpp>
 #include <components/decoration.hpp>
 #include <components/missile.hpp>
 #include <components/collisionFilter.hpp>

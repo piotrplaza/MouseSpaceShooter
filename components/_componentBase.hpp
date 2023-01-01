@@ -28,7 +28,7 @@ struct ComponentBase
 	ComponentBase() = default;
 #endif
 
-	virtual void setComponentId(ComponentId id)
+	virtual void init(ComponentId id)
 	{
 		componentId = id;
 	}

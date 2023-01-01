@@ -108,9 +108,15 @@ namespace Tools
 			return *this;
 		}
 
-		BodyParams& sleepingAllowed(bool value)
+		BodyParams& autoSleeping(bool value)
 		{
-			sleepingAllowed_ = value;
+			autoSleeping_ = value;
+			return *this;
+		}
+
+		BodyParams& sleeping(bool value)
+		{
+			sleeping_ = value;
 			return *this;
 		}
 
@@ -130,7 +136,8 @@ namespace Tools
 		float angularDamping_ = 0.0f;
 		uint16 categoryBits_ = Globals::CollisionBits::wall;
 		bool sensor_ = false;
-		bool sleepingAllowed_ = false;
+		bool autoSleeping_ = false;
+		bool sleeping_ = false;
 		bool bullet_ = false;
 	};
 
