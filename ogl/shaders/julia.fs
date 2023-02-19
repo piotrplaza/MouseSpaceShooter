@@ -9,9 +9,9 @@ uniform vec4 minColor;
 uniform vec4 maxColor;
 
 const int iterations = 200;
-const uniform float zoom = 1.0;
-const uniform vec2 translation = vec2(0.0, 0.0);
-const uniform vec2 juliaC = vec2(-0.1, 0.65);
+uniform float zoom = 1.0;
+uniform vec2 translation = vec2(0.0, 0.0);
+uniform vec2 juliaC = vec2(-0.1, 0.65);
 
 vec2 complexAdd(vec2 c1, vec2 c2)
 {
