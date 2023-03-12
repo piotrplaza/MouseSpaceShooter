@@ -10,7 +10,6 @@
 #include <tools/b2Helpers.hpp>
 
 #include <glm/vec4.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
 #include <numeric>
@@ -20,6 +19,7 @@ namespace
 {
 	constexpr glm::vec4 controlPointColor(0.0f, 1.0f, 0.0f, 1.0f);
 	constexpr glm::vec4 startingLineColor(1.0f, 0.0f, 0.0f, 1.0f);
+	constexpr glm::vec4 startingPositionLineColor(0.4f, 0.4f, 0.4f, 1.0f);
 	constexpr glm::vec4 startingLineEndsColor(1.0f, 0.0f, 0.0f, 1.0f);
 	constexpr glm::vec4 arrowColor(0.4f, 0.4f, 0.4f, 1.0f);
 	constexpr float controlPointRadius = 0.75f;
@@ -43,6 +43,17 @@ namespace Levels
 		startingLine.drawMode = GL_LINES;
 		startingLine.renderLayer = RenderLayer::FarMidground;
 		startingLineId = startingLine.getComponentId();
+
+		auto& startingPositionLine = dynamicDecorations.emplace();
+		startingPositionLine.renderF = [&]() { return controlPoints.size() == 2 && this->ongoing(); };
+		startingPositionLine.colorF = []() { return startingPositionLineColor; };
+		startingPositionLine.modelMatrixF = [&]() {
+			const glm::vec2 v = glm::rotate(glm::normalize(controlPoints.back().pos - controlPoints.front().pos), -glm::half_pi<float>());
+			return glm::translate(glm::mat4(1.0f), glm::vec3(v * startingPositionLineDistance, 0.0f));
+		};
+		startingPositionLine.drawMode = GL_LINES;
+		startingPositionLine.renderLayer = RenderLayer::FarMidground;
+		startingPositionLineId = startingPositionLine.getComponentId();
 
 		auto& arrow = dynamicDecorations.emplace(std::vector<glm::vec3>{
 			{0.0f, 0.0f, 0.0f}, { 2.0f, 0.0f, 0.0f },
@@ -186,6 +197,11 @@ namespace Levels
 			}
 		};
 
+		auto changeStartingPositionLineDistance = [&]() {
+			startingPositionLineDistance += mouse.pressed.wheel * 2.0f;
+			startingPositionLineDistance = std::clamp(startingPositionLineDistance, 0.0f, 100.0f);
+		};
+
 		if (keyboard.pressed['E'])
 			controlPointsEnds = !controlPointsEnds;
 
@@ -199,11 +215,14 @@ namespace Levels
 		else
 			cameraMoving = false;
 
-		if (keyboard.pressing[/*VK_SHIFT*/0x10])
+		if (keyboard.pressing[/*VK_MENU*/0x12])
 			changeStartingLineEndsRadius();
 
 		if (keyboard.pressing[/*VK_CONTROL*/0x11] && mouse.pressed.wheel)
 			scaleStartingLine();
+
+		if (keyboard.pressing[/*VK_SHIFT*/0x10] && mouse.pressed.wheel)
+			changeStartingPositionLineDistance();
 	}
 
 	void StartingLineEditing::update() const
@@ -214,9 +233,26 @@ namespace Levels
 		for (auto& controlPoint : controlPoints)
 			startingLine.vertices.emplace_back(controlPoint.pos, 0.0f);
 		startingLine.state = ComponentState::Changed;
+
+		auto& startingPositionLine = Globals::Components().dynamicDecorations()[startingPositionLineId];
+		startingPositionLine.vertices = startingLine.vertices;
+		startingPositionLine.state = ComponentState::Changed;
 	}
 
 	void StartingLineEditing::generateCode(std::ofstream& fs) const
 	{
+	}
+
+	std::array<glm::vec2, 2> StartingLineEditing::getStartingLineEnds() const
+	{
+		if (controlPoints.size() < 2)
+			return {};
+
+		return { controlPoints.front().pos, controlPoints.back().pos };
+	}
+
+	float StartingLineEditing::getStartingPositionLineDistance() const
+	{
+		return startingPositionLineDistance;
 	}
 }
