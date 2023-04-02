@@ -39,25 +39,25 @@ struct Physical : Renderable
 			: Tools::GetVertices(*body);
 	}
 
-	glm::vec2 getCenter() const override
-	{
-		return ToVec2<glm::vec2>(body->GetWorldCenter());
-	}
-
 	void enable(bool value) override
 	{
 		Renderable::enable(value);
 		body->SetEnabled(value);
 	}
 
+	glm::vec2 getPosition() const override
+	{
+		return ToVec2<glm::vec2>(body->GetPosition());
+	}
+
+	virtual glm::vec2 getCenter() const
+	{
+		return ToVec2<glm::vec2>(body->GetWorldCenter());
+	}
+
 	virtual void setPosition(const glm::vec2& position)
 	{
 		body->SetTransform({ position.x, position.y }, body->GetAngle());
-	}
-
-	virtual glm::vec2 getPosition() const
-	{
-		return ToVec2<glm::vec2>(body->GetPosition());
 	}
 
 	virtual void setAngle(float angle)

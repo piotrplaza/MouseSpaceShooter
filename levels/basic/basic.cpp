@@ -25,10 +25,10 @@ namespace Levels
 			Globals::Components().graphicsSettings().defaultColor = { 0.7f, 0.7f, 0.7f, 1.0f };
 
 			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
-				[this](unsigned player, unsigned numOfPlayers) {
+				[this](unsigned playerId, unsigned numOfPlayers) {
 					const float gap = 5.0f;
 					const float farPlayersDistance = gap * (numOfPlayers - 1);
-					return glm::vec3(-10.0f, -farPlayersDistance / 2.0f + gap * player, 0.0f);
+					return glm::vec3(-10.0f, -farPlayersDistance / 2.0f + gap * playerId, 0.0f);
 				});
 
 			for (const auto& plane : Globals::Components().planes())

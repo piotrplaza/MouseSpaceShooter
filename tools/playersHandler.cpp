@@ -76,7 +76,7 @@ namespace Tools
 	}
 
 	void PlayersHandler::initPlayers(const std::array<unsigned, 4>& planeTexturesForPlayers, const std::array<unsigned, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
-		std::function<glm::vec3(unsigned player, unsigned numOfPlayers)> initLocF, std::optional<ComponentId> thrustSoundBuffer, std::optional<ComponentId> grappleSoundBuffer)
+		std::function<glm::vec3(unsigned playerId, unsigned numOfPlayers)> initLocF, bool centerToFront, std::optional<ComponentId> thrustSoundBuffer, std::optional<ComponentId> grappleSoundBuffer)
 	{
 		const auto& gamepads = Globals::Components().gamepads();
 		auto& planes = Globals::Components().planes();
@@ -117,6 +117,12 @@ namespace Tools
 			ComponentId planeId = CreatePresettedPlane(i, planeTextures[i], flameAnimatedTexturesForPlayers[i], initLoc);
 			playersHandlers.emplace_back(planeId, i == 0 && !gamepadForPlayer1 || activeGamepads.empty() ? std::nullopt : std::optional(activeGamepads[activeGamepadId++]),
 				0.0f, CreateSound(thrustSoundBuffer, planeId), 0.0f, CreateSound(grappleSoundBuffer, planeId), 0.0f);
+
+			if (centerToFront)
+			{
+				auto& plane = planes[planeId];
+				plane.setPosition(plane.getPosition() - glm::vec2(std::cos(plane.getAngle()), std::sin(plane.getAngle())) * plane.getHorizontalOffsets()[1]);
+			}
 		}
 	}
 

@@ -102,9 +102,9 @@ namespace Levels
 		void reset()
 		{
 			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
-				[this](unsigned player, auto) {
+				[this](auto, auto) {
 					return glm::vec3(0.0f);
-				}, thrustSoundBuffer, grappleSoundBuffer);
+				}, true, thrustSoundBuffer, grappleSoundBuffer);
 		}
 
 	private:

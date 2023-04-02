@@ -87,9 +87,9 @@ void OGLInitialize()
 void CreateLevel()
 {
 	//activeLevel = std::make_unique<Levels::Windmill>();
-	//activeLevel = std::make_unique<Levels::SquareRace>();
+	activeLevel = std::make_unique<Levels::SquareRace>();
 
-	activeLevel = std::make_unique<Levels::RaceEditor>();
+	//activeLevel = std::make_unique<Levels::RaceEditor>();
 
 	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();

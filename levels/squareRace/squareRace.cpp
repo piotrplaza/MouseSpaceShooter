@@ -228,9 +228,9 @@ namespace Levels
 			Globals::MarkDynamicComponentsAsDirty();
 
 			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
-				[this](unsigned player, auto) {
-					return glm::vec3(110.0f + player * 5.0f, 3.0f, glm::half_pi<float>());
-				}, thrustSoundBuffer, grappleSoundBuffer);
+				[this](unsigned playerId, auto) {
+					return glm::vec3(110.0f + playerId * 5.0f, 3.0f, glm::half_pi<float>());
+				}, false, thrustSoundBuffer, grappleSoundBuffer);
 
 			collisionHandlers();
 

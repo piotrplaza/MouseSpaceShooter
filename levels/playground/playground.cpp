@@ -556,11 +556,11 @@ namespace Levels
 		void initHandlers()
 		{
 			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
-				[](unsigned player, unsigned numOfPlayers) {
+				[](unsigned playerId, unsigned numOfPlayers) {
 					const float gap = 5.0f;
 					const float farPlayersDistance = gap * (numOfPlayers - 1);
-					return glm::vec3(-10.0f, -farPlayersDistance / 2.0f + gap * player, 0.0f);
-				}, thrustSoundBuffer, grappleSoundBuffer);
+					return glm::vec3(-10.0f, -farPlayersDistance / 2.0f + gap * playerId, 0.0f);
+				}, false, thrustSoundBuffer, grappleSoundBuffer);
 
 			missilesHandler.initCollisions();
 			missilesHandler.setPlayersHandler(playersHandler);

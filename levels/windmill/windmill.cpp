@@ -393,9 +393,9 @@ namespace Levels
 			windmill.body->SetTransform({ 0.0f, 0.0f }, 0.0f);
 
 			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
-				[this](unsigned player, auto) {
-					return initLoc(player);
-				}, thrustSoundBuffer, grappleSoundBuffer);
+				[this](unsigned playerId, auto) {
+					return initLoc(playerId);
+				}, false, thrustSoundBuffer, grappleSoundBuffer);
 
 			missilesHandler.initCollisions();
 
@@ -405,11 +405,11 @@ namespace Levels
 		}
 
 	private:
-		glm::vec3 initLoc(unsigned player)
+		glm::vec3 initLoc(unsigned playerId)
 		{
 			const float axesDistance = 20.0f;
-			return glm::vec3(player == 0 || player == 3 ? axesDistance : -axesDistance, player == 0 || player == 1 ? axesDistance : -axesDistance,
-				player * glm::half_pi<float>() + glm::quarter_pi<float>());
+			return glm::vec3(playerId == 0 || playerId == 3 ? axesDistance : -axesDistance, playerId == 0 || playerId == 1 ? axesDistance : -axesDistance,
+				playerId * glm::half_pi<float>() + glm::quarter_pi<float>());
 		}
 
 		void windmillRotation()

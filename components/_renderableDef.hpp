@@ -98,7 +98,7 @@ struct RenderableDef
 		}
 	}
 
-	virtual glm::vec2 getCenter() const
+	virtual glm::vec2 getPosition() const
 	{
 		return getModelMatrix() * glm::vec4(0.0f);
 	}

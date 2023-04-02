@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 
 #include <optional>
+#include <limits>
 
 namespace Components
 {
@@ -70,6 +71,28 @@ namespace Components
 			}();
 
 			body->ApplyForce(ToVec2<b2Vec2>(planeDirection * details.throttleForce), body->GetWorldCenter(), true);
+		}
+
+		glm::vec2 getHorizontalOffsets() const
+		{
+			glm::vec2 results(std::numeric_limits<float>::max(), std::numeric_limits<float>::lowest());
+			for (const auto& vertex : Tools::GetVertices(*body))
+			{
+				results[0] = std::min(results[0], vertex.x);
+				results[1] = std::max(results[1], vertex.x);
+			}
+			return results;
+		}
+
+		glm::vec2 getVerticalOffsets() const
+		{
+			glm::vec2 results(std::numeric_limits<float>::max(), std::numeric_limits<float>::lowest());
+			for (const auto& vertex : Tools::GetVertices(*body))
+			{
+				results[0] = std::min(results[0], vertex.y);
+				results[1] = std::max(results[1], vertex.y);
+			}
+			return results;
 		}
 	};
 }

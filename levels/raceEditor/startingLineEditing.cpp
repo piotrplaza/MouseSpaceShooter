@@ -243,7 +243,7 @@ namespace Levels
 	{
 	}
 
-	std::array<glm::vec2, 2> StartingLineEditing::getStartingLineEnds() const
+	std::vector<glm::vec2> StartingLineEditing::getStartingLineEnds() const
 	{
 		if (controlPoints.size() < 2)
 			return {};

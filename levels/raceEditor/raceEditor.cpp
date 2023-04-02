@@ -113,18 +113,19 @@ namespace Levels
 			playersHandler = Tools::PlayersHandler();
 			playersHandler->setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 10.0f; }).scalingFactor(0.7f));
 			playersHandler->initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
-				[&](unsigned player, unsigned numOfPlayers) {
+				[&](unsigned playerId, unsigned numOfPlayers) {
 					const auto startingLineEnds = startingLineEditing.getStartingLineEnds();
 					if (!startingLine || startingLineEnds.empty())
 						return glm::vec3(mousePos, 0.0f);
 
 					const glm::vec2 startingLineEndsVector = startingLineEnds[1] - startingLineEnds[0];
 					const float startingLineLength = glm::length(startingLineEndsVector);
-					const float playerPositionOnStartingLine = startingLineLength * (player + 1) / (numOfPlayers + 1);
+					const float playerPositionOnStartingLine = startingLineLength * (playerId + 1) / (numOfPlayers + 1);
 					const glm::vec2 playerPositionOnStartingLine2D = startingLineEnds[0] + startingLineEndsVector * playerPositionOnStartingLine / startingLineLength;
 					const glm::vec2 ntv = glm::rotate(glm::normalize(startingLineEndsVector), -glm::half_pi<float>());
-					return glm::vec3(playerPositionOnStartingLine2D + ntv * startingLineEditing.getStartingPositionLineDistance(), glm::orientedAngle({ -1.0f, 0.0f }, ntv));
-				});
+					return glm::vec3(playerPositionOnStartingLine2D + ntv * startingLineEditing.getStartingPositionLineDistance(),
+						glm::orientedAngle({ -1.0f, 0.0f }, ntv));
+				}, startingLine);
 		}
 
 		void step()

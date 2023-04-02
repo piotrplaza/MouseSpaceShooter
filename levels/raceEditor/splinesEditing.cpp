@@ -22,6 +22,7 @@ namespace
 	constexpr glm::vec4 activeControlPointColor(0.0f, 1.0f, 0.0f, 1.0f);
 	constexpr glm::vec4 inactiveControlPointColor = activeControlPointColor * 0.5f;
 	constexpr float controlPointRadius = 0.75f;
+	constexpr int controlPointComplexity = 20;
 	constexpr float scalingFactor = 0.05f;
 }
 
@@ -59,7 +60,7 @@ namespace Levels
 
 			auto& controlPoints = splineDecorationIdToSplineDef[*activeSplineDecorationId].controlPoints;
 
-			dynamicDecorations.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointRadius, 20));
+			dynamicDecorations.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointRadius, controlPointComplexity));
 			dynamicDecorations.last().colorF = [&, id = *activeSplineDecorationId]() {
 				return (activeSplineDecorationId && id == *activeSplineDecorationId)
 					? activeControlPointColor
@@ -169,6 +170,37 @@ namespace Levels
 			activeSplineDecorationId = std::nullopt;
 		};
 
+		auto copy = [&]() {
+			auto& sourceSplineDecoration = Globals::Components().dynamicDecorations()[*activeSplineDecorationId];
+			auto& targetSplineDecoration = Globals::Components().dynamicDecorations().emplace();
+			targetSplineDecoration.colorF = [&, id = targetSplineDecoration.getComponentId()]() {
+				return (activeSplineDecorationId && id == *activeSplineDecorationId) || !ongoing()
+					? activeSplineColor
+					: inactiveSplineColor;
+			};
+			targetSplineDecoration.drawMode = GL_LINE_STRIP;
+			targetSplineDecoration.renderLayer = RenderLayer::FarMidground;
+			splineDecorationIdToSplineDef[targetSplineDecoration.getComponentId()] =
+				splineDecorationIdToSplineDef[sourceSplineDecoration.getComponentId()];
+			for (auto& controlPoint : splineDecorationIdToSplineDef[targetSplineDecoration.getComponentId()].controlPoints)
+			{
+				auto& controlPointDecoration = dynamicDecorations.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointRadius,
+					controlPointComplexity));
+				controlPoint.decorationId = controlPointDecoration.getComponentId();
+				controlPointDecoration.colorF = [&, id = targetSplineDecoration.getComponentId()]() {
+					return (activeSplineDecorationId && id == *activeSplineDecorationId)
+						? activeControlPointColor
+						: inactiveControlPointColor;
+				};
+				controlPointDecoration.modelMatrixF = [&, &pos = controlPoint.pos]() {
+					return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), glm::vec3(zoomScale));
+				};
+				controlPointDecoration.renderF = ongoing;
+				controlPointDecoration.renderLayer = RenderLayer::NearMidground;
+			}
+			
+		};
+
 		auto delete_ = [&]() {
 			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
 
@@ -219,6 +251,9 @@ namespace Levels
 
 			if (keyboard.pressed['D'])
 				deactivate();
+
+			if (keyboard.pressed['C'])
+				copy();
 
 			if (keyboard.pressed[/*VK_DELETE*/0x2E])
 				delete_();

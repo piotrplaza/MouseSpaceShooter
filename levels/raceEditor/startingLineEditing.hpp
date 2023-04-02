@@ -22,7 +22,7 @@ namespace Levels
 
 		void generateCode(std::ofstream& fs) const;
 
-		std::array<glm::vec2, 2> getStartingLineEnds() const;
+		std::vector<glm::vec2> getStartingLineEnds() const;
 		float getStartingPositionLineDistance() const;
 
 	private:

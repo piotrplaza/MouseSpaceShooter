@@ -69,7 +69,7 @@ namespace Tools
 		~PlayersHandler();
 
 		void initPlayers(const std::array<unsigned, 4>& planeTexturesForPlayers, const std::array<unsigned, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
-			std::function<glm::vec3(unsigned player, unsigned numOfPlayers)> initLocF, std::optional<ComponentId> thrustSoundBuffer = std::nullopt,
+			std::function<glm::vec3(unsigned playerId, unsigned numOfPlayers)> initLocF, bool centerToFront = false, std::optional<ComponentId> thrustSoundBuffer = std::nullopt,
 			std::optional<ComponentId> grappleSoundBuffer = std::nullopt);
 		void setCamera(CameraParams cameraParams) const;
 
