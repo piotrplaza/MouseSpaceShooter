@@ -24,6 +24,16 @@
 #include <tools/playersHandler.hpp>
 #include <tools/b2Helpers.hpp>
 
+#include <glm/gtx/vector_angle.hpp>
+
+#include <unordered_map>
+#include <unordered_set>
+
+namespace
+{
+	unsigned circuitsToEliminate = 1;
+}
+
 namespace Levels
 {
 	class SquareRace::Impl
@@ -111,10 +121,10 @@ namespace Levels
 			{
 				auto& staticWalls = Globals::Components().staticWalls();
 
-				auto& squareWall = staticWalls.emplace(Tools::CreateBoxBody({ 100.0f, 100.0f }), TCM::Texture(cityTexture));
-				squareWall.texCoord = Tools::CreateTexCoordOfRectangle();
+				staticWalls.emplace(Tools::CreateBoxBody({ 100.0f, 100.0f }), TCM::Texture(cityTexture));
+				staticWalls.last().texCoord = Tools::CreateTexCoordOfRectangle();
 
-				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({160.0f, 0.0f})), TCM::Texture(orbTexture));
+				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 160.0f, 0.0f })), TCM::Texture(orbTexture));
 				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 100.0f, 0.0f })), TCM::Texture(orbTexture));
 			}
 
@@ -158,15 +168,20 @@ namespace Levels
 
 		void collisionHandlers()
 		{
-			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline, [this](const auto& plane, const auto& polyline) {
-				Globals::Components().deferredActions().emplace([&](auto) {
+			auto collisionsStarted = std::make_shared<std::unordered_map<ComponentId, int>>();
+			auto collisionsBlocked = std::make_shared<std::unordered_set<ComponentId>>();
+			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline, [this, collisionsStarted, collisionsBlocked](const auto& plane, const auto& polyline) {
+				Globals::Components().deferredActions().emplace([&, collisionsStarted, collisionsBlocked](auto) {
+					auto& planeComponent = Tools::AccessComponent<TCM::Plane>(plane);
+					const auto& polylineComponent = Tools::AccessComponent<TCM::StaticPolyline>(polyline);
+
+					if ((*collisionsStarted)[planeComponent.getComponentId()]++ > 0)
+						return false;
+
 					auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
 
 					if (activePlayersHandlers.size() == 1)
 						return false;
-
-					auto& planeComponent = Tools::AccessComponent<TCM::Plane>(plane);
-					const auto& polylineComponent = Tools::AccessComponent<TCM::StaticPolyline>(polyline);
 
 					if (polylineComponent.getComponentId() != finishStaticPolyline || planeComponent.getVelocity().y < 0.0f)
 					{
@@ -174,10 +189,19 @@ namespace Levels
 						return false;
 					}
 
+					const glm::vec2 polylineVec = glm::normalize(polylineComponent.getVertices()[1] - polylineComponent.getVertices()[0]);
+					const glm::vec2 planePrevVec = glm::normalize(planeComponent.details.previousCenter - glm::vec2(polylineComponent.getVertices()[0]));
+
+					if (glm::orientedAngle(polylineVec, planePrevVec) < 0.0f)
+						return false;
+
+					if (!collisionsBlocked->insert(planeComponent.getComponentId()).second)
+						return false;
+
 					const unsigned newCircuits = ++playersToCircuits[planeComponent.getComponentId()];
 					maxCircuits = std::max(maxCircuits, newCircuits);
 
-					if (maxCircuits > 0)
+					if (maxCircuits > circuitsToEliminate)
 					{
 						unsigned numOfWorsePlayers = 0;
 						unsigned worsePlayerId = 0;
@@ -197,6 +221,25 @@ namespace Levels
 						if (numOfWorsePlayers == 1)
 							destroyPlane(Globals::Components().planes()[worsePlayerId]);
 					}
+					return false;
+				});
+			});
+
+			Globals::Components().endCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline, [this, collisionsStarted, collisionsBlocked](const auto& plane, auto& polyline) {
+				Globals::Components().deferredActions().emplace([&, collisionsStarted, collisionsBlocked](auto) {
+					const auto& planeComponent = Tools::AccessComponent<TCM::Plane>(plane);
+					const auto& polylineComponent = Tools::AccessComponent<TCM::StaticPolyline>(polyline);
+					const glm::vec2 polylineVec = glm::normalize(polylineComponent.getVertices()[1] - polylineComponent.getVertices()[0]);
+					const glm::vec2 planeVec = glm::normalize(planeComponent.getCenter() - glm::vec2(polylineComponent.getVertices()[0]));
+
+					if (--(*collisionsStarted)[planeComponent.getComponentId()] > 0)
+						return false;
+
+					if (glm::orientedAngle(polylineVec, planeVec) > 0.0f)
+						return false;
+
+					collisionsBlocked->erase(planeComponent.getComponentId());
+
 					return false;
 				});
 			});
@@ -229,8 +272,8 @@ namespace Levels
 
 			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
 				[this](unsigned playerId, auto) {
-					return glm::vec3(110.0f + playerId * 5.0f, 3.0f, glm::half_pi<float>());
-				}, false, thrustSoundBuffer, grappleSoundBuffer);
+					return glm::vec3(110.0f + playerId * 5.0f, -0.1f, glm::half_pi<float>());
+				}, true, thrustSoundBuffer, grappleSoundBuffer);
 
 			collisionHandlers();
 
