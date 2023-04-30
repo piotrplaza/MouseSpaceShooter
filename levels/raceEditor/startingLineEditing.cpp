@@ -177,9 +177,6 @@ namespace Levels
 		};
 
 		auto changeStartingLineEndsRadius = [&]() {
-			if (!mouse.pressed.wheel)
-				return;
-
 			startingLineEndsRadius = std::clamp(startingLineEndsRadius + mouse.pressed.wheel * 0.2f, 0.2f, 5.0f);
 			auto& dynamicWalls = Globals::Components().dynamicWalls();
 			for (auto wallId : startingLineEnds)
@@ -202,8 +199,16 @@ namespace Levels
 			startingPositionLineDistance = std::clamp(startingPositionLineDistance, 0.0f, 100.0f);
 		};
 
+		auto reverse = [&]() {
+			std::reverse(controlPoints.begin(), controlPoints.end());
+			std::reverse(startingLineEnds.begin(), startingLineEnds.end());
+		};
+
 		if (keyboard.pressed['E'])
 			controlPointsEnds = !controlPointsEnds;
+
+		if (keyboard.pressed['R'])
+			reverse();
 
 		if (mouse.pressing.lmb)
 			addOrMoveControlPoint();
@@ -215,7 +220,7 @@ namespace Levels
 		else
 			cameraMoving = false;
 
-		if (keyboard.pressing[/*VK_MENU*/0x12])
+		if (keyboard.pressing[/*VK_SPACE*/' '] && mouse.pressed.wheel)
 			changeStartingLineEndsRadius();
 
 		if (keyboard.pressing[/*VK_CONTROL*/0x11] && mouse.pressed.wheel)
@@ -241,6 +246,18 @@ namespace Levels
 
 	void StartingLineEditing::generateCode(std::ofstream& fs) const
 	{
+		fs << "inline void CreateStartingLine(ComponentId& startingLineId)\n";
+		fs << "{\n";
+		if (controlPoints.size() == 2)
+		{
+			const auto p1 = controlPoints.front().pos;
+			const auto p2 = controlPoints.back().pos;
+			fs << "	auto& startingLine = Globals::Components().staticPolylines().emplace(std::vector<glm::vec2>{ { " << p1.x << ", " << p1.y << " }, { " << p2.x << ", " <<  p2.y << " } }, Tools::BodyParams().sensor(true));\n";
+			fs << "	startingLine.colorF = []() { return glm::vec4(0.0f, 0.0f, 1.0f, 1.0f); };\n";
+			fs << "	startingLineId = startingLine.getComponentId();\n";
+		}
+		fs << "}\n";
+		fs << "\n";
 	}
 
 	std::vector<glm::vec2> StartingLineEditing::getStartingLineEnds() const

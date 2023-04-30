@@ -6,11 +6,11 @@
 
 namespace Levels
 {
-	class RaceBase: public Level
+	class Race: public Level
 	{
 	public:
-		RaceBase();
-		~RaceBase();
+		Race();
+		~Race();
 
 		void step() override;
 

@@ -1,4 +1,4 @@
-#include "squareRace.hpp"
+#include "race.hpp"
 
 #include <components/graphicsSettings.hpp>
 #include <components/mainFramebufferRenderer.hpp>
@@ -6,11 +6,9 @@
 #include <components/plane.hpp>
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
-#include <components/wall.hpp>
-#include <components/polyline.hpp>
 #include <components/soundBuffer.hpp>
 #include <components/sound.hpp>
-#include <components/music.hpp>
+#include <components/polyline.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/deferredAction.hpp>
 
@@ -22,12 +20,11 @@
 
 #include <tools/gameHelpers.hpp>
 #include <tools/playersHandler.hpp>
-#include <tools/b2Helpers.hpp>
+#include <tools/splines.hpp>
+
+#include "generatedCode.hpp"
 
 #include <glm/gtx/vector_angle.hpp>
-
-#include <unordered_map>
-#include <unordered_set>
 
 namespace
 {
@@ -36,7 +33,7 @@ namespace
 
 namespace Levels
 {
-	class SquareRace::Impl
+	class Race::Impl
 	{
 	public:
 		void setGraphicsSettings() const
@@ -79,25 +76,16 @@ namespace Levels
 
 			explosionTexture = textures.size();
 			textures.emplace("textures/explosion.png");
-
-			cityTexture = textures.size();
-			textures.emplace("textures/city.jpg");
-
-			orbTexture = textures.size();
-			textures.emplace("textures/orb.png");
-			textures.last().scale = glm::vec2(2.0f);
 		}
 
 		void loadAudio()
 		{
-			auto& musics = Globals::Components().musics();
-			musics.emplace("audio/Ghosthack-Ambient Beds_Daylight_Am 75Bpm (WET).ogg", 1.0f).play();
-
 			auto& soundsBuffers = Globals::Components().soundsBuffers();
+
 			thrustSoundBuffer = soundsBuffers.emplace("audio/thrust.wav", 0.2f).getComponentId();
 			grappleSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
-			collisionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
 			playerExplosionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack-AC21_Impact_Cracked.wav").getComponentId();
+			collisionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
 		}
 
 		void setAnimations()
@@ -116,64 +104,21 @@ namespace Levels
 			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 30.0f; }).scalingFactor(0.7f));
 		}
 
-		void createLevel()
+		void generatedCode()
 		{
-			{
-				auto& staticWalls = Globals::Components().staticWalls();
-
-				staticWalls.emplace(Tools::CreateBoxBody({ 100.0f, 100.0f }), TCM::Texture(cityTexture));
-				staticWalls.last().texCoord = Tools::CreateTexCoordOfRectangle();
-
-				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 160.0f, 0.0f })), TCM::Texture(orbTexture));
-				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 100.0f, 0.0f })), TCM::Texture(orbTexture));
-			}
-
-			{
-				auto& staticPolylines = Globals::Components().staticPolylines();
-
-				constexpr float outerRingR = 160.0f;
-				constexpr int numOfRingSegments = 200;
-				constexpr float ringStep = glm::two_pi<float>() / numOfRingSegments;
-
-				std::vector<glm::vec2> ringSegments;
-				ringSegments.reserve(numOfRingSegments);
-				for (int i = 0; i < numOfRingSegments; ++i)
-				{
-					ringSegments.emplace_back(glm::vec2(glm::cos(i * ringStep), glm::sin(i * ringStep)) * outerRingR);
-				}
-				ringSegments.push_back(ringSegments.front());
-				auto& outerRing = staticPolylines.emplace(ringSegments, Tools::BodyParams().sensor(true));
-				outerRing.segmentVerticesGenerator = [](const auto& v1, const auto& v2) { return Tools::CreateVerticesOfLightning(v1, v2, 20, 0.2f); };
-				outerRing.keyVerticesTransformer = [](std::vector<glm::vec3>& vertices) { Tools::VerticesDefaultRandomTranslate(vertices, true, 0.04f); };
-				outerRing.colorF = [this]() {
-					return (playersHandler.getActivePlayersHandlers().size() == 1
-						? glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
-						: glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)) * 0.8f;
-				};
-
-				auto& finishLine = staticPolylines.emplace(std::vector<glm::vec2>{ {100.0f, 0.0f}, {160.0f, 0.0f} }, Tools::BodyParams().sensor(true));
-				finishLine.colorF = []() { return glm::vec4(0.0f, 0.0f, 1.0f, 1.0f); };
-				finishStaticPolyline = finishLine.getComponentId();
-			}
+			GeneratedCode::CreateStartingLine(startingStaticPolyline);
+			GeneratedCode::CreateDeadlySplines(playersHandler, deadlySplines);
 		}
 
-		void destroyPlane(Components::Plane& plane)
+		void collisions()
 		{
-			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getCenter()).sourceVelocity(plane.getVelocity()).
-				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
-			Tools::PlaySingleSound(playerExplosionSoundBuffer, [pos = plane.getCenter()]() { return pos; });
-			plane.enable(false);
-			playersToCircuits.erase(plane.getComponentId());
-		}
-
-		void collisionHandlers()
-		{
-			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline, [this](const auto& plane, const auto& polyline) {
+			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline,
+			[this](const auto& plane, const auto& polyline) {
 				Globals::Components().deferredActions().emplace([&](auto) {
 					auto& planeComponent = Tools::AccessComponent<TCM::Plane>(plane);
 					const auto& polylineComponent = Tools::AccessComponent<TCM::StaticPolyline>(polyline);
 
-					if (polylineComponent.getComponentId() == finishStaticPolyline)
+					if (!deadlySplines.contains(polylineComponent.getComponentId()))
 						return false;
 
 					auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
@@ -185,16 +130,17 @@ namespace Levels
 
 					return false;
 					});
-				});
+			});
 
 			auto collisionsStarted = std::make_shared<std::unordered_map<ComponentId, int>>();
 			auto collisionsBlocked = std::make_shared<std::unordered_set<ComponentId>>();
+
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline, [this, collisionsStarted, collisionsBlocked](const auto& plane, const auto& polyline) {
 				Globals::Components().deferredActions().emplace([&, collisionsStarted, collisionsBlocked](auto) {
 					auto& planeComponent = Tools::AccessComponent<TCM::Plane>(plane);
 					const auto& polylineComponent = Tools::AccessComponent<TCM::StaticPolyline>(polyline);
 
-					if (polylineComponent.getComponentId() != finishStaticPolyline)
+					if (polylineComponent.getComponentId() != startingStaticPolyline)
 						return false;
 
 					auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
@@ -202,7 +148,10 @@ namespace Levels
 					if (activePlayersHandlers.size() < 2)
 						return false;
 
-					if (planeComponent.getVelocity().y < 0.0f)
+					const glm::vec2 polylineVec = glm::normalize(polylineComponent.getVertices()[1] - polylineComponent.getVertices()[0]);
+					const glm::vec2 planeVelocityVec = glm::normalize(planeComponent.getVelocity());
+
+					if (glm::orientedAngle(polylineVec, planeVelocityVec) > 0.0f)
 					{
 						destroyPlane(planeComponent);
 						return false;
@@ -211,7 +160,6 @@ namespace Levels
 					if ((*collisionsStarted)[planeComponent.getComponentId()]++ > 0)
 						return false;
 
-					const glm::vec2 polylineVec = glm::normalize(polylineComponent.getVertices()[1] - polylineComponent.getVertices()[0]);
 					const glm::vec2 planePrevVec = glm::normalize(planeComponent.details.previousCenter - glm::vec2(polylineComponent.getVertices()[0]));
 
 					if (glm::orientedAngle(polylineVec, planePrevVec) < 0.0f)
@@ -244,15 +192,15 @@ namespace Levels
 							destroyPlane(Globals::Components().planes()[worsePlayerId]);
 					}
 					return false;
+					});
 				});
-			});
 
 			Globals::Components().endCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline, [this, collisionsStarted, collisionsBlocked](const auto& plane, auto& polyline) {
 				Globals::Components().deferredActions().emplace([&, collisionsStarted, collisionsBlocked](auto) {
 					const auto& planeComponent = Tools::AccessComponent<TCM::Plane>(plane);
 					const auto& polylineComponent = Tools::AccessComponent<TCM::StaticPolyline>(polyline);
 
-					if (polylineComponent.getComponentId() != finishStaticPolyline)
+					if (polylineComponent.getComponentId() != startingStaticPolyline)
 						return false;
 
 					const glm::vec2 polylineVec = glm::normalize(polylineComponent.getVertices()[1] - polylineComponent.getVertices()[0]);
@@ -267,29 +215,36 @@ namespace Levels
 					collisionsBlocked->erase(planeComponent.getComponentId());
 
 					return false;
+					});
 				});
-			});
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::plane | Globals::CollisionBits::wall,
-			Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
-				Tools::PlaySingleSound(collisionSoundBuffer,
+				Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
+					Tools::PlaySingleSound(collisionSoundBuffer,
 					[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {
 							return pos;
 						},
 						[&](auto& sound) {
 							sound.volume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
-					});
-				}));
+						});
+					}));
 		}
 
 		void step()
 		{
-			playersHandler.controlStep();
+			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
+				if (playersHandler.getActivePlayersHandlers().size() == 1 && Globals::Components().planes()[playersHandler.getActivePlayersHandlers().front()->playerId].controls.startPressed)
+					reset();
+			});
+		}
 
-			auto& planes = Globals::Components().planes();
-			auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
-			if (activePlayersHandlers.size() == 1 && planes[activePlayersHandlers.front()->playerId].controls.startPressed)
-				reset();
+		void destroyPlane(Components::Plane& plane)
+		{
+			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getCenter()).sourceVelocity(plane.getVelocity()).
+				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
+			Tools::PlaySingleSound(playerExplosionSoundBuffer, [pos = plane.getCenter()]() { return pos; });
+			plane.enable(false);
+			playersToCircuits.erase(plane.getComponentId());
 		}
 
 		void reset()
@@ -297,11 +252,11 @@ namespace Levels
 			Globals::MarkDynamicComponentsAsDirty();
 
 			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
-				[this](unsigned playerId, auto) {
-					return glm::vec3(110.0f + playerId * 5.0f, -0.1f, glm::half_pi<float>());
+				[this](auto, auto) {
+					return glm::vec3(0.0f);
 				}, true, thrustSoundBuffer, grappleSoundBuffer);
 
-			collisionHandlers();
+			collisions();
 
 			maxCircuits = 0;
 			playersToCircuits.clear();
@@ -314,24 +269,24 @@ namespace Levels
 		std::array<unsigned, 4> planeTextures{ 0 };
 		ComponentId flameAnimationTexture = 0;
 		ComponentId explosionTexture = 0;
-		ComponentId cityTexture = 0;
-		ComponentId orbTexture = 0;
 
 		std::array<unsigned, 4> flameAnimatedTextureForPlayers{ 0 };
 
-		ComponentId playerExplosionSoundBuffer = 0;
 		ComponentId thrustSoundBuffer = 0;
 		ComponentId grappleSoundBuffer = 0;
+		ComponentId playerExplosionSoundBuffer = 0;
 		ComponentId collisionSoundBuffer = 0;
-		ComponentId finishStaticPolyline = 0;
+
+		ComponentId startingStaticPolyline = 0;
 
 		Tools::PlayersHandler playersHandler;
 
+		std::unordered_set<ComponentId> deadlySplines;
 		unsigned maxCircuits = 0;
 		std::unordered_map<unsigned, unsigned> playersToCircuits;
 	};
 
-	SquareRace::SquareRace() :
+	Race::Race() :
 		impl(std::make_unique<Impl>())
 	{
 		impl->setGraphicsSettings();
@@ -339,15 +294,14 @@ namespace Levels
 		impl->loadAudio();
 		impl->setAnimations();
 		impl->setCamera();
-
-		impl->createLevel();
-
+		impl->generatedCode();
+		impl->collisions();
 		impl->reset();
 	}
 
-	SquareRace::~SquareRace() = default;
+	Race::~Race() = default;
 
-	void SquareRace::step()
+	void Race::step()
 	{
 		impl->step();
 	}

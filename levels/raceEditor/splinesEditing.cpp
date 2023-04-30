@@ -355,7 +355,7 @@ namespace Levels
 
 	void SplineEditing::generateCode(std::ofstream& fs) const
 	{
-		fs << "void createSplines()\n";
+		fs << "inline void CreateDeadlySplines(const Tools::PlayersHandler& playersHandler, std::unordered_set<ComponentId>& deadlySplines)\n";
 		fs << "{\n";
 		fs << "	auto& polylines = Globals::Components().staticPolylines();\n";
 
@@ -391,9 +391,11 @@ namespace Levels
 				fs << "		};\n";
 			}
 
+			fs << "\n";
+			fs << "		deadlySplines.insert(polylines.last().getComponentId());\n";
 			fs << "	}\n";
 		}
-
 		fs << "}\n";
+		fs << "\n";
 	}
 }

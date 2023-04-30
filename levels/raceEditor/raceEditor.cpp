@@ -155,10 +155,28 @@ namespace Levels
 			};
 
 			auto generateCode = [&]() {
-				std::ofstream fs("race.txt");
+				std::ofstream fs("levels/race/generatedCode.hpp");
 
+				fs << "#include <components/polyline.hpp>\n";
+				fs << "\n";
+				fs << "#include <globals/components.hpp>\n";
+				fs << "\n";
+				fs << "#include <tools/splines.hpp>\n";
+				fs << "#include <tools/b2Helpers.hpp>\n";
+				fs << "\n";
+				fs << "#include <glm/vec2.hpp>\n";
+				fs << "#include <glm/vec3.hpp>\n";
+				fs << "#include <glm/vec4.hpp>\n";
+				fs << "\n";
+				fs << "#include <unordered_set>\n";
+				fs << "#include <functional>\n";
+				fs << "\n";
+				fs << "namespace GeneratedCode\n";
+				fs << "{\n";
+				fs << "\n";
 				startingLineEditing.generateCode(fs);
 				splineEditing.generateCode(fs);
+				fs << "}\n";
 			};
 
 			for (int i = 0; i < 10; ++i)
@@ -174,7 +192,7 @@ namespace Levels
 				else
 					initPlayersHandler(keyboard.pressing[/*VK_SHIFT*/0x10]);
 
-			if (!keyboard.pressing[/*VK_SHIFT*/0x10] && !keyboard.pressing[/*VK_CONTROL*/0x11])
+			if (!keyboard.pressing[/*VK_SHIFT*/0x10] && !keyboard.pressing[/*VK_CONTROL*/0x11] && !keyboard.pressing[/*VK_SPACE*/' '])
 			{
 				projectionHSize = std::clamp(projectionHSize + mouse.pressed.wheel * -10.0f * zoomScale, 1.0f, 10000.0f);
 				zoomScale = projectionHSize / 50.0f;

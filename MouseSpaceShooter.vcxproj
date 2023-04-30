@@ -37,11 +37,11 @@
     <ClCompile Include="levels\gravity\gravity.cpp" />
     <ClCompile Include="levels\level.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
-    <ClCompile Include="levels\raceBase\raceBase.cpp" />
     <ClCompile Include="levels\raceEditor\presets.cpp" />
     <ClCompile Include="levels\raceEditor\raceEditor.cpp" />
     <ClCompile Include="levels\raceEditor\splinesEditing.cpp" />
     <ClCompile Include="levels\raceEditor\startingLineEditing.cpp" />
+    <ClCompile Include="levels\race\race.cpp" />
     <ClCompile Include="levels\rim\rim.cpp" />
     <ClCompile Include="levels\rocketball\rocketball.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -132,11 +132,12 @@
     <ClInclude Include="levels\gravity\gravity.hpp" />
     <ClInclude Include="levels\level.hpp" />
     <ClInclude Include="levels\playground\playground.hpp" />
-    <ClInclude Include="levels\raceBase\raceBase.hpp" />
     <ClInclude Include="levels\raceEditor\common.hpp" />
     <ClInclude Include="levels\raceEditor\raceEditor.hpp" />
     <ClInclude Include="levels\raceEditor\splinesEditing.hpp" />
     <ClInclude Include="levels\raceEditor\startingLineEditing.hpp" />
+    <ClInclude Include="levels\race\generatedCode.hpp" />
+    <ClInclude Include="levels\race\race.hpp" />
     <ClInclude Include="levels\rim\rim.hpp" />
     <ClInclude Include="levels\rocketball\rocketball.hpp" />
     <ClInclude Include="levels\splineTest\splineTest.hpp" />

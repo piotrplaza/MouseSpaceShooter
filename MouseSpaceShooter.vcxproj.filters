@@ -83,9 +83,6 @@
     <Filter Include="src\levels\squareRace">
       <UniqueIdentifier>{8c70a967-f162-4a87-b7fd-05bc26f5d915}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\levels\raceBase">
-      <UniqueIdentifier>{0fb5deb0-9fb9-468f-975f-88bd92f2a103}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\levels\splineTest">
       <UniqueIdentifier>{70e16033-0582-41f5-b7d2-ba0afe677c0e}</UniqueIdentifier>
     </Filter>
@@ -94,6 +91,9 @@
     </Filter>
     <Filter Include="src\levels\collisions">
       <UniqueIdentifier>{1bcdbaf5-a21d-455e-9741-bb7922ec6b67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\levels\race">
+      <UniqueIdentifier>{0fb5deb0-9fb9-468f-975f-88bd92f2a103}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -232,9 +232,6 @@
     <ClCompile Include="levels\squareRace\squareRace.cpp">
       <Filter>src\levels\squareRace</Filter>
     </ClCompile>
-    <ClCompile Include="levels\raceBase\raceBase.cpp">
-      <Filter>src\levels\raceBase</Filter>
-    </ClCompile>
     <ClCompile Include="levels\splineTest\splineTest.cpp">
       <Filter>src\levels\splineTest</Filter>
     </ClCompile>
@@ -252,6 +249,9 @@
     </ClCompile>
     <ClCompile Include="levels\collisions\collisions.cpp">
       <Filter>src\levels\collisions</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\race\race.cpp">
+      <Filter>src\levels\race</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -522,9 +522,6 @@
     <ClInclude Include="levels\squareRace\squareRace.hpp">
       <Filter>src\levels\squareRace</Filter>
     </ClInclude>
-    <ClInclude Include="levels\raceBase\raceBase.hpp">
-      <Filter>src\levels\raceBase</Filter>
-    </ClInclude>
     <ClInclude Include="tools\splines.hpp">
       <Filter>src\tools</Filter>
     </ClInclude>
@@ -551,6 +548,12 @@
     </ClInclude>
     <ClInclude Include="levels\collisions\collisions.hpp">
       <Filter>src\levels\collisions</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\race\generatedCode.hpp">
+      <Filter>src\levels\race</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\race\race.hpp">
+      <Filter>src\levels\race</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

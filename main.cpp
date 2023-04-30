@@ -9,7 +9,7 @@
 #include "levels/rim/rim.hpp"
 #include "levels/fpsScalingProblems/fpsScalingProblems.hpp"
 #include "levels/squareRace/squareRace.hpp"
-#include "levels/raceBase/raceBase.hpp"
+#include "levels/race/race.hpp"
 #include "levels/splineTest/splineTest.hpp"
 #include "levels/raceEditor/raceEditor.hpp"
 #include "levels/collisions/collisions.hpp"
@@ -86,10 +86,14 @@ void OGLInitialize()
 
 void CreateLevel()
 {
-	//activeLevel = std::make_unique<Levels::Windmill>();
-	activeLevel = std::make_unique<Levels::SquareRace>();
+#if 1
+	activeLevel = std::make_unique<Levels::RaceEditor>();
+#else
+	activeLevel = std::make_unique<Levels::Race>();
+#endif
 
-	//activeLevel = std::make_unique<Levels::RaceEditor>();
+	//activeLevel = std::make_unique<Levels::Windmill>();
+	//activeLevel = std::make_unique<Levels::SquareRace>();
 
 	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
@@ -98,7 +102,6 @@ void CreateLevel()
 	//activeLevel = std::make_unique<Levels::Dzidzia>();
 	//activeLevel = std::make_unique<Levels::Dzidzia2>();
 	//activeLevel = std::make_unique<Levels::Rim>();
-	//activeLevel = std::make_unique<Levels::RaceBase>();
 	//activeLevel = std::make_unique<Levels::SplineTest>();
 	//activeLevel = std::make_unique<Levels::Collisions>();
 
