@@ -286,8 +286,8 @@ namespace Levels
 		{
 			playersHandler.controlStep();
 
-			auto& planes = Globals::Components().planes();
-			auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
+			const auto& planes = Globals::Components().planes();
+			const auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
 			if (activePlayersHandlers.size() == 1 && planes[activePlayersHandlers.front()->playerId].controls.startPressed)
 				reset();
 		}

@@ -206,7 +206,7 @@ namespace Tools
 		};
 	}
 
-	void PlayersHandler::autodetectionStep(std::function<glm::vec3(unsigned player)> initLocF)
+	void PlayersHandler::gamepadsAutodetectionStep(std::function<glm::vec3(unsigned player)> initLocF)
 	{
 		const auto& gamepads = Globals::Components().gamepads();
 		auto& planes = Globals::Components().planes();

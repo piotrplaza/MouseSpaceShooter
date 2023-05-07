@@ -597,7 +597,7 @@ namespace Levels
 
 		void step()
 		{
-			playersHandler.autodetectionStep([](auto) { return glm::vec3(0.0f); });
+			playersHandler.gamepadsAutodetectionStep([](auto) { return glm::vec3(0.0f); });
 			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
 				missilesHandler.launchingMissile(playerHandlerId, fire, missileLaunchingSoundBuffer);
 				});

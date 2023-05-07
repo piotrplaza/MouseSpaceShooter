@@ -8,6 +8,7 @@
 #include <components/gamepad.hpp>
 #include <components/soundBuffer.hpp>
 #include <components/sound.hpp>
+#include <components/music.hpp>
 #include <components/polyline.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/deferredAction.hpp>
@@ -80,8 +81,10 @@ namespace Levels
 
 		void loadAudio()
 		{
-			auto& soundsBuffers = Globals::Components().soundsBuffers();
+			auto& musics = Globals::Components().musics();
+			musics.emplace("audio/Ghosthack-Ambient Beds_Daylight_Am 75Bpm (WET).ogg", 1.0f).play();
 
+			auto& soundsBuffers = Globals::Components().soundsBuffers();
 			thrustSoundBuffer = soundsBuffers.emplace("audio/thrust.wav", 0.2f).getComponentId();
 			grappleSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
 			playerExplosionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack-AC21_Impact_Cracked.wav").getComponentId();
@@ -232,10 +235,12 @@ namespace Levels
 
 		void step()
 		{
-			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
-				if (playersHandler.getActivePlayersHandlers().size() == 1 && Globals::Components().planes()[playersHandler.getActivePlayersHandlers().front()->playerId].controls.startPressed)
-					reset();
-			});
+			playersHandler.controlStep();
+
+			const auto& planes = Globals::Components().planes();
+			const auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
+			if (activePlayersHandlers.size() == 1 && planes[activePlayersHandlers.front()->playerId].controls.startPressed)
+				reset();
 		}
 
 		void destroyPlane(Components::Plane& plane)
@@ -295,7 +300,6 @@ namespace Levels
 		impl->setAnimations();
 		impl->setCamera();
 		impl->generatedCode();
-		impl->collisions();
 		impl->reset();
 	}
 

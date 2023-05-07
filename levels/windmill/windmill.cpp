@@ -357,7 +357,7 @@ namespace Levels
 
 		void step()
 		{
-			playersHandler.autodetectionStep([this](unsigned player) {
+			playersHandler.gamepadsAutodetectionStep([this](unsigned player) {
 				const auto& windmill = Globals::Components().staticWalls()[windmillWall];
 				glm::vec3 initLoc = this->initLoc(player);
 				return glm::rotate(glm::mat4(1.0f), windmill.getAngle(), { 0.0f, 0.0f, 1.0f }) * glm::vec4(glm::vec2(initLoc),
