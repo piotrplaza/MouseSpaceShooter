@@ -93,7 +93,7 @@ namespace Levels
 
 		void setAnimations()
 		{
-			for (unsigned& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
+			for (auto& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
 			{
 				flameAnimatedTextureForPlayer = Globals::Components().animatedTextures().size();
 				Globals::Components().animatedTextures().add({ flameAnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
@@ -107,9 +107,9 @@ namespace Levels
 			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 30.0f; }).scalingFactor(0.7f));
 		}
 
-		void generatedCode()
+		void generatedStaticElements()
 		{
-			GeneratedCode::CreateStartingLine(startingStaticPolyline);
+			GeneratedCode::CreateStartingLine(startingStaticPolyline, startingLineP1, startingLineP2, startingPositionLineDistance);
 			GeneratedCode::CreateDeadlySplines(playersHandler, deadlySplines);
 		}
 
@@ -257,8 +257,18 @@ namespace Levels
 			Globals::MarkDynamicComponentsAsDirty();
 
 			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
-				[this](auto, auto) {
-					return glm::vec3(0.0f);
+				[&](unsigned playerId, unsigned numOfPlayers) {
+					if (glm::distance(startingLineP1, startingLineP2) == 0.0f)
+						return glm::vec3(0.0f, 0.0f, 0.0f);
+
+					const glm::vec2 startingLineEndsVector = startingLineP2 - startingLineP1;
+					const float startingLineLength = glm::length(startingLineEndsVector);
+					const float playerPositionOnStartingLine = startingLineLength * (playerId + 1) / (numOfPlayers + 1);
+					const glm::vec2 playerPositionOnStartingLine2D = startingLineP1 + startingLineEndsVector * playerPositionOnStartingLine / startingLineLength;
+					const glm::vec2 ntv = glm::rotate(glm::normalize(startingLineEndsVector), -glm::half_pi<float>());
+
+					return glm::vec3(playerPositionOnStartingLine2D + ntv * startingPositionLineDistance,
+						glm::orientedAngle({ -1.0f, 0.0f }, ntv));
 				}, true, thrustSoundBuffer, grappleSoundBuffer);
 
 			collisions();
@@ -271,11 +281,11 @@ namespace Levels
 		}
 
 	private:
-		std::array<unsigned, 4> planeTextures{ 0 };
+		std::array<ComponentId, 4> planeTextures{ 0 };
 		ComponentId flameAnimationTexture = 0;
 		ComponentId explosionTexture = 0;
 
-		std::array<unsigned, 4> flameAnimatedTextureForPlayers{ 0 };
+		std::array<ComponentId, 4> flameAnimatedTextureForPlayers{ 0 };
 
 		ComponentId thrustSoundBuffer = 0;
 		ComponentId grappleSoundBuffer = 0;
@@ -289,6 +299,10 @@ namespace Levels
 		std::unordered_set<ComponentId> deadlySplines;
 		unsigned maxCircuits = 0;
 		std::unordered_map<unsigned, unsigned> playersToCircuits;
+
+		glm::vec2 startingLineP1{ 0.0f };
+		glm::vec2 startingLineP2{ 0.0f };
+		float startingPositionLineDistance = 0.0f;
 	};
 
 	Race::Race() :
@@ -299,7 +313,7 @@ namespace Levels
 		impl->loadAudio();
 		impl->setAnimations();
 		impl->setCamera();
-		impl->generatedCode();
+		impl->generatedStaticElements();
 		impl->reset();
 	}
 

@@ -68,7 +68,7 @@ namespace Tools
 
 		~PlayersHandler();
 
-		void initPlayers(const std::array<unsigned, 4>& planeTexturesForPlayers, const std::array<unsigned, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
+		void initPlayers(const std::array<ComponentId, 4>& planeTexturesForPlayers, const std::array<ComponentId, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
 			std::function<glm::vec3(unsigned playerId, unsigned numOfPlayers)> initLocF, bool centerToFront = false, std::optional<ComponentId> thrustSoundBuffer = std::nullopt,
 			std::optional<ComponentId> grappleSoundBuffer = std::nullopt);
 		void setCamera(CameraParams cameraParams) const;
@@ -84,8 +84,8 @@ namespace Tools
 
 	private:
 		std::vector<Tools::PlayerHandler> playersHandlers;
-		std::array<unsigned, 4> planeTextures{ 0 };
-		std::array<unsigned, 4> flameAnimatedTexturesForPlayers{ 0 };
+		std::array<ComponentId, 4> planeTextures{ 0 };
+		std::array<ComponentId, 4> flameAnimatedTexturesForPlayers{ 0 };
 		bool gamepadForPlayer1 = false;
 		std::optional<ComponentId> thrustSoundBuffer;
 		std::optional<ComponentId> grappleSoundBuffer;

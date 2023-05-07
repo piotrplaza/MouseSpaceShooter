@@ -246,7 +246,7 @@ namespace Levels
 
 	void StartingLineEditing::generateCode(std::ofstream& fs) const
 	{
-		fs << "inline void CreateStartingLine(ComponentId& startingLineId)\n";
+		fs << "inline void CreateStartingLine(ComponentId& startingLineId, glm::vec2& p1, glm::vec2& p2, float& startingPositionLineDistance)\n";
 		fs << "{\n";
 		if (controlPoints.size() == 2)
 		{
@@ -255,6 +255,9 @@ namespace Levels
 			fs << "	auto& startingLine = Globals::Components().staticPolylines().emplace(std::vector<glm::vec2>{ { " << p1.x << ", " << p1.y << " }, { " << p2.x << ", " <<  p2.y << " } }, Tools::BodyParams().sensor(true));\n";
 			fs << "	startingLine.colorF = []() { return glm::vec4(0.0f, 0.0f, 1.0f, 1.0f); };\n";
 			fs << "	startingLineId = startingLine.getComponentId();\n";
+			fs << "	p1 = { " << p1.x << ", " << p1.y << " };\n";
+			fs << "	p2 = { " << p2.x << ", " << p2.y << " };\n";
+			fs << "	startingPositionLineDistance = " << startingPositionLineDistance << ";\n";
 		}
 		fs << "}\n";
 		fs << "\n";

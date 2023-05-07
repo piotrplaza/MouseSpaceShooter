@@ -75,7 +75,7 @@ namespace Tools
 		}
 	}
 
-	void PlayersHandler::initPlayers(const std::array<unsigned, 4>& planeTexturesForPlayers, const std::array<unsigned, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
+	void PlayersHandler::initPlayers(const std::array<ComponentId, 4>& planeTexturesForPlayers, const std::array<ComponentId, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
 		std::function<glm::vec3(unsigned playerId, unsigned numOfPlayers)> initLocF, bool centerToFront, std::optional<ComponentId> thrustSoundBuffer, std::optional<ComponentId> grappleSoundBuffer)
 	{
 		const auto& gamepads = Globals::Components().gamepads();

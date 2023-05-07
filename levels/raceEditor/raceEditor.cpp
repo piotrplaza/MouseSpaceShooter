@@ -85,7 +85,7 @@ namespace Levels
 			textures.emplace("textures/flame animation 1.jpg");
 			textures.last().minFilter = GL_LINEAR;
 
-			for (unsigned& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
+			for (auto& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
 			{
 				flameAnimatedTextureForPlayer = Globals::Components().animatedTextures().size();
 				Globals::Components().animatedTextures().add({ flameAnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
@@ -167,9 +167,9 @@ namespace Levels
 				fs << "#include <glm/vec2.hpp>\n";
 				fs << "#include <glm/vec3.hpp>\n";
 				fs << "#include <glm/vec4.hpp>\n";
+				fs << "#include <glm/gtx/vector_angle.hpp>\n";
 				fs << "\n";
 				fs << "#include <unordered_set>\n";
-				fs << "#include <functional>\n";
 				fs << "\n";
 				fs << "namespace GeneratedCode\n";
 				fs << "{\n";
@@ -233,10 +233,10 @@ namespace Levels
 		float projectionHSize = 50.0f;
 		float zoomScale = 1.0f;
 
-		std::array<unsigned, 4> planeTextures{ 0 };
-		unsigned flameAnimationTexture = 0;
+		std::array<ComponentId, 4> planeTextures{ 0 };
+		ComponentId flameAnimationTexture = 0;
 
-		std::array<unsigned, 4> flameAnimatedTextureForPlayers{ 0 };
+		std::array<ComponentId, 4> flameAnimatedTextureForPlayers{ 0 };
 
 		std::optional<Tools::PlayersHandler> playersHandler;
 

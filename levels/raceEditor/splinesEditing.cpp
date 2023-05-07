@@ -357,7 +357,8 @@ namespace Levels
 	{
 		fs << "inline void CreateDeadlySplines(const Tools::PlayersHandler& playersHandler, std::unordered_set<ComponentId>& deadlySplines)\n";
 		fs << "{\n";
-		fs << "	auto& polylines = Globals::Components().staticPolylines();\n";
+		if (!splineDecorationIdToSplineDef.empty())
+			fs << "	auto& polylines = Globals::Components().staticPolylines();\n";
 
 		auto createControlPoints = [&](const auto& splineDef) {
 			fs << "		std::vector<glm::vec2> controlPoints;\n";

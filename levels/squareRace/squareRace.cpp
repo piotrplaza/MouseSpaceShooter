@@ -102,7 +102,7 @@ namespace Levels
 
 		void setAnimations()
 		{
-			for (unsigned& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
+			for (auto& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
 			{
 				flameAnimatedTextureForPlayer = Globals::Components().animatedTextures().size();
 				Globals::Components().animatedTextures().add({ flameAnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
@@ -311,13 +311,13 @@ namespace Levels
 		}
 
 	private:
-		std::array<unsigned, 4> planeTextures{ 0 };
+		std::array<ComponentId, 4> planeTextures{ 0 };
 		ComponentId flameAnimationTexture = 0;
 		ComponentId explosionTexture = 0;
 		ComponentId cityTexture = 0;
 		ComponentId orbTexture = 0;
 
-		std::array<unsigned, 4> flameAnimatedTextureForPlayers{ 0 };
+		std::array<ComponentId, 4> flameAnimatedTextureForPlayers{ 0 };
 
 		ComponentId playerExplosionSoundBuffer = 0;
 		ComponentId thrustSoundBuffer = 0;
