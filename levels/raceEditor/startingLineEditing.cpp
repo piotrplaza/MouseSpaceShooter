@@ -250,13 +250,15 @@ namespace Levels
 		fs << "{\n";
 		if (controlPoints.size() == 2)
 		{
-			const auto p1 = controlPoints.front().pos;
-			const auto p2 = controlPoints.back().pos;
-			fs << "	auto& startingLine = Globals::Components().staticPolylines().emplace(std::vector<glm::vec2>{ { " << p1.x << ", " << p1.y << " }, { " << p2.x << ", " <<  p2.y << " } }, Tools::BodyParams().sensor(true));\n";
+			fs << "	const glm::vec2 cp1 = { " << controlPoints.front().pos.x << ", " << controlPoints.front().pos.y << " };\n";
+			fs << "	const glm::vec2 cp2 = { " << controlPoints.back().pos.x << ", " << controlPoints.back().pos.y << " };\n";
+			fs << "	auto& startingLine = Globals::Components().staticPolylines().emplace(std::vector<glm::vec2>{ cp1, cp2 },\n";
+			fs << "		Tools::BodyParams().sensor(true)); \n";
 			fs << "	startingLine.colorF = []() { return glm::vec4(0.0f, 0.0f, 1.0f, 1.0f); };\n";
+			fs << "\n";
 			fs << "	startingLineId = startingLine.getComponentId();\n";
-			fs << "	p1 = { " << p1.x << ", " << p1.y << " };\n";
-			fs << "	p2 = { " << p2.x << ", " << p2.y << " };\n";
+			fs << "	p1 = cp1;\n";
+			fs << "	p2 = cp2;\n";
 			fs << "	startingPositionLineDistance = " << startingPositionLineDistance << ";\n";
 		}
 		fs << "}\n";

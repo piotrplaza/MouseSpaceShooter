@@ -57,7 +57,8 @@ namespace Tools
 			const size_t i1 = i0 + 1;
 			const size_t i2 = i1 + 1;
 			const size_t i3 = i2 + 1;
-			const float localT = std::fmod((keypoints.size() - 3.0f) * t, 1.0f);
+
+			const float localT = realIndex - std::floor(realIndex);
 
 			return cubicHermite(keypoints[i0], keypoints[i1], keypoints[i2], keypoints[i3], localT);
 		}
