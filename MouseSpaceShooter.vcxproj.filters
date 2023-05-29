@@ -95,6 +95,9 @@
     <Filter Include="src\levels\race">
       <UniqueIdentifier>{0fb5deb0-9fb9-468f-975f-88bd92f2a103}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ogl\shaders\texturedPhong">
+      <UniqueIdentifier>{8b298fac-5a0e-47ba-aae7-62a1f8c2a21c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -555,6 +558,9 @@
     <ClInclude Include="levels\race\race.hpp">
       <Filter>src\levels\race</Filter>
     </ClInclude>
+    <ClInclude Include="ogl\shaders\texturedPhong.hpp">
+      <Filter>src\ogl\shaders\texturedPhong</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">
@@ -589,6 +595,12 @@
     </None>
     <None Include="ogl\shaders\particles.vs">
       <Filter>src\ogl\shaders\particles</Filter>
+    </None>
+    <None Include="ogl\shaders\texturedPhong.fs">
+      <Filter>src\ogl\shaders\texturedPhong</Filter>
+    </None>
+    <None Include="ogl\shaders\texturedPhong.vs">
+      <Filter>src\ogl\shaders\texturedPhong</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -186,7 +186,7 @@ namespace Levels
 				const glm::vec2 pos2(glm::cos((i + 1) * rimStep) * rimRadius, glm::sin((i + 1) * rimStep) * rimRadius);
 				staticWalls.emplace(Tools::CreateBoxBody({ rimHThickness, rimSegmentHLength + rimSegmentMariginsHLength },
 					Tools::BodyParams().position((pos1 + pos2) / 2.0f).angle(rimStep * (2 * i + 1) / 2).bodyType(b2_dynamicBody).density(0.01f)), TCM::Texture(mosaicTexture), sceneCoordTexturesRS);
-				staticWalls.last().texCoord = staticWalls.last().getTexCoord(true);
+				staticWalls.last().texCoord = staticWalls.last().getTexCoords(true);
 
 				if (i > 0)
 					Tools::CreateRevoluteJoint(*(staticWalls.rbegin() + 1)->body, *staticWalls.last().body, pos1);

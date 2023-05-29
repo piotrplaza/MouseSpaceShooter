@@ -6,11 +6,11 @@ namespace Shaders
 {
 	namespace Programs
 	{
-		struct TexturedAccessor : ProgramBase
+		struct TexturedPhongAccessor : ProgramBase
 		{
 			using ProgramBase::ProgramBase;
 
-			TexturedAccessor(ProgramId program):
+			TexturedPhongAccessor(ProgramId program):
 				ProgramBase(program),
 				model(program, "model"),
 				vp(program, "vp"),
@@ -22,15 +22,7 @@ namespace Shaders
 				texturesBaseTransform(program, "texturesBaseTransform"),
 				texturesCustomTransform(program, "texturesCustomTransform"),
 				alphaFromBlendingTexture(program, "alphaFromBlendingTexture"),
-				colorAccumulation(program, "colorAccumulation"),
-				numOfPlayers(program, "numOfPlayers"),
-				playersCenter(program, "playersCenter"),
-				playerUnhidingRadius(program, "playerUnhidingRadius"),
-				visibilityReduction(program, "visibilityReduction"),
-				visibilityCenter(program, "visibilityCenter"),
-				fullVisibilityDistance(program, "fullVisibilityDistance"),
-				invisibilityDistance(program, "invisibilityDistance"),
-				sceneCoordTextures(program, "sceneCoordTextures")
+				colorAccumulation(program, "colorAccumulation")
 			{
 			}
 
@@ -45,21 +37,13 @@ namespace Shaders
 			Uniforms::UniformMat4fv<5> texturesCustomTransform;
 			Uniforms::Uniform1b alphaFromBlendingTexture;
 			Uniforms::Uniform1b colorAccumulation;
-			Uniforms::Uniform1i numOfPlayers;
-			Uniforms::Uniform2fv<4> playersCenter;
-			Uniforms::Uniform1f playerUnhidingRadius;
-			Uniforms::Uniform1b visibilityReduction;
-			Uniforms::Uniform2f visibilityCenter;
-			Uniforms::Uniform1f fullVisibilityDistance;
-			Uniforms::Uniform1f invisibilityDistance;
-			Uniforms::Uniform1b sceneCoordTextures;
 		};
 
-		struct Textured: TexturedAccessor
+		struct TexturedPhong: TexturedPhongAccessor
 		{
-			Textured():
-				TexturedAccessor(LinkProgram(CompileShaders("ogl/shaders/textured.vs",
-					"ogl/shaders/textured.fs"), { {0, "bPos"}, {1, "bColor"}, {2, "bTexCoord"} }))
+			TexturedPhong():
+				TexturedPhongAccessor(LinkProgram(CompileShaders("ogl/shaders/texturedPhong.vs",
+					"ogl/shaders/texturedPhong.fs"), { {0, "bPos"}, {1, "bColor"}, {2, "bTexCoord"}, {3, "bNormal"} }))
 			{
 				model(glm::mat4(1.0f));
 				vp(glm::mat4(1.0f));
@@ -71,19 +55,11 @@ namespace Shaders
 				texturesCustomTransform(glm::mat4(1.0f));
 				alphaFromBlendingTexture(false);
 				colorAccumulation(false);
-				numOfPlayers(0);
-				playersCenter(glm::vec2(0.0f, 0.0f));
-				playerUnhidingRadius(0.0f);
-				visibilityReduction(false);
-				visibilityCenter({ 0.0f, 0.0f });
-				fullVisibilityDistance(0.0f);
-				invisibilityDistance(0.0f);
-				sceneCoordTextures(false);
 			}
 
-			Textured(const Textured&) = delete;
+			TexturedPhong(const TexturedPhong&) = delete;
 
-			~Textured()
+			~TexturedPhong()
 			{
 				glDeleteProgram(getProgramId());
 			}

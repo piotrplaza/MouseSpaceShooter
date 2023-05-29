@@ -8,7 +8,7 @@
 
 namespace
 {
-	constexpr float debugFrameDuration = 1.0f / 60;
+	constexpr float debugFrameDuration = 1.0f / 144;
 
 	class : public b2ContactListener
 	{
@@ -35,7 +35,7 @@ namespace
 	{
 		bool ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB) override
 		{
-			for (auto& collisionFilter: Globals::Components().collisionFilters())
+			for (const auto& collisionFilter: Globals::Components().collisionFilters())
 			{
 				const auto result = collisionFilter.rawFilter(*fixtureA, *fixtureB);
 				if (result != Components::CollisionFilter::Result::Fallback)

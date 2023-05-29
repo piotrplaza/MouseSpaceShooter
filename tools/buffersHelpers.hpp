@@ -23,6 +23,8 @@ namespace Tools
 			auto& selectedBuffers = [&, layer = (size_t)component.renderLayer]() -> auto& {
 				if (component.customShadersProgram)
 					return staticBuffers.customShaders[layer].emplace_back();
+				else if (!component.normals.empty())
+					return staticBuffers.texturedPhong[layer].emplace_back();
 				else if (!std::holds_alternative<std::monostate>(component.texture))
 					return staticBuffers.textured[layer].emplace_back();
 				else
@@ -50,6 +52,8 @@ namespace Tools
 			{
 				if (component.customShadersProgram)
 					return dynamicBuffers.customShaders[layer];
+				else if (!component.normals.empty())
+					return dynamicBuffers.texturedPhong[layer];
 				else if (!std::holds_alternative<std::monostate>(component.texture))
 					return dynamicBuffers.textured[layer];
 				else

@@ -32,7 +32,8 @@ namespace Buffers
 
 		void setVerticesBuffer(const std::vector<glm::vec3>& vertices);
 		void setColorsBuffer(const std::vector<glm::vec4>& colors);
-		void setTexCoordBuffer(const std::vector<glm::vec2>& texCoord);
+		void setTexCoordsBuffer(const std::vector<glm::vec2>& texCoords);
+		void setNormalsBuffer(const std::vector<glm::vec3>& normals);
 
 		std::function<glm::mat4()> modelMatrixF;
 		std::function<glm::vec4()> *colorF = nullptr;
@@ -48,15 +49,18 @@ namespace Buffers
 		size_t numOfVertices = 0;
 
 	private:
-		void createColorBuffer();
-		void createTexCoordBuffer();
+		void createColorsBuffer();
+		void createTexCoordsBuffer();
+		void createNormalsBuffer();
 
-		GLuint positionBuffer = 0;
-		std::optional<GLuint> colorBuffer;
-		std::optional<GLuint> texCoordBuffer;
+		GLuint positionsBuffer = 0;
+		std::optional<GLuint> colorsBuffer;
+		std::optional<GLuint> texCoordsBuffer;
+		std::optional<GLuint> normalsBuffer;
 		size_t numOfAllocatedVertices = 0;
 		size_t numOfAllocatedColors = 0;
-		size_t numOfAllocatedTexCoord = 0;
+		size_t numOfAllocatedTexCoords = 0;
+		size_t numOfAllocatedNormals = 0;
 		std::optional<GLenum> allocatedBufferDataUsage;
 
 		bool expired = false;

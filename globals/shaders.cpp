@@ -5,6 +5,7 @@
 #include "ogl/shaders/particles.hpp"
 #include "ogl/shaders/textured.hpp"
 #include "ogl/shaders/texturedColorThreshold.hpp"
+#include "ogl/shaders/texturedPhong.hpp"
 
 namespace Globals
 {
@@ -33,6 +34,11 @@ namespace Globals
 	Shaders::Programs::TexturedColorThreshold& ShadersHolder::texturedColorThreshold()
 	{
 		return *texturedColorThreshold_;
+	}
+
+	Shaders::Programs::TexturedPhong& ShadersHolder::texturedPhong()
+	{
+		return *texturedPhong_;
 	}
 
 	void InitializeShaders()

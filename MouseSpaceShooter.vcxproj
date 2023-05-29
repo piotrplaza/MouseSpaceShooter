@@ -154,6 +154,7 @@
     <ClInclude Include="ogl\shaders\programBase.hpp" />
     <ClInclude Include="ogl\shaders\textured.hpp" />
     <ClInclude Include="ogl\shaders\texturedColorThreshold.hpp" />
+    <ClInclude Include="ogl\shaders\texturedPhong.hpp" />
     <ClInclude Include="ogl\uniforms.hpp" />
     <ClInclude Include="systems\actors.hpp" />
     <ClInclude Include="systems\audio.hpp" />
@@ -189,6 +190,8 @@
     <None Include="ogl\shaders\textured.vs" />
     <None Include="ogl\shaders\texturedColorThreshold.fs" />
     <None Include="ogl\shaders\texturedColorThreshold.vs" />
+    <None Include="ogl\shaders\texturedPhong.fs" />
+    <None Include="ogl\shaders\texturedPhong.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

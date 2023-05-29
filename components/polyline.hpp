@@ -68,7 +68,7 @@ namespace Components
 			return customVertices;
 		}
 
-		const std::vector<glm::vec2> getTexCoord(bool = false) const override
+		const std::vector<glm::vec2> getTexCoords(bool = false) const override
 		{
 			return texCoord;
 		}

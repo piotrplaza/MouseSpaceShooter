@@ -37,8 +37,9 @@ struct RenderableDef
 	}
 
 	std::vector<glm::vec3> vertices;
-	std::vector<glm::vec2> texCoord;
 	std::vector<glm::vec4> colors;
+	std::vector<glm::vec2> texCoord;
+	std::vector<glm::vec3> normals;
 
 	std::function<glm::mat4()> modelMatrixF;
 	std::function<glm::vec4()> colorF;
@@ -76,7 +77,7 @@ struct RenderableDef
 		return colors;
 	}
 
-	virtual const std::vector<glm::vec2> getTexCoord(bool transformed = false) const
+	virtual const std::vector<glm::vec2> getTexCoords(bool transformed = false) const
 	{
 		const auto vertices = getVertices(transformed);
 		if (texCoord.empty())
@@ -96,6 +97,11 @@ struct RenderableDef
 			assert(texCoord.size() == vertices.size());
 			return texCoord;
 		}
+	}
+
+	virtual const std::vector<glm::vec3>& getNormals() const
+	{
+		return normals;
 	}
 
 	virtual glm::vec2 getPosition() const

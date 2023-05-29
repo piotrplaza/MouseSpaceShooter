@@ -23,7 +23,8 @@ namespace
 
 		buffers.setVerticesBuffer(renderableDef.getVertices());
 		buffers.setColorsBuffer(renderableDef.getColors());
-		buffers.setTexCoordBuffer(renderableDef.getTexCoord());
+		buffers.setTexCoordsBuffer(renderableDef.getTexCoords());
+		buffers.setNormalsBuffer(renderableDef.getNormals());
 	}
 }
 
@@ -33,8 +34,8 @@ namespace Buffers
 	{
 		glGenVertexArrays(1, &vertexArray);
 		glBindVertexArray(vertexArray);
-		glGenBuffers(1, &positionBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+		glGenBuffers(1, &positionsBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, positionsBuffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(0);
 
@@ -42,11 +43,12 @@ namespace Buffers
 		glDisableVertexAttribArray(1);
 	}
 
-	GenericSubBuffers::GenericSubBuffers(GenericSubBuffers&& other) noexcept:
+	GenericSubBuffers::GenericSubBuffers(GenericSubBuffers&& other) noexcept :
 		vertexArray(other.vertexArray),
-		positionBuffer(other.positionBuffer),
-		colorBuffer(other.colorBuffer),
-		texCoordBuffer(other.texCoordBuffer),
+		positionsBuffer(other.positionsBuffer),
+		colorsBuffer(other.colorsBuffer),
+		texCoordsBuffer(other.texCoordsBuffer),
+		normalsBuffer(other.normalsBuffer),
 		modelMatrixF(std::move(other.modelMatrixF)),
 		colorF(other.colorF),
 		texture(other.texture),
@@ -55,7 +57,8 @@ namespace Buffers
 		numOfVertices(other.numOfVertices),
 		numOfAllocatedVertices(other.numOfAllocatedVertices),
 		numOfAllocatedColors(other.numOfAllocatedColors),
-		numOfAllocatedTexCoord(other.numOfAllocatedTexCoord),
+		numOfAllocatedTexCoords(other.numOfAllocatedTexCoords),
+		numOfAllocatedNormals(other.numOfAllocatedNormals),
 		drawMode(other.drawMode),
 		bufferDataUsage(other.bufferDataUsage),
 		allocatedBufferDataUsage(std::move(other.allocatedBufferDataUsage)),
@@ -70,20 +73,23 @@ namespace Buffers
 		if (expired)
 			return;
 
-		glDeleteBuffers(1, &positionBuffer);
+		glDeleteBuffers(1, &positionsBuffer);
 
-		if (colorBuffer)
-			glDeleteBuffers(1, &*colorBuffer);
+		if (colorsBuffer)
+			glDeleteBuffers(1, &*colorsBuffer);
 
-		if (texCoordBuffer)
-			glDeleteBuffers(1, &*texCoordBuffer);
+		if (texCoordsBuffer)
+			glDeleteBuffers(1, &*texCoordsBuffer);
+
+		if (normalsBuffer)
+			glDeleteBuffers(1, &*normalsBuffer);
 
 		glDeleteVertexArrays(1, &vertexArray);
 	}
 
 	void GenericSubBuffers::setVerticesBuffer(const std::vector<glm::vec3>& vertices)
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, positionsBuffer);
 		if (numOfAllocatedVertices < vertices.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != *bufferDataUsage)
 		{
 			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices.front()), vertices.data(), *bufferDataUsage);
@@ -109,11 +115,11 @@ namespace Buffers
 			return;
 		}
 
-		if (colorBuffer)
-			glBindBuffer(GL_ARRAY_BUFFER, *colorBuffer);
+		if (colorsBuffer)
+			glBindBuffer(GL_ARRAY_BUFFER, *colorsBuffer);
 		else
-			createColorBuffer();
-		
+			createColorsBuffer();
+
 		if (numOfAllocatedColors < colors.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != *bufferDataUsage)
 		{
 			glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(colors.front()), colors.data(), *bufferDataUsage);
@@ -126,43 +132,73 @@ namespace Buffers
 		glEnableVertexAttribArray(1);
 	}
 
-	void GenericSubBuffers::setTexCoordBuffer(const std::vector<glm::vec2>& texCoord)
+	void GenericSubBuffers::setTexCoordsBuffer(const std::vector<glm::vec2>& texCoords)
 	{
 		glBindVertexArray(vertexArray);
 
-		if (texCoordBuffer)
-			glBindBuffer(GL_ARRAY_BUFFER, *texCoordBuffer);
+		if (texCoordsBuffer)
+			glBindBuffer(GL_ARRAY_BUFFER, *texCoordsBuffer);
 		else
-			createTexCoordBuffer();
+			createTexCoordsBuffer();
 
-		if (numOfAllocatedTexCoord < texCoord.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != *bufferDataUsage)
+		if (numOfAllocatedTexCoords < texCoords.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != *bufferDataUsage)
 		{
-			glBufferData(GL_ARRAY_BUFFER, texCoord.size() * sizeof(texCoord.front()), texCoord.data(), *bufferDataUsage);
-			numOfAllocatedTexCoord = texCoord.size();
+			glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(texCoords.front()), texCoords.data(), *bufferDataUsage);
+			numOfAllocatedTexCoords = texCoords.size();
 			allocatedBufferDataUsage = *bufferDataUsage;
 		}
 		else
-			glBufferSubData(GL_ARRAY_BUFFER, 0, texCoord.size() * sizeof(texCoord.front()), texCoord.data());
+			glBufferSubData(GL_ARRAY_BUFFER, 0, texCoords.size() * sizeof(texCoords.front()), texCoords.data());
 
 		glEnableVertexAttribArray(2);
 	}
 
-	void GenericSubBuffers::createColorBuffer()
+	void GenericSubBuffers::setNormalsBuffer(const std::vector<glm::vec3>& normals)
 	{
-		assert(!colorBuffer);
-		colorBuffer = 0;
-		glGenBuffers(1, &*colorBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, *colorBuffer);
+		glBindVertexArray(vertexArray);
+
+		if (normalsBuffer)
+			glBindBuffer(GL_ARRAY_BUFFER, *normalsBuffer);
+		else
+			createNormalsBuffer();
+
+		if (numOfAllocatedNormals < normals.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != *bufferDataUsage)
+		{
+			glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(normals.front()), normals.data(), *bufferDataUsage);
+			numOfAllocatedNormals = normals.size();
+			allocatedBufferDataUsage = *bufferDataUsage;
+		}
+		else
+			glBufferSubData(GL_ARRAY_BUFFER, 0, normals.size() * sizeof(normals.front()), normals.data());
+
+		glEnableVertexAttribArray(2);
+	}
+
+	void GenericSubBuffers::createColorsBuffer()
+	{
+		assert(!colorsBuffer);
+		colorsBuffer = 0;
+		glGenBuffers(1, &*colorsBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, *colorsBuffer);
 		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 	}
 
-	void GenericSubBuffers::createTexCoordBuffer()
+	void GenericSubBuffers::createTexCoordsBuffer()
 	{
-		assert(!texCoordBuffer);
-		texCoordBuffer = 0;
-		glGenBuffers(1, &*texCoordBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, *texCoordBuffer);
+		assert(!texCoordsBuffer);
+		texCoordsBuffer = 0;
+		glGenBuffers(1, &*texCoordsBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, *texCoordsBuffer);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	}
+
+	void GenericSubBuffers::createNormalsBuffer()
+	{
+		assert(!normalsBuffer);
+		normalsBuffer = 0;
+		glGenBuffers(1, &*normalsBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, *normalsBuffer);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	}
 
 	void GenericBuffers::applyComponentSubsequence(Renderable& renderableComponent)

@@ -10,7 +10,7 @@ namespace Shaders
 		{
 			using ProgramBase::ProgramBase;
 
-			BasicAccessor(ProgramId program) :
+			BasicAccessor(ProgramId program):
 				ProgramBase(program),
 				model(program, "model"),
 				vp(program, "vp"),

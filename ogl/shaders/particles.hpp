@@ -10,7 +10,7 @@ namespace Shaders
 		{
 			using ProgramBase::ProgramBase;
 
-			ParticlesAccessor(ProgramId program) :
+			ParticlesAccessor(ProgramId program):
 				ProgramBase(program),
 				vp(program, "vp"),
 				color(program, "color"),
