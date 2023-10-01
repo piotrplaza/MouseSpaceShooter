@@ -55,9 +55,6 @@
 #include <array>
 #include <type_traits>
 
-#include <thread>
-#include <chrono>
-
 const bool fullScreen =
 #ifdef _DEBUG
 false;

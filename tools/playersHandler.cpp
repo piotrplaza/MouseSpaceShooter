@@ -12,6 +12,8 @@
 
 #include <globals/components.hpp>
 
+#include <algorithm>
+
 namespace
 {
 	ComponentId CreatePresettedPlane(unsigned id, ComponentId planeTexture, ComponentId flameAnimatedTexture, glm::vec3 initLoc)

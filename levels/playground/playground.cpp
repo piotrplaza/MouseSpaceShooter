@@ -154,6 +154,10 @@ namespace Levels
 			textures.last().translate = glm::vec2(0.02f, 0.16f);
 			textures.last().scale = glm::vec2(0.29f, 0.32f);
 			textures.last().darkToTransparent = true;
+
+			recursiveFaceAnimationTexture = textures.size();
+			textures.emplace("textures/recursive face animation.jpg");
+			textures.last().minFilter = GL_LINEAR;
 		}
 
 		void loadAudio()
@@ -197,6 +201,11 @@ namespace Levels
 			invertedFlameAnimatedTexture = Globals::Components().animatedTextures().size();
 			Globals::Components().animatedTextures().add(Globals::Components().animatedTextures().last());
 			Globals::Components().animatedTextures().last().setAdditionalTransformation({ 0.0f, 0.0f }, glm::pi<float>());
+
+			recursiveFaceAnimatedTexture = Globals::Components().animatedTextures().size();
+			Globals::Components().animatedTextures().add({ recursiveFaceAnimationTexture, { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
+				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
+			Globals::Components().animatedTextures().last().start(true);
 		}
 
 		void createBackground()
@@ -507,7 +516,7 @@ namespace Levels
 		void createSpawners()
 		{
 			const auto alpha = std::make_shared<float>(0.0f);
-			const unsigned renderingSetupId = Globals::Components().renderingSetups().size();
+			const unsigned standardRS = Globals::Components().renderingSetups().size();
 			Globals::Components().renderingSetups().emplace(
 				[=, colorUniform = Uniforms::Uniform4f()](Shaders::ProgramId program) mutable {
 					if (!colorUniform.isValid()) colorUniform = Uniforms::Uniform4f(program, "color");
@@ -515,7 +524,38 @@ namespace Levels
 					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColor); };
 				});
 
-			auto spawner = [this, alpha, renderingSetupId, first = true](float duration, auto& spawner) mutable -> bool // Type deduction doesn't get it is always bool.
+			const unsigned recursiveFaceRS = Globals::Components().renderingSetups().size();
+			Globals::Components().renderingSetups().emplace([
+				=,
+				colorUniform = Uniforms::Uniform4f(),
+				visibilityReduction = Uniforms::Uniform1b(),
+				visibilityCenter = Uniforms::Uniform2f(),
+				fullVisibilityDistance = Uniforms::Uniform1f(),
+				invisibilityDistance = Uniforms::Uniform1f()
+			](Shaders::ProgramId program) mutable {
+				if (!colorUniform.isValid())
+				{
+					colorUniform = Uniforms::Uniform4f(program, "color");
+					visibilityReduction = Uniforms::Uniform1b(program, "visibilityReduction");
+					visibilityCenter = Uniforms::Uniform2f(program, "visibilityCenter");
+					fullVisibilityDistance = Uniforms::Uniform1f(program, "fullVisibilityDistance");
+					invisibilityDistance = Uniforms::Uniform1f(program, "invisibilityDistance");
+				}
+
+				colorUniform(glm::vec4(*alpha));
+
+				visibilityReduction(true);
+				visibilityCenter({ 50.0f, 30.0f });
+				fullVisibilityDistance(1.0f);
+				invisibilityDistance(2.0f);
+
+				return [=]() mutable {
+					colorUniform(Globals::Components().graphicsSettings().defaultColor);
+					visibilityReduction(false);
+					};
+				});
+
+			auto spawner = [this, alpha, standardRS, recursiveFaceRS, first = true](float duration, auto& spawner) mutable -> bool // Type deduction doesn't get it is always bool.
 			{
 				const float existenceDuration = 2.0f;
 				const float fadeDuration = 0.2f;
@@ -530,11 +570,11 @@ namespace Levels
 				{
 					first = false;
 					auto& wall = Globals::Components().dynamicWalls().emplace(Tools::CreateBoxBody({ 5.0f, 5.0f },
-						Tools::BodyParams().position({ -50.0f, 30.0f })), TCM::Texture(woodTexture, { 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }), renderingSetupId);
+						Tools::BodyParams().position({ -50.0f, 30.0f })), TCM::Texture(woodTexture, { 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }), standardRS);
 					dynamicWallId = wall.getComponentId();
 
 					auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f, Tools::BodyParams().position({ 50.0f, 30.0f })),
-						TCM::Texture(orbTexture, { 0.0f, 0.0f }, 0.0f, { 2.0f, 2.0f }), renderingSetupId);
+						TCM::AnimatedTexture(recursiveFaceAnimatedTexture, { 0.0f, 0.0f }, 0.0f, { 6.0f, 6.0f }), recursiveFaceRS);
 					grapple.influenceRadius = 20.0f;
 					dynamicGrappleId = grapple.getComponentId();
 				}
@@ -633,10 +673,12 @@ namespace Levels
 		ComponentId ppTexture = 0;
 		ComponentId skullTexture = 0;
 		ComponentId avatarTexture = 0;
+		ComponentId recursiveFaceAnimationTexture = 0;
 
 		std::array<ComponentId, 4> flameAnimatedTextureForPlayers{ 0 };
 		ComponentId flameAnimatedTexture = 0;
 		ComponentId invertedFlameAnimatedTexture = 0;
+		ComponentId recursiveFaceAnimatedTexture = 0;
 
 		ComponentId playerExplosionSoundBuffer = 0;
 		ComponentId missileExplosionSoundBuffer = 0;
