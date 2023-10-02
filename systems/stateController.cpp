@@ -52,7 +52,7 @@ namespace Systems
 
 	void StateController::stepSetup() const
 	{
-		for (auto& stepSetup: Globals::Components().frameSetups())
+		for (auto& stepSetup: Globals::Components().stepSetups())
 			stepSetup();
 	}
 
@@ -74,7 +74,7 @@ namespace Systems
 		for (auto& grapple : Globals::Components().grapples())
 			grapple.details.previousCenter = grapple.getCenter();
 
-		for (auto& stepTeardown : Globals::Components().frameTeardowns())
+		for (auto& stepTeardown : Globals::Components().stepTeardowns())
 			stepTeardown();
 	}
 

@@ -197,14 +197,14 @@ namespace Globals
 		return lights_;
 	}
 
-	DynamicComponents<Components::Functor>& ComponentsHolder::frameSetups()
+	DynamicComponents<Components::Functor>& ComponentsHolder::stepSetups()
 	{
-		return frameSetups_;
+		return stepSetups_;
 	}
 
-	DynamicComponents<Components::Functor>& ComponentsHolder::frameTeardowns()
+	DynamicComponents<Components::Functor>& ComponentsHolder::stepTeardowns()
 	{
-		return frameTeardowns_;
+		return stepTeardowns_;
 	}
 
 	DynamicOrderedComponents<Components::DeferredAction>& ComponentsHolder::deferredActions()
@@ -232,8 +232,8 @@ namespace Globals
 		Components().endCollisionHandlers().markAsDirty();
 		Components().shockwaves().markAsDirty();
 		Components().lights().markAsDirty();
-		Components().frameSetups().markAsDirty();
-		Components().frameTeardowns().markAsDirty();
+		Components().stepSetups().markAsDirty();
+		Components().stepTeardowns().markAsDirty();
 		Components().deferredActions().markAsDirty();
 	}
 

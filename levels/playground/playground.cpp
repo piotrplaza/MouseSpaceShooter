@@ -507,7 +507,7 @@ namespace Levels
 
 		void setFramesRoutines()
 		{
-			Globals::Components().frameSetups().emplace([&]()
+			Globals::Components().stepSetups().emplace([&]()
 				{
 					explosionFrame = false;
 				});

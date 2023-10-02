@@ -34,8 +34,8 @@ namespace Systems
 		Globals::Components().endCollisionHandlers().removeOutdated();
 		Globals::Components().shockwaves().removeOutdated();
 		Globals::Components().lights().removeOutdated();
-		Globals::Components().frameSetups().removeOutdated();
-		Globals::Components().frameTeardowns().removeOutdated();
+		Globals::Components().stepSetups().removeOutdated();
+		Globals::Components().stepTeardowns().removeOutdated();
 		Globals::Components().deferredActions().removeOutdated();
 	}
 }

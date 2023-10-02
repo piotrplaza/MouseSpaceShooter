@@ -82,8 +82,8 @@ namespace Globals
 		DynamicComponents<Components::CollisionHandler>& endCollisionHandlers();
 		DynamicComponents<Components::Shockwave>& shockwaves();
 		DynamicComponents<Components::Light>& lights();
-		DynamicComponents<Components::Functor>& frameSetups();
-		DynamicComponents<Components::Functor>& frameTeardowns();
+		DynamicComponents<Components::Functor>& stepSetups();
+		DynamicComponents<Components::Functor>& stepTeardowns();
 		DynamicOrderedComponents<Components::DeferredAction>& deferredActions();
 
 	private:
@@ -120,8 +120,8 @@ namespace Globals
 		DynamicComponents<Components::CollisionHandler> endCollisionHandlers_;
 		DynamicComponents<Components::Shockwave> shockwaves_;
 		DynamicComponents<Components::Light> lights_;
-		DynamicComponents<Components::Functor> frameSetups_;
-		DynamicComponents<Components::Functor> frameTeardowns_;
+		DynamicComponents<Components::Functor> stepSetups_;
+		DynamicComponents<Components::Functor> stepTeardowns_;
 		DynamicOrderedComponents<Components::DeferredAction> deferredActions_;
 	};
 
