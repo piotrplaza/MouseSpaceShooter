@@ -7,8 +7,26 @@
 #include <deque>
 #include <unordered_map>
 
+class StaticComponentsBase
+{
+public:
+	virtual ~StaticComponentsBase() = default;
+
+	virtual void clear() = 0;
+};
+
+class DynamicComponentsBase
+{
+public:
+	virtual ~DynamicComponentsBase() = default;
+
+	virtual void removeOutdated() = 0;
+	virtual void markAsDirty() = 0;
+	virtual void clear() = 0;
+};
+
 template <typename Component>
-class StaticComponents
+class StaticComponents : public StaticComponentsBase
 {
 public:
 	using Container = std::deque<Component>;
@@ -158,7 +176,7 @@ public:
 		return components;
 	}
 
-	void clear()
+	void clear() override
 	{
 		components.clear();
 	}
@@ -169,7 +187,7 @@ private:
 };
 
 template <typename Component>
-class DynamicComponents
+class DynamicComponents : public DynamicComponentsBase
 {
 public:
 	using Container = std::unordered_map<ComponentId, Component>;
@@ -180,7 +198,7 @@ public:
 	public:
 		using Self = IteratorBase<ContainerIterator, Value>;
 
-		IteratorBase(ContainerIterator initIt) :
+		IteratorBase(ContainerIterator initIt):
 			containerIt(initIt)
 		{
 		}
@@ -309,7 +327,7 @@ public:
 		return const_iterator(components.find(id));
 	}
 
-	void removeOutdated()
+	void removeOutdated() override
 	{
 		auto it = components.begin();
 		while (it != components.end())
@@ -324,7 +342,7 @@ public:
 		}
 	}
 
-	void markAsDirty()
+	void markAsDirty() override
 	{
 		for (auto& component : components)
 		{
@@ -333,7 +351,7 @@ public:
 		}
 	}
 
-	void clear()
+	void clear() override
 	{
 		components.clear();
 	}
@@ -344,7 +362,7 @@ private:
 };
 
 template <typename Component>
-class DynamicOrderedComponents
+class DynamicOrderedComponents : public DynamicComponentsBase
 {
 public:
 	using Container = std::list<Component>;
@@ -454,7 +472,7 @@ public:
 		return iterator(components.erase(it));
 	}
 
-	void removeOutdated()
+	void removeOutdated() override
 	{
 		auto it = components.begin();
 		while (it != components.end())
@@ -469,7 +487,7 @@ public:
 		}
 	}
 
-	void markAsDirty()
+	void markAsDirty() override
 	{
 		for (auto& component : components)
 		{
@@ -478,7 +496,7 @@ public:
 		}
 	}
 
-	void clear()
+	void clear() override
 	{
 		components.clear();
 	}

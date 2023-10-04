@@ -7,6 +7,7 @@
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
 #include <components/mouse.hpp>
+#include <components/shockwave.hpp>
 
 #include <commonTypes/typeComponentMappers.hpp>
 

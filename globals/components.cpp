@@ -119,7 +119,7 @@ namespace Globals
 
 	DynamicComponents<Components::Sound>& ComponentsHolder::sounds()
 	{
-		return sounds_;
+		return *sounds_;
 	}
 
 	StaticComponents<Components::RenderingSetup>& ComponentsHolder::renderingSetups()
@@ -129,7 +129,7 @@ namespace Globals
 
 	DynamicComponents<Components::Plane>& ComponentsHolder::planes()
 	{
-		return planes_;
+		return *planes_;
 	}
 
 	StaticComponents<Components::StaticWall>& ComponentsHolder::staticWalls()
@@ -139,12 +139,12 @@ namespace Globals
 
 	DynamicComponents<Components::DynamicWall>& ComponentsHolder::dynamicWalls()
 	{
-		return dynamicWalls_;
+		return *dynamicWalls_;
 	}
 
 	DynamicComponents<Components::Grapple>& ComponentsHolder::grapples()
 	{
-		return grapples_;
+		return *grapples_;
 	}
 
 	StaticComponents<Components::StaticPolyline>& ComponentsHolder::staticPolylines()
@@ -154,7 +154,7 @@ namespace Globals
 	
 	DynamicComponents<Components::DynamicPolyline>& ComponentsHolder::dynamicPolylines()
 	{
-		return dynamicPolylines_;
+		return *dynamicPolylines_;
 	}
 
 	StaticComponents<Components::Decoration>& ComponentsHolder::staticDecorations()
@@ -164,52 +164,52 @@ namespace Globals
 
 	DynamicComponents<Components::Decoration>& ComponentsHolder::dynamicDecorations()
 	{
-		return dynamicDecorations_;
+		return *dynamicDecorations_;
 	}
 
 	DynamicComponents<Components::Missile>& ComponentsHolder::missiles()
 	{
-		return missiles_;
+		return *missiles_;
 	}
 
 	DynamicComponents<Components::CollisionFilter>& ComponentsHolder::collisionFilters()
 	{
-		return collisionFilters_;
+		return *collisionFilters_;
 	}
 
 	DynamicComponents<Components::CollisionHandler>& ComponentsHolder::beginCollisionHandlers()
 	{
-		return beginCollisionHandlers_;
+		return *beginCollisionHandlers_;
 	}
 
 	DynamicComponents<Components::CollisionHandler>& ComponentsHolder::endCollisionHandlers()
 	{
-		return endCollisionHandlers_;
+		return *endCollisionHandlers_;
 	}
 
 	DynamicComponents<Components::Shockwave>& ComponentsHolder::shockwaves()
 	{
-		return shockwaves_;
+		return *shockwaves_;
 	}
 
 	DynamicComponents<Components::Light>& ComponentsHolder::lights()
 	{
-		return lights_;
+		return *lights_;
 	}
 
 	DynamicComponents<Components::Functor>& ComponentsHolder::stepSetups()
 	{
-		return stepSetups_;
+		return *stepSetups_;
 	}
 
 	DynamicComponents<Components::Functor>& ComponentsHolder::stepTeardowns()
 	{
-		return stepTeardowns_;
+		return *stepTeardowns_;
 	}
 
 	DynamicOrderedComponents<Components::DeferredAction>& ComponentsHolder::deferredActions()
 	{
-		return deferredActions_;
+		return *deferredActions_;
 	}
 
 	void InitializeComponents()
