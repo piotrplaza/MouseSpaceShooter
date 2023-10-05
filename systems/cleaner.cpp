@@ -22,20 +22,6 @@ namespace Systems
 
 	void Cleaner::step() const
 	{
-		Globals::Components().sounds().removeOutdated();
-		Globals::Components().planes().removeOutdated();
-		Globals::Components().dynamicWalls().removeOutdated();
-		Globals::Components().grapples().removeOutdated();
-		Globals::Components().dynamicPolylines().removeOutdated();
-		Globals::Components().dynamicDecorations().removeOutdated();
-		Globals::Components().missiles().removeOutdated();
-		Globals::Components().collisionFilters().removeOutdated();
-		Globals::Components().beginCollisionHandlers().removeOutdated();
-		Globals::Components().endCollisionHandlers().removeOutdated();
-		Globals::Components().shockwaves().removeOutdated();
-		Globals::Components().lights().removeOutdated();
-		Globals::Components().stepSetups().removeOutdated();
-		Globals::Components().stepTeardowns().removeOutdated();
-		Globals::Components().deferredActions().removeOutdated();
+		DynamicComponentsBase::removeAllOutdated();
 	}
 }

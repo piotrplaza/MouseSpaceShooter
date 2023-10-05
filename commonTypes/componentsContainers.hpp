@@ -6,23 +6,70 @@
 
 #include <deque>
 #include <unordered_map>
+#include <unordered_set>
 
 class StaticComponentsBase
 {
 public:
-	virtual ~StaticComponentsBase() = default;
+	StaticComponentsBase()
+	{
+		instances.insert(this);
+	}
+
+	virtual ~StaticComponentsBase()
+	{
+		instances.erase(this);
+	}
 
 	virtual void clear() = 0;
+
+	static void clearAll()
+	{
+		for (auto instance : instances)
+			instance->clear();
+	}
+
+private:
+	static inline std::unordered_set<StaticComponentsBase*> instances;
 };
 
 class DynamicComponentsBase
 {
 public:
-	virtual ~DynamicComponentsBase() = default;
+	DynamicComponentsBase()
+	{
+		instances.insert(this);
+	}
+
+	virtual ~DynamicComponentsBase()
+	{
+		instances.erase(this);
+	}
 
 	virtual void removeOutdated() = 0;
 	virtual void markAsDirty() = 0;
 	virtual void clear() = 0;
+
+	static void removeAllOutdated()
+	{
+		for (auto instance : instances)
+			instance->removeOutdated();
+	}
+
+	static void markAllAsDirty()
+	{
+		for (auto instance : instances)
+			instance->markAsDirty();
+	}
+
+	static void clearAll()
+	{
+		for (auto instance : instances)
+			instance->clear();
+	}
+
+private:
+	static inline std::unordered_set<DynamicComponentsBase*> instances;
 };
 
 template <typename Component>
