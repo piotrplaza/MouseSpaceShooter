@@ -109,6 +109,7 @@ namespace Systems
 
 			buffers.draw(Globals::Shaders().textured(), [](const auto& buffers) {
 				Globals::Shaders().textured().model(buffers.modelMatrixF());
+				Globals::Shaders().textured().visibilityCenter(buffers.originF());
 				Globals::Shaders().textured().color((*buffers.colorF) ? (*buffers.colorF)() : Globals::Components().graphicsSettings().defaultColor);
 				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers, *buffers.texture);
 				});

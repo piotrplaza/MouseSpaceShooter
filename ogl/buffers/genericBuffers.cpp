@@ -13,6 +13,7 @@ namespace
 	inline void RenderableCommonsToBuffersCommons(RenderableDef& renderableDef, Buffers::GenericSubBuffers& buffers)
 	{
 		buffers.modelMatrixF = [&]() { return renderableDef.getModelMatrix(); };
+		buffers.originF = [&]() { return renderableDef.getOrigin(); };
 		buffers.colorF = &renderableDef.colorF;
 		buffers.renderingSetup = &renderableDef.renderingSetup;
 		buffers.texture = &renderableDef.texture;
@@ -50,6 +51,7 @@ namespace Buffers
 		texCoordsBuffer(other.texCoordsBuffer),
 		normalsBuffer(other.normalsBuffer),
 		modelMatrixF(std::move(other.modelMatrixF)),
+		originF(std::move(other.originF)),
 		colorF(other.colorF),
 		texture(other.texture),
 		renderingSetup(other.renderingSetup),

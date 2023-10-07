@@ -104,7 +104,7 @@ namespace Tools
 	{
 		auto& plane = Globals::Components().planes().emplace(std::move(body), TCM::Texture(planeTexture));
 
-		plane.setPosition(params.position_);
+		plane.setOrigin(params.position_);
 		plane.setAngle(params.angle_);
 		plane.preserveTextureRatio = true;
 		plane.posInSubsequence = params.numOfThrusts_ + params.collisionBoxRendering_;
@@ -211,7 +211,7 @@ namespace Tools
 		{
 			soundId = Tools::PlaySingleSound(*missileSoundBuffer,
 				[&]() {
-					return missile.getCenter();
+					return missile.getOrigin2D();
 				},
 				[](auto& sound) {
 					sound.removeOnStop(false);

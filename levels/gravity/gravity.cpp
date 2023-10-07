@@ -123,7 +123,7 @@ namespace Levels
 		void createBackground()
 		{
 			Tools::CreateJuliaBackground([this]() {
-				return Globals::Components().planes()[player1Id].getCenter() * 0.0001f; });
+				return Globals::Components().planes()[player1Id].getOrigin() * 0.0001f; });
 		}
 
 		void createForeground()
@@ -162,7 +162,7 @@ namespace Levels
 			const float initExplosionVelocity = 5.0f;
 			auto& plane = Globals::Components().planes()[player1Id];
 
-			auto missileHandler = Tools::CreateMissile(plane.getCenter(), plane.getAngle(), 5.0f, plane.getVelocity(),
+			auto missileHandler = Tools::CreateMissile(plane.getOrigin(), plane.getAngle(), 5.0f, plane.getVelocity(),
 				glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * initExplosionVelocity, missile2Texture, flame1AnimatedTexture);
 
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
@@ -204,11 +204,11 @@ namespace Levels
 
 			Globals::Components().camera().targetProjectionHSizeF = [&]() {
 				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
-				return (glm::distance(plane.getCenter(), planet.getCenter()) * 0.6f + glm::length(plane.getVelocity()) * 0.2f) * projectionHSizeBase * 0.2f;
+				return (glm::distance(plane.getOrigin2D(), planet.getOrigin2D()) * 0.6f + glm::length(plane.getVelocity()) * 0.2f) * projectionHSizeBase * 0.2f;
 			};
 			Globals::Components().camera().targetPositionF = [&]() {
 				Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
-				return (plane.getCenter() + planet.getCenter()) / 2.0f + glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * 5.0f + plane.getVelocity() * 0.4f;
+				return (plane.getOrigin2D() + planet.getOrigin2D()) / 2.0f + glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * 5.0f + plane.getVelocity() * 0.4f;
 			};
 		}
 
@@ -267,7 +267,7 @@ namespace Levels
 			auto applyGravity = [&](auto& component, float mM)
 			{
 				const auto& planet = Globals::Components().grapples()[planetId];
-				const auto gravityDiff = planet.getCenter() - component.getCenter();
+				const auto gravityDiff = planet.getOrigin() - component.getOrigin();
 				const auto gravityVecDist = glm::length(gravityDiff);
 				const auto gravityVecNorm = glm::normalize(gravityDiff);
 				const auto gravityVec = mM / glm::pow(gravityVecDist, 2.0f) * gravityVecNorm;

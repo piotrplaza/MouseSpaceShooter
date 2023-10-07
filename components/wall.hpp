@@ -17,19 +17,11 @@ namespace Components
 		{
 		}
 
-		std::function<void()> stepF;
-
 		void init(ComponentId id) override
 		{
 			ComponentBase::init(id);
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
 			setBodyComponentVariant(TCM::StaticWall(id, this));
-		}
-
-		void step() override
-		{
-			if (stepF)
-				stepF();
 		}
 	};
 

@@ -23,7 +23,7 @@ namespace Levels
 			auto& wall1 = staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams()));
 			auto& wall2 = staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 0.0f, 5.0f }).bodyType(b2_dynamicBody)));
 
-			Tools::CreateDistanceJoint(*wall1.body, *wall2.body, wall1.getCenter(), wall2.getCenter(), true, distance(wall1.getCenter(), wall2.getCenter()));
+			Tools::CreateDistanceJoint(*wall1.body, *wall2.body, wall1.getOrigin(), wall2.getOrigin(), true, distance(wall1.getOrigin(), wall2.getOrigin()));
 		}
 
 		void step()
@@ -33,7 +33,7 @@ namespace Levels
 			auto& staticWalls = Globals::Components().staticWalls();
 			auto& physics = Globals::Components().physics();
 
-			const glm::vec2 fromCenterVec = glm::normalize(staticWalls[1].getCenter() - staticWalls[0].getCenter());
+			const glm::vec2 fromCenterVec = glm::normalize(staticWalls[1].getOrigin() - staticWalls[0].getOrigin());
 			const glm::vec2 forceVec = rotate(fromCenterVec, -glm::half_pi<float>());
 			staticWalls[1].body->ApplyForceToCenter(ToVec2<b2Vec2>(forceVec * force), false);
 			

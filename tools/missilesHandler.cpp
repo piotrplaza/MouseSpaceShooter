@@ -128,7 +128,7 @@ namespace Tools
 
 	const MissileHandler& MissilesHandler::launchMissile(ComponentId playerId, std::optional<ComponentId> soundBufferId, float maxLifetime)
 	{
-		auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[playerId].getCenter(),
+		auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[playerId].getOrigin2D(),
 			Globals::Components().planes()[playerId].getAngle(), 5.0f, { 0.0f, 0.0f },
 			Globals::Components().planes()[playerId].getVelocity(),
 			missileTexture, flameAnimatedTexture, playerId, soundBufferId);

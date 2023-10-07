@@ -104,12 +104,13 @@ struct RenderableDef
 		return normals;
 	}
 
-	virtual glm::vec2 getPosition() const
+	virtual glm::vec3 getOrigin() const
 	{
-		return getModelMatrix() * glm::vec4(0.0f);
+		return getModelMatrix() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 
-	virtual void step()
+	glm::vec2 getOrigin2D() const
 	{
+		return getOrigin();
 	}
 };

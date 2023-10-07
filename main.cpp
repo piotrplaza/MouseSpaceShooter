@@ -108,7 +108,7 @@ void CreateLevel()
 void Init()
 {
 	if (console)
-		Tools::RedirectIOToConsole({ -1500, 10 });
+		Tools::RedirectIOToConsole({ 3850, 10 });
 	Tools::RandomInit();
 	OGLInitialize();
 	int sdlInitResult = SDL_Init(SDL_INIT_GAMECONTROLLER);

@@ -35,7 +35,6 @@ namespace Components
 
 		std::function<std::vector<glm::vec3>(const glm::vec3&, const glm::vec3&)> segmentVerticesGenerator;
 		std::function<void(std::vector<glm::vec3>&)> keyVerticesTransformer;
-		std::function<void()> stepF;
 
 		void init(ComponentId id) override
 		{

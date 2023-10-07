@@ -207,7 +207,7 @@ namespace Levels
 						return false;
 
 					const glm::vec2 polylineVec = glm::normalize(polylineComponent.getVertices()[1] - polylineComponent.getVertices()[0]);
-					const glm::vec2 planeVec = glm::normalize(planeComponent.getCenter() - glm::vec2(polylineComponent.getVertices()[0]));
+					const glm::vec2 planeVec = glm::normalize(planeComponent.getOrigin2D() - glm::vec2(polylineComponent.getVertices()[0]));
 
 					if (--(*collisionsStarted)[planeComponent.getComponentId()] > 0)
 						return false;
@@ -245,9 +245,9 @@ namespace Levels
 
 		void destroyPlane(Components::Plane& plane)
 		{
-			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getCenter()).sourceVelocity(plane.getVelocity()).
+			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getOrigin2D()).sourceVelocity(plane.getVelocity()).
 				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
-			Tools::PlaySingleSound(playerExplosionSoundBuffer, [pos = plane.getCenter()]() { return pos; });
+			Tools::PlaySingleSound(playerExplosionSoundBuffer, [pos = plane.getOrigin2D()]() { return pos; });
 			plane.enable(false);
 			playersToCircuits.erase(plane.getComponentId());
 		}

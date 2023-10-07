@@ -36,6 +36,7 @@ namespace Buffers
 		void setNormalsBuffer(const std::vector<glm::vec3>& normals);
 
 		std::function<glm::mat4()> modelMatrixF;
+		std::function<glm::vec3()> originF;
 		std::function<glm::vec4()> *colorF = nullptr;
 		TextureComponentVariant* texture = nullptr;
 		std::optional<ComponentId>* renderingSetup = nullptr;

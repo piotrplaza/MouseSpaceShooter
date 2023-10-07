@@ -181,7 +181,7 @@ namespace Levels
 			Tools::CreateJuliaBackground([this]() {
 				const auto averageCenter = std::accumulate(playersHandler.getPlayersHandlers().begin(), playersHandler.getPlayersHandlers().end(),
 					glm::vec2(0.0f), [](const auto& acc, const auto& currentHandler) {
-						return acc + Globals::Components().planes()[currentHandler.playerId].getCenter();
+						return acc + Globals::Components().planes()[currentHandler.playerId].getOrigin2D();
 					}) / (float)playersHandler.getPlayersHandlers().size();
 					return averageCenter * 0.0001f; });
 		}
@@ -323,9 +323,9 @@ namespace Levels
 
 					Globals::Components().deferredActions().emplace([&](auto) {
 						auto& planeComponent = *std::get<TCM::Plane>(Tools::AccessUserData(*plane.GetBody()).bodyComponentVariant).component;
-						Tools::CreateExplosion(Tools::ExplosionParams().center(planeComponent.getCenter()).sourceVelocity(planeComponent.getVelocity()).
+						Tools::CreateExplosion(Tools::ExplosionParams().center(planeComponent.getOrigin2D()).sourceVelocity(planeComponent.getVelocity()).
 							initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
-						Tools::PlaySingleSound(playerExplosionSoundBuffer, [pos = planeComponent.getCenter()]() { return pos; });
+						Tools::PlaySingleSound(playerExplosionSoundBuffer, [pos = planeComponent.getOrigin2D()]() { return pos; });
 						planeComponent.enable(false);
 						return false;
 						});
@@ -428,13 +428,13 @@ namespace Levels
 			{
 				const float innerForceForPlanes = innerForceScale * 700.0f;
 				auto& plane = Globals::Components().planes()[planeHandler.playerId];
-				plane.body->ApplyForceToCenter(ToVec2<b2Vec2>(glm::normalize(plane.getCenter()) *
-					(innerForceForPlanes / glm::pow(glm::length(plane.getCenter()) - 8.0f * innerForceScale, 2.0f))), true);
+				plane.body->ApplyForceToCenter(ToVec2<b2Vec2>(glm::normalize(plane.getOrigin2D()) *
+					(innerForceForPlanes / glm::pow(glm::length(plane.getOrigin2D()) - 8.0f * innerForceScale, 2.0f))), true);
 			}
 
 			auto applyForceForDebris = [&](auto& debris, float forceFactor) {
-				debris.body->ApplyForceToCenter(ToVec2<b2Vec2>(glm::normalize(debris.getCenter()) *
-					(orbitR - glm::length(debris.getCenter())) * forceFactor), true);
+				debris.body->ApplyForceToCenter(ToVec2<b2Vec2>(glm::normalize(debris.getOrigin2D()) *
+					(orbitR - glm::length(debris.getOrigin2D())) * forceFactor), true);
 			};
 
 			for (auto id : grapplesDebris)

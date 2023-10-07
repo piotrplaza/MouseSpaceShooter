@@ -81,7 +81,7 @@ namespace Systems
 		if (plane.details.grappleJoint && plane.controls.autoRotation)
 		{
 			const auto& grapple = Globals::Components().grapples()[*plane.details.connectedGrappleId];
-			const glm::vec2 stepVelocity = (plane.getCenter() - plane.details.previousCenter) - (grapple.getCenter() - grapple.details.previousCenter);
+			const glm::vec2 stepVelocity = (plane.getOrigin2D() - plane.details.previousCenter) - (grapple.getOrigin2D() - grapple.details.previousCenter);
 			const float stepVelocityLength = glm::length(stepVelocity);
 
 			if (stepVelocityLength > 0.0f)
@@ -130,7 +130,7 @@ namespace Systems
 
 		for (const auto& grapple: Globals::Components().grapples())
 		{
-			const float grappleDistance = glm::distance(plane.getCenter(), grapple.getCenter());
+			const float grappleDistance = glm::distance(plane.getOrigin2D(), grapple.getOrigin2D());
 
 			if (grappleDistance > grapple.influenceRadius) continue;
 
@@ -157,7 +157,7 @@ namespace Systems
 			if (grappleInRange == nearestGrappleId)
 			{
 				if (plane.controls.magneticHook && !plane.details.grappleJoint &&
-					(glm::distance(plane.getCenter(), grapple.getCenter()) >=
+					(glm::distance(plane.getOrigin2D(), grapple.getOrigin2D()) >=
 					glm::distance(plane.details.previousCenter, grapple.details.previousCenter) ||
 					plane.connectIfApproaching))
 				{
@@ -171,32 +171,32 @@ namespace Systems
 					{
 						if (plane.details.grappleJoint)
 						{
-							planeConnections.params.emplace_back(plane.getCenter(), grapple.getCenter(),
+							planeConnections.params.emplace_back(plane.getOrigin2D(), grapple.getOrigin2D(),
 								glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) * 0.2f, 1);
 						}
 						plane.details.weakConnectedGrappleId = grappleInRange;
 					}
 					else
 					{
-						planeConnections.params.emplace_back(plane.getCenter(), grapple.getCenter(),
+						planeConnections.params.emplace_back(plane.getOrigin2D(), grapple.getOrigin2D(),
 							glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) * 0.2f, 1);
 					}
 				}
 			}
 			else if (plane.details.connectedGrappleId != grappleInRange)
 			{
-				planeConnections.params.emplace_back(plane.getCenter(), grapple.getCenter(), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) * 0.2f, 1);
+				planeConnections.params.emplace_back(plane.getOrigin2D(), grapple.getOrigin2D(), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) * 0.2f, 1);
 			}
 		}
 
 		if (plane.details.connectedGrappleId)
 		{
-			planeConnections.params.emplace_back(plane.getCenter(), Globals::Components().grapples()[*plane.details.connectedGrappleId].getCenter(),
+			planeConnections.params.emplace_back(plane.getOrigin2D(), Globals::Components().grapples()[*plane.details.connectedGrappleId].getOrigin2D(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) * 0.7f, 20, 0.4f);
 		}
 		else if (plane.details.weakConnectedGrappleId)
 		{
-			planeConnections.params.emplace_back(plane.getCenter(), Globals::Components().grapples()[*plane.details.weakConnectedGrappleId].getCenter(),
+			planeConnections.params.emplace_back(plane.getOrigin2D(), Globals::Components().grapples()[*plane.details.weakConnectedGrappleId].getOrigin2D(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) * 0.5f, 1);
 		}
 	}
@@ -209,7 +209,7 @@ namespace Systems
 
 		plane.details.grappleJoint.reset(Tools::CreateDistanceJoint(*plane.body, *grapple.body,
 			ToVec2<glm::vec2>(plane.body->GetWorldCenter()), ToVec2<glm::vec2>(grapple.body->GetWorldCenter()),
-			true, glm::distance(plane.getCenter(), grapple.getCenter())));
+			true, glm::distance(plane.getOrigin2D(), grapple.getOrigin2D())));
 	}
 
 	std::vector<glm::vec3> Actors::Connections::Params::getVertices() const

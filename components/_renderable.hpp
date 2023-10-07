@@ -39,6 +39,14 @@ struct Renderable : ComponentBase, RenderableDef
 	{
 	}
 
+	std::function<void()> stepF;
+
+	virtual void step()
+	{
+		if (stepF)
+			stepF();
+	}
+
 	std::optional<Shaders::ProgramId> customShadersProgram;
 
 	ResolutionMode resolutionMode = ResolutionMode::Normal;

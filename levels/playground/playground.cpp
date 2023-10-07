@@ -213,7 +213,7 @@ namespace Levels
 			Tools::CreateJuliaBackground([this]() {
 				const auto averageCenter = std::accumulate(playersHandler.getPlayersHandlers().begin(), playersHandler.getPlayersHandlers().end(),
 					glm::vec2(0.0f), [](const auto& acc, const auto& currentHandler) {
-						return acc + Globals::Components().planes()[currentHandler.playerId].getCenter();
+						return acc + Globals::Components().planes()[currentHandler.playerId].getOrigin2D();
 					}) / (float)playersHandler.getPlayersHandlers().size();
 				return averageCenter * 0.0001f; });
 		}
@@ -239,6 +239,36 @@ namespace Levels
 				});
 		}
 
+		Components::RenderingSetup createRecursiveFaceRS(std::function<glm::vec4()> colorF, glm::vec2 fadingRange) const
+		{
+			return { [=,
+				colorUniform = Uniforms::Uniform4f(),
+				visibilityReduction = Uniforms::Uniform1b(),
+				fullVisibilityDistance = Uniforms::Uniform1f(),
+				invisibilityDistance = Uniforms::Uniform1f(),
+				colorF = std::move(colorF)
+			] (Shaders::ProgramId program) mutable {
+				if (!colorUniform.isValid())
+				{
+					colorUniform = Uniforms::Uniform4f(program, "color");
+					visibilityReduction = Uniforms::Uniform1b(program, "visibilityReduction");
+					fullVisibilityDistance = Uniforms::Uniform1f(program, "fullVisibilityDistance");
+					invisibilityDistance = Uniforms::Uniform1f(program, "invisibilityDistance");
+				}
+
+				colorUniform(colorF());
+
+				visibilityReduction(true);
+				fullVisibilityDistance(fadingRange.x);
+				invisibilityDistance(fadingRange.y);
+
+				return [=]() mutable {
+					colorUniform(Globals::Components().graphicsSettings().defaultColor);
+					visibilityReduction(false);
+					};
+			} };
+		}
+
 		void createAdditionalDecorations() const
 		{
 			const auto blendingTexture = Globals::Components().blendingTextures().size();
@@ -256,7 +286,7 @@ namespace Levels
 					const float skullOpacity = fogAlphaFactor - 1.0f;
 					float minDistance = std::numeric_limits<float>::max();
 					for (const auto& playerHandler : playersHandler.getPlayersHandlers())
-						minDistance = std::min(minDistance, glm::distance(Globals::Components().planes()[playerHandler.playerId].getCenter(), portraitCenter));
+						minDistance = std::min(minDistance, glm::distance(Globals::Components().planes()[playerHandler.playerId].getOrigin2D(), portraitCenter));
 					const float avatarOpacity = glm::min(0.0f, minDistance / 3.0f - 5.0f);
 
 					i == 0
@@ -489,15 +519,17 @@ namespace Levels
 				Tools::BodyParams().position({ -10.0f, -30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)),
 				TCM::Texture(orbTexture), Globals::Components().renderingSetups().size() - 1).influenceRadius = 30.0f;
 
-			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f,
+			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(4.0f,
 				Tools::BodyParams().position({ -10.0f, 30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)), TCM::Texture(0));
 			grapple.influenceRadius = 30.0f;
 			grapple.renderF = []() { return false; };
-			grapple.subsequence.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 2.2f, 2.2f }),
-				Tools::CreateTexCoordOfRectangle(), TCM::Texture(roseTexture));
+			grapple.subsequence.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.2f, 5.2f }),
+				Tools::CreateTexCoordOfRectangle(), TCM::AnimatedTexture(recursiveFaceAnimatedTexture));
 			grapple.subsequence.back().modelMatrixF = [&grapple]() {
 				return grapple.getModelMatrix();
 			};
+			grapple.subsequence.back().renderingSetup = Globals::Components().renderingSetups().size();
+			Globals::Components().renderingSetups().add(createRecursiveFaceRS([]() { return glm::vec4(1.0f); }, {3.0f, 4.0f}));
 		}
 
 		void setCamera() const
@@ -525,35 +557,7 @@ namespace Levels
 				});
 
 			const unsigned recursiveFaceRS = Globals::Components().renderingSetups().size();
-			Globals::Components().renderingSetups().emplace([
-				=,
-				colorUniform = Uniforms::Uniform4f(),
-				visibilityReduction = Uniforms::Uniform1b(),
-				visibilityCenter = Uniforms::Uniform2f(),
-				fullVisibilityDistance = Uniforms::Uniform1f(),
-				invisibilityDistance = Uniforms::Uniform1f()
-			](Shaders::ProgramId program) mutable {
-				if (!colorUniform.isValid())
-				{
-					colorUniform = Uniforms::Uniform4f(program, "color");
-					visibilityReduction = Uniforms::Uniform1b(program, "visibilityReduction");
-					visibilityCenter = Uniforms::Uniform2f(program, "visibilityCenter");
-					fullVisibilityDistance = Uniforms::Uniform1f(program, "fullVisibilityDistance");
-					invisibilityDistance = Uniforms::Uniform1f(program, "invisibilityDistance");
-				}
-
-				colorUniform(glm::vec4(*alpha));
-
-				visibilityReduction(true);
-				visibilityCenter({ 50.0f, 30.0f });
-				fullVisibilityDistance(1.0f);
-				invisibilityDistance(2.0f);
-
-				return [=]() mutable {
-					colorUniform(Globals::Components().graphicsSettings().defaultColor);
-					visibilityReduction(false);
-					};
-				});
+			Globals::Components().renderingSetups().add(createRecursiveFaceRS([=]() { return glm::vec4(*alpha); }, {1.0f, 2.0f}));
 
 			auto spawner = [this, alpha, standardRS, recursiveFaceRS, first = true](float duration, auto& spawner) mutable -> bool // Type deduction doesn't get it is always bool.
 			{

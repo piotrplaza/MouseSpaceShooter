@@ -50,7 +50,7 @@ namespace
 		sound.loop(true);
 		sound.volume(0.0f);
 		sound.stepF = [&plane](auto& sound) {
-			sound.position(Tools::GetRelativePos(plane.getCenter()));
+			sound.position(Tools::GetRelativePos(plane.getOrigin2D()));
 		};
 		sound.play();
 
@@ -123,7 +123,7 @@ namespace Tools
 			if (centerToFront)
 			{
 				auto& plane = planes[planeId];
-				plane.setPosition(plane.getPosition() - glm::vec2(std::cos(plane.getAngle()), std::sin(plane.getAngle())) * plane.getHorizontalOffsets()[1]);
+				plane.setOrigin(plane.getOrigin2D() - glm::vec2(std::cos(plane.getAngle()), std::sin(plane.getAngle())) * plane.getHorizontalOffsets()[1]);
 			}
 		}
 	}
@@ -156,7 +156,7 @@ namespace Tools
 				for (const auto& playerHandler : activePlayersHandlers)
 				{
 					const auto& plane = planes[playerHandler->playerId];
-					allActorsPos.emplace_back(plane.getCenter() + velocityCorrection(plane));
+					allActorsPos.emplace_back(plane.getOrigin2D() + velocityCorrection(plane));
 				}
 				for (const auto& additionalActor : additionalActors)
 					allActorsPos.emplace_back(additionalActor());
@@ -192,7 +192,7 @@ namespace Tools
 			for (const auto& playerHandler : activePlayersHandlers)
 			{
 				const auto& plane = planes[playerHandler->playerId];
-				allActorsPos.emplace_back(plane.getCenter());
+				allActorsPos.emplace_back(plane.getOrigin2D());
 				sumOfVelocityCorrections += velocityCorrection(plane);
 			}
 			for (const auto& additionalActor : additionalActors)

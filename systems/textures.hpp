@@ -9,7 +9,6 @@
 namespace Components
 {
 	struct Texture;
-	struct Texture;
 }
 
 namespace Systems

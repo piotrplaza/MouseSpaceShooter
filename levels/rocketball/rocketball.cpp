@@ -112,11 +112,11 @@ namespace Levels
 
 			Globals::Components().camera().targetProjectionHSizeF = [&]() {
 				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
-				return 30.0f + glm::distance(player.getCenter(), ball->getCenter()) * 0.3f;
+				return 30.0f + glm::distance(player.getOrigin2D(), ball->getOrigin2D()) * 0.3f;
 			};
 			Globals::Components().camera().targetPositionF = [&]() {
 				Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
-				return (player.getCenter() + ball->getCenter()) * 0.5f;
+				return (player.getOrigin2D() + ball->getOrigin2D()) * 0.5f;
 			};
 		}
 

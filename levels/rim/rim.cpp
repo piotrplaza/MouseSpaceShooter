@@ -238,7 +238,7 @@ namespace Levels
 			};
 			Globals::Components().camera().targetPositionF = [&]() {
 				Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
-				return plane.getCenter() + glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * 5.0f + plane.getVelocity() * 0.4f;
+				return plane.getOrigin2D() + glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * 5.0f + plane.getVelocity() * 0.4f;
 			};
 		}
 
@@ -260,7 +260,7 @@ namespace Levels
 
 		void launchMissile()
 		{
-			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[player1Id].getCenter(),
+			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[player1Id].getOrigin2D(),
 				Globals::Components().planes()[player1Id].getAngle(), 5.0f, { 0.0f, 0.0f }, Globals::Components().planes()[player1Id].getVelocity(),
 				missileTexture, flame1AnimatedTexture);
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));

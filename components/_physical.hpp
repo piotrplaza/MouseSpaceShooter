@@ -45,19 +45,19 @@ struct Physical : Renderable
 		body->SetEnabled(value);
 	}
 
-	glm::vec2 getPosition() const override
+	glm::vec3 getOrigin() const override
 	{
-		return ToVec2<glm::vec2>(body->GetPosition());
+		return { ToVec2<glm::vec2>(body->GetPosition()), 0.0f };
 	}
 
-	virtual glm::vec2 getCenter() const
+	virtual glm::vec2 getMassCenter() const
 	{
 		return ToVec2<glm::vec2>(body->GetWorldCenter());
 	}
 
-	virtual void setPosition(const glm::vec2& position)
+	virtual void setOrigin(const glm::vec2& center)
 	{
-		body->SetTransform({ position.x, position.y }, body->GetAngle());
+		body->SetTransform({ center.x, center.y }, body->GetAngle());
 	}
 
 	virtual void setAngle(float angle)
