@@ -6,11 +6,11 @@ namespace Shaders
 {
 	namespace Programs
 	{
-		struct BasicAccessor : ProgramBase
+		struct BasicPhongAccessor : ProgramBase
 		{
 			using ProgramBase::ProgramBase;
 
-			BasicAccessor(ProgramId program):
+			BasicPhongAccessor(ProgramId program):
 				ProgramBase(program),
 				model(program, "model"),
 				vp(program, "vp"),
@@ -23,20 +23,20 @@ namespace Shaders
 			Uniforms::Uniform4f color;
 		};
 
-		struct Basic : BasicAccessor
+		struct BasicPhong : BasicPhongAccessor
 		{
-			Basic():
-				BasicAccessor(LinkProgram(CompileShaders("ogl/shaders/basic.vs",
-					"ogl/shaders/basic.fs"), { {0, "bPos"}, {1, "bColor"} }))
+			BasicPhong():
+				BasicPhongAccessor(LinkProgram(CompileShaders("ogl/shaders/basicPhong.vs",
+					"ogl/shaders/basicPhong.fs"), { {0, "bPos"}, {1, "bColor"}, {2, "bNormal"} }))
 			{
 				model(glm::mat4(1.0f));
 				vp(glm::mat4(1.0f));
 				color(glm::vec4(1.0f));
 			}
 
-			Basic(const Basic&) = delete;
+			BasicPhong(const BasicPhong&) = delete;
 
-			~Basic()
+			~BasicPhong()
 			{
 				glDeleteProgram(getProgramId());
 			}

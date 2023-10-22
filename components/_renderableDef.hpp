@@ -40,6 +40,7 @@ struct RenderableDef
 	std::vector<glm::vec4> colors;
 	std::vector<glm::vec2> texCoord;
 	std::vector<glm::vec3> normals;
+	std::vector<unsigned> indices;
 
 	std::function<glm::mat4()> modelMatrixF;
 	std::function<glm::vec4()> colorF;
@@ -102,6 +103,11 @@ struct RenderableDef
 	virtual const std::vector<glm::vec3>& getNormals() const
 	{
 		return normals;
+	}
+
+	virtual const std::vector<unsigned>& getIndices() const
+	{
+		return indices;
 	}
 
 	virtual glm::vec3 getOrigin() const

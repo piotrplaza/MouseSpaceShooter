@@ -14,6 +14,8 @@
 #include <ogl/oglHelpers.hpp>
 #include <ogl/renderingHelpers.hpp>
 
+#include <ogl/shaders/basicPhong.hpp>
+#include <ogl/shaders/texturedPhong.hpp>
 #include <ogl/shaders/basic.hpp>
 #include <ogl/shaders/textured.hpp>
 
@@ -44,6 +46,8 @@ namespace Systems
 
 		for (size_t layer = 0; layer < (size_t)RenderLayer::COUNT; ++layer)
 		{
+			basicPhongRender(layer);
+			texturedPhongRender(layer);
 			basicRender(layer);
 			texturedRender(layer);
 			customShadersRender(layer);
@@ -56,6 +60,69 @@ namespace Systems
 
 		assert(Globals::Components().mainFramebufferRenderer().renderer);
 		Globals::Components().mainFramebufferRenderer().renderer(framebuffers.main.textureUnit - GL_TEXTURE0);
+	}
+
+	void RenderingController::basicPhongRender(size_t layer) const
+	{
+		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers.basicPhong;
+		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.basicPhong;
+
+		glUseProgram_proxy(Globals::Shaders().basicPhong().getProgramId());
+		Globals::Shaders().basicPhong().vp(Globals::Components().mvp3D().getVP());
+
+		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
+
+		auto render = [&](const auto& buffers)
+			{
+				const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(*buffers.resolutionMode);
+				Tools::ConditionalScopedFramebuffer csfb(*buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
+					lowResSubBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
+
+				texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
+
+				buffers.draw(Globals::Shaders().basicPhong().getProgramId(), [](const auto& buffers) {
+					Globals::Shaders().basicPhong().model(buffers.modelMatrixF());
+					Globals::Shaders().basicPhong().color((*buffers.colorF) ? (*buffers.colorF)() : Globals::Components().graphicsSettings().defaultColor);
+					});
+			};
+
+		for (const auto& buffers : staticBuffers[layer])
+			render(buffers);
+
+		for (const auto& [id, buffers] : dynamicBuffers[layer])
+			render(buffers);
+	}
+
+	void RenderingController::texturedPhongRender(size_t layer) const
+	{
+		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers.texturedPhong;
+		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.texturedPhong;
+
+		glUseProgram_proxy(Globals::Shaders().texturedPhong().getProgramId());
+		Globals::Shaders().texturedPhong().vp(Globals::Components().mvp3D().getVP());
+
+		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
+
+		auto render = [&](const auto& buffers)
+			{
+				const auto& lowResSubBuffers = Globals::Components().framebuffers().getSubBuffers(*buffers.resolutionMode);
+				Tools::ConditionalScopedFramebuffer csfb(*buffers.resolutionMode != ResolutionMode::Normal, lowResSubBuffers.fbo,
+					lowResSubBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
+
+				texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
+
+				buffers.draw(Globals::Shaders().texturedPhong(), [](const auto& buffers) {
+					Globals::Shaders().texturedPhong().model(buffers.modelMatrixF());
+					Globals::Shaders().texturedPhong().color((*buffers.colorF) ? (*buffers.colorF)() : Globals::Components().graphicsSettings().defaultColor);
+					Tools::PrepareTexturedRender(Globals::Shaders().texturedPhong(), buffers, *buffers.texture);
+					});
+			};
+
+		for (const auto& buffers : staticBuffers[layer])
+			render(buffers);
+
+		for (const auto& [id, buffers] : dynamicBuffers[layer])
+			render(buffers);
 	}
 
 	void RenderingController::basicRender(size_t layer) const

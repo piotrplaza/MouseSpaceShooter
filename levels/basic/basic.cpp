@@ -8,8 +8,6 @@
 
 #include <globals/components.hpp>
 
-#include <ogl/shaders/textured.hpp>
-
 #include <tools/playersHandler.hpp>
 
 #include <iostream>

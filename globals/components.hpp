@@ -31,6 +31,7 @@ namespace Components
 	struct StaticPolyline;
 	struct DynamicPolyline;
 	struct Camera;
+	struct Camera3D;
 	struct Decoration;
 	struct GraphicsSettings;
 	struct Missile;
@@ -55,8 +56,10 @@ namespace Globals
 		std::array<Components::Gamepad, 4>& gamepads();
 		Components::ScreenInfo& screenInfo();
 		Components::MVP& mvp();
+		Components::MVP& mvp3D();
 		Components::Physics& physics();
 		Components::Camera& camera();
+		Components::Camera3D& camera3D();
 		Components::GraphicsSettings& graphicsSettings();
 		Components::Framebuffers& framebuffers();
 		Components::MainFramebufferRenderer& mainFramebufferRenderer();
@@ -93,8 +96,10 @@ namespace Globals
 		std::unique_ptr<std::array<Components::Gamepad, 4>> gamepads_ = std::make_unique< std::array<Components::Gamepad, 4>>();
 		std::unique_ptr<Components::ScreenInfo> screenInfo_ = std::make_unique<Components::ScreenInfo>();
 		std::unique_ptr<Components::MVP> mvp_ = std::make_unique<Components::MVP>();
+		std::unique_ptr<Components::MVP> mvp3D_ = std::make_unique<Components::MVP>();
 		std::unique_ptr<Components::Physics> physics_ = std::make_unique<Components::Physics>();
 		std::unique_ptr<Components::Camera> camera_ = std::make_unique<Components::Camera>();
+		std::unique_ptr<Components::Camera3D> camera3D_ = std::make_unique<Components::Camera3D>();
 		std::unique_ptr<Components::GraphicsSettings> graphicsSettings_ = std::make_unique<Components::GraphicsSettings>();
 		std::unique_ptr<Components::Framebuffers> framebuffers_ = std::make_unique<Components::Framebuffers>();
 		std::unique_ptr<Components::MainFramebufferRenderer> mainFramebufferRenderer_ = std::make_unique<Components::MainFramebufferRenderer>();

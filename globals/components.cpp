@@ -19,6 +19,7 @@
 #include <components/grapple.hpp>
 #include <components/polyline.hpp>
 #include <components/camera.hpp>
+#include <components/camera3D.hpp>
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/missile.hpp>
@@ -67,6 +68,11 @@ namespace Globals
 		return *mvp_;
 	}
 
+	Components::MVP& ComponentsHolder::mvp3D()
+	{
+		return *mvp3D_;
+	}
+
 	Components::Physics& ComponentsHolder::physics()
 	{
 		return *physics_;
@@ -75,6 +81,11 @@ namespace Globals
 	Components::Camera& ComponentsHolder::camera()
 	{
 		return *camera_;
+	}
+
+	Components::Camera3D& ComponentsHolder::camera3D()
+	{
+		return *camera3D_;
 	}
 
 	Components::GraphicsSettings& ComponentsHolder::graphicsSettings()

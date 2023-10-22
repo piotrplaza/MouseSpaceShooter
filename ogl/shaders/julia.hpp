@@ -25,7 +25,7 @@ namespace Shaders
 			Uniforms::Uniform4f maxColor;
 		};
 
-		struct Julia: JuliaAccessor
+		struct Julia : JuliaAccessor
 		{
 			Julia():
 				JuliaAccessor(LinkProgram(CompileShaders("ogl/shaders/julia.vs",

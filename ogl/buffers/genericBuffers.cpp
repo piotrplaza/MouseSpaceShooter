@@ -26,6 +26,7 @@ namespace
 		buffers.setColorsBuffer(renderableDef.getColors());
 		buffers.setTexCoordsBuffer(renderableDef.getTexCoords());
 		buffers.setNormalsBuffer(renderableDef.getNormals());
+		buffers.setIndicesBuffer(renderableDef.getIndices());
 	}
 }
 
@@ -50,17 +51,19 @@ namespace Buffers
 		colorsBuffer(other.colorsBuffer),
 		texCoordsBuffer(other.texCoordsBuffer),
 		normalsBuffer(other.normalsBuffer),
+		indicesBuffer(other.indicesBuffer),
 		modelMatrixF(std::move(other.modelMatrixF)),
 		originF(std::move(other.originF)),
 		colorF(other.colorF),
 		texture(other.texture),
 		renderingSetup(other.renderingSetup),
 		customShadersProgram(other.customShadersProgram),
-		numOfVertices(other.numOfVertices),
+		drawCount(other.drawCount),
 		numOfAllocatedVertices(other.numOfAllocatedVertices),
 		numOfAllocatedColors(other.numOfAllocatedColors),
 		numOfAllocatedTexCoords(other.numOfAllocatedTexCoords),
 		numOfAllocatedNormals(other.numOfAllocatedNormals),
+		numOfAllocatedIndices(other.numOfAllocatedIndices),
 		drawMode(other.drawMode),
 		bufferDataUsage(other.bufferDataUsage),
 		allocatedBufferDataUsage(std::move(other.allocatedBufferDataUsage)),
@@ -86,6 +89,9 @@ namespace Buffers
 		if (normalsBuffer)
 			glDeleteBuffers(1, &*normalsBuffer);
 
+		if (indicesBuffer)
+			glDeleteBuffers(1, &*indicesBuffer);
+
 		glDeleteVertexArrays(1, &vertexArray);
 	}
 
@@ -103,7 +109,7 @@ namespace Buffers
 			glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(vertices.front()), vertices.data());
 		}
 
-		numOfVertices = vertices.size();
+		drawCount = vertices.size();
 	}
 
 	void GenericSubBuffers::setColorsBuffer(const std::vector<glm::vec4>& colors)
@@ -138,6 +144,12 @@ namespace Buffers
 	{
 		glBindVertexArray(vertexArray);
 
+		if (texCoords.empty())
+		{
+			glDisableVertexAttribArray(2);
+			return;
+		}
+
 		if (texCoordsBuffer)
 			glBindBuffer(GL_ARRAY_BUFFER, *texCoordsBuffer);
 		else
@@ -159,6 +171,12 @@ namespace Buffers
 	{
 		glBindVertexArray(vertexArray);
 
+		if (normals.empty())
+		{
+			glDisableVertexAttribArray(3);
+			return;
+		}
+
 		if (normalsBuffer)
 			glBindBuffer(GL_ARRAY_BUFFER, *normalsBuffer);
 		else
@@ -173,7 +191,36 @@ namespace Buffers
 		else
 			glBufferSubData(GL_ARRAY_BUFFER, 0, normals.size() * sizeof(normals.front()), normals.data());
 
-		glEnableVertexAttribArray(2);
+		glEnableVertexAttribArray(3);
+	}
+
+	void GenericSubBuffers::setIndicesBuffer(const std::vector<unsigned>& indices)
+	{
+		glBindVertexArray(vertexArray);
+
+		if (indices.empty())
+			return;
+
+		if (indicesBuffer)
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *indicesBuffer);
+		else
+			createIndicesBuffer();
+
+		if (numOfAllocatedIndices < indices.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != *bufferDataUsage)
+		{
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices.front()), indices.data(), *bufferDataUsage);
+			numOfAllocatedIndices = indices.size();
+			allocatedBufferDataUsage = *bufferDataUsage;
+		}
+		else
+			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(indices.front()), indices.data());
+
+		drawCount = indices.size();
+	}
+
+	bool GenericSubBuffers::isIndicesBufferActive() const
+	{
+		return numOfAllocatedIndices;
 	}
 
 	void GenericSubBuffers::createColorsBuffer()
@@ -201,6 +248,14 @@ namespace Buffers
 		glGenBuffers(1, &*normalsBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, *normalsBuffer);
 		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	}
+
+	void GenericSubBuffers::createIndicesBuffer()
+	{
+		assert(!indicesBuffer);
+		indicesBuffer = 0;
+		glGenBuffers(1, &*indicesBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *indicesBuffer);
 	}
 
 	void GenericBuffers::applyComponentSubsequence(Renderable& renderableComponent)

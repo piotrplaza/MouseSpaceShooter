@@ -34,6 +34,9 @@ namespace Buffers
 		void setColorsBuffer(const std::vector<glm::vec4>& colors);
 		void setTexCoordsBuffer(const std::vector<glm::vec2>& texCoords);
 		void setNormalsBuffer(const std::vector<glm::vec3>& normals);
+		void setIndicesBuffer(const std::vector<unsigned>& indices);
+
+		bool isIndicesBufferActive() const;
 
 		std::function<glm::mat4()> modelMatrixF;
 		std::function<glm::vec3()> originF;
@@ -47,21 +50,24 @@ namespace Buffers
 		std::function<bool()>* renderF = nullptr;
 
 		GLuint vertexArray = 0;
-		size_t numOfVertices = 0;
+		size_t drawCount = 0;
 
 	private:
 		void createColorsBuffer();
 		void createTexCoordsBuffer();
 		void createNormalsBuffer();
+		void createIndicesBuffer();
 
 		GLuint positionsBuffer = 0;
 		std::optional<GLuint> colorsBuffer;
 		std::optional<GLuint> texCoordsBuffer;
 		std::optional<GLuint> normalsBuffer;
+		std::optional<GLuint> indicesBuffer;
 		size_t numOfAllocatedVertices = 0;
 		size_t numOfAllocatedColors = 0;
 		size_t numOfAllocatedTexCoords = 0;
 		size_t numOfAllocatedNormals = 0;
+		size_t numOfAllocatedIndices = 0;
 		std::optional<GLenum> allocatedBufferDataUsage;
 
 		bool expired = false;
@@ -88,7 +94,10 @@ namespace Buffers
 				if (*buffers.renderingSetup)
 					renderingTeardown = Globals::Components().renderingSetups()[**buffers.renderingSetup](programId);
 
-				glDrawArrays(*buffers.drawMode, 0, buffers.numOfVertices);
+				if (isIndicesBufferActive())
+					glDrawElements(*buffers.drawMode, buffers.drawCount, GL_UNSIGNED_INT, nullptr);
+				else
+					glDrawArrays(*buffers.drawMode, 0, buffers.drawCount);
 
 				if (renderingTeardown)
 					renderingTeardown();

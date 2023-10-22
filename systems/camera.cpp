@@ -1,6 +1,7 @@
 #include "camera.hpp"
 
 #include <components/camera.hpp>
+#include <components/camera3D.hpp>
 #include <components/mvp.hpp>
 #include <components/screenInfo.hpp>
 
@@ -21,6 +22,8 @@ namespace Systems
 		camera.details.position = camera.targetPositionF();
 		camera.details.prevPosition = camera.details.position;
 		camera.details.prevProjectionHSize = targetProjectionHSize;
+
+		postInit3D();
 	}
 
 	void Camera::step() const
@@ -49,5 +52,17 @@ namespace Systems
 		mvp.view = glm::translate(glm::mat4(1.0f), glm::vec3(-camera.details.position, 0.0f));
 		mvp.projection = glm::ortho(-camera.details.projectionHSize * windowWidthRatio, camera.details.projectionHSize * windowWidthRatio,
 			-camera.details.projectionHSize * windowHeightRatio, camera.details.projectionHSize * windowHeightRatio);
+
+		step3D();
+	}
+
+	void Camera::postInit3D() const
+	{
+	}
+
+	void Camera::step3D() const
+	{
+		auto& camera = Globals::Components().camera3D();
+		auto& mvp = Globals::Components().mvp3D();
 	}
 }

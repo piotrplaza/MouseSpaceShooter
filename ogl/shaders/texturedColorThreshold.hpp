@@ -45,7 +45,7 @@ namespace Shaders
 			Uniforms::Uniform1b sceneCoordTextures;
 		};
 
-		struct TexturedColorThreshold: TexturedColorThresholdAccessor
+		struct TexturedColorThreshold : TexturedColorThresholdAccessor
 		{
 			TexturedColorThreshold():
 				TexturedColorThresholdAccessor(LinkProgram(CompileShaders("ogl/shaders/texturedColorThreshold.vs",

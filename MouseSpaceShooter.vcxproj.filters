@@ -98,6 +98,12 @@
     <Filter Include="src\ogl\shaders\texturedPhong">
       <UniqueIdentifier>{8b298fac-5a0e-47ba-aae7-62a1f8c2a21c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ogl\shaders\basicPhong">
+      <UniqueIdentifier>{a942deb1-e842-4378-b93f-15f7a07fa048}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\levels\basic3D">
+      <UniqueIdentifier>{7d69ab14-2f0e-47b3-bdd7-a9c46f3c4e1c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -255,6 +261,9 @@
     </ClCompile>
     <ClCompile Include="levels\race\race.cpp">
       <Filter>src\levels\race</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\basic3D\basic3D.cpp">
+      <Filter>src\levels\basic3D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -561,6 +570,15 @@
     <ClInclude Include="ogl\shaders\texturedPhong.hpp">
       <Filter>src\ogl\shaders\texturedPhong</Filter>
     </ClInclude>
+    <ClInclude Include="ogl\shaders\basicPhong.hpp">
+      <Filter>src\ogl\shaders\basicPhong</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\basic3D\basic3D.hpp">
+      <Filter>src\levels\basic3D</Filter>
+    </ClInclude>
+    <ClInclude Include="components\camera3D.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">
@@ -601,6 +619,12 @@
     </None>
     <None Include="ogl\shaders\texturedPhong.vs">
       <Filter>src\ogl\shaders\texturedPhong</Filter>
+    </None>
+    <None Include="ogl\shaders\basicPhong.fs">
+      <Filter>src\ogl\shaders\basicPhong</Filter>
+    </None>
+    <None Include="ogl\shaders\basicPhong.vs">
+      <Filter>src\ogl\shaders\basicPhong</Filter>
     </None>
   </ItemGroup>
 </Project>

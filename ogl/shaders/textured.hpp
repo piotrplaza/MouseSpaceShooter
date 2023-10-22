@@ -55,7 +55,7 @@ namespace Shaders
 			Uniforms::Uniform1b sceneCoordTextures;
 		};
 
-		struct Textured: TexturedAccessor
+		struct Textured : TexturedAccessor
 		{
 			Textured():
 				TexturedAccessor(LinkProgram(CompileShaders("ogl/shaders/textured.vs",

@@ -39,7 +39,7 @@ namespace Shaders
 			Uniforms::Uniform1b colorAccumulation;
 		};
 
-		struct TexturedPhong: TexturedPhongAccessor
+		struct TexturedPhong : TexturedPhongAccessor
 		{
 			TexturedPhong():
 				TexturedPhongAccessor(LinkProgram(CompileShaders("ogl/shaders/texturedPhong.vs",

@@ -29,6 +29,7 @@
     <ClCompile Include="globals\components.cpp" />
     <ClCompile Include="globals\shaders.cpp" />
     <ClCompile Include="globals\systems.cpp" />
+    <ClCompile Include="levels\basic3D\basic3D.cpp" />
     <ClCompile Include="levels\basic\basic.cpp" />
     <ClCompile Include="levels\collisions\collisions.cpp" />
     <ClCompile Include="levels\dzidzia2\dzidzia2.cpp" />
@@ -88,6 +89,7 @@
     <ClInclude Include="components\animatedTexture.hpp" />
     <ClInclude Include="components\blendingTexture.hpp" />
     <ClInclude Include="components\camera.hpp" />
+    <ClInclude Include="components\camera3D.hpp" />
     <ClInclude Include="components\collisionFilter.hpp" />
     <ClInclude Include="components\collisionHandler.hpp" />
     <ClInclude Include="components\decoration.hpp" />
@@ -124,6 +126,7 @@
     <ClInclude Include="globals\components.hpp" />
     <ClInclude Include="globals\shaders.hpp" />
     <ClInclude Include="globals\systems.hpp" />
+    <ClInclude Include="levels\basic3D\basic3D.hpp" />
     <ClInclude Include="levels\basic\basic.hpp" />
     <ClInclude Include="levels\collisions\collisions.hpp" />
     <ClInclude Include="levels\dzidzia2\dzidzia2.hpp" />
@@ -149,6 +152,7 @@
     <ClInclude Include="ogl\renderingHelpers.hpp" />
     <ClInclude Include="ogl\shaders.hpp" />
     <ClInclude Include="ogl\shaders\basic.hpp" />
+    <ClInclude Include="ogl\shaders\basicPhong.hpp" />
     <ClInclude Include="ogl\shaders\julia.hpp" />
     <ClInclude Include="ogl\shaders\particles.hpp" />
     <ClInclude Include="ogl\shaders\programBase.hpp" />
@@ -181,6 +185,8 @@
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs" />
     <None Include="ogl\shaders\basic.vs" />
+    <None Include="ogl\shaders\basicPhong.fs" />
+    <None Include="ogl\shaders\basicPhong.vs" />
     <None Include="ogl\shaders\julia.fs" />
     <None Include="ogl\shaders\julia.vs" />
     <None Include="ogl\shaders\particles.fs" />
