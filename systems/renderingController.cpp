@@ -46,8 +46,10 @@ namespace Systems
 
 		for (size_t layer = 0; layer < (size_t)RenderLayer::COUNT; ++layer)
 		{
+			glEnable(GL_DEPTH_TEST);
 			basicPhongRender(layer);
 			texturedPhongRender(layer);
+			glDisable(GL_DEPTH_TEST);
 			basicRender(layer);
 			texturedRender(layer);
 			customShadersRender(layer);

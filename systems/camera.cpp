@@ -62,7 +62,10 @@ namespace Systems
 
 	void Camera::step3D() const
 	{
+		const auto& screenInfo = Globals::Components().screenInfo();
 		auto& camera = Globals::Components().camera3D();
 		auto& mvp = Globals::Components().mvp3D();
+
+		mvp.projection = glm::perspective(glm::radians(camera.fov), screenInfo.getAspectRatio(), camera.nearPlane, camera.farPlane);
 	}
 }

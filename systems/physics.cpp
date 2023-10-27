@@ -62,18 +62,20 @@ namespace Systems
 	void Physics::step()
 	{
 		auto& physics = Globals::Components().physics();
-		const auto currentTime = std::chrono::high_resolution_clock::now();
 #ifndef _DEBUG
-		physics.frameDuration = !physics.paused * (std::chrono::duration<float>(currentTime - physics.prevFrameTime).count()) * physics.gameSpeed;
+		const auto currentTime = std::chrono::high_resolution_clock::now();
+		physics.frameDuration = (std::chrono::duration<float>(currentTime - physics.prevFrameTime).count()) * physics.gameSpeed;
 		physics.prevFrameTime = currentTime;
 #else
-		physics.frameDuration = !physics.paused * debugFrameDuration * physics.gameSpeed;
+		physics.frameDuration = debugFrameDuration * physics.gameSpeed;
 #endif
-
-		if (physics.paused)
-			return;
 
 		physics.simulationDuration += physics.frameDuration;
 		physics.world->Step(physics.frameDuration, physics.velocityIterationsPerStep, physics.positionIterationsPerStep);
+	}
+
+	void Physics::pause()
+	{
+		Globals::Components().physics().prevFrameTime = std::chrono::high_resolution_clock::now();
 	}
 }

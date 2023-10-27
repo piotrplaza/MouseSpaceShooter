@@ -10,9 +10,6 @@ namespace Levels
 	{
 	public:
 		Basic3D();
-		~Basic3D();
-
-		void step() override;
 
 	private:
 		class Impl;

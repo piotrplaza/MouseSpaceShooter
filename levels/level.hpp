@@ -8,6 +8,6 @@ namespace Levels
 		Level();
 		virtual ~Level();
 
-		virtual void step() = 0;
+		virtual void step() {}
 	};
 }
