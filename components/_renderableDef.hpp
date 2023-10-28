@@ -23,6 +23,17 @@ namespace Buffers
 
 struct RenderableDef
 {
+	struct Params3D
+	{
+		Params3D& normals(std::vector<glm::vec3> value)
+		{
+			normals_ = std::move(value);
+			return *this;
+		}
+
+		std::vector<glm::vec3> normals_;
+	};
+
 	RenderableDef() = default;
 
 	RenderableDef(std::vector<glm::vec3> vertices,
@@ -39,13 +50,13 @@ struct RenderableDef
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec4> colors;
 	std::vector<glm::vec2> texCoord;
-	std::vector<glm::vec3> normals;
 	std::vector<unsigned> indices;
 
 	std::function<glm::mat4()> modelMatrixF;
 	std::function<glm::vec4()> colorF;
 	TextureComponentVariant texture;
 	std::optional<ComponentId> renderingSetup;
+	std::optional<Params3D> params3D;
 
 	GLenum drawMode = GL_TRIANGLES;
 	GLenum bufferDataUsage = GL_STATIC_DRAW;
@@ -98,11 +109,6 @@ struct RenderableDef
 			assert(texCoord.size() == vertices.size());
 			return texCoord;
 		}
-	}
-
-	virtual const std::vector<glm::vec3>& getNormals() const
-	{
-		return normals;
 	}
 
 	virtual const std::vector<unsigned>& getIndices() const

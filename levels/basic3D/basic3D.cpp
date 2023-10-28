@@ -23,21 +23,24 @@ namespace Levels
 				{0.0f, 1.0f, 0.0f},
 				{1.0f, 0.0f, 0.0f}
 			};
-			box.normals = {
-				{0.0f, 0.0f, 1.0f},
-				{0.0f, 0.0f, 1.0f},
-				{0.0f, 0.0f, 1.0f},
-				{0.0f, 0.0f, 1.0f}
-			};
+
 			box.colors = {
 				{1.0f, 0.0f, 0.0f, 1.0f},
 				{0.0f, 1.0f, 0.0f, 1.0f},
 				{0.0f, 0.0f, 1.0f, 1.0f},
 				{0.0f, 1.0f, 1.0f, 1.0f}
 			};
+
 			box.indices = {
 				0, 1, 2, 1, 3, 2
 			};
+
+			box.params3D = RenderableDef::Params3D{}.normals({
+				{0.0f, 0.0f, 1.0f},
+				{0.0f, 0.0f, 1.0f},
+				{0.0f, 0.0f, 1.0f},
+				{0.0f, 0.0f, 1.0f}});
+
 			box.modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration * 1.5f, { 1.0f, 1.0f, 1.0f }); };
 		}
 	};

@@ -25,7 +25,12 @@ namespace
 		buffers.setVerticesBuffer(renderableDef.getVertices());
 		buffers.setColorsBuffer(renderableDef.getColors());
 		buffers.setTexCoordsBuffer(renderableDef.getTexCoords());
-		buffers.setNormalsBuffer(renderableDef.getNormals());
+
+		if (renderableDef.params3D)
+		{
+			buffers.setNormalsBuffer(renderableDef.params3D->normals_);
+		}
+
 		buffers.setIndicesBuffer(renderableDef.getIndices());
 	}
 }
