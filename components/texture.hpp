@@ -12,7 +12,7 @@ namespace Components
 {
 	struct Texture : ComponentBase
 	{
-		Texture(std::string path, GLint wrapMode = GL_CLAMP_TO_EDGE, GLint minFilter = GL_LINEAR_MIPMAP_LINEAR,
+		Texture(std::string path, GLint wrapMode = GL_CLAMP_TO_BORDER, GLint minFilter = GL_LINEAR_MIPMAP_LINEAR,
 			GLint magFilter = GL_LINEAR):
 			path(std::move(path)),
 			wrapMode(wrapMode),
@@ -33,7 +33,7 @@ namespace Components
 		}
 
 		std::string path;
-		GLint wrapMode = GL_CLAMP_TO_EDGE;
+		GLint wrapMode = GL_CLAMP_TO_BORDER;
 		GLint minFilter = GL_LINEAR_MIPMAP_LINEAR;
 		GLint magFilter = GL_LINEAR;
 

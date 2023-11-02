@@ -7,6 +7,9 @@
 
 #include <stb_image/stb_image.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <GL/glew.h>
 
 #include <cassert>
@@ -24,6 +27,8 @@ namespace Systems
 		static_assert(maxTextureObjects <= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 		stbi_set_flip_vertically_on_load(true);
 		stbi_ldr_to_hdr_gamma(1.0f);
+
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(glm::vec4(0.0f)));
 
 		createTextureFramebuffers();
 

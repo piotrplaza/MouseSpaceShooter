@@ -220,22 +220,8 @@ namespace Levels
 
 		void createForeground()
 		{
-			Tools::CreateFogForeground(2, 0.02f, fogTexture, [&, fogTargetAlphaFactor = 1.0f]() mutable {
-				if (explosionFrame)
-				{
-					const float maxAlphaFactor = 2.0f;
-					fogTargetAlphaFactor = fogTargetAlphaFactor < maxAlphaFactor
-						? fogTargetAlphaFactor + Globals::Components().physics().frameDuration * 10.0f
-						: maxAlphaFactor;
-				}
-				else
-				{
-					fogTargetAlphaFactor = fogTargetAlphaFactor > 1.0f
-						? fogTargetAlphaFactor - Globals::Components().physics().frameDuration * 0.2f
-						: 1.0f;
-				}
-				fogAlphaFactor += (fogTargetAlphaFactor - fogAlphaFactor) * 0.05f * Globals::Components().physics().frameDuration;
-				return glm::vec4(1.0f, 1.0f, 1.0f, fogAlphaFactor);
+			Tools::CreateFogForeground(2, 0.02f, fogTexture, [&]() mutable {
+				return glm::vec4(1.0f, 1.0f, 1.0f, smokeIntensity + 1.0f);
 				});
 		}
 
@@ -283,15 +269,14 @@ namespace Levels
 					if (!addBlendingColor.isValid())
 						addBlendingColor = Uniforms::Uniform4f(program, "addBlendingColor");
 
-					const float skullOpacity = fogAlphaFactor - 1.0f;
 					float minDistance = std::numeric_limits<float>::max();
 					for (const auto& playerHandler : playersHandler.getPlayersHandlers())
 						minDistance = std::min(minDistance, glm::distance(Globals::Components().planes()[playerHandler.playerId].getOrigin2D(), portraitCenter));
 					const float avatarOpacity = glm::min(0.0f, minDistance / 3.0f - 5.0f);
 
 					i == 0
-						? addBlendingColor({ 1.0f, skullOpacity, avatarOpacity, 0.0f })
-						: addBlendingColor({ 0.0f, 0.0f, 1.0f, 0.0f });
+						? addBlendingColor({ 1.0f, smokeIntensity * 2.0f, avatarOpacity, 0.0f })
+						: addBlendingColor({ 0.0f, smokeIntensity, 1.0f - smokeIntensity * 5.0f, 0.0f });
 
 					return [=]() mutable {
 						addBlendingColor({ 0.0f, 0.0f, 0.0f, 0.0f });
@@ -657,6 +642,14 @@ namespace Levels
 					gamepads[0].pressed.dUp * 1 + gamepads[0].pressed.dDown * -1) * -5.0f, 5.0f, 100.0f);
 
 			//textureAngle += Globals::Components().physics().frameDuration * 0.2f;
+
+			smokeTargetIntensity += explosionFrame
+				? Globals::Components().physics().frameDuration * 10.0f
+				: -Globals::Components().physics().frameDuration * 0.2f;
+			smokeTargetIntensity = std::clamp(smokeTargetIntensity, 0.0f, 1.0f);
+
+			smokeIntensity += (smokeTargetIntensity - smokeIntensity) * Globals::Components().physics().frameDuration * 5.0f;
+			smokeIntensity = std::clamp(smokeIntensity, 0.0f, 1.0f);
 		}
 
 	private:
@@ -696,7 +689,9 @@ namespace Levels
 
 		bool explosionFrame = false;
 
-		float fogAlphaFactor = 1.0f;
+		float smokeIntensity = 0.0f;
+		float smokeTargetIntensity = 0.0f;
+
 		float textureAngle = 0.0f;
 
 		ComponentId dynamicWallId = 0;

@@ -11,6 +11,11 @@ namespace Components
 		glm::mat4 view{ 1.0f };
 		glm::mat4 projection{ 1.0f };
 
+		glm::mat4 getMV(const glm::mat4& model) const
+		{
+			return view * model;
+		}
+
 		glm::mat4 getVP() const
 		{
 			return projection * view;

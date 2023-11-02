@@ -29,8 +29,16 @@ namespace Tools
 	template <typename ShadersProgram>
 	inline void MVPInitialization(ShadersProgram& shadersProgram, std::optional<glm::mat4> modelMatrix = std::nullopt)
 	{
-		shadersProgram.vp(Globals::Components().mvp().getVP());
-		shadersProgram.model(modelMatrix ? *modelMatrix : glm::mat4(1.0f));
+		const auto modelMatrix_ = modelMatrix ? *modelMatrix : glm::mat4(1.0f);
+
+		if constexpr (requires { shadersProgram.model; })
+			shadersProgram.model(modelMatrix_);
+		if constexpr (requires { shadersProgram.mv; })
+			shadersProgram.mv(Globals::Components().mvp().getMV(modelMatrix_));
+		if constexpr (requires { shadersProgram.vp; })
+			shadersProgram.vp(Globals::Components().mvp().getVP());
+		if constexpr (requires { shadersProgram.mvp; })
+			shadersProgram.mvp(Globals::Components().mvp().getMVP(modelMatrix_));
 	}
 
 	template <typename ShadersProgram>

@@ -12,4 +12,10 @@ namespace Components
 		glm::vec2 position;
 		glm::vec3 color;
 	};
+
+	struct Light3D : ComponentBase
+	{
+		glm::vec3 position;
+		glm::vec3 color;
+	};
 }

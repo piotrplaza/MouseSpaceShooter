@@ -9,6 +9,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <glm/mat3x3.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -148,6 +149,46 @@ namespace Uniforms
 		using Uniform::Uniform;
 
 		void operator ()(glm::vec4 value);
+	};
+
+	class UniformMat3f : public Uniform
+	{
+	public:
+		using Uniform::Uniform;
+
+		void operator ()(glm::mat3 value);
+	};
+
+	template <unsigned Size>
+	class UniformMat3fv : public Uniform
+	{
+	public:
+		using Uniform::Uniform;
+
+		void operator ()(glm::mat3 value)
+		{
+			assert(isValidInternal());
+			glUseProgram_proxy(programId);
+			std::array<glm::mat3, Size> values;
+			values.fill(value);
+			glUniformMatrix3fv(uniformId, Size, GL_FALSE, glm::value_ptr(values[0]));
+		}
+
+		void operator ()(unsigned index, glm::mat3 value)
+		{
+			assert(isValidInternal());
+			assert(index < Size);
+			glUseProgram_proxy(programId);
+			glUniformMatrix3fv(uniformId + index, 1, GL_FALSE, glm::value_ptr(value));
+		}
+
+		void operator ()(const std::array<glm::mat3, Size>& values)
+		{
+			assert(isValidInternal());
+			assert(values.size() == Size);
+			glUseProgram_proxy(programId);
+			glUniformMatrix3fv(uniformId, Size, GL_FALSE, values.data());
+		}
 	};
 
 	class UniformMat4f : public Uniform

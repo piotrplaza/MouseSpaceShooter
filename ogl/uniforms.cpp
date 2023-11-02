@@ -77,6 +77,13 @@ namespace Uniforms
 		glUniform4f(uniformId, value.x, value.y, value.z, value.w);
 	}
 
+	void UniformMat3f::operator ()(glm::mat3 value)
+	{
+		assert(isValidInternal());
+		glUseProgram_proxy(programId);
+		glUniformMatrix3fv(uniformId, 1, GL_FALSE, glm::value_ptr(value));
+	}
+
 	void UniformMat4f::operator ()(glm::mat4 value)
 	{
 		assert(isValidInternal());
