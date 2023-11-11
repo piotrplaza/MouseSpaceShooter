@@ -214,7 +214,7 @@ namespace Tools
 					return missile.getOrigin2D();
 				},
 				[](auto& sound) {
-					sound.removeOnStop(false);
+					sound.setRemoveOnStop(false);
 				}).getComponentId();
 		}
 
@@ -340,11 +340,11 @@ namespace Tools
 	{
 		auto& sound = Globals::Components().sounds().emplace(soundBuffer);
 
-		sound.removeOnStop(true);
+		sound.setRemoveOnStop(true);
 		sound.stepF = [posF = std::move(posF), stepF = std::move(stepF)](auto& sound)
 		{
 			if (posF)
-				sound.position(Tools::GetRelativePos(posF()));
+				sound.setPosition(Tools::GetRelativePos(posF()));
 			if (stepF)
 				stepF(sound);
 		};

@@ -20,6 +20,7 @@ namespace Components
 	struct Texture;
 	struct AnimatedTexture;
 	struct BlendingTexture;
+	struct AudioListener;
 	struct Music;
 	struct SoundBuffer;
 	struct Sound;
@@ -63,6 +64,7 @@ namespace Globals
 		Components::GraphicsSettings& graphicsSettings();
 		Components::Framebuffers& framebuffers();
 		Components::MainFramebufferRenderer& mainFramebufferRenderer();
+		Components::AudioListener& audioListener();
 
 		StaticComponents<Components::Texture>& textures();
 		StaticComponents<Components::AnimatedTexture>& animatedTextures();
@@ -103,6 +105,7 @@ namespace Globals
 		std::unique_ptr<Components::GraphicsSettings> graphicsSettings_ = std::make_unique<Components::GraphicsSettings>();
 		std::unique_ptr<Components::Framebuffers> framebuffers_ = std::make_unique<Components::Framebuffers>();
 		std::unique_ptr<Components::MainFramebufferRenderer> mainFramebufferRenderer_ = std::make_unique<Components::MainFramebufferRenderer>();
+		std::unique_ptr<Components::AudioListener> audioListener_ = std::make_unique<Components::AudioListener>();
 
 		std::unique_ptr<StaticComponents<Components::Texture>> textures_ = std::make_unique<StaticComponents<Components::Texture>>();
 		std::unique_ptr<StaticComponents<Components::AnimatedTexture>> animatedTextures_ = std::make_unique<StaticComponents<Components::AnimatedTexture>>();

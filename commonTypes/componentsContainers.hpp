@@ -393,7 +393,7 @@ public:
 	{
 		for (auto& component : components)
 		{
-			component.second.enable(false);
+			component.second.setEnable(false);
 			component.second.state = ::ComponentState::Outdated;
 		}
 	}
@@ -538,7 +538,7 @@ public:
 	{
 		for (auto& component : components)
 		{
-			component.enable(false);
+			component.setEnable(false);
 			component.state = ::ComponentState::Outdated;
 		}
 	}

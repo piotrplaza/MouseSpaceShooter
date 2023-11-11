@@ -22,6 +22,7 @@
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
     <ClCompile Include="commonTypes\resolutionMode.cpp" />
     <ClCompile Include="components\animatedTexture.cpp" />
+    <ClCompile Include="components\audioListener.cpp" />
     <ClCompile Include="components\music.cpp" />
     <ClCompile Include="components\sound.cpp" />
     <ClCompile Include="components\soundBuffer.cpp" />
@@ -87,6 +88,7 @@
     <ClInclude Include="commonTypes\resolutionMode.hpp" />
     <ClInclude Include="commonTypes\typeComponentMappers.hpp" />
     <ClInclude Include="components\animatedTexture.hpp" />
+    <ClInclude Include="components\audioListener.hpp" />
     <ClInclude Include="components\blendingTexture.hpp" />
     <ClInclude Include="components\camera.hpp" />
     <ClInclude Include="components\camera3D.hpp" />

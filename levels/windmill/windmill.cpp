@@ -281,7 +281,7 @@ namespace Levels
 
 			for (const auto debrisId : dynamicWallsDebris)
 			{
-				dynamicWalls[debrisId].enable(false);
+				dynamicWalls[debrisId].setEnable(false);
 				dynamicWalls[debrisId].state = ComponentState::Outdated;
 			}
 
@@ -326,7 +326,7 @@ namespace Levels
 						Tools::CreateExplosion(Tools::ExplosionParams().center(planeComponent.getOrigin2D()).sourceVelocity(planeComponent.getVelocity()).
 							initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
 						Tools::PlaySingleSound(playerExplosionSoundBuffer, [pos = planeComponent.getOrigin2D()]() { return pos; });
-						planeComponent.enable(false);
+						planeComponent.setEnable(false);
 						return false;
 						});
 				});
@@ -338,7 +338,7 @@ namespace Levels
 							return pos;
 						},
 						[&](auto& sound) {
-							sound.volume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
+							sound.setVolume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
 						});
 				}));
 
@@ -349,8 +349,8 @@ namespace Levels
 							return pos;
 						},
 						[&](auto& sound) {
-							sound.volume(std::sqrt(Tools::GetRelativeVelocity(*wall1.GetBody(), *wall2.GetBody()) / 20.0f));
-							sound.pitch(0.5f);
+							sound.setVolume(std::sqrt(Tools::GetRelativeVelocity(*wall1.GetBody(), *wall2.GetBody()) / 20.0f));
+							sound.setPitch(0.5f);
 						}));
 				});
 		}
@@ -385,8 +385,8 @@ namespace Levels
 
 			innerForceSound = Tools::PlaySingleSound(innerForceSoundBuffer, []() { return glm::vec2(0.0f); },
 				[](auto& sound) {
-					sound.loop(true);
-					sound.volume(0.0f);
+					sound.setLoop(true);
+					sound.setVolume(0.0f);
 				}).getComponentId();
 
 			const auto& windmill = Globals::Components().staticWalls()[windmillWall];
@@ -444,7 +444,7 @@ namespace Levels
 
 			innerForceScale += physics.frameDuration * 0.05f;
 
-			Globals::Components().sounds()[innerForceSound].volume(innerForceScale / 3.0f);
+			Globals::Components().sounds()[innerForceSound].setVolume(innerForceScale / 3.0f);
 		}
 
 		void emissions()
@@ -492,7 +492,7 @@ namespace Levels
 						if (*stop)
 						{
 							volume -= physics.frameDuration * 2.0f;
-							sound.volume(volume);
+							sound.setVolume(volume);
 							if (volume <= 0.0f)
 								sound.stop();
 						}

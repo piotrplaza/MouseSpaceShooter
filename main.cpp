@@ -17,6 +17,7 @@
 
 #include "components/mouse.hpp"
 #include "components/physics.hpp"
+#include "components/audioListener.hpp"
 
 #include "systems/stateController.hpp"
 #include "systems/structures.hpp"
@@ -119,6 +120,8 @@ void Init()
 	Globals::InitializeShaders();
 	Globals::InitializeComponents();
 	Globals::InitializeSystems();
+
+	//Globals::Components().audioListener().setEnable(false);
 }
 
 void PostInit()

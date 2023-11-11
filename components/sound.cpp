@@ -33,9 +33,9 @@ namespace Components
 
 		details->sfSound.setBuffer(soundBuffer.getBuffer());
 
-		volume(1.0f);
-		minDistance(2.0f);
-		attenuation(1.0f);
+		setVolume(1.0f);
+		setMinDistance(2.0f);
+		setAttenuation(1.0f);
 		state = ComponentState::Ongoing;
 
 		++numOfInstances;
@@ -62,7 +62,7 @@ namespace Components
 
 	void Sound::stop()
 	{
-		if (removeOnStop_)
+		if (removeOnStop)
 			state = ComponentState::Outdated;
 
 		if (!details)
@@ -71,14 +71,14 @@ namespace Components
 		details->sfSound.stop();
 	}
 
-	void Sound::removeOnStop(bool value)
+	void Sound::setRemoveOnStop(bool value)
 	{
-		removeOnStop_ = value;
+		removeOnStop = value;
 	}
 
-	void Sound::loop(bool value)
+	void Sound::setLoop(bool value)
 	{
-		loop_ = value;
+		loop = value;
 
 		if (!details)
 		{
@@ -91,7 +91,7 @@ namespace Components
 		details->sfSound.setLoop(value);
 	}
 
-	void Sound::volume(float value)
+	void Sound::setVolume(float value)
 	{
 		if (!details)
 			return;
@@ -99,7 +99,7 @@ namespace Components
 		details->sfSound.setVolume(std::clamp(value, 0.0f, 1.0f) * maxVolume * 100.0f);
 	}
 
-	void Sound::pitch(float value)
+	void Sound::setPitch(float value)
 	{
 		if (!details)
 			return;
@@ -107,7 +107,7 @@ namespace Components
 		details->sfSound.setPitch(value);
 	}
 
-	void Sound::position(glm::vec3 pos)
+	void Sound::setPosition(glm::vec3 pos)
 	{
 		if (!details)
 			return;
@@ -115,20 +115,20 @@ namespace Components
 		details->sfSound.setPosition(pos.x, pos.y, pos.z);
 	}
 
-	void Sound::position(glm::vec2 pos)
+	void Sound::setPosition(glm::vec2 pos)
 	{
 		if (!details)
 			return;
 
-		details->sfSound.setPosition(pos.x, pos.y, Globals::Components().camera().details.projectionHSize * zFactor_);
+		details->sfSound.setPosition(pos.x, pos.y, Globals::Components().camera().details.projectionHSize * zFactor);
 	}
 
-	void Sound::zFactor(float value)
+	void Sound::setZFactor(float value)
 	{
-		zFactor_ = value;
+		zFactor = value;
 	}
 
-	void Sound::minDistance(float value)
+	void Sound::setMinDistance(float value)
 	{
 		if (!details)
 			return;
@@ -136,7 +136,7 @@ namespace Components
 		details->sfSound.setMinDistance(value);
 	}
 
-	void Sound::attenuation(float value)
+	void Sound::setAttenuation(float value)
 	{
 		if (!details)
 			return;
@@ -170,7 +170,7 @@ namespace Components
 
 	void Sound::step()
 	{
-		if (removeOnStop_ && !loop_ && isStopped())
+		if (removeOnStop && !loop && isStopped())
 			state = ComponentState::Outdated;
 
 		if (stepF)

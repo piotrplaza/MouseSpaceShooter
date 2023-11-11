@@ -26,8 +26,8 @@ namespace Components
 		}
 
 		details->sfMusic.openFromFile(path);
-		volume(1.0f);
-		loop(true);
+		setVolume(1.0f);
+		setLoop(true);
 		state = ComponentState::Ongoing;
 
 		++numOfInstances;
@@ -54,7 +54,7 @@ namespace Components
 		details->sfMusic.stop();
 	}
 
-	void Music::loop(bool value)
+	void Music::setLoop(bool value)
 	{
 		if (!details)
 		{
@@ -67,7 +67,7 @@ namespace Components
 		details->sfMusic.setLoop(value);
 	}
 
-	void Music::volume(float value)
+	void Music::setVolume(float value)
 	{
 		if (!details)
 			return;

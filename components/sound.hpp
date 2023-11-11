@@ -25,16 +25,16 @@ namespace Components
 		void play();
 		void stop();
 
-		void removeOnStop(bool value);
+		void setRemoveOnStop(bool value);
 
-		void loop(bool value);
-		void volume(float value);
-		void pitch(float value);
-		void position(glm::vec3 pos);
-		void position(glm::vec2 pos);
-		void zFactor(float value);
-		void minDistance(float value);
-		void attenuation(float value);
+		void setLoop(bool value);
+		void setVolume(float value);
+		void setPitch(float value);
+		void setPosition(glm::vec3 pos);
+		void setPosition(glm::vec2 pos);
+		void setZFactor(float value);
+		void setMinDistance(float value);
+		void setAttenuation(float value);
 
 		bool isStopped() const;
 		bool isPaused() const;
@@ -50,8 +50,8 @@ namespace Components
 		static inline unsigned numOfInstances = 0;
 		std::unique_ptr<SoundDetails> details;
 		const float maxVolume;
-		bool removeOnStop_ = false;
-		bool loop_ = false;
-		float zFactor_ = 0.05f;
+		bool removeOnStop = false;
+		bool loop = false;
+		float zFactor = 0.05f;
 	};
 }

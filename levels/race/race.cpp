@@ -228,7 +228,7 @@ namespace Levels
 							return pos;
 						},
 						[&](auto& sound) {
-							sound.volume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
+							sound.setVolume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
 						});
 					}));
 		}
@@ -248,7 +248,7 @@ namespace Levels
 			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getOrigin2D()).sourceVelocity(plane.getVelocity()).
 				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
 			Tools::PlaySingleSound(playerExplosionSoundBuffer, [pos = plane.getOrigin2D()]() { return pos; });
-			plane.enable(false);
+			plane.setEnable(false);
 			playersToCircuits.erase(plane.getComponentId());
 		}
 

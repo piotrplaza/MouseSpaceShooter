@@ -10,6 +10,7 @@
 #include <components/texture.hpp>
 #include <components/animatedTexture.hpp>
 #include <components/blendingTexture.hpp>
+#include <components/audioListener.hpp>
 #include <components/music.hpp>
 #include <components/soundBuffer.hpp>
 #include <components/sound.hpp>
@@ -101,6 +102,11 @@ namespace Globals
 	Components::MainFramebufferRenderer& ComponentsHolder::mainFramebufferRenderer()
 	{
 		return *mainFramebufferRenderer_;
+	}
+
+	Components::AudioListener& ComponentsHolder::audioListener()
+	{
+		return *audioListener_;
 	}
 
 	StaticComponents<Components::Texture>& ComponentsHolder::textures()

@@ -42,9 +42,9 @@ namespace Components
 		const glm::vec2 center;
 		std::vector<Body> particles;
 
-		void enable(bool value) override
+		void setEnable(bool value) override
 		{
-			ComponentBase::enable(value);
+			ComponentBase::setEnable(value);
 			for (auto& particle : particles)
 				particle->SetEnabled(false);
 		}

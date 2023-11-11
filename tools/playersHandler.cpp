@@ -47,10 +47,10 @@ namespace
 		const auto& plane = Globals::Components().planes()[planeId];
 
 		auto& sound = Globals::Components().sounds().emplace(*soundBuffer);
-		sound.loop(true);
-		sound.volume(0.0f);
+		sound.setLoop(true);
+		sound.setVolume(0.0f);
 		sound.stepF = [&plane](auto& sound) {
-			sound.position(Tools::GetRelativePos(plane.getOrigin2D()));
+			sound.setPosition(Tools::GetRelativePos(plane.getOrigin2D()));
 		};
 		sound.play();
 
@@ -85,7 +85,7 @@ namespace Tools
 		auto& sounds = Globals::Components().sounds();
 
 		std::erase_if(playersHandlers, [&](const auto& playerHandler) mutable {
-			planes[playerHandler.playerId].enable(false);
+			planes[playerHandler.playerId].setEnable(false);
 			planes[playerHandler.playerId].state = ComponentState::Outdated;
 			if (playerHandler.thrustSound)
 				sounds[*playerHandler.thrustSound].state = ComponentState::Outdated;
@@ -273,9 +273,9 @@ namespace Tools
 			if (!plane.isEnabled())
 			{
 				if (playerHandler.thrustSound)
-					Globals::Components().sounds()[*playerHandler.thrustSound].volume(0.0f);
+					Globals::Components().sounds()[*playerHandler.thrustSound].setVolume(0.0f);
 				if (playerHandler.grappleSound)
-					Globals::Components().sounds()[*playerHandler.grappleSound].volume(0.0f);
+					Globals::Components().sounds()[*playerHandler.grappleSound].setVolume(0.0f);
 				continue;
 			}
 
@@ -325,12 +325,12 @@ namespace Tools
 					playerHandler.thrustVolume = std::max(playerHandler.thrustVolume, 0.0f);
 				}
 
-				Globals::Components().sounds()[*playerHandler.thrustSound].volume(playerHandler.thrustVolume);
+				Globals::Components().sounds()[*playerHandler.thrustSound].setVolume(playerHandler.thrustVolume);
 			}
 
 			if (playerHandler.grappleSound)
 			{
-				Globals::Components().sounds()[*playerHandler.grappleSound].volume((bool)plane.details.connectedGrappleId);
+				Globals::Components().sounds()[*playerHandler.grappleSound].setVolume((bool)plane.details.connectedGrappleId);
 			}
 		}
 	}

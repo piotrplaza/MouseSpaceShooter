@@ -20,8 +20,8 @@ namespace Components
 		void play();
 		void stop();
 
-		void loop(bool value);
-		void volume(float value);
+		void setLoop(bool value);
+		void setVolume(float value);
 
 		static unsigned getNumOfInstances();
 

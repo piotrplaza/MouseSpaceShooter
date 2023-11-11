@@ -33,7 +33,7 @@ struct ComponentBase
 		componentId = id;
 	}
 
-	virtual void enable(bool value)
+	virtual void setEnable(bool value)
 	{
 		enable_ = value;
 	}

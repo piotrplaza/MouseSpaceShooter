@@ -265,6 +265,9 @@
     <ClCompile Include="levels\basic3D\basic3D.cpp">
       <Filter>src\levels\basic3D</Filter>
     </ClCompile>
+    <ClCompile Include="components\audioListener.cpp">
+      <Filter>src\components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mvp.hpp">
@@ -577,6 +580,9 @@
       <Filter>src\levels\basic3D</Filter>
     </ClInclude>
     <ClInclude Include="components\camera3D.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\audioListener.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>

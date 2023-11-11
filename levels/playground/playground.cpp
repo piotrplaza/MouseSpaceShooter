@@ -177,11 +177,11 @@ namespace Levels
 			for (float x : {-40.0f, 40.0f})
 				Tools::PlaySingleSound(avatarSoundBuffer, [x]() { return glm::vec2(x, -40.0f); },
 					[](auto& sound) {
-						sound.loop(true);
-						sound.zFactor(0.01f);
-						sound.minDistance(1.0f);
-						sound.attenuation(10.0f);
-						sound.position({ 0.0f, 100.0f });
+						sound.setLoop(true);
+						sound.setZFactor(0.01f);
+						sound.setMinDistance(1.0f);
+						sound.setAttenuation(10.0f);
+						sound.setPosition({ 0.0f, 100.0f });
 					});
 		}
 
@@ -613,8 +613,8 @@ namespace Levels
 						return pos;
 					},
 					[&](auto& sound) {
-						sound.volume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
-						sound.pitch(Tools::Random(0.9f, 1.5f));
+						sound.setVolume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
+						sound.setPitch(Tools::Random(0.9f, 1.5f));
 					});
 			});
 
