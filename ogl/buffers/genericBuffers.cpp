@@ -24,7 +24,11 @@ namespace
 
 		buffers.setVerticesBuffer(renderableDef.getVertices());
 		buffers.setColorsBuffer(renderableDef.getColors());
-		buffers.setTexCoordsBuffer(renderableDef.getTexCoords());
+
+		if (!std::holds_alternative<std::monostate>(renderableDef.texture))
+		{
+			buffers.setTexCoordsBuffer(renderableDef.getTexCoords());
+		}
 
 		if (renderableDef.params3D)
 		{

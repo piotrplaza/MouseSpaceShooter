@@ -82,7 +82,9 @@ namespace Systems
 			texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
 
 			buffers.draw(Globals::Shaders().basicPhong().getProgramId(), [](const auto& buffers) {
-				Globals::Shaders().basicPhong().model(buffers.modelMatrixF());
+				const auto modelMatrix = buffers.modelMatrixF();
+				Globals::Shaders().basicPhong().model(modelMatrix);
+				Globals::Shaders().basicPhong().mvr(Globals::Components().mvp3D().getMVR(modelMatrix));
 				Globals::Shaders().basicPhong().color((*buffers.colorF) ? (*buffers.colorF)() : Globals::Components().graphicsSettings().defaultColor);
 				});
 		};
@@ -112,7 +114,9 @@ namespace Systems
 			texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
 
 			buffers.draw(Globals::Shaders().texturedPhong(), [](const auto& buffers) {
-				Globals::Shaders().texturedPhong().model(buffers.modelMatrixF());
+				const auto modelMatrix = buffers.modelMatrixF();
+				Globals::Shaders().texturedPhong().model(modelMatrix);
+				Globals::Shaders().texturedPhong().mvr(Globals::Components().mvp3D().getMVR(modelMatrix));
 				Globals::Shaders().texturedPhong().color((*buffers.colorF) ? (*buffers.colorF)() : Globals::Components().graphicsSettings().defaultColor);
 				Tools::PrepareTexturedRender(Globals::Shaders().texturedPhong(), buffers, *buffers.texture);
 				});

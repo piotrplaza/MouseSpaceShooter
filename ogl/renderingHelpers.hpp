@@ -39,6 +39,8 @@ namespace Tools
 			shadersProgram.vp(Globals::Components().mvp().getVP());
 		if constexpr (requires { shadersProgram.mvp; })
 			shadersProgram.mvp(Globals::Components().mvp().getMVP(modelMatrix_));
+		if constexpr (requires { shadersProgram.mvr; })
+			shadersProgram.mvr(Globals::Components().mvp().getMVR());
 	}
 
 	template <typename ShadersProgram>

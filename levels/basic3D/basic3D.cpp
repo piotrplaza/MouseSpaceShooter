@@ -3,7 +3,10 @@
 #include <components/decoration.hpp>
 #include <components/physics.hpp>
 
+#include <ogl/shaders/basicPhong.hpp>
+
 #include <globals/components.hpp>
+#include <globals/shaders.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -12,6 +15,13 @@ namespace Levels
 	class Basic3D::Impl
 	{
 	public:
+		void shadersSetup() const
+		{
+			Globals::Shaders().basicPhong().numOfLights(1);
+			Globals::Shaders().basicPhong().lightsPos(0, {0.0f, 0.0f, 0.0f});
+			Globals::Shaders().basicPhong().lightsCol(0, { 1.0f, 1.0f, 1.0f });
+		}
+
 		void createDecorations() const
 		{
 			const auto& physics = Globals::Components().physics();
@@ -28,7 +38,7 @@ namespace Levels
 				{1.0f, 0.0f, 0.0f, 1.0f},
 				{0.0f, 1.0f, 0.0f, 1.0f},
 				{0.0f, 0.0f, 1.0f, 1.0f},
-				{0.0f, 1.0f, 1.0f, 1.0f}
+				{1.0f, 1.0f, 0.0f, 1.0f}
 			};
 
 			box.indices = {
@@ -48,6 +58,7 @@ namespace Levels
 	Basic3D::Basic3D():
 		impl(std::make_unique<Impl>())
 	{
+		impl->shadersSetup();
 		impl->createDecorations();
 	}
 }

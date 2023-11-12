@@ -25,5 +25,10 @@ namespace Components
 		{
 			return getVP() * model;
 		}
+
+		glm::mat3 getMVR(const glm::mat4& model) const
+		{
+			return getMV(model);
+		}
 	};
 }

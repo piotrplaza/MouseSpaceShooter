@@ -143,12 +143,76 @@ namespace Uniforms
 		void operator ()(glm::vec3 value);
 	};
 
+	template <unsigned Size>
+	class Uniform3fv : public Uniform
+	{
+	public:
+		using Uniform::Uniform;
+
+		void operator ()(glm::vec3 value)
+		{
+			assert(isValidInternal());
+			glUseProgram_proxy(programId);
+			std::array<glm::vec3, Size> values;
+			values.fill(value);
+			glUniform3fv(uniformId, Size, &values[0][0]);
+		}
+
+		void operator ()(unsigned index, glm::vec3 value)
+		{
+			assert(isValidInternal());
+			assert(index < Size);
+			glUseProgram_proxy(programId);
+			glUniform3f(uniformId + index, value.x, value.y, value.z);
+		}
+
+		void operator ()(const std::array<glm::vec3, Size>& values)
+		{
+			assert(isValidInternal());
+			assert(values.size() == Size);
+			glUseProgram_proxy(programId);
+			glUniform3fv(uniformId, Size, values.data());
+		}
+	};
+
 	class Uniform4f : public Uniform
 	{
 	public:
 		using Uniform::Uniform;
 
 		void operator ()(glm::vec4 value);
+	};
+
+	template <unsigned Size>
+	class Uniform4fv : public Uniform
+	{
+	public:
+		using Uniform::Uniform;
+
+		void operator ()(glm::vec4 value)
+		{
+			assert(isValidInternal());
+			glUseProgram_proxy(programId);
+			std::array<glm::vec4, Size> values;
+			values.fill(value);
+			glUniform4fv(uniformId, Size, &values[0][0]);
+		}
+
+		void operator ()(unsigned index, glm::vec4 value)
+		{
+			assert(isValidInternal());
+			assert(index < Size);
+			glUseProgram_proxy(programId);
+			glUniform4f(uniformId + index, value.x, value.y, value.z, value.t);
+		}
+
+		void operator ()(const std::array<glm::vec4, Size>& values)
+		{
+			assert(isValidInternal());
+			assert(values.size() == Size);
+			glUseProgram_proxy(programId);
+			glUniform4fv(uniformId, Size, values.data());
+		}
 	};
 
 	class UniformMat3f : public Uniform

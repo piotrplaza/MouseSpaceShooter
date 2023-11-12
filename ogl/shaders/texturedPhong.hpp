@@ -14,7 +14,11 @@ namespace Shaders
 				ProgramBase(program),
 				model(program, "model"),
 				vp(program, "vp"),
+				mvr(program, "mvr"),
 				color(program, "color"),
+				numOfLights(program, "numOfLights"),
+				lightsPos(program, "lightsPos"),
+				lightsCol(program, "lightsCol"),
 				mulBlendingColor(program, "mulBlendingColor"),
 				addBlendingColor(program, "addBlendingColor"),
 				numOfTextures(program, "numOfTextures"),
@@ -28,7 +32,11 @@ namespace Shaders
 
 			Uniforms::UniformMat4f model;
 			Uniforms::UniformMat4f vp;
+			Uniforms::UniformMat3f mvr;
 			Uniforms::Uniform4f color;
+			Uniforms::Uniform1i numOfLights;
+			Uniforms::Uniform3fv<128> lightsPos;
+			Uniforms::Uniform3fv<128> lightsCol;
 			Uniforms::Uniform4f mulBlendingColor;
 			Uniforms::Uniform4f addBlendingColor;
 			Uniforms::Uniform1i numOfTextures;
@@ -47,7 +55,11 @@ namespace Shaders
 			{
 				model(glm::mat4(1.0f));
 				vp(glm::mat4(1.0f));
+				mvr(glm::mat3(1.0f));
 				color(glm::vec4(1.0f));
+				numOfLights(0);
+				lightsPos(glm::vec3(0.0f));
+				lightsCol(glm::vec3(1.0f));
 				mulBlendingColor(glm::vec4(1.0f));
 				addBlendingColor(glm::vec4(0.0f));
 				numOfTextures(1);
