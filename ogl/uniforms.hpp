@@ -79,6 +79,38 @@ namespace Uniforms
 		void operator ()(glm::ivec2 value);
 	};
 
+	template <unsigned Size>
+	class Uniform2iv : public Uniform
+	{
+	public:
+		using Uniform::Uniform;
+
+		void operator ()(glm::ivec2 value)
+		{
+			assert(isValidInternal());
+			glUseProgram_proxy(programId);
+			std::array<glm::ivec2, Size> values;
+			values.fill(value);
+			glUniform2iv(uniformId, Size, &values[0][0]);
+		}
+
+		void operator ()(unsigned index, glm::ivec2 value)
+		{
+			assert(isValidInternal());
+			assert(index < Size);
+			glUseProgram_proxy(programId);
+			glUniform2i(uniformId + index, value.x, value.y);
+		}
+
+		void operator ()(const std::array<glm::ivec2, Size>& values)
+		{
+			assert(isValidInternal());
+			assert(values.size() == Size);
+			glUseProgram_proxy(programId);
+			glUniform2iv(uniformId, Size, values.data());
+		}
+	};
+
 	class Uniform1b : public Uniform
 	{
 	public:
@@ -87,12 +119,76 @@ namespace Uniforms
 		void operator ()(bool value);
 	};
 
+	template <unsigned Size>
+	class Uniform1bv : public Uniform
+	{
+	public:
+		using Uniform::Uniform;
+
+		void operator ()(bool value)
+		{
+			assert(isValidInternal());
+			glUseProgram_proxy(programId);
+			std::array<int, Size> values;
+			values.fill(value);
+			glUniform1iv(uniformId, Size, values.data());
+		}
+
+		void operator ()(unsigned index, bool value)
+		{
+			assert(isValidInternal());
+			assert(index < Size);
+			glUseProgram_proxy(programId);
+			glUniform1i(uniformId + index, value);
+		}
+
+		void operator ()(const std::array<int, Size>& values)
+		{
+			assert(isValidInternal());
+			assert(values.size() == Size);
+			glUseProgram_proxy(programId);
+			glUniform1iv(uniformId, Size, values.data());
+		}
+	};
+
 	class Uniform1f : public Uniform
 	{
 	public:
 		using Uniform::Uniform;
 
 		void operator ()(float value);
+	};
+
+	template <unsigned Size>
+	class Uniform1fv : public Uniform
+	{
+	public:
+		using Uniform::Uniform;
+
+		void operator ()(float value)
+		{
+			assert(isValidInternal());
+			glUseProgram_proxy(programId);
+			std::array<float, Size> values;
+			values.fill(value);
+			glUniform1fv(uniformId, Size, values.data());
+		}
+
+		void operator ()(unsigned index, float value)
+		{
+			assert(isValidInternal());
+			assert(index < Size);
+			glUseProgram_proxy(programId);
+			glUniform1f(uniformId + index, value);
+		}
+
+		void operator ()(const std::array<float, Size>& values)
+		{
+			assert(isValidInternal());
+			assert(values.size() == Size);
+			glUseProgram_proxy(programId);
+			glUniform1fv(uniformId, Size, values.data());
+		}
 	};
 
 	class Uniform2f : public Uniform

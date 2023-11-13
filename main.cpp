@@ -94,7 +94,7 @@ void CreateLevel()
 	//activeLevel = std::make_unique<Levels::Windmill>();
 	//activeLevel = std::make_unique<Levels::SquareRace>();
 
-	activeLevel = std::make_unique<Levels::Playground>();
+	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
@@ -103,7 +103,7 @@ void CreateLevel()
 	//activeLevel = std::make_unique<Levels::Rim>();
 	//activeLevel = std::make_unique<Levels::SplineTest>();
 	//activeLevel = std::make_unique<Levels::Collisions>();
-	//activeLevel = std::make_unique<Levels::Basic3D>();
+	activeLevel = std::make_unique<Levels::Basic3D>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }
@@ -121,7 +121,7 @@ void Init()
 	Globals::InitializeComponents();
 	Globals::InitializeSystems();
 
-	//Globals::Components().audioListener().setEnable(false);
+	Globals::Components().audioListener().setEnable(false);
 }
 
 void PostInit()

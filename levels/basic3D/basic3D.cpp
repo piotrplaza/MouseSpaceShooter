@@ -20,6 +20,8 @@ namespace Levels
 			Globals::Shaders().basicPhong().numOfLights(1);
 			Globals::Shaders().basicPhong().lightsPos(0, {0.0f, 0.0f, 0.0f});
 			Globals::Shaders().basicPhong().lightsCol(0, { 1.0f, 1.0f, 1.0f });
+			Globals::Shaders().basicPhong().lightsAmbientIntensity(0, 0.1f);
+			Globals::Shaders().basicPhong().lightsDiffuseIntensity(0, 0.8f);
 		}
 
 		void createDecorations() const
