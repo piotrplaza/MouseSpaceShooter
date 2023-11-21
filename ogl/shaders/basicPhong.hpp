@@ -19,8 +19,9 @@ namespace Shaders
 				numOfLights(program, "numOfLights"),
 				lightsPos(program, "lightsPos"),
 				lightsCol(program, "lightsCol"),
-				lightsAmbientIntensity(program, "lightsAmbientIntensity"),
-				lightsDiffuseIntensity(program, "lightsDiffuseIntensity")
+				lightsAttenuation(program, "lightsAttenuation"),
+				ambient(program, "ambient"),
+				diffuse(program, "diffuse")
 			{
 			}
 
@@ -31,8 +32,9 @@ namespace Shaders
 			Uniforms::Uniform1i numOfLights;
 			Uniforms::Uniform3fv<128> lightsPos;
 			Uniforms::Uniform3fv<128> lightsCol;
-			Uniforms::Uniform1fv<128> lightsAmbientIntensity;
-			Uniforms::Uniform1fv<128> lightsDiffuseIntensity;
+			Uniforms::Uniform1fv<128> lightsAttenuation;
+			Uniforms::Uniform1f ambient;
+			Uniforms::Uniform1f diffuse;
 		};
 
 		struct BasicPhong : BasicPhongAccessor
@@ -48,8 +50,9 @@ namespace Shaders
 				numOfLights(0);
 				lightsPos(glm::vec3(0.0f));
 				lightsCol(glm::vec3(1.0f));
-				lightsAmbientIntensity(1.0f);
-				lightsDiffuseIntensity(0.0f);
+				lightsAttenuation(0.0f);
+				ambient(1.0f);
+				diffuse(0.0f);
 			}
 
 			BasicPhong(const BasicPhong&) = delete;
