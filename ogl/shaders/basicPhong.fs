@@ -13,16 +13,48 @@ uniform vec3 lightsCol[128];
 uniform float lightsAttenuation[128];
 uniform float ambient;
 uniform float diffuse;
+uniform vec3 viewPos;
+uniform float specular;
+uniform float specularFocus;
+
+float getAmbientFactor()
+{
+	return ambient;
+}
+
+float getDiffuseFactor(const vec3 lightDir, const vec3 normal)
+{
+	return max(dot(normal, lightDir), 0.0) * diffuse;
+}
+
+float getSpecularFactor(const vec3 lightDir, const vec3 normal)
+{
+	const vec3 viewDir = normalize(viewPos - vPos);
+	const vec3 reflectDir = reflect(-lightDir, normal);  
+	return max(pow(max(dot(viewDir, reflectDir), 0.0), specularFocus), 0.0) * specular;
+}
+
+float getAttenuation(int lightId)
+{
+	return 1.0 / (1.0 + lightsAttenuation[lightId] * distance(vPos, lightsPos[lightId]));
+}
 
 void main()
 {
+	if (numOfLights == 0)
+	{
+		fColor = color * vColor;
+		return;
+	}
+
+	const vec3 normal = normalize(vNormal);
 	vec3 lightModelColor = vec3(0.0);
 
 	for (int i = 0; i < numOfLights; ++i)
 	{
 		const vec3 lightDir = normalize(lightsPos[i] - vPos);
-		const float diffuseFactor = max(dot(normalize(vNormal), lightDir), 0.0) * diffuse;
-		lightModelColor += vColor.rgb * lightsCol[i] * (diffuseFactor + ambient) * (1.0 / (1.0 + lightsAttenuation[i] * distance(vPos, lightsPos[i])));
+		lightModelColor += getAttenuation(i) * (vColor.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal))
+			+ lightsCol[i] * getSpecularFactor(lightDir, normal));
 	}
 
 	const float lightModelColorComponentMax = max(max(lightModelColor.r, lightModelColor.g), lightModelColor.b);

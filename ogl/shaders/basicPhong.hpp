@@ -21,7 +21,10 @@ namespace Shaders
 				lightsCol(program, "lightsCol"),
 				lightsAttenuation(program, "lightsAttenuation"),
 				ambient(program, "ambient"),
-				diffuse(program, "diffuse")
+				diffuse(program, "diffuse"),
+				viewPos(program, "viewPos"),
+				specular(program, "specular"),
+				specularFocus(program, "specularFocus")
 			{
 			}
 
@@ -35,6 +38,9 @@ namespace Shaders
 			Uniforms::Uniform1fv<128> lightsAttenuation;
 			Uniforms::Uniform1f ambient;
 			Uniforms::Uniform1f diffuse;
+			Uniforms::Uniform3f viewPos;
+			Uniforms::Uniform1f specular;
+			Uniforms::Uniform1f specularFocus;
 		};
 
 		struct BasicPhong : BasicPhongAccessor
@@ -53,6 +59,9 @@ namespace Shaders
 				lightsAttenuation(0.0f);
 				ambient(1.0f);
 				diffuse(0.0f);
+				viewPos(glm::vec3(0.0f));
+				specular(0.0f);
+				specularFocus(16.0f);
 			}
 
 			BasicPhong(const BasicPhong&) = delete;

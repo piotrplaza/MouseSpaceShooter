@@ -23,6 +23,8 @@ namespace Levels
 			Globals::Shaders().basicPhong().lightsAttenuation(0, 1.0f);
 			Globals::Shaders().basicPhong().ambient(0.1f);
 			Globals::Shaders().basicPhong().diffuse(0.8f);
+			Globals::Shaders().basicPhong().specular(3.0f);
+			Globals::Shaders().basicPhong().specularFocus(8.0f);
 		}
 
 		void createDecorations() const
