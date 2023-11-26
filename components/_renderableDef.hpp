@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tools/graphicsHelpers.hpp>
+#include <tools/geometryHelpers.hpp>
 
 #include <commonTypes/typeComponentMappers.hpp>
 #include <commonTypes/renderLayer.hpp>
@@ -80,7 +80,7 @@ struct RenderableDef
 	virtual std::vector<glm::vec3> getVertices(bool transformed = false) const
 	{
 		return transformed
-			? Tools::Transform(vertices, getModelMatrix())
+			? Tools::TransformMat4(vertices, getModelMatrix())
 			: vertices;
 	}
 

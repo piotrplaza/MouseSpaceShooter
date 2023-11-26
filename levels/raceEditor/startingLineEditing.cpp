@@ -8,6 +8,7 @@
 #include <globals/components.hpp>
 
 #include <tools/b2Helpers.hpp>
+#include <tools/shapes2D.hpp>
 
 #include <glm/vec4.hpp>
 #include <glm/gtx/vector_angle.hpp>
@@ -100,7 +101,7 @@ namespace Levels
 		auto& dynamicDecorations = Globals::Components().dynamicDecorations();
 
 		auto addControlPoint = [&]() {
-			dynamicDecorations.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointRadius, 20));
+			dynamicDecorations.emplace(Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointRadius, 20));
 			dynamicDecorations.last().colorF = []() { return controlPointColor; };
 			const auto& controlPoint = controlPoints.emplace_back( dynamicDecorations.last().getComponentId(), mousePos );
 			dynamicDecorations.last().modelMatrixF = [&, &pos = controlPoint.pos]() {

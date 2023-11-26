@@ -25,6 +25,8 @@
 #include <ogl/shaders/julia.hpp>
 #include <ogl/shaders/particles.hpp>
 
+#include <tools/shapes2D.hpp>
+
 #include <set>
 
 namespace Tools
@@ -117,7 +119,7 @@ namespace Tools
 
 		for (int i = 0; i < params.numOfThrusts_; ++i)
 		{
-			auto& planeDecoration = plane.subsequence.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }), std::vector<glm::vec2>{},
+			auto& planeDecoration = plane.subsequence.emplace_back(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }), std::vector<glm::vec2>{},
 				TCM::AnimatedTexture(thrustAnimatedTexture));
 
 			Globals::Components().renderingSetups().emplace([&, i,
@@ -183,8 +185,8 @@ namespace Tools
 		missile.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 		missile.renderLayer = RenderLayer::FarMidground;
 
-		auto& decoration = Globals::Components().dynamicDecorations().emplace(Tools::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
-			TCM::AnimatedTexture(thrustAnimatedTexture), Tools::CreateTexCoordOfRectangle());
+		auto& decoration = Globals::Components().dynamicDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
+			TCM::AnimatedTexture(thrustAnimatedTexture), Shapes2D::CreateTexCoordOfRectangle());
 
 		Globals::Components().renderingSetups().emplace([&, modelUniform = Uniforms::UniformMat4f(),
 			thrustScale = 0.1f
@@ -301,8 +303,8 @@ namespace Tools
 				};
 			});
 
-			Globals::Components().staticDecorations().emplace(Tools::CreateVerticesOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
-				TCM::Texture(fogTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1).renderLayer = RenderLayer::Foreground;
+			Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
+				TCM::Texture(fogTexture), Shapes2D::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1).renderLayer = RenderLayer::Foreground;
 			Globals::Components().staticDecorations().last().resolutionMode = ResolutionMode::LowestLinearBlend1;
 		}
 	}
@@ -310,7 +312,7 @@ namespace Tools
 	void CreateJuliaBackground(std::function<glm::vec2()> juliaCOffset)
 	{
 		auto& juliaShaders = Globals::Shaders().julia();
-		auto& background = Globals::Components().staticDecorations().emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
+		auto& background = Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
 		background.customShadersProgram = juliaShaders.getProgramId();
 
 		Globals::Components().renderingSetups().emplace([=, &juliaShaders, &screenInfo = Globals::Components().screenInfo()

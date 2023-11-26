@@ -17,7 +17,7 @@
 #include <ogl/renderingHelpers.hpp>
 #include <ogl/shaders/textured.hpp>
 
-#include <tools/graphicsHelpers.hpp>
+#include <tools/shapes2D.hpp>
 #include <tools/gameHelpers.hpp>
 
 namespace
@@ -89,8 +89,8 @@ namespace Levels
 				};
 			});
 
-			staticDecorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.0f, 5.0f }),
-				TCM::Texture(dzidziaITata1Texture), Tools::CreateTexCoordOfRectangle(), renderingSetups.size() - 1).preserveTextureRatio = true;
+			staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.0f, 5.0f }),
+				TCM::Texture(dzidziaITata1Texture), Shapes2D::CreateTexCoordOfRectangle(), renderingSetups.size() - 1).preserveTextureRatio = true;
 			staticDecorations.last().modelMatrixF = [pos, step = glm::vec2(5.0f)]() mutable {
 				const auto& screenInfo = Globals::Components().screenInfo();
 				const glm::vec2 absClamp = { screenInfo.getAspectRatio() * 10.0f, 10.0f };
@@ -104,8 +104,8 @@ namespace Levels
 			};
 
 			dzidziaDecorationId = staticDecorations.size();
-			auto& dzidzia = staticDecorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
-				TCM::Texture(dzidzia1Texture), Tools::CreateTexCoordOfRectangle());
+			auto& dzidzia = staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
+				TCM::Texture(dzidzia1Texture), Shapes2D::CreateTexCoordOfRectangle());
 			dzidzia.preserveTextureRatio = true;
 			dzidzia.modelMatrixF = [this]() mutable {
 				return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(mousePos, 0.0f)), rotateAngle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));

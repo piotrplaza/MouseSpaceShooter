@@ -35,7 +35,7 @@ struct Physical : Renderable
 	std::vector<glm::vec3> getVertices(bool transformed = false) const override
 	{
 		return transformed
-			? Tools::Transform(Tools::GetVertices(*body), getModelMatrix())
+			? Tools::TransformMat4(Tools::GetVertices(*body), getModelMatrix())
 			: Tools::GetVertices(*body);
 	}
 

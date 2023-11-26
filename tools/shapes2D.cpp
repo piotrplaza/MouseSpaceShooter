@@ -1,22 +1,11 @@
-#include "graphicsHelpers.hpp"
+#include "shapes2D.hpp"
 
+#include "geometryHelpers.hpp"
 #include "utility.hpp"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace Details
-{
-	inline glm::vec2 OrthoVec2(const glm::vec2& p1, const glm::vec2& p2, bool invert = false)
-	{
-		const glm::vec2 d = p2 - p1;
-		if (!invert) return glm::normalize(glm::vec2(-d.y, d.x));
-		else return glm::normalize(glm::vec2(d.y, -d.x));
-	}
-}
-
-namespace Tools
+namespace Shapes2D
 {
 	std::vector<glm::vec3> CreateVerticesOfRectangle(const glm::vec2& position, const glm::vec2& hSize, float angle, float z)
 	{
@@ -74,7 +63,7 @@ namespace Tools
 				const float scale = Tools::Random(scaleRange.x, scaleRange.y);
 				const glm::mat4 transformation = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(currentPos, z)),
 					Tools::Random(angleRange.x, angleRange.y), glm::vec3(0.0f, 0.0f, 1.0f)), { scale, scale, 1.0f });
-				const std::vector<glm::vec3> transformedRectanglePositions = Tools::Transform(rectangleVertices, transformation);
+				const std::vector<glm::vec3> transformedRectanglePositions = Tools::TransformMat4(rectangleVertices, transformation);
 				vertices.insert(vertices.end(), transformedRectanglePositions.begin(), transformedRectanglePositions.end());
 				currentPos += direction * Tools::Random(stepRange.x, stepRange.y);
 			} while (glm::distance(currentControlPos, currentPos) < lineLength);
@@ -97,7 +86,7 @@ namespace Tools
 			const float angle = angleF(*input);
 			const glm::mat4 transformation = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(position, z)),
 				angle, glm::vec3(0.0f, 0.0f, 1.0f)), { scale.x, scale.y, 1.0f });
-			const std::vector<glm::vec3> transformedRectangleVertices = Tools::Transform(rectangleVertices, transformation);
+			const std::vector<glm::vec3> transformedRectangleVertices = Tools::TransformMat4(rectangleVertices, transformation);
 			vertices.insert(vertices.end(), transformedRectangleVertices.begin(), transformedRectangleVertices.end());
 			input = inputEmitter();
 		};
@@ -117,7 +106,7 @@ namespace Tools
 			const float radialPosition = i * radialStep;
 			const float nextRadialPosition = (i + 1) * radialStep;
 
-			result.push_back(modelMatrix * glm::vec4(position,z, 1.0f));
+			result.push_back(modelMatrix * glm::vec4(position, z, 1.0f));
 			result.push_back(modelMatrix * glm::vec4(position + glm::vec2(glm::cos(radialPosition),
 				glm::sin(radialPosition)) * radius, z, 1.0f));
 			result.push_back(modelMatrix * glm::vec4(position + glm::vec2(glm::cos(nextRadialPosition),
@@ -142,13 +131,13 @@ namespace Tools
 		const glm::vec2 d = glm::normalize(p2 - p1);
 		const glm::vec2 step = (p2 - p1) / (float)segmentsNum;
 		const float stepLength = glm::length(step);
-		const glm::vec2 orthoD = Details::OrthoVec2(p1, p2);
+		const glm::vec2 orthoD = Tools::OrthoVec2(p1, p2);
 		glm::vec2 currentPos = p1;
 
 		vertices.emplace_back(currentPos, z);
 		for (int i = 0; i < segmentsNum; ++i)
 		{
-			const float variationStep = stepLength * Random(-frayFactor, frayFactor);
+			const float variationStep = stepLength * Tools::Random(-frayFactor, frayFactor);
 
 			currentPos += step;
 			currentPos += orthoD * variationStep;
@@ -167,48 +156,5 @@ namespace Tools
 		}
 
 		return vertices;
-	}
-
-	void VerticesDefaultRandomTranslate(std::vector<glm::vec3>& vertices, bool loop, float randFactor)
-	{
-		for (size_t i = 0; i < vertices.size(); ++i)
-		{
-			if (!loop && (i == 0 || i == vertices.size() - 1))
-				continue;
-
-			glm::vec3& v = vertices[i];
-
-			auto vTransform = [&](const glm::vec3& prevV, const glm::vec3& v, const glm::vec3& nextV) {
-				const float avgLength = (glm::distance(prevV, v) + glm::distance(v, nextV)) * 0.5f;
-				const float r = avgLength * randFactor;
-				return glm::vec3(Tools::Random(-r, r), Tools::Random(-r, r), 0.0f);
-			};
-
-			if (loop && i == 0)
-			{
-				const glm::vec3& prevV = vertices[vertices.size() - 2];
-				const glm::vec3& nextV = vertices[1];
-				v += vTransform(prevV, v, nextV);
-				continue;
-			}
-
-			if (loop && i == vertices.size() - 1)
-			{
-				v = vertices.front();
-				continue;
-			}
-
-			const glm::vec3& prevV = vertices[i - 1];
-			const glm::vec3& nextV = vertices[i + 1];
-			v += vTransform(prevV, v, nextV);
-		}
-	}
-
-	std::vector<glm::vec3> Transform(const std::vector<glm::vec3>& vertices, const glm::mat4& transformation)
-	{
-		std::vector<glm::vec3> result(vertices.begin(), vertices.end());
-		for (auto& vertex: result) vertex = transformation * glm::vec4(vertex, 1.0f);
-
-		return result;
 	}
 }

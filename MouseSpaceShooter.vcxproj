@@ -72,9 +72,11 @@
     <ClCompile Include="systems\textures.cpp" />
     <ClCompile Include="tools\b2Helpers.cpp" />
     <ClCompile Include="tools\gameHelpers.cpp" />
-    <ClCompile Include="tools\graphicsHelpers.cpp" />
+    <ClCompile Include="tools\geometryHelpers.cpp" />
     <ClCompile Include="tools\missilesHandler.cpp" />
     <ClCompile Include="tools\playersHandler.cpp" />
+    <ClCompile Include="tools\shapes2D.cpp" />
+    <ClCompile Include="tools\shapes3D.cpp" />
     <ClCompile Include="tools\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -177,10 +179,12 @@
     <ClInclude Include="tools\b2Helpers.hpp" />
     <ClInclude Include="tools\buffersHelpers.hpp" />
     <ClInclude Include="tools\gameHelpers.hpp" />
+    <ClInclude Include="tools\geometryHelpers.hpp" />
     <ClInclude Include="tools\glmHelpers.hpp" />
-    <ClInclude Include="tools\graphicsHelpers.hpp" />
     <ClInclude Include="tools\missilesHandler.hpp" />
     <ClInclude Include="tools\playersHandler.hpp" />
+    <ClInclude Include="tools\shapes2D.hpp" />
+    <ClInclude Include="tools\shapes3D.hpp" />
     <ClInclude Include="tools\splines.hpp" />
     <ClInclude Include="tools\utility.hpp" />
   </ItemGroup>

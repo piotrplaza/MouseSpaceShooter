@@ -8,7 +8,7 @@
 
 #include <globals/components.hpp>
 
-#include <tools/graphicsHelpers.hpp>
+#include <tools/shapes2D.hpp>
 #include <tools/glmHelpers.hpp>
 #include <tools/splines.hpp>
 #include <tools/utility.hpp>
@@ -30,7 +30,7 @@ namespace Levels
 			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
 			auto& camera = Globals::Components().camera();
 
-			staticDecoration.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, 0.05f, 20));
+			staticDecoration.emplace(Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, 0.05f, 20));
 			staticDecoration.last().modelMatrixF = [this]() {
 				return glm::translate(glm::mat4{ 1.0f }, { mousePos, 0.0f });
 			};
@@ -67,7 +67,7 @@ namespace Levels
 			const glm::vec2 mouseDelta = mousePos - oldMousePos;
 
 			auto addControlPoint = [&](decltype(controlPoints)::iterator it) {
-				dynamicDecorations.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointSize, 20));
+				dynamicDecorations.emplace(Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointSize, 20));
 				dynamicDecorations.last().colorF = []() { return glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); };
 				auto insertedIt = controlPoints.insert(it, { dynamicDecorations.last().getComponentId(), mousePos });
 				dynamicDecorations.last().modelMatrixF = [&pos = insertedIt->pos]() {
@@ -174,7 +174,7 @@ namespace Levels
 
 					for (size_t i = 0; i < intermediateVeritces.size() - 1; ++i)
 					{
-						std::vector<glm::vec3> subVertices = Tools::CreateVerticesOfLightning(intermediateVeritces[i], intermediateVeritces[i + 1], 10, 0.2f);
+						std::vector<glm::vec3> subVertices = Shapes2D::CreateVerticesOfLightning(intermediateVeritces[i], intermediateVeritces[i + 1], 10, 0.2f);
 						finalVertices.insert(finalVertices.end(), subVertices.begin(), subVertices.end());
 					}
 				}

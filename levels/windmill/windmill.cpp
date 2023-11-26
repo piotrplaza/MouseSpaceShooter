@@ -27,7 +27,7 @@
 
 #include <tools/gameHelpers.hpp>
 #include <tools/b2Helpers.hpp>
-#include <tools/graphicsHelpers.hpp>
+#include <tools/shapes2D.hpp>
 #include <tools/b2Helpers.hpp>
 #include <tools/playersHandler.hpp>
 #include <tools/missilesHandler.hpp>
@@ -190,8 +190,8 @@ namespace Levels
 		{
 			auto& staticDecorations = Globals::Components().staticDecorations();
 
-			staticDecorations.emplace(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 15.0f, 15.0f }),
-				TCM::AnimatedTexture(recursiveFaceAnimatedTexture), Tools::CreateTexCoordOfRectangle(), recursiveFaceRS, RenderLayer::NearForeground);
+			staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 15.0f, 15.0f }),
+				TCM::AnimatedTexture(recursiveFaceAnimatedTexture), Shapes2D::CreateTexCoordOfRectangle(), recursiveFaceRS, RenderLayer::NearForeground);
 			staticDecorations.last().modelMatrixF = [&, angle = 0.0f]() mutable {
 				return glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(innerForceScale)), angle += 2.0f * physics.frameDuration, { 0.0f, 0.0f, 1.0f });
 			};
@@ -235,7 +235,7 @@ namespace Levels
 				outerRing.replaceFixtures(ringSegments, Tools::BodyParams().sensor(true));
 			};
 
-			outerRing.segmentVerticesGenerator = [](const auto& v1, const auto& v2) { return Tools::CreateVerticesOfLightning(v1, v2, 10, 0.2f); };
+			outerRing.segmentVerticesGenerator = [](const auto& v1, const auto& v2) { return Shapes2D::CreateVerticesOfLightning(v1, v2, 10, 0.2f); };
 			outerRing.keyVerticesTransformer = [](std::vector<glm::vec3>& vertices) { Tools::VerticesDefaultRandomTranslate(vertices, true, 0.04f); };
 			outerRing.colorF = [this]() {
 				return (playersHandler.getActivePlayersHandlers().size() == 1
@@ -479,7 +479,7 @@ namespace Levels
 					emission.replaceFixtures(ringSegments, Tools::BodyParams().sensor(true));
 				};
 
-				emission.segmentVerticesGenerator = [](const auto& v1, const auto& v2) { return Tools::CreateVerticesOfLightning(v1, v2, 10, 0.2f); };
+				emission.segmentVerticesGenerator = [](const auto& v1, const auto& v2) { return Shapes2D::CreateVerticesOfLightning(v1, v2, 10, 0.2f); };
 				emission.keyVerticesTransformer = [](std::vector<glm::vec3>& vertices) { Tools::VerticesDefaultRandomTranslate(vertices, true, 0.04f); };
 				emission.colorF = [this]() {
 					return (playersHandler.getActivePlayersHandlers().size() == 1

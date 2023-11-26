@@ -118,9 +118,6 @@
     <ClCompile Include="tools\b2Helpers.cpp">
       <Filter>src\tools</Filter>
     </ClCompile>
-    <ClCompile Include="tools\graphicsHelpers.cpp">
-      <Filter>src\tools</Filter>
-    </ClCompile>
     <ClCompile Include="systems\camera.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
@@ -268,6 +265,15 @@
     <ClCompile Include="components\audioListener.cpp">
       <Filter>src\components</Filter>
     </ClCompile>
+    <ClCompile Include="tools\shapes2D.cpp">
+      <Filter>src\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\shapes3D.cpp">
+      <Filter>src\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\geometryHelpers.cpp">
+      <Filter>src\tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mvp.hpp">
@@ -290,9 +296,6 @@
     </ClInclude>
     <ClInclude Include="components\grapple.hpp">
       <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="tools\graphicsHelpers.hpp">
-      <Filter>src\tools</Filter>
     </ClInclude>
     <ClInclude Include="systems\camera.hpp">
       <Filter>src\systems</Filter>
@@ -584,6 +587,15 @@
     </ClInclude>
     <ClInclude Include="components\audioListener.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\shapes2D.hpp">
+      <Filter>src\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\shapes3D.hpp">
+      <Filter>src\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\geometryHelpers.hpp">
+      <Filter>src\tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

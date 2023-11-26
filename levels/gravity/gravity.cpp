@@ -31,7 +31,6 @@
 #include <globals/components.hpp>
 #include <globals/collisionBits.hpp>
 
-#include <tools/graphicsHelpers.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
 #include <tools/b2Helpers.hpp>

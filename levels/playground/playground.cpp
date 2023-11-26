@@ -35,7 +35,7 @@
 #include <ogl/shaders/textured.hpp>
 #include <ogl/renderingHelpers.hpp>
 
-#include <tools/graphicsHelpers.hpp>
+#include <tools/shapes2D.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
 #include <tools/playersHandler.hpp>
@@ -283,8 +283,8 @@ namespace Levels
 					};
 				});
 
-				Globals::Components().staticDecorations().emplace(Tools::CreateVerticesOfRectangle(portraitCenter, { 10.0f, 10.0f }),
-					TCM::BlendingTexture(blendingTexture), Tools::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1,
+				Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle(portraitCenter, { 10.0f, 10.0f }),
+					TCM::BlendingTexture(blendingTexture), Shapes2D::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1,
 					RenderLayer::NearMidground).preserveTextureRatio = true;
 			}
 
@@ -314,9 +314,9 @@ namespace Levels
 			{
 				auto setRenderingSetupAndSubsequence = [&]()
 				{
-					Globals::Components().staticWalls().last().subsequence.emplace_back(Tools::CreateVerticesOfLineOfRectangles({ 0.4f, 0.4f },
+					Globals::Components().staticWalls().last().subsequence.emplace_back(Shapes2D::CreateVerticesOfLineOfRectangles({ 0.4f, 0.4f },
 						{ { -0.5f, -5.0f }, { 0.5f, -5.0f }, { 0.5f, 5.0f }, { -0.5f, 5.0f }, { -0.5f, -5.0f } },
-						{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }), Tools::CreateTexCoordOfRectangle(),
+						{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }), Shapes2D::CreateTexCoordOfRectangle(),
 						TCM::Texture(roseTexture));
 					Globals::Components().staticWalls().last().subsequence.back().modelMatrixF = [wallId = Globals::Components().staticWalls().size() - 1]() {
 						return Globals::Components().staticWalls()[wallId].getModelMatrix(); };
@@ -380,7 +380,7 @@ namespace Levels
 						return [=]() mutable { texturedProgram.color(Globals::Components().graphicsSettings().defaultColor); };
 					});
 
-				wall.subsequence.emplace_back(Tools::CreateVerticesOfFunctionalRectangles({ 1.0f, 1.0f },
+				wall.subsequence.emplace_back(Shapes2D::CreateVerticesOfFunctionalRectangles({ 1.0f, 1.0f },
 					[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
 					[](float input) { return glm::vec2(input + 0.3f, input + 0.3f); },
 					[](float input) { return input * 600.0f; },
@@ -389,7 +389,7 @@ namespace Levels
 						float result = value;
 						value += 0.002f;
 						return result;
-					}), Tools::CreateTexCoordOfRectangle(), TCM::Texture(roseTexture), Globals::Components().renderingSetups().size() - 1);
+					}), Shapes2D::CreateTexCoordOfRectangle(), TCM::Texture(roseTexture), Globals::Components().renderingSetups().size() - 1);
 			}
 
 			Globals::Components().staticWalls().last().resolutionMode = ResolutionMode::PixelArtBlend0;
@@ -468,10 +468,10 @@ namespace Levels
 					};
 				});
 
-			Globals::Components().staticDecorations().emplace(Tools::CreateVerticesOfLineOfRectangles({ 1.5f, 1.5f },
+			Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfLineOfRectangles({ 1.5f, 1.5f },
 				{ { -levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, levelHeightHSize },
 				{ -levelWidthHSize, levelHeightHSize }, { -levelWidthHSize, -levelHeightHSize } },
-				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture), Tools::CreateTexCoordOfRectangle(), renderingSetup);
+				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture), Shapes2D::CreateTexCoordOfRectangle(), renderingSetup);
 			Globals::Components().staticDecorations().last().renderLayer = RenderLayer::FarForeground;
 			//Globals::Components().decorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
 		}
@@ -508,8 +508,8 @@ namespace Levels
 				Tools::BodyParams().position({ -10.0f, 30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)), TCM::Texture(0));
 			grapple.influenceRadius = 30.0f;
 			grapple.renderF = []() { return false; };
-			grapple.subsequence.emplace_back(Tools::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.2f, 5.2f }),
-				Tools::CreateTexCoordOfRectangle(), TCM::AnimatedTexture(recursiveFaceAnimatedTexture));
+			grapple.subsequence.emplace_back(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.2f, 5.2f }),
+				Shapes2D::CreateTexCoordOfRectangle(), TCM::AnimatedTexture(recursiveFaceAnimatedTexture));
 			grapple.subsequence.back().modelMatrixF = [&grapple]() {
 				return grapple.getModelMatrix();
 			};

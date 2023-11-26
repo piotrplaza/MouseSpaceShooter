@@ -1,7 +1,7 @@
 #include "animatedTexture.hpp"
 
 #include <tools/glmHelpers.hpp>
-#include <tools/graphicsHelpers.hpp>
+#include <tools/geometryHelpers.hpp>
 
 #include <tools/utility.hpp>
 

@@ -12,6 +12,7 @@
 
 #include <tools/buffersHelpers.hpp>
 #include <tools/b2Helpers.hpp>
+#include <tools/shapes2D.hpp>
 
 #include <ogl/shaders/basic.hpp>
 
@@ -215,7 +216,7 @@ namespace Systems
 	std::vector<glm::vec3> Actors::Connections::Params::getVertices() const
 	{
 		if (segmentsNum == 1) return { { p1, 0.0f }, { p2, 0.0f } };
-		else return Tools::CreateVerticesOfLightning(p1, p2, segmentsNum, frayFactor);
+		else return Shapes2D::CreateVerticesOfLightning(p1, p2, segmentsNum, frayFactor);
 	}
 
 	std::vector<glm::vec4> Actors::Connections::Params::getColors() const

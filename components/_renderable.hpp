@@ -3,7 +3,7 @@
 #include "_renderableDef.hpp"
 #include "_componentBase.hpp"
 
-#include <tools/graphicsHelpers.hpp>
+#include <tools/geometryHelpers.hpp>
 
 #include <commonTypes/typeComponentMappers.hpp>
 #include <commonTypes/resolutionMode.hpp>

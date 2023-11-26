@@ -9,6 +9,7 @@
 #include <tools/utility.hpp>
 #include <tools/glmHelpers.hpp>
 #include <tools/splines.hpp>
+#include <tools/shapes2D.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -60,7 +61,7 @@ namespace Levels
 
 			auto& controlPoints = splineDecorationIdToSplineDef[*activeSplineDecorationId].controlPoints;
 
-			dynamicDecorations.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointRadius, controlPointComplexity));
+			dynamicDecorations.emplace(Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointRadius, controlPointComplexity));
 			dynamicDecorations.last().colorF = [&, id = *activeSplineDecorationId]() {
 				return (activeSplineDecorationId && id == *activeSplineDecorationId)
 					? activeControlPointColor
@@ -184,7 +185,7 @@ namespace Levels
 				splineDecorationIdToSplineDef[sourceSplineDecoration.getComponentId()];
 			for (auto& controlPoint : splineDecorationIdToSplineDef[targetSplineDecoration.getComponentId()].controlPoints)
 			{
-				auto& controlPointDecoration = dynamicDecorations.emplace(Tools::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointRadius,
+				auto& controlPointDecoration = dynamicDecorations.emplace(Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointRadius,
 					controlPointComplexity));
 				controlPoint.decorationId = controlPointDecoration.getComponentId();
 				controlPointDecoration.colorF = [&, id = targetSplineDecoration.getComponentId()]() {
@@ -341,7 +342,7 @@ namespace Levels
 				for (size_t i = 0; i < intermediateVeritces.size() - 1; ++i)
 				{
 					const float d = glm::distance(intermediateVeritces[i], intermediateVeritces[i + 1]);
-					std::vector<glm::vec3> subVertices = Tools::CreateVerticesOfLightning(intermediateVeritces[i], intermediateVeritces[i + 1], std::max(1, (int)d), 0.2f);
+					std::vector<glm::vec3> subVertices = Shapes2D::CreateVerticesOfLightning(intermediateVeritces[i], intermediateVeritces[i + 1], std::max(1, (int)d), 0.2f);
 					finalVertices.insert(finalVertices.end(), subVertices.begin(), subVertices.end());
 				}
 			}

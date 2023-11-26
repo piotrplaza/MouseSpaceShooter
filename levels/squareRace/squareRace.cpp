@@ -23,6 +23,7 @@
 #include <tools/gameHelpers.hpp>
 #include <tools/playersHandler.hpp>
 #include <tools/b2Helpers.hpp>
+#include <tools/shapes2D.hpp>
 
 #include <glm/gtx/vector_angle.hpp>
 
@@ -122,7 +123,7 @@ namespace Levels
 				auto& staticWalls = Globals::Components().staticWalls();
 
 				staticWalls.emplace(Tools::CreateBoxBody({ 100.0f, 100.0f }), TCM::Texture(cityTexture));
-				staticWalls.last().texCoord = Tools::CreateTexCoordOfRectangle();
+				staticWalls.last().texCoord = Shapes2D::CreateTexCoordOfRectangle();
 
 				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 160.0f, 0.0f })), TCM::Texture(orbTexture));
 				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 100.0f, 0.0f })), TCM::Texture(orbTexture));
@@ -143,7 +144,7 @@ namespace Levels
 				}
 				ringSegments.push_back(ringSegments.front());
 				auto& outerRing = staticPolylines.emplace(ringSegments, Tools::BodyParams().sensor(true));
-				outerRing.segmentVerticesGenerator = [](const auto& v1, const auto& v2) { return Tools::CreateVerticesOfLightning(v1, v2, 20, 0.2f); };
+				outerRing.segmentVerticesGenerator = [](const auto& v1, const auto& v2) { return Shapes2D::CreateVerticesOfLightning(v1, v2, 20, 0.2f); };
 				outerRing.keyVerticesTransformer = [](std::vector<glm::vec3>& vertices) { Tools::VerticesDefaultRandomTranslate(vertices, true, 0.04f); };
 				outerRing.colorF = [this]() {
 					return (playersHandler.getActivePlayersHandlers().size() == 1

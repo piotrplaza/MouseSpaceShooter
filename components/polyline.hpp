@@ -46,7 +46,7 @@ namespace Components
 		std::vector<glm::vec3> getVertices(bool transformed = false) const override
 		{
 			auto vertices = transformed
-				? Tools::Transform(Tools::GetVertices(*body), getModelMatrix())
+				? Tools::TransformMat4(Tools::GetVertices(*body), getModelMatrix())
 				: Tools::GetVertices(*body);
 
 			if ((!segmentVerticesGenerator && !keyVerticesTransformer) || vertices.empty())
