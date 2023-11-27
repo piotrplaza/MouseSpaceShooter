@@ -57,12 +57,12 @@ void main()
 			+ lightsCol[i] * getSpecularFactor(lightDir, normal));
 	}
 
-	const float lightModelColorComponentMax = max(max(lightModelColor.r, lightModelColor.g), lightModelColor.b);
+	/*const float lightModelColorComponentMax = max(max(lightModelColor.r, lightModelColor.g), lightModelColor.b);
 
 	if (lightModelColorComponentMax > 1.0)
 	{
 		lightModelColor /= lightModelColorComponentMax;
-	}
+	}*/
 
 	fColor = vec4(lightModelColor, vColor.a) * color;
 }

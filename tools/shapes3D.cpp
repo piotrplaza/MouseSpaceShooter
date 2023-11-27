@@ -6,7 +6,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace Shapes3D
+namespace
 {
 	void AddVerticesOfRectangle(std::vector<glm::vec3>& vertices, const glm::vec2& hSize, const glm::mat4& transform)
 	{
@@ -58,8 +58,11 @@ namespace Shapes3D
 			index += offset;
 		indices.insert(indices.end(), rectangleIndices.begin(), rectangleIndices.end());
 	}
+}
 
-	RenderableDef& SetRectangle(RenderableDef& renderableDef, const glm::vec2& hSize, const std::vector<glm::vec4>& colors, const glm::mat4& transform)
+namespace Shapes3D
+{
+	RenderableDef& AddRectangle(RenderableDef& renderableDef, const glm::vec2& hSize, const std::vector<glm::vec4>& colors, const glm::mat4& transform)
 	{
 		unsigned offset = renderableDef.vertices.size();
 
@@ -74,30 +77,28 @@ namespace Shapes3D
 		return renderableDef;
 	}
 
-	RenderableDef& SetCuboid(RenderableDef& renderableDef, const glm::vec3& hSize, const std::vector<glm::vec4>& colors, const glm::mat4& transform)
+	RenderableDef& AddCuboid(RenderableDef& renderableDef, const glm::vec3& hSize, const std::vector<glm::vec4>& colors, const glm::mat4& transform)
 	{
-		const std::vector<glm::vec2> hSizes = {
-			{hSize.x, hSize.y},
-			{hSize.z, hSize.y},
-			{hSize.x, hSize.z}
-		};
+		auto getColorsOfVertices = [&, col = std::vector<glm::vec4>{}, j = 0]() mutable -> const std::vector<glm::vec4>& {
+			if (colors.empty())
+				return col;
 
-		auto getColorsOfVertices = [&, col = std::vector<glm::vec4>(4), j = 0]() mutable -> const std::vector<glm::vec4>& {
+			col.reserve(4);
 			for (unsigned i = 0; i < 4; ++i)
 			{
-				col[i] = colors[j++ % colors.size()];
+				col.push_back(colors[j++ % colors.size()]);
 			}
 			return col;
 		};
 
-		SetRectangle(renderableDef, { hSize.x, hSize.y }, getColorsOfVertices(), glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, hSize.z}));
-		SetRectangle(renderableDef, { hSize.x, hSize.y }, getColorsOfVertices(), glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -hSize.z }), glm::pi<float>(), {0.0f, 1.0f, 0.0f}));
+		AddRectangle(renderableDef, { hSize.x, hSize.y }, getColorsOfVertices(), transform * glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, hSize.z}));
+		AddRectangle(renderableDef, { hSize.x, hSize.y }, getColorsOfVertices(), transform * glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -hSize.z }), glm::pi<float>(), {0.0f, 1.0f, 0.0f}));
 
-		SetRectangle(renderableDef, { hSize.z, hSize.y }, getColorsOfVertices(), glm::rotate(glm::translate(glm::mat4(1.0f), { -hSize.x, 0.0f, 0.0f }), -glm::half_pi<float>(), { 0.0f, 1.0f, 0.0f }));
-		SetRectangle(renderableDef, { hSize.z, hSize.y }, getColorsOfVertices(), glm::rotate(glm::translate(glm::mat4(1.0f), { hSize.x, 0.0f, 0.0f }), glm::half_pi<float>(), { 0.0f, 1.0f, 0.0f }));
+		AddRectangle(renderableDef, { hSize.z, hSize.y }, getColorsOfVertices(), transform * glm::rotate(glm::translate(glm::mat4(1.0f), { -hSize.x, 0.0f, 0.0f }), -glm::half_pi<float>(), { 0.0f, 1.0f, 0.0f }));
+		AddRectangle(renderableDef, { hSize.z, hSize.y }, getColorsOfVertices(), transform * glm::rotate(glm::translate(glm::mat4(1.0f), { hSize.x, 0.0f, 0.0f }), glm::half_pi<float>(), { 0.0f, 1.0f, 0.0f }));
 
-		SetRectangle(renderableDef, { hSize.x, hSize.z }, getColorsOfVertices(), glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, -hSize.y, 0.0f }), glm::half_pi<float>(), { 1.0f, 0.0f, 0.0f }));
-		SetRectangle(renderableDef, { hSize.x, hSize.z }, getColorsOfVertices(), glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, hSize.y, 0.0f }), -glm::half_pi<float>(), { 1.0f, 0.0f, 0.0f }));
+		AddRectangle(renderableDef, { hSize.x, hSize.z }, getColorsOfVertices(), transform * glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, -hSize.y, 0.0f }), glm::half_pi<float>(), { 1.0f, 0.0f, 0.0f }));
+		AddRectangle(renderableDef, { hSize.x, hSize.z }, getColorsOfVertices(), transform * glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, hSize.y, 0.0f }), -glm::half_pi<float>(), { 1.0f, 0.0f, 0.0f }));
 
 		return renderableDef;
 	}
