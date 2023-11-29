@@ -24,7 +24,10 @@ namespace Shaders
 				diffuse(program, "diffuse"),
 				viewPos(program, "viewPos"),
 				specular(program, "specular"),
-				specularFocus(program, "specularFocus")
+				specularFocus(program, "specularFocus"),
+				flatColor(program, "flatColor"),
+				flatNormal(program, "flatNormal"),
+				lightModelColorNormalization(program, "lightModelColorNormalization")
 			{
 			}
 
@@ -41,6 +44,9 @@ namespace Shaders
 			Uniforms::Uniform3f viewPos;
 			Uniforms::Uniform1f specular;
 			Uniforms::Uniform1f specularFocus;
+			Uniforms::Uniform1b flatColor;
+			Uniforms::Uniform1b flatNormal;
+			Uniforms::Uniform1b lightModelColorNormalization;
 		};
 
 		struct BasicPhong : BasicPhongAccessor
@@ -62,6 +68,9 @@ namespace Shaders
 				viewPos(glm::vec3(0.0f));
 				specular(0.0f);
 				specularFocus(16.0f);
+				flatColor(false);
+				flatNormal(false);
+				lightModelColorNormalization(false);
 			}
 
 			BasicPhong(const BasicPhong&) = delete;

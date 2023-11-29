@@ -1,8 +1,10 @@
 #version 440
 
 in vec3 vPos;
-in vec4 vColor;
-in vec3 vNormal;
+in vec4 vSmoothColor;
+flat in vec4 vFlatColor;
+in vec3 vSmoothNormal;
+flat in vec3 vFlatNormal;
 
 out vec4 fColor;
 
@@ -16,6 +18,9 @@ uniform float diffuse;
 uniform vec3 viewPos;
 uniform float specular;
 uniform float specularFocus;
+uniform bool flatColor;
+uniform bool flatNormal;
+uniform bool lightModelColorNormalization;
 
 float getAmbientFactor()
 {
@@ -24,7 +29,7 @@ float getAmbientFactor()
 
 float getDiffuseFactor(const vec3 lightDir, const vec3 normal)
 {
-	return max(dot(normal, lightDir), 0.0) * diffuse;
+	return abs(dot(normal, lightDir)) * diffuse;
 }
 
 float getSpecularFactor(const vec3 lightDir, const vec3 normal)
@@ -41,6 +46,9 @@ float getAttenuation(int lightId)
 
 void main()
 {
+	const vec4 vColor = flatColor ? vFlatColor : vSmoothColor;
+	const vec3 vNormal = flatNormal ? vFlatNormal : vSmoothNormal;
+
 	if (numOfLights == 0)
 	{
 		fColor = color * vColor;
@@ -57,12 +65,13 @@ void main()
 			+ lightsCol[i] * getSpecularFactor(lightDir, normal));
 	}
 
-	/*const float lightModelColorComponentMax = max(max(lightModelColor.r, lightModelColor.g), lightModelColor.b);
-
-	if (lightModelColorComponentMax > 1.0)
+	if (lightModelColorNormalization)
 	{
-		lightModelColor /= lightModelColorComponentMax;
-	}*/
+		const float lightModelColorComponentMax = max(max(lightModelColor.r, lightModelColor.g), lightModelColor.b);
+
+		if (lightModelColorComponentMax > 1.0)
+			lightModelColor /= lightModelColorComponentMax;
+	}
 
 	fColor = vec4(lightModelColor, vColor.a) * color;
 }

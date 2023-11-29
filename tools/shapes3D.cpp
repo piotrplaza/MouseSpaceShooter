@@ -52,7 +52,7 @@ namespace
 	void AddIndicesOfRectangle(std::vector<unsigned>& indices, unsigned offset)
 	{
 		std::vector<unsigned> rectangleIndices = {
-			0, 1, 2, 1, 3, 2
+			0, 1, 2, 2, 1, 3
 		};
 		for (auto& index : rectangleIndices)
 			index += offset;

@@ -28,13 +28,16 @@ namespace Levels
 			basicPhong.diffuse(0.8f);
 			basicPhong.specular(3.0f);
 			basicPhong.specularFocus(8.0f);
+			basicPhong.flatColor(false);
+			basicPhong.lightModelColorNormalization(false);
 		}
 
 		void createDecorations() const
 		{
 			const auto& physics = Globals::Components().physics();
 			auto& box = Globals::Components().staticDecorations().emplace();
-				Shapes3D::AddCuboid(box, { 0.5f, 0.5f, 0.5f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
+			//Shapes3D::AddRectangle(box, { 0.8f, 0.8f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
+			Shapes3D::AddCuboid(box, { 0.5f, 0.5f, 0.5f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
 			box.modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }); };
 		}
 	};
