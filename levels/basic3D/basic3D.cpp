@@ -2,6 +2,7 @@
 
 #include <components/decoration.hpp>
 #include <components/physics.hpp>
+#include <components/graphicsSettings.hpp>
 
 #include <ogl/shaders/basicPhong.hpp>
 
@@ -19,6 +20,7 @@ namespace Levels
 	public:
 		void shadersSetup() const
 		{
+			Globals::Components().graphicsSettings().clearColor = { 0.0f, 0.05f, 0.0f, 1.0f };
 			auto& basicPhong = Globals::Shaders().basicPhong();
 			basicPhong.numOfLights(1);
 			basicPhong.lightsPos(0, {0.0f, 0.0f, 0.0f});
@@ -29,16 +31,22 @@ namespace Levels
 			basicPhong.specular(3.0f);
 			basicPhong.specularFocus(8.0f);
 			basicPhong.flatColor(false);
+			basicPhong.flatNormal(false);
 			basicPhong.lightModelColorNormalization(false);
 		}
 
 		void createDecorations() const
 		{
 			const auto& physics = Globals::Components().physics();
-			auto& box = Globals::Components().staticDecorations().emplace();
-			//Shapes3D::AddRectangle(box, { 0.8f, 0.8f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
-			Shapes3D::AddCuboid(box, { 0.5f, 0.5f, 0.5f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
-			box.modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }); };
+			auto& shape = Globals::Components().staticDecorations().emplace();
+			//Shapes3D::AddRectangle(shape, { 0.8f, 0.8f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
+			Shapes3D::AddCuboid(shape, { 0.5f, 0.5f, 0.5f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
+			Shapes3D::AddSphere(shape, 0.65f, 50, 50, false, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
+			for (const auto tX : {-0.52f, 0.52f})
+				for (const auto tZ : { -0.52f, 0.52f })
+					Shapes3D::AddSphere(shape, 0.5f, 50, 50, false, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); },
+						glm::scale(glm::translate(glm::mat4(1.0f), { tX, 0.0f, tZ }), {0.1f, 1.0f, 0.1f}));
+			shape.modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }); };
 		}
 	};
 

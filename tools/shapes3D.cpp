@@ -5,6 +5,7 @@
 #include <components/_renderableDef.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 
 namespace
 {
@@ -99,6 +100,67 @@ namespace Shapes3D
 
 		AddRectangle(renderableDef, { hSize.x, hSize.z }, getColorsOfVertices(), transform * glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, -hSize.y, 0.0f }), glm::half_pi<float>(), { 1.0f, 0.0f, 0.0f }));
 		AddRectangle(renderableDef, { hSize.x, hSize.z }, getColorsOfVertices(), transform * glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, hSize.y, 0.0f }), -glm::half_pi<float>(), { 1.0f, 0.0f, 0.0f }));
+
+		return renderableDef;
+	}
+
+	RenderableDef& AddSphere(RenderableDef& renderableDef, float radius, int rings, int sectors, bool texCoords, std::function<glm::vec4(glm::vec3 normal)> colorF, const glm::mat4& transform)
+	{
+		const float R = 1.0f / static_cast<float>(++rings - 1);
+		const float S = 1.0f / static_cast<float>(++sectors - 1);
+
+		if (!renderableDef.params3D)
+			renderableDef.params3D = RenderableDef::Params3D{};
+
+		const size_t offset = renderableDef.vertices.size();
+		renderableDef.vertices.reserve(offset + rings * sectors);
+		renderableDef.colors.reserve(offset + rings * sectors);
+		renderableDef.params3D->normals_.reserve(offset + rings * sectors);
+
+		if (texCoords)
+			renderableDef.texCoord.reserve(offset + rings * sectors);
+
+		const glm::mat3 normalMatrix = glm::inverseTranspose(glm::mat3(transform));
+
+		for (int r = 0; r < rings; ++r)
+		{
+			for (int s = 0; s < sectors; ++s)
+			{
+				const glm::vec3 normal(
+					sin(-glm::half_pi<float>() + glm::pi<float>() * r * R),
+					cos(2 * glm::pi<float>() * s * S) * sin(glm::pi<float>() * r * R),
+					sin(2 * glm::pi<float>() * s * S) * sin(glm::pi<float>() * r * R));
+
+				const glm::vec3 vertex = normal * radius;
+
+				if (texCoords)
+					renderableDef.texCoord.push_back(glm::vec2(s * S, r * R));
+
+				renderableDef.vertices.push_back(glm::vec3(transform * glm::vec4(vertex, 1.0f)));
+
+				if (colorF)
+					renderableDef.colors.push_back(colorF(normal));
+				else
+					renderableDef.colors.emplace_back(1.0f);
+
+				renderableDef.params3D->normals_.push_back(glm::normalize(normalMatrix * normal));
+			}
+		}
+
+		renderableDef.indices.reserve(renderableDef.indices.size() + 6 * (rings - 1) * (sectors - 1));
+		for (int r = 0; r < rings - 1; ++r)
+		{
+			for (int s = 0; s < sectors - 1; ++s)
+			{
+				renderableDef.indices.push_back(offset + r * sectors + s);
+				renderableDef.indices.push_back(offset + r * sectors + (s + 1));
+				renderableDef.indices.push_back(offset + (r + 1) * sectors + (s + 1));
+
+				renderableDef.indices.push_back(offset + r * sectors + s);
+				renderableDef.indices.push_back(offset + (r + 1) * sectors + (s + 1));
+				renderableDef.indices.push_back(offset + (r + 1) * sectors + s);
+			}
+		}
 
 		return renderableDef;
 	}
