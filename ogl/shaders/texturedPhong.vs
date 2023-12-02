@@ -12,7 +12,7 @@ out vec3 vNormal;
 
 uniform mat4 model;
 uniform mat4 vp;
-uniform mat3 mvr;
+uniform mat3 normalMatrix;
 uniform int numOfTextures;
 uniform mat4 texturesBaseTransform[5];
 uniform mat4 texturesCustomTransform[5];
@@ -24,6 +24,6 @@ void main()
 
 	vPos = vec3(model * vec4(bPos, 1.0));
 	vColor = bColor;
-	vNormal = mvr * bNormal;
+	vNormal = normalMatrix * bNormal;
 	gl_Position = vp * vec4(vPos, 1.0);
 }

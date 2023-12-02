@@ -47,7 +47,6 @@ float getAttenuation(int lightId)
 void main()
 {
 	const vec4 vColor = flatColor ? vFlatColor : vSmoothColor;
-	const vec3 vNormal = flatNormal ? vFlatNormal : vSmoothNormal;
 
 	if (numOfLights == 0)
 	{
@@ -55,7 +54,7 @@ void main()
 		return;
 	}
 
-	const vec3 normal = normalize(vNormal);
+	const vec3 normal = normalize(flatNormal ? vFlatNormal : vSmoothNormal);
 	vec3 lightModelColor = vec3(0.0);
 
 	for (int i = 0; i < numOfLights; ++i)

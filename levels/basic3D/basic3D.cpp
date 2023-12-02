@@ -37,9 +37,11 @@ namespace Levels
 
 		void createDecorations() const
 		{
+			auto& staticDecorations = Globals::Components().staticDecorations();
 			const auto& physics = Globals::Components().physics();
-			auto& shape = Globals::Components().staticDecorations().emplace();
+			auto& shape = staticDecorations.emplace();
 			//Shapes3D::AddRectangle(shape, { 0.8f, 0.8f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
+#if 0
 			Shapes3D::AddCuboid(shape, { 0.5f, 0.5f, 0.5f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
 			Shapes3D::AddSphere(shape, 0.65f, 50, 50, false, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
 			for (const auto tX : {-0.52f, 0.52f})
@@ -47,6 +49,18 @@ namespace Levels
 					Shapes3D::AddSphere(shape, 0.5f, 50, 50, false, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); },
 						glm::scale(glm::translate(glm::mat4(1.0f), { tX, 0.0f, tZ }), {0.1f, 1.0f, 0.1f}));
 			shape.modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }); };
+#else
+			auto scaleF = [](float t) { return std::min((std::cos(t * 0.5f) + 1.1f) / 2.0f, 1.0f); };
+			Shapes3D::AddSphere(staticDecorations.emplace(), 0.5f, 100, 100, false, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
+			staticDecorations.last().modelMatrixF = [&]() { return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }),
+				{ 1.0f, scaleF(physics.simulationDuration), scaleF(physics.simulationDuration) }); };
+			Shapes3D::AddSphere(staticDecorations.emplace(), 0.5f, 100, 100, false, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
+			staticDecorations.last().modelMatrixF = [&]() { return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }),
+				{ scaleF(physics.simulationDuration), 1.0f, scaleF(physics.simulationDuration) }); };
+			Shapes3D::AddSphere(staticDecorations.emplace(), 0.5f, 100, 100, false, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
+			staticDecorations.last().modelMatrixF = [&]() { return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }),
+				{ scaleF(physics.simulationDuration), scaleF(physics.simulationDuration), 1.0f }); };
+#endif
 		}
 	};
 

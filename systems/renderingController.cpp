@@ -84,7 +84,7 @@ namespace Systems
 			buffers.draw(Globals::Shaders().basicPhong().getProgramId(), [](const auto& buffers) {
 				const auto modelMatrix = buffers.modelMatrixF();
 				Globals::Shaders().basicPhong().model(modelMatrix);
-				Globals::Shaders().basicPhong().mvr(Globals::Components().mvp3D().getMVR(modelMatrix));
+				Globals::Shaders().basicPhong().normalMatrix(Globals::Components().mvp3D().getNormalMatrix(modelMatrix));
 				Globals::Shaders().basicPhong().color((*buffers.colorF) ? (*buffers.colorF)() : Globals::Components().graphicsSettings().defaultColor);
 				});
 		};
@@ -116,7 +116,7 @@ namespace Systems
 			buffers.draw(Globals::Shaders().texturedPhong(), [](const auto& buffers) {
 				const auto modelMatrix = buffers.modelMatrixF();
 				Globals::Shaders().texturedPhong().model(modelMatrix);
-				Globals::Shaders().texturedPhong().mvr(Globals::Components().mvp3D().getMVR(modelMatrix));
+				Globals::Shaders().texturedPhong().normalMatrix(Globals::Components().mvp3D().getNormalMatrix(modelMatrix));
 				Globals::Shaders().texturedPhong().color((*buffers.colorF) ? (*buffers.colorF)() : Globals::Components().graphicsSettings().defaultColor);
 				Tools::PrepareTexturedRender(Globals::Shaders().texturedPhong(), buffers, *buffers.texture);
 				});

@@ -12,7 +12,7 @@ flat out vec3 vFlatNormal;
 
 uniform mat4 model;
 uniform mat4 vp;
-uniform mat3 mvr;
+uniform mat3 normalMatrix;
 
 void main()
 {
@@ -21,7 +21,7 @@ void main()
 	vSmoothColor = bColor;
 	vFlatColor = bColor;
 
-	const vec3 normal = mvr * bNormal;
+	const vec3 normal = normalMatrix * bNormal;
 	vSmoothNormal = normal;
 	vFlatNormal = normal;
 

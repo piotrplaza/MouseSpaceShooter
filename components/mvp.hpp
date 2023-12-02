@@ -3,6 +3,7 @@
 #include "_componentBase.hpp"
 
 #include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 
 namespace Components
 {
@@ -26,9 +27,9 @@ namespace Components
 			return getVP() * model;
 		}
 
-		glm::mat3 getMVR(const glm::mat4& model) const
+		glm::mat3 getNormalMatrix(const glm::mat4& model) const
 		{
-			return getMV(model);
+			return glm::inverseTranspose(glm::mat3(getMV(model)));
 		}
 	};
 }
