@@ -138,12 +138,14 @@ namespace Shapes3D
 
 				renderableDef.vertices.push_back(glm::vec3(transform * glm::vec4(vertex, 1.0f)));
 
+				const glm::vec3 finalNormal = glm::normalize(normalMatrix * normal);
+
 				if (colorF)
-					renderableDef.colors.push_back(colorF(normal));
+					renderableDef.colors.push_back(colorF(finalNormal));
 				else
 					renderableDef.colors.emplace_back(1.0f);
 
-				renderableDef.params3D->normals_.push_back(glm::normalize(normalMatrix * normal));
+				renderableDef.params3D->normals_.push_back(finalNormal);
 			}
 		}
 

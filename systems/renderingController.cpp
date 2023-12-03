@@ -49,6 +49,7 @@ namespace Systems
 			glEnable(GL_DEPTH_TEST);
 			basicPhongRender(layer);
 			texturedPhongRender(layer);
+
 			glDisable(GL_DEPTH_TEST);
 			basicRender(layer);
 			texturedRender(layer);

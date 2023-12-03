@@ -50,16 +50,18 @@ namespace Levels
 						glm::scale(glm::translate(glm::mat4(1.0f), { tX, 0.0f, tZ }), {0.1f, 1.0f, 0.1f}));
 			shape.modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }); };
 #else
+			const int sphereComplexity = 64;
+			const float size = 2.0f;
 			auto scaleF = [](float t) { return std::min((std::cos(t * 0.5f) + 1.1f) / 2.0f, 1.0f); };
-			Shapes3D::AddSphere(staticDecorations.emplace(), 0.5f, 100, 100, false, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
-			staticDecorations.last().modelMatrixF = [&]() { return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }),
-				{ 1.0f, scaleF(physics.simulationDuration), scaleF(physics.simulationDuration) }); };
-			Shapes3D::AddSphere(staticDecorations.emplace(), 0.5f, 100, 100, false, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
-			staticDecorations.last().modelMatrixF = [&]() { return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }),
-				{ scaleF(physics.simulationDuration), 1.0f, scaleF(physics.simulationDuration) }); };
-			Shapes3D::AddSphere(staticDecorations.emplace(), 0.5f, 100, 100, false, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
-			staticDecorations.last().modelMatrixF = [&]() { return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }),
-				{ scaleF(physics.simulationDuration), scaleF(physics.simulationDuration), 1.0f }); };
+			Shapes3D::AddSphere(staticDecorations.emplace(), 0.5f, sphereComplexity, sphereComplexity, false, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
+			staticDecorations.last().modelMatrixF = [&, size]() { return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }),
+				glm::vec3(1.0f, scaleF(physics.simulationDuration), scaleF(physics.simulationDuration)) * size); };
+			Shapes3D::AddSphere(staticDecorations.emplace(), 0.5f, sphereComplexity, sphereComplexity, false, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
+			staticDecorations.last().modelMatrixF = [&, size]() { return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }),
+				glm::vec3(scaleF(physics.simulationDuration), 1.0f, scaleF(physics.simulationDuration)) * size); };
+			Shapes3D::AddSphere(staticDecorations.emplace(), 0.5f, sphereComplexity, sphereComplexity, false, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
+			staticDecorations.last().modelMatrixF = [&, size]() { return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }),
+				glm::vec3(scaleF(physics.simulationDuration), scaleF(physics.simulationDuration), 1.0f) * size); };
 #endif
 		}
 	};
