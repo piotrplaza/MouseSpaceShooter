@@ -36,7 +36,7 @@ float getSpecularFactor(const vec3 lightDir, const vec3 normal)
 {
 	const vec3 viewDir = normalize(viewPos - vPos);
 	const vec3 reflectDir = reflect(-lightDir, normal);
-	return max(pow(dot(viewDir, reflectDir), specularFocus), 0.0) * specular;
+	return pow(max(dot(viewDir, reflectDir), 0.0), specularFocus) * specular;
 }
 
 float getAttenuation(int lightId)
