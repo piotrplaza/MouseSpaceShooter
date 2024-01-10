@@ -68,7 +68,7 @@ const glm::ivec2 windowRes = { 1920, 1080 };
 
 std::unique_ptr<Levels::Level> activeLevel;
 
-void OGLInitialize()
+static void OGLInitialize()
 {
 	const GLenum glewInitResult = glewInit();
 	assert(GLEW_OK == glewInitResult);
@@ -83,7 +83,7 @@ void OGLInitialize()
 	glLineWidth(3.0f);
 }
 
-void CreateLevel()
+static void CreateLevel()
 {
 #if 1
 	//activeLevel = std::make_unique<Levels::RaceEditor>();
@@ -94,7 +94,7 @@ void CreateLevel()
 	//activeLevel = std::make_unique<Levels::Windmill>();
 	//activeLevel = std::make_unique<Levels::SquareRace>();
 
-	//activeLevel = std::make_unique<Levels::Playground>();
+	activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
@@ -103,12 +103,12 @@ void CreateLevel()
 	//activeLevel = std::make_unique<Levels::Rim>();
 	//activeLevel = std::make_unique<Levels::SplineTest>();
 	//activeLevel = std::make_unique<Levels::Collisions>();
-	activeLevel = std::make_unique<Levels::Basic3D>();
+	//activeLevel = std::make_unique<Levels::Basic3D>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }
 
-void Init()
+static void Init()
 {
 	if (console)
 		Tools::RedirectIOToConsole({ 3850, 10 });
@@ -124,7 +124,7 @@ void Init()
 	//Globals::Components().audioListener().setEnable(false);
 }
 
-void PostInit()
+static void PostInit()
 {
 	CreateLevel();
 
@@ -138,7 +138,7 @@ void PostInit()
 	Globals::Systems().stateController().postInit();
 }
 
-void PrepareFrame()
+static void PrepareFrame()
 {
 	if (Globals::Components().physics().paused)
 	{
@@ -175,7 +175,7 @@ static bool focus;
 static int init = 0;
 static HDC hDC;
 
-LRESULT CALLBACK WndProc(
+static LRESULT CALLBACK WndProc(
 	HWND hWnd,
 	UINT message,
 	WPARAM wParam,
@@ -322,7 +322,7 @@ LRESULT CALLBACK WndProc(
 	return 0l;
 }
 
-void SetDCPixelFormat(HDC hDC)
+static void SetDCPixelFormat(HDC hDC)
 {
 	const PIXELFORMATDESCRIPTOR pfd =
 	{
@@ -345,7 +345,7 @@ void SetDCPixelFormat(HDC hDC)
 	SetPixelFormat(hDC, pixelFormt, &pfd);
 }
 
-void RegisterRawInputDevices(HWND hWnd)
+static void RegisterRawInputDevices(HWND hWnd)
 {
 	RAWINPUTDEVICE rid;
 	rid.usUsagePage = HID_USAGE_PAGE_GENERIC;

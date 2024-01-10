@@ -2,7 +2,7 @@
 
 #include <components/graphicsSettings.hpp>
 #include <components/mainFramebufferRenderer.hpp>
-#include <components/camera.hpp>
+#include <components/camera2D.hpp>
 #include <components/plane.hpp>
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
@@ -310,7 +310,7 @@ namespace Levels
 			missilesHandler.setFlameAnimatedTexture(flameAnimatedTexture);
 			missilesHandler.setExplosionParams(Tools::ExplosionParams().particlesDensity(0.2f).particlesRadius(2.0f).initExplosionVelocity(100.0f));
 			missilesHandler.setExplosionF([this](auto pos) {
-				Tools::PlaySingleSound(missileExplosionSoundBuffer, [pos](){ return pos; });
+				Tools::CreateAndPlaySound(missileExplosionSoundBuffer, [pos](){ return pos; });
 			});
 		}
 
@@ -325,7 +325,7 @@ namespace Levels
 						auto& planeComponent = *std::get<TCM::Plane>(Tools::AccessUserData(*plane.GetBody()).bodyComponentVariant).component;
 						Tools::CreateExplosion(Tools::ExplosionParams().center(planeComponent.getOrigin2D()).sourceVelocity(planeComponent.getVelocity()).
 							initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
-						Tools::PlaySingleSound(playerExplosionSoundBuffer, [pos = planeComponent.getOrigin2D()]() { return pos; });
+						Tools::CreateAndPlaySound(playerExplosionSoundBuffer, [pos = planeComponent.getOrigin2D()]() { return pos; });
 						planeComponent.setEnable(false);
 						return false;
 						});
@@ -333,7 +333,7 @@ namespace Levels
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::plane | Globals::CollisionBits::wall,
 				Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
-					Tools::PlaySingleSound(collisionSoundBuffer,
+					Tools::CreateAndPlaySound(collisionSoundBuffer,
 						[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {
 							return pos;
 						},
@@ -344,7 +344,7 @@ namespace Levels
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::wall, Globals::CollisionBits::wall,
 				[this, soundsLimitter = Tools::SoundsLimitter::create(8)](const auto& wall1, const auto& wall2) mutable {
-					soundsLimitter->newSound(Tools::PlaySingleSound(collisionSoundBuffer,
+					soundsLimitter->newSound(Tools::CreateAndPlaySound(collisionSoundBuffer,
 						[pos = *Tools::GetCollisionPoint(*wall1.GetBody(), *wall2.GetBody())]() {
 							return pos;
 						},
@@ -383,7 +383,7 @@ namespace Levels
 			missilesHandler.removeActiveMissiles();
 			Globals::MarkDynamicComponentsAsDirty();
 
-			innerForceSound = Tools::PlaySingleSound(innerForceSoundBuffer, []() { return glm::vec2(0.0f); },
+			innerForceSound = Tools::CreateAndPlaySound(innerForceSoundBuffer, []() { return glm::vec2(0.0f); },
 				[](auto& sound) {
 					sound.setLoop(true);
 					sound.setVolume(0.0f);
@@ -487,7 +487,7 @@ namespace Levels
 						: glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)) * 0.4f;
 				};
 
-				Tools::PlaySingleSound(emissionSoundBuffer, []() { return glm::vec2(0.0f); }, nullptr,
+				Tools::CreateAndPlaySound(emissionSoundBuffer, []() { return glm::vec2(0.0f); }, nullptr,
 					[this, stop, volume = 1.0f](auto& sound) mutable {
 						if (*stop)
 						{

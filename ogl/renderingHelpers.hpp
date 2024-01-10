@@ -34,13 +34,13 @@ namespace Tools
 		if constexpr (requires { shadersProgram.model; })
 			shadersProgram.model(modelMatrix_);
 		if constexpr (requires { shadersProgram.mv; })
-			shadersProgram.mv(Globals::Components().mvp().getMV(modelMatrix_));
+			shadersProgram.mv(Globals::Components().mvp2D().getMV(modelMatrix_));
 		if constexpr (requires { shadersProgram.vp; })
-			shadersProgram.vp(Globals::Components().mvp().getVP());
+			shadersProgram.vp(Globals::Components().mvp2D().getVP());
 		if constexpr (requires { shadersProgram.mvp; })
-			shadersProgram.mvp(Globals::Components().mvp().getMVP(modelMatrix_));
+			shadersProgram.mvp(Globals::Components().mvp2D().getMVP(modelMatrix_));
 		if constexpr (requires { shadersProgram.normalMatrix; })
-			shadersProgram.normalMatrix(Globals::Components().mvp().getNormalMatrix());
+			shadersProgram.normalMatrix(Globals::Components().mvp2D().getNormalMatrix());
 	}
 
 	template <typename ShadersProgram>

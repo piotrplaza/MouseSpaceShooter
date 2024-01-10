@@ -9,11 +9,12 @@
 #include <components/shockwave.hpp>
 #include <components/renderingSetup.hpp>
 #include <components/mvp.hpp>
-#include <components/camera.hpp>
+#include <components/camera2D.hpp>
 #include <components/screenInfo.hpp>
 #include <components/animatedTexture.hpp>
 #include <components/deferredAction.hpp>
 #include <components/sound.hpp>
+#include <components/audioListener.hpp>
 
 #include <commonTypes/typeComponentMappers.hpp>
 
@@ -211,7 +212,7 @@ namespace Tools
 		std::optional<ComponentId> soundId;
 		if (missileSoundBuffer)
 		{
-			soundId = Tools::PlaySingleSound(*missileSoundBuffer,
+			soundId = Tools::CreateAndPlaySound(*missileSoundBuffer,
 				[&]() {
 					return missile.getOrigin2D();
 				},
@@ -239,7 +240,7 @@ namespace Tools
 			Globals::Components().renderingSetups().emplace([=, startTime = Globals::Components().physics().simulationDuration,
 				&particlesShaders](Shaders::ProgramId program) mutable
 				{
-					particlesShaders.vp(Globals::Components().mvp().getVP());
+					particlesShaders.vp(Globals::Components().mvp2D().getVP());
 					particlesShaders.texture1(params.explosionTexture_);
 
 					const float elapsed = Globals::Components().physics().simulationDuration - startTime;
@@ -291,14 +292,14 @@ namespace Tools
 			Globals::Components().renderingSetups().emplace([=, texturedProgram = Shaders::Programs::TexturedAccessor()
 			](Shaders::ProgramId program) mutable {
 				if (!texturedProgram.isValid()) texturedProgram = program;
-				texturedProgram.vp(glm::translate(glm::scale(Globals::Components().mvp().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
-					glm::vec3(-Globals::Components().camera().details.prevPosition * (0.002f + layer * 0.002f), 0.0f)));
+				texturedProgram.vp(glm::translate(glm::scale(Globals::Components().mvp2D().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
+					glm::vec3(-Globals::Components().camera2D().details.prevPosition * (0.002f + layer * 0.002f), 0.0f)));
 				texturedProgram.color(fColor()* glm::vec4(1.0f, 1.0f, 1.0f, alphaPerLayer));
 
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 				return [texturedProgram]() mutable {
-					texturedProgram.vp(Globals::Components().mvp().getVP());
+					texturedProgram.vp(Globals::Components().mvp2D().getVP());
 					glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 				};
 			});
@@ -319,7 +320,7 @@ namespace Tools
 			](auto) mutable {
 				juliaShaders.vp(glm::translate(glm::scale(glm::mat4(1.0f),
 					glm::vec3(1.0f / screenInfo.getAspectRatio(), 1.0f, 1.0f) * 1.5f),
-					glm::vec3(-Globals::Components().camera().details.prevPosition * 0.005f, 0.0f)));
+					glm::vec3(-Globals::Components().camera2D().details.prevPosition * 0.005f, 0.0f)));
 				juliaShaders.juliaCOffset(juliaCOffset());
 				juliaShaders.minColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 				juliaShaders.maxColor({ 0, 0.1f, 0.2f, 1.0f });
@@ -331,22 +332,17 @@ namespace Tools
 		background.resolutionMode = ResolutionMode::LowerLinearBlend1;
 	}
 
-	glm::vec2 GetRelativePos(glm::vec2 scenePos, bool projectionSizeScaling)
-	{
-		const auto& camera = Globals::Components().camera();
-		return (scenePos - camera.details.position) / (projectionSizeScaling ? camera.details.projectionHSize : 1.0f);
-	}
-
-	Components::Sound& PlaySingleSound(ComponentId soundBuffer, std::function<glm::vec2()> posF,
+	Components::Sound& CreateAndPlaySound(ComponentId soundBuffer, std::function<glm::vec2()> posF,
 		std::function<void(Components::Sound&)> config, std::function<void(Components::Sound&)> stepF)
 	{
 		auto& sound = Globals::Components().sounds().emplace(soundBuffer);
 
 		sound.setRemoveOnStop(true);
-		sound.stepF = [posF = std::move(posF), stepF = std::move(stepF)](auto& sound)
+		sound.stepF = [&, posF = std::move(posF), stepF = std::move(stepF)](auto& sound)
 		{
 			if (posF)
-				sound.setPosition(Tools::GetRelativePos(posF()));
+				sound.setPosition(posF());
+
 			if (stepF)
 				stepF(sound);
 		};

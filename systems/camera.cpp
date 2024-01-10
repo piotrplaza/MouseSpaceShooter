@@ -1,6 +1,6 @@
 #include "camera.hpp"
 
-#include <components/camera.hpp>
+#include <components/camera2D.hpp>
 #include <components/camera3D.hpp>
 #include <components/mvp.hpp>
 #include <components/screenInfo.hpp>
@@ -17,7 +17,7 @@ namespace Systems
 
 	void Camera::postInit() const
 	{
-		auto& camera = Globals::Components().camera();
+		auto& camera = Globals::Components().camera2D();
 		const float targetProjectionHSize = camera.targetProjectionHSizeF();
 		camera.details.position = camera.targetPositionF();
 		camera.details.prevPosition = camera.details.position;
@@ -29,8 +29,8 @@ namespace Systems
 	void Camera::step() const
 	{
 		const auto& screenInfo = Globals::Components().screenInfo();
-		auto& camera = Globals::Components().camera();
-		auto& mvp = Globals::Components().mvp();
+		auto& camera = Globals::Components().camera2D();
+		auto& mvp = Globals::Components().mvp2D();
 
 		const float windowWidthRatio = screenInfo.windowSize.x > screenInfo.windowSize.y
 			? screenInfo.getAspectRatio()

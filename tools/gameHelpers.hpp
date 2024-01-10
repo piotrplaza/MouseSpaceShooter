@@ -217,8 +217,7 @@ namespace Tools
 	void CreateFogForeground(int numOfLayers, float alphaPerLayer, ComponentId fogTexture,
 		std::function<glm::vec4()> fColor = []() { return glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); });
 	void CreateJuliaBackground(std::function<glm::vec2()> juliaCOffset);
-	glm::vec2 GetRelativePos(glm::vec2 scenePos, bool projectionSizeScaling = true);
-	Components::Sound& PlaySingleSound(ComponentId soundBuffer, std::function<glm::vec2()> posF = nullptr,
+	Components::Sound& CreateAndPlaySound(ComponentId soundBuffer, std::function<glm::vec2()> posF = nullptr,
 		std::function<void(Components::Sound&)> config = nullptr, std::function<void(Components::Sound&)> stepF = nullptr);
 	std::function<void(b2Fixture&, b2Fixture&)> SkipDuplicatedBodiesCollisions(std::function<void(b2Fixture&, b2Fixture&)> handler);
 }

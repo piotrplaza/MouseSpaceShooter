@@ -7,7 +7,7 @@
 #include <components/keyboard.hpp>
 #include <components/decoration.hpp>
 #include <components/screenInfo.hpp>
-#include <components/camera.hpp>
+#include <components/camera2D.hpp>
 #include <components/texture.hpp>
 #include <components/animatedTexture.hpp>
 
@@ -97,7 +97,7 @@ namespace Levels
 
 		void setEditorCamera() const
 		{
-			auto& camera = Globals::Components().camera();
+			auto& camera = Globals::Components().camera2D();
 
 			camera.targetProjectionHSizeF = [&]() {
 				return projectionHSize;

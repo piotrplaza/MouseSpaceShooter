@@ -19,7 +19,7 @@
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
 #include <components/polyline.hpp>
-#include <components/camera.hpp>
+#include <components/camera2D.hpp>
 #include <components/camera3D.hpp>
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
@@ -64,9 +64,9 @@ namespace Globals
 		return *screenInfo_;
 	}
 
-	Components::MVP& ComponentsHolder::mvp()
+	Components::MVP& ComponentsHolder::mvp2D()
 	{
-		return *mvp_;
+		return *mvp2D_;
 	}
 
 	Components::MVP& ComponentsHolder::mvp3D()
@@ -79,7 +79,7 @@ namespace Globals
 		return *physics_;
 	}
 
-	Components::Camera& ComponentsHolder::camera()
+	Components::Camera2D& ComponentsHolder::camera2D()
 	{
 		return *camera_;
 	}

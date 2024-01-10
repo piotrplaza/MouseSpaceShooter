@@ -6,7 +6,7 @@
 #include <components/plane.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
-#include <components/camera.hpp>
+#include <components/camera2D.hpp>
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/mouse.hpp>
@@ -24,6 +24,7 @@
 #include <components/soundBuffer.hpp>
 #include <components/sound.hpp>
 #include <components/music.hpp>
+#include <components/audioListener.hpp>
 
 #include <globals/shaders.hpp>
 #include <globals/components.hpp>
@@ -54,7 +55,7 @@ namespace Levels
 	class Playground::Impl
 	{
 	public:
-		void setGraphicsSettings() const
+		void globalSettings() const
 		{
 			Globals::Components().graphicsSettings().defaultColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 			Globals::Components().mainFramebufferRenderer().renderer = Tools::Demo3DRotatedFullscreenRenderer(Globals::Shaders().textured());
@@ -175,13 +176,9 @@ namespace Levels
 			avatarSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav", 0.4f).getComponentId();
 
 			for (float x : {-40.0f, 40.0f})
-				Tools::PlaySingleSound(avatarSoundBuffer, [x]() { return glm::vec2(x, -40.0f); },
+				Tools::CreateAndPlaySound(avatarSoundBuffer, [x]() { return glm::vec2(x, -40.0f); },
 					[](auto& sound) {
 						sound.setLoop(true);
-						sound.setZFactor(0.01f);
-						sound.setMinDistance(1.0f);
-						sound.setAttenuation(10.0f);
-						sound.setPosition({ 0.0f, 100.0f });
 					});
 		}
 
@@ -600,7 +597,7 @@ namespace Levels
 				return lowResBodies.count(&targetBody) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1;
 				});
 			missilesHandler.setExplosionF([this](auto pos) {
-				Tools::PlaySingleSound(missileExplosionSoundBuffer, [pos]() { return pos; });
+				Tools::CreateAndPlaySound(missileExplosionSoundBuffer, [pos]() { return pos; });
 				explosionFrame = true;
 				});
 		}
@@ -608,7 +605,7 @@ namespace Levels
 		void collisionHandlers()
 		{
 			auto collisionSound = Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
-				Tools::PlaySingleSound(collisionSoundBuffer,
+				Tools::CreateAndPlaySound(collisionSoundBuffer,
 					[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {
 						return pos;
 					},
@@ -706,7 +703,7 @@ namespace Levels
 	Playground::Playground():
 		impl(std::make_unique<Impl>())
 	{
-		impl->setGraphicsSettings();
+		impl->globalSettings();
 		impl->loadTextures();
 		impl->loadAudio();
 		impl->setAnimations();

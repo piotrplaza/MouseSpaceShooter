@@ -92,7 +92,7 @@
     <ClInclude Include="components\animatedTexture.hpp" />
     <ClInclude Include="components\audioListener.hpp" />
     <ClInclude Include="components\blendingTexture.hpp" />
-    <ClInclude Include="components\camera.hpp" />
+    <ClInclude Include="components\camera2D.hpp" />
     <ClInclude Include="components\camera3D.hpp" />
     <ClInclude Include="components\collisionFilter.hpp" />
     <ClInclude Include="components\collisionHandler.hpp" />

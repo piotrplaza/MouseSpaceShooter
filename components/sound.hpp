@@ -27,15 +27,16 @@ namespace Components
 
 		void setRemoveOnStop(bool value);
 
+		void setRelativeToAudioListener(bool value);
 		void setLoop(bool value);
 		void setVolume(float value);
 		void setPitch(float value);
 		void setPosition(glm::vec3 pos);
 		void setPosition(glm::vec2 pos);
-		void setZFactor(float value);
 		void setMinDistance(float value);
 		void setAttenuation(float value);
 
+		bool isRelativeToAudioListener() const;
 		bool isStopped() const;
 		bool isPaused() const;
 		bool isPlaying() const;
@@ -52,6 +53,5 @@ namespace Components
 		const float maxVolume;
 		bool removeOnStop = false;
 		bool loop = false;
-		float zFactor = 0.05f;
 	};
 }

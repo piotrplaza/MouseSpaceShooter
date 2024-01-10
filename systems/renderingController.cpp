@@ -136,7 +136,7 @@ namespace Systems
 		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.basic;
 
 		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
-		Globals::Shaders().basic().vp(Globals::Components().mvp().getVP());
+		Globals::Shaders().basic().vp(Globals::Components().mvp2D().getVP());
 
 		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
@@ -166,7 +166,7 @@ namespace Systems
 		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.textured;
 
 		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
-		Globals::Shaders().textured().vp(Globals::Components().mvp().getVP());
+		Globals::Shaders().textured().vp(Globals::Components().mvp2D().getVP());
 
 		TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 

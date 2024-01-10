@@ -70,4 +70,18 @@ namespace Components
 		sf::Vector3f up = sf::Listener::getUpVector();
 		return { up.x, up.y, up.z };
 	}
+
+	void AudioListener::setPositioning(Positioning value)
+	{
+		positioning = value;
+
+		setPosition(glm::vec3(0.0f));
+		setDirection({ 0.0f, 0.0f, -1.0f });
+		setUpVector({ 0.0f, 1.0f, 0.0f });
+	}
+
+	AudioListener::Positioning AudioListener::getPositioning() const
+	{
+		return positioning;
+	}
 }

@@ -2,13 +2,13 @@
 
 #include "soundBuffer.hpp"
 #include "music.hpp"
-#include "camera.hpp"
+#include "audioListener.hpp"
 
 #include <globals/components.hpp>
 
 #include <tools/utility.hpp>
 
-#include <SFML/Audio.hpp>
+#include <SFML/Audio/Sound.hpp>
 
 #include <algorithm>
 
@@ -30,12 +30,12 @@ namespace Components
 		}
 
 		auto& soundBuffer = Globals::Components().soundsBuffers()[soundBufferId];
-
 		details->sfSound.setBuffer(soundBuffer.getBuffer());
 
 		setVolume(1.0f);
-		setMinDistance(2.0f);
-		setAttenuation(1.0f);
+		setMinDistance(4.0f);
+		setAttenuation(0.2f);
+
 		state = ComponentState::Ongoing;
 
 		++numOfInstances;
@@ -74,6 +74,14 @@ namespace Components
 	void Sound::setRemoveOnStop(bool value)
 	{
 		removeOnStop = value;
+	}
+
+	void Sound::setRelativeToAudioListener(bool value)
+	{
+		if (!details)
+			return;
+
+		details->sfSound.setRelativeToListener(value);
 	}
 
 	void Sound::setLoop(bool value)
@@ -120,12 +128,7 @@ namespace Components
 		if (!details)
 			return;
 
-		details->sfSound.setPosition(pos.x, pos.y, Globals::Components().camera().details.projectionHSize * zFactor);
-	}
-
-	void Sound::setZFactor(float value)
-	{
-		zFactor = value;
+		details->sfSound.setPosition(pos.x, pos.y, 0.0f);
 	}
 
 	void Sound::setMinDistance(float value)
@@ -142,6 +145,14 @@ namespace Components
 			return;
 
 		details->sfSound.setAttenuation(value);
+	}
+
+	bool Sound::isRelativeToAudioListener() const
+	{
+		if (!details)
+			return false;
+
+		return details->sfSound.isRelativeToListener();
 	}
 
 	bool Sound::isStopped() const

@@ -3,11 +3,12 @@
 #include "utility.hpp"
 
 #include <components/gamepad.hpp>
-#include <components/camera.hpp>
+#include <components/camera2D.hpp>
 #include <components/plane.hpp>
 #include <components/physics.hpp>
 #include <components/screenInfo.hpp>
 #include <components/sound.hpp>
+#include <components/audioListener.hpp>
 #include <components/mouse.hpp>
 
 #include <globals/components.hpp>
@@ -39,7 +40,7 @@ namespace
 		return 0;
 	}
 
-	std::optional<ComponentId> CreateSound(std::optional<ComponentId> soundBuffer, ComponentId planeId)
+	std::optional<ComponentId> CreateAndPlayPlaneSound(std::optional<ComponentId> soundBuffer, ComponentId planeId)
 	{
 		if (!soundBuffer)
 			return std::nullopt;
@@ -50,8 +51,9 @@ namespace
 		sound.setLoop(true);
 		sound.setVolume(0.0f);
 		sound.stepF = [&plane](auto& sound) {
-			sound.setPosition(Tools::GetRelativePos(plane.getOrigin2D()));
+			sound.setPosition(plane.getOrigin2D());
 		};
+
 		sound.play();
 
 		return sound.getComponentId();
@@ -118,7 +120,7 @@ namespace Tools
 			const glm::vec3 initLoc = initLocF(i, numOfPlayers);
 			ComponentId planeId = CreatePresettedPlane(i, planeTextures[i], flameAnimatedTexturesForPlayers[i], initLoc);
 			playersHandlers.emplace_back(planeId, i == 0 && !gamepadForPlayer1 || activeGamepads.empty() ? std::nullopt : std::optional(activeGamepads[activeGamepadId++]),
-				0.0f, CreateSound(thrustSoundBuffer, planeId), 0.0f, CreateSound(grappleSoundBuffer, planeId), 0.0f);
+				0.0f, CreateAndPlayPlaneSound(thrustSoundBuffer, planeId), 0.0f, CreateAndPlayPlaneSound(grappleSoundBuffer, planeId), 0.0f);
 
 			if (centerToFront)
 			{
@@ -137,12 +139,12 @@ namespace Tools
 			return plane.getVelocity() * velocityFactor;
 		};
 
-		Globals::Components().camera().targetProjectionHSizeF = [&, velocityCorrection,
+		Globals::Components().camera2D().targetProjectionHSizeF = [&, velocityCorrection,
 				projectionHSizeMin = std::move(cameraParams.projectionHSizeMin_),
 				scalingFactor = cameraParams.scalingFactor_,
 				transitionFactor = cameraParams.transitionFactor_,
 				additionalActors = cameraParams.additionalActors_]() {
-			Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
+			Globals::Components().camera2D().projectionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
 
 			const float maxDistance = [&]() {
 				const auto activePlayersHandlers = getActivePlayersHandlers();
@@ -178,9 +180,9 @@ namespace Tools
 			return std::max(projectionHSizeMin(), maxDistance);
 		};
 
-		Globals::Components().camera().targetPositionF = [&, velocityCorrection, transitionFactor = cameraParams.transitionFactor_,
+		Globals::Components().camera2D().targetPositionF = [&, velocityCorrection, transitionFactor = cameraParams.transitionFactor_,
 			additionalActors = cameraParams.additionalActors_]() {
-			Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
+			Globals::Components().camera2D().positionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
 
 			glm::vec2 min(std::numeric_limits<float>::max());
 			glm::vec2 max(std::numeric_limits<float>::lowest());
@@ -251,7 +253,7 @@ namespace Tools
 					glm::vec3 initLoc = initLocF(playersHandlers.size());
 					ComponentId planeId = CreatePresettedPlane(playersHandlers.size(), planeTextures[playersHandlers.size()], flameAnimatedTexturesForPlayers[playersHandlers.size()], initLoc);
 					playersHandlers.emplace_back(planeId, activeGamepadId, 0.0f,
-						CreateSound(thrustSoundBuffer, planeId), 0.0f, CreateSound(grappleSoundBuffer, planeId), 0.0f);
+						CreateAndPlayPlaneSound(thrustSoundBuffer, planeId), 0.0f, CreateAndPlayPlaneSound(grappleSoundBuffer, planeId), 0.0f);
 				}
 		}
 	}

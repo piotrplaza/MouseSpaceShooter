@@ -2,7 +2,7 @@
 
 #include <components/graphicsSettings.hpp>
 #include <components/mainFramebufferRenderer.hpp>
-#include <components/camera.hpp>
+#include <components/camera2D.hpp>
 #include <components/plane.hpp>
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
@@ -223,7 +223,7 @@ namespace Levels
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::plane | Globals::CollisionBits::wall,
 				Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
-					Tools::PlaySingleSound(collisionSoundBuffer,
+					Tools::CreateAndPlaySound(collisionSoundBuffer,
 					[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {
 							return pos;
 						},
@@ -247,7 +247,7 @@ namespace Levels
 		{
 			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getOrigin2D()).sourceVelocity(plane.getVelocity()).
 				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
-			Tools::PlaySingleSound(playerExplosionSoundBuffer, [pos = plane.getOrigin2D()]() { return pos; });
+			Tools::CreateAndPlaySound(playerExplosionSoundBuffer, [pos = plane.getOrigin2D()]() { return pos; });
 			plane.setEnable(false);
 			playersToCircuits.erase(plane.getComponentId());
 		}

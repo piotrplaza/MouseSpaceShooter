@@ -10,6 +10,8 @@ namespace Components
 {
 	struct AudioListener : ComponentBase
 	{
+		enum class Positioning { Camera2D, Camera3D, Unbound };
+
 		AudioListener();
 
 		void setEnable(bool value) override;
@@ -26,7 +28,11 @@ namespace Components
 		void setUpVector(glm::vec3 value);
 		glm::vec3 getUpVector() const;
 
+		void setPositioning(Positioning value);
+		Positioning getPositioning() const;
+
 	private:
 		float savedVolume;
+		Positioning positioning = Positioning::Camera2D;
 	};
 }

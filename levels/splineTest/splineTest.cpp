@@ -4,7 +4,7 @@
 #include <components/keyboard.hpp>
 #include <components/decoration.hpp>
 #include <components/screenInfo.hpp>
-#include <components/camera.hpp>
+#include <components/camera2D.hpp>
 
 #include <globals/components.hpp>
 
@@ -28,7 +28,7 @@ namespace Levels
 		{
 			auto& staticDecoration = Globals::Components().staticDecorations();
 			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
-			auto& camera = Globals::Components().camera();
+			auto& camera = Globals::Components().camera2D();
 
 			staticDecoration.emplace(Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, 0.05f, 20));
 			staticDecoration.last().modelMatrixF = [this]() {

@@ -4,7 +4,7 @@
 
 #include <tools/utility.hpp>
 
-#include <SFML/Audio.hpp>
+#include <SFML/Audio/Music.hpp>
 
 #include <algorithm>
 

@@ -6,7 +6,7 @@
 #include <components/plane.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
-#include <components/camera.hpp>
+#include <components/camera2D.hpp>
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/mouse.hpp>
@@ -201,12 +201,12 @@ namespace Levels
 			const auto& plane = Globals::Components().planes()[player1Id];
 			const auto& planet = Globals::Components().grapples()[planetId];
 
-			Globals::Components().camera().targetProjectionHSizeF = [&]() {
-				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
+			Globals::Components().camera2D().targetProjectionHSizeF = [&]() {
+				Globals::Components().camera2D().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
 				return (glm::distance(plane.getOrigin2D(), planet.getOrigin2D()) * 0.6f + glm::length(plane.getVelocity()) * 0.2f) * projectionHSizeBase * 0.2f;
 			};
-			Globals::Components().camera().targetPositionF = [&]() {
-				Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
+			Globals::Components().camera2D().targetPositionF = [&]() {
+				Globals::Components().camera2D().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
 				return (plane.getOrigin2D() + planet.getOrigin2D()) / 2.0f + glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * 5.0f + plane.getVelocity() * 0.4f;
 			};
 		}

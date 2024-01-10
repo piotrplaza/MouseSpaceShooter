@@ -1,6 +1,6 @@
 #include "soundBuffer.hpp"
 
-#include <SFML/Audio.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
 
 namespace Components
 {

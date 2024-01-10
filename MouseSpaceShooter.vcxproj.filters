@@ -300,9 +300,6 @@
     <ClInclude Include="systems\camera.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
-    <ClInclude Include="components\camera.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="systems\textures.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
@@ -596,6 +593,9 @@
     </ClInclude>
     <ClInclude Include="tools\geometryHelpers.hpp">
       <Filter>src\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="components\camera2D.hpp">
+      <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

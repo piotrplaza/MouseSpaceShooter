@@ -6,7 +6,7 @@
 #include <components/plane.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
-#include <components/camera.hpp>
+#include <components/camera2D.hpp>
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/mouse.hpp>
@@ -110,12 +110,12 @@ namespace Levels
 		{
 			const auto& player = Globals::Components().planes()[player1Id];
 
-			Globals::Components().camera().targetProjectionHSizeF = [&]() {
-				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
+			Globals::Components().camera2D().targetProjectionHSizeF = [&]() {
+				Globals::Components().camera2D().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
 				return 30.0f + glm::distance(player.getOrigin2D(), ball->getOrigin2D()) * 0.3f;
 			};
-			Globals::Components().camera().targetPositionF = [&]() {
-				Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
+			Globals::Components().camera2D().targetPositionF = [&]() {
+				Globals::Components().camera2D().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
 				return (player.getOrigin2D() + ball->getOrigin2D()) * 0.5f;
 			};
 		}

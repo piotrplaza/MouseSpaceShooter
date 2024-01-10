@@ -2,7 +2,7 @@
 
 #include <components/graphicsSettings.hpp>
 #include <components/mainFramebufferRenderer.hpp>
-#include <components/camera.hpp>
+#include <components/camera2D.hpp>
 #include <components/plane.hpp>
 #include <components/wall.hpp>
 #include <components/decoration.hpp>
@@ -233,12 +233,12 @@ namespace Levels
 		{
 			const auto& plane = Globals::Components().planes()[player1Id];
 
-			Globals::Components().camera().targetProjectionHSizeF = [&]() {
-				Globals::Components().camera().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
+			Globals::Components().camera2D().targetProjectionHSizeF = [&]() {
+				Globals::Components().camera2D().projectionTransitionFactor = Globals::Components().physics().frameDuration * 6;
 				return projectionHSizeBase + glm::length(plane.getVelocity()) * 0.2f;
 			};
-			Globals::Components().camera().targetPositionF = [&]() {
-				Globals::Components().camera().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
+			Globals::Components().camera2D().targetPositionF = [&]() {
+				Globals::Components().camera2D().positionTransitionFactor = Globals::Components().physics().frameDuration * 6;
 				return plane.getOrigin2D() + glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * 5.0f + plane.getVelocity() * 0.4f;
 			};
 		}
