@@ -8,6 +8,7 @@ namespace Components
 	{
 		savedVolume = getVolume();
 		state = ComponentState::Ongoing;
+		setEnable(false);
 	}
 
 	void AudioListener::setEnable(bool value)

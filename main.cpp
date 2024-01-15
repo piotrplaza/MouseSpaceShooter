@@ -120,8 +120,6 @@ static void Init()
 	Globals::InitializeShaders();
 	Globals::InitializeComponents();
 	Globals::InitializeSystems();
-
-	//Globals::Components().audioListener().setEnable(false);
 }
 
 static void PostInit()
@@ -129,13 +127,15 @@ static void PostInit()
 	CreateLevel();
 
 	Globals::Systems().textures().postInit();
-	Globals::Systems().audio().postInit();
 	Globals::Systems().physics().postInit();
 	Globals::Systems().structures().postInit();
 	Globals::Systems().staticDecorations().postInit();
 	Globals::Systems().camera().postInit();
 	Globals::Systems().renderingController().postInit();
 	Globals::Systems().stateController().postInit();
+	Globals::Systems().audio().postInit();
+
+	//Globals::Components().audioListener().setEnable(false);
 }
 
 static void PrepareFrame()

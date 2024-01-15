@@ -17,16 +17,18 @@ namespace Systems
 
 	void Audio::postInit() const
 	{
+		Globals::Components().audioListener().setEnable(true);
 	}
 
 	void Audio::step() const
 	{
-		switch(Globals::Components().audioListener().getPositioning())
+		auto& audioListener = Globals::Components().audioListener();
+		switch(audioListener.getPositioning())
 		{
 			case Components::AudioListener::Positioning::Camera2D:
-				Globals::Components().audioListener().setPosition(glm::vec3(Globals::Components().camera2D().details.position, Globals::Components().camera2D().getZ()));
-				Globals::Components().audioListener().setDirection(glm::vec3(0.0f, 0.0f, -1.0f));
-				Globals::Components().audioListener().setUpVector(glm::vec3(0.0f, 1.0f, 0.0f));
+				audioListener.setPosition(glm::vec3(Globals::Components().camera2D().details.position, Globals::Components().camera2D().getZ()));
+				audioListener.setDirection(glm::vec3(0.0f, 0.0f, -1.0f));
+				audioListener.setUpVector(glm::vec3(0.0f, 1.0f, 0.0f));
 				break;
 			case Components::AudioListener::Positioning::Camera3D:
 				// TODO
