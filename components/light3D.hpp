@@ -7,12 +7,6 @@
 
 namespace Components
 {
-	struct Light : ComponentBase
-	{
-		glm::vec2 position;
-		glm::vec3 color;
-	};
-
 	struct Light3D : ComponentBase
 	{
 		glm::vec3 position;

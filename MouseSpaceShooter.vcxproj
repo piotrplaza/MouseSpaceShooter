@@ -104,7 +104,8 @@
     <ClInclude Include="components\graphicsSettings.hpp" />
     <ClInclude Include="components\grapple.hpp" />
     <ClInclude Include="components\keyboard.hpp" />
-    <ClInclude Include="components\light.hpp" />
+    <ClInclude Include="components\light2D.hpp" />
+    <ClInclude Include="components\light3D.hpp" />
     <ClInclude Include="components\mainFramebufferRenderer.hpp" />
     <ClInclude Include="components\missile.hpp" />
     <ClInclude Include="components\mouse.hpp" />

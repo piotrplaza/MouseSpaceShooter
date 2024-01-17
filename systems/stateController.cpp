@@ -30,6 +30,18 @@ namespace
 	constexpr int lowestResDivisor = 4;
 	constexpr int pixelArtShorterDim = 100;
 	constexpr int lowPixelArtShorterDim = 30;
+
+	void ProcessFunctors(DynamicOrderedComponents<Components::Functor>& functors)
+	{
+		auto it = functors.begin();
+		while (it != functors.end())
+		{
+			if ((*it)())
+				++it;
+			else
+				it = functors.remove(it);
+		}
+	}
 }
 
 namespace Systems
@@ -48,22 +60,13 @@ namespace Systems
 
 		for (auto& grapple: Globals::Components().grapples())
 			grapple.details.previousCenter = grapple.getOrigin2D();
+
+		ProcessFunctors(Globals::Components().postInits());
 	}
 
 	void StateController::stepSetup() const
 	{
-		for (auto& stepSetup: Globals::Components().stepSetups())
-			stepSetup();
-	}
-
-	void StateController::renderSetup() const
-	{
-		const auto& planes = Globals::Components().planes();
-
-		Globals::Shaders().textured().numOfPlayers(planes.size());
-		unsigned playersCounter = 0;
-		for (const auto& plane: planes)
-			Globals::Shaders().textured().playersCenter(playersCounter++, plane.getOrigin2D());
+		ProcessFunctors(Globals::Components().stepSetups());
 	}
 
 	void StateController::stepTeardown() const
@@ -74,8 +77,24 @@ namespace Systems
 		for (auto& grapple : Globals::Components().grapples())
 			grapple.details.previousCenter = grapple.getOrigin2D();
 
-		for (auto& stepTeardown : Globals::Components().stepTeardowns())
-			stepTeardown();
+		ProcessFunctors(Globals::Components().stepTeardowns());
+	}
+
+	void StateController::renderSetup() const
+	{
+		const auto& planes = Globals::Components().planes();
+
+		Globals::Shaders().textured().numOfPlayers(planes.size());
+		unsigned playersCounter = 0;
+		for (const auto& plane: planes)
+			Globals::Shaders().textured().playersCenter(playersCounter++, plane.getOrigin2D());
+
+		ProcessFunctors(Globals::Components().renderSetups());
+	}
+
+	void StateController::renderTeardown() const
+	{
+		ProcessFunctors(Globals::Components().renderTeardowns());
 	}
 
 	void StateController::changeWindowSize(glm::ivec2 size) const

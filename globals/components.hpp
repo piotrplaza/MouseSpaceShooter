@@ -39,7 +39,8 @@ namespace Components
 	struct CollisionFilter;
 	struct CollisionHandler;
 	struct Shockwave;
-	struct Light;
+	struct Light2D;
+	struct Light3D;
 	struct Framebuffers;
 	struct Functor;
 	struct MainFramebufferRenderer;
@@ -86,9 +87,13 @@ namespace Globals
 		DynamicComponents<Components::CollisionHandler>& beginCollisionHandlers();
 		DynamicComponents<Components::CollisionHandler>& endCollisionHandlers();
 		DynamicComponents<Components::Shockwave>& shockwaves();
-		DynamicComponents<Components::Light>& lights();
-		DynamicComponents<Components::Functor>& stepSetups();
-		DynamicComponents<Components::Functor>& stepTeardowns();
+		DynamicComponents<Components::Light2D>& lights2D();
+		DynamicComponents<Components::Light3D>& lights3D();
+		DynamicOrderedComponents<Components::Functor>& postInits();
+		DynamicOrderedComponents<Components::Functor>& stepSetups();
+		DynamicOrderedComponents<Components::Functor>& stepTeardowns();
+		DynamicOrderedComponents<Components::Functor>& renderSetups();
+		DynamicOrderedComponents<Components::Functor>& renderTeardowns();
 		DynamicOrderedComponents<Components::DeferredAction>& deferredActions();
 
 	private:
@@ -127,9 +132,13 @@ namespace Globals
 		std::unique_ptr<DynamicComponents<Components::CollisionHandler>> beginCollisionHandlers_ = std::make_unique<DynamicComponents<Components::CollisionHandler>>();
 		std::unique_ptr<DynamicComponents<Components::CollisionHandler>> endCollisionHandlers_ = std::make_unique<DynamicComponents<Components::CollisionHandler>>();
 		std::unique_ptr<DynamicComponents<Components::Shockwave>> shockwaves_ = std::make_unique<DynamicComponents<Components::Shockwave>>();
-		std::unique_ptr<DynamicComponents<Components::Light>> lights_ = std::make_unique<DynamicComponents<Components::Light>>();
-		std::unique_ptr<DynamicComponents<Components::Functor>> stepSetups_ = std::make_unique<DynamicComponents<Components::Functor>>();
-		std::unique_ptr<DynamicComponents<Components::Functor>> stepTeardowns_ = std::make_unique<DynamicComponents<Components::Functor>>();
+		std::unique_ptr<DynamicComponents<Components::Light2D>> lights2D_ = std::make_unique<DynamicComponents<Components::Light2D>>();
+		std::unique_ptr<DynamicComponents<Components::Light3D>> lights3D_ = std::make_unique<DynamicComponents<Components::Light3D>>();
+		std::unique_ptr<DynamicOrderedComponents<Components::Functor>> postInits_ = std::make_unique<DynamicOrderedComponents<Components::Functor>>();
+		std::unique_ptr<DynamicOrderedComponents<Components::Functor>> stepSetups_ = std::make_unique<DynamicOrderedComponents<Components::Functor>>();
+		std::unique_ptr<DynamicOrderedComponents<Components::Functor>> stepTeardowns_ = std::make_unique<DynamicOrderedComponents<Components::Functor>>();
+		std::unique_ptr<DynamicOrderedComponents<Components::Functor>> renderSetups_ = std::make_unique<DynamicOrderedComponents<Components::Functor>>();
+		std::unique_ptr<DynamicOrderedComponents<Components::Functor>> renderTeardown_ = std::make_unique<DynamicOrderedComponents<Components::Functor>>();
 		std::unique_ptr<DynamicOrderedComponents<Components::DeferredAction>> deferredActions_ = std::make_unique<DynamicOrderedComponents<Components::DeferredAction>>();
 	};
 

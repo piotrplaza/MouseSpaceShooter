@@ -378,9 +378,6 @@
     <ClInclude Include="systems\deferredActions.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
-    <ClInclude Include="components\light.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="ogl\shaders\particles.hpp">
       <Filter>src\ogl\shaders\particles</Filter>
     </ClInclude>
@@ -595,6 +592,12 @@
       <Filter>src\tools</Filter>
     </ClInclude>
     <ClInclude Include="components\camera2D.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\light2D.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\light3D.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>

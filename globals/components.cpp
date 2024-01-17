@@ -27,7 +27,8 @@
 #include <components/collisionFilter.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/shockwave.hpp>
-#include <components/light.hpp>
+#include <components/light2D.hpp>
+#include <components/light3D.hpp>
 #include <components/framebuffers.hpp>
 #include <components/functor.hpp>
 #include <components/mainFramebufferRenderer.hpp>
@@ -209,19 +210,39 @@ namespace Globals
 		return *shockwaves_;
 	}
 
-	DynamicComponents<Components::Light>& ComponentsHolder::lights()
+	DynamicComponents<Components::Light2D>& ComponentsHolder::lights2D()
 	{
-		return *lights_;
+		return *lights2D_;
 	}
 
-	DynamicComponents<Components::Functor>& ComponentsHolder::stepSetups()
+	DynamicComponents<Components::Light3D>& ComponentsHolder::lights3D()
+	{
+		return *lights3D_;
+	}
+
+	DynamicOrderedComponents<Components::Functor>& ComponentsHolder::postInits()
+	{
+		return *postInits_;
+	}
+
+	DynamicOrderedComponents<Components::Functor>& ComponentsHolder::stepSetups()
 	{
 		return *stepSetups_;
 	}
 
-	DynamicComponents<Components::Functor>& ComponentsHolder::stepTeardowns()
+	DynamicOrderedComponents<Components::Functor>& ComponentsHolder::stepTeardowns()
 	{
 		return *stepTeardowns_;
+	}
+
+	DynamicOrderedComponents<Components::Functor>& ComponentsHolder::renderSetups()
+	{
+		return *renderSetups_;
+	}
+
+	DynamicOrderedComponents<Components::Functor>& ComponentsHolder::renderTeardowns()
+	{
+		return *renderTeardown_;
 	}
 
 	DynamicOrderedComponents<Components::DeferredAction>& ComponentsHolder::deferredActions()

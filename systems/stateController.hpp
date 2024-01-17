@@ -18,8 +18,9 @@ namespace Systems
 
 		void postInit() const;
 		void stepSetup() const;
-		void renderSetup() const;
 		void stepTeardown() const;
+		void renderSetup() const;
+		void renderTeardown() const;
 		void changeWindowSize(glm::ivec2 size) const;
 		void changeWindowLocation(glm::ivec2 location) const;
 		void setWindowFocus() const;

@@ -68,7 +68,7 @@ const glm::ivec2 windowRes = { 1920, 1080 };
 
 std::unique_ptr<Levels::Level> activeLevel;
 
-static void OGLInitialize()
+static void InitOGL()
 {
 	const GLenum glewInitResult = glewInit();
 	assert(GLEW_OK == glewInitResult);
@@ -83,7 +83,21 @@ static void OGLInitialize()
 	glLineWidth(3.0f);
 }
 
-static void CreateLevel()
+static void InitEngine()
+{
+	if (console)
+		Tools::RedirectIOToConsole({ 3850, 10 });
+	Tools::RandomInit();
+	InitOGL();
+	int sdlInitResult = SDL_Init(SDL_INIT_GAMECONTROLLER);
+	assert(!sdlInitResult);
+
+	Globals::InitializeShaders();
+	Globals::InitializeComponents();
+	Globals::InitializeSystems();
+}
+
+static void InitLevel()
 {
 #if 1
 	//activeLevel = std::make_unique<Levels::RaceEditor>();
@@ -108,32 +122,16 @@ static void CreateLevel()
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }
 
-static void Init()
-{
-	if (console)
-		Tools::RedirectIOToConsole({ 3850, 10 });
-	Tools::RandomInit();
-	OGLInitialize();
-	int sdlInitResult = SDL_Init(SDL_INIT_GAMECONTROLLER);
-	assert(!sdlInitResult);
-
-	Globals::InitializeShaders();
-	Globals::InitializeComponents();
-	Globals::InitializeSystems();
-}
-
 static void PostInit()
 {
-	CreateLevel();
-
 	Globals::Systems().textures().postInit();
 	Globals::Systems().physics().postInit();
 	Globals::Systems().structures().postInit();
 	Globals::Systems().staticDecorations().postInit();
 	Globals::Systems().camera().postInit();
 	Globals::Systems().renderingController().postInit();
-	Globals::Systems().stateController().postInit();
 	Globals::Systems().audio().postInit();
+	Globals::Systems().stateController().postInit();
 
 	//Globals::Components().audioListener().setEnable(false);
 }
@@ -165,6 +163,7 @@ static void PrepareFrame()
 
 	Globals::Systems().stateController().renderSetup();
 	Globals::Systems().renderingController().render();
+	Globals::Systems().stateController().renderTeardown();
 }
 
 void SetDCPixelFormat(HDC hDC);
@@ -200,7 +199,7 @@ static LRESULT CALLBACK WndProc(
 			wglMakeCurrent(hDC, hRC);
 			try
 			{
-				Init();
+				InitEngine();
 			}
 			catch (const std::runtime_error& error)
 			{
@@ -231,6 +230,7 @@ static LRESULT CALLBACK WndProc(
 			{
 				try
 				{
+					InitLevel();
 					PostInit();
 				}
 				catch (const std::runtime_error& error)

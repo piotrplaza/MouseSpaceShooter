@@ -6,6 +6,7 @@
 #include <components/audioListener.hpp>
 #include <components/camera2D.hpp>
 #include <components/camera3D.hpp>
+#include <components/functor.hpp>
 
 #include <globals/components.hpp>
 
@@ -17,7 +18,11 @@ namespace Systems
 
 	void Audio::postInit() const
 	{
-		Globals::Components().audioListener().setEnable(true);
+		Globals::Components().stepTeardowns().emplace([]()
+		{
+			Globals::Components().audioListener().setEnable(true);
+			return false;
+		});
 	}
 
 	void Audio::step() const
