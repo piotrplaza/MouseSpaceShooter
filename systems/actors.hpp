@@ -21,6 +21,7 @@ namespace Systems
 	public:
 		Actors();
 
+		void postInit();
 		void step();
 
 		void updateDynamicBuffers();

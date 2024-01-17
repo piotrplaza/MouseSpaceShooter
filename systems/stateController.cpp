@@ -2,8 +2,6 @@
 
 #include "tools/utility.hpp"
 
-#include <components/plane.hpp>
-#include <components/grapple.hpp>
 #include <components/screenInfo.hpp>
 #include <components/keyboard.hpp>
 #include <components/mouse.hpp>
@@ -13,8 +11,6 @@
 #include <components/functor.hpp>
 #include <components/physics.hpp>
 #include <components/gamepad.hpp>
-
-#include <ogl/shaders/textured.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -55,12 +51,6 @@ namespace Systems
 
 	void StateController::postInit() const
 	{
-		for(auto& plane: Globals::Components().planes())
-			plane.details.previousCenter = plane.getOrigin2D();
-
-		for (auto& grapple: Globals::Components().grapples())
-			grapple.details.previousCenter = grapple.getOrigin2D();
-
 		ProcessFunctors(Globals::Components().postInits());
 	}
 
@@ -71,24 +61,11 @@ namespace Systems
 
 	void StateController::stepTeardown() const
 	{
-		for (auto& plane : Globals::Components().planes())
-			plane.details.previousCenter = plane.getOrigin2D();
-
-		for (auto& grapple : Globals::Components().grapples())
-			grapple.details.previousCenter = grapple.getOrigin2D();
-
 		ProcessFunctors(Globals::Components().stepTeardowns());
 	}
 
 	void StateController::renderSetup() const
 	{
-		const auto& planes = Globals::Components().planes();
-
-		Globals::Shaders().textured().numOfPlayers(planes.size());
-		unsigned playersCounter = 0;
-		for (const auto& plane: planes)
-			Globals::Shaders().textured().playersCenter(playersCounter++, plane.getOrigin2D());
-
 		ProcessFunctors(Globals::Components().renderSetups());
 	}
 

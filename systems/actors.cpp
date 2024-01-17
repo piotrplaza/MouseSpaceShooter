@@ -6,6 +6,7 @@
 #include <components/grapple.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/decoration.hpp>
+#include <components/functor.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -14,7 +15,7 @@
 #include <tools/b2Helpers.hpp>
 #include <tools/shapes2D.hpp>
 
-#include <ogl/shaders/basic.hpp>
+#include <ogl/shaders/textured.hpp>
 
 namespace
 {
@@ -24,6 +25,29 @@ namespace
 namespace Systems
 {
 	Actors::Actors() = default;
+
+	void Actors::postInit()
+	{
+		auto& planes = Globals::Components().planes();
+		auto& grapples = Globals::Components().grapples();
+
+		auto prevCenterUpdate = [&]() {
+			for (auto& plane : planes)
+				plane.details.previousCenter = plane.getOrigin2D();
+
+			for (auto& grapple : grapples)
+				grapple.details.previousCenter = grapple.getOrigin2D();
+		};
+
+		prevCenterUpdate();
+		Globals::Components().stepTeardowns().emplace(prevCenterUpdate);
+		Globals::Components().renderSetups().emplace([&]() {
+			Globals::Shaders().textured().numOfPlayers(planes.size());
+			unsigned playersCounter = 0;
+			for (const auto& plane : planes)
+				Globals::Shaders().textured().playersCenter(playersCounter++, plane.getOrigin2D());
+		});
+	}
 
 	void Actors::step()
 	{

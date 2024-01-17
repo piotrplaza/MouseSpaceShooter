@@ -126,6 +126,7 @@ static void PostInit()
 {
 	Globals::Systems().textures().postInit();
 	Globals::Systems().physics().postInit();
+	Globals::Systems().actors().postInit();
 	Globals::Systems().structures().postInit();
 	Globals::Systems().staticDecorations().postInit();
 	Globals::Systems().camera().postInit();
