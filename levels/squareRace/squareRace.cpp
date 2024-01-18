@@ -43,7 +43,6 @@ namespace Levels
 		void setGraphicsSettings() const
 		{
 			Globals::Components().graphicsSettings().clearColor = { 0.7f, 0.8f, 0.9f, 1.0f };
-			Globals::Components().mainFramebufferRenderer().renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured());
 		}
 
 		void loadTextures()

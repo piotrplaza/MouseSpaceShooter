@@ -9,7 +9,8 @@ namespace Components
 {
 	struct Light3D : ComponentBase
 	{
-		glm::vec3 position;
-		glm::vec3 color;
+		glm::vec3 position{ 0.0f };
+		glm::vec3 color{ 1.0f };
+		float attenuation{ 0.0f };
 	};
 }

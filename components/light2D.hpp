@@ -9,7 +9,7 @@ namespace Components
 {
 	struct Light2D : ComponentBase
 	{
-		glm::vec2 position;
-		glm::vec3 color;
+		glm::vec2 position{ 0.0f };
+		glm::vec3 color{ 1.0f };
 	};
 }

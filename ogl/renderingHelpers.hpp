@@ -8,6 +8,7 @@
 #include <components/physics.hpp>
 #include <components/mouse.hpp>
 #include <components/shockwave.hpp>
+#include <components/light3D.hpp>
 
 #include <commonTypes/typeComponentMappers.hpp>
 
@@ -192,7 +193,7 @@ namespace Tools
 	}
 
 	template <typename ShadersPrograms>
-	auto StandardFullscreenRenderer(ShadersPrograms& shadersProgram)
+	inline auto StandardFullscreenRenderer(ShadersPrograms& shadersProgram)
 	{
 		const auto& screenInfo = Globals::Components().screenInfo();
 
@@ -218,7 +219,7 @@ namespace Tools
 	}
 
 	template <typename ShadersPrograms>
-	auto Demo3DRotatedFullscreenRenderer(ShadersPrograms& shadersProgram)
+	inline auto Demo3DRotatedFullscreenRenderer(ShadersPrograms& shadersProgram)
 	{
 		const auto& screenInfo = Globals::Components().screenInfo();
 
@@ -265,5 +266,19 @@ namespace Tools
 				});
 			glEnable(GL_BLEND);
 		};
+	}
+
+	template <typename ShadersPrograms>
+	inline void Lights3DSetup(ShadersPrograms& shadersProgram)
+	{
+		const auto& lights3D = Globals::Components().lights3D();
+		shadersProgram.numOfLights(lights3D.size());
+		for (unsigned i = 0; i < lights3D.size(); ++i)
+		{
+			const auto& light = lights3D[i];
+			shadersProgram.lightsPos(i, light.position);
+			shadersProgram.lightsCol(i, light.color);
+			shadersProgram.lightsAttenuation(i, light.attenuation);
+		}
 	}
 }

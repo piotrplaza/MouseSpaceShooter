@@ -11,12 +11,18 @@ uniform vec4 color;
 uniform int numOfLights;
 uniform vec3 lightsPos[128];
 uniform vec3 lightsCol[128];
+uniform float lightsAttenuation[128];
 uniform vec4 mulBlendingColor;
 uniform vec4 addBlendingColor;
 uniform int numOfTextures;
 uniform sampler2D textures[5];
 uniform bool alphaFromBlendingTexture;
 uniform bool colorAccumulation;
+
+float getAttenuation(int lightId)
+{
+	return 1.0 / (1.0 + lightsAttenuation[lightId] * distance(vPos, lightsPos[lightId]));
+}
 
 void main()
 {
@@ -29,7 +35,7 @@ void main()
 		const float diff = max(dot(vNormal, lightDir), 0.0);
 		const vec3 diffuse = diff * lightsCol[i];
 
-		result += diffuse;
+		result += getAttenuation(i) * diffuse;
 	}
 
 	if (numOfTextures == 1)

@@ -39,7 +39,6 @@ namespace Levels
 		void setGraphicsSettings()
 		{
 			Globals::Components().graphicsSettings().defaultColor = { 0.7f, 0.7f, 0.7f, 1.0f };
-			Globals::Components().mainFramebufferRenderer().renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured());
 
 			sceneCoordTexturesRS = Globals::Components().renderingSetups().size();
 			Globals::Components().renderingSetups().emplace([
