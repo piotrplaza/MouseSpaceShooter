@@ -20,6 +20,11 @@ namespace Shaders
 				lightsPos(program, "lightsPos"),
 				lightsCol(program, "lightsCol"),
 				lightsAttenuation(program, "lightsAttenuation"),
+				ambient(program, "ambient"),
+				diffuse(program, "diffuse"),
+				viewPos(program, "viewPos"),
+				specular(program, "specular"),
+				specularFocus(program, "specularFocus"),
 				mulBlendingColor(program, "mulBlendingColor"),
 				addBlendingColor(program, "addBlendingColor"),
 				numOfTextures(program, "numOfTextures"),
@@ -39,6 +44,11 @@ namespace Shaders
 			Uniforms::Uniform3fv<128> lightsPos;
 			Uniforms::Uniform3fv<128> lightsCol;
 			Uniforms::Uniform1fv<128> lightsAttenuation;
+			Uniforms::Uniform1f ambient;
+			Uniforms::Uniform1f diffuse;
+			Uniforms::Uniform3f viewPos;
+			Uniforms::Uniform1f specular;
+			Uniforms::Uniform1f specularFocus;
 			Uniforms::Uniform4f mulBlendingColor;
 			Uniforms::Uniform4f addBlendingColor;
 			Uniforms::Uniform1i numOfTextures;
@@ -63,6 +73,11 @@ namespace Shaders
 				lightsPos(glm::vec3(0.0f));
 				lightsCol(glm::vec3(1.0f));
 				lightsAttenuation(0.0f);
+				ambient(1.0f);
+				diffuse(0.0f);
+				viewPos(glm::vec3(0.0f));
+				specular(0.0f);
+				specularFocus(16.0f);
 				mulBlendingColor(glm::vec4(1.0f));
 				addBlendingColor(glm::vec4(0.0f));
 				numOfTextures(1);

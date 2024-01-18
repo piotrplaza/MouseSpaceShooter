@@ -48,6 +48,10 @@ namespace Buffers
 		GLenum* bufferDataUsage = nullptr;
 		bool* preserveTextureRatio = nullptr;
 		std::function<bool()>* renderF = nullptr;
+		std::function<float()>* ambientF = nullptr;
+		std::function<float()>* diffuseF = nullptr;
+		std::function<float()>* specularF = nullptr;
+		std::function<float()>* specularFocusF = nullptr;
 
 		GLuint vertexArray = 0;
 		size_t drawCount = 0;

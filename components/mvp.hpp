@@ -31,5 +31,10 @@ namespace Components
 		{
 			return glm::inverseTranspose(glm::mat3(getMV(model)));
 		}
+
+		glm::vec3 getViewPos() const
+		{
+			return glm::inverse(view)[3];
+		}
 	};
 }

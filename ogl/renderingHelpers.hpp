@@ -273,12 +273,13 @@ namespace Tools
 	{
 		const auto& lights3D = Globals::Components().lights3D();
 		shadersProgram.numOfLights(lights3D.size());
-		for (unsigned i = 0; i < lights3D.size(); ++i)
+		unsigned i = 0;
+		for (const auto& light : lights3D)
 		{
-			const auto& light = lights3D[i];
 			shadersProgram.lightsPos(i, light.position);
 			shadersProgram.lightsCol(i, light.color);
 			shadersProgram.lightsAttenuation(i, light.attenuation);
+			++i;
 		}
 	}
 }

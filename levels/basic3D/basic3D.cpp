@@ -3,6 +3,7 @@
 #include <components/decoration.hpp>
 #include <components/physics.hpp>
 #include <components/graphicsSettings.hpp>
+#include <components/light3D.hpp>
 
 #include <ogl/shaders/basicPhong.hpp>
 
@@ -21,19 +22,7 @@ namespace Levels
 		void shadersSetup() const
 		{
 			Globals::Components().graphicsSettings().clearColor = { 0.0f, 0.05f, 0.0f, 1.0f };
-			Globals::Shaders().basicPhong().frameSetupF = [](auto& basicPhong) {
-				basicPhong.numOfLights(1);
-				basicPhong.lightsPos(0, { 0.0f, 0.0f, 0.0f });
-				basicPhong.lightsCol(0, { 1.0f, 1.0f, 1.0f });
-				basicPhong.lightsAttenuation(0, 1.0f);
-				basicPhong.ambient(0.1f);
-				basicPhong.diffuse(0.8f);
-				basicPhong.specular(3.0f);
-				basicPhong.specularFocus(8.0f);
-				basicPhong.flatColor(false);
-				basicPhong.flatNormal(false);
-				basicPhong.lightModelColorNormalization(false);
-			};
+			Globals::Components().lights3D().emplace(glm::vec3(0.0f), glm::vec3(1.0f), 1.0f);
 		}
 
 		void createDecorations() const
