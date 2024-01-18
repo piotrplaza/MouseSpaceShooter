@@ -47,6 +47,8 @@ namespace Systems
 		Tools::Lights3DSetup(Globals::Shaders().basicPhong());
 		Tools::Lights3DSetup(Globals::Shaders().texturedPhong());
 
+		Globals::Shaders().frameSetup();
+
 		for (size_t layer = 0; layer < (size_t)RenderLayer::COUNT; ++layer)
 		{
 			glEnable(GL_DEPTH_TEST);

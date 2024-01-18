@@ -6,7 +6,7 @@ namespace Shaders
 {
 	namespace Programs
 	{
-		struct TexturedColorThresholdAccessor : ProgramBase
+		struct TexturedColorThresholdAccessor : ProgramBase<TexturedColorThresholdAccessor>
 		{
 			using ProgramBase::ProgramBase;
 

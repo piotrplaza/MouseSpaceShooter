@@ -47,6 +47,24 @@ namespace Globals
 		return *texturedColorThreshold_;
 	}
 
+	void ShadersHolder::frameSetup()
+	{
+		if (basicPhong().frameSetupF)
+			basicPhong().frameSetupF(basicPhong());
+		if (texturedPhong().frameSetupF)
+			texturedPhong().frameSetupF(texturedPhong());
+		if (basic().frameSetupF)
+			basic().frameSetupF(basic());
+		if (julia().frameSetupF)
+			julia().frameSetupF(julia());
+		if (particles().frameSetupF)
+			particles().frameSetupF(particles());
+		if (textured().frameSetupF)
+			textured().frameSetupF(textured());
+		if (texturedColorThreshold().frameSetupF)
+			texturedColorThreshold().frameSetupF(texturedColorThreshold());
+	}
+
 	void InitializeShaders()
 	{
 		shadersHolder = std::make_unique<ShadersHolder>();

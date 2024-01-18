@@ -26,6 +26,8 @@ namespace Globals
 		Shaders::Programs::Textured& textured();
 		Shaders::Programs::TexturedColorThreshold& texturedColorThreshold();
 
+		void frameSetup();
+
 	private:
 		std::unique_ptr<Shaders::Programs::BasicPhong> basicPhong_ = std::make_unique<Shaders::Programs::BasicPhong>();
 		std::unique_ptr<Shaders::Programs::TexturedPhong> texturedPhong_ = std::make_unique<Shaders::Programs::TexturedPhong>();

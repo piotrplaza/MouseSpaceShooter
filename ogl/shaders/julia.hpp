@@ -6,7 +6,7 @@ namespace Shaders
 {
 	namespace Programs
 	{
-		struct JuliaAccessor : ProgramBase
+		struct JuliaAccessor : ProgramBase<JuliaAccessor>
 		{
 			using ProgramBase::ProgramBase;
 

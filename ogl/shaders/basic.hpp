@@ -6,7 +6,7 @@ namespace Shaders
 {
 	namespace Programs
 	{
-		struct BasicAccessor : ProgramBase
+		struct BasicAccessor : ProgramBase<BasicAccessor>
 		{
 			using ProgramBase::ProgramBase;
 

@@ -6,7 +6,7 @@ namespace Shaders
 {
 	namespace Programs
 	{
-		struct TexturedPhongAccessor : ProgramBase
+		struct TexturedPhongAccessor : ProgramBase<TexturedPhongAccessor>
 		{
 			using ProgramBase::ProgramBase;
 
