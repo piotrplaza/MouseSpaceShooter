@@ -162,8 +162,7 @@ namespace Levels
 				fs << "\n";
 				fs << "#include <globals/components.hpp>\n";
 				fs << "\n";
-				fs << "#include <tools/splines.hpp>\n";
-				fs << "#include <tools/b2Helpers.hpp>\n";
+				fs << "#include <tools/shapes2D.hpp>\n";
 				fs << "\n";
 				fs << "#include <glm/vec2.hpp>\n";
 				fs << "#include <glm/vec3.hpp>\n";

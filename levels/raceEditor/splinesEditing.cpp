@@ -387,7 +387,7 @@ namespace Levels
 			if (splineDef.lightning)
 			{
 				fs << "		polylines.last().segmentVerticesGenerator = [](const auto& v1, const auto& v2) { " <<
-					"return Tools::CreateVerticesOfLightning(v1, v2, std::max(1, (int)glm::distance(v1, v2)), 0.2f); };\n";
+					"return Shapes2D::CreateVerticesOfLightning(v1, v2, std::max(1, (int)glm::distance(v1, v2)), 0.2f); };\n";
 				fs << "		polylines.last().keyVerticesTransformer = [](std::vector<glm::vec3>& vertices) {\n";
 				fs << "			Tools::VerticesDefaultRandomTranslate(vertices, " << splineDef.loop << ", (float)" << (splineDef.complexity * 0.005f) << ");\n";
 				fs << "		};\n";
