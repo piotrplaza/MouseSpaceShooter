@@ -33,10 +33,10 @@ namespace
 		if (renderableDef.params3D)
 		{
 			buffers.setNormalsBuffer(renderableDef.params3D->normals_);
-			buffers.ambientF = &renderableDef.params3D->ambientF_;
-			buffers.diffuseF = &renderableDef.params3D->diffuseF_;
-			buffers.specularF = &renderableDef.params3D->specularF_;
-			buffers.specularFocusF = &renderableDef.params3D->specularFocusF_;
+			buffers.ambient = &renderableDef.params3D->ambient_;
+			buffers.diffuse = &renderableDef.params3D->diffuse_;
+			buffers.specular = &renderableDef.params3D->specular_;
+			buffers.specularFocus = &renderableDef.params3D->specularFocus_;
 		}
 
 		buffers.setIndicesBuffer(renderableDef.getIndices());
@@ -82,10 +82,10 @@ namespace Buffers
 		allocatedBufferDataUsage(std::move(other.allocatedBufferDataUsage)),
 		preserveTextureRatio(other.preserveTextureRatio),
 		renderF(other.renderF),
-		ambientF(other.ambientF),
-		diffuseF(other.diffuseF),
-		specularF(other.specularF),
-		specularFocusF(other.specularFocusF)
+		ambient(other.ambient),
+		diffuse(other.diffuse),
+		specular(other.specular),
+		specularFocus(other.specularFocus)
 	{
 		other.expired = true;
 	}

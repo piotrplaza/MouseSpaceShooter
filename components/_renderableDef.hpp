@@ -31,35 +31,35 @@ struct RenderableDef
 			return *this;
 		}
 
-		Params3D& ambientF(std::function<float()> value)
+		Params3D& ambient(float value)
 		{
-			ambientF_ = std::move(value);
+			ambient_ = value;
 			return *this;
 		}
 
-		Params3D& diffuseF(std::function<float()> value)
+		Params3D& diffuse(float value)
 		{
-			diffuseF_ = std::move(value);
+			diffuse_ = value;
 			return *this;
 		}
 
-		Params3D& specularF(std::function<float()> value)
+		Params3D& specular(float value)
 		{
-			specularF_ = std::move(value);
+			specular_ = value;
 			return *this;
 		}
 
-		Params3D& specularFocusF(std::function<float()> value)
+		Params3D& specularFocus(float value)
 		{
-			specularFocusF_ = std::move(value);
+			specularFocus_ = value;
 			return *this;
 		}
 
 		std::vector<glm::vec3> normals_;
-		std::function<float()> ambientF_;
-		std::function<float()> diffuseF_;
-		std::function<float()> specularF_;
-		std::function<float()> specularFocusF_;
+		float ambient_ = 0.1f;
+		float diffuse_ = 0.8f;
+		float specular_ = 3.0f;
+		float specularFocus_ = 8.0f;
 	};
 
 	RenderableDef() = default;

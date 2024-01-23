@@ -97,10 +97,10 @@ namespace Systems
 				Globals::Shaders().basicPhong().model(modelMatrix);
 				Globals::Shaders().basicPhong().normalMatrix(Globals::Components().mvp3D().getNormalMatrix(modelMatrix));
 				Globals::Shaders().basicPhong().color((*buffers.colorF) ? (*buffers.colorF)() : Globals::Components().graphicsSettings().defaultColor);
-				Globals::Shaders().basicPhong().ambient((*buffers.ambientF) ? (*buffers.ambientF)() : Globals::Components().graphicsSettings().defaultAmbient);
-				Globals::Shaders().basicPhong().diffuse((*buffers.diffuseF) ? (*buffers.diffuseF)() : Globals::Components().graphicsSettings().defaultDiffuse);
-				Globals::Shaders().basicPhong().specular((*buffers.specularF) ? (*buffers.specularF)() : Globals::Components().graphicsSettings().defaultSpecular);
-				Globals::Shaders().basicPhong().specularFocus((*buffers.specularFocusF) ? (*buffers.specularFocusF)() : Globals::Components().graphicsSettings().defaultSpecularFocus);
+				Globals::Shaders().basicPhong().ambient(*buffers.ambient);
+				Globals::Shaders().basicPhong().diffuse(*buffers.diffuse);
+				Globals::Shaders().basicPhong().specular(*buffers.specular);
+				Globals::Shaders().basicPhong().specularFocus(*buffers.specularFocus);
 				});
 		};
 
@@ -133,10 +133,10 @@ namespace Systems
 				Globals::Shaders().texturedPhong().model(modelMatrix);
 				Globals::Shaders().texturedPhong().normalMatrix(Globals::Components().mvp3D().getNormalMatrix(modelMatrix));
 				Globals::Shaders().texturedPhong().color((*buffers.colorF) ? (*buffers.colorF)() : Globals::Components().graphicsSettings().defaultColor);
-				Globals::Shaders().texturedPhong().ambient((*buffers.ambientF) ? (*buffers.ambientF)() : Globals::Components().graphicsSettings().defaultAmbient);
-				Globals::Shaders().texturedPhong().diffuse((*buffers.diffuseF) ? (*buffers.diffuseF)() : Globals::Components().graphicsSettings().defaultDiffuse);
-				Globals::Shaders().texturedPhong().specular((*buffers.specularF) ? (*buffers.specularF)() : Globals::Components().graphicsSettings().defaultSpecular);
-				Globals::Shaders().texturedPhong().specularFocus((*buffers.specularFocusF) ? (*buffers.specularFocusF)() : Globals::Components().graphicsSettings().defaultSpecularFocus);
+				Globals::Shaders().texturedPhong().ambient(*buffers.ambient);
+				Globals::Shaders().texturedPhong().diffuse(*buffers.diffuse);
+				Globals::Shaders().texturedPhong().specular(*buffers.specular);
+				Globals::Shaders().texturedPhong().specularFocus(*buffers.specularFocus);
 				Tools::PrepareTexturedRender(Globals::Shaders().texturedPhong(), buffers, *buffers.texture);
 				});
 		};
