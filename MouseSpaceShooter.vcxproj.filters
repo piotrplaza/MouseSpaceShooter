@@ -104,6 +104,9 @@
     <Filter Include="src\levels\basic3D">
       <UniqueIdentifier>{7d69ab14-2f0e-47b3-bdd7-a9c46f3c4e1c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\firstPersonCamera">
+      <UniqueIdentifier>{ca44fef8-3cd2-461e-bf2d-b640f87db4b4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -273,6 +276,9 @@
     </ClCompile>
     <ClCompile Include="tools\geometryHelpers.cpp">
       <Filter>src\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\firstPersonCamera\firstPersonCamera.cpp">
+      <Filter>src\levels\firstPersonCamera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -599,6 +605,9 @@
     </ClInclude>
     <ClInclude Include="components\light3D.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\firstPersonCamera\firstPersonCamera.hpp">
+      <Filter>src\levels\firstPersonCamera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

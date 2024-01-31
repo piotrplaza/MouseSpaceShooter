@@ -144,7 +144,7 @@ namespace Levels
 				playersHandler->controlStep();
 			else
 			{
-				mousePos += mouse.getWorldSpaceDelta() * projectionHSize * 0.001f;
+				mousePos += mouse.getCartesianDelta() * projectionHSize * 0.001f;
 				mousePos.x = std::clamp(mousePos.x, -projectionHSize * screenRatio + cameraPos.x, projectionHSize * screenRatio + cameraPos.x);
 				mousePos.y = std::clamp(mousePos.y, -projectionHSize + cameraPos.y, projectionHSize + cameraPos.y);
 			}

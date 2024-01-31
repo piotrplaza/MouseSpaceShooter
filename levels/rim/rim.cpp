@@ -276,7 +276,7 @@ namespace Levels
 			const auto& gamepad = Globals::Components().gamepads()[0];
 			auto& player1Controls = Globals::Components().planes()[player1Id].controls;
 
-			player1Controls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity +
+			player1Controls.turningDelta = mouse.getCartesianDelta() * mouseSensitivity +
 				Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
 			player1Controls.autoRotation = (bool)std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
 			player1Controls.throttling = std::max((float)mouse.pressing.rmb, gamepad.rTrigger);

@@ -20,7 +20,7 @@ namespace Components
 
 		glm::ivec2 delta{ 0, 0 };
 
-		glm::vec2 getWorldSpaceDelta() const
+		glm::vec2 getCartesianDelta() const
 		{
 			return { delta.x, -delta.y };
 		}

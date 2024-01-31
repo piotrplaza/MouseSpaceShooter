@@ -289,7 +289,7 @@ namespace Tools
 
 			if (i == 0)
 			{
-				playerControls.turningDelta = mouse.getWorldSpaceDelta() * mouseSensitivity;
+				playerControls.turningDelta = mouse.getCartesianDelta() * mouseSensitivity;
 				playerControls.autoRotation = (bool)mouse.pressing.rmb;
 				playerControls.throttling = (float)mouse.pressing.rmb;
 				playerControls.magneticHook = mouse.pressing.xmb1;

@@ -45,7 +45,7 @@ namespace Levels
 
 			staticWalls.emplace(Tools::CreateCircleBody(2.0f, Tools::BodyParams().bodyType(b2_kinematicBody).position({0.0f, 7.0f}).restitution(0.2f)), TCM::Texture(dzidziaTexture));
 			staticWalls.last().stepF = [&wall = staticWalls.last(), &mouse]() {
-				wall.setVelocity(mouse.getWorldSpaceDelta() * 0.8f);
+				wall.setVelocity(mouse.getCartesianDelta() * 0.8f);
 			};
 
 #if 0

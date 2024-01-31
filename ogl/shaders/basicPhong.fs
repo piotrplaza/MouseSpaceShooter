@@ -27,16 +27,14 @@ float getAmbientFactor()
 	return ambient;
 }
 
-float getDiffuseFactor(const vec3 lightDir, const vec3 normal)
+float getDiffuseFactor(const vec3 lightDir, const vec3 normal, const float frontFactor)
 {
-	return abs(dot(normal, lightDir)) * diffuse;
+	return max(dot(normal, lightDir) * diffuse * frontFactor, 0.0f);
 }
 
-float getSpecularFactor(const vec3 lightDir, const vec3 normal)
-{
-	const vec3 viewDir = normalize(viewPos - vPos);
+float getSpecularFactor(const vec3 lightDir, const vec3 normal, const vec3 viewDir, const float frontFactor) {
 	const vec3 reflectDir = reflect(-lightDir, normal);
-	return pow(max(dot(viewDir, reflectDir), 0.0), specularFocus) * specular;
+	return pow(max(dot(viewDir, reflectDir), 0.0), specularFocus) * specular * frontFactor;
 }
 
 float getAttenuation(int lightId)
@@ -55,13 +53,15 @@ void main()
 	}
 
 	const vec3 normal = normalize(flatNormal ? vFlatNormal : vSmoothNormal);
+	const vec3 viewDir = normalize(viewPos - vPos);
+	const float frontFactor = step(0.0, dot(normal, viewDir));
 	vec3 lightModelColor = vec3(0.0);
 
 	for (int i = 0; i < numOfLights; ++i)
 	{
 		const vec3 lightDir = normalize(lightsPos[i] - vPos);
-		lightModelColor += getAttenuation(i) * (vColor.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal))
-			+ lightsCol[i] * getSpecularFactor(lightDir, normal));
+		lightModelColor += getAttenuation(i) * (vColor.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal, frontFactor))
+			+ lightsCol[i] * getSpecularFactor(lightDir, normal, viewDir, frontFactor));
 	}
 
 	if (lightModelColorNormalization)

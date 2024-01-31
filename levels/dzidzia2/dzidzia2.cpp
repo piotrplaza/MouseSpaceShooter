@@ -135,7 +135,7 @@ namespace Levels
 			auto& staticDecorations = Globals::Components().staticDecorations();
 
 			absClamp = { screenInfo.getAspectRatio() * 10.0f, 10.0f };
-			mousePos += mouse.getWorldSpaceDelta() * turningSensitivity;
+			mousePos += mouse.getCartesianDelta() * turningSensitivity;
 			mousePos = glm::clamp(mousePos, -absClamp, absClamp);
 
 			auto& dzidzia = Globals::Components().staticDecorations()[dzidziaDecorationId];

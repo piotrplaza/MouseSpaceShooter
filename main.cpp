@@ -14,6 +14,7 @@
 #include "levels/raceEditor/raceEditor.hpp"
 #include "levels/collisions/collisions.hpp"
 #include "levels/basic3D/basic3D.hpp"
+#include "levels/firstPersonCamera/firstPersonCamera.hpp"
 
 #include "components/mouse.hpp"
 #include "components/physics.hpp"
@@ -77,7 +78,7 @@ static void InitOGL()
 	//glEnable(GL_DEPTH_TEST);
 	//glDepthFunc(GL_GREATER);
 	//glClearDepth(0.0f);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glLineWidth(3.0f);
@@ -117,7 +118,8 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Rim>();
 	//activeLevel = std::make_unique<Levels::SplineTest>();
 	//activeLevel = std::make_unique<Levels::Collisions>();
-	activeLevel = std::make_unique<Levels::Basic3D>();
+	//activeLevel = std::make_unique<Levels::Basic3D>();
+	activeLevel = std::make_unique<Levels::FirstPersonCamera>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }

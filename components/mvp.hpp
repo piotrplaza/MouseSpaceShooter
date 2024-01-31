@@ -29,7 +29,7 @@ namespace Components
 
 		glm::mat3 getNormalMatrix(const glm::mat4& model) const
 		{
-			return glm::inverseTranspose(glm::mat3(getMV(model)));
+			return glm::inverseTranspose(glm::mat3(/*getMV*/(model)));
 		}
 
 		glm::vec3 getViewPos() const
