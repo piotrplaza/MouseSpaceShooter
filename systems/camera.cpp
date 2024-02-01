@@ -7,9 +7,12 @@
 
 #include <globals/components.hpp>
 
+#include <tools/utility.hpp>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <algorithm>
+#include <variant>
 
 namespace Systems
 {
@@ -67,6 +70,20 @@ namespace Systems
 		auto& mvp = Globals::Components().mvp3D();
 
 		mvp.projection = glm::perspective(camera.fov, screenInfo.getAspectRatio(), camera.nearPlane, camera.farPlane);
-		mvp.view = glm::rotate(glm::rotate(glm::mat4(1.0f), camera.rotation.x, glm::vec3(-1.0f, 0.0f, 0.0f)), camera.rotation.y, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::translate(glm::mat4(1.0f), -camera.position);
+
+		std::visit(Tools::Overloads{
+			[&](const glm::vec3& rotation) {
+				mvp.view = glm::rotate(
+					glm::rotate(
+						glm::rotate(glm::mat4(1.0f), rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)),
+						rotation.x, glm::vec3(-1.0f, 0.0f, 0.0f)),
+					rotation.y, glm::vec3(0.0f, 1.0f, 0.0f))
+					* glm::translate(glm::mat4(1.0f), -camera.position);
+			},
+			[&](const std::pair<glm::vec3, glm::vec3>& rotation) {
+				mvp.view = glm::lookAt(camera.position, rotation.first, rotation.second);
+			}
+		}, camera.rotation);
+		
 	}
 }

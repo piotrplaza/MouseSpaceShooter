@@ -118,8 +118,8 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Rim>();
 	//activeLevel = std::make_unique<Levels::SplineTest>();
 	//activeLevel = std::make_unique<Levels::Collisions>();
-	//activeLevel = std::make_unique<Levels::Basic3D>();
-	activeLevel = std::make_unique<Levels::FirstPersonCamera>();
+	activeLevel = std::make_unique<Levels::Basic3D>();
+	//activeLevel = std::make_unique<Levels::FirstPersonCamera>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }

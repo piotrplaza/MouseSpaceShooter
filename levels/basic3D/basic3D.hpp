@@ -11,6 +11,8 @@ namespace Levels
 	public:
 		Basic3D();
 
+		void step() override;
+
 	private:
 		class Impl;
 		std::unique_ptr<Impl> impl;

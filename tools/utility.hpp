@@ -54,4 +54,7 @@ namespace Tools
 					* 1.0f / textureComponent.scale.x, 1.0f / textureComponent.scale.y, 1.0f)),
 				glm::vec3(-textureComponent.translate, 0.0f));
 	}
+
+	template<class... Ts>
+	struct Overloads : Ts... { using Ts::operator()...; };
 }

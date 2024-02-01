@@ -272,11 +272,12 @@ namespace Tools
 	inline void Lights3DSetup(ShadersPrograms& shadersProgram)
 	{
 		const auto& lights3D = Globals::Components().lights3D();
+		const auto& mvp3D = Globals::Components().mvp3D();
 		shadersProgram.numOfLights(lights3D.size());
 		unsigned i = 0;
 		for (const auto& light : lights3D)
 		{
-			shadersProgram.lightsPos(i, light.position);
+			shadersProgram.lightsPos(i, (light.viewSpace ? glm::inverse(mvp3D.view) : glm::mat4(1.0f)) * glm::vec4(light.position, 1.0f));
 			shadersProgram.lightsCol(i, light.color);
 			shadersProgram.lightsAttenuation(i, light.attenuation);
 			++i;
