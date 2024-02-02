@@ -107,6 +107,9 @@
     <Filter Include="src\levels\firstPersonCamera">
       <UniqueIdentifier>{ca44fef8-3cd2-461e-bf2d-b640f87db4b4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\crosses3D">
+      <UniqueIdentifier>{55d6921d-2283-425b-9908-f60f59211aa2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -279,6 +282,9 @@
     </ClCompile>
     <ClCompile Include="levels\firstPersonCamera\firstPersonCamera.cpp">
       <Filter>src\levels\firstPersonCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\crosses3D\crosses3D.cpp">
+      <Filter>src\levels\crosses3D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -608,6 +614,9 @@
     </ClInclude>
     <ClInclude Include="levels\firstPersonCamera\firstPersonCamera.hpp">
       <Filter>src\levels\firstPersonCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\crosses3D\crosses3D.hpp">
+      <Filter>src\levels\crosses3D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -8,6 +8,7 @@ in vec3 vNormal;
 out vec4 fColor;
 
 uniform vec4 color;
+uniform vec3 clearColor;
 uniform int numOfLights;
 uniform vec3 lightsPos[128];
 uniform vec3 lightsCol[128];
@@ -54,8 +55,8 @@ void main()
 	for (int i = 0; i < numOfLights; ++i)
 	{
 		const vec3 lightDir = normalize(lightsPos[i] - vPos);
-		lightModelColor += getAttenuation(i) * (vColor.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal))
-			+ lightsCol[i] * getSpecularFactor(lightDir, normal));
+		lightModelColor += mix(clearColor, vec3(1.0), getAttenuation(i)) * vColor.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal))
+			+ getAttenuation(i) * lightsCol[i] * getSpecularFactor(lightDir, normal);
 	}
 
 	if (numOfTextures == 1)

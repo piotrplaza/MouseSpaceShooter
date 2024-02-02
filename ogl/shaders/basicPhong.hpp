@@ -16,6 +16,7 @@ namespace Shaders
 				vp(program, "vp"),
 				normalMatrix(program, "normalMatrix"),
 				color(program, "color"),
+				clearColor(program, "clearColor"),
 				numOfLights(program, "numOfLights"),
 				lightsPos(program, "lightsPos"),
 				lightsCol(program, "lightsCol"),
@@ -35,6 +36,7 @@ namespace Shaders
 			Uniforms::UniformMat4f vp;
 			Uniforms::UniformMat3f normalMatrix;
 			Uniforms::Uniform4f color;
+			Uniforms::Uniform3f clearColor;
 			Uniforms::Uniform1i numOfLights;
 			Uniforms::Uniform3fv<128> lightsPos;
 			Uniforms::Uniform3fv<128> lightsCol;
@@ -59,6 +61,7 @@ namespace Shaders
 				vp(glm::mat4(1.0f));
 				normalMatrix(glm::mat3(1.0f));
 				color(glm::vec4(1.0f));
+				clearColor(glm::vec3(0.0f));
 				numOfLights(0);
 				lightsPos(glm::vec3(0.0f));
 				lightsCol(glm::vec3(1.0f));

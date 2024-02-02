@@ -24,7 +24,7 @@ namespace Levels
 		{
 			Globals::Components().graphicsSettings().clearColor = { 0.0f, 0.05f, 0.0f, 1.0f };
 			Globals::Components().lights3D().emplace(glm::vec3(0.0f), glm::vec3(1.0f), 0.5f, true);
-			Globals::Components().camera3D().rotation = std::pair(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			Globals::Components().camera3D().rotation = Components::Camera3D::LookAtRotation{};
 		}
 
 		void createDecorations() const
@@ -34,7 +34,7 @@ namespace Levels
 
 			/*auto& shape = staticDecorations.emplace();
 			Shapes3D::AddRectangle(shape, { 0.8f, 0.8f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
-			shape.modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 0.0f, 1.0f, 0.0f }); };*/
+			shape.modelMatrixF = [&]() { return glm::rotate(glm::mat4(1.0f), physics.simulationDuration, { 0.0f, 1.0f, 0.0f }); };*/
 #if 0
 			auto& shape = staticDecorations.emplace();
 			Shapes3D::AddCuboid(shape, { 0.5f, 0.5f, 0.5f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });

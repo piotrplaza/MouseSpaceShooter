@@ -9,6 +9,7 @@
 #include <components/mouse.hpp>
 #include <components/shockwave.hpp>
 #include <components/light3D.hpp>
+#include <components/graphicsSettings.hpp>
 
 #include <commonTypes/typeComponentMappers.hpp>
 
@@ -273,6 +274,9 @@ namespace Tools
 	{
 		const auto& lights3D = Globals::Components().lights3D();
 		const auto& mvp3D = Globals::Components().mvp3D();
+		const auto& graphicsSettings = Globals::Components().graphicsSettings();
+
+		shadersProgram.clearColor(graphicsSettings.clearColor);
 		shadersProgram.numOfLights(lights3D.size());
 		unsigned i = 0;
 		for (const auto& light : lights3D)

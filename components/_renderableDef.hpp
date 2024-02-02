@@ -25,9 +25,9 @@ struct RenderableDef
 {
 	struct Params3D
 	{
-		Params3D& normals(std::vector<glm::vec3> value)
+		Params3D& addNormals(const std::vector<glm::vec3>& value)
 		{
-			normals_ = std::move(value);
+			normals_.insert(normals_.end(), value.begin(), value.end());
 			return *this;
 		}
 

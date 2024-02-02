@@ -61,7 +61,7 @@ namespace Levels
 		const auto& mouse = Globals::Components().mouse();
 		const auto& keyboard = Globals::Components().keyboard();
 		auto& camera = Globals::Components().camera3D();
-		auto& rotation = std::get<glm::vec3>(Globals::Components().camera3D().rotation);
+		auto& rotation = std::get<Components::Camera3D::EulerRotation>(Globals::Components().camera3D().rotation);
 
 		const float moveSpeed = 0.5f;
 		const float rotationSpeed = 1.5f;
@@ -87,9 +87,9 @@ namespace Levels
 			camera.position.y -= moveSpeed * physics.frameDuration;
 
 		if (keyboard.pressing['Q'])
-			rotation.z = std::fmodf(rotation.z - rotationSpeed * physics.frameDuration, glm::two_pi<float>());
-		if (keyboard.pressing['E'])
 			rotation.z = std::fmodf(rotation.z + rotationSpeed * physics.frameDuration, glm::two_pi<float>());
+		if (keyboard.pressing['E'])
+			rotation.z = std::fmodf(rotation.z - rotationSpeed * physics.frameDuration, glm::two_pi<float>());
 
 		rotation.x = std::clamp(rotation.x + mouse.getCartesianDelta().y * mouseSensitivity, -glm::half_pi<float>(), glm::half_pi<float>());
 		rotation.y = std::fmodf(rotation.y + mouse.getCartesianDelta().x * mouseSensitivity, glm::two_pi<float>());

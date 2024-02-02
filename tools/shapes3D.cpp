@@ -63,6 +63,35 @@ namespace
 
 namespace Shapes3D
 {
+	RenderableDef& AddPoint(RenderableDef& renderableDef, const glm::vec3& pos, const glm::vec4& color, const glm::mat4& transform)
+	{
+		if (!renderableDef.params3D)
+			renderableDef.params3D = RenderableDef::Params3D{}.ambient(1.0f).diffuse(0.0f).specular(0.0f);
+
+		renderableDef.vertices.push_back(glm::vec3(transform * glm::vec4(pos, 1.0f)));
+		renderableDef.colors.push_back(color);
+		renderableDef.params3D->addNormals({ {0.0f, 0.0f, 0.0f} });
+		renderableDef.drawMode = GL_POINTS;
+
+		return renderableDef;
+	}
+
+	RenderableDef& AddLine(RenderableDef& renderableDef, const glm::vec3& p1, const glm::vec3& p2, const glm::vec4& color1, const glm::vec4& color2, const glm::mat4& transform)
+	{
+		if (!renderableDef.params3D)
+			renderableDef.params3D = RenderableDef::Params3D{}.ambient(1.0f).diffuse(0.0f).specular(0.0f);
+
+		renderableDef.vertices.push_back(glm::vec3(transform * glm::vec4(p1, 1.0f)));
+		renderableDef.vertices.push_back(glm::vec3(transform * glm::vec4(p2, 1.0f)));
+		renderableDef.colors.push_back(color1);
+		renderableDef.colors.push_back(color2);
+		renderableDef.params3D->addNormals({ {0.0f, 0.0f, 0.0f} });
+		renderableDef.params3D->addNormals({ {0.0f, 0.0f, 0.0f} });
+		renderableDef.drawMode = GL_LINES;
+
+		return renderableDef;
+	}
+
 	RenderableDef& AddRectangle(RenderableDef& renderableDef, const glm::vec2& hSize, const std::vector<glm::vec4>& colors, const glm::mat4& transform)
 	{
 		unsigned offset = renderableDef.vertices.size();
@@ -164,6 +193,33 @@ namespace Shapes3D
 				renderableDef.indices.push_back(offset + (r + 1) * sectors + (s + 1));
 				renderableDef.indices.push_back(offset + (r + 1) * sectors + s);
 			}
+		}
+
+		return renderableDef;
+	}
+
+	RenderableDef& AddCross(RenderableDef& renderableDef, glm::vec3 columnHSize, glm::vec3 rowHSize, float rowYPos, const glm::mat4& transform)
+	{
+		AddCuboid(renderableDef, columnHSize, {}, transform * glm::translate(glm::mat4(1.0f), { 0.0f, columnHSize.y, 0.0f }));
+		AddCuboid(renderableDef, rowHSize, {}, transform * glm::translate(glm::mat4(1.0f), { 0.0f, columnHSize.y + rowYPos, 0.0f }));
+		return renderableDef;
+	}
+
+	RenderableDef& AddGrid(RenderableDef& renderableDef, glm::vec2 hSize, glm::ivec2 sectors, const glm::mat4& transform)
+	{
+		const glm::vec2 step = hSize / glm::vec2(sectors);
+		const glm::vec2 offset = -hSize / 2.0f;
+
+		for (int i = 0; i <= sectors.x; ++i)
+		{
+			const float x = offset.x + step.x * i;
+			AddLine(renderableDef, { x, 0.0f, -hSize.y / 2.0f }, { x, 0.0f, hSize.y / 2.0f }, glm::vec4(1.0f), glm::vec4(1.0f), transform);
+		}
+
+		for (int i = 0; i <= sectors.y; ++i)
+		{
+			const float z = offset.y + step.y * i;
+			AddLine(renderableDef, { -hSize.x / 2.0f, 0.0f, z }, { hSize.x / 2.0f, 0.0f, z }, glm::vec4(1.0f), glm::vec4(1.0f), transform);
 		}
 
 		return renderableDef;
