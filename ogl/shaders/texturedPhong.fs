@@ -18,6 +18,7 @@ uniform float diffuse;
 uniform vec3 viewPos;
 uniform float specular;
 uniform float specularFocus;
+uniform bool lightModelEnabled;
 uniform vec4 mulBlendingColor;
 uniform vec4 addBlendingColor;
 uniform int numOfTextures;
@@ -44,7 +45,8 @@ float getSpecularFactor(const vec3 lightDir, const vec3 normal)
 
 float getAttenuation(int lightId)
 {
-	return 1.0 / (1.0 + lightsAttenuation[lightId] * distance(vPos, lightsPos[lightId]));
+	const float d = distance(vPos, lightsPos[lightId]) * lightsAttenuation[lightId];
+	return 1.0 / (1.0 + d * d);
 }
 
 void main()
@@ -52,11 +54,14 @@ void main()
 	const vec3 normal = normalize(vNormal);
 	vec3 lightModelColor = vec3(0.0);
 
-	for (int i = 0; i < numOfLights; ++i)
+	if (lightModelEnabled)
 	{
-		const vec3 lightDir = normalize(lightsPos[i] - vPos);
-		lightModelColor += mix(clearColor, vec3(1.0), getAttenuation(i)) * vColor.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal))
-			+ getAttenuation(i) * lightsCol[i] * getSpecularFactor(lightDir, normal);
+		for (int i = 0; i < numOfLights; ++i)
+		{
+			const vec3 lightDir = normalize(lightsPos[i] - vPos);
+			lightModelColor += mix(clearColor, vec3(1.0), getAttenuation(i)) * vColor.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal))
+				+ getAttenuation(i) * lightsCol[i] * getSpecularFactor(lightDir, normal);
+		}
 	}
 
 	if (numOfTextures == 1)

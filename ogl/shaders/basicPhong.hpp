@@ -28,7 +28,8 @@ namespace Shaders
 				specularFocus(program, "specularFocus"),
 				flatColor(program, "flatColor"),
 				flatNormal(program, "flatNormal"),
-				lightModelColorNormalization(program, "lightModelColorNormalization")
+				lightModelColorNormalization(program, "lightModelColorNormalization"),
+				lightModelEnabled(program, "lightModelEnabled")
 			{
 			}
 
@@ -49,6 +50,7 @@ namespace Shaders
 			Uniforms::Uniform1b flatColor;
 			Uniforms::Uniform1b flatNormal;
 			Uniforms::Uniform1b lightModelColorNormalization;
+			Uniforms::Uniform1b lightModelEnabled;
 		};
 
 		struct BasicPhong : BasicPhongAccessor
@@ -74,6 +76,7 @@ namespace Shaders
 				flatColor(false);
 				flatNormal(false);
 				lightModelColorNormalization(false);
+				lightModelEnabled(true);
 			}
 
 			BasicPhong(const BasicPhong&) = delete;

@@ -55,11 +55,18 @@ struct RenderableDef
 			return *this;
 		}
 
+		Params3D& lightModelEnabled(bool value)
+		{
+			lightModelEnabled_ = value;
+			return *this;
+		}
+
 		std::vector<glm::vec3> normals_;
 		float ambient_ = 0.1f;
 		float diffuse_ = 0.8f;
 		float specular_ = 3.0f;
 		float specularFocus_ = 8.0f;
+		bool lightModelEnabled_ = true;
 	};
 
 	RenderableDef() = default;

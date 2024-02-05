@@ -52,6 +52,7 @@ namespace Buffers
 		float* diffuse = 0;
 		float* specular = 0;
 		float* specularFocus = 0;
+		bool* lightModelEnabled = nullptr;
 
 		GLuint vertexArray = 0;
 		size_t drawCount = 0;

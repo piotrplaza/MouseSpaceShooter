@@ -22,6 +22,7 @@ uniform float specularFocus;
 uniform bool flatColor;
 uniform bool flatNormal;
 uniform bool lightModelColorNormalization;
+uniform bool lightModelEnabled;
 
 float getAmbientFactor()
 {
@@ -40,14 +41,15 @@ float getSpecularFactor(const vec3 lightDir, const vec3 normal, const vec3 viewD
 
 float getAttenuation(int lightId)
 {
-	return 1.0 / (1.0 + lightsAttenuation[lightId] * distance(vPos, lightsPos[lightId]));
+	const float d = distance(vPos, lightsPos[lightId]) * lightsAttenuation[lightId];
+	return 1.0 / (1.0 + d * d);
 }
 
 void main()
 {
 	const vec4 vColor = flatColor ? vFlatColor : vSmoothColor;
 
-	if (numOfLights == 0)
+	if (numOfLights == 0 || !lightModelEnabled)
 	{
 		fColor = color * vColor;
 		return;
@@ -61,8 +63,8 @@ void main()
 	for (int i = 0; i < numOfLights; ++i)
 	{
 		const vec3 lightDir = normalize(lightsPos[i] - vPos);
-		lightModelColor += mix(clearColor, vec3(1.0), getAttenuation(i)) * vColor.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal, frontFactor))
-			+ getAttenuation(i) * lightsCol[i] * getSpecularFactor(lightDir, normal, viewDir, frontFactor);
+		lightModelColor += mix(clearColor, vColor.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal, frontFactor))
+			+ lightsCol[i] * getSpecularFactor(lightDir, normal, viewDir, frontFactor), getAttenuation(i));
 	}
 
 	if (lightModelColorNormalization)

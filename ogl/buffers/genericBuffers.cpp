@@ -37,6 +37,7 @@ namespace
 			buffers.diffuse = &renderableDef.params3D->diffuse_;
 			buffers.specular = &renderableDef.params3D->specular_;
 			buffers.specularFocus = &renderableDef.params3D->specularFocus_;
+			buffers.lightModelEnabled = &renderableDef.params3D->lightModelEnabled_;
 		}
 
 		buffers.setIndicesBuffer(renderableDef.getIndices());
@@ -85,7 +86,8 @@ namespace Buffers
 		ambient(other.ambient),
 		diffuse(other.diffuse),
 		specular(other.specular),
-		specularFocus(other.specularFocus)
+		specularFocus(other.specularFocus),
+		lightModelEnabled(other.lightModelEnabled)
 	{
 		other.expired = true;
 	}

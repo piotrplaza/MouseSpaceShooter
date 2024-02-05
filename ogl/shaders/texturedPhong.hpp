@@ -26,6 +26,7 @@ namespace Shaders
 				viewPos(program, "viewPos"),
 				specular(program, "specular"),
 				specularFocus(program, "specularFocus"),
+				lightModelEnabled(program, "lightModelEnabled"),
 				mulBlendingColor(program, "mulBlendingColor"),
 				addBlendingColor(program, "addBlendingColor"),
 				numOfTextures(program, "numOfTextures"),
@@ -51,6 +52,7 @@ namespace Shaders
 			Uniforms::Uniform3f viewPos;
 			Uniforms::Uniform1f specular;
 			Uniforms::Uniform1f specularFocus;
+			Uniforms::Uniform1b lightModelEnabled;
 			Uniforms::Uniform4f mulBlendingColor;
 			Uniforms::Uniform4f addBlendingColor;
 			Uniforms::Uniform1i numOfTextures;
@@ -81,6 +83,7 @@ namespace Shaders
 				viewPos(glm::vec3(0.0f));
 				specular(0.0f);
 				specularFocus(16.0f);
+				lightModelEnabled(true);
 				mulBlendingColor(glm::vec4(1.0f));
 				addBlendingColor(glm::vec4(0.0f));
 				numOfTextures(1);

@@ -29,8 +29,8 @@ namespace Levels
 
 		void createDecorations() const
 		{
-			auto& staticDecorations = Globals::Components().staticDecorations();
 			const auto& physics = Globals::Components().physics();
+			auto& staticDecorations = Globals::Components().staticDecorations();
 
 			/*auto& shape = staticDecorations.emplace();
 			Shapes3D::AddRectangle(shape, { 0.8f, 0.8f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
