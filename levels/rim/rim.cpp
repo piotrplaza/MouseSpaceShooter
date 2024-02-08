@@ -328,7 +328,7 @@ namespace Levels
 		unsigned rimWallBegin = 0;
 		unsigned rimWallEnd = 0;
 
-		unsigned player1Id;
+		unsigned player1Id{};
 		std::unordered_map<ComponentId, Tools::MissileHandler> missilesToHandlers;
 
 		float durationToLaunchMissile = 0.0f;

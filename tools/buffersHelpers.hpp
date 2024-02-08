@@ -30,10 +30,10 @@ namespace Tools
 					else
 						return staticBuffers.texturedPhong[layer].emplace_back();
 				}
-				else if (!std::holds_alternative<std::monostate>(component.texture))
-					return staticBuffers.textured[layer].emplace_back();
-				else
+				else if (std::holds_alternative<std::monostate>(component.texture))
 					return staticBuffers.basic[layer].emplace_back();
+				else
+					return staticBuffers.textured[layer].emplace_back();
 			}();
 
 			selectedBuffers.applyComponent(component);
@@ -64,10 +64,10 @@ namespace Tools
 					else
 						return dynamicBuffers.texturedPhong[layer];
 				}
-				else if (!std::holds_alternative<std::monostate>(component.texture))
-					return dynamicBuffers.textured[layer];
-				else
+				else if (std::holds_alternative<std::monostate>(component.texture))
 					return dynamicBuffers.basic[layer];
+				else
+					return dynamicBuffers.textured[layer];
 			}();
 
 			if (component.state == ComponentState::Outdated)

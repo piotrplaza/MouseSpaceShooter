@@ -48,11 +48,14 @@ namespace Buffers
 		GLenum* bufferDataUsage = nullptr;
 		bool* preserveTextureRatio = nullptr;
 		std::function<bool()>* renderF = nullptr;
-		float* ambient = 0;
-		float* diffuse = 0;
-		float* specular = 0;
-		float* specularFocus = 0;
+		float* ambient = nullptr;
+		float* diffuse = nullptr;
+		float* specular = nullptr;
+		float* specularFocus = nullptr;
+		float* specularMaterialColorFactor = nullptr;
+		std::function<glm::vec4()>* illuminationF = nullptr;
 		bool* lightModelEnabled = nullptr;
+		float* alphaDiscardTreshold = nullptr;
 
 		GLuint vertexArray = 0;
 		size_t drawCount = 0;

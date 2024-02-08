@@ -19,6 +19,8 @@ uniform float diffuse;
 uniform vec3 viewPos;
 uniform float specular;
 uniform float specularFocus;
+uniform float specularMaterialColorFactor;
+uniform vec4 illumination;
 uniform bool flatColor;
 uniform bool flatNormal;
 uniform bool lightModelColorNormalization;
@@ -63,8 +65,8 @@ void main()
 	for (int i = 0; i < numOfLights; ++i)
 	{
 		const vec3 lightDir = normalize(lightsPos[i] - vPos);
-		lightModelColor += mix(clearColor, vColor.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal, frontFactor))
-			+ lightsCol[i] * getSpecularFactor(lightDir, normal, viewDir, frontFactor), getAttenuation(i));
+		lightModelColor += mix(clearColor, vColor.rgb * color.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal, frontFactor))
+			+ mix(vec3(1.0f), vColor.rgb * color.rgb, specularMaterialColorFactor) * lightsCol[i] * getSpecularFactor(lightDir, normal, viewDir, frontFactor), getAttenuation(i));
 	}
 
 	if (lightModelColorNormalization)
@@ -75,5 +77,5 @@ void main()
 			lightModelColor /= lightModelColorComponentMax;
 	}
 
-	fColor = vec4(lightModelColor, vColor.a) * color;
+	fColor = vec4(lightModelColor * vColor.a * color.a, vColor.a * color.a) + illumination;
 }

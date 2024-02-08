@@ -21,7 +21,7 @@ namespace TypeComponentMappers
 {
 	struct Texture
 	{
-		ComponentId id;
+		ComponentId id{};
 
 		glm::vec2 translate = { 0.0f, 0.0f };
 		float rotate = 0.0f;
@@ -32,7 +32,7 @@ namespace TypeComponentMappers
 
 	struct AnimatedTexture
 	{
-		ComponentId id;
+		ComponentId id{};
 
 		glm::vec2 translate = { 0.0f, 0.0f };
 		float rotate = 0.0f;
@@ -43,7 +43,7 @@ namespace TypeComponentMappers
 
 	struct BlendingTexture
 	{
-		ComponentId id;
+		ComponentId id{};
 
 		glm::vec2 translate = { 0.0f, 0.0f };
 		float rotate = 0.0f;
@@ -54,7 +54,7 @@ namespace TypeComponentMappers
 
 	struct Grapple
 	{
-		ComponentId id;
+		ComponentId id{};
 		Components::Grapple* component = nullptr;
 
 		bool operator==(const Grapple&) const = default;
@@ -70,7 +70,7 @@ namespace TypeComponentMappers
 
 	struct Plane
 	{
-		ComponentId id;
+		ComponentId id{};
 		Components::Plane* component = nullptr;
 
 		bool operator==(const Plane&) const = default;
@@ -78,7 +78,7 @@ namespace TypeComponentMappers
 
 	struct StaticWall
 	{
-		ComponentId id;
+		ComponentId id{};
 		Components::StaticWall* component = nullptr;
 
 		bool operator==(const StaticWall&) const = default;
@@ -86,7 +86,7 @@ namespace TypeComponentMappers
 
 	struct DynamicWall
 	{
-		ComponentId id;
+		ComponentId id{};
 		Components::DynamicWall* component = nullptr;
 
 		bool operator==(const DynamicWall&) const = default;
@@ -94,7 +94,7 @@ namespace TypeComponentMappers
 
 	struct StaticPolyline
 	{
-		ComponentId id;
+		ComponentId id{};
 		Components::StaticPolyline* component = nullptr;
 
 		bool operator==(const StaticPolyline&) const = default;
@@ -102,7 +102,7 @@ namespace TypeComponentMappers
 
 	struct DynamicPolyline
 	{
-		ComponentId id;
+		ComponentId id{};
 		Components::DynamicPolyline* component = nullptr;
 
 		bool operator==(const DynamicPolyline&) const = default;

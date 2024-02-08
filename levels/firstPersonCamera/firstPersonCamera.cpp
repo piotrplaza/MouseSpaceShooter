@@ -38,12 +38,12 @@ namespace Levels
 			auto& staticDecorations = Globals::Components().staticDecorations();
 
 			auto& wallsAndInnerSphere = staticDecorations.emplace();
-			Shapes3D::AddCuboid(wallsAndInnerSphere, { 0.5f, 0.5f, 0.5f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } }, glm::mat4(1.0f), true);
-			Shapes3D::AddSphere(wallsAndInnerSphere, 0.1f, 50, 50, false);
+			Shapes3D::AddCuboid(wallsAndInnerSphere, { 0.5f, 0.5f, 0.5f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } }, nullptr, glm::mat4(1.0f), true);
+			Shapes3D::AddSphere(wallsAndInnerSphere, 0.1f, 50, 50);
 			wallsAndInnerSphere.params3D->ambient(0.2f).specular(1.0f).specularFocus(32.0f);
 
 			auto& lamp = staticDecorations.emplace();
-			Shapes3D::AddSphere(lamp, 0.05f, 50, 50, false, nullptr, glm::translate(glm::mat4(1.0f), { 0.0f, 0.52f, 0.0f }));
+			Shapes3D::AddSphere(lamp, 0.05f, 50, 50, nullptr, false, glm::translate(glm::mat4(1.0f), { 0.0f, 0.52f, 0.0f }));
 			lamp.params3D->ambient(1.0f).diffuse(0.0f).specular(0.0f);
 		}
 	};

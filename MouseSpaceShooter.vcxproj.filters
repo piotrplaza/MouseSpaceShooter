@@ -110,6 +110,9 @@
     <Filter Include="src\levels\crosses3D">
       <UniqueIdentifier>{55d6921d-2283-425b-9908-f60f59211aa2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\crosses3DTextured">
+      <UniqueIdentifier>{da2e1738-339e-4b0f-a226-f7b3ae2d6307}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -285,6 +288,9 @@
     </ClCompile>
     <ClCompile Include="levels\crosses3D\crosses3D.cpp">
       <Filter>src\levels\crosses3D</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\crosses3DTextured\crosses3DTextured.cpp">
+      <Filter>src\levels\crosses3DTextured</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -617,6 +623,9 @@
     </ClInclude>
     <ClInclude Include="levels\crosses3D\crosses3D.hpp">
       <Filter>src\levels\crosses3D</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\crosses3DTextured\crosses3DTextured.hpp">
+      <Filter>src\levels\crosses3DTextured</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

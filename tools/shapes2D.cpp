@@ -30,15 +30,15 @@ namespace Shapes2D
 		return vertices;
 	}
 
-	std::vector<glm::vec2> CreateTexCoordOfRectangle(const glm::vec2& leftDown, const glm::vec2& bottomUp)
+	std::vector<glm::vec2> CreateTexCoordOfRectangle(const glm::vec2& leftDown, const glm::vec2& rightUp)
 	{
 		return {
 			leftDown,
-			{ bottomUp.x, leftDown.y },
-			{ leftDown.x, bottomUp.y },
-			{ leftDown.x, bottomUp.y },
-			{ bottomUp.x, leftDown.y },
-			bottomUp
+			{ rightUp.x, leftDown.y },
+			{ leftDown.x, rightUp.y },
+			{ leftDown.x, rightUp.y },
+			{ rightUp.x, leftDown.y },
+			rightUp
 		};
 	}
 

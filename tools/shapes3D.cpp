@@ -9,7 +9,7 @@
 
 namespace
 {
-	void AddVerticesOfRectangle(std::vector<glm::vec3>& vertices, const glm::vec2& hSize, const glm::mat4& transform)
+	void AddVerticesAndTexCoordsOfRectangle(std::vector<glm::vec3>& vertices, std::vector<glm::vec2>& texCoords, const glm::vec2& hSize, std::function<glm::vec2(glm::vec2, glm::vec3)> defaultAndPosToTexCoordF, const glm::mat4& transform)
 	{
 		std::vector<glm::vec3> rectangleVertices = {
 			{-hSize.x, -hSize.y, 0.0f},
@@ -17,8 +17,23 @@ namespace
 			{-hSize.x, hSize.y, 0.0f},
 			{hSize.x, hSize.y, 0.0f}
 		};
+
+		static const std::vector<glm::vec2> defaultRectangleTexCoords = {
+			{-0.5f, -0.5f},
+			{0.5f, -0.5f},
+			{-0.5f, 0.5f},
+			{0.5f, 0.5f}
+		};
+
 		Tools::InPlaceTransformMat4(rectangleVertices, transform);
 		vertices.insert(vertices.end(), rectangleVertices.begin(), rectangleVertices.end());
+
+		if (defaultAndPosToTexCoordF)
+		{
+			//texCoords.reserve(texCoords.size() + rectangleVertices.size()); // Extremely slowing down if multiple calls.
+			for (size_t i = 0; i < rectangleVertices.size(); ++i)
+				texCoords.push_back(defaultAndPosToTexCoordF(defaultRectangleTexCoords[i], rectangleVertices[i]));
+		}
 	}
 
 	void AddColorsOfRectangle(std::vector<glm::vec4>& colors, const std::vector<glm::vec4>& colorsOfVertices)
@@ -92,22 +107,23 @@ namespace Shapes3D
 		return renderableDef;
 	}
 
-	RenderableDef& AddRectangle(RenderableDef& renderableDef, const glm::vec2& hSize, const std::vector<glm::vec4>& colors, const glm::mat4& transform)
+	RenderableDef& AddRectangle(RenderableDef& renderableDef, const glm::vec2& hSize, const std::vector<glm::vec4>& colors, std::function<glm::vec2(glm::vec2, glm::vec3)> defaultAndPosToTexCoordF, const glm::mat4& transform)
 	{
 		unsigned offset = renderableDef.vertices.size();
 
 		if (!renderableDef.params3D)
 			renderableDef.params3D = RenderableDef::Params3D{};
 
-		AddVerticesOfRectangle(renderableDef.vertices, hSize, transform);
+		AddVerticesAndTexCoordsOfRectangle(renderableDef.vertices, renderableDef.texCoord, hSize, defaultAndPosToTexCoordF, transform);
 		AddColorsOfRectangle(renderableDef.colors, colors);
 		AddNormalsOfRectangle(renderableDef.params3D->normals_, transform);
+
 		AddIndicesOfRectangle(renderableDef.indices, offset);
 
 		return renderableDef;
 	}
 
-	RenderableDef& AddCuboid(RenderableDef& renderableDef, const glm::vec3& hSize, const std::vector<glm::vec4>& colors, const glm::mat4& transform, bool inner)
+	RenderableDef& AddCuboid(RenderableDef& renderableDef, const glm::vec3& hSize, const std::vector<glm::vec4>& colors, std::function<glm::vec2(glm::vec2, glm::vec3)> defaultAndPosToTexCoordF, const glm::mat4& transform, bool inner)
 	{
 		auto getColorsOfVertices = [&, col = std::vector<glm::vec4>{}, j = 0]() mutable -> const std::vector<glm::vec4>& {
 			if (colors.empty())
@@ -123,19 +139,19 @@ namespace Shapes3D
 
 		const float innerRotation = inner * glm::pi<float>();
 
-		AddRectangle(renderableDef, { hSize.x, hSize.y }, getColorsOfVertices(), transform * glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, hSize.z }), innerRotation, { 0.0f, 1.0f, 0.0f }));
-		AddRectangle(renderableDef, { hSize.x, hSize.y }, getColorsOfVertices(), transform * glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -hSize.z }), glm::pi<float>() + innerRotation, {0.0f, 1.0f, 0.0f}));
+		AddRectangle(renderableDef, { hSize.x, hSize.y }, getColorsOfVertices(), defaultAndPosToTexCoordF, transform * glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, hSize.z }), innerRotation, { 0.0f, 1.0f, 0.0f }));
+		AddRectangle(renderableDef, { hSize.x, hSize.y }, getColorsOfVertices(), defaultAndPosToTexCoordF, transform * glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -hSize.z }), glm::pi<float>() + innerRotation, {0.0f, 1.0f, 0.0f}));
 
-		AddRectangle(renderableDef, { hSize.z, hSize.y }, getColorsOfVertices(), transform * glm::rotate(glm::translate(glm::mat4(1.0f), { -hSize.x, 0.0f, 0.0f }), -glm::half_pi<float>() + innerRotation, { 0.0f, 1.0f, 0.0f }));
-		AddRectangle(renderableDef, { hSize.z, hSize.y }, getColorsOfVertices(), transform * glm::rotate(glm::translate(glm::mat4(1.0f), { hSize.x, 0.0f, 0.0f }), glm::half_pi<float>() + innerRotation, { 0.0f, 1.0f, 0.0f }));
+		AddRectangle(renderableDef, { hSize.z, hSize.y }, getColorsOfVertices(), defaultAndPosToTexCoordF, transform * glm::rotate(glm::translate(glm::mat4(1.0f), { -hSize.x, 0.0f, 0.0f }), -glm::half_pi<float>() + innerRotation, { 0.0f, 1.0f, 0.0f }));
+		AddRectangle(renderableDef, { hSize.z, hSize.y }, getColorsOfVertices(), defaultAndPosToTexCoordF, transform * glm::rotate(glm::translate(glm::mat4(1.0f), { hSize.x, 0.0f, 0.0f }), glm::half_pi<float>() + innerRotation, { 0.0f, 1.0f, 0.0f }));
 
-		AddRectangle(renderableDef, { hSize.x, hSize.z }, getColorsOfVertices(), transform * glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, -hSize.y, 0.0f }), glm::half_pi<float>() + innerRotation, { 1.0f, 0.0f, 0.0f }));
-		AddRectangle(renderableDef, { hSize.x, hSize.z }, getColorsOfVertices(), transform * glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, hSize.y, 0.0f }), -glm::half_pi<float>() + innerRotation, { 1.0f, 0.0f, 0.0f }));
+		AddRectangle(renderableDef, { hSize.x, hSize.z }, getColorsOfVertices(), defaultAndPosToTexCoordF, transform * glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, -hSize.y, 0.0f }), glm::half_pi<float>() + innerRotation, { 1.0f, 0.0f, 0.0f }));
+		AddRectangle(renderableDef, { hSize.x, hSize.z }, getColorsOfVertices(), defaultAndPosToTexCoordF, transform * glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, hSize.y, 0.0f }), -glm::half_pi<float>() + innerRotation, { 1.0f, 0.0f, 0.0f }));
 
 		return renderableDef;
 	}
 
-	RenderableDef& AddSphere(RenderableDef& renderableDef, float radius, int rings, int sectors, bool texCoords, std::function<glm::vec4(glm::vec3 normal)> colorF, const glm::mat4& transform)
+	RenderableDef& AddSphere(RenderableDef& renderableDef, float radius, int rings, int sectors, std::function<glm::vec4(glm::vec3 normal)> colorF, bool texCoords, const glm::mat4& transform)
 	{
 		const float R = 1.0f / static_cast<float>(++rings - 1);
 		const float S = 1.0f / static_cast<float>(++sectors - 1);
@@ -198,10 +214,10 @@ namespace Shapes3D
 		return renderableDef;
 	}
 
-	RenderableDef& AddCross(RenderableDef& renderableDef, glm::vec3 columnHSize, glm::vec3 rowHSize, float rowYPos, const glm::mat4& transform)
+	RenderableDef& AddCross(RenderableDef& renderableDef, glm::vec3 columnHSize, glm::vec3 rowHSize, float rowYPos, std::function<glm::vec2(glm::vec2, glm::vec3)> defaultAndPosToTexCoordF, const glm::mat4& transform)
 	{
-		AddCuboid(renderableDef, columnHSize, {}, transform * glm::translate(glm::mat4(1.0f), { 0.0f, columnHSize.y, 0.0f }));
-		AddCuboid(renderableDef, rowHSize, {}, transform * glm::translate(glm::mat4(1.0f), { 0.0f, columnHSize.y + rowYPos, 0.0f }));
+		AddCuboid(renderableDef, columnHSize, {}, defaultAndPosToTexCoordF, transform * glm::translate(glm::mat4(1.0f), { 0.0f, columnHSize.y, 0.0f }));
+		AddCuboid(renderableDef, rowHSize, {}, defaultAndPosToTexCoordF, transform * glm::translate(glm::mat4(1.0f), { 0.0f, columnHSize.y + rowYPos, 0.0f }));
 		return renderableDef;
 	}
 

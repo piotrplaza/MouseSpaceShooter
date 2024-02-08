@@ -55,9 +55,27 @@ struct RenderableDef
 			return *this;
 		}
 
+		Params3D& specularMaterialColorFactor(float value)
+		{
+			specularMaterialColorFactor_ = value;
+			return *this;
+		}
+
+		Params3D& illuminationF(std::function<glm::vec4()> value)
+		{
+			illuminationF_ = std::move(value);
+			return *this;
+		}
+
 		Params3D& lightModelEnabled(bool value)
 		{
 			lightModelEnabled_ = value;
+			return *this;
+		}
+
+		Params3D& alphaDiscardTreshold(float value)
+		{
+			alphaDiscardTreshold_ = value;
 			return *this;
 		}
 
@@ -66,7 +84,10 @@ struct RenderableDef
 		float diffuse_ = 0.8f;
 		float specular_ = 3.0f;
 		float specularFocus_ = 8.0f;
+		float specularMaterialColorFactor_ = 0.0f;
+		std::function<glm::vec4()> illuminationF_;
 		bool lightModelEnabled_ = true;
+		float alphaDiscardTreshold_ = 0.1f;
 	};
 
 	RenderableDef() = default;

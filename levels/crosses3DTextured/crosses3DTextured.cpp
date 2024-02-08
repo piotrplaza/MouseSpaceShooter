@@ -1,10 +1,11 @@
-#include "Crosses3D.hpp"
+#include "Crosses3DTextured.hpp"
 
 #include <components/decoration.hpp>
 #include <components/physics.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/light3D.hpp>
 #include <components/camera3D.hpp>
+#include <components/texture.hpp>
 
 #include <ogl/shaders/basicPhong.hpp>
 
@@ -17,7 +18,7 @@
 
 namespace Levels
 {
-	class Crosses3D::Impl
+	class Crosses3DTextured::Impl
 	{
 	public:
 		void setup() const
@@ -25,6 +26,14 @@ namespace Levels
 			Globals::Components().graphicsSettings().clearColor = { 0.0f, 0.05f, 0.0f, 1.0f };
 			Globals::Components().camera3D().rotation = Components::Camera3D::LookAtRotation{};
 			Globals::Components().lights3D().emplace(glm::vec3(0.0f), glm::vec3(1.0f), 0.2f);
+		}
+
+		void loadTextures()
+		{
+			auto& textures = Globals::Components().textures();
+
+			marbleTexture = textures.size();
+			textures.emplace("textures/green marble.jpg").wrapMode = GL_MIRRORED_REPEAT;
 		}
 
 		void createDecorations() const
@@ -44,12 +53,12 @@ namespace Levels
 				const glm::vec3 offset = { (numOfCrosses.x - 1) * distanceBetweenCrosses.x / 2.0f, 0.0f, (numOfCrosses.y - 1) * distanceBetweenCrosses.y / 2.0f };
 
 				staticDecorations.emplace();
-				//staticDecorations.last().texCoord.reserve(numOfCrosses.x * numOfCrosses.y * 2 * 6 * 4);
 				for (int z = 0; z < numOfCrosses.y; ++z)
 					for (int x = 0; x < numOfCrosses.x; ++x)
-						Shapes3D::AddCross(staticDecorations.last(), { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, nullptr, glm::translate(glm::mat4(1.0f),
+						Shapes3D::AddCross(staticDecorations.last(), { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); }, glm::translate(glm::mat4(1.0f),
 							glm::vec3(x * distanceBetweenCrosses.x, 0.0f, z * distanceBetweenCrosses.y) - offset));
-				staticDecorations.last().params3D->ambient(0.2f).diffuse(0.4f).specular(0.8f);
+				staticDecorations.last().params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true);
+				staticDecorations.last().texture = TCM::Texture(marbleTexture);
 			}
 		}
 
@@ -78,16 +87,20 @@ namespace Levels
 
 			lights.last().position = glm::vec3(glm::cos(physics.simulationDuration * rotationSpeed) * radius, 2.0f, glm::sin(physics.simulationDuration * rotationSpeed) * radius);
 		}
+
+	private:
+		ComponentId marbleTexture = 0;
 	};
 
-	Crosses3D::Crosses3D():
+	Crosses3DTextured::Crosses3DTextured() :
 		impl(std::make_unique<Impl>())
 	{
 		impl->setup();
+		impl->loadTextures();
 		impl->createDecorations();
 	}
 
-	void Crosses3D::step()
+	void Crosses3DTextured::step()
 	{
 		impl->cameraStep();
 		impl->lightStep();

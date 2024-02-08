@@ -146,7 +146,7 @@ namespace Levels
 
 		unsigned flame1AnimatedTexture = 0;
 
-		unsigned player1Id;
+		unsigned player1Id{};
 		Components::Grapple* ball = nullptr;
 	};
 
