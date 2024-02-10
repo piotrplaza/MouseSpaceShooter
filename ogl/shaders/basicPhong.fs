@@ -14,6 +14,7 @@ uniform int numOfLights;
 uniform vec3 lightsPos[128];
 uniform vec3 lightsCol[128];
 uniform float lightsAttenuation[128];
+uniform float clearColorFactor[128];
 uniform float ambient;
 uniform float diffuse;
 uniform vec3 viewPos;
@@ -53,19 +54,20 @@ void main()
 
 	if (numOfLights == 0 || !lightModelEnabled)
 	{
-		fColor = color * vColor;
+		fColor = color * vColor + illumination;
 		return;
 	}
 
 	const vec3 normal = normalize(flatNormal ? vFlatNormal : vSmoothNormal);
 	const vec3 viewDir = normalize(viewPos - vPos);
 	const float frontFactor = step(0.0, dot(normal, viewDir));
+	const vec3 partialClearColor = clearColor / numOfLights;
 	vec3 lightModelColor = vec3(0.0);
 
 	for (int i = 0; i < numOfLights; ++i)
 	{
 		const vec3 lightDir = normalize(lightsPos[i] - vPos);
-		lightModelColor += mix(clearColor, vColor.rgb * color.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal, frontFactor))
+		lightModelColor += mix(partialClearColor, partialClearColor * clearColorFactor[i] + vColor.rgb * color.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal, frontFactor))
 			+ mix(vec3(1.0f), vColor.rgb * color.rgb, specularMaterialColorFactor) * lightsCol[i] * getSpecularFactor(lightDir, normal, viewDir, frontFactor), getAttenuation(i));
 	}
 

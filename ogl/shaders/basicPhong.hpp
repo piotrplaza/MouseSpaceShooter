@@ -21,6 +21,7 @@ namespace Shaders
 				lightsPos(program, "lightsPos"),
 				lightsCol(program, "lightsCol"),
 				lightsAttenuation(program, "lightsAttenuation"),
+				clearColorFactor(program, "clearColorFactor"),
 				ambient(program, "ambient"),
 				diffuse(program, "diffuse"),
 				viewPos(program, "viewPos"),
@@ -44,6 +45,7 @@ namespace Shaders
 			Uniforms::Uniform3fv<128> lightsPos;
 			Uniforms::Uniform3fv<128> lightsCol;
 			Uniforms::Uniform1fv<128> lightsAttenuation;
+			Uniforms::Uniform1fv<128> clearColorFactor;
 			Uniforms::Uniform1f ambient;
 			Uniforms::Uniform1f diffuse;
 			Uniforms::Uniform3f viewPos;
@@ -72,6 +74,7 @@ namespace Shaders
 				lightsPos(glm::vec3(0.0f));
 				lightsCol(glm::vec3(1.0f));
 				lightsAttenuation(0.0f);
+				clearColorFactor(0.0f);
 				ambient(1.0f);
 				diffuse(0.0f);
 				viewPos(glm::vec3(0.0f));

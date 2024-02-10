@@ -284,6 +284,7 @@ namespace Tools
 			shadersProgram.lightsPos(i, (light.viewSpace ? glm::inverse(mvp3D.view) : glm::mat4(1.0f)) * glm::vec4(light.position, 1.0f));
 			shadersProgram.lightsCol(i, light.color);
 			shadersProgram.lightsAttenuation(i, light.attenuation);
+			shadersProgram.clearColorFactor(i, light.clearColorFactor);
 			++i;
 		}
 	}
