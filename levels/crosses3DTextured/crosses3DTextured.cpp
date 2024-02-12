@@ -13,6 +13,7 @@
 #include <globals/shaders.hpp>
 
 #include <tools/shapes3D.hpp>
+#include <tools/glmHelpers.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -23,6 +24,8 @@ namespace Levels
 	public:
 		void setup()
 		{
+			glLineWidth(1.0f);
+
 			Globals::Components().graphicsSettings().clearColor = { 0.0f, 0.05f, 0.0f, 1.0f };
 			Globals::Components().camera3D().rotation = Components::Camera3D::LookAtRotation{};
 			for(unsigned i = 0; i < 4; ++i)
@@ -39,10 +42,13 @@ namespace Levels
 
 		void createDecorations() const
 		{
+			const glm::ivec2 numOfCrosses = { 200, 200 };
+			const glm::vec2 distanceBetweenCrosses = { 1.5f, 1.0f };
+
 			const auto& physics = Globals::Components().physics();
 			auto& staticDecorations = Globals::Components().staticDecorations();
 
-			Shapes3D::AddGrid(staticDecorations.emplace(), { 300.0f, 200.0f }, { 200, 200 });
+			Shapes3D::AddGrid(staticDecorations.emplace(), numOfCrosses * distanceBetweenCrosses, numOfCrosses);
 			staticDecorations.last().params3D->ambient(1.0f);
 
 			for (const auto& light: Globals::Components().lights3D())
@@ -54,8 +60,6 @@ namespace Levels
 			}
 
 			{
-				const glm::ivec2 numOfCrosses = { 200, 200 };
-				const glm::vec2 distanceBetweenCrosses = { 1.5f, 1.0f };
 				const glm::vec3 offset = { (numOfCrosses.x - 1) * distanceBetweenCrosses.x / 2.0f, 0.0f, (numOfCrosses.y - 1) * distanceBetweenCrosses.y / 2.0f };
 
 				staticDecorations.emplace();
@@ -70,14 +74,14 @@ namespace Levels
 
 		void cameraStep() const
 		{
-			const auto& physics = Globals::Components().physics();
-			auto& camera = Globals::Components().camera3D();
-
 			const float height = 1.5f;
 			const float rotationSpeed = 0.1f;
 			const float oacilationSpeed = 0.5f;
 			const float radius = 8.0f;
 			const float oscilation = 0.8f;
+
+			const auto& physics = Globals::Components().physics();
+			auto& camera = Globals::Components().camera3D();
 
 			camera.position = glm::vec3(glm::cos(physics.simulationDuration * rotationSpeed) * radius, height + glm::sin(physics.simulationDuration * oacilationSpeed) * oscilation,
 				glm::sin(physics.simulationDuration * rotationSpeed) * radius);

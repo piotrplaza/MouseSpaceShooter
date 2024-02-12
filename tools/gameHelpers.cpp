@@ -115,7 +115,7 @@ namespace Tools
 		if (params.collisionBoxRendering_)
 		{
 			plane.subsequence.emplace_back(plane.getVertices());
-			plane.subsequence.back().modelMatrixF = [&]() { return plane.getModelMatrix(); };
+			plane.subsequence.back().modelMatrixF = plane.modelMatrixF;
 		}
 
 		for (int i = 0; i < params.numOfThrusts_; ++i)

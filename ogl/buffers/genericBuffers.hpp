@@ -38,24 +38,7 @@ namespace Buffers
 
 		bool isIndicesBufferActive() const;
 
-		std::function<glm::mat4()> modelMatrixF;
-		std::function<glm::vec3()> originF;
-		std::function<glm::vec4()> *colorF = nullptr;
-		TextureComponentVariant* texture = nullptr;
-		std::optional<ComponentId>* renderingSetup = nullptr;
-		std::optional<Shaders::ProgramId>* customShadersProgram = nullptr;
-		GLenum* drawMode = nullptr;
-		GLenum* bufferDataUsage = nullptr;
-		bool* preserveTextureRatio = nullptr;
-		std::function<bool()>* renderF = nullptr;
-		float* ambient = nullptr;
-		float* diffuse = nullptr;
-		float* specular = nullptr;
-		float* specularFocus = nullptr;
-		float* specularMaterialColorFactor = nullptr;
-		std::function<glm::vec4()>* illuminationF = nullptr;
-		bool* lightModelEnabled = nullptr;
-		float* alphaDiscardTreshold = nullptr;
+		RenderableDef* renderable = nullptr;
 
 		GLuint vertexArray = 0;
 		size_t drawCount = 0;
@@ -83,6 +66,10 @@ namespace Buffers
 
 	struct GenericBuffers : GenericSubBuffers
 	{
+		GenericBuffers() = default;
+		GenericBuffers(const GenericBuffers&) = delete;
+		GenericBuffers(GenericBuffers&& other) noexcept;
+
 		void applyComponentSubsequence(Renderable& renderableComponent);
 		void applyComponent(Renderable& renderableComponent);
 
@@ -91,7 +78,7 @@ namespace Buffers
 		{
 			auto setAndDraw = [&](const GenericSubBuffers& buffers)
 			{
-				if (!(*buffers.renderF)())
+				if (!(buffers.renderable->renderF)())
 					return;
 
 				glBindVertexArray(buffers.vertexArray);
@@ -99,13 +86,13 @@ namespace Buffers
 				generalSetup(buffers);
 
 				std::function<void()> renderingTeardown;
-				if (*buffers.renderingSetup)
-					renderingTeardown = Globals::Components().renderingSetups()[**buffers.renderingSetup](programId);
+				if (buffers.renderable->renderingSetup)
+					renderingTeardown = Globals::Components().renderingSetups()[*buffers.renderable->renderingSetup](programId);
 
 				if (isIndicesBufferActive())
-					glDrawElements(*buffers.drawMode, buffers.drawCount, GL_UNSIGNED_INT, nullptr);
+					glDrawElements(buffers.renderable->drawMode, buffers.drawCount, GL_UNSIGNED_INT, nullptr);
 				else
-					glDrawArrays(*buffers.drawMode, 0, buffers.drawCount);
+					glDrawArrays(buffers.renderable->drawMode, 0, buffers.drawCount);
 
 				if (renderingTeardown)
 					renderingTeardown();
@@ -123,10 +110,11 @@ namespace Buffers
 				setAndDraw(*this);
 		}
 
+		std::optional<Shaders::ProgramId>* customShadersProgram = nullptr;
 		ResolutionMode* resolutionMode = nullptr;
-
-		std::deque<GenericSubBuffers> subsequence;
 		unsigned* subsequenceBegin = nullptr;
 		unsigned* posInSubsequence = nullptr;
+
+		std::deque<GenericSubBuffers> subsequence;
 	};
 }

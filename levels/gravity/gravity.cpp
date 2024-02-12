@@ -122,7 +122,7 @@ namespace Levels
 		void createBackground()
 		{
 			Tools::CreateJuliaBackground([this]() {
-				return Globals::Components().planes()[player1Id].getOrigin() * 0.0001f; });
+				return Globals::Components().planes()[player1Id].originF() * 0.0001f; });
 		}
 
 		void createForeground()
@@ -161,7 +161,7 @@ namespace Levels
 			const float initExplosionVelocity = 5.0f;
 			auto& plane = Globals::Components().planes()[player1Id];
 
-			auto missileHandler = Tools::CreateMissile(plane.getOrigin(), plane.getAngle(), 5.0f, plane.getVelocity(),
+			auto missileHandler = Tools::CreateMissile(plane.originF(), plane.getAngle(), 5.0f, plane.getVelocity(),
 				glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * initExplosionVelocity, missile2Texture, flame1AnimatedTexture);
 
 			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
@@ -266,7 +266,7 @@ namespace Levels
 			auto applyGravity = [&](auto& component, float mM)
 			{
 				const auto& planet = Globals::Components().grapples()[planetId];
-				const auto gravityDiff = planet.getOrigin() - component.getOrigin();
+				const auto gravityDiff = planet.originF() - component.originF();
 				const auto gravityVecDist = glm::length(gravityDiff);
 				const auto gravityVecNorm = glm::normalize(gravityDiff);
 				const auto gravityVec = mM / glm::pow(gravityVecDist, 2.0f) * gravityVecNorm;

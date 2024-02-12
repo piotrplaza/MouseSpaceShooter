@@ -21,21 +21,16 @@ struct Physical : Renderable
 		Renderable(texture, renderingSetup, renderLayer, customShadersProgram),
 		body(std::move(body))
 	{
+		modelMatrixF = [this]() { return Tools::GetModelMatrix(*this->body); };
+		originF = [this]() { return glm::vec3(ToVec2<glm::vec2>(this->body->GetPosition()), 0.0f); };
 	}
 
 	Body body;
 
-	glm::mat4 getModelMatrix() const override
-	{
-		return modelMatrixF
-			? modelMatrixF()
-			: Tools::GetModelMatrix(*this->body);
-	}
-
 	std::vector<glm::vec3> getVertices(bool transformed = false) const override
 	{
 		return transformed
-			? Tools::TransformMat4(Tools::GetVertices(*body), getModelMatrix())
+			? Tools::TransformMat4(Tools::GetVertices(*body), modelMatrixF())
 			: Tools::GetVertices(*body);
 	}
 
@@ -43,11 +38,6 @@ struct Physical : Renderable
 	{
 		Renderable::setEnable(value);
 		body->SetEnabled(value);
-	}
-
-	glm::vec3 getOrigin() const override
-	{
-		return { ToVec2<glm::vec2>(body->GetPosition()), 0.0f };
 	}
 
 	virtual glm::vec2 getMassCenter() const

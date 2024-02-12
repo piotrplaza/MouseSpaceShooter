@@ -108,7 +108,8 @@ struct RenderableDef
 	std::vector<glm::vec2> texCoord;
 	std::vector<unsigned> indices;
 
-	std::function<glm::mat4()> modelMatrixF;
+	std::function<glm::mat4()> modelMatrixF = []() { return glm::mat4(1.0f); };
+	std::function<glm::vec3()> originF = [&]() { return modelMatrixF() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); };
 	std::function<glm::vec4()> colorF;
 	TextureComponentVariant texture;
 	std::optional<ComponentId> renderingSetup;
@@ -126,17 +127,10 @@ struct RenderableDef
 		Buffers::GenericSubBuffers* subBuffers = nullptr;
 	} loaded;
 
-	virtual glm::mat4 getModelMatrix() const
-	{
-		return modelMatrixF
-			? modelMatrixF()
-			: glm::mat4(1.0f);
-	}
-
 	virtual std::vector<glm::vec3> getVertices(bool transformed = false) const
 	{
 		return transformed
-			? Tools::TransformMat4(vertices, getModelMatrix())
+			? Tools::TransformMat4(vertices, modelMatrixF())
 			: vertices;
 	}
 
@@ -172,13 +166,8 @@ struct RenderableDef
 		return indices;
 	}
 
-	virtual glm::vec3 getOrigin() const
-	{
-		return getModelMatrix() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	}
-
 	glm::vec2 getOrigin2D() const
 	{
-		return getOrigin();
+		return originF();
 	}
 };

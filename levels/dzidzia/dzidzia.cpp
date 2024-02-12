@@ -53,7 +53,7 @@ namespace Levels
 		void createBackground()
 		{
 			Tools::CreateJuliaBackground([this]() {
-				return Globals::Components().staticDecorations()[dzidziaDecoration].getOrigin() * 0.0001f; });
+				return Globals::Components().staticDecorations()[dzidziaDecoration].originF() * 0.0001f; });
 		}
 
 		void createDecorations()

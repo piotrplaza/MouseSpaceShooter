@@ -315,8 +315,8 @@ namespace Levels
 						{ { -0.5f, -5.0f }, { 0.5f, -5.0f }, { 0.5f, 5.0f }, { -0.5f, 5.0f }, { -0.5f, -5.0f } },
 						{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }), Shapes2D::CreateTexCoordOfRectangle(),
 						TCM::Texture(roseTexture));
-					Globals::Components().staticWalls().last().subsequence.back().modelMatrixF = [wallId = Globals::Components().staticWalls().size() - 1]() {
-						return Globals::Components().staticWalls()[wallId].getModelMatrix(); };
+					Globals::Components().staticWalls().last().subsequence.back().modelMatrixF =
+						Globals::Components().staticWalls()[Globals::Components().staticWalls().size() - 1].modelMatrixF;
 				};
 
 				auto& wall1Body = *Globals::Components().staticWalls().emplace(
@@ -343,7 +343,7 @@ namespace Levels
 					TCM::Texture(), Globals::Components().renderingSetups().size(), RenderLayer::Midground, Globals::Shaders().texturedColorThreshold().getProgramId());
 
 				Globals::Components().renderingSetups().emplace([=, this, wallId = Globals::Components().staticWalls().size() - 1](auto) {
-					Tools::MVPInitialization(Globals::Shaders().texturedColorThreshold(), Globals::Components().staticWalls()[wallId].getModelMatrix());
+					Tools::MVPInitialization(Globals::Shaders().texturedColorThreshold(), Globals::Components().staticWalls()[wallId].modelMatrixF());
 
 					if (pos < 0.0f)
 					{
@@ -373,7 +373,7 @@ namespace Levels
 						if (!texturedProgram.isValid()) texturedProgram = program;
 						texturedProgram.color(glm::vec4(
 							glm::sin(Globals::Components().physics().simulationDuration* glm::two_pi<float>() * 0.2f) + 1.0f) / 2.0f);
-						texturedProgram.model(Globals::Components().staticWalls()[wallId].getModelMatrix());
+						texturedProgram.model(Globals::Components().staticWalls()[wallId].modelMatrixF());
 						return [=]() mutable { texturedProgram.color(Globals::Components().graphicsSettings().defaultColor); };
 					});
 
@@ -507,9 +507,7 @@ namespace Levels
 			grapple.renderF = []() { return false; };
 			grapple.subsequence.emplace_back(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.2f, 5.2f }),
 				Shapes2D::CreateTexCoordOfRectangle(), TCM::AnimatedTexture(recursiveFaceAnimatedTexture));
-			grapple.subsequence.back().modelMatrixF = [&grapple]() {
-				return grapple.getModelMatrix();
-			};
+			grapple.subsequence.back().modelMatrixF = grapple.modelMatrixF;
 			grapple.subsequence.back().renderingSetup = Globals::Components().renderingSetups().size();
 			Globals::Components().renderingSetups().add(createRecursiveFaceRS([]() { return glm::vec4(1.0f); }, {3.0f, 4.0f}));
 		}

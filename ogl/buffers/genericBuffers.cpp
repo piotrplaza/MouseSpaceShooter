@@ -12,15 +12,7 @@ namespace
 
 	inline void RenderableCommonsToBuffersCommons(RenderableDef& renderableDef, Buffers::GenericSubBuffers& buffers)
 	{
-		buffers.modelMatrixF = [&]() { return renderableDef.getModelMatrix(); };
-		buffers.originF = [&]() { return renderableDef.getOrigin(); };
-		buffers.colorF = &renderableDef.colorF;
-		buffers.renderingSetup = &renderableDef.renderingSetup;
-		buffers.texture = &renderableDef.texture;
-		buffers.drawMode = &renderableDef.drawMode;
-		buffers.bufferDataUsage = &renderableDef.bufferDataUsage;
-		buffers.preserveTextureRatio = &renderableDef.preserveTextureRatio;
-		buffers.renderF = &renderableDef.renderF;
+		buffers.renderable = &renderableDef;
 
 		buffers.setVerticesBuffer(renderableDef.getVertices());
 		buffers.setColorsBuffer(renderableDef.getColors());
@@ -33,14 +25,6 @@ namespace
 		if (renderableDef.params3D)
 		{
 			buffers.setNormalsBuffer(renderableDef.params3D->normals_);
-			buffers.ambient = &renderableDef.params3D->ambient_;
-			buffers.diffuse = &renderableDef.params3D->diffuse_;
-			buffers.specular = &renderableDef.params3D->specular_;
-			buffers.specularFocus = &renderableDef.params3D->specularFocus_;
-			buffers.specularMaterialColorFactor = &renderableDef.params3D->specularMaterialColorFactor_;
-			buffers.illuminationF = &renderableDef.params3D->illuminationF_;
-			buffers.lightModelEnabled = &renderableDef.params3D->lightModelEnabled_;
-			buffers.alphaDiscardTreshold = &renderableDef.params3D->alphaDiscardTreshold_;
 		}
 
 		buffers.setIndicesBuffer(renderableDef.getIndices());
@@ -63,37 +47,20 @@ namespace Buffers
 	}
 
 	GenericSubBuffers::GenericSubBuffers(GenericSubBuffers&& other) noexcept :
+		renderable(other.renderable),
 		vertexArray(other.vertexArray),
 		positionsBuffer(other.positionsBuffer),
 		colorsBuffer(other.colorsBuffer),
 		texCoordsBuffer(other.texCoordsBuffer),
 		normalsBuffer(other.normalsBuffer),
 		indicesBuffer(other.indicesBuffer),
-		modelMatrixF(std::move(other.modelMatrixF)),
-		originF(std::move(other.originF)),
-		colorF(other.colorF),
-		texture(other.texture),
-		renderingSetup(other.renderingSetup),
-		customShadersProgram(other.customShadersProgram),
 		drawCount(other.drawCount),
 		numOfAllocatedVertices(other.numOfAllocatedVertices),
 		numOfAllocatedColors(other.numOfAllocatedColors),
 		numOfAllocatedTexCoords(other.numOfAllocatedTexCoords),
 		numOfAllocatedNormals(other.numOfAllocatedNormals),
 		numOfAllocatedIndices(other.numOfAllocatedIndices),
-		drawMode(other.drawMode),
-		bufferDataUsage(other.bufferDataUsage),
-		allocatedBufferDataUsage(std::move(other.allocatedBufferDataUsage)),
-		preserveTextureRatio(other.preserveTextureRatio),
-		renderF(other.renderF),
-		ambient(other.ambient),
-		diffuse(other.diffuse),
-		specular(other.specular),
-		specularFocus(other.specularFocus),
-		specularMaterialColorFactor(other.specularMaterialColorFactor),
-		illuminationF(other.illuminationF),
-		lightModelEnabled(other.lightModelEnabled),
-		alphaDiscardTreshold(other.alphaDiscardTreshold)
+		allocatedBufferDataUsage(std::move(other.allocatedBufferDataUsage))
 	{
 		other.expired = true;
 	}
@@ -123,11 +90,11 @@ namespace Buffers
 	void GenericSubBuffers::setVerticesBuffer(const std::vector<glm::vec3>& vertices)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, positionsBuffer);
-		if (numOfAllocatedVertices < vertices.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != *bufferDataUsage)
+		if (numOfAllocatedVertices < vertices.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
 		{
-			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices.front()), vertices.data(), *bufferDataUsage);
+			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices.front()), vertices.data(), renderable->bufferDataUsage);
 			numOfAllocatedVertices = vertices.size();
-			allocatedBufferDataUsage = *bufferDataUsage;
+			allocatedBufferDataUsage = renderable->bufferDataUsage;
 		}
 		else
 		{
@@ -153,11 +120,11 @@ namespace Buffers
 		else
 			createColorsBuffer();
 
-		if (numOfAllocatedColors < colors.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != *bufferDataUsage)
+		if (numOfAllocatedColors < colors.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
 		{
-			glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(colors.front()), colors.data(), *bufferDataUsage);
+			glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(colors.front()), colors.data(), renderable->bufferDataUsage);
 			numOfAllocatedColors = colors.size();
-			allocatedBufferDataUsage = *bufferDataUsage;
+			allocatedBufferDataUsage = renderable->bufferDataUsage;
 		}
 		else
 			glBufferSubData(GL_ARRAY_BUFFER, 0, colors.size() * sizeof(colors.front()), colors.data());
@@ -180,11 +147,11 @@ namespace Buffers
 		else
 			createTexCoordsBuffer();
 
-		if (numOfAllocatedTexCoords < texCoords.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != *bufferDataUsage)
+		if (numOfAllocatedTexCoords < texCoords.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
 		{
-			glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(texCoords.front()), texCoords.data(), *bufferDataUsage);
+			glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(texCoords.front()), texCoords.data(), renderable->bufferDataUsage);
 			numOfAllocatedTexCoords = texCoords.size();
-			allocatedBufferDataUsage = *bufferDataUsage;
+			allocatedBufferDataUsage = renderable->bufferDataUsage;
 		}
 		else
 			glBufferSubData(GL_ARRAY_BUFFER, 0, texCoords.size() * sizeof(texCoords.front()), texCoords.data());
@@ -207,11 +174,11 @@ namespace Buffers
 		else
 			createNormalsBuffer();
 
-		if (numOfAllocatedNormals < normals.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != *bufferDataUsage)
+		if (numOfAllocatedNormals < normals.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
 		{
-			glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(normals.front()), normals.data(), *bufferDataUsage);
+			glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(normals.front()), normals.data(), renderable->bufferDataUsage);
 			numOfAllocatedNormals = normals.size();
-			allocatedBufferDataUsage = *bufferDataUsage;
+			allocatedBufferDataUsage = renderable->bufferDataUsage;
 		}
 		else
 			glBufferSubData(GL_ARRAY_BUFFER, 0, normals.size() * sizeof(normals.front()), normals.data());
@@ -231,11 +198,11 @@ namespace Buffers
 		else
 			createIndicesBuffer();
 
-		if (numOfAllocatedIndices < indices.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != *bufferDataUsage)
+		if (numOfAllocatedIndices < indices.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
 		{
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices.front()), indices.data(), *bufferDataUsage);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices.front()), indices.data(), renderable->bufferDataUsage);
 			numOfAllocatedIndices = indices.size();
-			allocatedBufferDataUsage = *bufferDataUsage;
+			allocatedBufferDataUsage = renderable->bufferDataUsage;
 		}
 		else
 			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(indices.front()), indices.data());
@@ -281,6 +248,16 @@ namespace Buffers
 		indicesBuffer = 0;
 		glGenBuffers(1, &*indicesBuffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *indicesBuffer);
+	}
+
+	GenericBuffers::GenericBuffers(GenericBuffers&& other) noexcept :
+		GenericSubBuffers(std::move(other)),
+
+		customShadersProgram(other.customShadersProgram),
+		resolutionMode(other.resolutionMode),
+		subsequenceBegin(other.subsequenceBegin),
+		posInSubsequence(other.posInSubsequence)
+	{
 	}
 
 	void GenericBuffers::applyComponentSubsequence(Renderable& renderableComponent)
