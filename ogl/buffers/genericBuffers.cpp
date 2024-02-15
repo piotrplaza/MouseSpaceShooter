@@ -274,12 +274,12 @@ namespace Buffers
 
 	void GenericBuffers::applyComponent(Renderable& renderableComponent)
 	{
+		RenderableCommonsToBuffersCommons(renderableComponent, *this);
+
 		customShadersProgram = &renderableComponent.customShadersProgram;
 		resolutionMode = &renderableComponent.resolutionMode;
 		subsequenceBegin = &renderableComponent.subsequenceBegin;
 		posInSubsequence = &renderableComponent.posInSubsequence;
-
-		RenderableCommonsToBuffersCommons(renderableComponent, *this);
 
 		renderableComponent.loaded.buffers = this;
 		renderableComponent.state = ComponentState::Ongoing;
