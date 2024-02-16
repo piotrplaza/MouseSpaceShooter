@@ -268,12 +268,16 @@
     <EnableMicrosoftCodeAnalysis>true</EnableMicrosoftCodeAnalysis>
     <ClangTidyChecks>
     </ClangTidyChecks>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.0;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.28.5\include;C:\libraries\SFML-2.6.1\include;$(ProjectDir)\3rdParty;$(ProjectDir);</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.28.5\lib\x86;C:\libraries\SFML-2.6.1\lib;</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
     <EnableMicrosoftCodeAnalysis>true</EnableMicrosoftCodeAnalysis>
     <ClangTidyChecks>
     </ClangTidyChecks>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.0;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.28.5\include;C:\libraries\SFML-2.6.1\include;$(ProjectDir)\3rdParty;$(ProjectDir);</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.28.5\lib\x86;C:\libraries\SFML-2.6.1\lib;</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -281,8 +285,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.0;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.28.5\include;C:\libraries\SFML-2.6.1\include;$(ProjectDir)\3rdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLM_ENABLE_EXPERIMENTAL;_DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS;_DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -292,7 +297,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>shcore.lib;opengl32.lib;glew32.lib;Box2DLib.lib;SDL2.lib;sfml-audio-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.28.5\lib\x86;C:\libraries\SFML-2.6.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Link>
     <ProjectReference>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
@@ -305,15 +311,17 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.0;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.28.4\include;C:\libraries\SFML-2.5.1\include;$(ProjectDir)\3rdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PreprocessorDefinitions>GLM_ENABLE_EXPERIMENTAL;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.28.4\lib\x86;C:\libraries\SFML-2.5.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -324,8 +332,9 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.0;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.28.5\include;C:\libraries\SFML-2.6.1\include;$(ProjectDir)\3rdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLM_ENABLE_EXPERIMENTAL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -335,7 +344,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>shcore.lib;opengl32.lib;glew32.lib;Box2DLib.lib;SDL2.lib;sfml-audio.lib;sfml-system.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.28.5\lib\x86;C:\libraries\SFML-2.6.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Link>
     <ProjectReference>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
@@ -350,16 +360,18 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.0;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.28.4\include;C:\libraries\SFML-2.5.1\include;$(ProjectDir)\3rdParty;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>GLM_ENABLE_EXPERIMENTAL;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.28.4\lib\x86;C:\libraries\SFML-2.5.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
@@ -368,5 +380,13 @@
   <PropertyGroup Condition="'$(Language)'=='C++'">
     <CAExcludePath>C:\libraries\box2d-2.4.0\include;$(CAExcludePath)</CAExcludePath>
     <CAExcludePath>$(ProjectDir)\3rdParty;$(CAExcludePath)</CAExcludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.0;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.28.5\include;C:\libraries\SFML-2.6.1\include;$(ProjectDir)\3rdParty;$(ProjectDir);</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.28.5\lib\x86;C:\libraries\SFML-2.6.1\lib;</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.0;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.28.5\include;C:\libraries\SFML-2.6.1\include;$(ProjectDir)\3rdParty;$(ProjectDir);</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.28.5\lib\x86;C:\libraries\SFML-2.6.1\lib;</LibraryPath>
   </PropertyGroup>
 </Project>
