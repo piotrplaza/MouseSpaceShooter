@@ -1,7 +1,5 @@
 #pragma once
 
-#include <ogl/shaders.hpp>
-
 #include <components/_renderable.hpp>
 #include <components/renderingSetup.hpp>
 
@@ -9,6 +7,9 @@
 
 #include <commonTypes/typeComponentMappers.hpp>
 #include <commonTypes/resolutionMode.hpp>
+
+#include <ogl/shaders.hpp>
+#include <ogl/oglProxy.hpp>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -34,30 +35,37 @@ namespace Buffers
 		void setColorsBuffer(const std::vector<glm::vec4>& colors);
 		void setTexCoordsBuffer(const std::vector<glm::vec2>& texCoords);
 		void setNormalsBuffer(const std::vector<glm::vec3>& normals);
+		void setInstancesBuffer(const std::vector<glm::mat4>& instances);
 		void setIndicesBuffer(const std::vector<unsigned>& indices);
 
+		bool isInstancesBufferActive() const;
 		bool isIndicesBufferActive() const;
 
 		RenderableDef* renderable = nullptr;
 
 		GLuint vertexArray = 0;
 		size_t drawCount = 0;
+		size_t instanceCount = 0;
 
 	private:
+		void createPositionsBuffer();
 		void createColorsBuffer();
 		void createTexCoordsBuffer();
 		void createNormalsBuffer();
+		void createInstancesBuffer();
 		void createIndicesBuffer();
 
 		GLuint positionsBuffer = 0;
 		std::optional<GLuint> colorsBuffer;
 		std::optional<GLuint> texCoordsBuffer;
 		std::optional<GLuint> normalsBuffer;
+		std::optional<GLuint> instancesBuffer;
 		std::optional<GLuint> indicesBuffer;
 		size_t numOfAllocatedVertices = 0;
 		size_t numOfAllocatedColors = 0;
 		size_t numOfAllocatedTexCoords = 0;
 		size_t numOfAllocatedNormals = 0;
+		size_t numOfAllocatedInstances = 0;
 		size_t numOfAllocatedIndices = 0;
 		std::optional<GLenum> allocatedBufferDataUsage;
 
@@ -81,7 +89,7 @@ namespace Buffers
 				if (!(buffers.renderable->renderF)())
 					return;
 
-				glBindVertexArray(buffers.vertexArray);
+				glBindVertexArray_proxy(buffers.vertexArray);
 
 				generalSetup(buffers);
 
@@ -89,10 +97,20 @@ namespace Buffers
 				if (buffers.renderable->renderingSetup)
 					renderingTeardown = Globals::Components().renderingSetups()[*buffers.renderable->renderingSetup](programId);
 
-				if (isIndicesBufferActive())
-					glDrawElements(buffers.renderable->drawMode, buffers.drawCount, GL_UNSIGNED_INT, nullptr);
+				if (isInstancesBufferActive())
+				{
+					if (isIndicesBufferActive())
+						glDrawElementsInstanced(buffers.renderable->drawMode, buffers.drawCount, GL_UNSIGNED_INT, nullptr, instanceCount);
+					else
+						glDrawArraysInstanced(buffers.renderable->drawMode, 0, buffers.drawCount, instanceCount);
+				}
 				else
-					glDrawArrays(buffers.renderable->drawMode, 0, buffers.drawCount);
+				{
+					if (isIndicesBufferActive())
+						glDrawElements(buffers.renderable->drawMode, buffers.drawCount, GL_UNSIGNED_INT, nullptr);
+					else
+						glDrawArrays(buffers.renderable->drawMode, 0, buffers.drawCount);
+				}
 
 				if (renderingTeardown)
 					renderingTeardown();
@@ -111,6 +129,7 @@ namespace Buffers
 		}
 
 		std::optional<Shaders::ProgramId>* customShadersProgram = nullptr;
+		std::optional<Renderable::Instancing>* instancing = nullptr;
 		ResolutionMode* resolutionMode = nullptr;
 		unsigned* subsequenceBegin = nullptr;
 		unsigned* posInSubsequence = nullptr;

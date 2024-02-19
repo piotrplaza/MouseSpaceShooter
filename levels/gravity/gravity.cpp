@@ -21,10 +21,7 @@
 #include <components/animatedTexture.hpp>
 
 #include <ogl/uniforms.hpp>
-#include <ogl/shaders/basic.hpp>
-#include <ogl/shaders/texturedColorThreshold.hpp>
 #include <ogl/shaders/textured.hpp>
-#include <ogl/shaders/particles.hpp>
 #include <ogl/renderingHelpers.hpp>
 
 #include <globals/shaders.hpp>
@@ -293,9 +290,6 @@ namespace Levels
 		}
 
 	private:
-		Shaders::Programs::TexturedColorThreshold texturedColorThresholdShaders;
-		Shaders::Programs::Particles particlesShaders;
-
 		unsigned plane1Texture = 0;
 		unsigned spaceRockTexture = 0;
 		unsigned woodTexture = 0;

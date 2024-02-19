@@ -97,7 +97,7 @@ namespace Shaders
 		{
 			TexturedPhong() :
 				TexturedPhongAccessor(LinkProgram(CompileShaders("ogl/shaders/texturedPhong.vs",
-					"ogl/shaders/texturedPhong.fs"), { {0, "bPos"}, {1, "bColor"}, {2, "bTexCoord"}, {3, "bNormal"} }))
+					"ogl/shaders/texturedPhong.fs"), { {0, "bPos"}, {1, "bColor"}, {2, "bTexCoord"}, {3, "bNormal"}, {4, "bInstance"} }))
 			{
 				model(glm::mat4(1.0f));
 				vp(glm::mat4(1.0f));

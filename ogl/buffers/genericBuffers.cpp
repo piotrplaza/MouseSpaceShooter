@@ -1,5 +1,7 @@
 #include "genericBuffers.hpp"
 
+#include <ogl/oglProxy.hpp>
+
 namespace
 {
 	template <typename BuffersContainer>
@@ -18,14 +20,10 @@ namespace
 		buffers.setColorsBuffer(renderableDef.getColors());
 
 		if (!std::holds_alternative<std::monostate>(renderableDef.texture))
-		{
 			buffers.setTexCoordsBuffer(renderableDef.getTexCoords());
-		}
 
 		if (renderableDef.params3D)
-		{
 			buffers.setNormalsBuffer(renderableDef.params3D->normals_);
-		}
 
 		buffers.setIndicesBuffer(renderableDef.getIndices());
 	}
@@ -36,14 +34,11 @@ namespace Buffers
 	GenericSubBuffers::GenericSubBuffers()
 	{
 		glGenVertexArrays(1, &vertexArray);
-		glBindVertexArray(vertexArray);
-		glGenBuffers(1, &positionsBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, positionsBuffer);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-		glEnableVertexAttribArray(0);
+		glBindVertexArray_proxy(vertexArray);
 
-		glVertexAttrib4f(1, 1.0f, 1.0f, 1.0f, 1.0f);
-		glDisableVertexAttribArray(1);
+		createPositionsBuffer();
+		setColorsBuffer({});
+		setInstancesBuffer({});
 	}
 
 	GenericSubBuffers::GenericSubBuffers(GenericSubBuffers&& other) noexcept :
@@ -53,12 +48,14 @@ namespace Buffers
 		colorsBuffer(other.colorsBuffer),
 		texCoordsBuffer(other.texCoordsBuffer),
 		normalsBuffer(other.normalsBuffer),
+		instancesBuffer(other.instancesBuffer),
 		indicesBuffer(other.indicesBuffer),
 		drawCount(other.drawCount),
 		numOfAllocatedVertices(other.numOfAllocatedVertices),
 		numOfAllocatedColors(other.numOfAllocatedColors),
 		numOfAllocatedTexCoords(other.numOfAllocatedTexCoords),
 		numOfAllocatedNormals(other.numOfAllocatedNormals),
+		numOfAllocatedInstances(other.numOfAllocatedInstances),
 		numOfAllocatedIndices(other.numOfAllocatedIndices),
 		allocatedBufferDataUsage(std::move(other.allocatedBufferDataUsage))
 	{
@@ -81,6 +78,9 @@ namespace Buffers
 		if (normalsBuffer)
 			glDeleteBuffers(1, &*normalsBuffer);
 
+		if (instancesBuffer)
+			glDeleteBuffers(1, &*instancesBuffer);
+
 		if (indicesBuffer)
 			glDeleteBuffers(1, &*indicesBuffer);
 
@@ -97,16 +97,16 @@ namespace Buffers
 			allocatedBufferDataUsage = renderable->bufferDataUsage;
 		}
 		else
-		{
 			glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(vertices.front()), vertices.data());
-		}
+
+		glEnableVertexAttribArray(0);
 
 		drawCount = vertices.size();
 	}
 
 	void GenericSubBuffers::setColorsBuffer(const std::vector<glm::vec4>& colors)
 	{
-		glBindVertexArray(vertexArray);
+		glBindVertexArray_proxy(vertexArray);
 
 		if (colors.empty())
 		{
@@ -134,7 +134,7 @@ namespace Buffers
 
 	void GenericSubBuffers::setTexCoordsBuffer(const std::vector<glm::vec2>& texCoords)
 	{
-		glBindVertexArray(vertexArray);
+		glBindVertexArray_proxy(vertexArray);
 
 		if (texCoords.empty())
 		{
@@ -161,7 +161,7 @@ namespace Buffers
 
 	void GenericSubBuffers::setNormalsBuffer(const std::vector<glm::vec3>& normals)
 	{
-		glBindVertexArray(vertexArray);
+		glBindVertexArray_proxy(vertexArray);
 
 		if (normals.empty())
 		{
@@ -186,9 +186,44 @@ namespace Buffers
 		glEnableVertexAttribArray(3);
 	}
 
+	void GenericSubBuffers::setInstancesBuffer(const std::vector<glm::mat4>& instances)
+	{
+		glBindVertexArray_proxy(vertexArray);
+
+		if (instances.empty())
+		{
+			static const glm::mat4 identity(1.0f);
+			for (unsigned i = 0; i < 4; ++i)
+			{
+				glVertexAttrib4fv(4 + i, &identity[i][0]);
+				glDisableVertexAttribArray(4 + i);
+			}
+			return;
+		}
+
+		if (instancesBuffer)
+			glBindBuffer(GL_ARRAY_BUFFER, *instancesBuffer);
+		else
+			createInstancesBuffer();
+
+		if (numOfAllocatedInstances < instances.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
+		{
+			glBufferData(GL_ARRAY_BUFFER, instances.size() * sizeof(instances.front()), instances.data(), renderable->bufferDataUsage);
+			numOfAllocatedInstances = instances.size();
+			allocatedBufferDataUsage = renderable->bufferDataUsage;
+		}
+		else
+			glBufferSubData(GL_ARRAY_BUFFER, 0, instances.size() * sizeof(instances.front()), instances.data());
+
+		for (unsigned i = 0; i < 4; ++i)
+			glEnableVertexAttribArray(4 + i);
+
+		instanceCount = instances.size();
+	}
+
 	void GenericSubBuffers::setIndicesBuffer(const std::vector<unsigned>& indices)
 	{
-		glBindVertexArray(vertexArray);
+		glBindVertexArray_proxy(vertexArray);
 
 		if (indices.empty())
 			return;
@@ -210,9 +245,21 @@ namespace Buffers
 		drawCount = indices.size();
 	}
 
+	bool GenericSubBuffers::isInstancesBufferActive() const
+	{
+		return numOfAllocatedInstances;
+	}
+
 	bool GenericSubBuffers::isIndicesBufferActive() const
 	{
 		return numOfAllocatedIndices;
+	}
+
+	void GenericSubBuffers::createPositionsBuffer()
+	{
+		glGenBuffers(1, &positionsBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, positionsBuffer);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	}
 
 	void GenericSubBuffers::createColorsBuffer()
@@ -242,6 +289,19 @@ namespace Buffers
 		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	}
 
+	void GenericSubBuffers::createInstancesBuffer()
+	{
+		assert(!instancesBuffer);
+		instancesBuffer = 0;
+		glGenBuffers(1, &*instancesBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, *instancesBuffer);
+		for (unsigned i = 0; i < 4; ++i)
+		{
+			glVertexAttribPointer(4 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4) * i));
+			glVertexAttribDivisor(4 + i, 1);
+		}
+	}
+
 	void GenericSubBuffers::createIndicesBuffer()
 	{
 		assert(!indicesBuffer);
@@ -254,6 +314,7 @@ namespace Buffers
 		GenericSubBuffers(std::move(other)),
 
 		customShadersProgram(other.customShadersProgram),
+		instancing(other.instancing),
 		resolutionMode(other.resolutionMode),
 		subsequenceBegin(other.subsequenceBegin),
 		posInSubsequence(other.posInSubsequence)
@@ -277,9 +338,13 @@ namespace Buffers
 		RenderableCommonsToBuffersCommons(renderableComponent, *this);
 
 		customShadersProgram = &renderableComponent.customShadersProgram;
+		instancing = &renderableComponent.instancing;
 		resolutionMode = &renderableComponent.resolutionMode;
 		subsequenceBegin = &renderableComponent.subsequenceBegin;
 		posInSubsequence = &renderableComponent.posInSubsequence;
+
+		if (renderableComponent.instancing)
+			setInstancesBuffer(renderableComponent.instancing->instances_);
 
 		renderableComponent.loaded.buffers = this;
 		renderableComponent.state = ComponentState::Ongoing;

@@ -12,4 +12,14 @@ void glUseProgram_proxy(GLuint id)
 	}
 }
 
+void glBindVertexArray_proxy(GLuint vao)
+{
+	static GLuint currentVAO = 0;
+	if (vao != currentVAO)
+	{
+		glBindVertexArray(vao);
+		currentVAO = vao;
+	}
+}
+
 #endif

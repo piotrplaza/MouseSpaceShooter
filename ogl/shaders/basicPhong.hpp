@@ -63,7 +63,7 @@ namespace Shaders
 		{
 			BasicPhong():
 				BasicPhongAccessor(LinkProgram(CompileShaders("ogl/shaders/basicPhong.vs",
-					"ogl/shaders/basicPhong.fs"), { {0, "bPos"}, {1, "bColor"}, {3, "bNormal"} }))
+					"ogl/shaders/basicPhong.fs"), { {0, "bPos"}, {1, "bColor"}, {3, "bNormal"}, {4, "bInstance"} }))
 			{
 				model(glm::mat4(1.0f));
 				vp(glm::mat4(1.0f));

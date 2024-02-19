@@ -160,7 +160,7 @@ namespace Tools
 
 		static std::array<glm::vec3, numOfVertices> customPositions;
 
-		glBindVertexArray(0);
+		glBindVertexArray_proxy(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		if (positionsGenerator)

@@ -25,6 +25,23 @@ namespace Buffers
 
 struct Renderable : ComponentBase, RenderableDef
 {
+	struct Instancing
+	{
+		Instancing& addInstance(const glm::mat4& value)
+		{
+			instances_.push_back(value);
+			return *this;
+		}
+
+		Instancing& addInstances(const std::vector<glm::mat4>& value)
+		{
+			instances_.insert(instances_.end(), value.begin(), value.end());
+			return *this;
+		}
+
+		std::vector<glm::mat4> instances_;
+	};
+
 	Renderable() = default;
 
 	Renderable(TextureComponentVariant texture,
@@ -48,6 +65,7 @@ struct Renderable : ComponentBase, RenderableDef
 	}
 
 	std::optional<Shaders::ProgramId> customShadersProgram;
+	std::optional<Instancing> instancing;
 
 	ResolutionMode resolutionMode = ResolutionMode::Normal;
 	RenderLayer renderLayer = RenderLayer::Midground;
