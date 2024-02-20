@@ -27,19 +27,19 @@ struct Renderable : ComponentBase, RenderableDef
 {
 	struct Instancing
 	{
-		Instancing& addInstance(const glm::mat4& value)
+		Instancing& addTransform(const glm::mat4& value)
 		{
-			instances_.push_back(value);
+			transforms_.push_back(value);
 			return *this;
 		}
 
-		Instancing& addInstances(const std::vector<glm::mat4>& value)
+		Instancing& addTransforms(const std::vector<glm::mat4>& value)
 		{
-			instances_.insert(instances_.end(), value.begin(), value.end());
+			transforms_.insert(transforms_.end(), value.begin(), value.end());
 			return *this;
 		}
 
-		std::vector<glm::mat4> instances_;
+		std::vector<glm::mat4> transforms_;
 	};
 
 	Renderable() = default;

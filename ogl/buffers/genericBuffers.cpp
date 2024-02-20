@@ -38,7 +38,8 @@ namespace Buffers
 
 		createPositionsBuffer();
 		setColorsBuffer({});
-		setInstancesBuffer({});
+		setInstancedTransformsBuffer({});
+		setInstancedNormalTransformsBuffer({});
 	}
 
 	GenericSubBuffers::GenericSubBuffers(GenericSubBuffers&& other) noexcept :
@@ -48,14 +49,16 @@ namespace Buffers
 		colorsBuffer(other.colorsBuffer),
 		texCoordsBuffer(other.texCoordsBuffer),
 		normalsBuffer(other.normalsBuffer),
-		instancesBuffer(other.instancesBuffer),
+		instancedTransformsBuffer(other.instancedTransformsBuffer),
+		instancedNormalTransformsBuffer(other.instancedNormalTransformsBuffer),
 		indicesBuffer(other.indicesBuffer),
 		drawCount(other.drawCount),
 		numOfAllocatedVertices(other.numOfAllocatedVertices),
 		numOfAllocatedColors(other.numOfAllocatedColors),
 		numOfAllocatedTexCoords(other.numOfAllocatedTexCoords),
 		numOfAllocatedNormals(other.numOfAllocatedNormals),
-		numOfAllocatedInstances(other.numOfAllocatedInstances),
+		numOfAllocatedInstancedTransforms(other.numOfAllocatedInstancedTransforms),
+		numOfAllocatedInstancedNormalTransforms(other.numOfAllocatedInstancedNormalTransforms),
 		numOfAllocatedIndices(other.numOfAllocatedIndices),
 		allocatedBufferDataUsage(std::move(other.allocatedBufferDataUsage))
 	{
@@ -78,8 +81,11 @@ namespace Buffers
 		if (normalsBuffer)
 			glDeleteBuffers(1, &*normalsBuffer);
 
-		if (instancesBuffer)
-			glDeleteBuffers(1, &*instancesBuffer);
+		if (instancedTransformsBuffer)
+			glDeleteBuffers(1, &*instancedTransformsBuffer);
+
+		if (instancedNormalTransformsBuffer)
+			glDeleteBuffers(1, &*instancedNormalTransformsBuffer);
 
 		if (indicesBuffer)
 			glDeleteBuffers(1, &*indicesBuffer);
@@ -186,11 +192,11 @@ namespace Buffers
 		glEnableVertexAttribArray(3);
 	}
 
-	void GenericSubBuffers::setInstancesBuffer(const std::vector<glm::mat4>& instances)
+	void GenericSubBuffers::setInstancedTransformsBuffer(const std::vector<glm::mat4>& transforms)
 	{
 		glBindVertexArray_proxy(vertexArray);
 
-		if (instances.empty())
+		if (transforms.empty())
 		{
 			static const glm::mat4 identity(1.0f);
 			for (unsigned i = 0; i < 4; ++i)
@@ -201,24 +207,57 @@ namespace Buffers
 			return;
 		}
 
-		if (instancesBuffer)
-			glBindBuffer(GL_ARRAY_BUFFER, *instancesBuffer);
+		if (instancedTransformsBuffer)
+			glBindBuffer(GL_ARRAY_BUFFER, *instancedTransformsBuffer);
 		else
-			createInstancesBuffer();
+			createInstancedTransformsBuffer();
 
-		if (numOfAllocatedInstances < instances.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
+		if (numOfAllocatedInstancedTransforms < transforms.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
 		{
-			glBufferData(GL_ARRAY_BUFFER, instances.size() * sizeof(instances.front()), instances.data(), renderable->bufferDataUsage);
-			numOfAllocatedInstances = instances.size();
+			glBufferData(GL_ARRAY_BUFFER, transforms.size() * sizeof(transforms.front()), transforms.data(), renderable->bufferDataUsage);
+			numOfAllocatedInstancedTransforms = transforms.size();
 			allocatedBufferDataUsage = renderable->bufferDataUsage;
 		}
 		else
-			glBufferSubData(GL_ARRAY_BUFFER, 0, instances.size() * sizeof(instances.front()), instances.data());
+			glBufferSubData(GL_ARRAY_BUFFER, 0, transforms.size() * sizeof(transforms.front()), transforms.data());
 
 		for (unsigned i = 0; i < 4; ++i)
 			glEnableVertexAttribArray(4 + i);
 
-		instanceCount = instances.size();
+		instanceCount = transforms.size();
+	}
+
+	void GenericSubBuffers::setInstancedNormalTransformsBuffer(const std::vector<glm::mat3>& transforms)
+	{
+		glBindVertexArray_proxy(vertexArray);
+
+		if (transforms.empty())
+		{
+			static const glm::mat3 identity(1.0f);
+			for (unsigned i = 0; i < 3; ++i)
+			{
+				glVertexAttrib4fv(8 + i, &identity[i][0]);
+				glDisableVertexAttribArray(8 + i);
+			}
+			return;
+		}
+
+		if (instancedNormalTransformsBuffer)
+			glBindBuffer(GL_ARRAY_BUFFER, *instancedNormalTransformsBuffer);
+		else
+			createInstancedNormalTransformsBuffer();
+
+		if (numOfAllocatedInstancedNormalTransforms < transforms.size() || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
+		{
+			glBufferData(GL_ARRAY_BUFFER, transforms.size() * sizeof(transforms.front()), transforms.data(), renderable->bufferDataUsage);
+			numOfAllocatedInstancedNormalTransforms = transforms.size();
+			allocatedBufferDataUsage = renderable->bufferDataUsage;
+		}
+		else
+			glBufferSubData(GL_ARRAY_BUFFER, 0, transforms.size() * sizeof(transforms.front()), transforms.data());
+
+		for (unsigned i = 0; i < 3; ++i)
+			glEnableVertexAttribArray(8 + i);
 	}
 
 	void GenericSubBuffers::setIndicesBuffer(const std::vector<unsigned>& indices)
@@ -245,12 +284,12 @@ namespace Buffers
 		drawCount = indices.size();
 	}
 
-	bool GenericSubBuffers::isInstancesBufferActive() const
+	bool GenericSubBuffers::isInstancingActive() const
 	{
-		return numOfAllocatedInstances;
+		return numOfAllocatedInstancedTransforms;
 	}
 
-	bool GenericSubBuffers::isIndicesBufferActive() const
+	bool GenericSubBuffers::isIndicingActive() const
 	{
 		return numOfAllocatedIndices;
 	}
@@ -289,16 +328,29 @@ namespace Buffers
 		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	}
 
-	void GenericSubBuffers::createInstancesBuffer()
+	void GenericSubBuffers::createInstancedTransformsBuffer()
 	{
-		assert(!instancesBuffer);
-		instancesBuffer = 0;
-		glGenBuffers(1, &*instancesBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, *instancesBuffer);
+		assert(!instancedTransformsBuffer);
+		instancedTransformsBuffer = 0;
+		glGenBuffers(1, &*instancedTransformsBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, *instancedTransformsBuffer);
 		for (unsigned i = 0; i < 4; ++i)
 		{
 			glVertexAttribPointer(4 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4) * i));
 			glVertexAttribDivisor(4 + i, 1);
+		}
+	}
+
+	void GenericSubBuffers::createInstancedNormalTransformsBuffer()
+	{
+		assert(!instancedNormalTransformsBuffer);
+		instancedNormalTransformsBuffer = 0;
+		glGenBuffers(1, &*instancedNormalTransformsBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, *instancedNormalTransformsBuffer);
+		for (unsigned i = 0; i < 3; ++i)
+		{
+			glVertexAttribPointer(8 + i, 3, GL_FLOAT, GL_FALSE, sizeof(glm::mat3), (void*)(sizeof(glm::vec3) * i));
+			glVertexAttribDivisor(8 + i, 1);
 		}
 	}
 
@@ -317,8 +369,16 @@ namespace Buffers
 		instancing(other.instancing),
 		resolutionMode(other.resolutionMode),
 		subsequenceBegin(other.subsequenceBegin),
-		posInSubsequence(other.posInSubsequence)
+		posInSubsequence(other.posInSubsequence),
+		subsequence(std::move(other.subsequence))
 	{
+	}
+
+	void GenericBuffers::calcNormalTransforms(const std::vector<glm::mat4>& transforms)
+	{
+		normalTransforms.clear();
+		for (const auto& transform : transforms)
+			normalTransforms.push_back(glm::transpose(glm::inverse(glm::mat3(transform))));
 	}
 
 	void GenericBuffers::applyComponentSubsequence(Renderable& renderableComponent)
@@ -344,7 +404,14 @@ namespace Buffers
 		posInSubsequence = &renderableComponent.posInSubsequence;
 
 		if (renderableComponent.instancing)
-			setInstancesBuffer(renderableComponent.instancing->instances_);
+		{
+			setInstancedTransformsBuffer(renderableComponent.instancing->transforms_);
+			if (renderableComponent.params3D)
+			{
+				calcNormalTransforms(renderableComponent.instancing->transforms_);
+				setInstancedNormalTransformsBuffer(normalTransforms);
+			}
+		}
 
 		renderableComponent.loaded.buffers = this;
 		renderableComponent.state = ComponentState::Ongoing;

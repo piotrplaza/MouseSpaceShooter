@@ -13,6 +13,7 @@
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
+#include <glm/mat3x3.hpp>
 #include <glm/mat4x4.hpp>
 
 #include <optional>
@@ -35,11 +36,12 @@ namespace Buffers
 		void setColorsBuffer(const std::vector<glm::vec4>& colors);
 		void setTexCoordsBuffer(const std::vector<glm::vec2>& texCoords);
 		void setNormalsBuffer(const std::vector<glm::vec3>& normals);
-		void setInstancesBuffer(const std::vector<glm::mat4>& instances);
+		void setInstancedTransformsBuffer(const std::vector<glm::mat4>& transforms);
+		void setInstancedNormalTransformsBuffer(const std::vector<glm::mat3>& transforms);
 		void setIndicesBuffer(const std::vector<unsigned>& indices);
 
-		bool isInstancesBufferActive() const;
-		bool isIndicesBufferActive() const;
+		bool isInstancingActive() const;
+		bool isIndicingActive() const;
 
 		RenderableDef* renderable = nullptr;
 
@@ -52,20 +54,23 @@ namespace Buffers
 		void createColorsBuffer();
 		void createTexCoordsBuffer();
 		void createNormalsBuffer();
-		void createInstancesBuffer();
+		void createInstancedTransformsBuffer();
+		void createInstancedNormalTransformsBuffer();
 		void createIndicesBuffer();
 
 		GLuint positionsBuffer = 0;
 		std::optional<GLuint> colorsBuffer;
 		std::optional<GLuint> texCoordsBuffer;
 		std::optional<GLuint> normalsBuffer;
-		std::optional<GLuint> instancesBuffer;
+		std::optional<GLuint> instancedTransformsBuffer;
+		std::optional<GLuint> instancedNormalTransformsBuffer;
 		std::optional<GLuint> indicesBuffer;
 		size_t numOfAllocatedVertices = 0;
 		size_t numOfAllocatedColors = 0;
 		size_t numOfAllocatedTexCoords = 0;
 		size_t numOfAllocatedNormals = 0;
-		size_t numOfAllocatedInstances = 0;
+		size_t numOfAllocatedInstancedTransforms = 0;
+		size_t numOfAllocatedInstancedNormalTransforms = 0;
 		size_t numOfAllocatedIndices = 0;
 		std::optional<GLenum> allocatedBufferDataUsage;
 
@@ -77,6 +82,8 @@ namespace Buffers
 		GenericBuffers() = default;
 		GenericBuffers(const GenericBuffers&) = delete;
 		GenericBuffers(GenericBuffers&& other) noexcept;
+
+		void calcNormalTransforms(const std::vector<glm::mat4>& transforms);
 
 		void applyComponentSubsequence(Renderable& renderableComponent);
 		void applyComponent(Renderable& renderableComponent);
@@ -97,16 +104,16 @@ namespace Buffers
 				if (buffers.renderable->renderingSetup)
 					renderingTeardown = Globals::Components().renderingSetups()[*buffers.renderable->renderingSetup](programId);
 
-				if (isInstancesBufferActive())
+				if (isInstancingActive())
 				{
-					if (isIndicesBufferActive())
+					if (isIndicingActive())
 						glDrawElementsInstanced(buffers.renderable->drawMode, buffers.drawCount, GL_UNSIGNED_INT, nullptr, instanceCount);
 					else
 						glDrawArraysInstanced(buffers.renderable->drawMode, 0, buffers.drawCount, instanceCount);
 				}
 				else
 				{
-					if (isIndicesBufferActive())
+					if (isIndicingActive())
 						glDrawElements(buffers.renderable->drawMode, buffers.drawCount, GL_UNSIGNED_INT, nullptr);
 					else
 						glDrawArrays(buffers.renderable->drawMode, 0, buffers.drawCount);
@@ -135,5 +142,6 @@ namespace Buffers
 		unsigned* posInSubsequence = nullptr;
 
 		std::deque<GenericSubBuffers> subsequence;
+		std::vector<glm::mat3> normalTransforms;
 	};
 }

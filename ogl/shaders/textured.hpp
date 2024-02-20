@@ -59,7 +59,7 @@ namespace Shaders
 		{
 			Textured():
 				TexturedAccessor(LinkProgram(CompileShaders("ogl/shaders/textured.vs",
-					"ogl/shaders/textured.fs"), { {0, "bPos"}, {1, "bColor"}, {2, "bTexCoord"}, {3, "bNormal"}, {4, "bInstance"} }))
+					"ogl/shaders/textured.fs"), { {0, "bPos"}, {1, "bColor"}, {2, "bTexCoord"}, {3, "bNormal"}, {4, "bInstancedTransform"} }))
 			{
 				model(glm::mat4(1.0f));
 				vp(glm::mat4(1.0f));

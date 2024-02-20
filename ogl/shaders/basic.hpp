@@ -27,7 +27,7 @@ namespace Shaders
 		{
 			Basic():
 				BasicAccessor(LinkProgram(CompileShaders("ogl/shaders/basic.vs",
-					"ogl/shaders/basic.fs"), { {0, "bPos"}, {1, "bColor"}, {4, "bInstance"} }))
+					"ogl/shaders/basic.fs"), { {0, "bPos"}, {1, "bColor"}, {4, "bInstancedTransform"} }))
 			{
 				model(glm::mat4(1.0f));
 				vp(glm::mat4(1.0f));
