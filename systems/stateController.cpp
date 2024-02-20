@@ -124,6 +124,11 @@ namespace Systems
 		screenInfo.windowCenterInScreenSpace = { location + screenInfo.windowSize / 2 };
 	}
 
+	void StateController::changeRefreshRate(int refreshRate) const
+	{
+		Globals::Components().screenInfo().refreshRate = refreshRate;
+	}
+
 	void StateController::setWindowFocus() const
 	{
 		resetMousePosition();

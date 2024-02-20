@@ -23,6 +23,7 @@ namespace Systems
 		void renderTeardown() const;
 		void changeWindowSize(glm::ivec2 size) const;
 		void changeWindowLocation(glm::ivec2 location) const;
+		void changeRefreshRate(int refreshRate) const;
 		void setWindowFocus() const;
 		void killWindowFocus() const;
 		void resetMousePosition() const;

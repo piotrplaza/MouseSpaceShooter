@@ -3,13 +3,14 @@
 #include <components/physics.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/collisionFilter.hpp>
+#include <components/screenInfo.hpp>
 
 #include <globals/components.hpp>
 
+#define FORCE_REFRESH_RATE_BASED_STEP 0
+
 namespace
 {
-	constexpr float debugFrameDuration = 1.0f / 144;
-
 	class : public b2ContactListener
 	{
 		void BeginContact(b2Contact* contact) override
@@ -54,22 +55,28 @@ namespace Systems
 	{
 		Globals::Components().physics().world->SetContactListener(&contactListener);
 		Globals::Components().physics().world->SetContactFilter(&contactFilter);
-#ifndef _DEBUG 
 		Globals::Components().physics().prevFrameTime = std::chrono::high_resolution_clock::now();
-#endif
 	}
 
 	void Physics::step()
 	{
+		const auto& screenInfo = Globals::Components().screenInfo();
 		auto& physics = Globals::Components().physics();
-#ifndef _DEBUG
 		const auto currentTime = std::chrono::high_resolution_clock::now();
-		physics.frameDuration = (std::chrono::duration<float>(currentTime - physics.prevFrameTime).count()) * physics.gameSpeed;
-		physics.prevFrameTime = currentTime;
-#else
-		physics.frameDuration = debugFrameDuration * physics.gameSpeed;
-#endif
 
+#if defined _DEBUG || FORCE_REFRESH_RATE_BASED_STEP
+		physics.frameDuration = physics.gameSpeed * screenInfo.getRefreshDuration();
+#else
+		if (physics.forceRefreshRateBasedStep)
+			physics.frameDuration = physics.gameSpeed * screenInfo.getRefreshDuration();
+		else
+		{
+			physics.frameDuration = physics.gameSpeed * std::chrono::duration<float>(currentTime - physics.prevFrameTime).count();
+			if (1.0f / physics.frameDuration < physics.minFPS)
+				physics.frameDuration = 1.0f / physics.minFPS;
+		}
+#endif
+		physics.prevFrameTime = currentTime;
 		physics.simulationDuration += physics.frameDuration;
 		physics.world->Step(physics.frameDuration, physics.velocityIterationsPerStep, physics.positionIterationsPerStep);
 	}

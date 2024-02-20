@@ -24,6 +24,8 @@ namespace Components
 		float frameDuration = 0.0f;
 		float gameSpeed = 1.0f;
 
+		bool forceRefreshRateBasedStep = false;
+		float minFPS = 58.0f;
 		int velocityIterationsPerStep = 3;
 		int positionIterationsPerStep = 8;
 

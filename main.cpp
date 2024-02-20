@@ -255,6 +255,7 @@ static LRESULT CALLBACK WndProc(
 		{
 			const glm::ivec2 location{ LOWORD(lParam), HIWORD(lParam) };
 			Globals::Systems().stateController().changeWindowLocation(location);
+			Globals::Systems().stateController().changeRefreshRate(GetDeviceCaps(hDC, VREFRESH));
 			break;
 		}
 		case WM_SETFOCUS:

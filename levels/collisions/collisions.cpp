@@ -48,7 +48,7 @@ namespace Levels
 				wall.setVelocity(mouse.getCartesianDelta() * 0.8f);
 			};
 
-#if 0
+#if 1
 			for (int i = 0; i < 1000; ++i)
 			{
 				staticWalls.emplace(Tools::CreateCircleBody(Tools::Random(0.2f, 0.5f), Tools::BodyParams().bodyType(b2_dynamicBody)
