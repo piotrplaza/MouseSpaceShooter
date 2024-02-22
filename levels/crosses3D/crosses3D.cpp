@@ -59,7 +59,7 @@ namespace Levels
 						Shapes3D::AddCross(staticDecorations.last(), { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); }, glm::translate(glm::mat4(1.0f),
 							glm::vec3(x * distanceBetweenCrosses.x, 0.0f, z * distanceBetweenCrosses.y) - offset));
 				staticDecorations.last().params3D->ambient(0.5f).diffuse(0.2f).specular(0.2f).specularMaterialColorFactor(0.2f).lightModelEnabled(true);
-				staticDecorations.last().instancing = Renderable::Instancing{}.addTransforms({ glm::mat4(1.0f), glm::rotate(glm::mat4(1.0f), glm::pi<float>(), {1.0f, 0.0f, 0.0f}) });
+				//staticDecorations.last().instancing = Renderable::Instancing{}.addTransforms({ glm::mat4(1.0f), glm::rotate(glm::mat4(1.0f), glm::pi<float>(), {1.0f, 0.0f, 0.0f}) });
 			}
 		}
 

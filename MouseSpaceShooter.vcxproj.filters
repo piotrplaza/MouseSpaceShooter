@@ -110,8 +110,11 @@
     <Filter Include="src\levels\crosses3D">
       <UniqueIdentifier>{55d6921d-2283-425b-9908-f60f59211aa2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\levels\crosses3DTextured">
+    <Filter Include="src\levels\crosses3DTexturing">
       <UniqueIdentifier>{da2e1738-339e-4b0f-a226-f7b3ae2d6307}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\levels\crosses3DInstancing">
+      <UniqueIdentifier>{ff08498f-d47c-409f-9a8b-d3c1cc88065a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -289,8 +292,11 @@
     <ClCompile Include="levels\crosses3D\crosses3D.cpp">
       <Filter>src\levels\crosses3D</Filter>
     </ClCompile>
-    <ClCompile Include="levels\crosses3DTextured\crosses3DTextured.cpp">
-      <Filter>src\levels\crosses3DTextured</Filter>
+    <ClCompile Include="levels\crosses3DTexturing\crosses3DTexturing.cpp">
+      <Filter>src\levels\crosses3DTexturing</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\crosses3DInstancing\crosses3DInstancing.cpp">
+      <Filter>src\levels\crosses3DInstancing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -624,8 +630,11 @@
     <ClInclude Include="levels\crosses3D\crosses3D.hpp">
       <Filter>src\levels\crosses3D</Filter>
     </ClInclude>
-    <ClInclude Include="levels\crosses3DTextured\crosses3DTextured.hpp">
-      <Filter>src\levels\crosses3DTextured</Filter>
+    <ClInclude Include="levels\crosses3DTexturing\crosses3DTexturing.hpp">
+      <Filter>src\levels\crosses3DTexturing</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\crosses3DInstancing\crosses3DInstancing.hpp">
+      <Filter>src\levels\crosses3DInstancing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

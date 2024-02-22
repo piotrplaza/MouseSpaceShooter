@@ -33,7 +33,8 @@
     <ClCompile Include="levels\basic3D\basic3D.cpp" />
     <ClCompile Include="levels\basic\basic.cpp" />
     <ClCompile Include="levels\collisions\collisions.cpp" />
-    <ClCompile Include="levels\crosses3DTextured\crosses3DTextured.cpp" />
+    <ClCompile Include="levels\crosses3DInstancing\crosses3DInstancing.cpp" />
+    <ClCompile Include="levels\crosses3DTexturing\crosses3DTexturing.cpp" />
     <ClCompile Include="levels\crosses3D\crosses3D.cpp" />
     <ClCompile Include="levels\dzidzia2\dzidzia2.cpp" />
     <ClCompile Include="levels\dzidzia\dzidzia.cpp" />
@@ -137,7 +138,8 @@
     <ClInclude Include="levels\basic3D\basic3D.hpp" />
     <ClInclude Include="levels\basic\basic.hpp" />
     <ClInclude Include="levels\collisions\collisions.hpp" />
-    <ClInclude Include="levels\crosses3DTextured\crosses3DTextured.hpp" />
+    <ClInclude Include="levels\crosses3DInstancing\crosses3DInstancing.hpp" />
+    <ClInclude Include="levels\crosses3DTexturing\crosses3DTexturing.hpp" />
     <ClInclude Include="levels\crosses3D\crosses3D.hpp" />
     <ClInclude Include="levels\dzidzia2\dzidzia2.hpp" />
     <ClInclude Include="levels\dzidzia\dzidzia.hpp" />

@@ -34,6 +34,6 @@ namespace Components
 
 		float fov = 60.0f / 360.0f * glm::two_pi<float>();
 		float nearPlane = 0.1f;
-		float farPlane = 100.0f;
+		float farPlane = 1000.0f;
 	};
 }

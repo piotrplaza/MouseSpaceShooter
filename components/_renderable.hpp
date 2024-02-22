@@ -27,6 +27,12 @@ struct Renderable : ComponentBase, RenderableDef
 {
 	struct Instancing
 	{
+		Instancing& clearTransforms()
+		{
+			transforms_.clear();
+			return *this;
+		}
+
 		Instancing& addTransform(const glm::mat4& value)
 		{
 			transforms_.push_back(value);

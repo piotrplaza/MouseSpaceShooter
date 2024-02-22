@@ -16,7 +16,8 @@
 #include "levels/basic3D/basic3D.hpp"
 #include "levels/firstPersonCamera/firstPersonCamera.hpp"
 #include "levels/crosses3D/crosses3D.hpp"
-#include "levels/crosses3DTextured/crosses3DTextured.hpp"
+#include "levels/crosses3DTexturing/crosses3DTexturing.hpp"
+#include "levels/crosses3DInstancing/crosses3DInstancing.hpp"
 
 #include "components/mouse.hpp"
 #include "components/physics.hpp"
@@ -123,7 +124,8 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Basic3D>();
 	//activeLevel = std::make_unique<Levels::FirstPersonCamera>();
 	//activeLevel = std::make_unique<Levels::Crosses3D>();
-	activeLevel = std::make_unique<Levels::Crosses3DTextured>();
+	//activeLevel = std::make_unique<Levels::Crosses3DTexturing>();
+	activeLevel = std::make_unique<Levels::Crosses3DInstancing>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }

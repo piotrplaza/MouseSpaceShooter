@@ -1,4 +1,4 @@
-#include "Crosses3DTextured.hpp"
+#include "Crosses3DTexturing.hpp"
 
 #include <components/decoration.hpp>
 #include <components/physics.hpp>
@@ -19,12 +19,11 @@
 
 namespace Levels
 {
-	class Crosses3DTextured::Impl
+	class Crosses3DTexturing::Impl
 	{
 	public:
 		void setup()
 		{
-			glDisable(GL_CULL_FACE);
 			glLineWidth(1.0f);
 
 			Globals::Components().graphicsSettings().clearColor = { 0.0f, 0.05f, 0.0f, 1.0f };
@@ -70,7 +69,7 @@ namespace Levels
 							glm::vec3(x * distanceBetweenCrosses.x, 0.0f, z * distanceBetweenCrosses.y) - offset));
 				staticDecorations.last().params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true);
 				staticDecorations.last().texture = TCM::Texture(marbleTexture);
-				staticDecorations.last().instancing = Renderable::Instancing{}.addTransforms({ glm::mat4(1.0f), glm::scale(glm::mat4(1.0f), {1.0f, -1.0f, 1.0f}) });
+				//staticDecorations.last().instancing = Renderable::Instancing{}.addTransforms({ glm::mat4(1.0f), glm::scale(glm::mat4(1.0f), {1.0f, -1.0f, 1.0f}) });
 			}
 		}
 
@@ -113,7 +112,7 @@ namespace Levels
 		ComponentId marbleTexture = 0;
 	};
 
-	Crosses3DTextured::Crosses3DTextured() :
+	Crosses3DTexturing::Crosses3DTexturing() :
 		impl(std::make_unique<Impl>())
 	{
 		impl->setup();
@@ -121,7 +120,7 @@ namespace Levels
 		impl->createDecorations();
 	}
 
-	void Crosses3DTextured::step()
+	void Crosses3DTexturing::step()
 	{
 		impl->cameraStep();
 		impl->lightStep();

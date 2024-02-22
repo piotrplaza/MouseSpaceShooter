@@ -6,10 +6,10 @@
 
 namespace Levels
 {
-	class Crosses3DTextured: public Level
+	class Crosses3DInstancing: public Level
 	{
 	public:
-		Crosses3DTextured();
+		Crosses3DInstancing();
 
 		void step() override;
 
