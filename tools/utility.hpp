@@ -57,4 +57,50 @@ namespace Tools
 
 	template<class... Ts>
 	struct Overloads : Ts... { using Ts::operator()...; };
+
+	class ItToId
+	{
+	public:
+		class It {
+		public:
+			using value_type = size_t;
+			using difference_type = std::ptrdiff_t;
+
+			It() : id(0) {}
+			It(value_type id) : id(id) {}
+
+			value_type operator*() const { return id; }
+			It& operator++() { id++; return *this; }
+			It operator++(int) { It tmp = *this; ++(*this); return tmp; }
+			bool operator==(const It& other) const { return id == other.id; }
+			bool operator!=(const It& other) const { return id != other.id; }
+
+		private:
+			value_type id;
+		};
+
+		ItToId(size_t size) :
+			begin_(0),
+			end_(size)
+		{}
+
+		ItToId(size_t begin, size_t end) :
+			begin_(begin),
+			end_(end)
+		{}
+
+		It begin() const
+		{
+			return It(begin_);
+		}
+
+		It end() const
+		{
+			return It(end_);
+		}
+
+	private:
+		size_t begin_;
+		size_t end_;
+	};
 }

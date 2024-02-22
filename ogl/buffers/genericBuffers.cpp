@@ -1,6 +1,7 @@
 #include "genericBuffers.hpp"
 
 #include <ogl/oglProxy.hpp>
+#include <tools/utility.hpp>
 
 #include <algorithm>
 #include <execution>
@@ -380,9 +381,9 @@ namespace Buffers
 	void GenericBuffers::calcNormalTransforms(const std::vector<glm::mat4>& transforms)
 	{
 		normalTransforms.resize(transforms.size());
-		std::for_each(std::execution::par_unseq, transforms.begin(), transforms.end(), [&](const auto& transform) {
-			const auto i = &transform - &transforms[0];
-			normalTransforms[i] = glm::transpose(glm::inverse(glm::mat3(transform)));
+		Tools::ItToId itToId(transforms.size());
+		std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), [&](const auto i) {
+			normalTransforms[i] = glm::transpose(glm::inverse(glm::mat3(transforms[i])));
 		});
 	}
 

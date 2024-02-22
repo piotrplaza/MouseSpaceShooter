@@ -12,6 +12,7 @@
 
 #include <tools/shapes3D.hpp>
 #include <tools/glmHelpers.hpp>
+#include <tools/utility.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -114,9 +115,9 @@ namespace Levels
 			if (keyboard.pressed[0x28/*VK_DOWN*/])
 				transformBase -= transformBaseStep;
 
-			std::for_each(std::execution::par_unseq, transforms.begin(), transforms.end(), [&](auto& transform) {
-					const auto i = &transform - &transforms[0];
-					transform = glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.001f, { 1.0f, 0.0f, 0.0f })
+			Tools::ItToId itToId(transforms.size());
+			std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), [&](const auto i) {
+					transforms[i] = glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.001f, { 1.0f, 0.0f, 0.0f })
 						* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.03f, { 0.0f, 1.0f, 0.0f })
 						* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * (transformBase - physics.simulationDuration * transformSpeed), { 0.0f, 0.0f, 1.0f })
 						* glm::translate(glm::mat4(1.0f), { i * 0.0005f, i * 0.0007f, i * 0.0009f });
