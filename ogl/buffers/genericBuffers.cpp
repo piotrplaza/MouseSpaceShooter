@@ -2,6 +2,9 @@
 
 #include <ogl/oglProxy.hpp>
 
+#include <algorithm>
+#include <execution>
+
 namespace
 {
 	template <typename BuffersContainer>
@@ -376,9 +379,11 @@ namespace Buffers
 
 	void GenericBuffers::calcNormalTransforms(const std::vector<glm::mat4>& transforms)
 	{
-		normalTransforms.clear();
-		for (const auto& transform : transforms)
-			normalTransforms.push_back(glm::transpose(glm::inverse(glm::mat3(transform))));
+		normalTransforms.resize(transforms.size());
+		std::for_each(std::execution::par_unseq, transforms.begin(), transforms.end(), [&](const auto& transform) {
+			const auto i = &transform - &transforms[0];
+			normalTransforms[i] = glm::transpose(glm::inverse(glm::mat3(transform)));
+		});
 	}
 
 	void GenericBuffers::applyComponentSubsequence(Renderable& renderableComponent)

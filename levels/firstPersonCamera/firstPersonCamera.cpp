@@ -17,8 +17,6 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <Windows.h>
-
 #include <algorithm>
 #include <iostream>
 
@@ -81,9 +79,9 @@ namespace Levels
 		if (keyboard.pressing['D'])
 			positionStep(0.0f);
 
-		if (keyboard.pressing[VK_SPACE])
+		if (keyboard.pressing[0x20/*VK_SPACE*/])
 			camera.position.y += moveSpeed * physics.frameDuration;
-		if (keyboard.pressing[VK_SHIFT])
+		if (keyboard.pressing[0x10/*VK_SHIFT*/])
 			camera.position.y -= moveSpeed * physics.frameDuration;
 
 		if (keyboard.pressing['Q'])

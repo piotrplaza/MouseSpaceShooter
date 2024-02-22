@@ -6,10 +6,7 @@
 #include <components/light3D.hpp>
 #include <components/camera3D.hpp>
 
-#include <ogl/shaders/basicPhong.hpp>
-
 #include <globals/components.hpp>
-#include <globals/shaders.hpp>
 
 #include <tools/shapes3D.hpp>
 #include <tools/glmHelpers.hpp>

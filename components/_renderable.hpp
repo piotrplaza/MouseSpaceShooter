@@ -33,6 +33,13 @@ struct Renderable : ComponentBase, RenderableDef
 			return *this;
 		}
 
+		Instancing& init(size_t count, const glm::mat4& value)
+		{
+			transforms_.clear();
+			transforms_.resize(count, value);
+			return *this;
+		}
+
 		Instancing& addTransform(const glm::mat4& value)
 		{
 			transforms_.push_back(value);

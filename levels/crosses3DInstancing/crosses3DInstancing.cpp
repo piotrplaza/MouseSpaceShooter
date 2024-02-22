@@ -8,25 +8,18 @@
 #include <components/texture.hpp>
 #include <components/keyboard.hpp>
 
-#include <ogl/shaders/basicPhong.hpp>
-
 #include <globals/components.hpp>
-#include <globals/shaders.hpp>
 
 #include <tools/shapes3D.hpp>
 #include <tools/glmHelpers.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <Windows.h>
+#include <algorithm>
+#include <execution>
 
 namespace Levels
 {
-	namespace
-	{
-		const int numOfCrosses = 10000;
-	}
-
 	class Crosses3DInstancing::Impl
 	{
 	public:
@@ -48,6 +41,8 @@ namespace Levels
 
 		void createDecorations() const
 		{
+			const int numOfCrosses = 10000;
+
 			const auto& physics = Globals::Components().physics();
 			auto& staticDecorations = Globals::Components().staticDecorations();
 			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
@@ -65,7 +60,7 @@ namespace Levels
 				dynamicDecorations.last().params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true);
 				dynamicDecorations.last().texture = TCM::Texture(marbleTexture);
 				dynamicDecorations.last().bufferDataUsage = GL_DYNAMIC_DRAW;
-				dynamicDecorations.last().instancing.emplace();
+				dynamicDecorations.last().instancing.emplace().init(numOfCrosses, glm::mat4(1.0f));
 			}
 		}
 
@@ -112,22 +107,21 @@ namespace Levels
 			const auto& physics = Globals::Components().physics();
 			const auto& keyboard = Globals::Components().keyboard();
 			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+			auto& transforms = dynamicDecorations.last().instancing->transforms_;
 
-			if (keyboard.pressed[VK_UP])
+			if (keyboard.pressed[0x26/*VK_UP*/])
 				transformBase += transformBaseStep;
-			if (keyboard.pressed[VK_DOWN])
+			if (keyboard.pressed[0x28/*VK_DOWN*/])
 				transformBase -= transformBaseStep;
 
-			dynamicDecorations.last().instancing->clearTransforms();
-			for (int i = 0; i < numOfCrosses; ++i)
-			{
-				dynamicDecorations.last().instancing->addTransform(
-					glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.001f, { 1.0f, 0.0f, 0.0f })
-					* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.03f, { 0.0f, 1.0f, 0.0f })
-					* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * (transformBase - physics.simulationDuration * transformSpeed), { 0.0f, 0.0f, 1.0f })
-					* glm::translate(glm::mat4(1.0f), { i * 0.0005f, i * 0.0007f, i * 0.0009f }));
-				dynamicDecorations.last().state = ComponentState::Changed;
-			}
+			std::for_each(std::execution::par_unseq, transforms.begin(), transforms.end(), [&](auto& transform) {
+					const auto i = &transform - &transforms[0];
+					transform = glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.001f, { 1.0f, 0.0f, 0.0f })
+						* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.03f, { 0.0f, 1.0f, 0.0f })
+						* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * (transformBase - physics.simulationDuration * transformSpeed), { 0.0f, 0.0f, 1.0f })
+						* glm::translate(glm::mat4(1.0f), { i * 0.0005f, i * 0.0007f, i * 0.0009f });
+				});
+			dynamicDecorations.last().state = ComponentState::Changed;
 		}
 
 	private:
