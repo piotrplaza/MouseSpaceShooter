@@ -19,6 +19,7 @@ namespace Systems
 		Textures();
 
 		void postInit();
+		void step();
 
 	private:
 		struct TextureCache

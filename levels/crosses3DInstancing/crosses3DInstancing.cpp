@@ -7,6 +7,7 @@
 #include <components/camera3D.hpp>
 #include <components/texture.hpp>
 #include <components/keyboard.hpp>
+#include <components/mouse.hpp>
 
 #include <globals/components.hpp>
 
@@ -26,6 +27,7 @@ namespace Levels
 	public:
 		void setup()
 		{
+			Globals::Components().camera3D().farPlane = 1000000.0f;
 			Globals::Components().graphicsSettings().clearColor = { 0.2f, 0.05f, 0.0f, 1.0f };
 			Globals::Components().camera3D().rotation = Components::Camera3D::LookAtRotation{};
 			for(unsigned i = 0; i < 40; ++i)
@@ -65,7 +67,7 @@ namespace Levels
 			}
 		}
 
-		void cameraStep() const
+		void cameraStep()
 		{
 			const auto& physics = Globals::Components().physics();
 			auto& camera = Globals::Components().camera3D();
@@ -73,8 +75,10 @@ namespace Levels
 			const float height = 1.5f;
 			const float rotationSpeed = 0.5f;
 			const float oacilationSpeed = 0.5f;
-			const float radius = 40.0f + glm::sin(physics.simulationDuration * 0.2f) * 20.0f;
+			const float radius = cameraDistanceBase + glm::sin(physics.simulationDuration * 0.2f) * 20.0f;
 			const float oscilation = 0.8f;
+
+			cameraDistanceBase -= Globals::Components().mouse().pressed.wheel * 10;
 
 			camera.position = glm::vec3(glm::cos(physics.simulationDuration * rotationSpeed) * radius, height + glm::sin(physics.simulationDuration * oacilationSpeed) * oscilation,
 				glm::sin(physics.simulationDuration * rotationSpeed) * radius);
@@ -128,6 +132,7 @@ namespace Levels
 	private:
 		ComponentId marbleTexture = 0;
 		float transformBase = 0.005f;
+		float cameraDistanceBase = 60.0f;
 	};
 
 	Crosses3DInstancing::Crosses3DInstancing() :

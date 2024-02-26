@@ -52,6 +52,10 @@ namespace Systems
 		}
 	}
 
+	void Textures::step()
+	{
+	}
+
 	void Textures::loadAndConfigureTexture(Components::Texture& texture)
 	{
 		glActiveTexture(texture.loaded.textureUnit);

@@ -165,6 +165,7 @@ static void PrepareFrame()
 		Globals::Systems().staticDecorations().step();
 		Globals::Systems().camera().step();
 		Globals::Systems().audio().step();
+		Globals::Systems().textures().step();
 		Globals::Systems().stateController().stepTeardown();
 
 		Globals::Systems().cleaner().step();
