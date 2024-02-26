@@ -7,6 +7,8 @@
 
 #include <globals/components.hpp>
 
+#include <Box2D/Box2D.h>
+
 #define FORCE_REFRESH_RATE_BASED_STEP 0
 
 namespace
@@ -49,12 +51,18 @@ namespace
 
 namespace Systems
 {
-	Physics::Physics() = default;
+	Physics::Physics()
+		: world(new b2World({0.0f, 0.0f}))
+	{
+		Globals::Components().physics().world = world.get();
+	}
+
+	Physics::~Physics() = default;
 
 	void Physics::postInit()
 	{
-		Globals::Components().physics().world->SetContactListener(&contactListener);
-		Globals::Components().physics().world->SetContactFilter(&contactFilter);
+		world->SetContactListener(&contactListener);
+		world->SetContactFilter(&contactFilter);
 		Globals::Components().physics().prevFrameTime = std::chrono::high_resolution_clock::now();
 	}
 
@@ -78,7 +86,7 @@ namespace Systems
 #endif
 		physics.prevFrameTime = currentTime;
 		physics.simulationDuration += physics.frameDuration;
-		physics.world->Step(physics.frameDuration, physics.velocityIterationsPerStep, physics.positionIterationsPerStep);
+		world->Step(physics.frameDuration, physics.velocityIterationsPerStep, physics.positionIterationsPerStep);
 	}
 
 	void Physics::pause()

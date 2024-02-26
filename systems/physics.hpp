@@ -1,6 +1,8 @@
 #pragma once
 
-#include <optional>
+#include <memory>
+
+class b2World;
 
 namespace Systems
 {
@@ -8,9 +10,13 @@ namespace Systems
 	{
 	public:
 		Physics();
+		~Physics();
 
 		void postInit();
 		void step();
 		void pause();
+
+	private:
+		std::unique_ptr<b2World> world;
 	};
 }

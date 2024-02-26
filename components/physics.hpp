@@ -6,19 +6,13 @@
 
 #include <glm/vec2.hpp>
 
-#include <memory>
 #include <chrono>
 
 namespace Components
 {
 	struct Physics : ComponentBase
 	{
-		Physics()
-		{
-			world = std::make_unique<b2World>(b2Vec2(0.0f, 0.0f));
-		}
-
-		std::unique_ptr<b2World> world;
+		b2World* world;
 
 		float simulationDuration = 0.0f;
 		float frameDuration = 0.0f;

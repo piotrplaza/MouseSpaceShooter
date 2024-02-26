@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <execution>
+#include <future>
 
 namespace Levels
 {
@@ -30,7 +31,7 @@ namespace Levels
 			Globals::Components().camera3D().farPlane = 1000000.0f;
 			Globals::Components().graphicsSettings().clearColor = { 0.2f, 0.05f, 0.0f, 1.0f };
 			Globals::Components().camera3D().rotation = Components::Camera3D::LookAtRotation{};
-			for(unsigned i = 0; i < 40; ++i)
+			for (unsigned i = 0; i < 40; ++i)
 				Globals::Components().lights3D().emplace(glm::vec3(0.0f), glm::vec3(1.0f), 0.6f, 1.0f);
 		}
 
@@ -119,6 +120,23 @@ namespace Levels
 			if (keyboard.pressed[0x28/*VK_DOWN*/])
 				transformBase -= transformBaseStep;
 
+#if 1
+			if (transformFuture.valid())
+			{
+				transformFuture.get();
+				dynamicDecorations.last().state = ComponentState::Changed;
+			}
+
+			transformFuture = std::async(std::launch::async, [=, &transforms]() {
+				Tools::ItToId itToId(transforms.size());
+				std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), [=, &transforms](const auto i) {
+					transforms[i] = glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.001f, { 1.0f, 0.0f, 0.0f })
+						* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.03f, { 0.0f, 1.0f, 0.0f })
+						* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * (transformBase - physics.simulationDuration * transformSpeed), { 0.0f, 0.0f, 1.0f })
+						* glm::translate(glm::mat4(1.0f), { i * 0.0005f, i * 0.0007f, i * 0.0009f });
+					});
+			});
+#else
 			Tools::ItToId itToId(transforms.size());
 			std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), [&](const auto i) {
 					transforms[i] = glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.001f, { 1.0f, 0.0f, 0.0f })
@@ -127,12 +145,14 @@ namespace Levels
 						* glm::translate(glm::mat4(1.0f), { i * 0.0005f, i * 0.0007f, i * 0.0009f });
 				});
 			dynamicDecorations.last().state = ComponentState::Changed;
+#endif
 		}
 
 	private:
 		ComponentId marbleTexture = 0;
 		float transformBase = 0.005f;
 		float cameraDistanceBase = 60.0f;
+		std::future<void> transformFuture;
 	};
 
 	Crosses3DInstancing::Crosses3DInstancing() :
