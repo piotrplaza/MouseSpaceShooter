@@ -61,7 +61,7 @@ namespace Levels
 
 			{
 				Shapes3D::AddCross(dynamicDecorations.emplace(), { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); });
-				dynamicDecorations.last().params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true);
+				dynamicDecorations.last().params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true).gpuSideInstancedNormalTransforms(true);
 				dynamicDecorations.last().texture = TCM::Texture(marbleTexture);
 				dynamicDecorations.last().bufferDataUsage = GL_DYNAMIC_DRAW;
 				dynamicDecorations.last().instancing.emplace().init(numOfCrosses, glm::mat4(1.0f));
@@ -127,12 +127,12 @@ namespace Levels
 				dynamicDecorations.last().state = ComponentState::Changed;
 			}
 
-			transformFuture = std::async(std::launch::async, [=, &transforms]() {
+			transformFuture = std::async(std::launch::async, [=, simulationDuration = physics.simulationDuration, &transforms]() {
 				Tools::ItToId itToId(transforms.size());
 				std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), [=, &transforms](const auto i) {
 					transforms[i] = glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.001f, { 1.0f, 0.0f, 0.0f })
 						* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.03f, { 0.0f, 1.0f, 0.0f })
-						* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * (transformBase - physics.simulationDuration * transformSpeed), { 0.0f, 0.0f, 1.0f })
+						* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * (transformBase - simulationDuration * transformSpeed), { 0.0f, 0.0f, 1.0f })
 						* glm::translate(glm::mat4(1.0f), { i * 0.0005f, i * 0.0007f, i * 0.0009f });
 					});
 			});

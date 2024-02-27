@@ -39,6 +39,7 @@ namespace Globals
 	};
 
 	void InitializeShaders();
+	void DestroyShaders();
 
 	class ShadersHolder& Shaders();
 }

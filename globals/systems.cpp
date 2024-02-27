@@ -82,6 +82,11 @@ namespace Globals
 		systemsHolder = std::make_unique<SystemsHolder>();
 	}
 
+	void DestroySystems()
+	{
+		systemsHolder.reset();
+	}
+
 	SystemsHolder& Systems()
 	{
 		return *systemsHolder;

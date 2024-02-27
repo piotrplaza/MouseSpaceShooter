@@ -176,6 +176,14 @@ static void PrepareFrame()
 	Globals::Systems().stateController().renderTeardown();
 }
 
+static void TearDown()
+{
+	activeLevel.reset();
+	Globals::DestroySystems();
+	Globals::DestroyComponents();
+	Globals::DestroyShaders();
+}
+
 void SetDCPixelFormat(HDC hDC);
 
 static std::array<bool, 256> keys;
@@ -447,6 +455,8 @@ int APIENTRY WinMain(
 			SwapBuffers(hDC);
 		}
 	}
+
+	TearDown();
 	
 	return (int)msg.wParam;
 }

@@ -79,6 +79,12 @@ struct RenderableDef
 			return *this;
 		}
 
+		Params3D& gpuSideInstancedNormalTransforms(bool value)
+		{
+			gpuSideInstancedNormalTransforms_ = value;
+			return *this;
+		}
+
 		std::vector<glm::vec3> normals_;
 		float ambient_ = 0.1f;
 		float diffuse_ = 0.8f;
@@ -88,6 +94,7 @@ struct RenderableDef
 		std::function<glm::vec4()> illuminationF_;
 		bool lightModelEnabled_ = true;
 		float alphaDiscardTreshold_ = 0.1f;
+		bool gpuSideInstancedNormalTransforms_ = false;
 	};
 
 	RenderableDef() = default;

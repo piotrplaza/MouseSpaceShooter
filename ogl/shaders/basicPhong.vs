@@ -15,6 +15,7 @@ flat out vec3 vFlatNormal;
 uniform mat4 model;
 uniform mat4 vp;
 uniform mat3 normalMatrix;
+uniform bool gpuSideInstancedNormalTransforms;
 
 void main()
 {
@@ -23,7 +24,7 @@ void main()
 	vSmoothColor = bColor;
 	vFlatColor = bColor;
 
-	const vec3 normal = bInstancedNormalTransform * normalMatrix * bNormal;
+	const vec3 normal = (gpuSideInstancedNormalTransforms ? transpose(inverse(mat3(bInstancedTransform))) : bInstancedNormalTransform) * normalMatrix * bNormal;
 	vSmoothNormal = normal;
 	vFlatNormal = normal;
 

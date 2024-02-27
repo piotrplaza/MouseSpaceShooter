@@ -32,7 +32,8 @@ namespace Shaders
 				flatColor(program, "flatColor"),
 				flatNormal(program, "flatNormal"),
 				lightModelColorNormalization(program, "lightModelColorNormalization"),
-				lightModelEnabled(program, "lightModelEnabled")
+				lightModelEnabled(program, "lightModelEnabled"),
+				gpuSideInstancedNormalTransforms(program, "gpuSideInstancedNormalTransforms")
 			{
 			}
 
@@ -57,6 +58,7 @@ namespace Shaders
 			Uniforms::Uniform1b flatNormal;
 			Uniforms::Uniform1b lightModelColorNormalization;
 			Uniforms::Uniform1b lightModelEnabled;
+			Uniforms::Uniform1b gpuSideInstancedNormalTransforms;
 		};
 
 		struct BasicPhong : BasicPhongAccessor
@@ -86,6 +88,7 @@ namespace Shaders
 				flatNormal(false);
 				lightModelColorNormalization(false);
 				lightModelEnabled(true);
+				gpuSideInstancedNormalTransforms(false);
 			}
 
 			BasicPhong(const BasicPhong&) = delete;

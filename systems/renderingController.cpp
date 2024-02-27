@@ -104,6 +104,7 @@ namespace Systems
 				Globals::Shaders().basicPhong().specularMaterialColorFactor(buffers.renderable->params3D->specularMaterialColorFactor_);
 				Globals::Shaders().basicPhong().illumination((buffers.renderable->params3D->illuminationF_) ? (buffers.renderable->params3D->illuminationF_)() : glm::vec4(0.0f));
 				Globals::Shaders().basicPhong().lightModelEnabled(buffers.renderable->params3D->lightModelEnabled_);
+				Globals::Shaders().basicPhong().gpuSideInstancedNormalTransforms(buffers.renderable->params3D->gpuSideInstancedNormalTransforms_);
 				});
 		};
 
@@ -144,6 +145,7 @@ namespace Systems
 				Globals::Shaders().texturedPhong().illumination((buffers.renderable->params3D->illuminationF_) ? (buffers.renderable->params3D->illuminationF_)() : glm::vec4(0.0f));
 				Globals::Shaders().texturedPhong().lightModelEnabled(buffers.renderable->params3D->lightModelEnabled_);
 				Globals::Shaders().texturedPhong().alphaDiscardTreshold(buffers.renderable->params3D->alphaDiscardTreshold_);
+				Globals::Shaders().texturedPhong().gpuSideInstancedNormalTransforms(buffers.renderable->params3D->gpuSideInstancedNormalTransforms_);
 				Tools::PrepareTexturedRender(Globals::Shaders().texturedPhong(), buffers, buffers.renderable->texture);
 				});
 		};

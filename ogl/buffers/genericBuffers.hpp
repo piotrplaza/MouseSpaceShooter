@@ -83,7 +83,7 @@ namespace Buffers
 		GenericBuffers(const GenericBuffers&) = delete;
 		GenericBuffers(GenericBuffers&& other) noexcept;
 
-		void calcNormalTransforms(const std::vector<glm::mat4>& transforms);
+		const std::vector<glm::mat3>& calcNormalTransforms(const std::vector<glm::mat4>& transforms);
 
 		void applyComponentSubsequence(Renderable& renderableComponent);
 		void applyComponent(Renderable& renderableComponent);

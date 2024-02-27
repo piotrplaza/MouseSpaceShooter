@@ -256,6 +256,11 @@ namespace Globals
 		componentsHolder = std::make_unique<ComponentsHolder>();
 	}
 
+	void DestroyComponents()
+	{
+		componentsHolder.reset();
+	}
+
 	void MarkDynamicComponentsAsDirty()
 	{
 		DynamicComponentsBase::markAllAsDirty();

@@ -378,13 +378,14 @@ namespace Buffers
 	{
 	}
 
-	void GenericBuffers::calcNormalTransforms(const std::vector<glm::mat4>& transforms)
+	const std::vector<glm::mat3>& GenericBuffers::calcNormalTransforms(const std::vector<glm::mat4>& transforms)
 	{
 		normalTransforms.resize(transforms.size());
 		Tools::ItToId itToId(transforms.size());
 		std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), [&](const auto i) {
 			normalTransforms[i] = glm::transpose(glm::inverse(glm::mat3(transforms[i])));
 		});
+		return normalTransforms;
 	}
 
 	void GenericBuffers::applyComponentSubsequence(Renderable& renderableComponent)
@@ -412,11 +413,8 @@ namespace Buffers
 		if (renderableComponent.instancing)
 		{
 			setInstancedTransformsBuffer(renderableComponent.instancing->transforms_);
-			if (renderableComponent.params3D)
-			{
-				calcNormalTransforms(renderableComponent.instancing->transforms_);
-				setInstancedNormalTransformsBuffer(normalTransforms);
-			}
+			if (renderableComponent.params3D && !renderableComponent.params3D->gpuSideInstancedNormalTransforms_)
+				setInstancedNormalTransformsBuffer(calcNormalTransforms(renderableComponent.instancing->transforms_));
 		}
 
 		renderableComponent.loaded.buffers = this;

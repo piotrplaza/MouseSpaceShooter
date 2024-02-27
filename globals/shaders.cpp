@@ -68,6 +68,11 @@ namespace Globals
 		shadersHolder = std::make_unique<ShadersHolder>();
 	}
 
+	void DestroyShaders()
+	{
+		shadersHolder.reset();
+	}
+
 	ShadersHolder& Shaders()
 	{
 		return *shadersHolder;

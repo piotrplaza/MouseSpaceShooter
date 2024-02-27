@@ -21,6 +21,7 @@ uniform int numOfTextures;
 uniform mat4 texturesBaseTransform[5];
 uniform mat4 texturesCustomTransform[5];
 uniform bool sceneCoordTextures;
+uniform bool gpuSideInstancedNormalTransforms;
 
 void main()
 {
@@ -35,7 +36,7 @@ void main()
 	vSmoothColor = bColor;
 	vFlatColor = bColor;
 
-	const vec3 normal = bInstancedNormalTransform * normalMatrix * bNormal;
+	const vec3 normal = (gpuSideInstancedNormalTransforms ? transpose(inverse(mat3(bInstancedTransform))) : bInstancedNormalTransform) * normalMatrix * bNormal;
 	vSmoothNormal = normal;
 	vFlatNormal = normal;
 

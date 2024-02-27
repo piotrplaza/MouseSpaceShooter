@@ -1,8 +1,6 @@
 #pragma once
 
-#include <memory>
-
-class b2World;
+#include <optional>
 
 namespace Systems
 {
@@ -15,8 +13,5 @@ namespace Systems
 		void postInit();
 		void step();
 		void pause();
-
-	private:
-		std::unique_ptr<b2World> world;
 	};
 }
