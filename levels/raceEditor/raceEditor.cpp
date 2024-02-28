@@ -44,7 +44,7 @@ namespace Levels
 		void setup()
 		{
 			auto& staticDecoration = Globals::Components().staticDecorations();
-			auto& textures = Globals::Components().textures();
+			auto& textures = Globals::Components().staticTextures();
 
 			staticDecoration.emplace(Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, cursorRadius, 20));
 			staticDecoration.last().modelMatrixF = [this]() {
@@ -88,10 +88,10 @@ namespace Levels
 
 			for (auto& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
 			{
-				flameAnimatedTextureForPlayer = Globals::Components().animatedTextures().size();
-				Globals::Components().animatedTextures().add({ flameAnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().size();
+				Globals::Components().staticAnimatedTextures().add({ TCM::StaticTexture(flameAnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
 					AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
-				Globals::Components().animatedTextures().last().start(true);
+				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
 		}
 

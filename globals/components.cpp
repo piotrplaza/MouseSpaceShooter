@@ -110,19 +110,34 @@ namespace Globals
 		return *audioListener_;
 	}
 
-	StaticComponents<Components::Texture>& ComponentsHolder::textures()
+	StaticComponents<Components::Texture>& ComponentsHolder::staticTextures()
 	{
-		return *textures_;
+		return *staticTextures_;
 	}
 
-	StaticComponents<Components::AnimatedTexture>& ComponentsHolder::animatedTextures()
+	DynamicComponents<Components::Texture>& ComponentsHolder::dynamicTextures()
 	{
-		return *animatedTextures_;
+		return *dynamicTextures_;
 	}
 
-	StaticComponents<Components::BlendingTexture>& ComponentsHolder::blendingTextures()
+	StaticComponents<Components::AnimatedTexture>& ComponentsHolder::staticAnimatedTextures()
 	{
-		return *blendingTextures_;
+		return *staticAnimatedTextures_;
+	}
+
+	DynamicComponents<Components::AnimatedTexture>& ComponentsHolder::dynamicAnimatedTextures()
+	{
+		return *dynamicAnimatedTextures_;
+	}
+
+	StaticComponents<Components::BlendingTexture>& ComponentsHolder::staticBlendingTextures()
+	{
+		return *staticBlendingTextures_;
+	}
+
+	DynamicComponents<Components::BlendingTexture>& ComponentsHolder::dynamicBlendingTextures()
+	{
+		return *dynamicBlendingTextures_;
 	}
 
 	StaticComponents<Components::Music>& ComponentsHolder::musics()

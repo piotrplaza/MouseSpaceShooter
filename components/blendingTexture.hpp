@@ -2,25 +2,25 @@
 
 #include "_componentBase.hpp"
 
+#include <commonTypes/typeComponentMappers.hpp>
+
 #include <vector>
+#include <initializer_list>
 
 namespace Components
 {
 	struct BlendingTexture : ComponentBase
 	{
-		BlendingTexture(std::initializer_list<ComponentId> texturesIds, bool blendingAnimation = false):
-			texturesIds(texturesIds),
-			blendingAnimation(blendingAnimation)
+		BlendingTexture(std::initializer_list<AbstractTextureComponentVariant> textures):
+			textures(textures)
 		{
 		}
 
-		BlendingTexture(std::vector<ComponentId> texturesIds, bool blendingAnimation = false):
-			texturesIds(std::move(texturesIds)),
-			blendingAnimation(blendingAnimation)
+		BlendingTexture(std::vector<AbstractTextureComponentVariant> textures):
+			textures(std::move(textures))
 		{
 		}
 
-		std::vector<ComponentId> texturesIds;
-		bool blendingAnimation;
+		std::vector<AbstractTextureComponentVariant> textures;
 	};
 }

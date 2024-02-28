@@ -19,17 +19,148 @@
 
 #include <tools/utility.hpp>
 
-#include <GL/glew.h>
-
 #include <functional>
 #include <optional>
 #include <array>
 #include <variant>
 
-namespace Tools
+namespace
 {
 	template <typename ShadersProgram>
-	inline void MVPInitialization(ShadersProgram& shadersProgram, std::optional<glm::mat4> modelMatrix = std::nullopt)
+	inline void PrepareTexturedRender(ShadersProgram& shadersProgram, const AbstractTextureComponentVariant& texture, bool preserveTextureRatio,
+		const glm::mat4& additionalTransform, unsigned textureId);
+
+	inline void TexturedRenderInitialization(auto& shadersProgram, const Components::Texture& textureComponent, bool preserveTextureRatio,
+		glm::vec2 translate, float rotate, glm::vec2 scale, const glm::mat4& additionalTransform, unsigned textureId)
+	{
+		if (textureId == 0)
+			shadersProgram.numOfTextures(1);
+
+		shadersProgram.textures(textureId, textureComponent.loaded.textureUnit - GL_TEXTURE0);
+		shadersProgram.texturesBaseTransform(textureId, Tools::TextureTransform(textureComponent, preserveTextureRatio)
+			* Tools::TextureTransform(translate, rotate, scale) * additionalTransform);
+	}
+
+	inline void AnimatedTexturedRenderInitialization(auto& shadersProgram, const Components::AnimatedTexture& animatedTextureComponent,
+		glm::vec2 translate, float rotate, glm::vec2 scale, const glm::mat4& additionalTransform, unsigned textureId)
+	{
+		struct TextureComponentSelectorVisitor
+		{
+			const Components::Texture& operator ()(const TCM::StaticTexture& texture) const
+			{
+				return Globals::Components().staticTextures()[texture.id];
+			}
+
+			const Components::Texture& operator ()(const TCM::DynamicTexture& texture) const
+			{
+				return Globals::Components().dynamicTextures()[texture.id];
+			}
+
+			const Components::Texture& operator ()(std::monostate) const
+			{
+				throw std::runtime_error("TextureComponentSelectorVisitor: std::monostate not allowed.");
+			}
+		};
+
+		if (textureId == 0)
+			shadersProgram.numOfTextures(1);
+
+		const Components::Texture& textureComponent = std::visit(TextureComponentSelectorVisitor{}, animatedTextureComponent.getTexture());
+		shadersProgram.textures(textureId, textureComponent.loaded.textureUnit - GL_TEXTURE0);
+		shadersProgram.texturesBaseTransform(textureId, animatedTextureComponent.getFrameTransformation() * Tools::TextureTransform(translate, rotate, scale)
+			* additionalTransform);
+	}
+
+	inline void BlendingTexturedRenderInitialization(auto& shadersProgram, const Components::BlendingTexture& blendingTextureComponent,
+		bool preserveTextureRatio, glm::vec2 translate, float rotate, glm::vec2 scale)
+	{
+		for (unsigned i = 0; i < (unsigned)blendingTextureComponent.textures.size(); ++i)
+			PrepareTexturedRender(shadersProgram, blendingTextureComponent.textures[i], preserveTextureRatio, Tools::TextureTransform(translate, rotate, scale), i);
+
+		shadersProgram.numOfTextures(blendingTextureComponent.textures.size());
+	}
+
+	template <typename ShadersProgram>
+	inline void PrepareTexturedRender(ShadersProgram& shadersProgram, const AbstractTextureComponentVariant& texture, bool preserveTextureRatio,
+		const glm::mat4& additionalTransform, unsigned textureId)
+	{
+		class AbstractTexturedRenderInitializationVisitor
+		{
+		public:
+			AbstractTexturedRenderInitializationVisitor(ShadersProgram& shadersProgram, bool preserveTextureRatio,
+				const glm::mat4& additionalTransform, unsigned textureId) :
+				shadersProgram(shadersProgram),
+				preserveTextureRatio(preserveTextureRatio),
+				additionalTransform(additionalTransform),
+				textureId(textureId)
+			{
+			}
+
+			void operator ()(const TCM::StaticTexture& texture) const
+			{
+				const auto& textureComponent = Globals::Components().staticTextures()[texture.id];
+				TexturedRenderInitialization(shadersProgram, textureComponent, preserveTextureRatio, texture.translate, texture.rotate, texture.scale,
+					additionalTransform, textureId);
+			}
+
+			void operator ()(const TCM::DynamicTexture& texture) const
+			{
+				const auto& textureComponent = Globals::Components().dynamicTextures()[texture.id];
+				TexturedRenderInitialization(shadersProgram, textureComponent, preserveTextureRatio, texture.translate, texture.rotate, texture.scale,
+					additionalTransform, textureId);
+			}
+
+			void operator ()(const TCM::StaticAnimatedTexture& animatedTexture) const
+			{
+				const auto& animationTextureComponent = Globals::Components().staticAnimatedTextures()[animatedTexture.id];
+				AnimatedTexturedRenderInitialization(shadersProgram, animationTextureComponent, animatedTexture.translate, animatedTexture.rotate, animatedTexture.scale,
+					additionalTransform, textureId);
+			}
+
+			void operator ()(const TCM::DynamicAnimatedTexture& animatedTexture) const
+			{
+				const auto& animationTextureComponent = Globals::Components().dynamicAnimatedTextures()[animatedTexture.id];
+				AnimatedTexturedRenderInitialization(shadersProgram, animationTextureComponent, animatedTexture.translate, animatedTexture.rotate, animatedTexture.scale,
+					additionalTransform, textureId);
+			}
+
+			void operator ()(const TCM::StaticBlendingTexture& blendingTexture) const
+			{
+				const auto& blendingTextureComponent = Globals::Components().staticBlendingTextures()[blendingTexture.id];
+				BlendingTexturedRenderInitialization(shadersProgram, blendingTextureComponent, preserveTextureRatio, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
+			}
+
+			void operator ()(const TCM::DynamicBlendingTexture& blendingTexture) const
+			{
+				const auto& blendingTextureComponent = Globals::Components().dynamicBlendingTextures()[blendingTexture.id];
+				BlendingTexturedRenderInitialization(shadersProgram, blendingTextureComponent, preserveTextureRatio, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
+			}
+
+			void operator ()(std::monostate) const
+			{
+				shadersProgram.numOfTextures(0);
+			}
+
+		private:
+			ShadersProgram& shadersProgram;
+			bool preserveTextureRatio;
+			const glm::mat4& additionalTransform;
+			unsigned textureId;
+		};
+
+		std::visit(AbstractTexturedRenderInitializationVisitor{ shadersProgram, preserveTextureRatio, additionalTransform, textureId }, texture);
+	}
+}
+
+namespace Tools
+{
+	inline void PrepareTexturedRender(auto& shadersProgram, const AbstractTextureComponentVariant& texture, bool preserveTextureRatio,
+		const glm::mat4& additionalTransform = glm::mat4(1.0f), unsigned textureId = 0)
+	{
+		::PrepareTexturedRender(shadersProgram, texture, preserveTextureRatio, additionalTransform, textureId);
+	}
+
+	inline void MVPInitialization(auto& shadersProgram, std::optional<glm::mat4> modelMatrix = std::nullopt)
 	{
 		const auto modelMatrix_ = modelMatrix ? *modelMatrix : glm::mat4(1.0f);
 
@@ -45,95 +176,7 @@ namespace Tools
 			shadersProgram.normalMatrix(Globals::Components().mvp2D().getNormalMatrix());
 	}
 
-	template <typename ShadersProgram>
-	inline void StaticTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned textureId, bool preserveTextureRatio,
-		glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f })
-	{
-		const auto& textureComponent = Globals::Components().textures()[textureId];
-
-		shadersProgram.numOfTextures(1);
-		shadersProgram.textures(0, textureId);
-		shadersProgram.texturesBaseTransform(0, TextureTransform(textureComponent, preserveTextureRatio) * TextureTransform(translate, rotate, scale));
-	}
-
-	template <typename ShadersProgram>
-	inline void AnimatedTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned animatedTextureId,
-		glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f })
-	{
-		auto& animationTextureComponent = Globals::Components().animatedTextures()[animatedTextureId];
-
-		shadersProgram.numOfTextures(1);
-		shadersProgram.textures(0, animationTextureComponent.getTextureId());
-		shadersProgram.texturesBaseTransform(0, animationTextureComponent.getFrameTransformation() * TextureTransform(translate, rotate, scale));
-	}
-
-	template <typename ShadersProgram>
-	inline void BlendingTexturedRenderInitialization(ShadersProgram& shadersProgram, unsigned blendingTextureId, bool preserveTextureRatio,
-		glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f })
-	{
-		const auto& blendingTextureComponent = Globals::Components().blendingTextures()[blendingTextureId];
-
-		unsigned iStart = 0;
-		if (blendingTextureComponent.blendingAnimation)
-		{
-			iStart = 1;
-			AnimatedTexturedRenderInitialization(shadersProgram, blendingTextureComponent.texturesIds[0], translate, rotate, scale);
-		}
-
-		shadersProgram.numOfTextures(blendingTextureComponent.texturesIds.size());
-		for (unsigned i = iStart; i < (unsigned)blendingTextureComponent.texturesIds.size(); ++i)
-		{
-			const auto textureId = blendingTextureComponent.texturesIds[i];
-			const auto& textureComponent = Globals::Components().textures()[textureId];
-
-			shadersProgram.textures(i, textureId);
-			shadersProgram.texturesBaseTransform(i, TextureTransform(textureComponent, preserveTextureRatio) * TextureTransform(translate, rotate, scale));
-		}
-	}
-
-	template <typename ShadersProgram>
-	class TexturedRenderInitializationVisitor
-	{
-	public:
-		TexturedRenderInitializationVisitor(ShadersProgram& shadersProgram, bool preserveTextureRatio):
-			shadersProgram(shadersProgram),
-			preserveTextureRatio(preserveTextureRatio)
-		{
-		}
-
-		void operator ()(const TCM::Texture& texture)
-		{
-			StaticTexturedRenderInitialization(shadersProgram, texture.id, preserveTextureRatio, texture.translate, texture.rotate, texture.scale);
-		}
-
-		void operator ()(const TCM::AnimatedTexture& animatedTexture)
-		{
-			AnimatedTexturedRenderInitialization(shadersProgram, animatedTexture.id, animatedTexture.translate, animatedTexture.rotate, animatedTexture.scale);
-		}
-
-		void operator ()(const TCM::BlendingTexture& blendingTexture)
-		{
-			BlendingTexturedRenderInitialization(shadersProgram, blendingTexture.id, preserveTextureRatio, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
-		}
-
-		void operator ()(std::monostate)
-		{
-			shadersProgram.numOfTextures(0);
-		}
-
-	private:
-		ShadersProgram& shadersProgram;
-		bool preserveTextureRatio;
-	};
-
-	template <typename ShadersProgram, typename Buffers>
-	inline void PrepareTexturedRender(ShadersProgram& shadersProgram, const Buffers& buffers, const TextureComponentVariant& texture)
-	{
-		std::visit(TexturedRenderInitializationVisitor{ shadersProgram, buffers.renderable->preserveTextureRatio }, texture);
-	}
-
-	template <typename ShadersPrograms>
-	inline void TexturedScreenRender(ShadersPrograms& shadersProgram, unsigned texture, std::function<void()> customSetup = nullptr,
+	inline void TexturedScreenRender(auto& shadersProgram, unsigned texture, std::function<void()> customSetup = nullptr,
 		std::function<std::array<glm::vec3, 6>()> positionsGenerator = nullptr)
 	{
 		const int numOfVertices = 6;
@@ -193,8 +236,7 @@ namespace Tools
 		glDrawArrays(GL_TRIANGLES, 0, numOfVertices);
 	}
 
-	template <typename ShadersPrograms>
-	inline auto StandardFullscreenRenderer(ShadersPrograms& shadersProgram)
+	inline auto StandardFullscreenRenderer(auto& shadersProgram)
 	{
 		const auto& screenInfo = Globals::Components().screenInfo();
 
@@ -219,8 +261,7 @@ namespace Tools
 		};
 	}
 
-	template <typename ShadersPrograms>
-	inline auto Demo3DRotatedFullscreenRenderer(ShadersPrograms& shadersProgram)
+	inline auto Demo3DRotatedFullscreenRenderer(auto& shadersProgram)
 	{
 		const auto& screenInfo = Globals::Components().screenInfo();
 
@@ -269,8 +310,7 @@ namespace Tools
 		};
 	}
 
-	template <typename ShadersPrograms>
-	inline void Lights3DSetup(ShadersPrograms& shadersProgram)
+	inline void Lights3DSetup(auto& shadersProgram)
 	{
 		const auto& lights3D = Globals::Components().lights3D();
 		const auto& mvp3D = Globals::Components().mvp3D();

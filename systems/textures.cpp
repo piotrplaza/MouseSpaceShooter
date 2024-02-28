@@ -32,16 +32,16 @@ namespace Systems
 
 		createTextureFramebuffers();
 
-		customTexturesOffset = Globals::Components().textures().size();
+		customTexturesOffset = Globals::Components().staticTextures().size();
 	}
 
 	void Textures::postInit()
 	{
-		assert(Globals::Components().textures().size() <= maxTextureObjects);
+		assert(Globals::Components().staticTextures().size() <= maxTextureObjects);
 
-		for (unsigned i = customTexturesOffset; i < Globals::Components().textures().size(); ++i)
+		for (unsigned i = customTexturesOffset; i < Globals::Components().staticTextures().size(); ++i)
 		{
-			auto& texture = Globals::Components().textures()[i];
+			auto& texture = Globals::Components().staticTextures()[i];
 
 			if (texture.state == ComponentState::Changed)
 			{
@@ -114,13 +114,13 @@ namespace Systems
 		auto createTextureFramebuffer = [](Components::Framebuffers::SubBuffers& subBuffers,
 			GLint textureMagFilter)
 		{
-			const unsigned textureUnit = GL_TEXTURE0 + Globals::Components().textures().size();
+			const unsigned textureUnit = GL_TEXTURE0 + Globals::Components().staticTextures().size();
 			glActiveTexture(textureUnit);
 			unsigned textureObject;
 			glGenTextures(1, &textureObject);
 			glBindTexture(GL_TEXTURE_2D, textureObject);
 
-			const auto& texture = Globals::Components().textures().emplace(textureUnit, textureObject, GL_CLAMP_TO_EDGE, GL_NEAREST, textureMagFilter);
+			const auto& texture = Globals::Components().staticTextures().emplace(textureUnit, textureObject, GL_CLAMP_TO_EDGE, GL_NEAREST, textureMagFilter);
 			subBuffers.textureUnit = texture.loaded.textureUnit;
 			subBuffers.textureObject = texture.loaded.textureObject;
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture.wrapMode);

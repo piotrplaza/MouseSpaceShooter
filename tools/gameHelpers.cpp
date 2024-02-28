@@ -105,7 +105,7 @@ namespace Tools
 
 	ComponentId CreatePlane(Body body, ComponentId planeTexture, ComponentId thrustAnimatedTexture, PlaneParams params)
 	{
-		auto& plane = Globals::Components().planes().emplace(std::move(body), TCM::Texture(planeTexture));
+		auto& plane = Globals::Components().planes().emplace(std::move(body), TCM::StaticTexture(planeTexture));
 
 		plane.setOrigin(params.position_);
 		plane.setAngle(params.angle_);
@@ -121,7 +121,7 @@ namespace Tools
 		for (int i = 0; i < params.numOfThrusts_; ++i)
 		{
 			auto& planeDecoration = plane.subsequence.emplace_back(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }), std::vector<glm::vec2>{},
-				TCM::AnimatedTexture(thrustAnimatedTexture));
+				TCM::StaticAnimatedTexture(thrustAnimatedTexture));
 
 			Globals::Components().renderingSetups().emplace([&, i,
 				modelUniform = Uniforms::UniformMat4f(),
@@ -147,7 +147,7 @@ namespace Tools
 					else
 						thrust = std::max(thrust - changeStep, targetThrust);
 
-					Globals::Components().animatedTextures()[thrustAnimatedTexture].setSpeedScaling(1.0f + (thrust - 1) * 0.2f);
+					Globals::Components().staticAnimatedTextures()[thrustAnimatedTexture].setSpeedScaling(1.0f + (thrust - 1) * 0.2f);
 
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -172,7 +172,7 @@ namespace Tools
 		body.SetLinearVelocity(ToVec2<b2Vec2>(referenceVelocity + initialVelocity));
 		body.SetBullet(true);
 
-		missile.texture = TCM::Texture(missileTexture);
+		missile.texture = TCM::StaticTexture(missileTexture);
 		missile.preserveTextureRatio = true;
 
 		Globals::Components().renderingSetups().emplace([
@@ -187,7 +187,7 @@ namespace Tools
 		missile.renderLayer = RenderLayer::FarMidground;
 
 		auto& decoration = Globals::Components().dynamicDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
-			TCM::AnimatedTexture(thrustAnimatedTexture), Shapes2D::CreateTexCoordOfRectangle());
+			TCM::StaticAnimatedTexture(thrustAnimatedTexture), Shapes2D::CreateTexCoordOfRectangle());
 
 		Globals::Components().renderingSetups().emplace([&, modelUniform = Uniforms::UniformMat4f(),
 			thrustScale = 0.1f
@@ -305,7 +305,7 @@ namespace Tools
 			});
 
 			Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
-				TCM::Texture(fogTexture), Shapes2D::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1).renderLayer = RenderLayer::Foreground;
+				TCM::StaticTexture(fogTexture), Shapes2D::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1).renderLayer = RenderLayer::Foreground;
 			Globals::Components().staticDecorations().last().resolutionMode = ResolutionMode::LowestLinearBlend1;
 		}
 	}

@@ -146,7 +146,7 @@ namespace Systems
 				Globals::Shaders().texturedPhong().lightModelEnabled(buffers.renderable->params3D->lightModelEnabled_);
 				Globals::Shaders().texturedPhong().alphaDiscardTreshold(buffers.renderable->params3D->alphaDiscardTreshold_);
 				Globals::Shaders().texturedPhong().gpuSideInstancedNormalTransforms(buffers.renderable->params3D->gpuSideInstancedNormalTransforms_);
-				Tools::PrepareTexturedRender(Globals::Shaders().texturedPhong(), buffers, buffers.renderable->texture);
+				Tools::PrepareTexturedRender(Globals::Shaders().texturedPhong(), buffers.renderable->texture, buffers.renderable->preserveTextureRatio);
 				});
 		};
 
@@ -208,7 +208,7 @@ namespace Systems
 				Globals::Shaders().textured().model((buffers.renderable->modelMatrixF)());
 				Globals::Shaders().textured().visibilityCenter((buffers.renderable->originF)());
 				Globals::Shaders().textured().color((buffers.renderable->colorF) ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColor);
-				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers, buffers.renderable->texture);
+				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers.renderable->texture, buffers.renderable->preserveTextureRatio);
 				});
 		};
 

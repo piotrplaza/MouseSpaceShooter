@@ -16,7 +16,7 @@ namespace Components
 	struct Plane : Physical
 	{
 		Plane(Body body,
-			TextureComponentVariant texture = std::monostate{},
+			AbstractTextureComponentVariant texture = std::monostate{},
 			std::vector<glm::vec2> texCoord = {},
 			std::optional<ComponentId> renderingSetup = std::nullopt,
 			RenderLayer renderLayer = RenderLayer::Midground,

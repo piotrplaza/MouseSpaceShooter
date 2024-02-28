@@ -9,7 +9,7 @@ namespace Components
 	struct StaticWall : Physical
 	{
 		StaticWall(Body body,
-			TextureComponentVariant texture = std::monostate{},
+			AbstractTextureComponentVariant texture = std::monostate{},
 			std::optional<ComponentId> renderingSetup = std::nullopt,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):

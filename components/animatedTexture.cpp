@@ -16,9 +16,9 @@
 
 namespace Components
 {
-	AnimatedTexture::AnimatedTexture(unsigned textureId, glm::ivec2 textureSize, glm::ivec2 framesGrid, glm::ivec2 leftTopFrameLeftTopCorner, int rightTopFrameLeftEdge, int leftBottomFrameTopEdge,
+	AnimatedTexture::AnimatedTexture(TextureComponentVariant texture, glm::ivec2 textureSize, glm::ivec2 framesGrid, glm::ivec2 leftTopFrameLeftTopCorner, int rightTopFrameLeftEdge, int leftBottomFrameTopEdge,
 		glm::ivec2 frameSize, float frameDuration, int numOfFrames, int startFrame, AnimationDirection animationDirection, AnimationPolicy animationPolicy, TextureLayout textureLayout):
-		textureId(textureId),
+		texture(std::move(texture)),
 		framesGrid(framesGrid),
 		leftTopFrameLeftTopCorner(glm::vec2(leftTopFrameLeftTopCorner) / textureSize),
 		rightTopFrameLeftEdge((float)rightTopFrameLeftEdge / textureSize.x),
@@ -35,12 +35,12 @@ namespace Components
 		assert(startFrame >= 0 && startFrame < numOfFrames);
 	}
 
-	unsigned AnimatedTexture::getTextureId() const
+	const TextureComponentVariant& AnimatedTexture::getTexture() const
 	{
-		return textureId;
+		return texture;
 	}
 
-	glm::mat4 AnimatedTexture::getFrameTransformation()
+	glm::mat4 AnimatedTexture::getFrameTransformation() const
 	{
 		const auto frameLocation = getFrameLocation();
 		const glm::vec2 delta((rightTopFrameLeftEdge - leftTopFrameLeftTopCorner.x) / (framesGrid.x - 1),
@@ -85,7 +85,7 @@ namespace Components
 		additionalTransform = Tools::TextureTransform(translate, angle, scale);
 	}
 
-	int AnimatedTexture::getAbsoluteFrame()
+	int AnimatedTexture::getAbsoluteFrame() const
 	{
 		if (!started)
 			return 0;
@@ -96,7 +96,7 @@ namespace Components
 		return int(animationTime / frameDuration);
 	}
 
-	int AnimatedTexture::getCurrentFrame()
+	int AnimatedTexture::getCurrentFrame() const
 	{
 		const int absoluteFrame = getAbsoluteFrame();
 		const int absoluteFrameWithPolicy = [&]()
@@ -130,7 +130,7 @@ namespace Components
 			+ (int)animationDirection * numOfFrames) % numOfFrames;
 	}
 
-	glm::ivec2 AnimatedTexture::getFrameLocation()
+	glm::ivec2 AnimatedTexture::getFrameLocation() const
 	{
 		const int currentFrame = getCurrentFrame();
 

@@ -36,7 +36,7 @@ namespace Levels
 
 		void loadTextures()
 		{
-			auto& textures = Globals::Components().textures();
+			auto& textures = Globals::Components().staticTextures();
 
 			plane1Texture = textures.size();
 			textures.emplace("textures/plane 1.png");
@@ -62,16 +62,16 @@ namespace Levels
 
 		void setAnimations()
 		{
-			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().add({ flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+			flame1AnimatedTexture = Globals::Components().staticAnimatedTextures().size();
+			Globals::Components().staticAnimatedTextures().add({ TCM::StaticTexture(flame1AnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
 				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
-			Globals::Components().animatedTextures().last().start(true);
+			Globals::Components().staticAnimatedTextures().last().start(true);
 		}
 
 		void createBackground() const
 		{
 			Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 100.0f, 60.0f }),
-				TCM::Texture(playFieldTexture), Shapes2D::CreateTexCoordOfRectangle(), std::nullopt, RenderLayer::Background);
+				TCM::StaticTexture(playFieldTexture), Shapes2D::CreateTexCoordOfRectangle(), std::nullopt, RenderLayer::Background);
 		}
 
 		void createPlayers()
@@ -87,22 +87,22 @@ namespace Levels
 			const float bordersHGauge = 50.0f;
 
 			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHSize.y + bordersHGauge * 2 },
-				Tools::BodyParams().position({ -levelHSize.x - bordersHGauge, 0.0f })), TCM::Texture(woodTexture));
+				Tools::BodyParams().position({ -levelHSize.x - bordersHGauge, 0.0f })), TCM::StaticTexture(woodTexture));
 
 			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHSize.y + bordersHGauge * 2 },
-				Tools::BodyParams().position({ levelHSize.x + bordersHGauge, 0.0f })), TCM::Texture(woodTexture));
+				Tools::BodyParams().position({ levelHSize.x + bordersHGauge, 0.0f })), TCM::StaticTexture(woodTexture));
 
 			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge * 2, bordersHGauge },
-				Tools::BodyParams().position({ 0.0f, -levelHSize.y - bordersHGauge })), TCM::Texture(woodTexture));
+				Tools::BodyParams().position({ 0.0f, -levelHSize.y - bordersHGauge })), TCM::StaticTexture(woodTexture));
 
 			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge * 2, bordersHGauge },
-				Tools::BodyParams().position({ 0.0f, levelHSize.y + bordersHGauge })), TCM::Texture(woodTexture));
+				Tools::BodyParams().position({ 0.0f, levelHSize.y + bordersHGauge })), TCM::StaticTexture(woodTexture));
 		}
 
 		void createGrapples()
 		{
 			ball = &Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f,
-				Tools::BodyParams().bodyType(b2_dynamicBody).density(0.02f).restitution(0.5f)), TCM::Texture(orbTexture));
+				Tools::BodyParams().bodyType(b2_dynamicBody).density(0.02f).restitution(0.5f)), TCM::StaticTexture(orbTexture));
 			ball->influenceRadius = 15.0f;
 		}
 
@@ -120,7 +120,7 @@ namespace Levels
 			};
 		}
 
-		void step()
+		void step() const
 		{
 			float mouseSensitivity = 0.01f;
 			float gamepadSensitivity = 50.0f;

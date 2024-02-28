@@ -101,7 +101,7 @@ struct RenderableDef
 
 	RenderableDef(std::vector<glm::vec3> vertices,
 		std::vector<glm::vec2> texCoord = {},
-		TextureComponentVariant texture = std::monostate{},
+		AbstractTextureComponentVariant texture = std::monostate{},
 		std::optional<ComponentId> renderingSetup = std::nullopt) :
 		vertices(std::move(vertices)),
 		texCoord(std::move(texCoord)),
@@ -118,7 +118,7 @@ struct RenderableDef
 	std::function<glm::mat4()> modelMatrixF = []() { return glm::mat4(1.0f); };
 	std::function<glm::vec3()> originF = [&]() { return modelMatrixF() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); };
 	std::function<glm::vec4()> colorF;
-	TextureComponentVariant texture;
+	AbstractTextureComponentVariant texture;
 	std::optional<ComponentId> renderingSetup;
 	std::optional<Params3D> params3D;
 

@@ -19,7 +19,7 @@ namespace Components
 
 namespace TypeComponentMappers
 {
-	struct Texture
+	struct StaticTexture
 	{
 		ComponentId id{};
 
@@ -27,10 +27,10 @@ namespace TypeComponentMappers
 		float rotate = 0.0f;
 		glm::vec2 scale = { 1.0f, 1.0f };
 
-		bool operator==(const Texture&) const = default;
+		bool operator==(const StaticTexture&) const = default;
 	};
 
-	struct AnimatedTexture
+	struct DynamicTexture
 	{
 		ComponentId id{};
 
@@ -38,10 +38,10 @@ namespace TypeComponentMappers
 		float rotate = 0.0f;
 		glm::vec2 scale = { 1.0f, 1.0f };
 
-		bool operator==(const AnimatedTexture&) const = default;
+		bool operator==(const DynamicTexture&) const = default;
 	};
 
-	struct BlendingTexture
+	struct StaticAnimatedTexture
 	{
 		ComponentId id{};
 
@@ -49,7 +49,40 @@ namespace TypeComponentMappers
 		float rotate = 0.0f;
 		glm::vec2 scale = { 1.0f, 1.0f };
 
-		bool operator==(const BlendingTexture&) const = default;
+		bool operator==(const StaticAnimatedTexture&) const = default;
+	};
+
+	struct DynamicAnimatedTexture
+	{
+		ComponentId id{};
+
+		glm::vec2 translate = { 0.0f, 0.0f };
+		float rotate = 0.0f;
+		glm::vec2 scale = { 1.0f, 1.0f };
+
+		bool operator==(const DynamicAnimatedTexture&) const = default;
+	};
+
+	struct StaticBlendingTexture
+	{
+		ComponentId id{};
+
+		glm::vec2 translate = { 0.0f, 0.0f };
+		float rotate = 0.0f;
+		glm::vec2 scale = { 1.0f, 1.0f };
+
+		bool operator==(const StaticBlendingTexture&) const = default;
+	};
+
+	struct DynamicBlendingTexture
+	{
+		ComponentId id{};
+
+		glm::vec2 translate = { 0.0f, 0.0f };
+		float rotate = 0.0f;
+		glm::vec2 scale = { 1.0f, 1.0f };
+
+		bool operator==(const DynamicBlendingTexture&) const = default;
 	};
 
 	struct Grapple
@@ -111,6 +144,26 @@ namespace TypeComponentMappers
 
 namespace TCM = TypeComponentMappers;
 
-using TextureComponentVariant = std::variant<std::monostate, TCM::Texture, TCM::AnimatedTexture, TCM::BlendingTexture>;
-using BodyComponentVariant = std::variant<std::monostate, TCM::Grapple, TCM::Missile, TCM::Plane, TCM::StaticWall, TCM::DynamicWall,
-	TCM::StaticPolyline, TCM::DynamicPolyline>;
+using TextureComponentVariant = std::variant<
+	std::monostate,
+	TCM::StaticTexture,
+	TCM::DynamicTexture>;
+
+using AbstractTextureComponentVariant = std::variant<
+	std::monostate,
+	TCM::StaticTexture,
+	TCM::DynamicTexture,
+	TCM::StaticAnimatedTexture,
+	TCM::DynamicAnimatedTexture,
+	TCM::StaticBlendingTexture,
+	TCM::DynamicBlendingTexture>;
+
+using BodyComponentVariant = std::variant<
+	std::monostate,
+	TCM::Grapple,
+	TCM::Missile,
+	TCM::Plane,
+	TCM::StaticWall,
+	TCM::DynamicWall,
+	TCM::StaticPolyline,
+	TCM::DynamicPolyline>;

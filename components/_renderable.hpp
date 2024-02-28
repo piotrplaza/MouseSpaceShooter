@@ -57,7 +57,7 @@ struct Renderable : ComponentBase, RenderableDef
 
 	Renderable() = default;
 
-	Renderable(TextureComponentVariant texture,
+	Renderable(AbstractTextureComponentVariant texture,
 		std::optional<ComponentId> renderingSetup,
 		RenderLayer renderLayer,
 		std::optional<Shaders::ProgramId> customShadersProgram,

@@ -116,7 +116,7 @@ namespace Levels
 
 		void loadTextures()
 		{
-			auto& textures = Globals::Components().textures();
+			auto& textures = Globals::Components().staticTextures();
 
 			plane1Texture = textures.size();
 			textures.emplace("textures/plane 1.png");
@@ -151,18 +151,18 @@ namespace Levels
 
 		void setAnimations()
 		{
-			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().add({ flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, Tools::Random(0.01f, 0.03f), 32, 0,
+			flame1AnimatedTexture = Globals::Components().staticAnimatedTextures().size();
+			Globals::Components().staticAnimatedTextures().add({ TCM::StaticTexture(flame1AnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, Tools::Random(0.01f, 0.03f), 32, 0,
 				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
-			Globals::Components().animatedTextures().last().start(true);
+			Globals::Components().staticAnimatedTextures().last().start(true);
 
-			recursiveFaceAnimatedTextureBegin = Globals::Components().animatedTextures().size();
+			recursiveFaceAnimatedTextureBegin = Globals::Components().staticAnimatedTextures().size();
 
 			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
 			{
-				Globals::Components().animatedTextures().add({ recursiveFaceAnimationTexture, { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, rand() % 50,
+				Globals::Components().staticAnimatedTextures().add({ TCM::StaticTexture(recursiveFaceAnimationTexture), { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, rand() % 50,
 					(i % 2 == 0) ? AnimationDirection::Forward : AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
-				Globals::Components().animatedTextures().last().start(true);
+				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
 		}
 
@@ -185,7 +185,7 @@ namespace Levels
 				const glm::vec2 pos1(glm::cos(i * rimStep) * rimRadius, glm::sin(i * rimStep) * rimRadius);
 				const glm::vec2 pos2(glm::cos((i + 1) * rimStep) * rimRadius, glm::sin((i + 1) * rimStep) * rimRadius);
 				staticWalls.emplace(Tools::CreateBoxBody({ rimHThickness, rimSegmentHLength + rimSegmentMariginsHLength },
-					Tools::BodyParams().position((pos1 + pos2) / 2.0f).angle(rimStep * (2 * i + 1) / 2).bodyType(b2_dynamicBody).density(0.01f)), TCM::Texture(mosaicTexture), sceneCoordTexturesRS);
+					Tools::BodyParams().position((pos1 + pos2) / 2.0f).angle(rimStep * (2 * i + 1) / 2).bodyType(b2_dynamicBody).density(0.01f)), TCM::StaticTexture(mosaicTexture), sceneCoordTexturesRS);
 				staticWalls.last().texCoord = staticWalls.last().getTexCoords(true);
 
 				if (i > 0)
@@ -203,22 +203,22 @@ namespace Levels
 			for (int sign : {-1, 1})
 			{
 				staticWalls.emplace(Tools::CreateBoxBody({ borderHThickness, borderHSize.y + borderHThickness * 2.0f },
-					Tools::BodyParams().position({ (borderHSize.x + borderHThickness) * sign, 0.0f })), TCM::Texture(spaceRockTexture),
+					Tools::BodyParams().position({ (borderHSize.x + borderHThickness) * sign, 0.0f })), TCM::StaticTexture(spaceRockTexture),
 					sceneCoordTexturesRS).colorF = []() { return glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); };
 				staticWalls.emplace(Tools::CreateBoxBody({ borderHSize.x + borderHThickness * 2.0f, borderHThickness },
-					Tools::BodyParams().position({ 0.0f, (borderHSize.y + borderHThickness) * sign })), TCM::Texture(spaceRockTexture),
+					Tools::BodyParams().position({ 0.0f, (borderHSize.y + borderHThickness) * sign })), TCM::StaticTexture(spaceRockTexture),
 					sceneCoordTexturesRS).colorF = []() { return glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); };
 			}
 		}
 
-		void createAdditionalDecorations()
+		void createAdditionalDecorations() const
 		{
 			auto& staticDecorations = Globals::Components().staticDecorations();
 
 			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
 			{
 				staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }),
-					TCM::AnimatedTexture(recursiveFaceAnimatedTextureBegin + i), Shapes2D::CreateTexCoordOfRectangle(), recursiveFaceRSBegin + i, RenderLayer::NearBackground);
+					TCM::StaticAnimatedTexture(recursiveFaceAnimatedTextureBegin + i), Shapes2D::CreateTexCoordOfRectangle(), recursiveFaceRSBegin + i, RenderLayer::NearBackground);
 			}
 		}
 

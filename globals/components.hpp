@@ -67,9 +67,12 @@ namespace Globals
 		Components::MainFramebufferRenderer& mainFramebufferRenderer();
 		Components::AudioListener& audioListener();
 
-		StaticComponents<Components::Texture>& textures();
-		StaticComponents<Components::AnimatedTexture>& animatedTextures();
-		StaticComponents<Components::BlendingTexture>& blendingTextures();
+		StaticComponents<Components::Texture>& staticTextures();
+		DynamicComponents<Components::Texture>& dynamicTextures();
+		StaticComponents<Components::AnimatedTexture>& staticAnimatedTextures();
+		DynamicComponents<Components::AnimatedTexture>& dynamicAnimatedTextures();
+		StaticComponents<Components::BlendingTexture>& staticBlendingTextures();
+		DynamicComponents<Components::BlendingTexture>& dynamicBlendingTextures();
 		StaticComponents<Components::Music>& musics();
 		StaticComponents<Components::SoundBuffer>& soundsBuffers();
 		DynamicComponents<Components::Sound>& sounds();
@@ -112,9 +115,12 @@ namespace Globals
 		std::unique_ptr<Components::MainFramebufferRenderer> mainFramebufferRenderer_ = std::make_unique<Components::MainFramebufferRenderer>();
 		std::unique_ptr<Components::AudioListener> audioListener_ = std::make_unique<Components::AudioListener>();
 
-		std::unique_ptr<StaticComponents<Components::Texture>> textures_ = std::make_unique<StaticComponents<Components::Texture>>();
-		std::unique_ptr<StaticComponents<Components::AnimatedTexture>> animatedTextures_ = std::make_unique<StaticComponents<Components::AnimatedTexture>>();
-		std::unique_ptr<StaticComponents<Components::BlendingTexture>> blendingTextures_ = std::make_unique<StaticComponents<Components::BlendingTexture>>();
+		std::unique_ptr<StaticComponents<Components::Texture>> staticTextures_ = std::make_unique<StaticComponents<Components::Texture>>();
+		std::unique_ptr<DynamicComponents<Components::Texture>> dynamicTextures_ = std::make_unique<DynamicComponents<Components::Texture>>();
+		std::unique_ptr<StaticComponents<Components::AnimatedTexture>> staticAnimatedTextures_ = std::make_unique<StaticComponents<Components::AnimatedTexture>>();
+		std::unique_ptr<DynamicComponents<Components::AnimatedTexture>> dynamicAnimatedTextures_ = std::make_unique<DynamicComponents<Components::AnimatedTexture>>();
+		std::unique_ptr<StaticComponents<Components::BlendingTexture>> staticBlendingTextures_ = std::make_unique<StaticComponents<Components::BlendingTexture>>();
+		std::unique_ptr<DynamicComponents<Components::BlendingTexture>> dynamicBlendingTextures_ = std::make_unique<DynamicComponents<Components::BlendingTexture>>();
 		std::unique_ptr<StaticComponents<Components::Music>> musics_ = std::make_unique<StaticComponents<Components::Music>>();
 		std::unique_ptr<StaticComponents<Components::SoundBuffer>> soundsBuffers_ = std::make_unique<StaticComponents<Components::SoundBuffer>>();
 		std::unique_ptr<DynamicComponents<Components::Sound>> sounds_ = std::make_unique<DynamicComponents<Components::Sound>>();

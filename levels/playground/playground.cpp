@@ -63,7 +63,7 @@ namespace Levels
 
 		void loadTextures()
 		{
-			auto& textures = Globals::Components().textures();
+			auto& textures = Globals::Components().staticTextures();
 
 			planeTextures[0] = textures.size();
 			textures.emplace("textures/plane 1.png");
@@ -186,23 +186,23 @@ namespace Levels
 		{
 			for (auto& flameAnimatedTextureForPlayer: flameAnimatedTextureForPlayers)
 			{
-				flameAnimatedTextureForPlayer = Globals::Components().animatedTextures().size();
-				Globals::Components().animatedTextures().add({ flameAnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().size();
+				Globals::Components().staticAnimatedTextures().add({ TCM::StaticTexture(flameAnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
 					AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
-				Globals::Components().animatedTextures().last().start(true);
+				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
 
-			flameAnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().add(Globals::Components().animatedTextures().last());
+			flameAnimatedTexture = Globals::Components().staticAnimatedTextures().size();
+			Globals::Components().staticAnimatedTextures().add(Globals::Components().staticAnimatedTextures().last());
 
-			invertedFlameAnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().add(Globals::Components().animatedTextures().last());
-			Globals::Components().animatedTextures().last().setAdditionalTransformation({ 0.0f, 0.0f }, glm::pi<float>());
+			invertedFlameAnimatedTexture = Globals::Components().staticAnimatedTextures().size();
+			Globals::Components().staticAnimatedTextures().add(Globals::Components().staticAnimatedTextures().last());
+			Globals::Components().staticAnimatedTextures().last().setAdditionalTransformation({ 0.0f, 0.0f }, glm::pi<float>());
 
-			recursiveFaceAnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().add({ recursiveFaceAnimationTexture, { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
+			recursiveFaceAnimatedTexture = Globals::Components().staticAnimatedTextures().size();
+			Globals::Components().staticAnimatedTextures().add({ TCM::StaticTexture(recursiveFaceAnimationTexture), { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
 				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
-			Globals::Components().animatedTextures().last().start(true);
+			Globals::Components().staticAnimatedTextures().last().start(true);
 		}
 
 		void createBackground()
@@ -254,8 +254,8 @@ namespace Levels
 
 		void createAdditionalDecorations() const
 		{
-			const auto blendingTexture = Globals::Components().blendingTextures().size();
-			Globals::Components().blendingTextures().add({ { invertedFlameAnimatedTexture, ppTexture, skullTexture, avatarTexture }, true });
+			const auto blendingTexture = Globals::Components().staticBlendingTextures().size();
+			Globals::Components().staticBlendingTextures().add({ TCM::StaticAnimatedTexture(invertedFlameAnimatedTexture), TCM::StaticTexture(ppTexture), TCM::StaticTexture(skullTexture), TCM::StaticTexture(avatarTexture) });
 
 			for (int i = 0; i < 2; ++i)
 			{
@@ -281,7 +281,7 @@ namespace Levels
 				});
 
 				Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle(portraitCenter, { 10.0f, 10.0f }),
-					TCM::BlendingTexture(blendingTexture), Shapes2D::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1,
+					TCM::StaticBlendingTexture(blendingTexture), Shapes2D::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1,
 					RenderLayer::NearMidground).preserveTextureRatio = true;
 			}
 
@@ -314,45 +314,45 @@ namespace Levels
 					Globals::Components().staticWalls().last().subsequence.emplace_back(Shapes2D::CreateVerticesOfLineOfRectangles({ 0.4f, 0.4f },
 						{ { -0.5f, -5.0f }, { 0.5f, -5.0f }, { 0.5f, 5.0f }, { -0.5f, 5.0f }, { -0.5f, -5.0f } },
 						{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }), Shapes2D::CreateTexCoordOfRectangle(),
-						TCM::Texture(roseTexture));
+						TCM::StaticTexture(roseTexture));
 					Globals::Components().staticWalls().last().subsequence.back().modelMatrixF =
 						Globals::Components().staticWalls()[Globals::Components().staticWalls().size() - 1].modelMatrixF;
 				};
 
 				auto& wall1Body = *Globals::Components().staticWalls().emplace(
 					Tools::CreateBoxBody({ 0.5f, 5.0f }, Tools::BodyParams().position({ 5.0f, -5.0f }).bodyType(b2_dynamicBody).density(0.2f)),
-					TCM::Texture(woodTexture), Globals::Components().renderingSetups().size() - 1, RenderLayer::NearMidground).body;
+					TCM::StaticTexture(woodTexture), Globals::Components().renderingSetups().size() - 1, RenderLayer::NearMidground).body;
 				wall1Body.GetFixtureList()->SetRestitution(0.5f);
 				setRenderingSetupAndSubsequence();
 
 				auto& wall2Body = *Globals::Components().staticWalls().emplace(
 					Tools::CreateBoxBody({ 0.5f, 5.0f }, Tools::BodyParams().position({ 5.0f, 5.0f }).bodyType(b2_dynamicBody).density(0.2f)),
-					TCM::Texture(woodTexture), std::nullopt, RenderLayer::NearMidground).body;
+					TCM::StaticTexture(woodTexture), std::nullopt, RenderLayer::NearMidground).body;
 				wall2Body.GetFixtureList()->SetRestitution(0.5f);
 				setRenderingSetupAndSubsequence();
 
 				Tools::CreateRevoluteJoint(wall1Body, wall2Body, { 5.0f, 0.0f });
 			}
 
-			const auto blendingTexture = Globals::Components().blendingTextures().size();
-			Globals::Components().blendingTextures().add({ fractalTexture, woodTexture, spaceRockTexture, foiledEggsTexture });
+			const auto blendingTexture = Globals::Components().staticBlendingTextures().size();
+			Globals::Components().staticBlendingTextures().add({ TCM::StaticTexture(fractalTexture), TCM::StaticTexture(woodTexture), TCM::StaticTexture(spaceRockTexture), TCM::StaticTexture(foiledEggsTexture) });
 
 			for (const float pos : {-30.0f, 30.0f})
 			{
 				Globals::Components().staticWalls().emplace(Tools::CreateCircleBody(5.0f, Tools::BodyParams().position({ 0.0f, pos }).bodyType(b2_dynamicBody).density(0.01f)),
-					TCM::Texture(), Globals::Components().renderingSetups().size(), RenderLayer::Midground, Globals::Shaders().texturedColorThreshold().getProgramId());
+					TCM::StaticTexture(), Globals::Components().renderingSetups().size(), RenderLayer::Midground, Globals::Shaders().texturedColorThreshold().getProgramId());
 
 				Globals::Components().renderingSetups().emplace([=, this, wallId = Globals::Components().staticWalls().size() - 1](auto) {
 					Tools::MVPInitialization(Globals::Shaders().texturedColorThreshold(), Globals::Components().staticWalls()[wallId].modelMatrixF());
 
 					if (pos < 0.0f)
 					{
-						Tools::StaticTexturedRenderInitialization(Globals::Shaders().texturedColorThreshold(), orbTexture, true);
+						Tools::PrepareTexturedRender(Globals::Shaders().texturedColorThreshold(), TCM::StaticTexture(orbTexture), true);
 						Globals::Shaders().texturedColorThreshold().texturesCustomTransform(Tools::TextureTransform({ 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }));
 					}
 					else
 					{
-						Tools::BlendingTexturedRenderInitialization(Globals::Shaders().texturedColorThreshold(), blendingTexture, true);
+						Tools::PrepareTexturedRender(Globals::Shaders().texturedColorThreshold(), TCM::StaticBlendingTexture(blendingTexture), true);
 					}
 
 					const float simulationDuration = Globals::Components().physics().simulationDuration;
@@ -362,7 +362,7 @@ namespace Levels
 					});
 
 				auto& wall = Globals::Components().staticWalls().emplace(Tools::CreateCircleBody(10.0f, Tools::BodyParams().position({ pos, 0.0f }).bodyType(b2_dynamicBody).density(0.01f)),
-					TCM::Texture(0));
+					TCM::StaticTexture(0));
 				wall.renderLayer = RenderLayer::NearMidground;
 				wall.renderF = []() { return false; };
 
@@ -386,7 +386,7 @@ namespace Levels
 						float result = value;
 						value += 0.002f;
 						return result;
-					}), Shapes2D::CreateTexCoordOfRectangle(), TCM::Texture(roseTexture), Globals::Components().renderingSetups().size() - 1);
+					}), Shapes2D::CreateTexCoordOfRectangle(), TCM::StaticTexture(roseTexture), Globals::Components().renderingSetups().size() - 1);
 			}
 
 			Globals::Components().staticWalls().last().resolutionMode = ResolutionMode::PixelArtBlend0;
@@ -437,17 +437,17 @@ namespace Levels
 				};
 			});
 
-			const auto blendingTexture = Globals::Components().blendingTextures().size();
-			Globals::Components().blendingTextures().add({ fractalTexture, woodTexture, spaceRockTexture, foiledEggsTexture });
+			const auto blendingTexture = Globals::Components().staticBlendingTextures().size();
+			Globals::Components().staticBlendingTextures().add({ TCM::StaticTexture(fractalTexture), TCM::StaticTexture(woodTexture), TCM::StaticTexture(spaceRockTexture), TCM::StaticTexture(foiledEggsTexture) });
 
 			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHeightHSize + bordersHGauge * 2 },
-				Tools::BodyParams().position({ -levelWidthHSize - bordersHGauge, 0.0f })), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
+				Tools::BodyParams().position({ -levelWidthHSize - bordersHGauge, 0.0f })), TCM::StaticBlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
 			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHeightHSize + bordersHGauge * 2 },
-				Tools::BodyParams().position({ levelWidthHSize + bordersHGauge, 0.0f })), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
+				Tools::BodyParams().position({ levelWidthHSize + bordersHGauge, 0.0f })), TCM::StaticBlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
 			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHeightHSize + bordersHGauge * 2, bordersHGauge },
-				Tools::BodyParams().position({ 0.0f, -levelHeightHSize - bordersHGauge })), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
+				Tools::BodyParams().position({ 0.0f, -levelHeightHSize - bordersHGauge })), TCM::StaticBlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
 			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHeightHSize + bordersHGauge * 2, bordersHGauge },
-				Tools::BodyParams().position({ 0.0f, levelHeightHSize + bordersHGauge })), TCM::BlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
+				Tools::BodyParams().position({ 0.0f, levelHeightHSize + bordersHGauge })), TCM::StaticBlendingTexture(blendingTexture), renderingSetup, RenderLayer::NearMidground).preserveTextureRatio = true;
 
 			renderingSetup = Globals::Components().renderingSetups().size();
 			Globals::Components().renderingSetups().emplace([
@@ -468,7 +468,7 @@ namespace Levels
 			Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfLineOfRectangles({ 1.5f, 1.5f },
 				{ { -levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, levelHeightHSize },
 				{ -levelWidthHSize, levelHeightHSize }, { -levelWidthHSize, -levelHeightHSize } },
-				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::Texture(weedTexture), Shapes2D::CreateTexCoordOfRectangle(), renderingSetup);
+				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), TCM::StaticTexture(weedTexture), Shapes2D::CreateTexCoordOfRectangle(), renderingSetup);
 			Globals::Components().staticDecorations().last().renderLayer = RenderLayer::FarForeground;
 			//Globals::Components().decorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
 		}
@@ -476,7 +476,7 @@ namespace Levels
 		void createGrapples() const
 		{
 			Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 0.0f, 10.0f })),
-				TCM::Texture(orbTexture)).influenceRadius = 15.0f;
+				TCM::StaticTexture(orbTexture)).influenceRadius = 15.0f;
 
 			Globals::Components().renderingSetups().emplace([
 				colorUniform = Uniforms::Uniform4f()
@@ -487,7 +487,7 @@ namespace Levels
 				});
 
 			Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 0.0f, -10.0f })),
-				TCM::Texture(orbTexture), Globals::Components().renderingSetups().size() - 1).influenceRadius = 15.0f;
+				TCM::StaticTexture(orbTexture), Globals::Components().renderingSetups().size() - 1).influenceRadius = 15.0f;
 
 			Globals::Components().renderingSetups().emplace([
 				texturesCustomTransformUniform = Uniforms::UniformMat4f()
@@ -499,14 +499,14 @@ namespace Levels
 
 			Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f,
 				Tools::BodyParams().position({ -10.0f, -30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)),
-				TCM::Texture(orbTexture), Globals::Components().renderingSetups().size() - 1).influenceRadius = 30.0f;
+				TCM::StaticTexture(orbTexture), Globals::Components().renderingSetups().size() - 1).influenceRadius = 30.0f;
 
 			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(4.0f,
-				Tools::BodyParams().position({ -10.0f, 30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)), TCM::Texture(0));
+				Tools::BodyParams().position({ -10.0f, 30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)), TCM::StaticTexture(0));
 			grapple.influenceRadius = 30.0f;
 			grapple.renderF = []() { return false; };
 			grapple.subsequence.emplace_back(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.2f, 5.2f }),
-				Shapes2D::CreateTexCoordOfRectangle(), TCM::AnimatedTexture(recursiveFaceAnimatedTexture));
+				Shapes2D::CreateTexCoordOfRectangle(), TCM::StaticAnimatedTexture(recursiveFaceAnimatedTexture));
 			grapple.subsequence.back().modelMatrixF = grapple.modelMatrixF;
 			grapple.subsequence.back().renderingSetup = Globals::Components().renderingSetups().size();
 			Globals::Components().renderingSetups().add(createRecursiveFaceRS([]() { return glm::vec4(1.0f); }, {3.0f, 4.0f}));
@@ -554,11 +554,11 @@ namespace Levels
 				{
 					first = false;
 					auto& wall = Globals::Components().dynamicWalls().emplace(Tools::CreateBoxBody({ 5.0f, 5.0f },
-						Tools::BodyParams().position({ -50.0f, 30.0f })), TCM::Texture(woodTexture, { 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }), standardRS);
+						Tools::BodyParams().position({ -50.0f, 30.0f })), TCM::StaticTexture(woodTexture, { 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }), standardRS);
 					dynamicWallId = wall.getComponentId();
 
 					auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f, Tools::BodyParams().position({ 50.0f, 30.0f })),
-						TCM::AnimatedTexture(recursiveFaceAnimatedTexture, { 0.0f, 0.0f }, 0.0f, { 6.0f, 6.0f }), recursiveFaceRS);
+						TCM::StaticAnimatedTexture(recursiveFaceAnimatedTexture, { 0.0f, 0.0f }, 0.0f, { 6.0f, 6.0f }), recursiveFaceRS);
 					grapple.influenceRadius = 20.0f;
 					dynamicGrappleId = grapple.getComponentId();
 				}

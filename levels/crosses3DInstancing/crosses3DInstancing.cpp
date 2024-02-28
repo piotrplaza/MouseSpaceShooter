@@ -37,7 +37,7 @@ namespace Levels
 
 		void loadTextures()
 		{
-			auto& textures = Globals::Components().textures();
+			auto& textures = Globals::Components().staticTextures();
 
 			marbleTexture = textures.size();
 			textures.emplace("textures/green marble.jpg").wrapMode = GL_MIRRORED_REPEAT;
@@ -62,7 +62,7 @@ namespace Levels
 			{
 				Shapes3D::AddCross(dynamicDecorations.emplace(), { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); });
 				dynamicDecorations.last().params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true).gpuSideInstancedNormalTransforms(true);
-				dynamicDecorations.last().texture = TCM::Texture(marbleTexture);
+				dynamicDecorations.last().texture = TCM::StaticTexture(marbleTexture);
 				dynamicDecorations.last().bufferDataUsage = GL_DYNAMIC_DRAW;
 				dynamicDecorations.last().instancing.emplace().init(numOfCrosses, glm::mat4(1.0f));
 			}

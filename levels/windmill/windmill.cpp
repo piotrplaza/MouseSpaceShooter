@@ -85,7 +85,7 @@ namespace Levels
 
 		void loadTextures()
 		{
-			auto& textures = Globals::Components().textures();
+			auto& textures = Globals::Components().staticTextures();
 
 			planeTextures[0] = textures.size();
 			textures.emplace("textures/plane 1.png");
@@ -160,19 +160,19 @@ namespace Levels
 		{
 			for (auto& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
 			{
-				flameAnimatedTextureForPlayer = Globals::Components().animatedTextures().size();
-				Globals::Components().animatedTextures().add({ flameAnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().size();
+				Globals::Components().staticAnimatedTextures().add({ TCM::StaticTexture(flameAnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
 					AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
-				Globals::Components().animatedTextures().last().start(true);
+				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
 
-			flameAnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().add(Globals::Components().animatedTextures().last());
+			flameAnimatedTexture = Globals::Components().staticAnimatedTextures().size();
+			Globals::Components().staticAnimatedTextures().add(Globals::Components().staticAnimatedTextures().last());
 
-			recursiveFaceAnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().add({ recursiveFaceAnimationTexture, { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
+			recursiveFaceAnimatedTexture = Globals::Components().staticAnimatedTextures().size();
+			Globals::Components().staticAnimatedTextures().add({ TCM::StaticTexture(recursiveFaceAnimationTexture), { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
 				AnimationDirection::Forward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
-			Globals::Components().animatedTextures().last().start(true);
+			Globals::Components().staticAnimatedTextures().last().start(true);
 		}
 
 		void createBackground() const
@@ -190,7 +190,7 @@ namespace Levels
 			auto& staticDecorations = Globals::Components().staticDecorations();
 
 			staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 15.0f, 15.0f }),
-				TCM::AnimatedTexture(recursiveFaceAnimatedTexture), Shapes2D::CreateTexCoordOfRectangle(), recursiveFaceRS, RenderLayer::NearForeground);
+				TCM::StaticAnimatedTexture(recursiveFaceAnimatedTexture), Shapes2D::CreateTexCoordOfRectangle(), recursiveFaceRS, RenderLayer::NearForeground);
 			staticDecorations.last().modelMatrixF = [&, angle = 0.0f]() mutable {
 				return glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(innerForceScale)), angle += 2.0f * physics.frameDuration, { 0.0f, 0.0f, 1.0f });
 			};
@@ -210,7 +210,7 @@ namespace Levels
 				{ glm::vec2{-armOverlap, 0.0f}, glm::vec2{armLength, armHWidth}, glm::vec2{armLength, -armHWidth} },
 				{ glm::vec2{armOverlap, 0.0f}, glm::vec2{-armLength, -armHWidth}, glm::vec2{-armLength, armHWidth} } },
 				Tools::BodyParams().bodyType(b2_kinematicBody)));
-			staticWalls.last().texture = TCM::Texture(woodTexture);
+			staticWalls.last().texture = TCM::StaticTexture(woodTexture);
 		}
 
 		void createOuterRing()
@@ -252,7 +252,7 @@ namespace Levels
 				const float startAngle = glm::half_pi<float>() * i;
 
 				auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleRDist).bodyType(b2_kinematicBody)),
-					TCM::Texture(orbTexture));
+					TCM::StaticTexture(orbTexture));
 				grapple.influenceRadius = 15.0f;
 				grapple.stepF = [&, grappleRDist, startAngle, angle = 0.0f, rotationSpeed = 0.2f]() mutable {
 					const b2Vec2 pos = grapple.body->GetTransform().p;
@@ -267,7 +267,7 @@ namespace Levels
 				const float startAngle = glm::half_pi<float>() * i;
 
 				auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleRDist)
-					.bodyType(b2_dynamicBody).density(10.0f)), TCM::Texture(orbTexture));
+					.bodyType(b2_dynamicBody).density(10.0f)), TCM::StaticTexture(orbTexture));
 				grapple.influenceRadius = 15.0f;
 				grapplesDebris.push_back(grapple.getComponentId());
 			}*/
@@ -293,7 +293,7 @@ namespace Levels
 				center *= (outerRingInitR + armLength) / 2.0f;
 				dynamicWalls.emplace(Tools::CreateRandomPolygonBody(12, 5.0f,
 					Tools::BodyParams().bodyType(b2_dynamicBody).position(center).density(2.0f).linearDamping(0.1f).angularDamping(0.1f)));
-				dynamicWalls.last().texture = TCM::Texture(spaceRockTexture);
+				dynamicWalls.last().texture = TCM::StaticTexture(spaceRockTexture);
 
 				dynamicWallsDebris.push_back(dynamicWalls.last().getComponentId());
 			}
@@ -411,7 +411,7 @@ namespace Levels
 				playerId * glm::half_pi<float>() + glm::quarter_pi<float>());
 		}
 
-		void windmillRotation()
+		void windmillRotation() const
 		{
 			const float rotationSpeed = 0.1f;
 			auto& windmill = Globals::Components().staticWalls()[windmillWall];

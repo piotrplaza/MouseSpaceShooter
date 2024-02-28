@@ -51,7 +51,7 @@ namespace Levels
 
 		void loadTextures()
 		{
-			auto& textures = Globals::Components().textures();
+			auto& textures = Globals::Components().staticTextures();
 
 			plane1Texture = textures.size();
 			textures.emplace("textures/plane 1.png");
@@ -103,10 +103,10 @@ namespace Levels
 
 		void setAnimations()
 		{
-			flame1AnimatedTexture = Globals::Components().animatedTextures().size();
-			Globals::Components().animatedTextures().add({ flame1AnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+			flame1AnimatedTexture = Globals::Components().staticAnimatedTextures().size();
+			Globals::Components().staticAnimatedTextures().add({ TCM::StaticTexture(flame1AnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
 				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
-			Globals::Components().animatedTextures().last().start(true);
+			Globals::Components().staticAnimatedTextures().last().start(true);
 
 			/*flame2AnimatedTexture = Globals::Components().animatedTextures().size();
 			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
@@ -175,7 +175,7 @@ namespace Levels
 				Globals::Components().staticWalls().emplace(
 					Tools::CreateBoxBody({ Tools::Random(0.1f, 1.0f), Tools::Random(0.1f, 1.0f) },
 						Tools::BodyParams().position(pos).angle(angle).bodyType(b2_dynamicBody).density(0.02f)),
-					TCM::Texture(spaceRockTexture));
+					TCM::StaticTexture(spaceRockTexture));
 			}
 
 			debrisEnd = Globals::Components().staticWalls().size();
@@ -188,7 +188,7 @@ namespace Levels
 		void createGrapples()
 		{
 			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(20.0f,
-				Tools::BodyParams()), TCM::Texture(orbTexture));
+				Tools::BodyParams()), TCM::StaticTexture(orbTexture));
 			grapple.influenceRadius = 100.0f;
 			planetId = grapple.getComponentId();
 		}

@@ -23,7 +23,7 @@ namespace Levels
 
 		void loadTextures()
 		{
-			auto& textures = Globals::Components().textures();
+			auto& textures = Globals::Components().staticTextures();
 
 			dzidziaTexture = textures.size();
 			textures.emplace("textures/photos/dzidzia1.png");
@@ -43,7 +43,7 @@ namespace Levels
 			staticWalls.emplace(Tools::CreateBoxBody({ 10.0f * screenInfo.getAspectRatio(), 1.0f }, Tools::BodyParams().position({ 0.0f, -11.0f })));
 			staticWalls.emplace(Tools::CreateBoxBody({ 10.0f * screenInfo.getAspectRatio(), 1.0f }, Tools::BodyParams().position({ 0.0f, 11.0f })));
 
-			staticWalls.emplace(Tools::CreateCircleBody(2.0f, Tools::BodyParams().bodyType(b2_kinematicBody).position({0.0f, 7.0f}).restitution(0.2f)), TCM::Texture(dzidziaTexture));
+			staticWalls.emplace(Tools::CreateCircleBody(2.0f, Tools::BodyParams().bodyType(b2_kinematicBody).position({0.0f, 7.0f}).restitution(0.2f)), TCM::StaticTexture(dzidziaTexture));
 			staticWalls.last().stepF = [&wall = staticWalls.last(), &mouse]() {
 				wall.setVelocity(mouse.getCartesianDelta() * 0.8f);
 			};

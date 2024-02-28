@@ -14,7 +14,7 @@ struct Physical : Renderable
 	Physical() = default;
 
 	Physical(Body body,
-		TextureComponentVariant texture,
+		AbstractTextureComponentVariant texture,
 		std::optional<ComponentId> renderingSetup,
 		RenderLayer renderLayer,
 		std::optional<Shaders::ProgramId> customShadersProgram) :

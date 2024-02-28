@@ -47,7 +47,7 @@ namespace Levels
 
 		void loadTextures()
 		{
-			auto& textures = Globals::Components().textures();
+			auto& textures = Globals::Components().staticTextures();
 
 			planeTextures[0] = textures.size();
 			textures.emplace("textures/plane 1.png");
@@ -104,10 +104,10 @@ namespace Levels
 		{
 			for (auto& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
 			{
-				flameAnimatedTextureForPlayer = Globals::Components().animatedTextures().size();
-				Globals::Components().animatedTextures().add({ flameAnimationTexture, { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().size();
+				Globals::Components().staticAnimatedTextures().add({ TCM::StaticTexture(flameAnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
 					AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
-				Globals::Components().animatedTextures().last().start(true);
+				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
 		}
 
@@ -121,11 +121,11 @@ namespace Levels
 			{
 				auto& staticWalls = Globals::Components().staticWalls();
 
-				staticWalls.emplace(Tools::CreateBoxBody({ 100.0f, 100.0f }), TCM::Texture(cityTexture));
+				staticWalls.emplace(Tools::CreateBoxBody({ 100.0f, 100.0f }), TCM::StaticTexture(cityTexture));
 				staticWalls.last().texCoord = Shapes2D::CreateTexCoordOfRectangle();
 
-				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 160.0f, 0.0f })), TCM::Texture(orbTexture));
-				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 100.0f, 0.0f })), TCM::Texture(orbTexture));
+				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 160.0f, 0.0f })), TCM::StaticTexture(orbTexture));
+				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 100.0f, 0.0f })), TCM::StaticTexture(orbTexture));
 			}
 
 			{
