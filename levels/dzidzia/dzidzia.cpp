@@ -139,7 +139,7 @@ namespace Levels
 					staticDecorations.last().modelMatrixF = [this]() mutable {
 						return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(mousePos, 0.0f)), rotateAngle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
 					};
-					Globals::Systems().staticDecorations().updateStaticBuffers();
+					Globals::Systems().decorations().updateStaticBuffers();
 
 					rotateAngle += 2.0f * physics.frameDuration;
 					scaleSin += 2.0f * physics.frameDuration;

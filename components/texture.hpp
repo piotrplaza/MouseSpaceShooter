@@ -2,7 +2,7 @@
 
 #include "_componentBase.hpp"
 
-#include <GL/glew.h>
+#include <ogl/oglProxy.hpp>
 
 #include <glm/vec2.hpp>
 

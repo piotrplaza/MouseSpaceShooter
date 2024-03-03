@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GL/glew.h>
+#include "oglProxy.hpp"
 
 #include <string>
 #include <map>

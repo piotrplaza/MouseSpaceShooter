@@ -4,7 +4,7 @@
 #include <limits>
 #include <cassert>
 
-template <typename Id, Id firstId = 0>
+template <typename IdType, IdType firstId = 0, IdType max = std::numeric_limits<IdType>::max()>
 class IdGenerator
 {
 public:
@@ -12,40 +12,32 @@ public:
 	{
 	}
 
-	Id acquire()
+	IdType acquire()
 	{
-		if (counter < std::numeric_limits<Id>::max())
-		{
+		if (counter < max)
 			return counter++;
-		}
-		else
-		{
-			assert(!releasedIds.empty());
-			const auto id = releasedIds.front();
-			releasedIds.pop_front();
-			return id;
-		}
+
+		assert(!releasedIds.empty());
+		const auto id = releasedIds.front();
+		releasedIds.pop_front();
+		return id;
 	}
 
-	Id current() const
+	IdType current() const
 	{
-		if (counter < std::numeric_limits<Id>::max())
-		{
+		if (counter < max)
 			return counter;
-		}
-		else
-		{
-			assert(!releasedIds.empty());
-			return releasedIds.front();
-		}
+
+		assert(!releasedIds.empty());
+		return releasedIds.front();
 	}
 
-	void release(Id id)
+	void release(IdType id)
 	{
 		releasedIds.push_back(id);
 	}
 
 private:
-	Id counter = firstId;
-	std::deque<Id> releasedIds;
+	IdType counter = firstId;
+	std::deque<IdType> releasedIds;
 };

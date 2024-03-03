@@ -5,12 +5,12 @@
 
 #include <globals/components.hpp>
 
+#include <ogl/oglProxy.hpp>
+
 #include <stb_image/stb_image.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-#include <GL/glew.h>
 
 #include <cassert>
 #include <stdexcept>
@@ -32,28 +32,29 @@ namespace Systems
 
 		createTextureFramebuffers();
 
-		customTexturesOffset = Globals::Components().staticTextures().size();
+		staticTexturesOffset = Globals::Components().staticTextures().size();
 	}
 
 	void Textures::postInit()
 	{
-		assert(Globals::Components().staticTextures().size() <= maxTextureObjects);
+		assert(Globals::Components().staticTextures().size() + Globals::Components().dynamicTextures().size() <= maxTextureObjects);
 
-		for (unsigned i = customTexturesOffset; i < Globals::Components().staticTextures().size(); ++i)
+		for (auto& texture: Globals::Components().staticTextures())
 		{
-			auto& texture = Globals::Components().staticTextures()[i];
-
 			if (texture.state == ComponentState::Changed)
 			{
-				texture.loaded.textureUnit = GL_TEXTURE0 + i;
+				texture.loaded.textureUnit = textureUnits.acquire();
 				loadAndConfigureTexture(texture);
 				texture.state = ComponentState::Ongoing;
 			}
 		}
+
+		staticTexturesOffset = Globals::Components().staticTextures().size();
 	}
 
 	void Textures::step()
 	{
+		updateDynamicTextures();
 	}
 
 	void Textures::loadAndConfigureTexture(Components::Texture& texture)
@@ -109,12 +110,14 @@ namespace Systems
 		}
 	}
 
-	void Textures::createTextureFramebuffers() const
+	void Textures::createTextureFramebuffers()
 	{
-		auto createTextureFramebuffer = [](Components::Framebuffers::SubBuffers& subBuffers,
+		assert(Globals::Components().staticTextures().empty());
+
+		auto createTextureFramebuffer = [this](Components::Framebuffers::SubBuffers& subBuffers,
 			GLint textureMagFilter)
 		{
-			const unsigned textureUnit = GL_TEXTURE0 + Globals::Components().staticTextures().size();
+			const unsigned textureUnit = textureUnits.acquire();
 			glActiveTexture(textureUnit);
 			unsigned textureObject;
 			glGenTextures(1, &textureObject);
@@ -148,5 +151,32 @@ namespace Systems
 		createTextureFramebuffer(framebuffers.pixelArtBlend1, GL_NEAREST);
 		createTextureFramebuffer(framebuffers.lowPixelArtBlend0, GL_NEAREST);
 		createTextureFramebuffer(framebuffers.lowPixelArtBlend1, GL_NEAREST);
+	}
+
+	void Textures::updateDynamicTextures()
+	{
+		for (auto& texture: Globals::Components().dynamicTextures())
+		{
+			if (texture.state == ComponentState::Ongoing)
+				continue;
+			else if (texture.state == ComponentState::Changed)
+			{
+				if (texture.loaded.textureUnit != 0)
+					deleteTexture(texture);
+				texture.loaded.textureUnit = textureUnits.acquire();
+				loadAndConfigureTexture(texture);
+				texture.state = ComponentState::Ongoing;
+			}
+			else if (texture.state == ComponentState::Outdated)
+				deleteTexture(texture);
+			else
+				assert(!"unsupported texture state");
+		}
+	}
+
+	void Textures::deleteTexture(Components::Texture& texture)
+	{
+		textureUnits.release(texture.loaded.textureUnit);
+		glDeleteTextures(1, &texture.loaded.textureObject);
 	}
 }

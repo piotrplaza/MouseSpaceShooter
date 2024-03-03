@@ -37,10 +37,10 @@ namespace Levels
 
 		void loadTextures()
 		{
-			auto& textures = Globals::Components().staticTextures();
+			auto& textures = Globals::Components().dynamicTextures();
 
-			marbleTexture = textures.size();
-			textures.emplace("textures/green marble.jpg").wrapMode = GL_MIRRORED_REPEAT;
+			marbleTexture = textures.emplace("textures/green marble.jpg").getComponentId();
+			textures.last().wrapMode = GL_MIRRORED_REPEAT;
 		}
 
 		void createDecorations() const
@@ -62,7 +62,7 @@ namespace Levels
 			{
 				Shapes3D::AddCross(dynamicDecorations.emplace(), { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); });
 				dynamicDecorations.last().params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true).gpuSideInstancedNormalTransforms(true);
-				dynamicDecorations.last().texture = TCM::StaticTexture(marbleTexture);
+				dynamicDecorations.last().texture = TCM::DynamicTexture(marbleTexture);
 				dynamicDecorations.last().bufferDataUsage = GL_DYNAMIC_DRAW;
 				dynamicDecorations.last().instancing.emplace().init(numOfCrosses, glm::mat4(1.0f));
 			}
@@ -107,19 +107,22 @@ namespace Levels
 
 		void transformStep()
 		{
+			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+
+			if (dynamicDecorations.empty())
+				return;
+
 			const float transformSpeed = 0.00001f;
 			const float transformBaseStep = 0.001f;
 
 			const auto& physics = Globals::Components().physics();
 			const auto& keyboard = Globals::Components().keyboard();
-			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
 			auto& transforms = dynamicDecorations.last().instancing->transforms_;
 
 			if (keyboard.pressed[0x26/*VK_UP*/])
 				transformBase += transformBaseStep;
 			if (keyboard.pressed[0x28/*VK_DOWN*/])
 				transformBase -= transformBaseStep;
-
 #if 1
 			if (transformFuture.valid())
 			{
@@ -146,6 +149,14 @@ namespace Levels
 				});
 			dynamicDecorations.last().state = ComponentState::Changed;
 #endif
+
+			if (keyboard.pressed['D'])
+			{
+				dynamicDecorations.last().state = ComponentState::Outdated;
+				Globals::Components().dynamicTextures().last().state = ComponentState::Outdated;
+				if (transformFuture.valid())
+					transformFuture.get();
+			}
 		}
 
 	private:

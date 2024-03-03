@@ -1,8 +1,8 @@
 #include "oglHelpers.hpp"
 
-#include <Windows.h>
+#include "oglProxy.hpp"
 
-#include <GL/glew.h>
+#include <Windows.h>
 
 #include <iostream>
 

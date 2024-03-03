@@ -2,6 +2,10 @@
 
 #include <glm/vec2.hpp>
 
+#include <commonTypes/idGenerator.hpp>
+
+#include <ogl/oglProxy.hpp>
+
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -32,9 +36,12 @@ namespace Systems
 		};
 
 		void loadAndConfigureTexture(Components::Texture& texture);
-		void createTextureFramebuffers() const;
+		void createTextureFramebuffers();
+		void updateDynamicTextures();
+		void deleteTexture(Components::Texture& texture);
 
-		unsigned customTexturesOffset = 0;
+		IdGenerator<unsigned, GL_TEXTURE0, GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS> textureUnits;
+		unsigned staticTexturesOffset = 0;
 		std::unordered_map<std::string, TextureCache> pathsToTexturesCache;
 	};
 }

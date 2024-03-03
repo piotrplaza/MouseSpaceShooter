@@ -46,8 +46,7 @@
 
 #include <SDL.h>
 
-#include <GL/glew.h>
-#include <gl/gl.h>
+#include <ogl/oglProxy.hpp>
 
 #include <glm/glm.hpp>
 
@@ -136,7 +135,7 @@ static void PostInit()
 	Globals::Systems().physics().postInit();
 	Globals::Systems().actors().postInit();
 	Globals::Systems().structures().postInit();
-	Globals::Systems().staticDecorations().postInit();
+	Globals::Systems().decorations().postInit();
 	Globals::Systems().camera().postInit();
 	Globals::Systems().renderingController().postInit();
 	Globals::Systems().audio().postInit();
@@ -162,7 +161,7 @@ static void PrepareFrame()
 		Globals::Systems().actors().step();
 		Globals::Systems().temporaries().step();
 		Globals::Systems().structures().step();
-		Globals::Systems().staticDecorations().step();
+		Globals::Systems().decorations().step();
 		Globals::Systems().camera().step();
 		Globals::Systems().audio().step();
 		Globals::Systems().textures().step();

@@ -29,7 +29,7 @@ namespace Globals
 		Systems::Actors& actors();
 		Systems::Structures& structures();
 		Systems::Camera& camera();
-		Systems::Decorations& staticDecorations();
+		Systems::Decorations& decorations();
 		Systems::Temporaries& temporaries();
 		Systems::Cleaner& cleaner();
 		Systems::DeferredActions& deferredActions();
@@ -43,7 +43,7 @@ namespace Globals
 		std::unique_ptr<Systems::Actors> actors_ = std::make_unique<Systems::Actors>();
 		std::unique_ptr<Systems::Structures> structures_ = std::make_unique<Systems::Structures>();
 		std::unique_ptr<Systems::Camera> camera_ = std::make_unique<Systems::Camera>();
-		std::unique_ptr<Systems::Decorations> staticDecorations_ = std::make_unique<Systems::Decorations>();
+		std::unique_ptr<Systems::Decorations> decorations_ = std::make_unique<Systems::Decorations>();
 		std::unique_ptr<Systems::Temporaries> temporaries_ = std::make_unique<Systems::Temporaries>();
 		std::unique_ptr<Systems::Cleaner> cleaner_ = std::make_unique<Systems::Cleaner>();
 		std::unique_ptr<Systems::DeferredActions> deferredActions_ = std::make_unique<Systems::DeferredActions>();

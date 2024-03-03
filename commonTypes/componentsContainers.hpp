@@ -213,6 +213,11 @@ public:
 		return components.size();
 	}
 
+	bool empty() const
+	{
+		return components.empty();
+	}
+
 	Container& underlyingContainer()
 	{
 		return components;
@@ -226,6 +231,7 @@ public:
 	void clear() override
 	{
 		components.clear();
+		last_ = nullptr;
 	}
 
 private:
@@ -349,6 +355,11 @@ public:
 		return components.size();
 	}
 
+	bool empty() const
+	{
+		return components.empty();
+	}
+
 	Container& underlyingContainer()
 	{
 		return components;
@@ -387,6 +398,9 @@ public:
 			else
 				++it;
 		}
+
+		if (empty())
+			last_ = nullptr;
 	}
 
 	void markAsDirty() override
@@ -401,6 +415,7 @@ public:
 	void clear() override
 	{
 		components.clear();
+		last_ = nullptr;
 	}
 
 private:

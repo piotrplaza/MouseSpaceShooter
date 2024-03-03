@@ -47,9 +47,9 @@ namespace Globals
 		return *camera_;
 	}
 
-	Systems::Decorations& SystemsHolder::staticDecorations()
+	Systems::Decorations& SystemsHolder::decorations()
 	{
-		return *staticDecorations_;
+		return *decorations_;
 	}
 
 	Systems::Temporaries& SystemsHolder::temporaries()
