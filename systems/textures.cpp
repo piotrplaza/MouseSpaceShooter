@@ -15,16 +15,10 @@
 #include <cassert>
 #include <stdexcept>
 
-namespace
-{
-	constexpr int maxTextureObjects = 100;
-}
-
 namespace Systems
 {
 	Textures::Textures()
 	{
-		static_assert(maxTextureObjects <= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 		stbi_set_flip_vertically_on_load(true);
 		stbi_ldr_to_hdr_gamma(1.0f);
 
@@ -37,8 +31,6 @@ namespace Systems
 
 	void Textures::postInit()
 	{
-		assert(Globals::Components().staticTextures().size() + Globals::Components().dynamicTextures().size() <= maxTextureObjects);
-
 		for (auto& texture: Globals::Components().staticTextures())
 		{
 			if (texture.state == ComponentState::Changed)
