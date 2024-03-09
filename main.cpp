@@ -417,6 +417,9 @@ int APIENTRY WinMain(
 		hInstance,
 		nullptr);
 
+	if (fullScreen)
+		SetWindowLong(hWnd, GWL_STYLE, 0);
+
 	if(!hWnd)
 	{
 		MessageBox(nullptr, "Window creation failed.", "Error",
