@@ -11,7 +11,6 @@ namespace Systems
 		~Physics();
 
 		void postInit();
-		void step();
-		void pause();
+		void step(bool paused = false);
 	};
 }

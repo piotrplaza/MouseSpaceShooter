@@ -139,13 +139,11 @@ namespace Tools
 			return plane.getVelocity() * velocityFactor;
 		};
 
+		Globals::Components().camera2D().projectionTransitionFactor = cameraParams.transitionFactor_;
 		Globals::Components().camera2D().targetProjectionHSizeF = [&, velocityCorrection,
 				projectionHSizeMin = std::move(cameraParams.projectionHSizeMin_),
 				scalingFactor = cameraParams.scalingFactor_,
-				transitionFactor = cameraParams.transitionFactor_,
 				additionalActors = cameraParams.additionalActors_]() {
-			Globals::Components().camera2D().projectionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
-
 			const float maxDistance = [&]() {
 				const auto activePlayersHandlers = getActivePlayersHandlers();
 
@@ -180,9 +178,9 @@ namespace Tools
 			return std::max(projectionHSizeMin(), maxDistance);
 		};
 
-		Globals::Components().camera2D().targetPositionF = [&, velocityCorrection, transitionFactor = cameraParams.transitionFactor_,
+		Globals::Components().camera2D().positionTransitionFactor = cameraParams.transitionFactor_;
+		Globals::Components().camera2D().targetPositionF = [&, velocityCorrection,
 			additionalActors = cameraParams.additionalActors_]() {
-			Globals::Components().camera2D().positionTransitionFactor = Globals::Components().physics().frameDuration * transitionFactor;
 
 			glm::vec2 min(std::numeric_limits<float>::max());
 			glm::vec2 max(std::numeric_limits<float>::lowest());

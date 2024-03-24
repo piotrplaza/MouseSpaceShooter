@@ -51,39 +51,69 @@ namespace Systems
 
 	void Textures::loadAndConfigureTexture(Components::Texture& texture)
 	{
+		class DataSourceVisitor
+		{
+		public:
+			DataSourceVisitor(std::unordered_map<std::string, TextureCache>& pathsToTexturesCache, Components::Texture& texture):
+				pathsToTexturesCache(pathsToTexturesCache),
+				texture(texture)
+			{
+			}
+
+			void operator()(const std::string& path)
+			{
+				const int prevTextureSize = texture.loaded.size.x * texture.loaded.size.y * texture.loaded.numOfChannels;
+				auto& textureCache = pathsToTexturesCache[path];
+				if (!textureCache.data || textureCache.premultipliedAlpha != texture.premultipliedAlpha || textureCache.darkToTransparent != texture.darkToTransparent)
+				{
+					textureCache.data.reset(stbi_loadf(path.c_str(), &textureCache.size.x, &textureCache.size.y, &textureCache.numOfChannels, 0));
+					if (!textureCache.data)
+					{
+						assert(!"unable to load image");
+						throw std::runtime_error("Unable to load image \"" + path + "\".");
+					}
+
+					optionalAlphaProcessing(textureCache.data.get(), textureCache.size, textureCache.numOfChannels);
+				}
+
+				texture.loaded.size.x = textureCache.size.x;
+				texture.loaded.size.y = textureCache.size.y;
+				texture.loaded.numOfChannels = textureCache.numOfChannels;
+
+				if (prevTextureSize != texture.loaded.size.x * texture.loaded.size.y * texture.loaded.numOfChannels)
+					glTexImage2D(GL_TEXTURE_2D, 0, texture.loaded.getFormat(), texture.loaded.size.x, texture.loaded.size.y, 0, texture.loaded.getFormat(), GL_FLOAT, textureCache.data.get());
+				else
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture.loaded.size.x, texture.loaded.size.y, texture.loaded.getFormat(), GL_FLOAT, textureCache.data.get());
+			}
+
+			void operator()(const Components::Texture::TextureData& data)
+			{
+			}
+
+		private:
+			void optionalAlphaProcessing(float* data, glm::vec2 size, int numOfChannels) const
+			{
+				if (numOfChannels == 4 && (texture.premultipliedAlpha || texture.darkToTransparent))
+					for (int i = 0; i < size.x * size.y * 4; i += 4)
+					{
+						data[i + 3] = (1 - texture.darkToTransparent) * data[i + 3] + texture.darkToTransparent * std::min(1.0f, data[i] + data[i + 1] + data[i + 2]);
+
+						const float premultipliedAlphaFactor = (1 - texture.premultipliedAlpha) + texture.premultipliedAlpha * data[i + 3];
+						data[i] *= premultipliedAlphaFactor;
+						data[i + 1] *= premultipliedAlphaFactor;
+						data[i + 2] *= premultipliedAlphaFactor;
+					}
+			}
+
+			std::unordered_map<std::string, TextureCache>& pathsToTexturesCache;
+			Components::Texture& texture;
+		};
+
 		glActiveTexture(texture.loaded.textureUnit);
 		glGenTextures(1, &texture.loaded.textureObject);
 		glBindTexture(GL_TEXTURE_2D, texture.loaded.textureObject);
 
-		auto& textureCache = pathsToTexturesCache[texture.path];
-		if (!textureCache.channels || textureCache.premultipliedAlpha != texture.premultipliedAlpha || textureCache.darkToTransparent != texture.darkToTransparent)
-		{
-			textureCache.channels.reset(stbi_loadf(texture.path.c_str(), &textureCache.size.x, &textureCache.size.y, &textureCache.bitDepth, 0));
-			if (!textureCache.channels)
-			{
-				assert(!"unable to load image");
-				throw std::runtime_error("Unable to load image \"" + texture.path + "\".");
-			}
-
-			if (textureCache.bitDepth == 4 && (texture.premultipliedAlpha || texture.darkToTransparent))
-			{
-				for (int i = 0; i < textureCache.size.x * textureCache.size.y * textureCache.bitDepth; i += 4)
-				{
-					textureCache.channels[i + 3] = (1 - texture.darkToTransparent) * textureCache.channels[i + 3] + texture.darkToTransparent *
-						std::min(1.0f, textureCache.channels[i] + textureCache.channels[i + 1] + textureCache.channels[i + 2]);
-
-					const float premultipliedAlphaFactor = (1 - texture.premultipliedAlpha) + texture.premultipliedAlpha * textureCache.channels[i + 3];
-					textureCache.channels[i] *= premultipliedAlphaFactor;
-					textureCache.channels[i + 1] *= premultipliedAlphaFactor;
-					textureCache.channels[i + 2] *= premultipliedAlphaFactor;
-				}
-			}
-		}
-		texture.loaded.size.x = textureCache.size.x;
-		texture.loaded.size.y = textureCache.size.y;
-		texture.loaded.bitDepth = textureCache.bitDepth;
-
-		const GLint format = texture.loaded.bitDepth == 4 ? GL_RGBA : texture.loaded.bitDepth == 3 ? GL_RGB : texture.loaded.bitDepth == 2 ? GL_RG : GL_RED;
+		std::visit(DataSourceVisitor{ pathsToTexturesCache, texture }, texture.dataSource);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture.wrapMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture.wrapMode);
@@ -91,7 +121,6 @@ namespace Systems
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texture.magFilter);
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, texture.loaded.size.x, texture.loaded.size.y, 0, format, GL_FLOAT, textureCache.channels.get());
 
 		if (texture.minFilter == GL_LINEAR_MIPMAP_LINEAR ||
 			texture.minFilter == GL_LINEAR_MIPMAP_NEAREST ||
@@ -153,9 +182,8 @@ namespace Systems
 				continue;
 			else if (texture.state == ComponentState::Changed)
 			{
-				if (texture.loaded.textureUnit != 0)
-					deleteTexture(texture);
-				texture.loaded.textureUnit = textureUnits.acquire();
+				if (texture.loaded.textureUnit == 0)
+					texture.loaded.textureUnit = textureUnits.acquire();
 				loadAndConfigureTexture(texture);
 				texture.state = ComponentState::Ongoing;
 			}
@@ -169,6 +197,8 @@ namespace Systems
 	void Textures::deleteTexture(Components::Texture& texture)
 	{
 		textureUnits.release(texture.loaded.textureUnit);
+		texture.loaded.textureUnit = 0;
 		glDeleteTextures(1, &texture.loaded.textureObject);
+		texture.loaded.textureObject = 0;
 	}
 }

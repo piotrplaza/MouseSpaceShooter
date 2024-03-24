@@ -28,9 +28,9 @@ namespace Systems
 	private:
 		struct TextureCache
 		{
-			std::unique_ptr<float[]> channels;
+			std::unique_ptr<float[]> data;
 			glm::ivec2 size = {0, 0};
-			int bitDepth = 0;
+			int numOfChannels = 0;
 			bool premultipliedAlpha = false;
 			bool darkToTransparent = false;
 		};

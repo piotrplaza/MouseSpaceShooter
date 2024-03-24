@@ -67,10 +67,18 @@ namespace Systems
 		Globals::Components().physics().prevFrameTime = std::chrono::high_resolution_clock::now();
 	}
 
-	void Physics::step()
+	void Physics::step(bool paused)
 	{
-		const auto& screenInfo = Globals::Components().screenInfo();
 		auto& physics = Globals::Components().physics();
+
+		if (paused)
+		{
+			physics.frameDuration = 0.0f;
+			physics.prevFrameTime = std::chrono::high_resolution_clock::now();
+			return;
+		}
+
+		const auto& screenInfo = Globals::Components().screenInfo();
 		const auto currentTime = std::chrono::high_resolution_clock::now();
 
 #if defined _DEBUG || FORCE_REFRESH_RATE_BASED_STEP
@@ -88,10 +96,5 @@ namespace Systems
 		physics.prevFrameTime = currentTime;
 		physics.simulationDuration += physics.frameDuration;
 		physics.world->Step(physics.frameDuration, physics.velocityIterationsPerStep, physics.positionIterationsPerStep);
-	}
-
-	void Physics::pause()
-	{
-		Globals::Components().physics().prevFrameTime = std::chrono::high_resolution_clock::now();
 	}
 }

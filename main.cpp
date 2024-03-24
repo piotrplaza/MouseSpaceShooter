@@ -66,6 +66,7 @@ false;
 #else 
 true;
 #endif
+const bool fastFullScreen = false;
 const bool console = true;
 const glm::ivec2 windowRes = { 1920, 1080 };
 
@@ -148,8 +149,8 @@ static void PrepareFrame()
 {
 	if (Globals::Components().physics().paused)
 	{
-		Globals::Systems().physics().pause();
-		Globals::Systems().camera().step();
+		Globals::Systems().physics().step(true);
+		Globals::Systems().camera().step(true);
 	}
 	else
 	{
@@ -385,17 +386,11 @@ int APIENTRY WinMain(
 
 	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 
-	WNDCLASS wc;
-
+	WNDCLASS wc{};
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = (WNDPROC)WndProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
 	wc.hInstance = hInstance;
-	wc.hIcon = nullptr;
 	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wc.hbrBackground = nullptr;
-	wc.lpszMenuName = nullptr;
 	wc.lpszClassName = lpszAppName;
 	
 	if(!RegisterClass(&wc))
@@ -408,7 +403,7 @@ int APIENTRY WinMain(
 	HWND hWnd = CreateWindow(
 		lpszAppName,
 		lpszAppName,
-		fullScreen ? WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_POPUP | WS_MAXIMIZE : 
+		fullScreen ? WS_POPUP | WS_MAXIMIZE :
 		WS_OVERLAPPEDWINDOW,
 		winPosX, winPosY,
 		windowRes.x, windowRes.y,
@@ -417,15 +412,15 @@ int APIENTRY WinMain(
 		hInstance,
 		nullptr);
 
-	if (fullScreen)
-		SetWindowLong(hWnd, GWL_STYLE, 0);
-
 	if(!hWnd)
 	{
 		MessageBox(nullptr, "Window creation failed.", "Error",
 			MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
+
+	if (fullScreen && fastFullScreen) // It makes the borderless, full screen window appear faster, but it's not as smooth as the other way.
+		SetWindowLong(hWnd, GWL_STYLE, 0);
 
 	RegisterRawInputDevices(hWnd);
 
@@ -454,6 +449,7 @@ int APIENTRY WinMain(
 			Globals::Components().mouse().delta = { 0, 0 };
 
 			glFinish(); // Not sure why, but it helps with stuttering in some scenarios, e.g. if missile was launched (release + lower display refresh rate => bigger stuttering without it).
+			//GdiFlush();
 			SwapBuffers(hDC);
 		}
 	}

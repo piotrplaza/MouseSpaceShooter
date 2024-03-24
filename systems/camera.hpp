@@ -8,10 +8,10 @@ namespace Systems
 		Camera();
 
 		void postInit() const;
-		void step() const;
+		void step(bool paused = false) const;
 
 	private:
 		void postInit3D() const;
-		void step3D() const;
+		void step3D(bool paused) const;
 	};
 }
