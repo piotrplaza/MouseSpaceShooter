@@ -86,6 +86,7 @@ namespace Systems
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, subBuffers.fbo);
 
+			glActiveTexture(subBuffers.textureUnit);
 			glBindTexture(GL_TEXTURE_2D, subBuffers.textureObject);
 			subBuffers.size = size;
 			Globals::Components().staticTextures()[subBuffers.textureUnit - GL_TEXTURE0].loaded.size = subBuffers.size;
@@ -183,10 +184,7 @@ namespace Systems
 		prevKeyboardKeys = keys;
 
 		if (keyboard.pressed['P'])
-		{
 			Globals::Components().physics().paused = !Globals::Components().physics().paused;
-			Tools::SetMouseCursorVisibility(Globals::Components().physics().paused);
-		}
 	}
 
 	void StateController::handleSDL()

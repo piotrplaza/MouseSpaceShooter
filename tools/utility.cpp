@@ -61,7 +61,11 @@ namespace Tools
 
 	void SetMouseCursorVisibility(bool visibility)
 	{
-		ShowCursor(visibility);
+		static bool cursorVisibility = true;
+		if (cursorVisibility == visibility)
+			return;
+
+		ShowCursor(cursorVisibility = visibility);
 	}
 
 	void RandomInit()

@@ -8,10 +8,6 @@ template <typename IdType, IdType firstId = 0, IdType max = std::numeric_limits<
 class IdGenerator
 {
 public:
-	IdGenerator()
-	{
-	}
-
 	IdType acquire()
 	{
 		if (counter < max)

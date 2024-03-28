@@ -60,15 +60,18 @@
 #include <array>
 #include <type_traits>
 
-const bool fullScreen =
-#ifdef _DEBUG
-false;
-#else 
-true;
-#endif
-const bool fastFullScreen = false;
+const bool debugFullscreen = false;
+const bool releaseFullscreen = true;
+const bool fastFullScreen = true;
 const bool console = true;
 const glm::ivec2 windowRes = { 1920, 1080 };
+
+const bool fullScreen =
+#ifdef _DEBUG
+debugFullscreen;
+#else 
+releaseFullscreen;
+#endif
 
 std::unique_ptr<Levels::Level> activeLevel;
 
@@ -271,12 +274,10 @@ static LRESULT CALLBACK WndProc(
 		}
 		case WM_SETFOCUS:
 			Globals::Systems().stateController().setWindowFocus();
-			ShowCursor(false);
 			focus = true;
 			break;
 		case WM_KILLFOCUS:
 			Globals::Systems().stateController().killWindowFocus();
-			ShowCursor(true);
 			focus = false;
 			break;
 		case WM_KEYDOWN:
@@ -419,7 +420,7 @@ int APIENTRY WinMain(
 		return false;
 	}
 
-	if (fullScreen && fastFullScreen) // It makes the borderless, full screen window appear faster, but it's not as smooth as the other way.
+	if (fullScreen && fastFullScreen) // It makes the full screen borderless window appear faster, but on some systems it's not as smooth as the other way.
 		SetWindowLong(hWnd, GWL_STYLE, 0);
 
 	RegisterRawInputDevices(hWnd);
@@ -438,7 +439,12 @@ int APIENTRY WinMain(
 		else if (focus)
 		{
 			if (!Globals::Components().physics().paused)
+			{
+				Tools::SetMouseCursorVisibility(false);
 				Globals::Systems().stateController().resetMousePosition();
+			}
+			else
+				Tools::SetMouseCursorVisibility(true);
 
 			Globals::Systems().stateController().handleKeyboard(keys);
 			Globals::Systems().stateController().handleMouseButtons();
@@ -452,6 +458,8 @@ int APIENTRY WinMain(
 			//GdiFlush();
 			SwapBuffers(hDC);
 		}
+		else
+			Tools::SetMouseCursorVisibility(true);
 	}
 
 	TearDown();

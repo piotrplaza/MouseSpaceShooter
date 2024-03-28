@@ -40,7 +40,7 @@ namespace Systems
 		void updateDynamicTextures();
 		void deleteTexture(Components::Texture& texture);
 
-		IdGenerator<unsigned, GL_TEXTURE0, GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS> textureUnits;
+		IdGenerator<unsigned, GL_TEXTURE0, GL_TEXTURE0 + GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS> textureUnits;
 		unsigned staticTexturesOffset = 0;
 		std::unordered_map<std::string, TextureCache> pathsToTexturesCache;
 	};
