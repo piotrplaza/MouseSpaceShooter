@@ -35,8 +35,9 @@ namespace Systems
 			bool darkToTransparent = false;
 		};
 
-		void loadAndConfigureTexture(Components::Texture& texture);
+		void loadAndConfigureTexture(Components::Texture& texture, bool initial = true);
 		void createTextureFramebuffers();
+		void updateStaticTextures();
 		void updateDynamicTextures();
 		void deleteTexture(Components::Texture& texture);
 

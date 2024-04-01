@@ -31,17 +31,8 @@ namespace Systems
 
 	void Textures::postInit()
 	{
-		for (auto& texture: Globals::Components().staticTextures())
-		{
-			if (texture.state == ComponentState::Changed)
-			{
-				texture.loaded.textureUnit = textureUnits.acquire();
-				loadAndConfigureTexture(texture);
-				texture.state = ComponentState::Ongoing;
-			}
-		}
-
-		staticTexturesOffset = Globals::Components().staticTextures().size();
+		updateStaticTextures();
+		updateDynamicTextures();
 	}
 
 	void Textures::step()
@@ -49,7 +40,7 @@ namespace Systems
 		updateDynamicTextures();
 	}
 
-	void Textures::loadAndConfigureTexture(Components::Texture& texture)
+	void Textures::loadAndConfigureTexture(Components::Texture& texture, bool initial)
 	{
 		class DataSourceVisitor
 		{
@@ -72,6 +63,8 @@ namespace Systems
 						assert(!"unable to load image");
 						throw std::runtime_error("Unable to load image \"" + path + "\".");
 					}
+					textureCache.premultipliedAlpha = texture.premultipliedAlpha;
+					textureCache.darkToTransparent = texture.darkToTransparent;
 
 					optionalAlphaProcessing(textureCache.data.get(), textureCache.size, textureCache.numOfChannels);
 				}
@@ -110,7 +103,8 @@ namespace Systems
 		};
 
 		glActiveTexture(texture.loaded.textureUnit);
-		glGenTextures(1, &texture.loaded.textureObject);
+		if (initial)
+			glGenTextures(1, &texture.loaded.textureObject);
 		glBindTexture(GL_TEXTURE_2D, texture.loaded.textureObject);
 
 		std::visit(DataSourceVisitor{ pathsToTexturesCache, texture }, texture.dataSource);
@@ -174,6 +168,20 @@ namespace Systems
 		createTextureFramebuffer(framebuffers.lowPixelArtBlend1, GL_NEAREST);
 	}
 
+	void Textures::updateStaticTextures()
+	{
+		for (auto& texture : Globals::Components().staticTextures())
+		{
+			if (texture.state == ComponentState::Changed)
+			{
+				texture.loaded.textureUnit = textureUnits.acquire();
+				loadAndConfigureTexture(texture);
+				texture.state = ComponentState::Ongoing;
+			}
+		}
+		staticTexturesOffset = Globals::Components().staticTextures().size();
+	}
+
 	void Textures::updateDynamicTextures()
 	{
 		for (auto& texture: Globals::Components().dynamicTextures())
@@ -183,8 +191,12 @@ namespace Systems
 			else if (texture.state == ComponentState::Changed)
 			{
 				if (texture.loaded.textureUnit == 0)
+				{
 					texture.loaded.textureUnit = textureUnits.acquire();
-				loadAndConfigureTexture(texture);
+					loadAndConfigureTexture(texture);
+				}
+				else
+					loadAndConfigureTexture(texture, false);
 				texture.state = ComponentState::Ongoing;
 			}
 			else if (texture.state == ComponentState::Outdated)

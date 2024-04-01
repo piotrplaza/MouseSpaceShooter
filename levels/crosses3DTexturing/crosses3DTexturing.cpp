@@ -6,6 +6,7 @@
 #include <components/light3D.hpp>
 #include <components/camera3D.hpp>
 #include <components/texture.hpp>
+#include <components/keyboard.hpp>
 
 #include <globals/components.hpp>
 
@@ -31,10 +32,10 @@ namespace Levels
 
 		void loadTextures()
 		{
-			auto& textures = Globals::Components().staticTextures();
+			auto& textures = Globals::Components().dynamicTextures();
 
-			marbleTexture = textures.size();
-			textures.emplace("textures/green marble.jpg").wrapMode = GL_MIRRORED_REPEAT;
+			crossesTexture = textures.emplace("textures/green marble.jpg").getComponentId();
+			textures.last().wrapMode = GL_MIRRORED_REPEAT;
 		}
 
 		void createDecorations() const
@@ -65,7 +66,7 @@ namespace Levels
 						Shapes3D::AddCross(staticDecorations.last(), { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); }, glm::translate(glm::mat4(1.0f),
 							glm::vec3(x * distanceBetweenCrosses.x, 0.0f, z * distanceBetweenCrosses.y) - offset));
 				staticDecorations.last().params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true);
-				staticDecorations.last().texture = TCM::StaticTexture(marbleTexture);
+				staticDecorations.last().texture = TCM::DynamicTexture(crossesTexture);
 				//staticDecorations.last().instancing = Renderable::Instancing{}.addTransforms({ glm::mat4(1.0f), glm::scale(glm::mat4(1.0f), {1.0f, -1.0f, 1.0f}) });
 			}
 		}
@@ -105,8 +106,25 @@ namespace Levels
 			}
 		}
 
+		void controlStep() const
+		{
+			auto& keyboard = Globals::Components().keyboard();
+
+			if (keyboard.pressed['T'])
+			{
+				static bool toggle = true;
+				auto& texture = Globals::Components().dynamicTextures()[crossesTexture];
+				if (toggle)
+					texture.dataSource = "textures/wood.jpg";
+				else
+					texture.dataSource = "textures/green marble.jpg";
+				toggle = !toggle;
+				texture.state = ComponentState::Changed;
+			}
+		}
+
 	private:
-		ComponentId marbleTexture = 0;
+		ComponentId crossesTexture = 0;
 	};
 
 	Crosses3DTexturing::Crosses3DTexturing() :
@@ -121,5 +139,6 @@ namespace Levels
 	{
 		impl->cameraStep();
 		impl->lightStep();
+		impl->controlStep();
 	}
 }
