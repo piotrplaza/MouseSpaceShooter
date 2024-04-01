@@ -69,18 +69,31 @@ namespace Systems
 					optionalAlphaProcessing(textureCache.data.get(), textureCache.size, textureCache.numOfChannels);
 				}
 
-				texture.loaded.size.x = textureCache.size.x;
-				texture.loaded.size.y = textureCache.size.y;
+				texture.loaded.size = textureCache.size;
 				texture.loaded.numOfChannels = textureCache.numOfChannels;
 
-				if (prevTextureSize != texture.loaded.size.x * texture.loaded.size.y * texture.loaded.numOfChannels)
-					glTexImage2D(GL_TEXTURE_2D, 0, texture.loaded.getFormat(), texture.loaded.size.x, texture.loaded.size.y, 0, texture.loaded.getFormat(), GL_FLOAT, textureCache.data.get());
-				else
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture.loaded.size.x, texture.loaded.size.y, texture.loaded.getFormat(), GL_FLOAT, textureCache.data.get());
+				texImage2D(textureCache.data.get(), prevTextureSize);
 			}
 
-			void operator()(const Components::Texture::TextureData& data)
+			void operator()(Components::Texture::TextureData& textureData)
 			{
+				const int prevTextureSize = texture.loaded.size.x * texture.loaded.size.y * texture.loaded.numOfChannels;
+				if (textureData.numOfChannels == 4)
+					optionalAlphaProcessing(&std::get<std::vector<glm::vec4>>(textureData.data)[0].r, textureData.size, textureData.numOfChannels);
+
+				texture.loaded.size = textureData.size;
+				texture.loaded.numOfChannels = textureData.numOfChannels;
+				auto getFirstFloatPtr = []<typename ColorType>(const std::vector<ColorType>& data) -> const float* {
+					if (data.empty())
+						return nullptr;
+					if constexpr (std::is_same_v<ColorType, float>)
+						return data.data();
+					else
+						return &data[0].r;
+				};
+				const float* data = [&]() { return std::visit([&](const auto& data) { return getFirstFloatPtr(data); }, textureData.data); }();
+
+				texImage2D(data, prevTextureSize);
 			}
 
 		private:
@@ -96,6 +109,14 @@ namespace Systems
 						data[i + 1] *= premultipliedAlphaFactor;
 						data[i + 2] *= premultipliedAlphaFactor;
 					}
+			}
+
+			void texImage2D(const float* data, int prevTextureSize) const
+			{
+				if (prevTextureSize != texture.loaded.size.x * texture.loaded.size.y * texture.loaded.numOfChannels)
+					glTexImage2D(GL_TEXTURE_2D, 0, texture.loaded.getFormat(), texture.loaded.size.x, texture.loaded.size.y, 0, texture.loaded.getFormat(), GL_FLOAT, data);
+				else
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture.loaded.size.x, texture.loaded.size.y, texture.loaded.getFormat(), GL_FLOAT, data);
 			}
 
 			std::unordered_map<std::string, TextureCache>& pathsToTexturesCache;

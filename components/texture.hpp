@@ -18,16 +18,8 @@ namespace Components
 	{
 		struct TextureData
 		{
-			TextureData(std::vector<float> data, int numOfChannels, glm::ivec2 size):
-				data(std::move(data)),
-				size(size),
-				numOfChannels(numOfChannels)
-			{
-			}
-
 			template<typename ColorType>
-			TextureData(const std::vector<ColorType>& data, glm::ivec2 size) :
-				size(size),
+			TextureData(std::vector<ColorType> data, glm::ivec2 size) :
 				numOfChannels([]() {
 					if constexpr (std::is_same_v<ColorType, float>)
 						return 1;
@@ -41,15 +33,15 @@ namespace Components
 						/*static_assert(false, "unsupported color type");*/ // Not sure why VS failes to compile this even without any instance.
 						assert(!"unsupported color type");
 					return 0; 
-				}())
+				}()),
+				size(size),
+				data(std::move(data))
 			{
-				this->data.resize(this->size.x * this->size.y * numOfChannels);
-				std::memcpy(this->data.data(), data.data(), data.size() * sizeof(ColorType));
 			}
 
-			std::vector<float> data;
-			glm::ivec2 size;
 			int numOfChannels;
+			glm::ivec2 size;
+			std::variant<std::vector<float>, std::vector<glm::vec2>, std::vector<glm::vec3>, std::vector<glm::vec4>> data;
 		};
 
 		Texture(std::variant<std::string, TextureData> dataSource, GLint wrapMode = GL_CLAMP_TO_BORDER, GLint minFilter = GL_LINEAR_MIPMAP_LINEAR,
