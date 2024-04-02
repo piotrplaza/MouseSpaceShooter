@@ -7,8 +7,10 @@
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
 #include <components/camera2D.hpp>
+#include <components/camera3D.hpp>
 #include <components/decoration.hpp>
 #include <components/graphicsSettings.hpp>
+#include <components/keyboard.hpp>
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
 #include <components/mvp.hpp>
@@ -37,6 +39,7 @@
 #include <ogl/renderingHelpers.hpp>
 
 #include <tools/shapes2D.hpp>
+#include <tools/shapes3D.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
 #include <tools/playersHandler.hpp>
@@ -49,6 +52,8 @@
 #include <unordered_set>
 #include <vector>
 #include <optional>
+#include <future>
+#include <execution>
 
 namespace Levels
 {
@@ -159,6 +164,9 @@ namespace Levels
 			recursiveFaceAnimationTexture = textures.size();
 			textures.emplace("textures/recursive face animation.jpg");
 			textures.last().minFilter = GL_LINEAR;
+
+			marbleTexture = textures.emplace("textures/green marble.jpg").getComponentId();
+			textures.last().wrapMode = GL_MIRRORED_REPEAT;
 		}
 
 		void loadAudio()
@@ -213,6 +221,36 @@ namespace Levels
 						return acc + Globals::Components().planes()[currentHandler.playerId].getOrigin2D();
 					}) / (float)playersHandler.getPlayersHandlers().size();
 				return averageCenter * 0.0001f; });
+
+			{
+				const int numOfCrosses = 10000;
+				const int numOfLights = 40;
+
+				const auto& physics = Globals::Components().physics();
+				auto& staticDecorations = Globals::Components().staticDecorations();
+				auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+
+				for (unsigned i = 0; i < numOfLights; ++i)
+					Globals::Components().lights3D().emplace(glm::vec3(0.0f), glm::vec3(1.0f), 0.6f, 1.0f);
+
+				for (const auto& light : Globals::Components().lights3D())
+				{
+					Shapes3D::AddSphere(staticDecorations.emplace(), 0.2f, 2, 3);
+					staticDecorations.last().colorF = [&]() { return glm::vec4(light.color, 1.0f) + Globals::Components().graphicsSettings().clearColor * light.clearColorFactor; };
+					staticDecorations.last().params3D->lightModelEnabled(false);
+					staticDecorations.last().modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), light.position), physics.simulationDuration * 4.0f, { 1.0f, 1.0f, 1.0f }); };
+				}
+
+				{
+					Shapes3D::AddCross(dynamicDecorations.emplace(), { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); });
+					dynamicDecorations.last().params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true).gpuSideInstancedNormalTransforms(true);
+					dynamicDecorations.last().texture = TCM::StaticTexture(marbleTexture);
+					dynamicDecorations.last().bufferDataUsage = GL_DYNAMIC_DRAW;
+					dynamicDecorations.last().instancing.emplace().init(numOfCrosses, glm::mat4(1.0f));
+					dynamicDecorations.last().renderLayer = RenderLayer::NearBackground;
+					crossesId = dynamicDecorations.last().getComponentId();
+				}
+			}
 		}
 
 		void createForeground()
@@ -619,7 +657,7 @@ namespace Levels
 				collisionSound);
 		}
 
-		void step()
+		void gameStep()
 		{
 			playersHandler.gamepadsAutodetectionStep([](auto) { return glm::vec3(0.0f); });
 			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
@@ -647,6 +685,75 @@ namespace Levels
 			smokeIntensity = std::clamp(smokeIntensity, 0.0f, 1.0f);
 		}
 
+		void decorationStep()
+		{
+			{
+				const auto& physics = Globals::Components().physics();
+
+				int i = 0;
+				for (auto& light : Globals::Components().lights3D())
+				{
+					const float rotationSpeed = (-0.1f - (i * 0.03f)) * (i % 2 * 2.0f - 1.0f);
+					const float radius = 1.0f + rotationSpeed * 5.0f;
+					const glm::vec3 changeColorSpeed(1.0f, 0.6f, 0.3f);
+
+					light.position = glm::vec3(glm::cos(physics.simulationDuration * rotationSpeed) * radius, glm::cos(physics.simulationDuration * rotationSpeed * 0.3f) * radius, glm::sin(physics.simulationDuration * rotationSpeed * 0.6f) * radius);
+					light.color = { (glm::cos(physics.simulationDuration * changeColorSpeed.r * rotationSpeed) + 1.0f) / 2.0f,
+						(glm::cos(physics.simulationDuration * changeColorSpeed.g * rotationSpeed) + 1.0f) / 2.0f,
+						(glm::cos(physics.simulationDuration * changeColorSpeed.b * rotationSpeed) + 1.0f) / 2.0f };
+					//light.color = glm::vec3(1.0f);
+					++i;
+				}
+			}
+
+			{
+				auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+
+				const float transformSpeed = 0.00001f;
+				const float transformBaseStep = 0.001f;
+
+				const auto& physics = Globals::Components().physics();
+				const auto& keyboard = Globals::Components().keyboard();
+				auto& transforms = dynamicDecorations[crossesId].instancing->transforms_;
+
+				if (keyboard.pressed[0x26/*VK_UP*/])
+					transformBase += transformBaseStep;
+				if (keyboard.pressed[0x28/*VK_DOWN*/])
+					transformBase -= transformBaseStep;
+#if 1
+				if (transformFuture.valid())
+				{
+					transformFuture.get();
+					dynamicDecorations[crossesId].state = ComponentState::Changed;
+				}
+
+				transformFuture = std::async(std::launch::async, [=, simulationDuration = physics.simulationDuration, &transforms]() {
+					Tools::ItToId itToId(transforms.size());
+					std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), [=, &transforms](const auto i) {
+						transforms[i] = glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0.0f, 1.0f, 0.0f })
+							* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.001f, { 1.0f, 0.0f, 0.0f })
+							* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.03f, { 0.0f, 1.0f, 0.0f })
+							* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * (transformBase - simulationDuration * transformSpeed), { 0.0f, 0.0f, 1.0f })
+							* glm::translate(glm::mat4(1.0f), { i * 0.0005f, i * 0.0007f, i * 0.0009f });
+						});
+					});
+#else
+				Tools::ItToId itToId(transforms.size());
+				std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), [&](const auto i) {
+					transforms[i] = glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.001f, { 1.0f, 0.0f, 0.0f })
+						* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.03f, { 0.0f, 1.0f, 0.0f })
+						* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * (transformBase - physics.simulationDuration * transformSpeed), { 0.0f, 0.0f, 1.0f })
+						* glm::translate(glm::mat4(1.0f), { i * 0.0005f, i * 0.0007f, i * 0.0009f });
+					});
+				dynamicDecorations[crossesId].state = ComponentState::Changed;
+#endif
+			}
+
+			{
+				Globals::Components().camera3D().position = { Globals::Components().camera2D().details.position * 0.2f, 40.0f };
+			}
+		}
+
 	private:
 		std::array<ComponentId, 4> planeTextures{ 0 };
 		ComponentId spaceRockTexture = 0;
@@ -666,6 +773,7 @@ namespace Levels
 		ComponentId skullTexture = 0;
 		ComponentId avatarTexture = 0;
 		ComponentId recursiveFaceAnimationTexture = 0;
+		ComponentId marbleTexture = 0;
 
 		std::array<ComponentId, 4> flameAnimatedTextureForPlayers{ 0 };
 		ComponentId flameAnimatedTexture = 0;
@@ -691,11 +799,15 @@ namespace Levels
 
 		ComponentId dynamicWallId = 0;
 		ComponentId dynamicGrappleId = 0;
+		ComponentId crossesId = 0;
 
 		Tools::PlayersHandler playersHandler;
 		Tools::MissilesHandler missilesHandler;
 
 		std::unordered_set<const b2Body*> lowResBodies;
+
+		float transformBase = 0.0304f;
+		std::future<void> transformFuture;
 	};
 
 	Playground::Playground():
@@ -722,6 +834,7 @@ namespace Levels
 
 	void Playground::step()
 	{
-		impl->step();
+		impl->gameStep();
+		impl->decorationStep();
 	}
 }

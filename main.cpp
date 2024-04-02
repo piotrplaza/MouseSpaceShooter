@@ -115,7 +115,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Windmill>();
 	//activeLevel = std::make_unique<Levels::SquareRace>();
 
-	//activeLevel = std::make_unique<Levels::Playground>();
+	activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
@@ -128,7 +128,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::FirstPersonCamera>();
 	//activeLevel = std::make_unique<Levels::Crosses3D>();
 	//activeLevel = std::make_unique<Levels::Crosses3DTexturing>();
-	activeLevel = std::make_unique<Levels::Crosses3DInstancing>();
+	//activeLevel = std::make_unique<Levels::Crosses3DInstancing>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }
@@ -278,6 +278,7 @@ static LRESULT CALLBACK WndProc(
 			break;
 		case WM_KILLFOCUS:
 			Globals::Systems().stateController().killWindowFocus();
+			Tools::SetMouseCursorVisibility(true);
 			focus = false;
 			break;
 		case WM_KEYDOWN:
