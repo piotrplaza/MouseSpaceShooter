@@ -19,7 +19,6 @@ namespace Components
 
 		ComponentId soundBufferId = 0;
 
-		std::function<void(Sound&)> stepF;
 		std::function<void()> tearDownF;
 
 		void play();
@@ -41,7 +40,7 @@ namespace Components
 		bool isPaused() const;
 		bool isPlaying() const;
 
-		void step();
+		void step() override;
 
 		void immediateFreeResources();
 

@@ -48,7 +48,7 @@ namespace Tools
 
 		for (auto& component : components)
 		{
-			if (component.state == ComponentState::Ongoing)
+			if (component.state == ComponentState::Ongoing || !component.renderF())
 				continue;
 
 			const auto layer = (size_t)component.renderLayer;

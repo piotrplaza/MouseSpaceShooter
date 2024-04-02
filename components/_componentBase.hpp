@@ -9,6 +9,8 @@
 
 #include <commonTypes/componentId.hpp>
 
+#include <functional>
+
 enum class ComponentState { Ongoing, Changed, Outdated };
 
 struct ComponentBase
@@ -43,11 +45,18 @@ struct ComponentBase
 		return enable_;
 	}
 
+	virtual void step()
+	{
+		if (stepF)
+			stepF();
+	}
+
 	ComponentId getComponentId() const
 	{
 		return componentId;
 	}
 
+	std::function<void()> stepF;
 	ComponentState state = ComponentState::Changed;
 
 private:

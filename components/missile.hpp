@@ -31,6 +31,9 @@ namespace Components
 
 		void step() override
 		{
+			if (stepF)
+				stepF();
+
 			body->ApplyForceToCenter(b2Vec2(std::cos(body->GetAngle()), std::sin(body->GetAngle())) * thrustForce, true);
 		}
 	};

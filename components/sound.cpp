@@ -185,7 +185,7 @@ namespace Components
 			state = ComponentState::Outdated;
 
 		if (stepF)
-			stepF(*this);
+			stepF();
 	}
 
 	void Sound::immediateFreeResources()

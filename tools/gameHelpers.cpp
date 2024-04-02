@@ -338,7 +338,7 @@ namespace Tools
 		auto& sound = Globals::Components().sounds().emplace(soundBuffer);
 
 		sound.setRemoveOnStop(true);
-		sound.stepF = [&, posF = std::move(posF), stepF = std::move(stepF)](auto& sound)
+		sound.stepF = [&, posF = std::move(posF), stepF = std::move(stepF)]()
 		{
 			if (posF)
 				sound.setPosition(posF());

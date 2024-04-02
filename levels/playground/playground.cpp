@@ -230,17 +230,6 @@ namespace Levels
 				auto& staticDecorations = Globals::Components().staticDecorations();
 				auto& dynamicDecorations = Globals::Components().dynamicDecorations();
 
-				for (unsigned i = 0; i < numOfLights; ++i)
-					Globals::Components().lights3D().emplace(glm::vec3(0.0f), glm::vec3(1.0f), 0.6f, 1.0f);
-
-				for (const auto& light : Globals::Components().lights3D())
-				{
-					Shapes3D::AddSphere(staticDecorations.emplace(), 0.2f, 2, 3);
-					staticDecorations.last().colorF = [&]() { return glm::vec4(light.color, 1.0f) + Globals::Components().graphicsSettings().clearColor * light.clearColorFactor; };
-					staticDecorations.last().params3D->lightModelEnabled(false);
-					staticDecorations.last().modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), light.position), physics.simulationDuration * 4.0f, { 1.0f, 1.0f, 1.0f }); };
-				}
-
 				{
 					Shapes3D::AddCross(dynamicDecorations.emplace(), { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); });
 					dynamicDecorations.last().params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true).gpuSideInstancedNormalTransforms(true);
@@ -249,6 +238,22 @@ namespace Levels
 					dynamicDecorations.last().instancing.emplace().init(numOfCrosses, glm::mat4(1.0f));
 					dynamicDecorations.last().renderLayer = RenderLayer::NearBackground;
 					crossesId = dynamicDecorations.last().getComponentId();
+				}
+
+				for (unsigned i = 0; i < numOfLights; ++i)
+				{
+					auto& lights3D = Globals::Components().lights3D();
+					lights3D.emplace(glm::vec3(0.0f), glm::vec3(1.0f), 0.6f, 1.0f);
+					lights3D.last().stepF = ([&light = lights3D.last(), &crosses = dynamicDecorations[crossesId]]() { light.setEnable(crosses.isEnabled()); });
+				}
+
+				for (const auto& light : Globals::Components().lights3D())
+				{
+					Shapes3D::AddSphere(staticDecorations.emplace(), 0.2f, 2, 3);
+					staticDecorations.last().colorF = [&]() { return glm::vec4(light.color, 1.0f) + Globals::Components().graphicsSettings().clearColor * light.clearColorFactor; };
+					staticDecorations.last().params3D->lightModelEnabled(false);
+					staticDecorations.last().modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), light.position), physics.simulationDuration * 4.0f, { 1.0f, 1.0f, 1.0f }); };
+					staticDecorations.last().stepF = ([&lightSphere = staticDecorations.last(), &crosses = dynamicDecorations[crossesId]]() { lightSphere.setEnable(crosses.isEnabled()); });
 				}
 			}
 		}
@@ -706,15 +711,21 @@ namespace Levels
 				}
 			}
 
-			{
-				auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+			const auto& keyboard = Globals::Components().keyboard();
+			auto& crosses = Globals::Components().dynamicDecorations()[crossesId];
 
+			if (keyboard.pressed['C'])
+			{
+				crosses.setEnable(!crosses.isEnabled());
+			}
+
+			if (crosses.isEnabled())
+			{
 				const float transformSpeed = 0.00001f;
 				const float transformBaseStep = 0.001f;
 
 				const auto& physics = Globals::Components().physics();
-				const auto& keyboard = Globals::Components().keyboard();
-				auto& transforms = dynamicDecorations[crossesId].instancing->transforms_;
+				auto& transforms = crosses.instancing->transforms_;
 
 				if (keyboard.pressed[0x26/*VK_UP*/])
 					transformBase += transformBaseStep;
@@ -724,7 +735,7 @@ namespace Levels
 				if (transformFuture.valid())
 				{
 					transformFuture.get();
-					dynamicDecorations[crossesId].state = ComponentState::Changed;
+					crosses.state = ComponentState::Changed;
 				}
 
 				transformFuture = std::async(std::launch::async, [=, simulationDuration = physics.simulationDuration, &transforms]() {
@@ -745,12 +756,15 @@ namespace Levels
 						* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * (transformBase - physics.simulationDuration * transformSpeed), { 0.0f, 0.0f, 1.0f })
 						* glm::translate(glm::mat4(1.0f), { i * 0.0005f, i * 0.0007f, i * 0.0009f });
 					});
-				dynamicDecorations[crossesId].state = ComponentState::Changed;
+				crosses.state = ComponentState::Changed;
 #endif
 			}
 
 			{
-				Globals::Components().camera3D().position = { Globals::Components().camera2D().details.position * 0.2f, 40.0f };
+				auto& camera2D = Globals::Components().camera2D();
+				auto& camera3D = Globals::Components().camera3D();
+				camera3D.position = { camera2D.details.position * 0.2f, 70.0f };
+				camera3D.fov = 30.0f / 360.0f * glm::two_pi<float>();
 			}
 		}
 

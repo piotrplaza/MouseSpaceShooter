@@ -46,11 +46,10 @@ namespace
 			return std::nullopt;
 
 		const auto& plane = Globals::Components().planes()[planeId];
-
 		auto& sound = Globals::Components().sounds().emplace(*soundBuffer);
 		sound.setLoop(true);
 		sound.setVolume(0.0f);
-		sound.stepF = [&plane](auto& sound) {
+		sound.stepF = [&]() {
 			sound.setPosition(plane.getOrigin2D());
 		};
 
