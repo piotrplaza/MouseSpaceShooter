@@ -31,8 +31,8 @@ namespace Systems
 			std::unique_ptr<float[]> data;
 			glm::ivec2 size = {0, 0};
 			int numOfChannels = 0;
-			bool premultipliedAlpha = false;
-			bool darkToTransparent = false;
+			bool sourceWithPremultipliedAlpha = false;
+			bool convertDarkToTransparent = false;
 		};
 
 		void loadAndConfigureTexture(Components::Texture& texture, bool initial = true);

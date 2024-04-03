@@ -55,7 +55,7 @@ namespace Systems
 			{
 				const int prevTextureSize = texture.loaded.size.x * texture.loaded.size.y * texture.loaded.numOfChannels;
 				auto& textureCache = pathsToTexturesCache[path];
-				if (!textureCache.data || textureCache.premultipliedAlpha != texture.premultipliedAlpha || textureCache.darkToTransparent != texture.darkToTransparent)
+				if (!textureCache.data || textureCache.sourceWithPremultipliedAlpha != texture.sourceWithPremultipliedAlpha || textureCache.convertDarkToTransparent != texture.convertDarkToTransparent)
 				{
 					textureCache.data.reset(stbi_loadf(path.c_str(), &textureCache.size.x, &textureCache.size.y, &textureCache.numOfChannels, 0));
 					if (!textureCache.data)
@@ -63,8 +63,8 @@ namespace Systems
 						assert(!"unable to load image");
 						throw std::runtime_error("Unable to load image \"" + path + "\".");
 					}
-					textureCache.premultipliedAlpha = texture.premultipliedAlpha;
-					textureCache.darkToTransparent = texture.darkToTransparent;
+					textureCache.sourceWithPremultipliedAlpha = texture.sourceWithPremultipliedAlpha;
+					textureCache.convertDarkToTransparent = texture.convertDarkToTransparent;
 
 					optionalAlphaProcessing(textureCache.data.get(), textureCache.size, textureCache.numOfChannels);
 				}
@@ -99,12 +99,12 @@ namespace Systems
 		private:
 			void optionalAlphaProcessing(float* data, glm::vec2 size, int numOfChannels) const
 			{
-				if (numOfChannels == 4 && (texture.premultipliedAlpha || texture.darkToTransparent))
+				if (numOfChannels == 4 && (!texture.sourceWithPremultipliedAlpha || texture.convertDarkToTransparent))
 					for (int i = 0; i < size.x * size.y * 4; i += 4)
 					{
-						data[i + 3] = (1 - texture.darkToTransparent) * data[i + 3] + texture.darkToTransparent * std::min(1.0f, data[i] + data[i + 1] + data[i + 2]);
+						data[i + 3] = (1 - texture.convertDarkToTransparent) * data[i + 3] + texture.convertDarkToTransparent * std::min(1.0f, data[i] + data[i + 1] + data[i + 2]);
 
-						const float premultipliedAlphaFactor = (1 - texture.premultipliedAlpha) + texture.premultipliedAlpha * data[i + 3];
+						const float premultipliedAlphaFactor = texture.sourceWithPremultipliedAlpha + (1 - texture.sourceWithPremultipliedAlpha) * data[i + 3];
 						data[i] *= premultipliedAlphaFactor;
 						data[i + 1] *= premultipliedAlphaFactor;
 						data[i + 2] *= premultipliedAlphaFactor;

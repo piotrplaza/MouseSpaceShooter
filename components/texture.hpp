@@ -72,8 +72,8 @@ namespace Components
 		glm::vec2 translate{ 0.0f };
 		glm::vec2 scale{ 1.0f };
 
-		bool premultipliedAlpha = true;
-		bool darkToTransparent = false;
+		bool sourceWithPremultipliedAlpha = false;
+		bool convertDarkToTransparent = false;
 
 		struct
 		{
