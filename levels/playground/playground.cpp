@@ -763,7 +763,7 @@ namespace Levels
 			{
 				auto& camera2D = Globals::Components().camera2D();
 				auto& camera3D = Globals::Components().camera3D();
-				camera3D.position = { camera2D.details.position * 0.2f, 70.0f };
+				camera3D.position = { camera2D.details.position * 0.2f, camera2D.details.projectionHSize * 0.4f + 70.0f };
 				camera3D.fov = 30.0f / 360.0f * glm::two_pi<float>();
 			}
 		}
