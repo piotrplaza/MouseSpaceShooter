@@ -84,7 +84,7 @@ struct Physical : Renderable
 	void changeBody(Body body)
 	{
 		this->body = std::move(body);
-		init(getComponentId());
+		init(getComponentId(), isStatic());
 		state = ComponentState::Changed;
 	}
 };

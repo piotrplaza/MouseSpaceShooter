@@ -6,9 +6,9 @@
 
 namespace Components
 {
-	struct StaticWall : Physical
+	struct Wall : Physical
 	{
-		StaticWall(Body body,
+		Wall(Body body,
 			AbstractTextureComponentVariant texture = std::monostate{},
 			std::optional<ComponentId> renderingSetup = std::nullopt,
 			RenderLayer renderLayer = RenderLayer::Midground,
@@ -17,23 +17,11 @@ namespace Components
 		{
 		}
 
-		void init(ComponentId id) override
+		void init(ComponentId id, bool static_) override
 		{
-			ComponentBase::init(id);
+			ComponentBase::init(id, static_);
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
 			setBodyComponentVariant(CM::StaticWall(this));
-		}
-	};
-
-	struct DynamicWall : StaticWall
-	{
-		using StaticWall::StaticWall;
-
-		void init(ComponentId id) override
-		{
-			ComponentBase::init(id);
-			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
-			setBodyComponentVariant(CM::DynamicWall(this));
 		}
 	};
 }

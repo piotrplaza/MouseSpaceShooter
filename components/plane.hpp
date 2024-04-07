@@ -48,9 +48,9 @@ namespace Components
 			float throttleForce = 0.0f;
 		} details;
 
-		void init(ComponentId id) override
+		void init(ComponentId id, bool static_) override
 		{
-			ComponentBase::init(id);
+			ComponentBase::init(id, static_);
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::plane, Globals::CollisionBits::all);
 			setBodyComponentVariant(CM::Plane(this));
 		}

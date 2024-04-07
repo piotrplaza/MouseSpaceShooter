@@ -190,7 +190,7 @@ public:
 	{
 		components.push_back(component);
 		last_ = &components.back();
-		last_->init(components.size() - 1);
+		last_->init(components.size() - 1, true);
 		return *last_;
 	}
 
@@ -198,7 +198,7 @@ public:
 	Component& emplace(Params&&... params)
 	{
 		last_ = &components.emplace_back(std::forward<Params>(params)...);
-		last_->init(components.size() - 1);
+		last_->init(components.size() - 1, true);
 		return *last_;
 	}
 
@@ -329,7 +329,7 @@ public:
 		auto it = components.insert({ id, component });
 		assert(it.second);
 		last_ = &it.first->second;
-		last_->init(id);
+		last_->init(id, false);
 		return *last_;
 	}
 
@@ -340,7 +340,7 @@ public:
 		auto it = components.try_emplace(id, std::forward<Params>(params)...);
 		assert(it.second);
 		last_ = &it.first->second;
-		last_->init(id);
+		last_->init(id, false);
 		return *last_;
 	}
 

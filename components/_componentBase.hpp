@@ -30,9 +30,10 @@ struct ComponentBase
 	ComponentBase() = default;
 #endif
 
-	virtual void init(ComponentId id)
+	virtual void init(ComponentId id, bool static_)
 	{
 		componentId = id;
+		this->static_ = static_;
 	}
 
 	virtual void setEnable(bool value)
@@ -56,10 +57,16 @@ struct ComponentBase
 		return componentId;
 	}
 
+	bool isStatic() const
+	{
+		return static_;
+	}
+
 	std::function<void()> stepF;
 	ComponentState state = ComponentState::Changed;
 
 private:
 	ComponentId componentId = 0;
 	bool enable_ = true;
+	bool static_ = true;
 };

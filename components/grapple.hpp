@@ -4,9 +4,9 @@
 
 namespace Components
 {
-	struct Grapple : DynamicWall
+	struct Grapple : Wall
 	{
-		using DynamicWall::DynamicWall;
+		using Wall::Wall;
 
 		float influenceRadius = 0.0f;
 
@@ -15,9 +15,9 @@ namespace Components
 			glm::vec2 previousCenter{ 0.0f, 0.0f };
 		} details;
 
-		void init(ComponentId id) override
+		void init(ComponentId id, bool static_) override
 		{
-			ComponentBase::init(id);
+			ComponentBase::init(id, static_);
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
 			setBodyComponentVariant(CM::Grapple(this));
 		}

@@ -14,10 +14,8 @@ namespace Components
 	struct Grapple;
 	struct Missile;
 	struct Plane;
-	struct StaticWall;
-	struct DynamicWall;
-	struct StaticPolyline;
-	struct DynamicPolyline;
+	struct Wall;
+	struct Polyline;
 }
 
 namespace ComponentMappers
@@ -40,6 +38,7 @@ namespace ComponentMappers
 
 	struct DynamicTexture
 	{
+		DynamicTexture() = default;
 		DynamicTexture(Components::Texture* component, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
 		DynamicTexture(ComponentId id, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
 
@@ -148,10 +147,10 @@ namespace ComponentMappers
 
 	struct StaticWall
 	{
-		StaticWall(Components::StaticWall* component);
+		StaticWall(Components::Wall* component);
 		StaticWall(ComponentId id);
 
-		Components::StaticWall* component;
+		Components::Wall* component;
 		ComponentId componentId;
 
 		bool operator==(const StaticWall&) const = default;
@@ -159,10 +158,10 @@ namespace ComponentMappers
 
 	struct DynamicWall
 	{
-		DynamicWall(Components::DynamicWall* component);
+		DynamicWall(Components::Wall* component);
 		DynamicWall(ComponentId id);
 
-		Components::DynamicWall* component;
+		Components::Wall* component;
 		ComponentId componentId;
 
 		bool operator==(const DynamicWall&) const = default;
@@ -170,10 +169,10 @@ namespace ComponentMappers
 
 	struct StaticPolyline
 	{
-		StaticPolyline(Components::StaticPolyline* component);
+		StaticPolyline(Components::Polyline* component);
 		StaticPolyline(ComponentId id);
 
-		Components::StaticPolyline* component;
+		Components::Polyline* component;
 		ComponentId componentId;
 
 		bool operator==(const StaticPolyline&) const = default;
@@ -181,10 +180,10 @@ namespace ComponentMappers
 
 	struct DynamicPolyline
 	{
-		DynamicPolyline(Components::DynamicPolyline* component);
+		DynamicPolyline(Components::Polyline* component);
 		DynamicPolyline(ComponentId id);
 
-		Components::DynamicPolyline* component;
+		Components::Polyline* component;
 		ComponentId componentId;
 
 		bool operator==(const DynamicPolyline&) const = default;

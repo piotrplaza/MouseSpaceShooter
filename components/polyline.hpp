@@ -10,9 +10,9 @@
 
 namespace Components
 {
-	struct StaticPolyline : Physical
+	struct Polyline : Physical
 	{
-		StaticPolyline(const std::vector<glm::vec2>& vertices,
+		Polyline(const std::vector<glm::vec2>& vertices,
 			Tools::BodyParams bodyParams = Tools::BodyParams{},
 			std::optional<ComponentId> renderingSetup = std::nullopt,
 			RenderLayer renderLayer = RenderLayer::Midground,
@@ -23,7 +23,7 @@ namespace Components
 			bufferDataUsage = GL_DYNAMIC_DRAW;
 		}
 
-		StaticPolyline(Tools::BodyParams bodyParams = Tools::BodyParams{},
+		Polyline(Tools::BodyParams bodyParams = Tools::BodyParams{},
 			std::optional<ComponentId> renderingSetup = std::nullopt,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt) :
@@ -36,11 +36,14 @@ namespace Components
 		std::function<std::vector<glm::vec3>(const glm::vec3&, const glm::vec3&)> segmentVerticesGenerator;
 		std::function<void(std::vector<glm::vec3>&)> keyVerticesTransformer;
 
-		void init(ComponentId id) override
+		void init(ComponentId id, bool static_) override
 		{
-			ComponentBase::init(id);
+			ComponentBase::init(id, static_);
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::polyline, Globals::CollisionBits::all);
-			setBodyComponentVariant(CM::StaticPolyline(this));
+			if (isStatic())
+				setBodyComponentVariant(CM::StaticPolyline(this));
+			else
+				setBodyComponentVariant(CM::DynamicPolyline(this));
 		}
 
 		std::vector<glm::vec3> getVertices(bool transformed = false) const override
@@ -86,18 +89,6 @@ namespace Components
 			Tools::DestroyFixtures(body);
 			Tools::CreatePolylineFixtures(body, vertices, bodyParams);
 			Tools::SetCollisionFilteringBits(*body, Globals::CollisionBits::polyline, Globals::CollisionBits::all);
-		}
-	};
-
-	struct DynamicPolyline : StaticPolyline
-	{
-		using StaticPolyline::StaticPolyline;
-
-		void init(ComponentId id) override
-		{
-			ComponentBase::init(id);
-			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::polyline, Globals::CollisionBits::all);
-			setBodyComponentVariant(CM::DynamicPolyline(this));
 		}
 	};
 }

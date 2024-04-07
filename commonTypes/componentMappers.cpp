@@ -157,7 +157,7 @@ namespace ComponentMappers
 	{
 	}
 
-	StaticWall::StaticWall(Components::StaticWall* component):
+	StaticWall::StaticWall(Components::Wall* component):
 		component(component),
 		componentId(component->getComponentId())
 	{
@@ -169,7 +169,7 @@ namespace ComponentMappers
 	{
 	}
 
-	DynamicWall::DynamicWall(Components::DynamicWall* component):
+	DynamicWall::DynamicWall(Components::Wall* component):
 		component(component),
 		componentId(component->getComponentId())
 	{
@@ -181,7 +181,7 @@ namespace ComponentMappers
 	{
 	}
 
-	StaticPolyline::StaticPolyline(Components::StaticPolyline* component):
+	StaticPolyline::StaticPolyline(Components::Polyline* component):
 		component(component),
 		componentId(component->getComponentId())
 	{
@@ -193,7 +193,7 @@ namespace ComponentMappers
 	{
 	}
 
-	DynamicPolyline::DynamicPolyline(Components::DynamicPolyline* component):
+	DynamicPolyline::DynamicPolyline(Components::Polyline* component):
 		component(component),
 		componentId(component->getComponentId())
 	{

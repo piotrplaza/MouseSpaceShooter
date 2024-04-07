@@ -165,12 +165,12 @@ namespace Globals
 		return *planes_;
 	}
 
-	StaticComponents<Components::StaticWall>& ComponentsHolder::staticWalls()
+	StaticComponents<Components::Wall>& ComponentsHolder::staticWalls()
 	{
 		return *staticWalls_;
 	}
 
-	DynamicComponents<Components::DynamicWall>& ComponentsHolder::dynamicWalls()
+	DynamicComponents<Components::Wall>& ComponentsHolder::dynamicWalls()
 	{
 		return *dynamicWalls_;
 	}
@@ -180,12 +180,12 @@ namespace Globals
 		return *grapples_;
 	}
 
-	StaticComponents<Components::StaticPolyline>& ComponentsHolder::staticPolylines()
+	StaticComponents<Components::Polyline>& ComponentsHolder::staticPolylines()
 	{
 		return *staticPolylines_;
 	}
 	
-	DynamicComponents<Components::DynamicPolyline>& ComponentsHolder::dynamicPolylines()
+	DynamicComponents<Components::Polyline>& ComponentsHolder::dynamicPolylines()
 	{
 		return *dynamicPolylines_;
 	}
