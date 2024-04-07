@@ -11,7 +11,7 @@
 #include <components/light3D.hpp>
 #include <components/graphicsSettings.hpp>
 
-#include <commonTypes/typeComponentMappers.hpp>
+#include <commonTypes/componentMappers.hpp>
 
 #include <globals/components.hpp>
 
@@ -46,14 +46,14 @@ namespace
 	{
 		struct TextureComponentSelectorVisitor
 		{
-			const Components::Texture& operator ()(const TCM::StaticTexture& texture) const
+			const Components::Texture& operator ()(const CM::StaticTexture& texture) const
 			{
-				return Globals::Components().staticTextures()[texture.id];
+				return *texture.component;
 			}
 
-			const Components::Texture& operator ()(const TCM::DynamicTexture& texture) const
+			const Components::Texture& operator ()(const CM::DynamicTexture& texture) const
 			{
-				return Globals::Components().dynamicTextures()[texture.id];
+				return *texture.component;
 			}
 
 			const Components::Texture& operator ()(std::monostate) const
@@ -96,44 +96,38 @@ namespace
 			{
 			}
 
-			void operator ()(const TCM::StaticTexture& texture) const
+			void operator ()(const CM::StaticTexture& texture) const
 			{
-				const auto& textureComponent = Globals::Components().staticTextures()[texture.id];
-				TexturedRenderInitialization(shadersProgram, textureComponent, preserveTextureRatio, texture.translate, texture.rotate, texture.scale,
+				TexturedRenderInitialization(shadersProgram, *texture.component, preserveTextureRatio, texture.translate, texture.rotate, texture.scale,
 					additionalTransform, textureId);
 			}
 
-			void operator ()(const TCM::DynamicTexture& texture) const
+			void operator ()(const CM::DynamicTexture& texture) const
 			{
-				const auto& textureComponent = Globals::Components().dynamicTextures()[texture.id];
-				TexturedRenderInitialization(shadersProgram, textureComponent, preserveTextureRatio, texture.translate, texture.rotate, texture.scale,
+				TexturedRenderInitialization(shadersProgram, *texture.component, preserveTextureRatio, texture.translate, texture.rotate, texture.scale,
 					additionalTransform, textureId);
 			}
 
-			void operator ()(const TCM::StaticAnimatedTexture& animatedTexture) const
+			void operator ()(const CM::StaticAnimatedTexture& animatedTexture) const
 			{
-				const auto& animationTextureComponent = Globals::Components().staticAnimatedTextures()[animatedTexture.id];
-				AnimatedTexturedRenderInitialization(shadersProgram, animationTextureComponent, animatedTexture.translate, animatedTexture.rotate, animatedTexture.scale,
+				AnimatedTexturedRenderInitialization(shadersProgram, *animatedTexture.component, animatedTexture.translate, animatedTexture.rotate, animatedTexture.scale,
 					additionalTransform, textureId);
 			}
 
-			void operator ()(const TCM::DynamicAnimatedTexture& animatedTexture) const
+			void operator ()(const CM::DynamicAnimatedTexture& animatedTexture) const
 			{
-				const auto& animationTextureComponent = Globals::Components().dynamicAnimatedTextures()[animatedTexture.id];
-				AnimatedTexturedRenderInitialization(shadersProgram, animationTextureComponent, animatedTexture.translate, animatedTexture.rotate, animatedTexture.scale,
+				AnimatedTexturedRenderInitialization(shadersProgram, *animatedTexture.component, animatedTexture.translate, animatedTexture.rotate, animatedTexture.scale,
 					additionalTransform, textureId);
 			}
 
-			void operator ()(const TCM::StaticBlendingTexture& blendingTexture) const
+			void operator ()(const CM::StaticBlendingTexture& blendingTexture) const
 			{
-				const auto& blendingTextureComponent = Globals::Components().staticBlendingTextures()[blendingTexture.id];
-				BlendingTexturedRenderInitialization(shadersProgram, blendingTextureComponent, preserveTextureRatio, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
+				BlendingTexturedRenderInitialization(shadersProgram, *blendingTexture.component, preserveTextureRatio, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
 			}
 
-			void operator ()(const TCM::DynamicBlendingTexture& blendingTexture) const
+			void operator ()(const CM::DynamicBlendingTexture& blendingTexture) const
 			{
-				const auto& blendingTextureComponent = Globals::Components().dynamicBlendingTextures()[blendingTexture.id];
-				BlendingTexturedRenderInitialization(shadersProgram, blendingTextureComponent, preserveTextureRatio, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
+				BlendingTexturedRenderInitialization(shadersProgram, *blendingTexture.component, preserveTextureRatio, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
 			}
 
 			void operator ()(std::monostate) const

@@ -2,7 +2,7 @@
 
 #include "_componentBase.hpp"
 
-#include <commonTypes/typeComponentMappers.hpp>
+#include <commonTypes/componentMappers.hpp>
 
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>

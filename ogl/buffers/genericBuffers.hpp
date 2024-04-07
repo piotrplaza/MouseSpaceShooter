@@ -5,7 +5,7 @@
 
 #include <globals/components.hpp>
 
-#include <commonTypes/typeComponentMappers.hpp>
+#include <commonTypes/componentMappers.hpp>
 #include <commonTypes/resolutionMode.hpp>
 
 #include <ogl/shaders.hpp>

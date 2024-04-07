@@ -5,7 +5,7 @@
 
 #include <tools/geometryHelpers.hpp>
 
-#include <commonTypes/typeComponentMappers.hpp>
+#include <commonTypes/componentMappers.hpp>
 #include <commonTypes/resolutionMode.hpp>
 #include <commonTypes/renderLayer.hpp>
 

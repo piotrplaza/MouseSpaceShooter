@@ -298,6 +298,9 @@
     <ClCompile Include="levels\crosses3DInstancing\crosses3DInstancing.cpp">
       <Filter>src\levels\crosses3DInstancing</Filter>
     </ClCompile>
+    <ClCompile Include="commonTypes\componentMappers.cpp">
+      <Filter>src\commonTypes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mvp.hpp">
@@ -531,9 +534,6 @@
     <ClInclude Include="globals\componentIdGenerator.hpp">
       <Filter>src\globals</Filter>
     </ClInclude>
-    <ClInclude Include="commonTypes\typeComponentMappers.hpp">
-      <Filter>src\commonTypes</Filter>
-    </ClInclude>
     <ClInclude Include="commonTypes\componentId.hpp">
       <Filter>src\commonTypes</Filter>
     </ClInclude>
@@ -635,6 +635,9 @@
     </ClInclude>
     <ClInclude Include="levels\crosses3DInstancing\crosses3DInstancing.hpp">
       <Filter>src\levels\crosses3DInstancing</Filter>
+    </ClInclude>
+    <ClInclude Include="commonTypes\componentMappers.hpp">
+      <Filter>src\commonTypes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

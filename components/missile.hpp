@@ -26,7 +26,7 @@ namespace Components
 		{
 			ComponentBase::init(id);
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::missile, Globals::CollisionBits::all);
-			setBodyComponentVariant(TCM::Missile(id, this));
+			setBodyComponentVariant(CM::Missile(this));
 		}
 
 		void step() override

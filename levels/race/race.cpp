@@ -95,7 +95,7 @@ namespace Levels
 			for (auto& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
 			{
 				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().size();
-				Globals::Components().staticAnimatedTextures().add({ TCM::StaticTexture(flameAnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(flameAnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
 					AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
 				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
@@ -117,8 +117,8 @@ namespace Levels
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline,
 			[this](const auto& plane, const auto& polyline) {
 				Globals::Components().deferredActions().emplace([&](auto) {
-					auto& planeComponent = Tools::AccessComponent<TCM::Plane>(plane);
-					const auto& polylineComponent = Tools::AccessComponent<TCM::StaticPolyline>(polyline);
+					auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
+					const auto& polylineComponent = Tools::AccessComponent<CM::StaticPolyline>(polyline);
 
 					if (!deadlySplines.contains(polylineComponent.getComponentId()))
 						return false;
@@ -139,8 +139,8 @@ namespace Levels
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline, [this, collisionsStarted, collisionsBlocked](const auto& plane, const auto& polyline) {
 				Globals::Components().deferredActions().emplace([&, collisionsStarted, collisionsBlocked](auto) {
-					auto& planeComponent = Tools::AccessComponent<TCM::Plane>(plane);
-					const auto& polylineComponent = Tools::AccessComponent<TCM::StaticPolyline>(polyline);
+					auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
+					const auto& polylineComponent = Tools::AccessComponent<CM::StaticPolyline>(polyline);
 
 					if (polylineComponent.getComponentId() != startingStaticPolyline)
 						return false;
@@ -199,8 +199,8 @@ namespace Levels
 
 			Globals::Components().endCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline, [this, collisionsStarted, collisionsBlocked](const auto& plane, auto& polyline) {
 				Globals::Components().deferredActions().emplace([&, collisionsStarted, collisionsBlocked](auto) {
-					const auto& planeComponent = Tools::AccessComponent<TCM::Plane>(plane);
-					const auto& polylineComponent = Tools::AccessComponent<TCM::StaticPolyline>(polyline);
+					const auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
+					const auto& polylineComponent = Tools::AccessComponent<CM::StaticPolyline>(polyline);
 
 					if (polylineComponent.getComponentId() != startingStaticPolyline)
 						return false;

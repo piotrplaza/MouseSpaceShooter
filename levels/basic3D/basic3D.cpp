@@ -59,7 +59,7 @@ namespace Levels
 			auto& shape = staticDecorations.emplace();
 			Shapes3D::AddCuboid(shape, { 0.8f, 0.8f, 0.8f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } }, [](glm::vec2 d, auto) { return d; });
 			shape.modelMatrixF = [&]() { return glm::rotate(glm::mat4(1.0f), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }); };
-			shape.texture = TCM::StaticTexture(skullTexture);
+			shape.texture = CM::StaticTexture(skullTexture);
 			shape.params3D->illuminationF([]() { return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); });
 			shape.params3D->specularMaterialColorFactor(1.0f).specular(8.0f);
 			//shape.colorF = []() { return glm::vec4(1.0f); };

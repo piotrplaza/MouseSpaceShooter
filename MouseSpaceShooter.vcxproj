@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
+    <ClCompile Include="commonTypes\componentMappers.cpp" />
     <ClCompile Include="commonTypes\resolutionMode.cpp" />
     <ClCompile Include="components\animatedTexture.cpp" />
     <ClCompile Include="components\audioListener.cpp" />
@@ -88,11 +89,11 @@
     <ClInclude Include="commonTypes\bodyUserData.hpp" />
     <ClInclude Include="commonTypes\buffersCollections.hpp" />
     <ClInclude Include="commonTypes\componentId.hpp" />
+    <ClInclude Include="commonTypes\componentMappers.hpp" />
     <ClInclude Include="commonTypes\componentsContainers.hpp" />
     <ClInclude Include="commonTypes\idGenerator.hpp" />
     <ClInclude Include="commonTypes\renderLayer.hpp" />
     <ClInclude Include="commonTypes\resolutionMode.hpp" />
-    <ClInclude Include="commonTypes\typeComponentMappers.hpp" />
     <ClInclude Include="components\animatedTexture.hpp" />
     <ClInclude Include="components\audioListener.hpp" />
     <ClInclude Include="components\blendingTexture.hpp" />

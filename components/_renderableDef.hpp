@@ -2,7 +2,7 @@
 
 #include <tools/geometryHelpers.hpp>
 
-#include <commonTypes/typeComponentMappers.hpp>
+#include <commonTypes/componentMappers.hpp>
 #include <commonTypes/renderLayer.hpp>
 
 #include <ogl/shaders.hpp>

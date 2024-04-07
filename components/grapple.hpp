@@ -19,7 +19,7 @@ namespace Components
 		{
 			ComponentBase::init(id);
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
-			setBodyComponentVariant(TCM::Grapple(id, this));
+			setBodyComponentVariant(CM::Grapple(this));
 		}
 	};
 }

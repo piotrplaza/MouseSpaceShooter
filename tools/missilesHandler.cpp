@@ -18,23 +18,23 @@ namespace Tools
 		Globals::Components().collisionFilters().emplace(Globals::CollisionBits::missile, Globals::CollisionBits::missile |
 			Globals::CollisionBits::plane | Globals::CollisionBits::polyline,
 			[this](const auto& missileFixture, const auto& targetFixture) {
-				const auto missileId = std::get<TCM::Missile>(Tools::AccessUserData(*missileFixture.GetBody()).bodyComponentVariant).id;
+				const auto missileId = std::get<CM::Missile>(Tools::AccessUserData(*missileFixture.GetBody()).bodyComponentVariant).componentId;
 				const auto& targetBodyComponentVariant = Tools::AccessUserData(*targetFixture.GetBody()).bodyComponentVariant;
 				const auto missilePlaneId = missilesToHandlers.at(missileId).planeId;
 
 				if (!missilePlaneId)
 					return true;
 
-				if (std::holds_alternative<TCM::StaticPolyline>(targetBodyComponentVariant) || std::holds_alternative<TCM::DynamicPolyline>(targetBodyComponentVariant))
+				if (std::holds_alternative<CM::StaticPolyline>(targetBodyComponentVariant) || std::holds_alternative<CM::DynamicPolyline>(targetBodyComponentVariant))
 					return false;
 
-				if (const TCM::Missile* targetMissile = std::get_if<TCM::Missile>(&targetBodyComponentVariant))
+				if (const CM::Missile* targetMissile = std::get_if<CM::Missile>(&targetBodyComponentVariant))
 				{
-					const auto targetMissilePlaneId = missilesToHandlers.at(targetMissile->id).planeId;
+					const auto targetMissilePlaneId = missilesToHandlers.at(targetMissile->componentId).planeId;
 					return !targetMissilePlaneId || *missilePlaneId != *targetMissilePlaneId;
 				}
 
-				return *missilePlaneId != std::get<TCM::Plane>(targetBodyComponentVariant).id;
+				return *missilePlaneId != std::get<CM::Plane>(targetBodyComponentVariant).componentId;
 			});
 
 		Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::missile, Globals::CollisionBits::all,
@@ -43,7 +43,7 @@ namespace Tools
 				const auto& missileBody = *missileFixture.GetBody();
 
 				deferredActions.emplace([&](auto) {
-					missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).id);
+					missilesToHandlers.erase(std::get<CM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).componentId);
 					return false;
 					});
 
@@ -53,10 +53,10 @@ namespace Tools
 					.resolutionMode(resolutionModeF ? resolutionModeF(*targetFixture.GetBody()) : explosionParams.resolutionMode_));
 
 				const auto& targetBodyComponentVariant = Tools::AccessUserData(*targetFixture.GetBody()).bodyComponentVariant;
-				if (const TCM::Missile* targetMissile = std::get_if<TCM::Missile>(&targetBodyComponentVariant))
+				if (const CM::Missile* targetMissile = std::get_if<CM::Missile>(&targetBodyComponentVariant))
 				{
 					deferredActions.emplace([=](auto) {
-						missilesToHandlers.erase(targetMissile->id);
+						missilesToHandlers.erase(targetMissile->componentId);
 						return false;
 						});
 

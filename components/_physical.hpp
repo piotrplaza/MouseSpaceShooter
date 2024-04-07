@@ -4,7 +4,7 @@
 
 #include <tools/b2Helpers.hpp>
 
-#include <commonTypes/typeComponentMappers.hpp>
+#include <commonTypes/componentMappers.hpp>
 #include <commonTypes/bodyUserData.hpp>
 
 #include <vector>

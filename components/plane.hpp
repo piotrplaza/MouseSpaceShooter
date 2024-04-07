@@ -52,7 +52,7 @@ namespace Components
 		{
 			ComponentBase::init(id);
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::plane, Globals::CollisionBits::all);
-			setBodyComponentVariant(TCM::Plane(id, this));
+			setBodyComponentVariant(CM::Plane(this));
 		}
 
 		void throttle(float forceFactor)

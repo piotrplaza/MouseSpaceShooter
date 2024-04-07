@@ -2,7 +2,7 @@
 
 #include "_componentBase.hpp"
 
-#include <commonTypes/typeComponentMappers.hpp>
+#include <commonTypes/componentMappers.hpp>
 
 #include <vector>
 #include <initializer_list>

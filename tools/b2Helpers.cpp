@@ -7,7 +7,7 @@
 #include <tools/shapes2D.hpp>
 #include <tools/utility.hpp>
 
-#include <commonTypes/typeComponentMappers.hpp>
+#include <commonTypes/componentMappers.hpp>
 
 #include <glm/gtx/transform.hpp>
 

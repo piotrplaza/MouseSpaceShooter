@@ -104,7 +104,7 @@ namespace Levels
 		void setAnimations()
 		{
 			flame1AnimatedTexture = Globals::Components().staticAnimatedTextures().size();
-			Globals::Components().staticAnimatedTextures().add({ TCM::StaticTexture(flame1AnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+			Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(flame1AnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
 				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
 			Globals::Components().staticAnimatedTextures().last().start(true);
 
@@ -175,7 +175,7 @@ namespace Levels
 				Globals::Components().staticWalls().emplace(
 					Tools::CreateBoxBody({ Tools::Random(0.1f, 1.0f), Tools::Random(0.1f, 1.0f) },
 						Tools::BodyParams().position(pos).angle(angle).bodyType(b2_dynamicBody).density(0.02f)),
-					TCM::StaticTexture(spaceRockTexture));
+					CM::StaticTexture(spaceRockTexture));
 			}
 
 			debrisEnd = Globals::Components().staticWalls().size();
@@ -188,7 +188,7 @@ namespace Levels
 		void createGrapples()
 		{
 			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(20.0f,
-				Tools::BodyParams()), TCM::StaticTexture(orbTexture));
+				Tools::BodyParams()), CM::StaticTexture(orbTexture));
 			grapple.influenceRadius = 100.0f;
 			planetId = grapple.getComponentId();
 		}
@@ -217,7 +217,7 @@ namespace Levels
 					{
 						const auto& targetFixture = fixture == &fixtureA ? fixtureB : fixtureA;
 						const auto& missileBody = *fixture->GetBody();
-						missilesToHandlers.erase(std::get<TCM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).id);
+						missilesToHandlers.erase(std::get<CM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).componentId);
 						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture));
 
 						explosionFrame = true;
