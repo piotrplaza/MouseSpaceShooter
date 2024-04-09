@@ -209,7 +209,7 @@ namespace Levels
 
 			recursiveFaceAnimatedTexture = Globals::Components().staticAnimatedTextures().size();
 			Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(recursiveFaceAnimationTexture), { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
-				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
+				AnimationDirection::Forward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
 			Globals::Components().staticAnimatedTextures().last().start(true);
 		}
 
