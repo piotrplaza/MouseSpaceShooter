@@ -26,8 +26,8 @@ namespace ComponentMappers
 		StaticTexture(Components::Texture* component, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
 		StaticTexture(ComponentId id, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
 
-		Components::Texture* component;
-		ComponentId componentId;
+		Components::Texture* component = nullptr;
+		ComponentId componentId = 0;
 
 		glm::vec2 translate;
 		float rotate;
@@ -42,8 +42,8 @@ namespace ComponentMappers
 		DynamicTexture(Components::Texture* component, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
 		DynamicTexture(ComponentId id, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
 
-		Components::Texture* component;
-		ComponentId componentId;
+		Components::Texture* component = nullptr;
+		ComponentId componentId = 0;
 
 		glm::vec2 translate;
 		float rotate;
@@ -54,11 +54,12 @@ namespace ComponentMappers
 
 	struct StaticAnimatedTexture
 	{
+		StaticAnimatedTexture() = default;
 		StaticAnimatedTexture(Components::AnimatedTexture* component, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
 		StaticAnimatedTexture(ComponentId id, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
 
-		Components::AnimatedTexture* component;
-		ComponentId componentId;
+		Components::AnimatedTexture* component = nullptr;
+		ComponentId componentId = 0;
 
 		glm::vec2 translate;
 		float rotate;
@@ -69,11 +70,12 @@ namespace ComponentMappers
 
 	struct DynamicAnimatedTexture
 	{
+		DynamicAnimatedTexture() = default;
 		DynamicAnimatedTexture(Components::AnimatedTexture* component, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
 		DynamicAnimatedTexture(ComponentId id, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
 
-		Components::AnimatedTexture* component;
-		ComponentId componentId;
+		Components::AnimatedTexture* component = nullptr;
+		ComponentId componentId = 0;
 
 		glm::vec2 translate;
 		float rotate;
@@ -84,11 +86,12 @@ namespace ComponentMappers
 
 	struct StaticBlendingTexture
 	{
+		StaticBlendingTexture() = default;
 		StaticBlendingTexture(Components::BlendingTexture* component, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
 		StaticBlendingTexture(ComponentId id, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
 
-		Components::BlendingTexture* component;
-		ComponentId componentId;
+		Components::BlendingTexture* component = nullptr;
+		ComponentId componentId = 0;
 
 		glm::vec2 translate;
 		float rotate;
@@ -99,11 +102,12 @@ namespace ComponentMappers
 
 	struct DynamicBlendingTexture
 	{
+		DynamicBlendingTexture() = default;
 		DynamicBlendingTexture(Components::BlendingTexture* component, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
 		DynamicBlendingTexture(ComponentId id, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
 
-		Components::BlendingTexture* component;
-		ComponentId componentId;
+		Components::BlendingTexture* component = nullptr;
+		ComponentId componentId = 0;
 
 		glm::vec2 translate;
 		float rotate;
@@ -114,77 +118,84 @@ namespace ComponentMappers
 
 	struct Grapple
 	{
+		Grapple() = default;
 		Grapple(Components::Grapple* component);
 		Grapple(ComponentId id);
 
-		Components::Grapple* component;
-		ComponentId componentId;
+		Components::Grapple* component = nullptr;
+		ComponentId componentId = 0;
 
 		bool operator==(const Grapple&) const = default;
 	};
 
 	struct Missile
 	{
+		Missile() = default;
 		Missile(Components::Missile* component);
 		Missile(ComponentId id);
 
-		Components::Missile* component;
-		ComponentId componentId;
+		Components::Missile* component = nullptr;
+		ComponentId componentId = 0;
 
 		bool operator==(const Missile&) const = default;
 	};
 
 	struct Plane
 	{
+		Plane() = default;
 		Plane(Components::Plane* component);
 		Plane(ComponentId id);
 
-		Components::Plane* component;
-		ComponentId componentId;
+		Components::Plane* component = nullptr;
+		ComponentId componentId = 0;
 
 		bool operator==(const Plane&) const = default;
 	};
 
 	struct StaticWall
 	{
+		StaticWall() = default;
 		StaticWall(Components::Wall* component);
 		StaticWall(ComponentId id);
 
-		Components::Wall* component;
-		ComponentId componentId;
+		Components::Wall* component = nullptr;
+		ComponentId componentId = 0;
 
 		bool operator==(const StaticWall&) const = default;
 	};
 
 	struct DynamicWall
 	{
+		DynamicWall() = default;
 		DynamicWall(Components::Wall* component);
 		DynamicWall(ComponentId id);
 
-		Components::Wall* component;
-		ComponentId componentId;
+		Components::Wall* component = nullptr;
+		ComponentId componentId = 0;
 
 		bool operator==(const DynamicWall&) const = default;
 	};
 
 	struct StaticPolyline
 	{
+		StaticPolyline() = default;
 		StaticPolyline(Components::Polyline* component);
 		StaticPolyline(ComponentId id);
 
-		Components::Polyline* component;
-		ComponentId componentId;
+		Components::Polyline* component = nullptr;
+		ComponentId componentId = 0;
 
 		bool operator==(const StaticPolyline&) const = default;
 	};
 
 	struct DynamicPolyline
 	{
+		DynamicPolyline() = default;
 		DynamicPolyline(Components::Polyline* component);
 		DynamicPolyline(ComponentId id);
 
-		Components::Polyline* component;
-		ComponentId componentId;
+		Components::Polyline* component = nullptr;
+		ComponentId componentId = 0;
 
 		bool operator==(const DynamicPolyline&) const = default;
 	};

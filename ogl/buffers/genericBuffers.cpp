@@ -18,8 +18,6 @@ namespace
 
 	inline void RenderableCommonsToBuffersCommons(RenderableDef& renderableDef, Buffers::GenericSubBuffers& buffers)
 	{
-		buffers.renderable = &renderableDef;
-
 		buffers.setVerticesBuffer(renderableDef.getVertices());
 		buffers.setColorsBuffer(renderableDef.getColors());
 
@@ -388,27 +386,36 @@ namespace Buffers
 		return normalTransforms;
 	}
 
-	void GenericBuffers::applyComponentSubsequence(Renderable& renderableComponent)
+	void GenericBuffers::applyComponentSubsequence(Renderable& renderableComponent, bool staticComponent)
 	{
 		auto subBuffersIt = subsequence.begin();
 		for (auto& renderableDef : renderableComponent.subsequence)
 		{
 			auto& subBuffers = ReuseOrEmplaceBack(subsequence, subBuffersIt);
-			RenderableCommonsToBuffersCommons(renderableDef, subBuffers);
+			subBuffers.renderable = &renderableDef;
 			renderableDef.loaded.subBuffers = &subBuffers;
+
+			if (!staticComponent && !renderableDef.renderF())
+				return;
+
+			RenderableCommonsToBuffersCommons(renderableDef, subBuffers);
 		}
 		subsequence.resize(std::distance(subsequence.begin(), subBuffersIt));
 	}
 
-	void GenericBuffers::applyComponent(Renderable& renderableComponent)
+	void GenericBuffers::applyComponent(Renderable& renderableComponent, bool staticComponent)
 	{
-		RenderableCommonsToBuffersCommons(renderableComponent, *this);
-
+		renderable = &renderableComponent;
 		customShadersProgram = &renderableComponent.customShadersProgram;
 		instancing = &renderableComponent.instancing;
 		resolutionMode = &renderableComponent.resolutionMode;
 		subsequenceBegin = &renderableComponent.subsequenceBegin;
 		posInSubsequence = &renderableComponent.posInSubsequence;
+
+		if (!staticComponent && !renderableComponent.renderF())
+			return;
+
+		RenderableCommonsToBuffersCommons(renderableComponent, *this);
 
 		if (renderableComponent.instancing)
 		{

@@ -36,8 +36,8 @@ namespace Tools
 					return staticBuffers.textured[layer].emplace_back();
 			}();
 
-			selectedBuffers.applyComponent(component);
-			selectedBuffers.applyComponentSubsequence(component);
+			selectedBuffers.applyComponent(component, true);
+			selectedBuffers.applyComponentSubsequence(component, true);
 		}
 	}
 
@@ -48,7 +48,7 @@ namespace Tools
 
 		for (auto& component : components)
 		{
-			if (component.state == ComponentState::Ongoing || !component.renderF())
+			if (component.state == ComponentState::Ongoing)
 				continue;
 
 			const auto layer = (size_t)component.renderLayer;
@@ -78,8 +78,8 @@ namespace Tools
 
 			auto& selectedBuffers = mapOfSelectedBuffers[component.getComponentId()];
 
-			selectedBuffers.applyComponent(component);
-			selectedBuffers.applyComponentSubsequence(component);
+			selectedBuffers.applyComponent(component, false);
+			selectedBuffers.applyComponentSubsequence(component, false);
 		}
 	}
 }

@@ -545,7 +545,7 @@ namespace Levels
 				CM::StaticTexture(orbTexture), Globals::Components().renderingSetups().size() - 1).influenceRadius = 30.0f;
 
 			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(4.0f,
-				Tools::BodyParams().position({ -10.0f, 30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)), CM::StaticTexture());
+				Tools::BodyParams().position({ -10.0f, 30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)), CM::StaticAnimatedTexture());
 			grapple.influenceRadius = 30.0f;
 			grapple.renderF = []() { return false; };
 			grapple.subsequence.emplace_back(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.2f, 5.2f }),

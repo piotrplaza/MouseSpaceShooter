@@ -85,8 +85,8 @@ namespace Buffers
 
 		const std::vector<glm::mat3>& calcNormalTransforms(const std::vector<glm::mat4>& transforms);
 
-		void applyComponentSubsequence(Renderable& renderableComponent);
-		void applyComponent(Renderable& renderableComponent);
+		void applyComponentSubsequence(Renderable& renderableComponent, bool staticComponent);
+		void applyComponent(Renderable& renderableComponent, bool staticComponent);
 
 		template <typename GeneralSetup>
 		void draw(Shaders::ProgramId programId, GeneralSetup generalSetup) const
