@@ -61,6 +61,7 @@ namespace Levels
 		{
 			auto& staticDecorations = Globals::Components().staticDecorations();
 			auto& renderingSetups = Globals::Components().renderingSetups();
+			const auto& physics = Globals::Components().physics();
 
 			auto pos = std::make_shared<glm::vec2>(0.0f);
 
@@ -118,10 +119,10 @@ namespace Levels
 				dzidzia.subsequence.back().modelMatrixF = [pos = this->mousePos, angle = this->rotateAngle, scaleSin = this->scaleSin]() {
 					return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), angle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
 				};
-				dzidzia.subsequence.back().colorF = [this, alpha = (float)i / dzidziaTailSize, deltaAlpha = 1.0f / dzidziaTailSize]() mutable {
-					if (alpha < 0.000001)
+				dzidzia.subsequence.back().colorF = [&, alpha = (float)i / dzidziaTailSize, deltaAlpha = 1.0f / dzidziaTailSize]() mutable {
+					if (alpha < 0.000001 && !physics.paused)
 						alpha = 1.0f;
-					alpha -= deltaAlpha;
+					alpha -= deltaAlpha * !physics.paused;
 					return glm::vec4(alpha);
 				};
 			}
