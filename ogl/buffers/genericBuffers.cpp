@@ -396,7 +396,7 @@ namespace Buffers
 			renderableDef.loaded.subBuffers = &subBuffers;
 
 			if (!staticComponent && !renderableDef.renderF())
-				return;
+				continue;
 
 			RenderableCommonsToBuffersCommons(renderableDef, subBuffers);
 		}
