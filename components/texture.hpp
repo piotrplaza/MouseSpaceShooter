@@ -2,6 +2,8 @@
 
 #include "_componentBase.hpp"
 
+#include "details/textureData.hpp"
+
 #include <ogl/oglProxy.hpp>
 
 #include <glm/vec2.hpp>
@@ -16,47 +18,21 @@ namespace Components
 {
 	struct Texture : ComponentBase
 	{
-		struct TextureData
-		{
-			template<typename ColorType>
-			TextureData(std::vector<ColorType> data, glm::ivec2 size) :
-				numOfChannels([]() {
-					if constexpr (std::is_same_v<ColorType, float>)
-						return 1;
-					else if constexpr (std::is_same_v<ColorType, glm::vec2>)
-						return 2;
-					else if constexpr (std::is_same_v<ColorType, glm::vec3>)
-						return 3;
-					else if constexpr (std::is_same_v<ColorType, glm::vec4>)
-						return 4;
-					else
-						/*static_assert(false, "unsupported color type");*/ // Not sure why VS failes to compile this even without any instance.
-						assert(!"unsupported color type");
-					return 0; 
-				}()),
-				size(size),
-				data(std::move(data))
-			{
-			}
-
-			int numOfChannels;
-			glm::ivec2 size;
-			std::variant<std::vector<float>, std::vector<glm::vec2>, std::vector<glm::vec3>, std::vector<glm::vec4>> data;
-		};
-
 		Texture(std::variant<std::string, TextureData> dataSource, GLint wrapMode = GL_CLAMP_TO_BORDER, GLint minFilter = GL_LINEAR_MIPMAP_LINEAR,
 			GLint magFilter = GL_LINEAR):
 			dataSource(std::move(dataSource)),
 			wrapMode(wrapMode),
 			minFilter(minFilter),
-			magFilter(magFilter)
+			magFilter(magFilter),
+			sourceWithPremultipliedAlpha(std::holds_alternative<TextureData>(this->dataSource))
 		{
 		}
 
 		Texture(unsigned textureUnit, unsigned textureObject, GLint wrapMode, GLint minFilter, GLint magFilter):
 			wrapMode(wrapMode),
 			minFilter(minFilter),
-			magFilter(magFilter)
+			magFilter(magFilter),
+			sourceWithPremultipliedAlpha(true)
 		{
 			loaded.textureUnit = textureUnit;
 			loaded.textureObject = textureObject;
@@ -72,7 +48,7 @@ namespace Components
 		glm::vec2 translate{ 0.0f };
 		glm::vec2 scale{ 1.0f };
 
-		bool sourceWithPremultipliedAlpha = false;
+		bool sourceWithPremultipliedAlpha;
 		bool convertDarkToTransparent = false;
 
 		struct

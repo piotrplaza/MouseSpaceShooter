@@ -15,6 +15,28 @@
 #include <cassert>
 #include <stdexcept>
 
+namespace
+{
+	template<typename ColorType>
+	inline float* getFirstFloatPtr(std::vector<ColorType>& data)
+	{
+		assert(!data.empty());
+
+		if (data.empty())
+			return nullptr;
+		if constexpr (std::is_same_v<ColorType, float>)
+			return data.data();
+		else
+			return &data[0].r;
+	};
+
+	template<typename Variant>
+	inline float* getFirstFloatPtrFromVariant(Variant& variant)
+	{
+		return std::visit([&](auto& data) { return getFirstFloatPtr(data); }, variant);
+	}
+}
+
 namespace Systems
 {
 	Textures::Textures()
@@ -54,20 +76,7 @@ namespace Systems
 			void operator()(const std::string& path)
 			{
 				const int prevTextureSize = texture.loaded.size.x * texture.loaded.size.y * texture.loaded.numOfChannels;
-				auto& textureCache = pathsToTexturesCache[path];
-				if (!textureCache.data || textureCache.sourceWithPremultipliedAlpha != texture.sourceWithPremultipliedAlpha || textureCache.convertDarkToTransparent != texture.convertDarkToTransparent)
-				{
-					textureCache.data.reset(stbi_loadf(path.c_str(), &textureCache.size.x, &textureCache.size.y, &textureCache.numOfChannels, 0));
-					if (!textureCache.data)
-					{
-						assert(!"unable to load image");
-						throw std::runtime_error("Unable to load image \"" + path + "\".");
-					}
-					textureCache.sourceWithPremultipliedAlpha = texture.sourceWithPremultipliedAlpha;
-					textureCache.convertDarkToTransparent = texture.convertDarkToTransparent;
-
-					optionalAlphaProcessing(textureCache.data.get(), textureCache.size, textureCache.numOfChannels);
-				}
+				auto& textureCache = fileLoading(path, texture.sourceWithPremultipliedAlpha, texture.convertDarkToTransparent);
 
 				texture.loaded.size = textureCache.size;
 				texture.loaded.numOfChannels = textureCache.numOfChannels;
@@ -75,36 +84,80 @@ namespace Systems
 				texImage2D(textureCache.data.get(), prevTextureSize);
 			}
 
-			void operator()(Components::Texture::TextureData& textureData)
+			void operator()(TextureData& textureData)
 			{
 				const int prevTextureSize = texture.loaded.size.x * texture.loaded.size.y * texture.loaded.numOfChannels;
-				if (textureData.numOfChannels == 4)
-					optionalAlphaProcessing(&std::get<std::vector<glm::vec4>>(textureData.data)[0].r, textureData.size, textureData.numOfChannels);
 
-				texture.loaded.size = textureData.size;
-				texture.loaded.numOfChannels = textureData.numOfChannels;
-				auto getFirstFloatPtr = []<typename ColorType>(const std::vector<ColorType>& data) -> const float* {
-					if (data.empty())
-						return nullptr;
-					if constexpr (std::is_same_v<ColorType, float>)
-						return data.data();
-					else
-						return &data[0].r;
-				};
-				const float* data = [&]() { return std::visit([&](const auto& data) { return getFirstFloatPtr(data); }, textureData.data); }();
+				if (textureData.toBeLoaded.path.empty())
+					optionalAlphaProcessing(getFirstFloatPtrFromVariant(textureData.loaded.data), textureData.loaded.size, textureData.loaded.numOfChannels,
+						texture.sourceWithPremultipliedAlpha, texture.convertDarkToTransparent);
+				else
+				{
+					auto& textureCache = fileLoading(textureData.toBeLoaded.path, textureData.toBeLoaded.fileWithPremultipliedAlpha, textureData.toBeLoaded.convertDarkToTransparent);
+					textureData.loaded.size = textureCache.size;
+					textureData.loaded.numOfChannels = textureCache.numOfChannels;
 
-				texImage2D(data, prevTextureSize);
+					switch (textureData.loaded.numOfChannels)
+					{
+					case 1:
+						textureData.loaded.data = std::vector<float>(textureCache.size.x * textureCache.size.y);
+						break;
+					case 2:
+						textureData.loaded.data = std::vector<glm::vec2>(textureCache.size.x * textureCache.size.y);
+						break;
+					case 3:
+						textureData.loaded.data = std::vector<glm::vec3>(textureCache.size.x * textureCache.size.y);
+						break;
+					case 4:
+						textureData.loaded.data = std::vector<glm::vec4>(textureCache.size.x * textureCache.size.y);
+						break;
+					default:
+						assert(!"unsupported number of channels");
+						throw std::runtime_error("Unsupported number of channels in texture \"" + textureData.toBeLoaded.path + "\".");
+					}
+
+					std::copy(textureCache.data.get(), textureCache.data.get() + textureCache.numOfChannels * textureCache.size.x * textureCache.size.y,
+						getFirstFloatPtrFromVariant(textureData.loaded.data));
+					textureData.toBeLoaded = {};
+				}
+
+				texture.loaded.size = textureData.loaded.size;
+				texture.loaded.numOfChannels = textureData.loaded.numOfChannels;
+
+				texImage2D(getFirstFloatPtrFromVariant(textureData.loaded.data), prevTextureSize);
 			}
 
 		private:
-			void optionalAlphaProcessing(float* data, glm::vec2 size, int numOfChannels) const
+			TextureCache& fileLoading(const std::string& path, bool sourceWithPremultipliedAlpha, bool convertDarkToTransparent)
 			{
-				if (numOfChannels == 4 && (!texture.sourceWithPremultipliedAlpha || texture.convertDarkToTransparent))
+				auto& textureCache = pathsToTexturesCache[path];
+
+				if (!textureCache.data || textureCache.sourceWithPremultipliedAlpha != sourceWithPremultipliedAlpha || textureCache.convertDarkToTransparent != convertDarkToTransparent)
+				{
+					textureCache.data.reset(stbi_loadf(path.c_str(), &textureCache.size.x, &textureCache.size.y, &textureCache.numOfChannels, 0));
+					if (!textureCache.data)
+					{
+						assert(!"unable to load image");
+						throw std::runtime_error("Unable to load image \"" + path + "\".");
+					}
+					textureCache.sourceWithPremultipliedAlpha = sourceWithPremultipliedAlpha;
+					textureCache.convertDarkToTransparent = convertDarkToTransparent;
+
+					optionalAlphaProcessing(textureCache.data.get(), textureCache.size, textureCache.numOfChannels,
+						sourceWithPremultipliedAlpha, convertDarkToTransparent);
+				}
+
+				return textureCache;
+			}
+
+			void optionalAlphaProcessing(float* data, glm::vec2 size, int numOfChannels, bool sourceWithPremultipliedAlpha, bool convertDarkToTransparent) const
+			{
+				if (numOfChannels == 4 && (!sourceWithPremultipliedAlpha || convertDarkToTransparent))
 					for (int i = 0; i < size.x * size.y * 4; i += 4)
 					{
-						data[i + 3] = (1 - texture.convertDarkToTransparent) * data[i + 3] + texture.convertDarkToTransparent * std::min(1.0f, data[i] + data[i + 1] + data[i + 2]);
+						data[i + 3] = (1 - convertDarkToTransparent) * data[i + 3] + convertDarkToTransparent * std::min(1.0f, data[i] + data[i + 1] + data[i + 2]);
 
-						const float premultipliedAlphaFactor = texture.sourceWithPremultipliedAlpha + (1 - texture.sourceWithPremultipliedAlpha) * data[i + 3];
+						const float premultipliedAlphaFactor = sourceWithPremultipliedAlpha + (1 - sourceWithPremultipliedAlpha) * data[i + 3];
 						data[i] *= premultipliedAlphaFactor;
 						data[i + 1] *= premultipliedAlphaFactor;
 						data[i + 2] *= premultipliedAlphaFactor;
@@ -150,9 +203,7 @@ namespace Systems
 	{
 		assert(Globals::Components().staticTextures().empty());
 
-		auto createTextureFramebuffer = [this](Components::Framebuffers::SubBuffers& subBuffers,
-			GLint textureMagFilter)
-		{
+		auto createTextureFramebuffer = [this](Components::Framebuffers::SubBuffers& subBuffers, GLint textureMagFilter) {
 			const unsigned textureUnit = textureUnits.acquire();
 			glActiveTexture(textureUnit);
 			unsigned textureObject;

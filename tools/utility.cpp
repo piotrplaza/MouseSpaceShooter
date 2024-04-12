@@ -78,6 +78,11 @@ namespace Tools
 		return (float)std::rand() / RAND_MAX * (max - min) + min;
 	}
 
+	int RandomInt(int min, int max)
+	{
+		return std::rand() % (max - min + 1) + min;
+	}
+
 	unsigned StableRandom(unsigned seed)
 	{
 		unsigned i = (seed ^ 12345391u) * 2654435769u;

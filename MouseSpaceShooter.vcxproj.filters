@@ -116,6 +116,9 @@
     <Filter Include="src\levels\crosses3DInstancing">
       <UniqueIdentifier>{ff08498f-d47c-409f-9a8b-d3c1cc88065a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\components\details">
+      <UniqueIdentifier>{7ad1827c-67a2-4c91-9712-3dcd7a4d5cec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -300,6 +303,9 @@
     </ClCompile>
     <ClCompile Include="commonTypes\componentMappers.cpp">
       <Filter>src\commonTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="components\details\textureData.hpp">
+      <Filter>src\components\details</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -638,6 +644,9 @@
     </ClInclude>
     <ClInclude Include="commonTypes\componentMappers.hpp">
       <Filter>src\commonTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\colorBufferEditor.hpp">
+      <Filter>src\tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

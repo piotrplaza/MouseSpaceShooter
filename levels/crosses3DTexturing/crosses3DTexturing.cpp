@@ -12,8 +12,12 @@
 
 #include <tools/shapes3D.hpp>
 #include <tools/glmHelpers.hpp>
+#include <tools/colorBufferEditor.hpp>
+#include <tools/utility.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
+
+#include <array>
 
 namespace Levels
 {
@@ -34,7 +38,7 @@ namespace Levels
 		{
 			auto& textures = Globals::Components().dynamicTextures();
 
-			crossesTexture = textures.emplace("textures/green marble.jpg").getComponentId();
+			crossesTexture = textures.emplace(TextureData("textures/green marble.jpg")).getComponentId();
 			textures.last().wrapMode = GL_MIRRORED_REPEAT;
 		}
 
@@ -106,25 +110,54 @@ namespace Levels
 			}
 		}
 
-		void controlStep() const
+		void controlStep()
 		{
 			auto& keyboard = Globals::Components().keyboard();
+			auto& texture = Globals::Components().dynamicTextures()[crossesTexture];
 
 			if (keyboard.pressed['T'])
 			{
 				static bool toggle = true;
-				auto& texture = Globals::Components().dynamicTextures()[crossesTexture];
 				if (toggle)
-					texture.dataSource = "textures/wood.jpg";
+					texture.dataSource = TextureData("textures/wood.jpg");
 				else
-					texture.dataSource = "textures/green marble.jpg";
+					texture.dataSource = TextureData("textures/green marble.jpg");
 				toggle = !toggle;
+				firstDraw = true;
+				texture.state = ComponentState::Changed;
+			}
+			else if (keyboard.pressing['D'] && std::holds_alternative<TextureData>(texture.dataSource) &&
+				std::holds_alternative<std::vector<glm::vec3>>(std::get<TextureData>(texture.dataSource).loaded.data))
+			{
+				auto& loadedTextureData = std::get<TextureData>(texture.dataSource).loaded;
+				auto& buffer = std::get<std::vector<glm::vec3>>(loadedTextureData.data);
+				Tools::ColorBufferEditor editor(buffer, loadedTextureData.size);
+
+				if (firstDraw)
+				{
+					for (auto& pos: drawingPos)
+						pos = glm::ivec2(Tools::RandomInt(0, editor.getRes().x - 1), Tools::RandomInt(0, editor.getRes().y - 1));
+					firstDraw = false;
+				}
+
+				for (auto& pos : drawingPos)
+				{
+					pos += glm::ivec2(Tools::RandomInt(-1, 1), Tools::RandomInt(-1, 1));
+					pos.x = std::clamp(pos.x, 0, editor.getRes().x - 1);
+					pos.y = std::clamp(pos.y, 0, editor.getRes().y - 1);
+
+					editor.putColor(pos, glm::vec3(1.0f));
+				}
+
 				texture.state = ComponentState::Changed;
 			}
 		}
 
 	private:
 		ComponentId crossesTexture = 0;
+
+		std::array<glm::ivec2, 1000> drawingPos{};
+		bool firstDraw = true;
 	};
 
 	Crosses3DTexturing::Crosses3DTexturing() :
