@@ -131,7 +131,7 @@ namespace Levels
 			{
 				auto& loadedTextureData = std::get<TextureData>(texture.dataSource).loaded;
 				auto& buffer = std::get<std::vector<glm::vec3>>(loadedTextureData.data);
-				Tools::ColorBufferEditor editor(buffer, loadedTextureData.size);
+				Tools::ColorBufferEditor<glm::vec3, false> editor(buffer, loadedTextureData.size);
 
 				if (firstDraw)
 				{

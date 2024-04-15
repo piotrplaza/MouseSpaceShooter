@@ -119,6 +119,9 @@
     <Filter Include="src\components\details">
       <UniqueIdentifier>{7ad1827c-67a2-4c91-9712-3dcd7a4d5cec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\paint">
+      <UniqueIdentifier>{52db7b35-0ced-4ea1-936d-a337ba96cad7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -306,6 +309,9 @@
     </ClCompile>
     <ClCompile Include="components\details\textureData.hpp">
       <Filter>src\components\details</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\paint\paint.cpp">
+      <Filter>src\levels\paint</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -647,6 +653,9 @@
     </ClInclude>
     <ClInclude Include="tools\colorBufferEditor.hpp">
       <Filter>src\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\paint\paint.hpp">
+      <Filter>src\levels\paint</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

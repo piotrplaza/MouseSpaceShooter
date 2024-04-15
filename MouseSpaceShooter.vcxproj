@@ -44,6 +44,7 @@
     <ClCompile Include="levels\fpsScalingProblems\fpsScalingProblems.cpp" />
     <ClCompile Include="levels\gravity\gravity.cpp" />
     <ClCompile Include="levels\level.cpp" />
+    <ClCompile Include="levels\paint\paint.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
     <ClCompile Include="levels\raceEditor\presets.cpp" />
     <ClCompile Include="levels\raceEditor\raceEditor.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="levels\fpsScalingProblems\fpsScalingProblems.hpp" />
     <ClInclude Include="levels\gravity\gravity.hpp" />
     <ClInclude Include="levels\level.hpp" />
+    <ClInclude Include="levels\paint\paint.hpp" />
     <ClInclude Include="levels\playground\playground.hpp" />
     <ClInclude Include="levels\raceEditor\common.hpp" />
     <ClInclude Include="levels\raceEditor\raceEditor.hpp" />

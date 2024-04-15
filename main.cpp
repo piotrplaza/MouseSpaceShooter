@@ -18,6 +18,7 @@
 #include "levels/crosses3D/crosses3D.hpp"
 #include "levels/crosses3DTexturing/crosses3DTexturing.hpp"
 #include "levels/crosses3DInstancing/crosses3DInstancing.hpp"
+#include "levels/paint/paint.hpp"
 
 #include "components/mouse.hpp"
 #include "components/physics.hpp"
@@ -115,7 +116,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Windmill>();
 	//activeLevel = std::make_unique<Levels::SquareRace>();
 
-	activeLevel = std::make_unique<Levels::Playground>();
+	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
@@ -129,6 +130,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Crosses3D>();
 	//activeLevel = std::make_unique<Levels::Crosses3DTexturing>();
 	//activeLevel = std::make_unique<Levels::Crosses3DInstancing>();
+	activeLevel = std::make_unique<Levels::Paint>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }

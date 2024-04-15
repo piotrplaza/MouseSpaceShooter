@@ -67,26 +67,29 @@ namespace Systems
 		class DataSourceVisitor
 		{
 		public:
-			DataSourceVisitor(std::unordered_map<std::string, TextureCache>& pathsToTexturesCache, Components::Texture& texture):
+			DataSourceVisitor(std::unordered_map<std::string, TextureCache>& pathsToTexturesCache, std::vector<float>& sourceFragmentBuffer, Components::Texture& texture):
 				pathsToTexturesCache(pathsToTexturesCache),
+				sourceFragmentBuffer(sourceFragmentBuffer),
 				texture(texture)
 			{
 			}
 
 			void operator()(const std::string& path)
 			{
-				const int prevTextureSize = texture.loaded.size.x * texture.loaded.size.y * texture.loaded.numOfChannels;
+				const glm::ivec2 prevSize = texture.loaded.size;
+				const int prevNumOfChannels = texture.loaded.numOfChannels;
 				auto& textureCache = fileLoading(path, texture.sourceWithPremultipliedAlpha, texture.convertDarkToTransparent);
 
 				texture.loaded.size = textureCache.size;
 				texture.loaded.numOfChannels = textureCache.numOfChannels;
 
-				texImage2D(textureCache.data.get(), prevTextureSize);
+				texImage2D(textureCache.data.get(), prevSize, prevNumOfChannels);
 			}
 
 			void operator()(TextureData& textureData)
 			{
-				const int prevTextureSize = texture.loaded.size.x * texture.loaded.size.y * texture.loaded.numOfChannels;
+				const glm::ivec2 prevSize = texture.loaded.size;
+				const int prevNumOfChannels = texture.loaded.numOfChannels;
 
 				if (textureData.toBeLoaded.path.empty())
 					optionalAlphaProcessing(getFirstFloatPtrFromVariant(textureData.loaded.data), textureData.loaded.size, textureData.loaded.numOfChannels,
@@ -124,7 +127,7 @@ namespace Systems
 				texture.loaded.size = textureData.loaded.size;
 				texture.loaded.numOfChannels = textureData.loaded.numOfChannels;
 
-				texImage2D(getFirstFloatPtrFromVariant(textureData.loaded.data), prevTextureSize);
+				texImage2D(getFirstFloatPtrFromVariant(textureData.loaded.data), prevSize, prevNumOfChannels);
 			}
 
 		private:
@@ -164,15 +167,35 @@ namespace Systems
 					}
 			}
 
-			void texImage2D(const float* data, int prevTextureSize) const
+			void texImage2D(const float* data, glm::ivec2 prevSize, int prevNumOfChannels) const
 			{
-				if (prevTextureSize != texture.loaded.size.x * texture.loaded.size.y * texture.loaded.numOfChannels)
-					glTexImage2D(GL_TEXTURE_2D, 0, texture.loaded.getFormat(), texture.loaded.size.x, texture.loaded.size.y, 0, texture.loaded.getFormat(), GL_FLOAT, data);
+				const auto& [finalData, finalSize] = !texture.sourceFragmentCornerAndSizeF
+					? std::make_pair(data, texture.loaded.size)
+					: [&]() {
+						const auto [fragmentCorner, fragmentSize] = texture.sourceFragmentCornerAndSizeF(texture.loaded.size);
+						const size_t rowSize = fragmentSize.x * texture.loaded.numOfChannels * sizeof(float);
+						const size_t totalSize = fragmentSize.y * fragmentSize.x * texture.loaded.numOfChannels;
+
+						sourceFragmentBuffer.resize(totalSize);
+
+						for (int y = 0; y < fragmentSize.y; ++y) {
+							const float* rowStart = data + ((fragmentCorner.y + y) * texture.loaded.size.x + fragmentCorner.x) * texture.loaded.numOfChannels;
+							float* destStart = sourceFragmentBuffer.data() + y * fragmentSize.x * texture.loaded.numOfChannels;
+							std::memcpy(destStart, rowStart, rowSize);
+						}
+
+						texture.loaded.size = fragmentSize;
+
+						return std::make_pair(sourceFragmentBuffer.data(), fragmentSize);
+					}();
+				if (prevSize != texture.loaded.size || prevNumOfChannels != texture.loaded.numOfChannels)
+					glTexImage2D(GL_TEXTURE_2D, 0, texture.loaded.getFormat(), finalSize.x, finalSize.y, 0, texture.loaded.getFormat(), GL_FLOAT, finalData);
 				else
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture.loaded.size.x, texture.loaded.size.y, texture.loaded.getFormat(), GL_FLOAT, data);
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, finalSize.x, finalSize.y, texture.loaded.getFormat(), GL_FLOAT, finalData);
 			}
 
 			std::unordered_map<std::string, TextureCache>& pathsToTexturesCache;
+			std::vector<float>& sourceFragmentBuffer;
 			Components::Texture& texture;
 		};
 
@@ -181,7 +204,7 @@ namespace Systems
 			glGenTextures(1, &texture.loaded.textureObject);
 		glBindTexture(GL_TEXTURE_2D, texture.loaded.textureObject);
 
-		std::visit(DataSourceVisitor{ pathsToTexturesCache, texture }, texture.dataSource);
+		std::visit(DataSourceVisitor{ pathsToTexturesCache, sourceFragmentBuffer, texture }, texture.dataSource);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture.wrapMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture.wrapMode);
