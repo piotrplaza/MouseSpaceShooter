@@ -8,6 +8,8 @@
 
 namespace
 {
+	constexpr bool parallelProcessing = true;
+
 	template <typename BuffersContainer>
 	inline typename BuffersContainer::value_type& ReuseOrEmplaceBack(BuffersContainer& buffersContainer, typename BuffersContainer::iterator& it)
 	{
@@ -379,10 +381,22 @@ namespace Buffers
 	const std::vector<glm::mat3>& GenericBuffers::calcNormalTransforms(const std::vector<glm::mat4>& transforms)
 	{
 		normalTransforms.resize(transforms.size());
-		Tools::ItToId itToId(transforms.size());
-		std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), [&](const auto i) {
+
+		auto inverseTranspose = [&](const auto i) {
 			normalTransforms[i] = glm::transpose(glm::inverse(glm::mat3(transforms[i])));
-		});
+		};
+
+		if constexpr (parallelProcessing)
+		{
+			Tools::ItToId itToId(transforms.size());
+			std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), inverseTranspose);
+		}
+		else
+		{
+			for (size_t i = 0; i < transforms.size(); ++i)
+				inverseTranspose(i);
+		}
+
 		return normalTransforms;
 	}
 

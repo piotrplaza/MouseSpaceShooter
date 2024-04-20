@@ -13,13 +13,15 @@
 #include <string>
 #include <vector>
 #include <variant>
+#include <functional>
+#include <optional>
 
 namespace Components
 {
 	struct Texture : ComponentBase
 	{
 		Texture(std::variant<std::string, TextureData> dataSource, GLint wrapMode = GL_CLAMP_TO_BORDER, GLint minFilter = GL_LINEAR_MIPMAP_LINEAR,
-			GLint magFilter = GL_LINEAR):
+			GLint magFilter = GL_LINEAR) :
 			dataSource(std::move(dataSource)),
 			wrapMode(wrapMode),
 			minFilter(minFilter),
@@ -28,7 +30,7 @@ namespace Components
 		{
 		}
 
-		Texture(unsigned textureUnit, unsigned textureObject, GLint wrapMode, GLint minFilter, GLint magFilter):
+		Texture(unsigned textureUnit, unsigned textureObject, GLint wrapMode, GLint minFilter, GLint magFilter) :
 			wrapMode(wrapMode),
 			minFilter(minFilter),
 			magFilter(magFilter),
@@ -49,6 +51,9 @@ namespace Components
 		glm::vec2 scale{ 1.0f };
 
 		std::function<std::pair<glm::ivec2, glm::ivec2>(glm::ivec2)> sourceFragmentCornerAndSizeF;
+
+		std::optional<int> forcedNumOfChannels;
+		glm::vec4 defaultChannels = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 		bool sourceWithPremultipliedAlpha;
 		bool convertDarkToTransparent = false;

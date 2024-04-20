@@ -5,6 +5,8 @@
 
 #include <globals/components.hpp>
 
+#include <tools/utility.hpp>
+
 #include <ogl/oglProxy.hpp>
 
 #include <stb_image/stb_image.h>
@@ -14,9 +16,12 @@
 
 #include <cassert>
 #include <stdexcept>
+#include <execution>
 
 namespace
 {
+	constexpr bool parallelProcessing = true;
+
 	template<typename ColorType>
 	inline float* getFirstFloatPtr(std::vector<ColorType>& data)
 	{
@@ -178,11 +183,20 @@ namespace Systems
 
 						sourceFragmentBuffer.resize(totalSize);
 
-						for (int y = 0; y < fragmentSize.y; ++y) {
+						auto copyRow = [&](const auto y) {
 							const float* rowStart = data + ((fragmentCorner.y + y) * texture.loaded.size.x + fragmentCorner.x) * texture.loaded.numOfChannels;
 							float* destStart = sourceFragmentBuffer.data() + y * fragmentSize.x * texture.loaded.numOfChannels;
 							std::memcpy(destStart, rowStart, rowSize);
+						};
+
+						if constexpr (parallelProcessing)
+						{
+							Tools::ItToId itToId(fragmentSize.y);
+							std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), copyRow);
 						}
+						else
+							for (int y = 0; y < fragmentSize.y; ++y)
+								copyRow(y);
 
 						texture.loaded.size = fragmentSize;
 
