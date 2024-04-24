@@ -31,8 +31,6 @@ namespace Systems
 			std::unique_ptr<float[]> data;
 			glm::ivec2 size = {0, 0};
 			int numOfChannels = 0;
-			bool sourceWithPremultipliedAlpha = false;
-			bool convertDarkToTransparent = false;
 		};
 
 		void loadAndConfigureTexture(Components::Texture& texture, bool initial = true);
@@ -43,7 +41,7 @@ namespace Systems
 
 		IdGenerator<unsigned, GL_TEXTURE0, GL_TEXTURE0 + GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS> textureUnits;
 		unsigned staticTexturesOffset = 0;
-		std::unordered_map<std::string, TextureCache> pathsToTexturesCache;
+		std::unordered_map<std::string, TextureCache> keysToTexturesCache;
 		std::vector<float> sourceFragmentBuffer;
 	};
 }

@@ -159,7 +159,7 @@ namespace Levels
 			textures.emplace("textures/avatar rot.png");
 			textures.last().translate = glm::vec2(0.02f, 0.16f);
 			textures.last().scale = glm::vec2(0.29f, 0.32f);
-			textures.last().convertDarkToTransparent = true;
+			textures.last().additionalConversion = TextureData::AdditionalConversion::DarkToTransparent;
 
 			recursiveFaceAnimationTexture = textures.size();
 			textures.emplace("textures/recursive face animation.jpg");

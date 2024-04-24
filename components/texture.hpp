@@ -20,13 +20,15 @@ namespace Components
 {
 	struct Texture : ComponentBase
 	{
+		using AdditionalConversion = TextureData::AdditionalConversion;
+
 		Texture(std::variant<std::string, TextureData> dataSource, GLint wrapMode = GL_CLAMP_TO_BORDER, GLint minFilter = GL_LINEAR_MIPMAP_LINEAR,
 			GLint magFilter = GL_LINEAR) :
 			dataSource(std::move(dataSource)),
 			wrapMode(wrapMode),
 			minFilter(minFilter),
 			magFilter(magFilter),
-			sourceWithPremultipliedAlpha(std::holds_alternative<TextureData>(this->dataSource))
+			convertToPremultipliedAlpha(std::holds_alternative<std::string>(this->dataSource))
 		{
 		}
 
@@ -34,7 +36,7 @@ namespace Components
 			wrapMode(wrapMode),
 			minFilter(minFilter),
 			magFilter(magFilter),
-			sourceWithPremultipliedAlpha(true)
+			convertToPremultipliedAlpha(false)
 		{
 			loaded.textureUnit = textureUnit;
 			loaded.textureObject = textureObject;
@@ -43,6 +45,8 @@ namespace Components
 		}
 
 		std::variant<std::string, TextureData> dataSource;
+		int desiredFileChannels = 0;
+
 		GLint wrapMode = GL_CLAMP_TO_BORDER;
 		GLint minFilter = GL_LINEAR_MIPMAP_LINEAR;
 		GLint magFilter = GL_LINEAR;
@@ -52,11 +56,8 @@ namespace Components
 
 		std::function<std::pair<glm::ivec2, glm::ivec2>(glm::ivec2)> sourceFragmentCornerAndSizeF;
 
-		std::optional<int> forcedNumOfChannels;
-		glm::vec4 defaultChannels = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-		bool sourceWithPremultipliedAlpha;
-		bool convertDarkToTransparent = false;
+		bool convertToPremultipliedAlpha;
+		AdditionalConversion additionalConversion = AdditionalConversion::None;
 
 		struct
 		{
