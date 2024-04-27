@@ -4,6 +4,8 @@
 #include <components/texture.hpp>
 #include <components/decoration.hpp>
 #include <components/camera2d.hpp>
+#include <components/keyboard.hpp>
+#include <components/mouse.hpp>
 
 #include <globals/components.hpp>
 
@@ -12,6 +14,9 @@
 #include <tools/utility.hpp>
 
 #include <execution>
+
+#include <iostream>
+using namespace std;
 
 namespace Levels
 {
@@ -22,25 +27,88 @@ namespace Levels
 		{
 			Globals::Components().graphicsSettings().clearColor = { 0.0f, 0.1f, 0.1f, 1.0f };
 			Globals::Components().camera2D().targetProjectionHSizeF = []() { return 0.5f; };
-			auto& texture = Globals::Components().dynamicTextures().emplace(TextureData(TextureFile("textures/city.jpg", 3)));
-			texture.magFilter = GL_NEAREST;
+			auto& texture = Globals::Components().dynamicTextures().emplace(TextureData(TextureFile(texturePath, 3)));
+			//texture.magFilter = GL_NEAREST;
 			texture.wrapMode = GL_CLAMP_TO_EDGE;
 			texture.sourceFragmentCornerAndSizeF = [marigin = 5](glm::ivec2 origSize) { return std::make_pair(glm::ivec2(marigin, marigin), origSize - glm::ivec2(marigin * 2)); };
 			textureId = texture.getComponentId();
-			Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle(), CM::DynamicTexture(textureId), Shapes2D::CreateTexCoordOfRectangle());
+
+			auto& staticDecorations = Globals::Components().staticDecorations();
+			staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle(), CM::DynamicTexture(textureId), Shapes2D::CreateTexCoordOfRectangle());
+			auto& cursor = staticDecorations.emplace(Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, 1.0f, 20));
+			cursor.colorF = [&]() { return glm::vec4(cursorColor, 1.0f); };
+			cursor.modelMatrixF = [&]() {
+				cursorPos += Globals::Components().mouse().getCartesianDelta() * 0.0005f;
+				cursorPos.x = std::clamp(cursorPos.x, -0.5f, 0.5f);
+				cursorPos.y = std::clamp(cursorPos.y, -0.5f, 0.5f);
+				return glm::translate(glm::mat4(1.0f), glm::vec3(cursorPos, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(cursorSize, cursorSize, 1.0f)
+				);
+			};
+			cursor.renderLayer = RenderLayer::NearForeground;
 		}
 
 		void step()
 		{
+			const auto& keyboard = Globals::Components().keyboard();
+			const auto& mouse = Globals::Components().mouse();
 			auto& texture = Globals::Components().dynamicTextures()[textureId];
 			auto& loadedTextureData = std::get<TextureData>(texture.source).loaded;
 			auto& buffer = std::get<std::vector<glm::vec3>>(loadedTextureData.data);
 			auto& textureSize = loadedTextureData.size;
 
 			if (!editor)
-				editor = std::make_unique<ColorBufferEditor>(buffer, textureSize);
+				editor = std::make_unique<ColorBufferEditor>(buffer, textureSize);	
 
-			plasma(*editor);
+			switch (effect)
+			{
+			case 0: plasma(*editor); break;
+			case 1: colorChanneling(*editor); break;
+			case 2: flames(*editor); break;
+			}
+
+			if constexpr (ColorBufferEditor::IsDoubleBuffering())
+				editor->swapBuffers();
+
+			if (mouse.pressing.lmb)
+			{
+				const auto cursorPosInTexture = glm::ivec2((cursorPos + glm::vec2(0.5f)) * glm::vec2(textureSize));
+				editor->putRectangle(cursorPosInTexture, glm::vec2(cursorSize * 500), cursorColor);
+			}
+
+			if constexpr (ColorBufferEditor::IsDoubleBuffering())
+				editor->swapBuffers();
+
+			if (keyboard.pressed[(int)'1'])
+				effect = 0;
+			if (keyboard.pressed[(int)'2'])
+				effect = 1;
+			if (keyboard.pressed[(int)'3'])
+				effect = 2;
+
+
+			const float colorStep = 0.1f;
+			if (keyboard.pressing[(int)'R'])
+				cursorColor.r += mouse.pressed.wheel * colorStep;
+			else if (keyboard.pressing[(int)'G'])
+				cursorColor.g += mouse.pressed.wheel * colorStep;
+			else if (keyboard.pressing[(int)'B'])
+				cursorColor.b += mouse.pressed.wheel * colorStep;
+			else
+			{
+				const float sizeStep = 0.001f;
+				cursorSize += mouse.pressed.wheel * sizeStep;
+			}
+
+			cursorColor.r = std::clamp(cursorColor.r, 0.0f, 1.0f);
+			cursorColor.g = std::clamp(cursorColor.g, 0.0f, 1.0f);
+			cursorColor.b = std::clamp(cursorColor.b, 0.0f, 1.0f);
+
+			if (keyboard.pressing[0x20/*VK_SPACE*/])
+			{
+				auto& texture = Globals::Components().dynamicTextures()[textureId];
+				texture.source = TextureData(TextureFile(texturePath, 3));
+				editor.reset();
+			}
 
 			texture.state = ComponentState::Changed;
 		}
@@ -50,8 +118,6 @@ namespace Levels
 
 		void flames(auto& colorBuffer, float newColorFactor = 0.249f, glm::vec3 initRgbMin = glm::vec3(-200), glm::vec3 initRgbMax = glm::vec3(200))
 		{
-			const float range = 200.0f;
-
 			for (int x = 0; x < colorBuffer.getRes().x; ++x)
 				colorBuffer.putColor({ x, 0 }, { Tools::Random(initRgbMin.r, initRgbMax.r), Tools::Random(initRgbMin.g, initRgbMax.g), Tools::Random(initRgbMin.b, initRgbMax.b) });
 
@@ -110,6 +176,11 @@ namespace Levels
 
 		ComponentId textureId;
 		std::unique_ptr<ColorBufferEditor> editor;
+		std::string texturePath = "textures/rose.png";
+		int effect = 0;
+		glm::vec2 cursorPos = { 0.0f, 0.0f };
+		glm::vec3 cursorColor = { 1.0f, 1.0f, 0.0f };
+		float cursorSize = 0.01f;
 	};
 
 	Paint::Paint():

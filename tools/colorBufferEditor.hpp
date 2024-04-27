@@ -1,9 +1,17 @@
 #pragma once
 
+#include "utility.hpp"
+
 #include <glm/glm.hpp>
 
 #include <vector>
 #include <algorithm>
+#include <execution>
+
+namespace
+{
+	constexpr bool parallelProcessing = true;
+}
 
 namespace Tools
 {
@@ -34,6 +42,31 @@ namespace Tools
 			assert(pos.y >= 0 && pos.y < res.y);
 
 			bufferTransformedLocation(pos, colorBuffer) = color;
+		}
+
+		void putRectangle(const glm::ivec2& pos, const glm::ivec2& hSize, const ColorType& color)
+		{
+			glm::ivec2 min = pos - hSize;
+			glm::ivec2 max = pos + hSize;
+
+			min.x = std::max(0, min.x);
+			min.y = std::max(0, min.y);
+			max.x = std::min(res.x, max.x);
+			max.y = std::min(res.y, max.y);
+
+			auto drawRow = [&](int y) {
+				for (int x = min.x; x < max.x; ++x)
+					putColor({x, y}, color);
+			};
+
+			if constexpr (parallelProcessing)
+			{
+				ItToId itToId(min.y, max.y);
+				std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), drawRow);
+			}
+			else
+				for (int y = min.y; y < max.y; ++y)
+					drawRow(y);
 		}
 
 		ColorType getColor(const glm::ivec2& pos) const
