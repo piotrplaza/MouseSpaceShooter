@@ -20,23 +20,19 @@ namespace Components
 {
 	struct Texture : ComponentBase
 	{
-		using AdditionalConversion = TextureData::AdditionalConversion;
-
-		Texture(std::variant<std::string, TextureData> dataSource, GLint wrapMode = GL_CLAMP_TO_BORDER, GLint minFilter = GL_LINEAR_MIPMAP_LINEAR,
+		Texture(TextureSourceVariant source, GLint wrapMode = GL_CLAMP_TO_BORDER, GLint minFilter = GL_LINEAR_MIPMAP_LINEAR,
 			GLint magFilter = GL_LINEAR) :
-			dataSource(std::move(dataSource)),
+			source(std::move(source)),
 			wrapMode(wrapMode),
 			minFilter(minFilter),
-			magFilter(magFilter),
-			convertToPremultipliedAlpha(std::holds_alternative<std::string>(this->dataSource))
+			magFilter(magFilter)
 		{
 		}
 
 		Texture(unsigned textureUnit, unsigned textureObject, GLint wrapMode, GLint minFilter, GLint magFilter) :
 			wrapMode(wrapMode),
 			minFilter(minFilter),
-			magFilter(magFilter),
-			convertToPremultipliedAlpha(false)
+			magFilter(magFilter)
 		{
 			loaded.textureUnit = textureUnit;
 			loaded.textureObject = textureObject;
@@ -44,8 +40,7 @@ namespace Components
 			state = ComponentState::Ongoing;
 		}
 
-		std::variant<std::string, TextureData> dataSource;
-		int desiredFileChannels = 0;
+		TextureSourceVariant source;
 
 		GLint wrapMode = GL_CLAMP_TO_BORDER;
 		GLint minFilter = GL_LINEAR_MIPMAP_LINEAR;
@@ -55,9 +50,6 @@ namespace Components
 		glm::vec2 scale{ 1.0f };
 
 		std::function<std::pair<glm::ivec2, glm::ivec2>(glm::ivec2)> sourceFragmentCornerAndSizeF;
-
-		bool convertToPremultipliedAlpha;
-		AdditionalConversion additionalConversion = AdditionalConversion::None;
 
 		struct
 		{

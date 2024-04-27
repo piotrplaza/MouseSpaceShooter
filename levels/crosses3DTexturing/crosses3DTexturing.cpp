@@ -38,7 +38,7 @@ namespace Levels
 		{
 			auto& textures = Globals::Components().dynamicTextures();
 
-			crossesTexture = textures.emplace(TextureData("textures/green marble.jpg")).getComponentId();
+			crossesTexture = textures.emplace(TextureData(TextureFile("textures/green marble.jpg"))).getComponentId();
 			textures.last().wrapMode = GL_MIRRORED_REPEAT;
 		}
 
@@ -119,17 +119,17 @@ namespace Levels
 			{
 				static bool toggle = true;
 				if (toggle)
-					texture.dataSource = TextureData("textures/wood.jpg");
+					texture.source = TextureData(TextureFile("textures/wood.jpg"));
 				else
-					texture.dataSource = TextureData("textures/green marble.jpg");
+					texture.source = TextureData(TextureFile("textures/green marble.jpg"));
 				toggle = !toggle;
 				firstDraw = true;
 				texture.state = ComponentState::Changed;
 			}
-			else if (keyboard.pressing['D'] && std::holds_alternative<TextureData>(texture.dataSource) &&
-				std::holds_alternative<std::vector<glm::vec3>>(std::get<TextureData>(texture.dataSource).loaded.data))
+			else if (keyboard.pressing['D'] && std::holds_alternative<TextureData>(texture.source) &&
+				std::holds_alternative<std::vector<glm::vec3>>(std::get<TextureData>(texture.source).loaded.data))
 			{
-				auto& loadedTextureData = std::get<TextureData>(texture.dataSource).loaded;
+				auto& loadedTextureData = std::get<TextureData>(texture.source).loaded;
 				auto& buffer = std::get<std::vector<glm::vec3>>(loadedTextureData.data);
 				Tools::ColorBufferEditor<glm::vec3, false> editor(buffer, loadedTextureData.size);
 

@@ -22,9 +22,8 @@ namespace Levels
 		{
 			Globals::Components().graphicsSettings().clearColor = { 0.0f, 0.1f, 0.1f, 1.0f };
 			Globals::Components().camera2D().targetProjectionHSizeF = []() { return 0.5f; };
-			auto& texture = Globals::Components().dynamicTextures().emplace(TextureData("textures/city.jpg"));
-			texture.desiredFileChannels = 3;
-			//texture.magFilter = GL_NEAREST;
+			auto& texture = Globals::Components().dynamicTextures().emplace(TextureData(TextureFile("textures/city.jpg", 3)));
+			texture.magFilter = GL_NEAREST;
 			texture.wrapMode = GL_CLAMP_TO_EDGE;
 			texture.sourceFragmentCornerAndSizeF = [marigin = 5](glm::ivec2 origSize) { return std::make_pair(glm::ivec2(marigin, marigin), origSize - glm::ivec2(marigin * 2)); };
 			textureId = texture.getComponentId();
@@ -34,7 +33,7 @@ namespace Levels
 		void step()
 		{
 			auto& texture = Globals::Components().dynamicTextures()[textureId];
-			auto& loadedTextureData = std::get<TextureData>(texture.dataSource).loaded;
+			auto& loadedTextureData = std::get<TextureData>(texture.source).loaded;
 			auto& buffer = std::get<std::vector<glm::vec3>>(loadedTextureData.data);
 			auto& textureSize = loadedTextureData.size;
 

@@ -6,10 +6,28 @@
 #include <vector>
 #include <variant>
 
+struct TextureFile
+{
+	enum class AdditionalConversion { None, DarkToTransparent, TransparentToDark };
+
+	TextureFile() = default;
+
+	TextureFile(std::string path, int desiredChannels = 0, bool convertToPremultipliedAlpha = true, AdditionalConversion additionalConversion = AdditionalConversion::None) :
+		path{ std::move(path) },
+		desiredChannels{ desiredChannels },
+		additionalConversion{ additionalConversion },
+		convertToPremultipliedAlpha{ convertToPremultipliedAlpha }
+	{
+	}
+
+	std::string path;
+	int desiredChannels{};
+	bool convertToPremultipliedAlpha{};
+	AdditionalConversion additionalConversion{};
+};
+
 struct TextureData
 {
-	enum class AdditionalConversion { None, DarkToTransparent, TrasparentToDark };
-
 	template<typename ColorType>
 	TextureData(std::vector<ColorType> data, glm::ivec2 size) :
 		loaded{ std::move(data), size }
@@ -21,17 +39,12 @@ struct TextureData
 	{
 	}
 
-	TextureData(std::string path, bool convertToPremultipliedAlpha = true, AdditionalConversion additionalConversion = AdditionalConversion::None) :
-		toBeLoaded{ std::move(path), convertToPremultipliedAlpha, additionalConversion }
+	TextureData(TextureFile file) :
+		file{ std::move(file) }
 	{
 	}
 
-	struct
-	{
-		std::string path;
-		bool convertToPremultipliedAlpha;
-		AdditionalConversion additionalConversion;
-	} toBeLoaded;
+	TextureFile file;
 
 	struct
 	{
@@ -39,3 +52,5 @@ struct TextureData
 		glm::ivec2 size = { 0, 0 };
 	} loaded;
 };
+
+using TextureSourceVariant = std::variant<std::string, TextureFile, TextureData>;
