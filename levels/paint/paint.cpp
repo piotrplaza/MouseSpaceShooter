@@ -69,8 +69,9 @@ namespace Levels
 					editor->swapBuffers();
 
 				const auto cursorPosInTexture = glm::ivec2((cursorPos + glm::vec2(0.5f)) * glm::vec2(textureSize));
-				//editor->putRectangle(cursorPosInTexture, glm::vec2(cursorSize * 500), cursorColor);
-				editor->putCircle(cursorPosInTexture, cursorSize * textureSize.y, cursorColor);
+				//editor->putRectangle(cursorPosInTexture, { cursorSize * textureSize.x, cursorSize * textureSize.y }, cursorColor);
+				//editor->putCircle(cursorPosInTexture, cursorSize * textureSize.y, cursorColor);
+				editor->putEllipse(cursorPosInTexture, { cursorSize * textureSize.x, cursorSize * textureSize.y }, cursorColor);
 
 				if constexpr (ColorBufferEditor::IsDoubleBuffering())
 					editor->swapBuffers();

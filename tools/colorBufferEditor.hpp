@@ -72,6 +72,7 @@ namespace Tools
 		void putCircle(const glm::ivec2& pos, float radius, const ColorType& color)
 		{
 			const int radiusSquared = static_cast<int>(radius * radius);
+
 			glm::ivec2 min = pos - glm::ivec2(static_cast<int>(radius), static_cast<int>(radius));
 			glm::ivec2 max = pos + glm::ivec2(static_cast<int>(radius), static_cast<int>(radius));
 
@@ -91,6 +92,42 @@ namespace Tools
 					putColor({ x, y }, color);
 			};
 
+
+			if constexpr (parallelProcessing)
+			{
+				ItToId itToId(min.y, max.y);
+				std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), drawRow);
+			}
+			else
+				for (int y = min.y; y <= max.y; ++y)
+					drawRow(y);
+		}
+
+		void putEllipse(const glm::ivec2& pos, const glm::ivec2& radius, const ColorType& color)
+		{
+			const int rxSquared = radius.x * radius.x;
+			const int rySquared = radius.y * radius.y;
+
+			glm::ivec2 min = pos - radius;
+			glm::ivec2 max = pos + radius;
+
+			min.x = std::max(0, min.x);
+			min.y = std::max(0, min.y);
+			max.x = std::min(res.x - 1, max.x);
+			max.y = std::min(res.y - 1, max.y);
+
+			auto drawRow = [&](int y) {
+				const int dy = y - pos.y;
+				const int dySquared = dy * dy;
+				const int dxMax = static_cast<int>(sqrt((1.0 - static_cast<double>(dySquared) / rySquared) * rxSquared));
+				const int startX = std::max(min.x, pos.x - dxMax);
+				const int endX = std::min(max.x, pos.x + dxMax);
+
+				for (int x = startX; x <= endX; ++x)
+				{
+					putColor({ x, y }, color);
+				}
+			};
 
 			if constexpr (parallelProcessing)
 			{
