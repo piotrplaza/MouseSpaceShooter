@@ -15,9 +15,6 @@
 
 #include <execution>
 
-#include <iostream>
-using namespace std;
-
 namespace Levels
 {
 	class Paint::Impl
@@ -66,17 +63,18 @@ namespace Levels
 			case 2: flames(*editor); break;
 			}
 
-			if constexpr (ColorBufferEditor::IsDoubleBuffering())
-				editor->swapBuffers();
-
 			if (mouse.pressing.lmb)
 			{
-				const auto cursorPosInTexture = glm::ivec2((cursorPos + glm::vec2(0.5f)) * glm::vec2(textureSize));
-				editor->putRectangle(cursorPosInTexture, glm::vec2(cursorSize * 500), cursorColor);
-			}
+				if constexpr (ColorBufferEditor::IsDoubleBuffering())
+					editor->swapBuffers();
 
-			if constexpr (ColorBufferEditor::IsDoubleBuffering())
-				editor->swapBuffers();
+				const auto cursorPosInTexture = glm::ivec2((cursorPos + glm::vec2(0.5f)) * glm::vec2(textureSize));
+				//editor->putRectangle(cursorPosInTexture, glm::vec2(cursorSize * 500), cursorColor);
+				editor->putCircle(cursorPosInTexture, cursorSize * textureSize.y, cursorColor);
+
+				if constexpr (ColorBufferEditor::IsDoubleBuffering())
+					editor->swapBuffers();
+			}
 
 			if (keyboard.pressed[(int)'1'])
 				effect = 0;
@@ -95,8 +93,9 @@ namespace Levels
 				cursorColor.b += mouse.pressed.wheel * colorStep;
 			else
 			{
-				const float sizeStep = 0.001f;
-				cursorSize += mouse.pressed.wheel * sizeStep;
+				const float sizeStep = 0.05f;
+				cursorSize += mouse.pressed.wheel * sizeStep * (cursorSize + 0.1f);
+				cursorSize = std::clamp(cursorSize, 0.0f, 1.0f);
 			}
 
 			cursorColor.r = std::clamp(cursorColor.r, 0.0f, 1.0f);
@@ -179,8 +178,8 @@ namespace Levels
 		std::string texturePath = "textures/rose.png";
 		int effect = 0;
 		glm::vec2 cursorPos = { 0.0f, 0.0f };
-		glm::vec3 cursorColor = { 1.0f, 1.0f, 0.0f };
-		float cursorSize = 0.01f;
+		glm::vec3 cursorColor = { 0.8f, 0.2f, 0.8f };
+		float cursorSize = 0.05f;
 	};
 
 	Paint::Paint():

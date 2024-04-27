@@ -51,8 +51,8 @@ namespace Tools
 
 			min.x = std::max(0, min.x);
 			min.y = std::max(0, min.y);
-			max.x = std::min(res.x, max.x);
-			max.y = std::min(res.y, max.y);
+			max.x = std::min(res.x - 1, max.x);
+			max.y = std::min(res.y - 1, max.y);
 
 			auto drawRow = [&](int y) {
 				for (int x = min.x; x < max.x; ++x)
@@ -66,6 +66,39 @@ namespace Tools
 			}
 			else
 				for (int y = min.y; y < max.y; ++y)
+					drawRow(y);
+		}
+
+		void putCircle(const glm::ivec2& pos, float radius, const ColorType& color)
+		{
+			const int radiusSquared = static_cast<int>(radius * radius);
+			glm::ivec2 min = pos - glm::ivec2(static_cast<int>(radius), static_cast<int>(radius));
+			glm::ivec2 max = pos + glm::ivec2(static_cast<int>(radius), static_cast<int>(radius));
+
+			min.x = std::max(0, min.x);
+			min.y = std::max(0, min.y);
+			max.x = std::min(res.x - 1, max.x);
+			max.y = std::min(res.y - 1, max.y);
+
+			auto drawRow = [&](int y) {
+				const int dy = y - pos.y;
+				const int dySquared = dy * dy;
+				const int dxMax = static_cast<int>(sqrt(radiusSquared - dySquared));
+				const int startX = std::max(min.x, pos.x - dxMax);
+				const int endX = std::min(max.x, pos.x + dxMax);
+
+				for (int x = startX; x <= endX; ++x)
+					putColor({ x, y }, color);
+			};
+
+
+			if constexpr (parallelProcessing)
+			{
+				ItToId itToId(min.y, max.y);
+				std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), drawRow);
+			}
+			else
+				for (int y = min.y; y <= max.y; ++y)
 					drawRow(y);
 		}
 
