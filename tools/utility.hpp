@@ -88,7 +88,9 @@ namespace Tools
 		ItToId(size_t begin, size_t end) :
 			begin_(begin),
 			end_(end)
-		{}
+		{
+			assert(begin_ <= end_);
+		}
 
 		It begin() const
 		{

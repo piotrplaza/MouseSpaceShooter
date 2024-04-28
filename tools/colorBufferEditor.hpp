@@ -46,6 +46,9 @@ namespace Tools
 
 		void putRectangle(const glm::ivec2& pos, const glm::ivec2& hSize, const ColorType& color)
 		{
+			if (hSize.x <= 0 || hSize.y <= 0)
+				return;
+
 			glm::ivec2 min = pos - hSize;
 			glm::ivec2 max = pos + hSize;
 
@@ -53,6 +56,9 @@ namespace Tools
 			min.y = std::max(0, min.y);
 			max.x = std::min(res.x - 1, max.x);
 			max.y = std::min(res.y - 1, max.y);
+
+			if (min.x > max.x || min.y > max.y)
+				return;
 
 			auto drawRow = [&](int y) {
 				for (int x = min.x; x < max.x; ++x)
@@ -69,22 +75,28 @@ namespace Tools
 					drawRow(y);
 		}
 
-		void putCircle(const glm::ivec2& pos, float radius, const ColorType& color)
+		void putCircle(const glm::ivec2& pos, int radius, const ColorType& color)
 		{
-			const int radiusSquared = static_cast<int>(radius * radius);
+			if (radius <= 0)
+				return;
 
-			glm::ivec2 min = pos - glm::ivec2(static_cast<int>(radius), static_cast<int>(radius));
-			glm::ivec2 max = pos + glm::ivec2(static_cast<int>(radius), static_cast<int>(radius));
+			glm::ivec2 min = pos - glm::ivec2(radius);
+			glm::ivec2 max = pos + glm::ivec2(radius);
 
 			min.x = std::max(0, min.x);
 			min.y = std::max(0, min.y);
 			max.x = std::min(res.x - 1, max.x);
 			max.y = std::min(res.y - 1, max.y);
 
+			if (min.x > max.x || min.y > max.y)
+				return;
+
+			const int radiusSquared = radius * radius;
+
 			auto drawRow = [&](int y) {
 				const int dy = y - pos.y;
 				const int dySquared = dy * dy;
-				const int dxMax = static_cast<int>(sqrt(radiusSquared - dySquared));
+				const int dxMax = (int)(sqrt(radiusSquared - dySquared));
 				const int startX = std::max(min.x, pos.x - dxMax);
 				const int endX = std::min(max.x, pos.x + dxMax);
 
@@ -105,8 +117,8 @@ namespace Tools
 
 		void putEllipse(const glm::ivec2& pos, const glm::ivec2& radius, const ColorType& color)
 		{
-			const int rxSquared = radius.x * radius.x;
-			const int rySquared = radius.y * radius.y;
+			if (radius.x <= 0 || radius.y <= 0)
+				return;
 
 			glm::ivec2 min = pos - radius;
 			glm::ivec2 max = pos + radius;
@@ -116,10 +128,16 @@ namespace Tools
 			max.x = std::min(res.x - 1, max.x);
 			max.y = std::min(res.y - 1, max.y);
 
+			if (min.x > max.x || min.y > max.y)
+				return;
+
+			const int rxSquared = radius.x * radius.x;
+			const int rySquared = radius.y * radius.y;
+
 			auto drawRow = [&](int y) {
 				const int dy = y - pos.y;
 				const int dySquared = dy * dy;
-				const int dxMax = static_cast<int>(sqrt((1.0 - static_cast<double>(dySquared) / rySquared) * rxSquared));
+				const int dxMax = (int)(sqrt((1.0 - (float)(dySquared) / rySquared) * rxSquared));
 				const int startX = std::max(min.x, pos.x - dxMax);
 				const int endX = std::min(max.x, pos.x + dxMax);
 

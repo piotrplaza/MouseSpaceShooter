@@ -32,7 +32,7 @@ namespace Levels
 
 			auto& staticDecorations = Globals::Components().staticDecorations();
 			staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle(), CM::DynamicTexture(textureId), Shapes2D::CreateTexCoordOfRectangle());
-			auto& cursor = staticDecorations.emplace(Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, 1.0f, 20));
+			auto& cursor = staticDecorations.emplace(Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, 1.0f, 100));
 			cursor.colorF = [&]() { return glm::vec4(cursorColor, 1.0f); };
 			cursor.modelMatrixF = [&]() {
 				cursorPos += Globals::Components().mouse().getCartesianDelta() * 0.0005f;
@@ -68,7 +68,7 @@ namespace Levels
 				if constexpr (ColorBufferEditor::IsDoubleBuffering())
 					editor->swapBuffers();
 
-				const auto cursorPosInTexture = glm::ivec2((cursorPos + glm::vec2(0.5f)) * glm::vec2(textureSize));
+				const auto cursorPosInTexture = glm::ivec2((cursorPos + glm::vec2(0.5f)) * glm::vec2(textureSize - 1));
 				//editor->putRectangle(cursorPosInTexture, { cursorSize * textureSize.x, cursorSize * textureSize.y }, cursorColor);
 				//editor->putCircle(cursorPosInTexture, cursorSize * textureSize.y, cursorColor);
 				editor->putEllipse(cursorPosInTexture, { cursorSize * textureSize.x, cursorSize * textureSize.y }, cursorColor);
