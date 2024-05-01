@@ -112,11 +112,11 @@ namespace Levels
 		auto& camera = Globals::Components().camera3D();
 
 		const float rotationSpeed = 0.8f;
-		const float oacilationSpeed = 1.0f;
+		const float oscilationSpeed = 1.0f;
 		const float radius = 4.0f;
 		const float oscilation = 0.0f;
 
-		camera.position = glm::vec3(glm::cos(physics.simulationDuration * rotationSpeed) * radius, glm::sin(physics.simulationDuration * oacilationSpeed) * oscilation,
+		camera.position = glm::vec3(glm::cos(physics.simulationDuration * rotationSpeed) * radius, glm::sin(physics.simulationDuration * oscilationSpeed) * oscilation,
 			glm::sin(physics.simulationDuration * rotationSpeed) * radius);
 	}
 }

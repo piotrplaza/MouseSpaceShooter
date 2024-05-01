@@ -20,7 +20,7 @@ namespace Tools
 	void SetMouseCursorVisibility(bool visibility);
 
 	void RandomInit();
-	float Random(float min, float max);
+	float RandomFloat(float min, float max);
 	int RandomInt(int min, int max);
 	unsigned StableRandom(unsigned seed);
 	float StableRandom(float min, float max, unsigned seed);

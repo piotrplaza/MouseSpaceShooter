@@ -54,8 +54,14 @@ namespace Systems
 		ProcessFunctors(Globals::Components().postInits());
 	}
 
-	void StateController::stepSetup() const
+	void StateController::stepSetup()
 	{
+		if (deferredPause)
+		{
+			Globals::Components().physics().paused = true;
+			deferredPause = false;
+		}
+
 		ProcessFunctors(Globals::Components().stepSetups());
 	}
 
@@ -138,9 +144,9 @@ namespace Systems
 		Globals::Components().physics().prevFrameTime = std::chrono::high_resolution_clock::now();
 	}
 
-	void StateController::killWindowFocus() const
+	void StateController::killWindowFocus()
 	{
-		Globals::Components().physics().paused = true;
+		deferredPause = true;
 	}
 
 	void StateController::resetMousePosition() const

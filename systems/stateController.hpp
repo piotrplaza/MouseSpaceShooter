@@ -17,7 +17,7 @@ namespace Systems
 		~StateController();
 
 		void postInit() const;
-		void stepSetup() const;
+		void stepSetup();
 		void stepTeardown() const;
 		void renderSetup() const;
 		void renderTeardown() const;
@@ -25,7 +25,7 @@ namespace Systems
 		void changeWindowLocation(glm::ivec2 location) const;
 		void changeRefreshRate(int refreshRate) const;
 		void setWindowFocus() const;
-		void killWindowFocus() const;
+		void killWindowFocus();
 		void resetMousePosition() const;
 		void handleMouseButtons();
 		void handleKeyboard(const std::array<bool, 256>& keys);
@@ -36,5 +36,6 @@ namespace Systems
 		Components::Mouse::Buttons prevMouseKeys;
 		std::array<Components::Gamepad::Buttons, 4> prevGamepadsKeys;
 		std::unordered_map<int, int> controllersToComponents;
+		bool deferredPause = false;
 	};
 }

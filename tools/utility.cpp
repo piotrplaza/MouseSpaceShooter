@@ -73,7 +73,7 @@ namespace Tools
 		std::srand((unsigned int)std::time(NULL));
 	}
 
-	float Random(float min, float max)
+	float RandomFloat(float min, float max)
 	{
 		return (float)std::rand() / RAND_MAX * (max - min) + min;
 	}

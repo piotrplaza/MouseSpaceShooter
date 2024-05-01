@@ -169,7 +169,7 @@ namespace Levels
 					for (auto& v : intermediateVeritces)
 					{
 						const float rD = 0.1f;
-						v += glm::vec2(Tools::Random(-rD, rD), Tools::Random(-rD, rD));
+						v += glm::vec2(Tools::RandomFloat(-rD, rD), Tools::RandomFloat(-rD, rD));
 					}
 
 					for (size_t i = 0; i < intermediateVeritces.size() - 1; ++i)

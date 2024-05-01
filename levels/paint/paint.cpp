@@ -51,7 +51,7 @@ namespace Levels
 			auto& texture = Globals::Components().dynamicTextures()[textureId];
 			auto& loadedTextureData = std::get<TextureData>(texture.source).loaded;
 			auto& buffer = std::get<std::vector<glm::vec3>>(loadedTextureData.data);
-			auto& textureSize = loadedTextureData.size;
+			const auto& textureSize = loadedTextureData.size;
 
 			if (!editor)
 				editor = std::make_unique<ColorBufferEditor>(buffer, textureSize);	
@@ -119,7 +119,7 @@ namespace Levels
 		void flames(auto& colorBuffer, float newColorFactor = 0.249f, glm::vec3 initRgbMin = glm::vec3(-200), glm::vec3 initRgbMax = glm::vec3(200))
 		{
 			for (int x = 0; x < colorBuffer.getRes().x; ++x)
-				colorBuffer.putColor({ x, 0 }, { Tools::Random(initRgbMin.r, initRgbMax.r), Tools::Random(initRgbMin.g, initRgbMax.g), Tools::Random(initRgbMin.b, initRgbMax.b) });
+				colorBuffer.putColor({ x, 0 }, { Tools::RandomFloat(initRgbMin.r, initRgbMax.r), Tools::RandomFloat(initRgbMin.g, initRgbMax.g), Tools::RandomFloat(initRgbMin.b, initRgbMax.b) });
 
 			auto innerLoop = [&](const auto y) {
 				for (int x = 0; x < colorBuffer.getRes().x; ++x)

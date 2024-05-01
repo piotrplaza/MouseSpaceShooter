@@ -1,5 +1,7 @@
 #include "levels/level.hpp"
 #include "levels/windmill/windmill.hpp"
+#include "levels/squareRace/squareRace.hpp"
+#include "levels/snakeCube/snakeCube.hpp"
 #include "levels/playground/playground.hpp"
 #include "levels/rocketball/rocketball.hpp"
 #include "levels/gravity/gravity.hpp"
@@ -8,7 +10,6 @@
 #include "levels/dzidzia2/dzidzia2.hpp"
 #include "levels/rim/rim.hpp"
 #include "levels/fpsScalingProblems/fpsScalingProblems.hpp"
-#include "levels/squareRace/squareRace.hpp"
 #include "levels/race/race.hpp"
 #include "levels/splineTest/splineTest.hpp"
 #include "levels/raceEditor/raceEditor.hpp"
@@ -115,8 +116,9 @@ static void InitLevel()
 
 	//activeLevel = std::make_unique<Levels::Windmill>();
 	//activeLevel = std::make_unique<Levels::SquareRace>();
+	//activeLevel = std::make_unique<Levels::SnakeCube>();
 
-	//activeLevel = std::make_unique<Levels::Playground>();
+	activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
@@ -130,7 +132,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Crosses3D>();
 	//activeLevel = std::make_unique<Levels::Crosses3DTexturing>();
 	//activeLevel = std::make_unique<Levels::Crosses3DInstancing>();
-	activeLevel = std::make_unique<Levels::Paint>();
+	//activeLevel = std::make_unique<Levels::Paint>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }

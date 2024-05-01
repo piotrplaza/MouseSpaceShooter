@@ -122,6 +122,9 @@
     <Filter Include="src\levels\paint">
       <UniqueIdentifier>{52db7b35-0ced-4ea1-936d-a337ba96cad7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\snakeCube">
+      <UniqueIdentifier>{fcb9b318-2bc0-4b65-9e52-c61bba4b76c5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -312,6 +315,9 @@
     </ClCompile>
     <ClCompile Include="levels\paint\paint.cpp">
       <Filter>src\levels\paint</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\snakeCube\snakeCube.cpp">
+      <Filter>src\levels\snakeCube</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -656,6 +662,9 @@
     </ClInclude>
     <ClInclude Include="levels\paint\paint.hpp">
       <Filter>src\levels\paint</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\snakeCube\snakeCube.hpp">
+      <Filter>src\levels\snakeCube</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

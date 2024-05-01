@@ -57,7 +57,7 @@ namespace Tools
 			auto vTransform = [&](const glm::vec3& prevV, const glm::vec3& v, const glm::vec3& nextV) {
 				const float avgLength = (glm::distance(prevV, v) + glm::distance(v, nextV)) * 0.5f;
 				const float r = avgLength * randFactor;
-				return glm::vec3(Tools::Random(-r, r), Tools::Random(-r, r), 0.0f);
+				return glm::vec3(Tools::RandomFloat(-r, r), Tools::RandomFloat(-r, r), 0.0f);
 				};
 
 			if (loop && i == 0)

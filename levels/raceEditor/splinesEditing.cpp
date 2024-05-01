@@ -317,7 +317,7 @@ namespace Levels
 					auto vTransform = [&](const auto& prevV, const auto& v, const auto& nextV) {
 						const float avgLength = (glm::distance(prevV, v) + glm::distance(v, nextV)) * 0.5f;
 						const float rD = avgLength * splineDef.complexity * 0.005f;
-						return std::remove_cvref<decltype(v)>::type(Tools::Random(-rD, rD), Tools::Random(-rD, rD));
+						return std::remove_cvref<decltype(v)>::type(Tools::RandomFloat(-rD, rD), Tools::RandomFloat(-rD, rD));
 					};
 
 					if (splineDef.loop && i == 0)

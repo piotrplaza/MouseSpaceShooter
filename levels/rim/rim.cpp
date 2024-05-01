@@ -64,12 +64,12 @@ namespace Levels
 					fullVisibilityDistance = Uniforms::Uniform1f(),
 					invisibilityDistance = Uniforms::Uniform1f(),
 					startTime = Globals::Components().physics().simulationDuration,
-					cycleDuration = Tools::Random(1.0f, 5.0f),
-					scale = Tools::Random(5.0f, 20.0f),
+					cycleDuration = Tools::RandomFloat(1.0f, 5.0f),
+					scale = Tools::RandomFloat(5.0f, 20.0f),
 					angle = 0.0f,
-					pos = glm::vec2(Tools::Random(-borderHSize.x, borderHSize.x), Tools::Random(-borderHSize.y, borderHSize.y)) * 0.8f,
-					rotSpeed = Tools::Random(-5.0f, 5.0f),
-					targetColor = glm::vec3(Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f))
+					pos = glm::vec2(Tools::RandomFloat(-borderHSize.x, borderHSize.x), Tools::RandomFloat(-borderHSize.y, borderHSize.y)) * 0.8f,
+					rotSpeed = Tools::RandomFloat(-5.0f, 5.0f),
+					targetColor = glm::vec3(Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f))
 				](Shaders::ProgramId program) mutable {
 					if (!modelMatrix.isValid())
 					{
@@ -86,11 +86,11 @@ namespace Levels
 					if (cycleTime > cycleDuration)
 					{
 						cycleTime = 0.0f;
-						cycleDuration = Tools::Random(1.0f, 5.0f);
-						scale = Tools::Random(5.0f, 20.0f);
-						pos = glm::vec2(Tools::Random(-borderHSize.x, borderHSize.x), Tools::Random(-borderHSize.y, borderHSize.y)) * 0.8f;
-						rotSpeed = Tools::Random(-5.0f, 5.0f);
-						targetColor = glm::vec3(Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f));
+						cycleDuration = Tools::RandomFloat(1.0f, 5.0f);
+						scale = Tools::RandomFloat(5.0f, 20.0f);
+						pos = glm::vec2(Tools::RandomFloat(-borderHSize.x, borderHSize.x), Tools::RandomFloat(-borderHSize.y, borderHSize.y)) * 0.8f;
+						rotSpeed = Tools::RandomFloat(-5.0f, 5.0f);
+						targetColor = glm::vec3(Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f));
 
 						startTime = Globals::Components().physics().simulationDuration;
 					}
@@ -152,7 +152,7 @@ namespace Levels
 		void setAnimations()
 		{
 			flame1AnimatedTexture = Globals::Components().staticAnimatedTextures().size();
-			Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(flame1AnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, Tools::Random(0.01f, 0.03f), 32, 0,
+			Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(flame1AnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, Tools::RandomFloat(0.01f, 0.03f), 32, 0,
 				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
 			Globals::Components().staticAnimatedTextures().last().start(true);
 

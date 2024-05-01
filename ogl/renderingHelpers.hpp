@@ -244,9 +244,9 @@ namespace Tools
 						? glm::vec2(quakeIntensity, quakeIntensity * screenInfo.getAspectRatio())
 						: glm::vec2(quakeIntensity / screenInfo.getAspectRatio(), quakeIntensity);
 
-					const glm::vec3 p1 = { -1.0f - Tools::Random(0.0f, quakeIntensityXY.x), -1.0f - Tools::Random(0.0f, quakeIntensityXY.y), 0.0f };
-					const glm::vec3 p2 = { 1.0f + Tools::Random(0.0f, quakeIntensityXY.x), p1.y, 0.0f };
-					const glm::vec3 p3 = { p1.x, 1.0f + Tools::Random(0.0f, quakeIntensityXY.y), 0.0f };
+					const glm::vec3 p1 = { -1.0f - Tools::RandomFloat(0.0f, quakeIntensityXY.x), -1.0f - Tools::RandomFloat(0.0f, quakeIntensityXY.y), 0.0f };
+					const glm::vec3 p2 = { 1.0f + Tools::RandomFloat(0.0f, quakeIntensityXY.x), p1.y, 0.0f };
+					const glm::vec3 p3 = { p1.x, 1.0f + Tools::RandomFloat(0.0f, quakeIntensityXY.y), 0.0f };
 					const glm::vec3 p4 = { p2.x, p3.y, 0.0f };
 
 					return std::array<glm::vec3, 6>{ p1, p2, p3, p3, p2, p4 };
@@ -293,9 +293,9 @@ namespace Tools
 						? glm::vec2(quakeIntensity, quakeIntensity * screenInfo.getAspectRatio())
 						: glm::vec2(quakeIntensity / screenInfo.getAspectRatio(), quakeIntensity);
 
-					const glm::vec3 p1 = { -1.0f - Tools::Random(0.0f, quakeIntensityXY.x), -1.0f - Tools::Random(0.0f, quakeIntensityXY.y), 0.0f };
-					const glm::vec3 p2 = { 1.0f + Tools::Random(0.0f, quakeIntensityXY.x), p1.y, 0.0f };
-					const glm::vec3 p3 = { p1.x, 1.0f + Tools::Random(0.0f, quakeIntensityXY.y), 0.0f };
+					const glm::vec3 p1 = { -1.0f - Tools::RandomFloat(0.0f, quakeIntensityXY.x), -1.0f - Tools::RandomFloat(0.0f, quakeIntensityXY.y), 0.0f };
+					const glm::vec3 p2 = { 1.0f + Tools::RandomFloat(0.0f, quakeIntensityXY.x), p1.y, 0.0f };
+					const glm::vec3 p3 = { p1.x, 1.0f + Tools::RandomFloat(0.0f, quakeIntensityXY.y), 0.0f };
 					const glm::vec3 p4 = { p2.x, p3.y, 0.0f };
 
 					return std::array<glm::vec3, 6>{ p1, p2, p3, p3, p2, p4 };

@@ -60,12 +60,12 @@ namespace Shapes2D
 
 			do
 			{
-				const float scale = Tools::Random(scaleRange.x, scaleRange.y);
+				const float scale = Tools::RandomFloat(scaleRange.x, scaleRange.y);
 				const glm::mat4 transformation = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(currentPos, z)),
-					Tools::Random(angleRange.x, angleRange.y), glm::vec3(0.0f, 0.0f, 1.0f)), { scale, scale, 1.0f });
+					Tools::RandomFloat(angleRange.x, angleRange.y), glm::vec3(0.0f, 0.0f, 1.0f)), { scale, scale, 1.0f });
 				const std::vector<glm::vec3> transformedRectanglePositions = Tools::TransformMat4(rectangleVertices, transformation);
 				vertices.insert(vertices.end(), transformedRectanglePositions.begin(), transformedRectanglePositions.end());
-				currentPos += direction * Tools::Random(stepRange.x, stepRange.y);
+				currentPos += direction * Tools::RandomFloat(stepRange.x, stepRange.y);
 			} while (glm::distance(currentControlPos, currentPos) < lineLength);
 		}
 
@@ -137,7 +137,7 @@ namespace Shapes2D
 		vertices.emplace_back(currentPos, z);
 		for (int i = 0; i < segmentsNum; ++i)
 		{
-			const float variationStep = stepLength * Tools::Random(-frayFactor, frayFactor);
+			const float variationStep = stepLength * Tools::RandomFloat(-frayFactor, frayFactor);
 
 			currentPos += step;
 			currentPos += orthoD * variationStep;

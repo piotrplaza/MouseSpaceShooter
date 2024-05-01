@@ -170,10 +170,10 @@ namespace Levels
 
 			for (int i = 0; i < 500; ++i)
 			{
-				const float angle = Tools::Random(0.0f, glm::two_pi<float>());
+				const float angle = Tools::RandomFloat(0.0f, glm::two_pi<float>());
 				const glm::vec2 pos = glm::vec2(glm::cos(angle), glm::sin(angle)) * 20.0f;
 				Globals::Components().staticWalls().emplace(
-					Tools::CreateBoxBody({ Tools::Random(0.1f, 1.0f), Tools::Random(0.1f, 1.0f) },
+					Tools::CreateBoxBody({ Tools::RandomFloat(0.1f, 1.0f), Tools::RandomFloat(0.1f, 1.0f) },
 						Tools::BodyParams().position(pos).angle(angle).bodyType(b2_dynamicBody).density(0.02f)),
 					CM::StaticTexture(spaceRockTexture));
 			}

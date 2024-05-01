@@ -51,9 +51,9 @@ namespace Levels
 #if 1
 			for (int i = 0; i < 1000; ++i)
 			{
-				staticWalls.emplace(Tools::CreateCircleBody(Tools::Random(0.2f, 0.5f), Tools::BodyParams().bodyType(b2_dynamicBody)
-					.position({ Tools::Random(-9.0f, 9.0f) * screenInfo.getAspectRatio(), Tools::Random(-9.0f, 9.0f) }).restitution(0.2f).linearDamping(0.1f)));
-				staticWalls.last().colorF = [color = glm::vec4(Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f), 1.0f)]() { return color; };
+				staticWalls.emplace(Tools::CreateCircleBody(Tools::RandomFloat(0.2f, 0.5f), Tools::BodyParams().bodyType(b2_dynamicBody)
+					.position({ Tools::RandomFloat(-9.0f, 9.0f) * screenInfo.getAspectRatio(), Tools::RandomFloat(-9.0f, 9.0f) }).restitution(0.2f).linearDamping(0.1f)));
+				staticWalls.last().colorF = [color = glm::vec4(Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f), 1.0f)]() { return color; };
 			}
 #else
 			const glm::vec2 hSize(0.3f, 0.3f);

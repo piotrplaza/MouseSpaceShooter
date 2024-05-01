@@ -652,7 +652,7 @@ namespace Levels
 					},
 					[&](auto& sound) {
 						sound.setVolume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
-						sound.setPitch(Tools::Random(0.9f, 1.5f));
+						sound.setPitch(Tools::RandomFloat(0.9f, 1.5f));
 					});
 			});
 

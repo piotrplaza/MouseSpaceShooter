@@ -23,7 +23,7 @@ namespace Components
 			float particlesRadius, float particlesDensity, float particlesLinearDamping, bool particlesAsBullets):
 			center(center)
 		{
-			float angle = Tools::Random(0.0f, glm::two_pi<float>());
+			float angle = Tools::RandomFloat(0.0f, glm::two_pi<float>());
 			const float angleStep = glm::two_pi<float>() / numOfParticles;
 			for (int i = 0; i < numOfParticles; ++i)
 			{
@@ -31,7 +31,7 @@ namespace Components
 					Tools::BodyParams().position(center).bodyType(b2_dynamicBody).density(particlesDensity)));
 				particles.back()->SetBullet(particlesAsBullets);
 				particles.back()->SetLinearVelocity(ToVec2<b2Vec2>(sourceVelocity + glm::vec2(glm::cos(angle), glm::sin(angle)) * initExplosionVelocity *
-					Tools::Random(initExplosionVelocityRandomMinFactor, 1.0f)));
+					Tools::RandomFloat(initExplosionVelocityRandomMinFactor, 1.0f)));
 				particles.back()->SetLinearDamping(particlesLinearDamping);
 				Tools::SetCollisionFilteringBits(*particles.back(), Globals::CollisionBits::shockwaveParticle,
 					Globals::CollisionBits::all - Globals::CollisionBits::shockwaveParticle - Globals::CollisionBits::missile);
