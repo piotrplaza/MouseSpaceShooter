@@ -562,10 +562,7 @@ namespace Levels
 
 		void setFramesRoutines()
 		{
-			Globals::Components().stepSetups().emplace([&]()
-				{
-					explosionFrame = false;
-				});
+			Globals::Components().stepSetups().emplace([&]() { explosionFrame = false; return true; });
 		}
 
 		void createSpawners()

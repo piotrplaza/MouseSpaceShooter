@@ -37,6 +37,8 @@ namespace Systems
 
 			for (auto& grapple : grapples)
 				grapple.details.previousCenter = grapple.getOrigin2D();
+
+			return true;
 		};
 
 		prevCenterUpdate();
@@ -46,6 +48,8 @@ namespace Systems
 			unsigned playersCounter = 0;
 			for (const auto& plane : planes)
 				Globals::Shaders().textured().playersCenter(playersCounter++, plane.getOrigin2D());
+
+			return true;
 		});
 	}
 

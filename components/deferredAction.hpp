@@ -14,6 +14,12 @@ namespace Components
 		{
 		}
 
+		DeferredAction(std::function<bool()> deferredAction, float delay = 0.0f) :
+			deferredAction([=](auto) { return deferredAction(); }),
+			delay(delay)
+		{
+		}
+
 		std::function<bool(float duration)> deferredAction;
 		float delay = 0.0f;
 

@@ -347,7 +347,7 @@ namespace Levels
 				}
 			}
 			else
-				finalVertices = convertToVec3Vector(intermediateVeritces);
+				finalVertices = ConvertToVec3Vector(intermediateVeritces);
 
 			splineDecoration.vertices = std::move(finalVertices);
 			splineDecoration.state = ComponentState::Changed;
