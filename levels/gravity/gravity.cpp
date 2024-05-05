@@ -273,6 +273,8 @@ namespace Levels
 
 			for (auto& missile: Globals::Components().missiles())
 			{
+				if (missile.state == ComponentState::Outdated)
+					continue;
 				applyGravity(missile, 4000.0f);
 				missile.body->SetTransform(missile.body->GetPosition(), glm::orientedAngle({ 1.0f, 0.0f },
 					glm::normalize(ToVec2<glm::vec2>(missile.body->GetLinearVelocity()) - missilesToHandlers[missile.getComponentId()].referenceVelocity)));

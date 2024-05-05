@@ -95,7 +95,7 @@ static void InitOGL()
 static void InitEngine()
 {
 	if (console)
-		Tools::RedirectIOToConsole({ 3850, 10 });
+		Tools::RedirectIOToConsole({ 1930, 10 });
 	Tools::RandomInit();
 	InitOGL();
 	int sdlInitResult = SDL_Init(SDL_INIT_GAMECONTROLLER);
@@ -162,11 +162,11 @@ static void PrepareFrame()
 	else
 	{
 		Globals::Systems().stateController().stepSetup();
+		Globals::Systems().physics().step();
+		Globals::Systems().deferredActions().step();
 
 		activeLevel->step();
 
-		Globals::Systems().physics().step();
-		Globals::Systems().deferredActions().step();
 		Globals::Systems().actors().step();
 		Globals::Systems().temporaries().step();
 		Globals::Systems().structures().step();
