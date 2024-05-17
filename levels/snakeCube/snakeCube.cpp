@@ -19,24 +19,31 @@
 
 #include <array>
 #include <list>
+#include <unordered_set>
+
+//#define TEST
 
 namespace
 {
 	constexpr int boardSize = 9;
-	constexpr float moveDuration = 0.5f;
-	constexpr int lenghtening = 1;
+	constexpr float moveDuration = 0.2f;
+	constexpr int lenghtening = 10;
 	
-	constexpr glm::vec4 clearColor = { 0.0f, 0.3f, 0.0f, 1.0f };
-	constexpr glm::vec4 snakeHeadColor = { 1.0f, 0.0f, 0.0f, 1.0f };
-	constexpr glm::vec4 snakeTailColor = { 0.0f, 1.0f, 0.0f, 1.0f };
-	constexpr glm::vec4 snakeFoodColor = { 0.0f, 0.0f, 1.0f, 1.0f };
+	constexpr glm::vec4 clearColor = { 0.0f, 0.4f, 0.6f, 1.0f };
+	constexpr glm::vec4 snakeHeadColor = { 0.0f, 8.0f, 0.2f, 1.0f };
+	constexpr glm::vec4 snakeEatingHeadColor = { 0.0f, 8.0f, 0.2f, 1.0f };
+	constexpr glm::vec4 snakeDeadHeadColor = { 1.0f, 0.0f, 0.0f, 1.0f };
+	constexpr glm::vec4 snakeTailColor = { 0.0f, 0.6f, 0.0f, 1.0f };
+	constexpr glm::vec4 snakeFoodColor = { 0.0f, 0.8f, 0.0f, 1.0f };
+	constexpr glm::vec4 foodColor = { 0.0f, 0.8f, 0.4f, 1.0f };
+#ifndef TEST
+	constexpr glm::vec4 cubeColor = { 0.0f, 0.0f, 0.0f, 0.0f };
+#else
 	constexpr glm::vec4 cubeColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-	
+#endif
 	constexpr float cubeHSize = 0.5f;
 	constexpr float cameraDistance = 2.0f;
 }
-
-//#define TEST
 
 namespace Levels
 {
@@ -48,6 +55,7 @@ namespace Levels
 			glDisable(GL_CULL_FACE);
 
 			Globals::Components().graphicsSettings().clearColor = clearColor;
+			Globals::Components().graphicsSettings().lineWidth = 1.0f;
 			Globals::Components().camera3D().rotation = Components::Camera3D::LookAtRotation{};
 
 #ifdef TEST
@@ -66,27 +74,33 @@ namespace Levels
 			}
 
 			Shapes3D::CreateCuboid(Globals::Components().staticDecorations(), cubeTextures, glm::vec3(cubeHSize));
+			Shapes3D::AddWiredCuboid(Globals::Components().staticDecorations().emplace(), glm::vec3(cubeHSize - 0.001f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 #ifdef TEST
-			Shapes3D::CreateCuboid(Globals::Components().staticDecorations(), testCubeTextures, glm::vec3(cubeHSize) + 0.001f);
+			auto cuboidWalls = Shapes3D::CreateCuboid(Globals::Components().staticDecorations(), testCubeTextures, glm::vec3(cubeHSize) + 0.001f);
+			for (auto* wall : cuboidWalls)
+				wall->colorF = []() { return glm::vec4(0.2f); };
 #endif
-			
+			Shapes3D::AddSphere(Globals::Components().staticDecorations().emplace(), 0.02f, 20, 20, nullptr, false);
+			Globals::Components().staticDecorations().last().colorF = []() { return glm::vec4(0.0f, 0.0f, 1.0f, 1.0f); };
+			Globals::Components().staticDecorations().last().modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), cubeCoordToPos(snakeHead->first)); };
+
 			Globals::Components().stepSetups().emplace([this]() {
 				createEditors(); 
 				gameplayInit();
 				return false; 
 			});
-
-			{
-				Shapes3D::AddSphere(Globals::Components().staticDecorations().emplace(), 0.02f, 20, 20, nullptr, false);
-				Globals::Components().staticDecorations().last().colorF = []() { return glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); };
-				Globals::Components().staticDecorations().last().modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), cubeCoordToPos(snakeHead->first)); };
-			}
 		}
 
 		void step()
 		{
 			controlsStep();
+
+			if (snakeHead->second.type == SnakeNode::Type::DeadHead)
+			{
+				cameraStep();
+				return;
+			}
 
 			const auto& physics = Globals::Components().physics();
 			moveTime += physics.frameDuration;
@@ -112,7 +126,7 @@ namespace Levels
 
 		struct SnakeNode
 		{
-			enum class Type { Head, Tail, Food } type;
+			enum class Type { Head, DeadHead, EatingHead, Tail, Food } type;
 			SnakeNodes::iterator prev;
 			SnakeNodes::iterator next;
 		};
@@ -136,32 +150,119 @@ namespace Levels
 				cubeTextures[i].component->state = ComponentState::Changed;
 			}
 
-			snakeNodes = { { { cubeEditors[0]->getRes() / 2, 0 }, { SnakeNode::Type::Head, snakeNodes.end(), snakeNodes.end() } } };
+			snakeNodes.clear();
+			snakeNodes.reserve(6 * boardSize * boardSize);
+			snakeNodes[glm::ivec3(cubeEditors[0]->getRes() / 2, 0)] = { SnakeNode::Type::EatingHead, snakeNodes.end(), snakeNodes.end() };
 			snakeHead = snakeEnd = snakeNodes.begin();
+
 			snakeDirection = SnakeDirection::Up;
 			lastSnakeStep = { 0, 0 };
 			up = { 0, 1 };
-			cameraUp = { 0, 1, 0 };
+			targetCameraUp = { 0, 1, 0 };
 			lenghteningLeft = 0;
+			foodPos = std::nullopt;
+
+			freeSpace.clear();
+			for (int z = 0; z < 6; ++z)
+				for (int y = 0; y < boardSize; ++y)
+					for (int x = 0; x < boardSize; ++x)
+						freeSpace.insert({ x, y, z });
 
 			drawSnake();
 		}
 
 		void gameplayStep()
 		{
-			const glm::ivec3 lastEndPos = snakeEnd->first;
-			lastSnakeStep = snakeStep(snakeDirection);
-			glm::ivec3 nextPos = snakeHead->first + glm::ivec3(lastSnakeStep, 0);
-			handleBorders(nextPos);
-			snakeHead = snakeNodes.emplace(nextPos, SnakeNode{ SnakeNode::Type::Head, snakeNodes.end(), snakeNodes.end() }).first;
-			snakeNodes.erase(snakeEnd);
-			snakeEnd = snakeHead;
+			const auto erasedEndPos = [&]() -> std::optional<glm::ivec3> {
+				if (lenghteningLeft == 0)
+				{
+					const bool headOnly = snakeHead == snakeEnd;
+					if ((headOnly && snakeHead->second.type == SnakeNode::Type::EatingHead) ||
+						snakeEnd->second.type == SnakeNode::Type::Food)
+					{
+						lenghteningLeft = lenghtening - 1;
+						return std::nullopt;
+					}
+					const glm::ivec3 erasedPos = snakeEnd->first;
+					const SnakeNode::Type erasedType = snakeEnd->second.type;
+					auto newEnd = snakeEnd->second.next;
+					snakeNodes.erase(snakeEnd);
+					freeSpace.insert(erasedPos);
+					if (headOnly)
+					{
+						snakeEnd = snakeHead = snakeNodes.end();
+						return erasedPos;
+					}
+					newEnd->second.prev = snakeNodes.end();
+					snakeEnd = newEnd;
+					return erasedPos;
+				}
+				else
+				{
+					if (--lenghteningLeft == 0)
+						snakeEnd->second.type = SnakeNode::Type::Tail;
+					return std::nullopt;
+				}
+			}();
 
-			redrawSnake(lastEndPos);
+			lastSnakeStep = snakeStep(snakeDirection);
+			glm::ivec3 nextPos = (snakeHead == snakeNodes.end() ? *erasedEndPos : snakeHead->first) + glm::ivec3(lastSnakeStep, 0);
+			handleBorders(nextPos);
+
+			if (snakeHead != snakeNodes.end())
+				if (snakeHead->second.type == SnakeNode::Type::EatingHead)
+					snakeHead->second.type = SnakeNode::Type::Food;
+				else
+					snakeHead->second.type = SnakeNode::Type::Tail;
+
+			auto it = snakeNodes.find(nextPos);
+			if (it == snakeNodes.end())
+			{
+				const bool eating = foodPos && *foodPos == nextPos;
+				if (eating)
+					foodPos = std::nullopt;
+				snakeHead = snakeNodes.emplace(nextPos, SnakeNode{ eating ? SnakeNode::Type::EatingHead : SnakeNode::Type::Head, snakeHead, snakeNodes.end() }).first;
+				freeSpace.erase(nextPos);
+				if (snakeEnd == snakeNodes.end())
+					snakeEnd = snakeHead;
+				if (snakeHead->second.prev != snakeNodes.end())
+					snakeHead->second.prev->second.next = snakeHead;
+			}
+			else
+			{
+				it->second.prev = snakeHead;
+				snakeHead = it;
+				snakeHead->second.type = SnakeNode::Type::DeadHead;
+			}
+
+			if (!foodPos)
+			{
+				auto it = std::next(freeSpace.begin(), rand() % freeSpace.size());
+				foodPos = *it;
+				freeSpace.erase(it);
+			}
+
+			redrawSnake(erasedEndPos);
+			redrawFood();
 		}
 
 		void handleBorders(glm::ivec3& pos)
 		{
+			auto changeCoordinates90CW = [&]() {
+				up = Rotate90CW(up);
+				lastSnakeStep = Rotate90CW(lastSnakeStep);
+			};
+
+			auto changeCoordinates90CCW = [&]() {
+				up = Rotate90CCW(up);
+				lastSnakeStep = Rotate90CCW(lastSnakeStep);
+			};
+
+			auto changeCoordinates180 = [&]() {
+				up = Rotate180(up);
+				lastSnakeStep = Rotate180(lastSnakeStep);
+			};
+
 			const glm::ivec2 prevUp = up;
 
 			switch (pos[2])
@@ -169,25 +270,25 @@ namespace Levels
 			case 0:
 				if (pos.x < 0)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(cameraUp, 1));
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(targetCameraUp, 1));
 					pos.x = boardSize - 1;
 					pos.z = 2;
 				}
 				else if (pos.x >= boardSize)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(cameraUp, 1));
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(targetCameraUp, 1));
 					pos.x = 0;
 					pos.z = 3;
 				}
 				else if (pos.y < 0)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(cameraUp, 1));
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(targetCameraUp, 1));
 					pos.y = boardSize - 1;
 					pos.z = 4;
 				}
 				else if (pos.y >= boardSize)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(cameraUp, 1));
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(targetCameraUp, 1));
 					pos.y = 0;
 					pos.z = 5;
 				}
@@ -195,103 +296,103 @@ namespace Levels
 			case 1:
 				if (pos.x < 0)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(cameraUp, 1));
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(targetCameraUp, 1));
 					pos.x = boardSize - 1;
 					pos.z = 3;
 				}
 				else if (pos.x >= boardSize)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(cameraUp, 1));
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(targetCameraUp, 1));
 					pos.x = 0;
 					pos.z = 2;
 				}
 				else if (pos.y < 0)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(cameraUp, 1));
-					up = Rotate180(up);
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(targetCameraUp, 1));
+					changeCoordinates180();
 					pos = { boardSize - 1 - pos.x, 0, 4 };
 				}
 				else if (pos.y >= boardSize)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(cameraUp, 1));
-					up = Rotate180(up);
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(targetCameraUp, 1));
+					changeCoordinates180();
 					pos = { boardSize - 1 - pos.x, boardSize - 1, 5 };
 				}
 				break;
 			case 2:
 				if (pos.x < 0)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(cameraUp, 1));
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(targetCameraUp, 1));
 					pos.x = boardSize - 1;
 					pos.z = 1;
 				}
 				else if (pos.x >= boardSize)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(cameraUp, 1));
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(targetCameraUp, 1));
 					pos.x = 0;
 					pos.z = 0;
 				}
 				else if (pos.y < 0)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(cameraUp, 1));
-					up = Rotate90CCW(up);
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(targetCameraUp, 1));
+					changeCoordinates90CCW();
 					pos = { 0, pos.x, 4 };
 				}
 				else if (pos.y >= boardSize)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(cameraUp, 1));
-					up = Rotate90CW(up);
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(targetCameraUp, 1));
+					changeCoordinates90CW();
 					pos = { 0, boardSize - 1 - pos.x, 5 };
 				}
 				break;
 			case 3:
 				if (pos.x < 0)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(cameraUp, 1));
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(targetCameraUp, 1));
 					pos.x = boardSize - 1;
 					pos.z = 0;
 				}
 				else if (pos.x >= boardSize)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(cameraUp, 1));
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 1, 0 }) * glm::ivec4(targetCameraUp, 1));
 					pos.x = 0;
 					pos.z = 1;
 				}
 				else if (pos.y < 0)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(cameraUp, 1));
-					up = Rotate90CW(up);
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(targetCameraUp, 1));
+					changeCoordinates90CW();
 					pos = { boardSize - 1, boardSize - 1 - pos.x, 4 };
 				}
 				else if (pos.y >= boardSize)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(cameraUp, 1));
-					up = Rotate90CCW(up);
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(targetCameraUp, 1));
+					changeCoordinates90CCW();
 					pos = { boardSize - 1, pos.x, 5 };
 				}
 				break;
 			case 4:
 				if (pos.x < 0)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(cameraUp, 1));
-					up = Rotate90CW(up);
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(targetCameraUp, 1));
+					changeCoordinates90CW();
 					pos = { pos.y, 0, 2 };
 				}
 				else if (pos.x >= boardSize)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(cameraUp, 1));
-					up = Rotate90CCW(up);
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(targetCameraUp, 1));
+					changeCoordinates90CCW();
 					pos = { boardSize - 1 - pos.y, 0, 3 };
 				}
 				else if (pos.y < 0)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(cameraUp, 1));
-					up = Rotate180(up);
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(targetCameraUp, 1));
+					changeCoordinates180();
 					pos = { boardSize - 1 - pos.x, 0, 1 };
 				}
 				else if (pos.y >= boardSize)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(cameraUp, 1));
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(targetCameraUp, 1));
 					pos.y = 0;
 					pos.z = 0;
 				}
@@ -299,26 +400,26 @@ namespace Levels
 			case 5:
 				if (pos.x < 0)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(cameraUp, 1));
-					up = Rotate90CCW(up);
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(targetCameraUp, 1));
+					changeCoordinates90CCW();
 					pos = { boardSize - 1 - pos.y, boardSize - 1, 2 };
 				}
 				else if (pos.x >= boardSize)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(cameraUp, 1));
-					up = Rotate90CW(up);
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 0, 0, 1 }) * glm::ivec4(targetCameraUp, 1));
+					changeCoordinates90CW();
 					pos = { pos.y, boardSize - 1, 3 };	
 				}
 				else if (pos.y < 0)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(cameraUp, 1));
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(targetCameraUp, 1));
 					pos.y = boardSize - 1;
 					pos.z = 0;
 				}
 				else if (pos.y >= boardSize)
 				{
-					cameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(cameraUp, 1));
-					up = Rotate180(up);
+					targetCameraUp = glm::round(glm::rotate(glm::mat4(1.0f), -glm::half_pi<float>(), { 1, 0, 0 }) * glm::ivec4(targetCameraUp, 1));
+					changeCoordinates180();
 					pos = { boardSize - 1 - pos.x, boardSize - 1, 1 };
 				}
 				break;
@@ -334,15 +435,19 @@ namespace Levels
 			}
 		}
 
-		void redrawSnake(const glm::ivec3& lastEndPos)
+		void redrawSnake(std::optional<glm::ivec3> erasedEndPos)
 		{
-			cubeEditors[lastEndPos[2]]->putColor(lastEndPos, cubeColor);
-			cubeTextures[lastEndPos[2]].component->state = ComponentState::Changed;
+			if (erasedEndPos)
+			{
+				const auto pos = *erasedEndPos;
+				cubeEditors[pos[2]]->putColor(pos, cubeColor);
+				cubeTextures[pos[2]].component->state = ComponentState::Changed;
+			}
 
 			cubeEditors[snakeHead->first[2]]->putColor(snakeHead->first, snakeNodeColors.at(snakeHead->second.type));
 			cubeTextures[snakeHead->first[2]].component->state = ComponentState::Changed;
 
-			auto snakeNeck = snakeHead->second.next;
+			auto snakeNeck = snakeHead->second.prev;
 			if (snakeNeck != snakeNodes.end())
 			{
 				cubeEditors[snakeNeck->first[2]]->putColor(snakeNeck->first, snakeNodeColors.at(snakeNeck->second.type));
@@ -350,36 +455,44 @@ namespace Levels
 			}
 		}
 
+		void redrawFood()
+		{
+			if (foodPos)
+			{
+				cubeEditors[foodPos->z]->putColor(*foodPos, foodColor);
+				cubeTextures[foodPos->z].component->state = ComponentState::Changed;
+			}
+		}
+
 		void controlsStep()
 		{
 			for (const auto& [key, direction]: controls)
-				if (Globals::Components().keyboard().pressed[key])
+				if (Globals::Components().keyboard().pressing[key])
 				{
-					if (lastSnakeStep == -snakeStep(direction))
+					if (lastSnakeStep == snakeStep(direction) || lastSnakeStep == -snakeStep(direction))
 						continue;
 					snakeDirection = direction;
-					break;
 				}
+
+			if (Globals::Components().keyboard().pressed['R'])
+				gameplayInit();
 		}
 
 		void cameraStep() const
 		{
+			const float cameraSpeed = 0.2f / moveDuration;
+
 			const auto& physics = Globals::Components().physics();
 			auto& camera = Globals::Components().camera3D();
+			const glm::vec3 targetCameraPos = glm::normalize(cubeCoordToPos(snakeHead->first)) * cameraDistance;
+			const glm::vec3 interpolatedCameraPos = glm::mix(glm::vec3(camera.position), glm::vec3(targetCameraPos),
+				std::clamp(cameraSpeed * physics.frameDuration, 0.0f, 1.0f));
+			camera.position = interpolatedCameraPos;
 
-#if 0
-			const float rotationSpeed = 2.0f;
-			const float oscilationSpeed = 3.0f;
-			const float radius = 2.0f;
-			const float oscilation = 1.5f;
-
-			camera.position = glm::vec3(glm::cos(physics.simulationDuration * rotationSpeed + glm::half_pi<float>()) * radius,
-				glm::sin(physics.simulationDuration * oscilationSpeed) * oscilation,
-				glm::sin(physics.simulationDuration * rotationSpeed + glm::half_pi<float>()) * radius);
-#else
-			camera.position = glm::normalize(cubeCoordToPos(snakeHead->first)) * cameraDistance;
-			std::get<Components::Camera3D::LookAtRotation>(camera.rotation).up = cameraUp;
-#endif
+			auto& cameraUp = std::get<Components::Camera3D::LookAtRotation>(camera.rotation).up;
+			const glm::vec3 interpolatedCameraUp = glm::mix(glm::vec3(cameraUp), glm::vec3(targetCameraUp),
+				std::clamp(cameraSpeed * physics.frameDuration, 0.0f, 1.0f));
+			cameraUp = interpolatedCameraUp;
 		}
 
 		glm::ivec2 snakeStep(SnakeDirection direction) const
@@ -423,8 +536,8 @@ namespace Levels
 			return glm::vec3(0.0f);
 		}
 
-		const std::unordered_map<SnakeNode::Type, glm::vec4> snakeNodeColors = { { SnakeNode::Type::Head, snakeHeadColor },
-			{ SnakeNode::Type::Tail, snakeTailColor }, { SnakeNode::Type::Food, snakeFoodColor } };
+		const std::unordered_map<SnakeNode::Type, glm::vec4> snakeNodeColors = { { SnakeNode::Type::Head, snakeHeadColor }, { SnakeNode::Type::DeadHead, snakeDeadHeadColor },
+			{ SnakeNode::Type::EatingHead, snakeEatingHeadColor }, { SnakeNode::Type::Tail, snakeTailColor }, { SnakeNode::Type::Food, snakeFoodColor } };
 		const std::unordered_map<int, SnakeDirection> controls = { 
 			{ 0x26/*VK_UP*/, SnakeDirection::Up },
 			{ 0x28/*VK_DOWN*/, SnakeDirection::Down },
@@ -440,8 +553,11 @@ namespace Levels
 		SnakeDirection snakeDirection;
 		glm::ivec2 lastSnakeStep;
 		glm::ivec2 up;
-		glm::ivec3 cameraUp;
+		glm::ivec3 targetCameraUp;
 		int lenghteningLeft;
+		std::optional<glm::ivec3> foodPos;
+
+		std::unordered_set<glm::ivec3> freeSpace;
 	};
 
 	SnakeCube::SnakeCube():

@@ -86,7 +86,7 @@ vec4 lightModel(vec4 inColor)
 {
 	if (numOfLights == 0 || !lightModelEnabled)
 	{
-		return inColor;
+		return inColor * color;
 	}
 
 	const vec3 normal = normalize(flatNormal ? vFlatNormal : vSmoothNormal);

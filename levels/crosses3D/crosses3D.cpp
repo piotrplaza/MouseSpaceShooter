@@ -20,8 +20,7 @@ namespace Levels
 	public:
 		void setup()
 		{
-			glLineWidth(1.0f);
-
+			Globals::Components().graphicsSettings().lineWidth = 1.0f;
 			Globals::Components().graphicsSettings().clearColor = { 0.2f, 0.0f, 0.0f, 1.0f };
 			Globals::Components().camera3D().rotation = Components::Camera3D::LookAtRotation{};
 			for (unsigned i = 0; i < 1; ++i)

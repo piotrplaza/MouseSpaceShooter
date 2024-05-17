@@ -204,6 +204,7 @@ namespace Systems
 		const auto& framebuffers = Globals::Components().framebuffers();
 		const glm::vec4& clearColor = Globals::Components().graphicsSettings().clearColor;
 
+		glLineWidth(Globals::Components().graphicsSettings().lineWidth);
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.main.fbo);
 		glViewport(0, 0, framebuffers.main.size.x, framebuffers.main.size.y);
 		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);

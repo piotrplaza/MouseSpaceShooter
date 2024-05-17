@@ -239,4 +239,24 @@ namespace Shapes3D
 
 		return renderableDef;
 	}
+
+	RenderableDef& AddWiredCuboid(RenderableDef& renderableDef, const glm::vec3& hSize, const glm::vec4& color, const glm::mat4& transform )
+	{
+		AddLine(renderableDef, { -hSize.x, -hSize.y, -hSize.z }, { hSize.x, -hSize.y, -hSize.z }, color, color, transform);
+		AddLine(renderableDef, { hSize.x, -hSize.y, -hSize.z }, { hSize.x, hSize.y, -hSize.z }, color, color, transform);
+		AddLine(renderableDef, { hSize.x, hSize.y, -hSize.z }, { -hSize.x, hSize.y, -hSize.z }, color, color, transform);
+		AddLine(renderableDef, { -hSize.x, hSize.y, -hSize.z }, { -hSize.x, -hSize.y, -hSize.z }, color, color, transform);
+
+		AddLine(renderableDef, { -hSize.x, -hSize.y, hSize.z }, { hSize.x, -hSize.y, hSize.z }, color, color, transform);
+		AddLine(renderableDef, { hSize.x, -hSize.y, hSize.z }, { hSize.x, hSize.y, hSize.z }, color, color, transform);
+		AddLine(renderableDef, { hSize.x, hSize.y, hSize.z }, { -hSize.x, hSize.y, hSize.z }, color, color, transform);
+		AddLine(renderableDef, { -hSize.x, hSize.y, hSize.z }, { -hSize.x, -hSize.y, hSize.z }, color, color, transform);
+
+		AddLine(renderableDef, { -hSize.x, -hSize.y, -hSize.z }, { -hSize.x, -hSize.y, hSize.z }, color, color, transform);
+		AddLine(renderableDef, { hSize.x, -hSize.y, -hSize.z }, { hSize.x, -hSize.y, hSize.z }, color, color, transform);
+		AddLine(renderableDef, { hSize.x, hSize.y, -hSize.z }, { hSize.x, hSize.y, hSize.z }, color, color, transform);
+		AddLine(renderableDef, { -hSize.x, hSize.y, -hSize.z }, { -hSize.x, hSize.y, hSize.z }, color, color, transform);
+
+		return renderableDef;
+	}
 }

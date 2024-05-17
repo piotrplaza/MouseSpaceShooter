@@ -55,4 +55,6 @@ namespace Shapes3D
 	RenderableDef& AddCross(RenderableDef& renderableDef, glm::vec3 columnHSize = { 0.1f, 0.5f, 0.1f }, glm::vec3 rowHSize = { 0.35f, 0.1f, 0.1f }, float rowYPos = 0.15f, std::function<glm::vec2(glm::vec2, glm::vec3)> defaultAndPosToTexCoordF = nullptr,
 		const glm::mat4& transform = glm::mat4(1.0f));
 	RenderableDef& AddGrid(RenderableDef& renderableDef, glm::vec2 hSize, glm::ivec2 sectors, const glm::mat4& transform = glm::mat4(1.0f));
+
+	RenderableDef& AddWiredCuboid(RenderableDef& renderableDef, const glm::vec3& hSize = { 0.5f, 0.5f, 0.5f }, const glm::vec4& color = glm::vec4(1.0f), const glm::mat4& transform = glm::mat4(1.0f));
 }
