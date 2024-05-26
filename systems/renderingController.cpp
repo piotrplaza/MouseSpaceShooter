@@ -200,14 +200,28 @@ namespace Systems
 
 	void RenderingController::render() const
 	{
+		const auto& graphicsSettings = Globals::Components().graphicsSettings();
+		const auto& clearColor = graphicsSettings.clearColor;
 		const auto& screenInfo = Globals::Components().screenInfo();
 		const auto& framebuffers = Globals::Components().framebuffers();
-		const glm::vec4& clearColor = Globals::Components().graphicsSettings().clearColor;
 
-		glLineWidth(Globals::Components().graphicsSettings().lineWidth);
+		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+
+		if (graphicsSettings.forcedDepthTest)
+			if (*graphicsSettings.forcedDepthTest)
+				glEnable(GL_DEPTH_TEST);
+			else
+				glDisable(GL_DEPTH_TEST);
+
+		if (graphicsSettings.cullFace)
+			glEnable(GL_CULL_FACE);
+		else
+			glDisable(GL_CULL_FACE);
+
+		glLineWidth(graphicsSettings.lineWidth);
+
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.main.fbo);
 		glViewport(0, 0, framebuffers.main.size.x, framebuffers.main.size.y);
-		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		Tools::Lights3DSetup(Globals::Shaders().basicPhong());
@@ -223,11 +237,13 @@ namespace Systems
 		{
 			TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
-			glEnable(GL_DEPTH_TEST);
+			if (!graphicsSettings.forcedDepthTest)
+				glEnable(GL_DEPTH_TEST);
 			BasicPhongRender(layer, texturesFramebuffersRenderer);
 			TexturedPhongRender(layer, texturesFramebuffersRenderer);
 
-			glDisable(GL_DEPTH_TEST);
+			if (!graphicsSettings.forcedDepthTest)
+				glDisable(GL_DEPTH_TEST);
 			BasicRender(layer, texturesFramebuffersRenderer);
 			TexturedRender(layer, texturesFramebuffersRenderer);
 			CustomShadersRender(layer, texturesFramebuffersRenderer);

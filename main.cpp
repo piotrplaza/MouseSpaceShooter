@@ -83,10 +83,6 @@ static void InitOGL()
 	assert(GLEW_OK == glewInitResult);
 
 	Tools::VSync(true);
-	//glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_GREATER);
-	//glClearDepth(0.0f);
-	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 }

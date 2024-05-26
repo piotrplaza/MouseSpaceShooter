@@ -52,9 +52,8 @@ namespace Levels
 	public:
 		void setup()
 		{
-			glDisable(GL_CULL_FACE);
-
 			Globals::Components().graphicsSettings().clearColor = clearColor;
+			Globals::Components().graphicsSettings().cullFace = false;
 			Globals::Components().graphicsSettings().lineWidth = 1.0f;
 			Globals::Components().camera3D().rotation = Components::Camera3D::LookAtRotation{};
 
