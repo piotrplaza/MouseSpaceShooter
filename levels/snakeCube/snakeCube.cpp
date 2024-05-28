@@ -31,7 +31,7 @@ namespace
 	
 	constexpr glm::vec4 clearColor = { 0.0f, 0.4f, 0.6f, 1.0f };
 	constexpr glm::vec4 snakeHeadColor = { 0.0f, 8.0f, 0.2f, 1.0f };
-	constexpr glm::vec4 snakeEatingHeadColor = { 0.0f, 8.0f, 0.2f, 1.0f };
+	constexpr glm::vec4 snakeEatingHeadColor = { 0.0f, 8.0f, 0.6f, 1.0f };
 	constexpr glm::vec4 snakeDeadHeadColor = { 1.0f, 0.0f, 0.0f, 1.0f };
 	constexpr glm::vec4 snakeTailColor = { 0.0f, 0.6f, 0.0f, 1.0f };
 	constexpr glm::vec4 snakeFoodColor = { 0.0f, 0.8f, 0.0f, 1.0f };
@@ -52,10 +52,11 @@ namespace Levels
 	public:
 		void setup()
 		{
-			Globals::Components().graphicsSettings().clearColor = clearColor;
-			Globals::Components().graphicsSettings().cullFace = false;
-			Globals::Components().graphicsSettings().lineWidth = 1.0f;
-			Globals::Components().camera3D().rotation = Components::Camera3D::LookAtRotation{};
+			auto& graphicsSettings = Globals::Components().graphicsSettings();
+
+			graphicsSettings.clearColor = clearColor;
+			graphicsSettings.cullFace = false;
+			graphicsSettings.lineWidth = 1.0f;
 
 #ifdef TEST
 			std::array<CM::StaticTexture, 6> testCubeTextures;
@@ -158,7 +159,7 @@ namespace Levels
 			lastSnakeStep = { 0, 0 };
 			up = { 0, 1 };
 			targetCameraUp = { 0, 1, 0 };
-			lenghteningLeft = 0;
+			lenghteningLeft = lenghtening;
 			foodPos = std::nullopt;
 
 			freeSpace.clear();
@@ -166,53 +167,47 @@ namespace Levels
 				for (int y = 0; y < boardSize; ++y)
 					for (int x = 0; x < boardSize; ++x)
 						freeSpace.insert({ x, y, z });
+			freeSpace.erase(snakeHead->first);
 
+			cameraSetup();
+			spawnFood();
 			drawSnake();
+			drawFood();
 		}
 
 		void gameplayStep()
 		{
 			const auto erasedEndPos = [&]() -> std::optional<glm::ivec3> {
-				if (lenghteningLeft == 0)
+				if (lenghteningLeft > 0)
 				{
-					const bool headOnly = snakeHead == snakeEnd;
-					if ((headOnly && snakeHead->second.type == SnakeNode::Type::EatingHead) ||
-						snakeEnd->second.type == SnakeNode::Type::Food)
-					{
-						lenghteningLeft = lenghtening - 1;
-						return std::nullopt;
-					}
-					const glm::ivec3 erasedPos = snakeEnd->first;
-					const SnakeNode::Type erasedType = snakeEnd->second.type;
-					auto newEnd = snakeEnd->second.next;
-					snakeNodes.erase(snakeEnd);
-					freeSpace.insert(erasedPos);
-					if (headOnly)
-					{
-						snakeEnd = snakeHead = snakeNodes.end();
-						return erasedPos;
-					}
-					newEnd->second.prev = snakeNodes.end();
-					snakeEnd = newEnd;
-					return erasedPos;
-				}
-				else
-				{
-					if (--lenghteningLeft == 0)
-						snakeEnd->second.type = SnakeNode::Type::Tail;
+					--lenghteningLeft;
 					return std::nullopt;
 				}
+				if (snakeEnd->second.type == SnakeNode::Type::Food)
+				{
+					lenghteningLeft = lenghtening - 1;
+					return std::nullopt;
+				}
+
+				auto pos = snakeEnd->first;
+				auto newEnd = snakeEnd->second.next;
+				freeSpace.insert(pos);
+				snakeNodes.erase(snakeEnd);
+				snakeEnd = newEnd;
+				snakeEnd->second.prev = snakeNodes.end();
+				return pos;
 			}();
 
-			lastSnakeStep = snakeStep(snakeDirection);
-			glm::ivec3 nextPos = (snakeHead == snakeNodes.end() ? *erasedEndPos : snakeHead->first) + glm::ivec3(lastSnakeStep, 0);
-			handleBorders(nextPos);
+			if (!erasedEndPos && lenghteningLeft == 0)
+				snakeEnd->second.type = SnakeNode::Type::Tail;
 
-			if (snakeHead != snakeNodes.end())
-				if (snakeHead->second.type == SnakeNode::Type::EatingHead)
-					snakeHead->second.type = SnakeNode::Type::Food;
-				else
-					snakeHead->second.type = SnakeNode::Type::Tail;
+			snakeHead->second.type = snakeHead->second.type == SnakeNode::Type::EatingHead
+				? SnakeNode::Type::Food
+				: SnakeNode::Type::Tail;
+
+			lastSnakeStep = snakeStep(snakeDirection);
+			glm::ivec3 nextPos = snakeHead->first + glm::ivec3(lastSnakeStep, 0);
+			handleBorders(nextPos);
 
 			auto it = snakeNodes.find(nextPos);
 			if (it == snakeNodes.end())
@@ -220,12 +215,10 @@ namespace Levels
 				const bool eating = foodPos && *foodPos == nextPos;
 				if (eating)
 					foodPos = std::nullopt;
-				snakeHead = snakeNodes.emplace(nextPos, SnakeNode{ eating ? SnakeNode::Type::EatingHead : SnakeNode::Type::Head, snakeHead, snakeNodes.end() }).first;
+				auto prevHead = snakeHead;
+				snakeHead = snakeNodes.emplace(nextPos, SnakeNode{ eating ? SnakeNode::Type::EatingHead : SnakeNode::Type::Head, prevHead, snakeNodes.end() }).first;
+				prevHead->second.next = snakeHead;
 				freeSpace.erase(nextPos);
-				if (snakeEnd == snakeNodes.end())
-					snakeEnd = snakeHead;
-				if (snakeHead->second.prev != snakeNodes.end())
-					snakeHead->second.prev->second.next = snakeHead;
 			}
 			else
 			{
@@ -236,13 +229,18 @@ namespace Levels
 
 			if (!foodPos)
 			{
-				auto it = std::next(freeSpace.begin(), rand() % freeSpace.size());
-				foodPos = *it;
-				freeSpace.erase(it);
+				spawnFood();
+				drawFood();
 			}
 
 			redrawSnake(erasedEndPos);
-			redrawFood();
+		}
+
+		void spawnFood()
+		{
+			auto it = std::next(freeSpace.begin(), rand() % freeSpace.size());
+			foodPos = *it;
+			freeSpace.erase(it);
 		}
 
 		void handleBorders(glm::ivec3& pos)
@@ -446,6 +444,9 @@ namespace Levels
 			cubeEditors[snakeHead->first[2]]->putColor(snakeHead->first, snakeNodeColors.at(snakeHead->second.type));
 			cubeTextures[snakeHead->first[2]].component->state = ComponentState::Changed;
 
+			cubeEditors[snakeEnd->first[2]]->putColor(snakeEnd->first, snakeNodeColors.at(snakeEnd->second.type));
+			cubeTextures[snakeEnd->first[2]].component->state = ComponentState::Changed;
+
 			auto snakeNeck = snakeHead->second.prev;
 			if (snakeNeck != snakeNodes.end())
 			{
@@ -454,7 +455,7 @@ namespace Levels
 			}
 		}
 
-		void redrawFood()
+		void drawFood()
 		{
 			if (foodPos)
 			{
@@ -477,20 +478,29 @@ namespace Levels
 				gameplayInit();
 		}
 
+		void cameraSetup() const
+		{
+			auto& camera = Globals::Components().camera3D();
+
+			camera.position = glm::vec3(0.0f, 0.0f, cameraDistance);
+			camera.rotation = Components::Camera3D::LookAtRotation{};
+		}
+
 		void cameraStep() const
 		{
-			const float cameraSpeed = 0.2f / moveDuration;
+			const float cameraPositionSpeed = 2.0f / (moveDuration * boardSize);
+			const float cameraUpSpeed = 5.0f / (moveDuration * boardSize);
 
 			const auto& physics = Globals::Components().physics();
 			auto& camera = Globals::Components().camera3D();
 			const glm::vec3 targetCameraPos = glm::normalize(cubeCoordToPos(snakeHead->first)) * cameraDistance;
 			const glm::vec3 interpolatedCameraPos = glm::mix(glm::vec3(camera.position), glm::vec3(targetCameraPos),
-				std::clamp(cameraSpeed * physics.frameDuration, 0.0f, 1.0f));
+				std::clamp(cameraPositionSpeed * physics.frameDuration, 0.0f, 1.0f));
 			camera.position = interpolatedCameraPos;
 
 			auto& cameraUp = std::get<Components::Camera3D::LookAtRotation>(camera.rotation).up;
-			const glm::vec3 interpolatedCameraUp = glm::mix(glm::vec3(cameraUp), glm::vec3(targetCameraUp),
-				std::clamp(cameraSpeed * physics.frameDuration, 0.0f, 1.0f));
+			const glm::vec3 interpolatedCameraUp = glm::normalize(glm::mix(glm::vec3(cameraUp), glm::vec3(targetCameraUp),
+				std::clamp(cameraUpSpeed * physics.frameDuration, 0.0f, 1.0f)));
 			cameraUp = interpolatedCameraUp;
 		}
 
