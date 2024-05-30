@@ -29,9 +29,9 @@ namespace ComponentMappers
 		Components::Texture* component = nullptr;
 		ComponentId componentId = 0;
 
-		glm::vec2 translate;
-		float rotate;
-		glm::vec2 scale;
+		glm::vec2 translate{};
+		float rotate{};
+		glm::vec2 scale{};
 
 		bool operator==(const StaticTexture&) const = default;
 	};
@@ -45,9 +45,9 @@ namespace ComponentMappers
 		Components::Texture* component = nullptr;
 		ComponentId componentId = 0;
 
-		glm::vec2 translate;
-		float rotate;
-		glm::vec2 scale;
+		glm::vec2 translate{};
+		float rotate{};
+		glm::vec2 scale{};
 
 		bool operator==(const DynamicTexture&) const = default;
 	};
@@ -61,9 +61,9 @@ namespace ComponentMappers
 		Components::AnimatedTexture* component = nullptr;
 		ComponentId componentId = 0;
 
-		glm::vec2 translate;
-		float rotate;
-		glm::vec2 scale;
+		glm::vec2 translate{};
+		float rotate{};
+		glm::vec2 scale{};
 
 		bool operator==(const StaticAnimatedTexture&) const = default;
 	};
@@ -77,9 +77,9 @@ namespace ComponentMappers
 		Components::AnimatedTexture* component = nullptr;
 		ComponentId componentId = 0;
 
-		glm::vec2 translate;
-		float rotate;
-		glm::vec2 scale;
+		glm::vec2 translate{};
+		float rotate{};
+		glm::vec2 scale{};
 
 		bool operator==(const DynamicAnimatedTexture&) const = default;
 	};
@@ -93,9 +93,9 @@ namespace ComponentMappers
 		Components::BlendingTexture* component = nullptr;
 		ComponentId componentId = 0;
 
-		glm::vec2 translate;
-		float rotate;
-		glm::vec2 scale;
+		glm::vec2 translate{};
+		float rotate{};
+		glm::vec2 scale{};
 
 		bool operator==(const StaticBlendingTexture&) const = default;
 	};
@@ -109,9 +109,9 @@ namespace ComponentMappers
 		Components::BlendingTexture* component = nullptr;
 		ComponentId componentId = 0;
 
-		glm::vec2 translate;
-		float rotate;
-		glm::vec2 scale;
+		glm::vec2 translate{};
+		float rotate{};
+		glm::vec2 scale{};
 
 		bool operator==(const DynamicBlendingTexture&) const = default;
 	};

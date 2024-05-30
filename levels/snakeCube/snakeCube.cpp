@@ -130,7 +130,7 @@ namespace Levels
 
 		struct SnakeNode
 		{
-			enum class Type { Head, DeadHead, EatingHead, Tail, Food } type;
+			enum class Type { Head, DeadHead, EatingHead, Tail, Food } type{};
 			SnakeNodes::iterator prev;
 			SnakeNodes::iterator next;
 		};
@@ -440,11 +440,11 @@ namespace Levels
 			}
 		}
 
-		void redrawSnake(std::optional<glm::ivec3> erasedEndPos)
+		void redrawSnake(const std::optional<glm::ivec3>& erasedEndPos)
 		{
 			if (erasedEndPos)
 			{
-				const auto pos = *erasedEndPos;
+				const auto& pos = *erasedEndPos;
 				cubeEditors[pos[2]]->putColor(pos, cubeColor);
 				cubeTextures[pos[2]].component->state = ComponentState::Changed;
 			}
@@ -569,13 +569,13 @@ namespace Levels
 		SnakeNodes snakeNodes;
 		SnakeNodes::iterator snakeHead;
 		SnakeNodes::iterator snakeEnd;
-		SnakeDirection snakeDirection;
-		glm::ivec2 lastSnakeStep;
-		glm::ivec2 up;
-		glm::ivec3 targetCameraUp;
-		int lenghteningLeft;
+		SnakeDirection snakeDirection{};
+		glm::ivec2 lastSnakeStep{};
+		glm::ivec2 up{};
+		glm::ivec3 targetCameraUp{};
+		int lenghteningLeft{};
 		std::optional<glm::ivec3> foodPos;
-		int score;
+		int score{};
 
 		std::unordered_set<glm::ivec3> freeSpace;
 	};

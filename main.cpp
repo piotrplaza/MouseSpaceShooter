@@ -326,7 +326,7 @@ static LRESULT CALLBACK WndProc(
 			break;
 		case WM_INPUT:
 		{
-			RAWINPUT raw;
+			RAWINPUT raw{};
 			unsigned size = sizeof(RAWINPUT);
 			GetRawInputData((HRAWINPUT)lParam, RID_INPUT, &raw, &size, sizeof(RAWINPUTHEADER));
 
@@ -368,7 +368,7 @@ static void SetDCPixelFormat(HDC hDC)
 
 static void RegisterRawInputDevices(HWND hWnd)
 {
-	RAWINPUTDEVICE rid;
+	RAWINPUTDEVICE rid{};
 	rid.usUsagePage = HID_USAGE_PAGE_GENERIC;
 	rid.usUsage = HID_USAGE_GENERIC_MOUSE;
 	rid.dwFlags = RIDEV_INPUTSINK;
