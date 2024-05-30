@@ -21,21 +21,25 @@
 #include <list>
 #include <unordered_set>
 
+#include <iostream>
+
 //#define TEST
 
 namespace
 {
-	constexpr int boardSize = 9;
-	constexpr float moveDuration = 0.2f;
-	constexpr int lenghtening = 10;
+	constexpr int boardSize = 21;
+	constexpr float moveDuration = 0.1f;
+	constexpr int lenghtening = 80;
 	
 	constexpr glm::vec4 clearColor = { 0.0f, 0.4f, 0.6f, 1.0f };
-	constexpr glm::vec4 snakeHeadColor = { 0.0f, 8.0f, 0.2f, 1.0f };
-	constexpr glm::vec4 snakeEatingHeadColor = { 0.0f, 8.0f, 0.6f, 1.0f };
-	constexpr glm::vec4 snakeDeadHeadColor = { 1.0f, 0.0f, 0.0f, 1.0f };
+	constexpr glm::vec4 snakeHeadColor = { 0.0f, 0.8f, 0.6f, 1.0f };
+	constexpr glm::vec4 snakeEatingHeadColor = { 0.0f, 1.0f, 0.8f, 1.0f };
+	constexpr glm::vec4 snakeDeadHeadColor = { 0.8f, 0.0f, 0.0f, 1.0f };
+	constexpr glm::vec4 snakeHeadSphereColor = { 0.4f, 0.0f, 0.0f, 1.0f };
 	constexpr glm::vec4 snakeTailColor = { 0.0f, 0.6f, 0.0f, 1.0f };
 	constexpr glm::vec4 snakeFoodColor = { 0.0f, 0.8f, 0.0f, 1.0f };
-	constexpr glm::vec4 foodColor = { 0.0f, 0.8f, 0.4f, 1.0f };
+	constexpr glm::vec4 foodColor = { 0.0f, 1.0f, 0.0f, 1.0f };
+	constexpr glm::vec4 wiredCubeColor = { 0.0f, 1.0f, 1.0f, 1.0f };
 #ifndef TEST
 	constexpr glm::vec4 cubeColor = { 0.0f, 0.0f, 0.0f, 0.0f };
 #else
@@ -74,15 +78,15 @@ namespace Levels
 			}
 
 			Shapes3D::CreateCuboid(Globals::Components().staticDecorations(), cubeTextures, glm::vec3(cubeHSize));
-			Shapes3D::AddWiredCuboid(Globals::Components().staticDecorations().emplace(), glm::vec3(cubeHSize - 0.001f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+			Shapes3D::AddWiredCuboid(Globals::Components().staticDecorations().emplace(), glm::vec3(cubeHSize - 0.001f), wiredCubeColor);
 
 #ifdef TEST
 			auto cuboidWalls = Shapes3D::CreateCuboid(Globals::Components().staticDecorations(), testCubeTextures, glm::vec3(cubeHSize) + 0.001f);
 			for (auto* wall : cuboidWalls)
 				wall->colorF = []() { return glm::vec4(0.2f); };
 #endif
-			Shapes3D::AddSphere(Globals::Components().staticDecorations().emplace(), 0.02f, 20, 20, nullptr, false);
-			Globals::Components().staticDecorations().last().colorF = []() { return glm::vec4(0.0f, 0.0f, 1.0f, 1.0f); };
+			Shapes3D::AddSphere(Globals::Components().staticDecorations().emplace(), 0.2f / boardSize, 20, 20, nullptr, false);
+			Globals::Components().staticDecorations().last().colorF = []() { return snakeHeadSphereColor; };
 			Globals::Components().staticDecorations().last().modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), cubeCoordToPos(snakeHead->first)); };
 
 			Globals::Components().stepSetups().emplace([this]() {
@@ -161,6 +165,7 @@ namespace Levels
 			targetCameraUp = { 0, 1, 0 };
 			lenghteningLeft = lenghtening;
 			foodPos = std::nullopt;
+			score = 0;
 
 			freeSpace.clear();
 			for (int z = 0; z < 6; ++z)
@@ -214,7 +219,10 @@ namespace Levels
 			{
 				const bool eating = foodPos && *foodPos == nextPos;
 				if (eating)
+				{
 					foodPos = std::nullopt;
+					std::cout << ++score << std::endl;
+				}
 				auto prevHead = snakeHead;
 				snakeHead = snakeNodes.emplace(nextPos, SnakeNode{ eating ? SnakeNode::Type::EatingHead : SnakeNode::Type::Head, prevHead, snakeNodes.end() }).first;
 				prevHead->second.next = snakeHead;
@@ -444,7 +452,9 @@ namespace Levels
 			cubeEditors[snakeHead->first[2]]->putColor(snakeHead->first, snakeNodeColors.at(snakeHead->second.type));
 			cubeTextures[snakeHead->first[2]].component->state = ComponentState::Changed;
 
-			cubeEditors[snakeEnd->first[2]]->putColor(snakeEnd->first, snakeNodeColors.at(snakeEnd->second.type));
+			cubeEditors[snakeEnd->first[2]]->putColor(snakeEnd->first, snakeEnd->second.type == SnakeNode::Type::Food
+				? glm::mix(snakeNodeColors.at(SnakeNode::Type::Tail), snakeNodeColors.at(SnakeNode::Type::Food), (float)((lenghteningLeft == 0 ? lenghtening : lenghteningLeft)) / lenghtening)
+				: snakeNodeColors.at(snakeEnd->second.type));
 			cubeTextures[snakeEnd->first[2]].component->state = ComponentState::Changed;
 
 			auto snakeNeck = snakeHead->second.prev;
@@ -565,6 +575,7 @@ namespace Levels
 		glm::ivec3 targetCameraUp;
 		int lenghteningLeft;
 		std::optional<glm::ivec3> foodPos;
+		int score;
 
 		std::unordered_set<glm::ivec3> freeSpace;
 	};

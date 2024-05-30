@@ -90,7 +90,7 @@ static void InitOGL()
 static void InitEngine()
 {
 	if (console)
-		Tools::RedirectIOToConsole({ 1930, 10 });
+		Tools::RedirectIOToConsole({ 3850, 10 });
 	Tools::RandomInit();
 	InitOGL();
 	int sdlInitResult = SDL_Init(SDL_INIT_GAMECONTROLLER);
