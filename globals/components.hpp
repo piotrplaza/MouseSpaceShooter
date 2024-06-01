@@ -24,7 +24,6 @@ namespace Components
 	struct Music;
 	struct SoundBuffer;
 	struct Sound;
-	struct RenderingSetup;
 	struct Plane;
 	struct Wall;
 	struct Grapple;
@@ -74,7 +73,6 @@ namespace Globals
 		StaticComponents<Components::Music>& musics();
 		StaticComponents<Components::SoundBuffer>& soundsBuffers();
 		DynamicComponents<Components::Sound>& sounds();
-		StaticComponents<Components::RenderingSetup>& renderingSetups();
 		DynamicComponents<Components::Plane>& planes();
 		StaticComponents<Components::Wall>& staticWalls();
 		DynamicComponents<Components::Wall>& dynamicWalls();
@@ -122,7 +120,6 @@ namespace Globals
 		std::unique_ptr<StaticComponents<Components::Music>> musics_ = std::make_unique<StaticComponents<Components::Music>>();
 		std::unique_ptr<StaticComponents<Components::SoundBuffer>> soundsBuffers_ = std::make_unique<StaticComponents<Components::SoundBuffer>>();
 		std::unique_ptr<DynamicComponents<Components::Sound>> sounds_ = std::make_unique<DynamicComponents<Components::Sound>>();
-		std::unique_ptr<StaticComponents<Components::RenderingSetup>> renderingSetups_ = std::make_unique<StaticComponents<Components::RenderingSetup>>();
 		std::unique_ptr<DynamicComponents<Components::Plane>> planes_ = std::make_unique<DynamicComponents<Components::Plane>>();
 		std::unique_ptr<StaticComponents<Components::Wall>> staticWalls_ = std::make_unique<StaticComponents<Components::Wall>>();
 		std::unique_ptr<DynamicComponents<Components::Wall>> dynamicWalls_ = std::make_unique<DynamicComponents<Components::Wall>>();

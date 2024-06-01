@@ -281,7 +281,14 @@ namespace Tools
 				angle = 0.0f;
 			}
 
-			glDisable(GL_BLEND);
+			const bool blendEnabled = glIsEnabled(GL_BLEND);
+			const bool cullFaceEnabled = glIsEnabled(GL_CULL_FACE);
+
+			if (blendEnabled)
+				glDisable(GL_BLEND);
+			if (cullFaceEnabled)
+				glDisable(GL_CULL_FACE);
+
 			Tools::TexturedScreenRender(shadersProgram, textureId, [&]()
 				{
 					shadersProgram.vp(vp);
@@ -300,7 +307,11 @@ namespace Tools
 
 					return std::array<glm::vec3, 6>{ p1, p2, p3, p3, p2, p4 };
 				});
-			glEnable(GL_BLEND);
+
+			if (blendEnabled)
+				glEnable(GL_BLEND);
+			if (cullFaceEnabled)
+				glEnable(GL_CULL_FACE);
 		};
 	}
 

@@ -14,10 +14,10 @@ namespace Components
 		Decoration(std::vector<glm::vec3> vertices = {},
 			AbstractTextureComponentVariant texture = std::monostate{},
 			std::vector<glm::vec2> texCoord = {},
-			std::optional<ComponentId> renderingSetup = std::nullopt,
+			RenderingSetupF renderingSetupF = nullptr,
 			RenderLayer renderLayer = RenderLayer::NearMidground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt) :
-			Renderable(texture, renderingSetup, renderLayer, customShadersProgram, std::move(vertices), std::move(texCoord))
+			Renderable(texture, std::move(renderingSetupF), renderLayer, customShadersProgram, std::move(vertices), std::move(texCoord))
 		{
 		}
 	};

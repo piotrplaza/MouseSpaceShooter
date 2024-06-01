@@ -2,7 +2,6 @@
 
 #include <components/screenInfo.hpp>
 #include <components/physics.hpp>
-#include <components/renderingSetup.hpp>
 #include <components/plane.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>

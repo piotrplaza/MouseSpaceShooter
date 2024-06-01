@@ -1,7 +1,6 @@
 #pragma once
 
 #include <components/_renderable.hpp>
-#include <components/renderingSetup.hpp>
 
 #include <globals/components.hpp>
 
@@ -101,8 +100,8 @@ namespace Buffers
 				generalSetup(buffers);
 
 				std::function<void()> renderingTeardown;
-				if (buffers.renderable->renderingSetup)
-					renderingTeardown = Globals::Components().renderingSetups()[*buffers.renderable->renderingSetup](programId);
+				if (buffers.renderable->renderingSetupF)
+					renderingTeardown = buffers.renderable->renderingSetupF(programId);
 
 				if (isInstancingActive())
 				{

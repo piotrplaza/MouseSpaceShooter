@@ -15,10 +15,10 @@ struct Physical : Renderable
 
 	Physical(Body body,
 		AbstractTextureComponentVariant texture,
-		std::optional<ComponentId> renderingSetup,
+		RenderingSetupF renderingSetupF,
 		RenderLayer renderLayer,
 		std::optional<Shaders::ProgramId> customShadersProgram) :
-		Renderable(texture, renderingSetup, renderLayer, customShadersProgram),
+		Renderable(texture, std::move(renderingSetupF), renderLayer, customShadersProgram),
 		body(std::move(body))
 	{
 		modelMatrixF = [this]() { return Tools::GetModelMatrix(*this->body); };

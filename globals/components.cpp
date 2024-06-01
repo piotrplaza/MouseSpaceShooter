@@ -14,7 +14,6 @@
 #include <components/music.hpp>
 #include <components/soundBuffer.hpp>
 #include <components/sound.hpp>
-#include <components/renderingSetup.hpp>
 #include <components/plane.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
@@ -153,11 +152,6 @@ namespace Globals
 	DynamicComponents<Components::Sound>& ComponentsHolder::sounds()
 	{
 		return *sounds_;
-	}
-
-	StaticComponents<Components::RenderingSetup>& ComponentsHolder::renderingSetups()
-	{
-		return *renderingSetups_;
 	}
 
 	DynamicComponents<Components::Plane>& ComponentsHolder::planes()

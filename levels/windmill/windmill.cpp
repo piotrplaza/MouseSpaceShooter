@@ -10,7 +10,6 @@
 #include <components/grapple.hpp>
 #include <components/polyline.hpp>
 #include <components/decoration.hpp>
-#include <components/renderingSetup.hpp>
 #include <components/physics.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/deferredAction.hpp>
@@ -56,8 +55,7 @@ namespace Levels
 		{
 			Globals::Components().graphicsSettings().defaultColor = { 0.7f, 0.7f, 0.7f, 1.0f };
 
-			recursiveFaceRS = Globals::Components().renderingSetups().size();
-			Globals::Components().renderingSetups().emplace([
+			recursiveFaceRSF = [
 				this,
 				visibilityReduction = Uniforms::Uniform1b(),
 				visibilityCenter = Uniforms::Uniform2f(),
@@ -80,7 +78,7 @@ namespace Levels
 				return [=]() mutable {
 					visibilityReduction(false);
 				};
-			});
+			};
 		}
 
 		void loadTextures()
@@ -190,7 +188,7 @@ namespace Levels
 			auto& staticDecorations = Globals::Components().staticDecorations();
 
 			staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 15.0f, 15.0f }),
-				CM::StaticAnimatedTexture(recursiveFaceAnimatedTexture), Shapes2D::CreateTexCoordOfRectangle(), recursiveFaceRS, RenderLayer::NearForeground);
+				CM::StaticAnimatedTexture(recursiveFaceAnimatedTexture), Shapes2D::CreateTexCoordOfRectangle(), std::move(recursiveFaceRSF), RenderLayer::NearForeground);
 			staticDecorations.last().modelMatrixF = [&, angle = 0.0f]() mutable {
 				return glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(innerForceScale)), angle += 2.0f * physics.frameDuration, { 0.0f, 0.0f, 1.0f });
 			};
@@ -505,7 +503,7 @@ namespace Levels
 
 		const float emissionInterval = 10.0f;
 
-		ComponentId recursiveFaceRS = 0;
+		RenderableDef::RenderingSetupF recursiveFaceRSF;
 
 		std::array<ComponentId, 4> planeTextures{ 0 };
 		ComponentId spaceRockTexture = 0;

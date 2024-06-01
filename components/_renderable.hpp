@@ -58,12 +58,12 @@ struct Renderable : ComponentBase, RenderableDef
 	Renderable() = default;
 
 	Renderable(AbstractTextureComponentVariant texture,
-		std::optional<ComponentId> renderingSetup,
+		RenderingSetupF renderingSetupF,
 		RenderLayer renderLayer,
 		std::optional<Shaders::ProgramId> customShadersProgram,
 		std::vector<glm::vec3> vertices = {},
 		std::vector<glm::vec2> texCoord = {}):
-		RenderableDef(std::move(vertices), std::move(texCoord), texture, renderingSetup),
+		RenderableDef(std::move(vertices), std::move(texCoord), texture, std::move(renderingSetupF)),
 		renderLayer(renderLayer),
 		customShadersProgram(customShadersProgram)
 	{

@@ -7,7 +7,6 @@
 #include <components/decoration.hpp>
 #include <components/missile.hpp>
 #include <components/shockwave.hpp>
-#include <components/renderingSetup.hpp>
 #include <components/mvp.hpp>
 #include <components/camera2D.hpp>
 #include <components/screenInfo.hpp>
@@ -123,7 +122,7 @@ namespace Tools
 			auto& planeDecoration = plane.subsequence.emplace_back(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }), std::vector<glm::vec2>{},
 				CM::StaticAnimatedTexture(thrustAnimatedTexture));
 
-			Globals::Components().renderingSetups().emplace([&, i,
+			planeDecoration.renderingSetupF = [&, i,
 				modelUniform = Uniforms::UniformMat4f(),
 				thrust = 1.0f,
 				thrustAnimatedTexture,
@@ -152,9 +151,7 @@ namespace Tools
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 					return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
-				});
-
-			planeDecoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
+				};
 		}
 
 		return plane.getComponentId();
@@ -175,21 +172,20 @@ namespace Tools
 		missile.texture = CM::StaticTexture(missileTexture);
 		missile.preserveTextureRatio = true;
 
-		Globals::Components().renderingSetups().emplace([
+		missile.renderingSetupF = [
 			modelUniform = Uniforms::UniformMat4f(), &body](Shaders::ProgramId program) mutable
 			{
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
 				modelUniform(Tools::GetModelMatrix(body));
 				return nullptr;
-			});
+			};
 
-		missile.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 		missile.renderLayer = RenderLayer::FarMidground;
 
 		auto& decoration = Globals::Components().dynamicDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
 			CM::StaticAnimatedTexture(thrustAnimatedTexture), Shapes2D::CreateTexCoordOfRectangle());
 
-		Globals::Components().renderingSetups().emplace([&, modelUniform = Uniforms::UniformMat4f(),
+		decoration.renderingSetupF = [&, modelUniform = Uniforms::UniformMat4f(),
 			thrustScale = 0.1f
 		](Shaders::ProgramId program) mutable {
 				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
@@ -204,9 +200,8 @@ namespace Tools
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
-			});
+			};
 
-		decoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 		decoration.renderLayer = RenderLayer::FarMidground;
 
 		std::optional<ComponentId> soundId;
@@ -237,7 +232,7 @@ namespace Tools
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 
-			Globals::Components().renderingSetups().emplace([=, startTime = Globals::Components().physics().simulationDuration,
+			explosionDecoration.renderingSetupF = [=, startTime = Globals::Components().physics().simulationDuration,
 				&particlesShaders](Shaders::ProgramId program) mutable
 				{
 					particlesShaders.vp(Globals::Components().mvp2D().getVP());
@@ -249,9 +244,8 @@ namespace Tools
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 					return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
-				});
+				};
 
-			explosionDecoration.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 			explosionDecoration.renderLayer = RenderLayer::FarForeground;
 
 			Globals::Components().deferredActions().emplace([=, startTime = Globals::Components().physics().simulationDuration, &shockwave, &explosionDecoration](float) {
@@ -289,7 +283,7 @@ namespace Tools
 		for (int posYI = -1; posYI <= 1; ++posYI)
 		for (int posXI = -1; posXI <= 1; ++posXI)
 		{
-			Globals::Components().renderingSetups().emplace([=, texturedProgram = Shaders::Programs::TexturedAccessor()
+			auto renderingSetupF = [=, texturedProgram = Shaders::Programs::TexturedAccessor()
 			](Shaders::ProgramId program) mutable {
 				if (!texturedProgram.isValid()) texturedProgram = program;
 				texturedProgram.vp(glm::translate(glm::scale(Globals::Components().mvp2D().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
@@ -302,10 +296,10 @@ namespace Tools
 					texturedProgram.vp(Globals::Components().mvp2D().getVP());
 					glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 				};
-			});
+			};
 
 			Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
-				CM::StaticTexture(fogTexture), Shapes2D::CreateTexCoordOfRectangle(), Globals::Components().renderingSetups().size() - 1).renderLayer = RenderLayer::Foreground;
+				CM::StaticTexture(fogTexture), Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF)).renderLayer = RenderLayer::Foreground;
 			Globals::Components().staticDecorations().last().resolutionMode = ResolutionMode::LowestLinearBlend1;
 		}
 	}
@@ -316,18 +310,16 @@ namespace Tools
 		auto& background = Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
 		background.customShadersProgram = juliaShaders.getProgramId();
 
-		Globals::Components().renderingSetups().emplace([=, &juliaShaders, &screenInfo = Globals::Components().screenInfo()
-			](auto) mutable {
-				juliaShaders.vp(glm::translate(glm::scale(glm::mat4(1.0f),
-					glm::vec3(1.0f / screenInfo.getAspectRatio(), 1.0f, 1.0f) * 1.5f),
-					glm::vec3(-Globals::Components().camera2D().details.prevPosition * 0.005f, 0.0f)));
-				juliaShaders.juliaCOffset(juliaCOffset());
-				juliaShaders.minColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-				juliaShaders.maxColor({ 0, 0.1f, 0.2f, 1.0f });
-				return nullptr;
-			});
+		background.renderingSetupF = [=, &juliaShaders, &screenInfo = Globals::Components().screenInfo()](auto) mutable {
+			juliaShaders.vp(glm::translate(glm::scale(glm::mat4(1.0f),
+				glm::vec3(1.0f / screenInfo.getAspectRatio(), 1.0f, 1.0f) * 1.5f),
+				glm::vec3(-Globals::Components().camera2D().details.prevPosition * 0.005f, 0.0f)));
+			juliaShaders.juliaCOffset(juliaCOffset());
+			juliaShaders.minColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+			juliaShaders.maxColor({ 0, 0.1f, 0.2f, 1.0f });
+			return nullptr;
+		};
 
-		background.renderingSetup = Globals::Components().renderingSetups().size() - 1;
 		background.renderLayer = RenderLayer::Background;
 		background.resolutionMode = ResolutionMode::LowerLinearBlend1;
 	}

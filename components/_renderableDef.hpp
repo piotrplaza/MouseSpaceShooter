@@ -23,6 +23,8 @@ namespace Buffers
 
 struct RenderableDef
 {
+	using RenderingSetupF = std::function<std::function<void()>(Shaders::ProgramId)>;
+
 	struct Params3D
 	{
 		Params3D& addNormals(const std::vector<glm::vec3>& value)
@@ -102,11 +104,11 @@ struct RenderableDef
 	RenderableDef(std::vector<glm::vec3> vertices,
 		std::vector<glm::vec2> texCoord = {},
 		AbstractTextureComponentVariant texture = std::monostate{},
-		std::optional<ComponentId> renderingSetup = std::nullopt) :
+		RenderingSetupF renderingSetupF = nullptr) :
 		vertices(std::move(vertices)),
 		texCoord(std::move(texCoord)),
 		texture(texture),
-		renderingSetup(renderingSetup)
+		renderingSetupF(std::move(renderingSetupF))
 	{
 	}
 
@@ -115,11 +117,11 @@ struct RenderableDef
 	std::vector<glm::vec2> texCoord;
 	std::vector<unsigned> indices;
 
+	RenderingSetupF renderingSetupF;
 	std::function<glm::mat4()> modelMatrixF = []() { return glm::mat4(1.0f); };
 	std::function<glm::vec3()> originF = [&]() { return modelMatrixF() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); };
 	std::function<glm::vec4()> colorF;
 	AbstractTextureComponentVariant texture;
-	std::optional<ComponentId> renderingSetup;
 	std::optional<Params3D> params3D;
 
 	GLenum drawMode = GL_TRIANGLES;

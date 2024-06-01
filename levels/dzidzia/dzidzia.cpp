@@ -7,7 +7,6 @@
 #include <components/decoration.hpp>
 #include <components/keyboard.hpp>
 #include <components/mouse.hpp>
-#include <components/renderingSetup.hpp>
 
 #include <systems/decorations.hpp>
 
@@ -59,11 +58,10 @@ namespace Levels
 		void createDecorations()
 		{
 			auto& staticDecorations = Globals::Components().staticDecorations();
-			auto& renderingSetups = Globals::Components().renderingSetups();
 
 			auto pos = std::make_shared<glm::vec2>(0.0f);
 
-			renderingSetups.emplace([
+			auto renderigSetupF = [
 				visibilityReduction = Uniforms::Uniform1b(),
 				visibilityCenter = Uniforms::Uniform2f(),
 				fullVisibilityDistance = Uniforms::Uniform1f(),
@@ -86,10 +84,10 @@ namespace Levels
 				return [=]() mutable {
 					visibilityReduction(false);
 				};
-			});
+			};
 
 			staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.0f, 5.0f }),
-				CM::StaticTexture(dzidziaITata1Texture), Shapes2D::CreateTexCoordOfRectangle(), renderingSetups.size() - 1).preserveTextureRatio = true;
+				CM::StaticTexture(dzidziaITata1Texture), Shapes2D::CreateTexCoordOfRectangle(), std::move(renderigSetupF)).preserveTextureRatio = true;
 			staticDecorations.last().modelMatrixF = [pos, step = glm::vec2(5.0f)]() mutable {
 				const auto& screenInfo = Globals::Components().screenInfo();
 				const glm::vec2 absClamp = { screenInfo.getAspectRatio() * 10.0f, 10.0f };

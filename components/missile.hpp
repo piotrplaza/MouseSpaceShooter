@@ -12,10 +12,10 @@ namespace Components
 		Missile(Body body,
 			float thrustForce = 5.0f,
 			AbstractTextureComponentVariant texture = std::monostate{},
-			std::optional<ComponentId> renderingSetup = std::nullopt,
+			RenderingSetupF renderingSetupF = nullptr,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			Physical(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram),
+			Physical(std::move(body), texture, std::move(renderingSetupF), renderLayer, customShadersProgram),
 			thrustForce(thrustForce)
 		{
 		}

@@ -7,7 +7,6 @@
 #include <components/wall.hpp>
 #include <components/decoration.hpp>
 #include <components/collisionHandler.hpp>
-#include <components/renderingSetup.hpp>
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
 
@@ -40,8 +39,7 @@ namespace Levels
 		{
 			Globals::Components().graphicsSettings().defaultColor = { 0.7f, 0.7f, 0.7f, 1.0f };
 
-			sceneCoordTexturesRS = Globals::Components().renderingSetups().size();
-			Globals::Components().renderingSetups().emplace([
+			sceneCoordTexturesRSF = [
 				sceneCoordTextures = Uniforms::Uniform1b()
 			](Shaders::ProgramId program) mutable {
 				if (!sceneCoordTextures.isValid())
@@ -50,13 +48,11 @@ namespace Levels
 				sceneCoordTextures(true);
 
 				return [=]() mutable { sceneCoordTextures(false); };
-			});
-
-			recursiveFaceRSBegin = Globals::Components().renderingSetups().size();
+			};
 
 			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
 			{
-				Globals::Components().renderingSetups().emplace([
+				recursiveFaceRSsF[i] = [
 					modelMatrix = Uniforms::UniformMat4f(),
 					color = Uniforms::Uniform4f(),
 					visibilityReduction = Uniforms::Uniform1b(),
@@ -110,7 +106,7 @@ namespace Levels
 						color(glm::vec4(1.0f));
 						visibilityReduction(false);
 					};
-				});
+				};
 			}
 		}
 
@@ -185,7 +181,7 @@ namespace Levels
 				const glm::vec2 pos1(glm::cos(i * rimStep) * rimRadius, glm::sin(i * rimStep) * rimRadius);
 				const glm::vec2 pos2(glm::cos((i + 1) * rimStep) * rimRadius, glm::sin((i + 1) * rimStep) * rimRadius);
 				staticWalls.emplace(Tools::CreateBoxBody({ rimHThickness, rimSegmentHLength + rimSegmentMariginsHLength },
-					Tools::BodyParams().position((pos1 + pos2) / 2.0f).angle(rimStep * (2 * i + 1) / 2).bodyType(b2_dynamicBody).density(0.01f)), CM::StaticTexture(mosaicTexture), sceneCoordTexturesRS);
+					Tools::BodyParams().position((pos1 + pos2) / 2.0f).angle(rimStep * (2 * i + 1) / 2).bodyType(b2_dynamicBody).density(0.01f)), CM::StaticTexture(mosaicTexture), sceneCoordTexturesRSF);
 				staticWalls.last().texCoord = staticWalls.last().getTexCoords(true);
 
 				if (i > 0)
@@ -204,21 +200,21 @@ namespace Levels
 			{
 				staticWalls.emplace(Tools::CreateBoxBody({ borderHThickness, borderHSize.y + borderHThickness * 2.0f },
 					Tools::BodyParams().position({ (borderHSize.x + borderHThickness) * sign, 0.0f })), CM::StaticTexture(spaceRockTexture),
-					sceneCoordTexturesRS).colorF = []() { return glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); };
+					sceneCoordTexturesRSF).colorF = []() { return glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); };
 				staticWalls.emplace(Tools::CreateBoxBody({ borderHSize.x + borderHThickness * 2.0f, borderHThickness },
 					Tools::BodyParams().position({ 0.0f, (borderHSize.y + borderHThickness) * sign })), CM::StaticTexture(spaceRockTexture),
-					sceneCoordTexturesRS).colorF = []() { return glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); };
+					sceneCoordTexturesRSF).colorF = []() { return glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); };
 			}
 		}
 
-		void createAdditionalDecorations() const
+		void createAdditionalDecorations()
 		{
 			auto& staticDecorations = Globals::Components().staticDecorations();
 
 			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
 			{
 				staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }),
-					CM::StaticAnimatedTexture(recursiveFaceAnimatedTextureBegin + i), Shapes2D::CreateTexCoordOfRectangle(), recursiveFaceRSBegin + i, RenderLayer::NearBackground);
+					CM::StaticAnimatedTexture(recursiveFaceAnimatedTextureBegin + i), Shapes2D::CreateTexCoordOfRectangle(), std::move(recursiveFaceRSsF[i]), RenderLayer::NearBackground);
 			}
 		}
 
@@ -303,16 +299,16 @@ namespace Levels
 			if (mouse.pressed.xmb1 || gamepad.pressed.lShoulder)
 				for (unsigned i = rimWallBegin; i < rimWallEnd; ++i)
 				{
-					auto& renderingSetup = Globals::Components().staticWalls()[i].renderingSetup;
-					renderingSetup = renderingSetup
-						? std::nullopt
-						: std::optional(sceneCoordTexturesRS);
+					auto& renderingSetupF = Globals::Components().staticWalls()[i].renderingSetupF;
+					renderingSetupF = renderingSetupF
+						? nullptr
+						: sceneCoordTexturesRSF;
 				}
 		}
 
 	private:
-		unsigned sceneCoordTexturesRS = 0;
-		unsigned recursiveFaceRSBegin = 0;
+		RenderableDef::RenderingSetupF sceneCoordTexturesRSF;
+		std::array<RenderableDef::RenderingSetupF, numOfRecursiveFaces> recursiveFaceRSsF;
 
 		unsigned plane1Texture = 0;
 		unsigned spaceRockTexture = 0;

@@ -71,7 +71,7 @@ namespace Levels
 		void createBackground() const
 		{
 			Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 100.0f, 60.0f }),
-				CM::StaticTexture(playFieldTexture), Shapes2D::CreateTexCoordOfRectangle(), std::nullopt, RenderLayer::Background);
+				CM::StaticTexture(playFieldTexture), Shapes2D::CreateTexCoordOfRectangle(), nullptr, RenderLayer::Background);
 		}
 
 		void createPlayers()

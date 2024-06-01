@@ -14,20 +14,20 @@ namespace Components
 	{
 		Polyline(const std::vector<glm::vec2>& vertices,
 			Tools::BodyParams bodyParams = Tools::BodyParams{},
-			std::optional<ComponentId> renderingSetup = std::nullopt,
+			RenderingSetupF renderingSetupF = nullptr,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt) :
-			Physical(Tools::CreatePolylineBody(vertices, bodyParams), std::monostate{}, renderingSetup, renderLayer, customShadersProgram)
+			Physical(Tools::CreatePolylineBody(vertices, bodyParams), std::monostate{}, std::move(renderingSetupF), renderLayer, customShadersProgram)
 		{
 			drawMode = GL_LINE_STRIP;
 			bufferDataUsage = GL_DYNAMIC_DRAW;
 		}
 
 		Polyline(Tools::BodyParams bodyParams = Tools::BodyParams{},
-			std::optional<ComponentId> renderingSetup = std::nullopt,
+			RenderingSetupF renderingSetupF = nullptr,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt) :
-			Physical(Tools::CreateEmptyBody(bodyParams), std::monostate{}, renderingSetup, renderLayer, customShadersProgram)
+			Physical(Tools::CreateEmptyBody(bodyParams), std::monostate{}, std::move(renderingSetupF), renderLayer, customShadersProgram)
 		{
 			drawMode = GL_LINE_STRIP;
 			bufferDataUsage = GL_DYNAMIC_DRAW;

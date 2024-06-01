@@ -10,10 +10,10 @@ namespace Components
 	{
 		Wall(Body body,
 			AbstractTextureComponentVariant texture = std::monostate{},
-			std::optional<ComponentId> renderingSetup = std::nullopt,
+			RenderingSetupF renderingSetupF = nullptr,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
-			Physical(std::move(body), texture, renderingSetup, renderLayer, customShadersProgram)
+			Physical(std::move(body), texture, std::move(renderingSetupF), renderLayer, customShadersProgram)
 		{
 		}
 
