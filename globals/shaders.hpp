@@ -11,6 +11,7 @@ namespace Shaders::Programs
 	struct Particles;
 	struct Textured;
 	struct TexturedColorThreshold;
+	struct Noise;
 }
 
 namespace Globals
@@ -25,6 +26,7 @@ namespace Globals
 		Shaders::Programs::Particles& particles();
 		Shaders::Programs::Textured& textured();
 		Shaders::Programs::TexturedColorThreshold& texturedColorThreshold();
+		Shaders::Programs::Noise& noise();
 
 		void frameSetup();
 
@@ -36,6 +38,7 @@ namespace Globals
 		std::unique_ptr<Shaders::Programs::Particles> particles_ = std::make_unique<Shaders::Programs::Particles>();
 		std::unique_ptr<Shaders::Programs::Textured> textured_ = std::make_unique<Shaders::Programs::Textured>();
 		std::unique_ptr<Shaders::Programs::TexturedColorThreshold> texturedColorThreshold_ = std::make_unique<Shaders::Programs::TexturedColorThreshold>();
+		std::unique_ptr<Shaders::Programs::Noise> noise_ = std::make_unique<Shaders::Programs::Noise>();
 	};
 
 	void InitializeShaders();

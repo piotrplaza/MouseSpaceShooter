@@ -125,6 +125,12 @@
     <Filter Include="src\levels\snakeCube">
       <UniqueIdentifier>{fcb9b318-2bc0-4b65-9e52-c61bba4b76c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ogl\shaders\noise">
+      <UniqueIdentifier>{be098597-1969-4dc7-a274-051dec88f29d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\levels\noise">
+      <UniqueIdentifier>{8891532d-36ab-48c3-b997-7dcc3274f69f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -318,6 +324,9 @@
     </ClCompile>
     <ClCompile Include="levels\snakeCube\snakeCube.cpp">
       <Filter>src\levels\snakeCube</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\noise\noise.cpp">
+      <Filter>src\levels\noise</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -666,6 +675,12 @@
     <ClInclude Include="levels\snakeCube\snakeCube.hpp">
       <Filter>src\levels\snakeCube</Filter>
     </ClInclude>
+    <ClInclude Include="ogl\shaders\noise.hpp">
+      <Filter>src\ogl\shaders\noise</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\noise\noise.hpp">
+      <Filter>src\levels\noise</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">
@@ -712,6 +727,12 @@
     </None>
     <None Include="ogl\shaders\basicPhong.vs">
       <Filter>src\ogl\shaders\basicPhong</Filter>
+    </None>
+    <None Include="ogl\shaders\noise.fs">
+      <Filter>src\ogl\shaders\noise</Filter>
+    </None>
+    <None Include="ogl\shaders\noise.vs">
+      <Filter>src\ogl\shaders\noise</Filter>
     </None>
   </ItemGroup>
 </Project>

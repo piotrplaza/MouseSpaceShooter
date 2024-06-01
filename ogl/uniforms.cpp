@@ -2,7 +2,7 @@
 
 namespace
 {
-	constexpr bool invalidUniformsAllowed = true;
+	constexpr bool invalidUniformsAllowed = false;
 }
 
 namespace Uniforms

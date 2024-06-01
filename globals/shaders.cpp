@@ -7,6 +7,7 @@
 #include "ogl/shaders/particles.hpp"
 #include "ogl/shaders/textured.hpp"
 #include "ogl/shaders/texturedColorThreshold.hpp"
+#include "ogl/shaders/noise.hpp"
 
 namespace Globals
 {
@@ -47,6 +48,11 @@ namespace Globals
 		return *texturedColorThreshold_;
 	}
 
+	Shaders::Programs::Noise& ShadersHolder::noise()
+	{
+		return *noise_;
+	}
+
 	void ShadersHolder::frameSetup()
 	{
 		auto setup = [](auto& program) {
@@ -61,6 +67,7 @@ namespace Globals
 		setup(particles());
 		setup(textured());
 		setup(texturedColorThreshold());
+		setup(noise());
 	}
 
 	void InitializeShaders()

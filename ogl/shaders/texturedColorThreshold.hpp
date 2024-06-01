@@ -49,7 +49,7 @@ namespace Shaders
 		{
 			TexturedColorThreshold():
 				TexturedColorThresholdAccessor(LinkProgram(CompileShaders("ogl/shaders/texturedColorThreshold.vs",
-					"ogl/shaders/texturedColorThreshold.fs"), { {0, "bPos"}, {1, "bColor"}, {2, "bTexCoord"} }))
+					"ogl/shaders/texturedColorThreshold.fs"), { {0, "bPos"}, {1, "bColor"}, {2, "bTexCoord"}, {4, "bInstancedTransform"} }))
 			{
 				model(glm::mat4(1.0f));
 				vp(glm::mat4(1.0f));

@@ -44,6 +44,7 @@
     <ClCompile Include="levels\fpsScalingProblems\fpsScalingProblems.cpp" />
     <ClCompile Include="levels\gravity\gravity.cpp" />
     <ClCompile Include="levels\level.cpp" />
+    <ClCompile Include="levels\noise\noise.cpp" />
     <ClCompile Include="levels\paint\paint.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
     <ClCompile Include="levels\raceEditor\presets.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="levels\fpsScalingProblems\fpsScalingProblems.hpp" />
     <ClInclude Include="levels\gravity\gravity.hpp" />
     <ClInclude Include="levels\level.hpp" />
+    <ClInclude Include="levels\noise\noise.hpp" />
     <ClInclude Include="levels\paint\paint.hpp" />
     <ClInclude Include="levels\playground\playground.hpp" />
     <ClInclude Include="levels\raceEditor\common.hpp" />
@@ -173,6 +175,7 @@
     <ClInclude Include="ogl\shaders\basic.hpp" />
     <ClInclude Include="ogl\shaders\basicPhong.hpp" />
     <ClInclude Include="ogl\shaders\julia.hpp" />
+    <ClInclude Include="ogl\shaders\noise.hpp" />
     <ClInclude Include="ogl\shaders\particles.hpp" />
     <ClInclude Include="ogl\shaders\programBase.hpp" />
     <ClInclude Include="ogl\shaders\textured.hpp" />
@@ -211,6 +214,8 @@
     <None Include="ogl\shaders\basicPhong.vs" />
     <None Include="ogl\shaders\julia.fs" />
     <None Include="ogl\shaders\julia.vs" />
+    <None Include="ogl\shaders\noise.fs" />
+    <None Include="ogl\shaders\noise.vs" />
     <None Include="ogl\shaders\particles.fs" />
     <None Include="ogl\shaders\particles.gs" />
     <None Include="ogl\shaders\particles.vs" />
