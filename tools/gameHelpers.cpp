@@ -316,12 +316,12 @@ namespace Tools
 				glm::vec3(-Globals::Components().camera2D().details.prevPosition * 0.005f, 0.0f)));
 			juliaShaders.juliaCOffset(juliaCOffset());
 			juliaShaders.minColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-			juliaShaders.maxColor({ 0, 0.1f, 0.2f, 1.0f });
+			juliaShaders.maxColor({ 0.0f, 0.2f, 0.1f, 1.0f });
 			return nullptr;
 		};
 
 		background.renderLayer = RenderLayer::Background;
-		background.resolutionMode = ResolutionMode::LowerLinearBlend1;
+		background.resolutionMode = ResolutionMode::NormalLinearBlend1;
 	}
 
 	Components::Sound& CreateAndPlaySound(ComponentId soundBuffer, std::function<glm::vec2()> posF,

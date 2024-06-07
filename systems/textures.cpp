@@ -362,6 +362,8 @@ namespace Systems
 		auto& framebuffers = Globals::Components().framebuffers();
 
 		createTextureFramebuffer(framebuffers.main, GL_LINEAR);
+		createTextureFramebuffer(framebuffers.normalLinearBlend0, GL_LINEAR);
+		createTextureFramebuffer(framebuffers.normalLinearBlend1, GL_LINEAR);
 		createTextureFramebuffer(framebuffers.lowerLinearBlend0, GL_LINEAR);
 		createTextureFramebuffer(framebuffers.lowerLinearBlend1, GL_LINEAR);
 		createTextureFramebuffer(framebuffers.lowestLinearBlend0, GL_LINEAR);

@@ -1,6 +1,18 @@
 #pragma once
 
-enum class ResolutionMode { Normal, LowerLinearBlend0, LowerLinearBlend1, LowestLinearBlend0, LowestLinearBlend1, PixelArtBlend0, PixelArtBlend1, LowPixelArtBlend0, LowPixelArtBlend1};
+enum class ResolutionMode {
+	Normal,
+	NormalLinearBlend0,
+	NormalLinearBlend1,
+	LowerLinearBlend0,
+	LowerLinearBlend1,
+	LowestLinearBlend0,
+	LowestLinearBlend1,
+	PixelArtBlend0,
+	PixelArtBlend1,
+	LowPixelArtBlend0,
+	LowPixelArtBlend1
+};
 
 namespace Shaders::Programs
 {
@@ -18,6 +30,8 @@ public:
 private:
 	Shaders::Programs::Textured& texturedShadersProgram;
 
+	bool normalLinearBlend0 = false;
+	bool normalLinearBlend1 = false;
 	bool lowerLinearBlend0 = false;
 	bool lowerLinearBlend1 = false;
 	bool lowestLinearBlend0 = false;

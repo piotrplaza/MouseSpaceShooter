@@ -7,6 +7,7 @@
 #include <components/texture.hpp>
 #include <components/functor.hpp>
 #include <components/keyboard.hpp>
+#include <components/light3D.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -14,12 +15,16 @@
 #include <tools/shapes3D.hpp>
 #include <tools/colorBufferEditor.hpp>
 #include <tools/glmHelpers.hpp>
+#include <tools/gameHelpers.hpp>
 
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/hash.hpp>
 
 #include <array>
 #include <list>
 #include <unordered_set>
+#include <future>
+#include <execution>
 
 #include <iostream>
 
@@ -31,7 +36,7 @@ namespace
 	constexpr float moveDuration = 0.1f;
 	constexpr int lenghtening = 80;
 	
-	constexpr glm::vec4 clearColor = { 0.0f, 0.4f, 0.6f, 1.0f };
+	constexpr glm::vec4 clearColor = { 0.0f, 0.1f, 0.15f, 1.0f };
 	constexpr glm::vec4 snakeHeadColor = { 0.0f, 0.8f, 0.6f, 1.0f };
 	constexpr glm::vec4 snakeEatingHeadColor = { 0.0f, 1.0f, 0.8f, 1.0f };
 	constexpr glm::vec4 snakeDeadHeadColor = { 0.8f, 0.0f, 0.0f, 1.0f };
@@ -47,6 +52,10 @@ namespace
 #endif
 	constexpr float cubeHSize = 0.5f;
 	constexpr float cameraDistance = 2.0f;
+
+	constexpr int numOfCrosses = 10000;
+	constexpr int numOfLights = 16;
+	constexpr float crossesScale = 0.03f;
 }
 
 namespace Levels
@@ -56,38 +65,98 @@ namespace Levels
 	public:
 		void setup()
 		{
-			auto& graphicsSettings = Globals::Components().graphicsSettings();
+			{
+				auto& graphicsSettings = Globals::Components().graphicsSettings();
 
-			graphicsSettings.clearColor = clearColor;
-			graphicsSettings.cullFace = false;
-			graphicsSettings.lineWidth = 1.0f;
+				graphicsSettings.clearColor = clearColor;
+				graphicsSettings.cullFace = false;
+				graphicsSettings.lineWidth = 1.0f;
+			}
 
+			Tools::CreateJuliaBackground([this, cOffset = glm::vec2(0.0f)]() mutable {
+				const auto& physics = Globals::Components().physics();
+				const float step = 0.0001f * physics.frameDuration;
+				cOffset += glm::vec2(snakeDirection == SnakeDirection::Left ? -step : snakeDirection == SnakeDirection::Right ? step : 0.0f,
+					snakeDirection == SnakeDirection::Down ? -step : snakeDirection == SnakeDirection::Up ? step : 0.0f);
+				return cOffset;
+			});
+
+			{
+				auto& staticTextures = Globals::Components().staticTextures();
+
+				marbleTexture = staticTextures.emplace("textures/green marble.jpg").getComponentId();
+				staticTextures.last().wrapMode = GL_MIRRORED_REPEAT;
+			}
 #ifdef TEST
 			std::array<CM::StaticTexture, 6> testCubeTextures;
 #endif
-
 			for (size_t i = 0; i < 6; ++i)
 			{
-				auto& texture = cubeTextures[i];
 #ifdef TEST
-				testCubeTextures[i] = &Globals::Components().staticTextures().emplace(TextureData(TextureFile("textures/test/" + std::to_string(i) + ".png", 4)));
+				auto& staticTextures = Globals::Components().staticTextures();
+				testCubeTextures[i] = &staticTextures.emplace(TextureData(TextureFile("textures/test/" + std::to_string(i) + ".png", 4)));
 #endif
-				texture = &Globals::Components().dynamicTextures().emplace(TextureData(std::vector<glm::vec4>(boardSize * boardSize, glm::vec4(0.0f)), glm::ivec2(boardSize)));
-				texture.component->magFilter = GL_NEAREST;
-				texture.component->wrapMode = GL_CLAMP_TO_EDGE;
+				auto& dynamicTextures = Globals::Components().dynamicTextures();
+				auto& cubeTexture = cubeTextures[i];
+
+				cubeTexture = &dynamicTextures.emplace(TextureData(std::vector<glm::vec4>(boardSize * boardSize, glm::vec4(0.0f)), glm::ivec2(boardSize)));
+				cubeTexture.component->magFilter = GL_NEAREST;
+				cubeTexture.component->wrapMode = GL_CLAMP_TO_EDGE;
 			}
 
-			Shapes3D::CreateCuboid(Globals::Components().staticDecorations(), cubeTextures, glm::vec3(cubeHSize));
-			Shapes3D::AddWiredCuboid(Globals::Components().staticDecorations().emplace(), glm::vec3(cubeHSize - 0.001f), wiredCubeColor);
+			{
+				auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+				auto& instancedCrosses = dynamicDecorations.emplace();
 
+				Shapes3D::AddCross(instancedCrosses, { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); }, glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)));
+				instancedCrosses.modelMatrixF = [&]() { return glm::scale(glm::mat4(1.0f), glm::vec3(0.5f)); };
+				instancedCrosses.params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true).gpuSideInstancedNormalTransforms(true);
+				instancedCrosses.texture = CM::StaticTexture(marbleTexture);
+				instancedCrosses.bufferDataUsage = GL_DYNAMIC_DRAW;
+				instancedCrosses.instancing.emplace().init(numOfCrosses, glm::mat4(1.0f));
+				instancedCrosses.renderLayer = RenderLayer::NearBackground;
+				crossesId = instancedCrosses.getComponentId();
+
+				{
+					auto& lights3D = Globals::Components().lights3D();
+					auto& staticDecorations = Globals::Components().staticDecorations();
+					auto& physics = Globals::Components().physics();
+
+					for (unsigned i = 0; i < numOfLights; ++i)
+					{
+						auto& light = lights3D.emplace(glm::vec3(0.0f), glm::vec3(1.0f), 0.3f / crossesScale, 0.0f);
+						light.stepF = [&]() { light.setEnable(instancedCrosses.isEnabled()); };
+
+						auto& lightDecoration = staticDecorations.emplace();
+						Shapes3D::AddSphere(lightDecoration, 0.2f * crossesScale, 2, 3);
+						lightDecoration.colorF = [&]() { return glm::vec4(light.color, 1.0f) + (Globals::Components().graphicsSettings().clearColor) * light.clearColorFactor; };
+						lightDecoration.params3D->lightModelEnabled(false);
+						lightDecoration.modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), light.position), physics.simulationDuration * 4.0f, { 1.0f, 1.0f, 1.0f }); };
+						lightDecoration.stepF = [&, &lightSphere = lightDecoration]() { lightSphere.setEnable(instancedCrosses.isEnabled()); };
+						lightDecoration.renderLayer = RenderLayer::NearBackground;
+					}
+				}
+			}
+
+			{
+				auto decorations = Shapes3D::CreateCuboid(Globals::Components().staticDecorations(), cubeTextures, glm::vec3(cubeHSize));
+				for (auto* decoration : decorations)
+					decoration->params3D->lightModelEnabled(false);
+			}
+
+			auto& wiredCuboid = Globals::Components().staticDecorations().emplace();
+			Shapes3D::AddWiredCuboid(wiredCuboid, glm::vec3(cubeHSize - 0.001f), wiredCubeColor);
+			wiredCuboid.params3D->lightModelEnabled(false);
 #ifdef TEST
 			auto cuboidWalls = Shapes3D::CreateCuboid(Globals::Components().staticDecorations(), testCubeTextures, glm::vec3(cubeHSize) + 0.001f);
 			for (auto* wall : cuboidWalls)
 				wall->colorF = []() { return glm::vec4(0.2f); };
 #endif
-			Shapes3D::AddSphere(Globals::Components().staticDecorations().emplace(), 0.2f / boardSize, 20, 20, nullptr, false);
-			Globals::Components().staticDecorations().last().colorF = []() { return snakeHeadSphereColor; };
-			Globals::Components().staticDecorations().last().modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), cubeCoordToPos(snakeHead->first)); };
+			auto snakeHeadSphere = Globals::Components().staticDecorations().emplace();
+			Shapes3D::AddSphere(snakeHeadSphere, 0.2f / boardSize, 20, 20, nullptr, false);
+			snakeHeadSphere.colorF = []() { return snakeHeadSphereColor; };
+			snakeHeadSphere.modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), cubeCoordToPos(snakeHead->first)); };
+			snakeHeadSphere.params3D->lightModelEnabled(false);
 
 			Globals::Components().stepSetups().emplace([this]() {
 				createEditors(); 
@@ -98,6 +167,80 @@ namespace Levels
 
 		void step()
 		{
+			{
+				auto& crosses = Globals::Components().dynamicDecorations()[crossesId];
+				const auto& keyboard = Globals::Components().keyboard();
+
+				if (keyboard.pressed['C'])
+				{
+					crosses.setEnable(!crosses.isEnabled());
+				}
+
+				if (crosses.isEnabled())
+				{
+					const float transformSpeed = 0.00001f;
+					const float transformBaseStep = 0.001f;
+
+					const auto& physics = Globals::Components().physics();
+					auto& transforms = crosses.instancing->transforms_;
+
+					if (keyboard.pressed[0xBB/*VK_OEM_PLUS*/])
+						transformBase += transformBaseStep;
+					if (keyboard.pressed[0xBD/*VK_OEM_MINUS*/])
+						transformBase -= transformBaseStep;
+
+					auto transform = [this, simulationDuration = physics.simulationDuration](auto i) {
+						return glm::scale(glm::mat4(1.0f), glm::vec3(crossesScale))
+							* glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0.0f, 1.0f, 0.0f })
+							* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.001f, { 1.0f, 0.0f, 0.0f })
+							* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.03f, { 0.0f, 1.0f, 0.0f })
+							* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * (transformBase - simulationDuration * transformSpeed), { 0.0f, 0.0f, 1.0f })
+							* glm::translate(glm::mat4(1.0f), { i * 0.0005f, i * 0.0007f, i * 0.0009f });
+						};
+#if 1
+					if (transformFuture.valid())
+					{
+						transformFuture.get();
+						crosses.state = ComponentState::Changed;
+					}
+
+					transformFuture = std::async(std::launch::async, [=, simulationDuration = physics.simulationDuration, &transforms]() {
+						Tools::ItToId itToId(transforms.size());
+						std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), [=, &transforms](const auto i) {
+							transforms[i] = transform(i);
+							});
+						});
+#else
+					Tools::ItToId itToId(transforms.size());
+					std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), [&](const auto i) {
+						transforms[i] = transform(i);
+						});
+					crosses.state = ComponentState::Changed;
+#endif
+					{
+						int i = 0;
+						for (auto& light : Globals::Components().lights3D())
+						{
+							const float rotationSpeed = (-0.1f - (i * 0.03f)) * (i % 2 * 2.0f - 1.0f) * 100.0f;
+							const float radius = 1.0f + i * 5.0f;
+							const glm::vec3 changeColorSpeed(0.1f, 0.6f, 0.3f);
+							const float scaledSimulationDuration = physics.simulationDuration / (float)numOfLights;
+
+							light.position = glm::vec3(
+								glm::cos(scaledSimulationDuration * rotationSpeed),
+								glm::cos(scaledSimulationDuration * rotationSpeed * 0.3f),
+								glm::sin(scaledSimulationDuration * rotationSpeed * 0.6f))
+								* crossesScale / (float)numOfLights * radius;
+							light.color = glm::vec3((glm::cos(scaledSimulationDuration * changeColorSpeed.r * rotationSpeed) + 1.0f),
+								(glm::cos(scaledSimulationDuration * changeColorSpeed.g * rotationSpeed) + 1.0f),
+								(glm::cos(scaledSimulationDuration * changeColorSpeed.b * rotationSpeed) + 1.0f)) / 2.0f;
+							//light.color = glm::vec3(1.0f);
+							++i;
+						}
+					}
+				}
+			}
+
 			controlsStep();
 
 			if (snakeHead->second.type == SnakeNode::Type::DeadHead)
@@ -566,6 +709,8 @@ namespace Levels
 		std::array<std::unique_ptr<Tools::ColorBufferEditor<glm::vec4>>, 6> cubeEditors;
 		float moveTime = 0.0f;
 
+		ComponentId marbleTexture = 0;
+
 		SnakeNodes snakeNodes;
 		SnakeNodes::iterator snakeHead;
 		SnakeNodes::iterator snakeEnd;
@@ -576,8 +721,12 @@ namespace Levels
 		int lenghteningLeft{};
 		std::optional<glm::ivec3> foodPos;
 		int score{};
+		ComponentId crossesId = 0;
 
 		std::unordered_set<glm::ivec3> freeSpace;
+
+		float transformBase = 0.0304f;
+		std::future<void> transformFuture;
 	};
 
 	SnakeCube::SnakeCube():

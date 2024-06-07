@@ -113,6 +113,8 @@ namespace Systems
 			: glm::ivec2(lowPixelArtShorterDim, (int)(lowPixelArtShorterDim * (float)size.y / size.x));
 
 		setTextureFramebufferSize(framebuffers.main, size);
+		setTextureFramebufferSize(framebuffers.normalLinearBlend0, size);
+		setTextureFramebufferSize(framebuffers.normalLinearBlend1, size);
 		setTextureFramebufferSize(framebuffers.lowerLinearBlend0, size / lowerResDivisor);
 		setTextureFramebufferSize(framebuffers.lowerLinearBlend1, size / lowerResDivisor);
 		setTextureFramebufferSize(framebuffers.lowestLinearBlend0, size / lowestResDivisor);
