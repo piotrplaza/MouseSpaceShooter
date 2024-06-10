@@ -75,7 +75,7 @@ namespace Levels
 
 			Tools::CreateJuliaBackground([this, cOffset = glm::vec2(0.0f)]() mutable {
 				const auto& physics = Globals::Components().physics();
-				const float step = 0.0001f * physics.frameDuration;
+				const float step = 0.0001f * physics.frameDuration * (snakeHead->second.type != SnakeNode::Type::DeadHead);
 				cOffset += glm::vec2(snakeDirection == SnakeDirection::Left ? -step : snakeDirection == SnakeDirection::Right ? step : 0.0f,
 					snakeDirection == SnakeDirection::Down ? -step : snakeDirection == SnakeDirection::Up ? step : 0.0f);
 				return cOffset;
@@ -225,15 +225,17 @@ namespace Levels
 							const float radius = 1.0f + i * 5.0f;
 							const glm::vec3 changeColorSpeed(0.1f, 0.6f, 0.3f);
 							const float scaledSimulationDuration = physics.simulationDuration / (float)numOfLights;
+							const auto colorDriver = changeColorSpeed * rotationSpeed * scaledSimulationDuration;
 
 							light.position = glm::vec3(
 								glm::cos(scaledSimulationDuration * rotationSpeed),
 								glm::cos(scaledSimulationDuration * rotationSpeed * 0.3f),
 								glm::sin(scaledSimulationDuration * rotationSpeed * 0.6f))
 								* crossesScale / (float)numOfLights * radius;
-							light.color = glm::vec3((glm::cos(scaledSimulationDuration * changeColorSpeed.r * rotationSpeed) + 1.0f),
-								(glm::cos(scaledSimulationDuration * changeColorSpeed.g * rotationSpeed) + 1.0f),
-								(glm::cos(scaledSimulationDuration * changeColorSpeed.b * rotationSpeed) + 1.0f)) / 2.0f;
+
+							light.color = (glm::vec3(glm::cos(colorDriver.r), glm::cos(colorDriver.g), glm::cos(colorDriver.b)) + 1.0f) / 2.0f + lightColorOffset;
+							if (snakeHead->second.type == SnakeNode::Type::DeadHead)
+								lightColorOffset += glm::vec3(physics.frameDuration * 0.02f, glm::vec2(physics.frameDuration) * -0.02f);
 							//light.color = glm::vec3(1.0f);
 							++i;
 						}
@@ -297,6 +299,8 @@ namespace Levels
 				cubeTextures[i].component->state = ComponentState::Changed;
 			}
 
+			moveTime = 0.0f;
+
 			snakeNodes.clear();
 			snakeNodes.reserve(6 * boardSize * boardSize);
 			snakeNodes[glm::ivec3(cubeEditors[0]->getRes() / 2, 0)] = { SnakeNode::Type::EatingHead, snakeNodes.end(), snakeNodes.end() };
@@ -309,6 +313,7 @@ namespace Levels
 			lenghteningLeft = lenghtening;
 			foodPos = std::nullopt;
 			score = 0;
+			lightColorOffset = { 0.0f, 0.0f, 0.0f };
 
 			freeSpace.clear();
 			for (int z = 0; z < 6; ++z)
@@ -707,9 +712,9 @@ namespace Levels
 			{ 0x27/*VK_RIGHT*/, SnakeDirection::Right } };
 		std::array<CM::StaticTexture, 6> cubeTextures;
 		std::array<std::unique_ptr<Tools::ColorBufferEditor<glm::vec4>>, 6> cubeEditors;
-		float moveTime = 0.0f;
+		float moveTime{};
 
-		ComponentId marbleTexture = 0;
+		ComponentId marbleTexture{};
 
 		SnakeNodes snakeNodes;
 		SnakeNodes::iterator snakeHead;
@@ -721,7 +726,8 @@ namespace Levels
 		int lenghteningLeft{};
 		std::optional<glm::ivec3> foodPos;
 		int score{};
-		ComponentId crossesId = 0;
+		ComponentId crossesId{};
+		glm::vec3 lightColorOffset{};
 
 		std::unordered_set<glm::ivec3> freeSpace;
 
