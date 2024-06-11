@@ -21,19 +21,20 @@ namespace Components
 
 		std::function<void()> tearDownF;
 
-		void play();
-		void stop();
+		Sound& play();
+		Sound& stop();
 
-		void setRemoveOnStop(bool value);
+		Sound& setRemoveOnStop(bool value);
 
-		void setRelativeToAudioListener(bool value);
-		void setLoop(bool value);
-		void setVolume(float value);
-		void setPitch(float value);
-		void setPosition(glm::vec3 pos);
-		void setPosition(glm::vec2 pos);
-		void setMinDistance(float value);
-		void setAttenuation(float value);
+		Sound& setRelativeToAudioListener(bool value);
+		Sound& setLoop(bool value);
+		Sound& setVolume(float value);
+		Sound& setPitch(float value);
+		Sound& setPosition(glm::vec3 pos);
+		Sound& setPosition(glm::vec2 pos);
+		Sound& setMinDistance(float value);
+		Sound& setAttenuation(float value);
+		Sound& setPlayingOffset(float seconds);
 
 		bool isRelativeToAudioListener() const;
 		bool isStopped() const;

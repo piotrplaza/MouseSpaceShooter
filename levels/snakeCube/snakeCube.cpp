@@ -8,6 +8,9 @@
 #include <components/functor.hpp>
 #include <components/keyboard.hpp>
 #include <components/light3D.hpp>
+#include <components/music.hpp>
+#include <components/soundBuffer.hpp>
+#include <components/sound.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -163,6 +166,18 @@ namespace Levels
 				gameplayInit();
 				return false; 
 			});
+
+			auto& musics = Globals::Components().musics();
+			musics.emplace("audio/Ghosthack-Ambient Beds_Daylight_Am 75Bpm (WET).ogg", 1.0f).play();
+
+			auto& soundsBuffers = Globals::Components().soundsBuffers();
+			eatingSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Detonate.wav").getComponentId();
+			growingSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
+			deadSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav").getComponentId();
+
+			auto& sounds = Globals::Components().sounds();
+			growingSound = sounds.emplace(growingSoundBuffer).setVolume(0.0f).setLoop(true).play().getComponentId();
+			deadSound = sounds.emplace(deadSoundBuffer).setVolume(0.0f).setLoop(true).play().getComponentId();
 		}
 
 		void step()
@@ -322,6 +337,9 @@ namespace Levels
 						freeSpace.insert({ x, y, z });
 			freeSpace.erase(snakeHead->first);
 
+			Globals::Components().sounds()[growingSound].setVolume(1.0f);
+			Globals::Components().sounds()[deadSound].setVolume(0.0f);
+
 			cameraSetup();
 			spawnFood();
 			drawSnake();
@@ -351,6 +369,8 @@ namespace Levels
 				return pos;
 			}();
 
+			Globals::Components().sounds()[growingSound].setVolume((float)lenghteningLeft / lenghtening);
+
 			if (!erasedEndPos && lenghteningLeft == 0)
 				snakeEnd->second.type = SnakeNode::Type::Tail;
 
@@ -369,6 +389,7 @@ namespace Levels
 				if (eating)
 				{
 					foodPos = std::nullopt;
+					Tools::CreateAndPlaySound(eatingSoundBuffer).setVolume(0.8f);
 					std::cout << ++score << std::endl;
 				}
 				auto prevHead = snakeHead;
@@ -381,6 +402,8 @@ namespace Levels
 				it->second.prev = snakeHead;
 				snakeHead = it;
 				snakeHead->second.type = SnakeNode::Type::DeadHead;
+				Globals::Components().sounds()[growingSound].setVolume(0.0f);
+				Globals::Components().sounds()[deadSound].setVolume(1.0f);
 			}
 
 			if (!foodPos)
@@ -727,6 +750,11 @@ namespace Levels
 		std::optional<glm::ivec3> foodPos;
 		int score{};
 		ComponentId crossesId{};
+		ComponentId eatingSoundBuffer{};
+		ComponentId growingSoundBuffer{};
+		ComponentId deadSoundBuffer{};
+		ComponentId growingSound{};
+		ComponentId deadSound{};
 		glm::vec3 lightColorOffset{};
 
 		std::unordered_set<glm::ivec3> freeSpace;

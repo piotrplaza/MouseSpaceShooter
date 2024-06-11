@@ -52,39 +52,47 @@ namespace Components
 		--numOfInstances;
 	}
 
-	void Sound::play()
+	Sound& Sound::play()
 	{
 		if (!details)
-			return;
+			return *this;
 
 		details->sfSound.play();
+
+		return *this;
 	}
 
-	void Sound::stop()
+	Sound& Sound::stop()
 	{
 		if (removeOnStop)
 			state = ComponentState::Outdated;
 
 		if (!details)
-			return;
+			return *this;
 
 		details->sfSound.stop();
+
+		return *this;
 	}
 
-	void Sound::setRemoveOnStop(bool value)
+	Sound& Sound::setRemoveOnStop(bool value)
 	{
 		removeOnStop = value;
+
+		return *this;
 	}
 
-	void Sound::setRelativeToAudioListener(bool value)
+	Sound& Sound::setRelativeToAudioListener(bool value)
 	{
 		if (!details)
-			return;
+			return *this;
 
 		details->sfSound.setRelativeToListener(value);
+
+		return *this;
 	}
 
-	void Sound::setLoop(bool value)
+	Sound& Sound::setLoop(bool value)
 	{
 		loop = value;
 
@@ -93,58 +101,82 @@ namespace Components
 			if (value)
 				Tools::PrintError("Loop for dummy sound was set. It may cause permanent issue.");
 
-			return;
+			return *this;
 		}
 
 		details->sfSound.setLoop(value);
+
+		return *this;
 	}
 
-	void Sound::setVolume(float value)
+	Sound& Sound::setVolume(float value)
 	{
 		if (!details)
-			return;
+			return *this;
 
 		details->sfSound.setVolume(std::clamp(value, 0.0f, 1.0f) * maxVolume * 100.0f);
+
+		return *this;
 	}
 
-	void Sound::setPitch(float value)
+	Sound& Sound::setPitch(float value)
 	{
 		if (!details)
-			return;
+			return *this;
 
 		details->sfSound.setPitch(value);
+
+		return *this;
 	}
 
-	void Sound::setPosition(glm::vec3 pos)
+	Sound& Sound::setPosition(glm::vec3 pos)
 	{
 		if (!details)
-			return;
+			return *this;
 
 		details->sfSound.setPosition(pos.x, pos.y, pos.z);
+
+		return *this;
 	}
 
-	void Sound::setPosition(glm::vec2 pos)
+	Sound& Sound::setPosition(glm::vec2 pos)
 	{
 		if (!details)
-			return;
+			return *this;
 
 		details->sfSound.setPosition(pos.x, pos.y, 0.0f);
+
+		return *this;
 	}
 
-	void Sound::setMinDistance(float value)
+	Sound& Sound::setMinDistance(float value)
 	{
 		if (!details)
-			return;
+			return *this;
 
 		details->sfSound.setMinDistance(value);
+
+		return *this;
 	}
 
-	void Sound::setAttenuation(float value)
+	Sound& Sound::setAttenuation(float value)
 	{
 		if (!details)
-			return;
+			return *this;
 
 		details->sfSound.setAttenuation(value);
+
+		return *this;
+	}
+
+	Sound& Sound::setPlayingOffset(float seconds)
+	{
+		if (!details)
+			return *this;
+
+		details->sfSound.setPlayingOffset(sf::seconds(seconds));
+
+		return *this;
 	}
 
 	bool Sound::isRelativeToAudioListener() const
