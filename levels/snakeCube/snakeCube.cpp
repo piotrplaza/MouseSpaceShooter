@@ -37,7 +37,7 @@ namespace
 {
 	constexpr int boardSize = 21;
 	constexpr float moveDuration = 0.1f;
-	constexpr int lenghtening = 80;
+	constexpr int lenghtening = 40;
 	
 	constexpr glm::vec4 clearColor = { 0.0f, 0.1f, 0.15f, 1.0f };
 	constexpr glm::vec4 snakeHeadColor = { 0.0f, 0.8f, 0.6f, 1.0f };
@@ -56,11 +56,13 @@ namespace
 	constexpr float cubeHSize = 0.5f;
 	constexpr float cameraDistance = 2.0f;
 
-	constexpr float growingSoundVolume = 0.3f;
+	constexpr float growingSoundVolume = 0.8f;
 
 	constexpr int numOfCrosses = 10000;
 	constexpr int numOfLights = 16;
 	constexpr float crossesScale = 0.03f;
+
+	constexpr int juliaIterationsStep = 1;
 }
 
 namespace Levels
@@ -78,13 +80,14 @@ namespace Levels
 				graphicsSettings.lineWidth = 1.0f;
 			}
 
-			Tools::CreateJuliaBackground([this, cOffset = glm::vec2(0.0f)]() mutable {
-				const auto& physics = Globals::Components().physics();
-				const float step = 0.0001f * physics.frameDuration * (snakeHead->second.type != SnakeNode::Type::DeadHead);
-				cOffset += glm::vec2(snakeDirection == SnakeDirection::Left ? -step : snakeDirection == SnakeDirection::Right ? step : 0.0f,
-					snakeDirection == SnakeDirection::Down ? -step : snakeDirection == SnakeDirection::Up ? step : 0.0f);
-				return cOffset;
-			});
+			Tools::CreateJuliaBackground(Tools::JuliaParams{}.juliaCOffsetF(
+				[this]() mutable {
+					const auto& physics = Globals::Components().physics();
+					const float step = 0.01f * physics.frameDuration * (snakeHead->second.type != SnakeNode::Type::DeadHead);
+					juliaCOffset += glm::vec2(snakeDirection == SnakeDirection::Left ? -step : snakeDirection == SnakeDirection::Right ? step : 0.0f,
+						snakeDirection == SnakeDirection::Down ? -step : snakeDirection == SnakeDirection::Up ? step : 0.0f);
+					return juliaCOffset;
+				}).iterationsF([this]() { return juliaIterations; }));
 
 			{
 				auto& staticTextures = Globals::Components().staticTextures();
@@ -331,6 +334,8 @@ namespace Levels
 			foodPos = std::nullopt;
 			score = 0;
 			lightColorOffset = { 0.0f, 0.0f, 0.0f };
+			juliaIterations = 0;
+			juliaCOffset = { 0.0f, 0.0f };
 
 			freeSpace.clear();
 			for (int z = 0; z < 6; ++z)
@@ -392,7 +397,11 @@ namespace Levels
 				{
 					foodPos = std::nullopt;
 					Tools::CreateAndPlaySound(eatingSoundBuffer).setVolume(0.6f);
-					std::cout << ++score << std::endl;
+					++score;
+
+					juliaIterations += juliaIterationsStep;
+
+					std::cout << score << std::endl;
 				}
 				auto prevHead = snakeHead;
 				snakeHead = snakeNodes.emplace(nextPos, SnakeNode{ eating ? SnakeNode::Type::EatingHead : SnakeNode::Type::Head, prevHead, snakeNodes.end() }).first;
@@ -758,6 +767,8 @@ namespace Levels
 		ComponentId growingSound{};
 		ComponentId deadSound{};
 		glm::vec3 lightColorOffset{};
+		int juliaIterations{};
+		glm::vec2 juliaCOffset{};
 
 		std::unordered_set<glm::ivec3> freeSpace;
 

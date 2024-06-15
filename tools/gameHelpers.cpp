@@ -304,19 +304,21 @@ namespace Tools
 		}
 	}
 
-	void CreateJuliaBackground(std::function<glm::vec2()> juliaCOffset)
+	void CreateJuliaBackground(JuliaParams params)
 	{
 		auto& juliaShaders = Globals::Shaders().julia();
 		auto& background = Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
 		background.customShadersProgram = juliaShaders.getProgramId();
 
-		background.renderingSetupF = [=, &juliaShaders, &screenInfo = Globals::Components().screenInfo()](auto) mutable {
+		background.renderingSetupF = [=, &juliaShaders, &screenInfo = Globals::Components().screenInfo()](auto) {
 			juliaShaders.vp(glm::translate(glm::scale(glm::mat4(1.0f),
 				glm::vec3(1.0f / screenInfo.getAspectRatio(), 1.0f, 1.0f) * 1.5f),
 				glm::vec3(-Globals::Components().camera2D().details.prevPosition * 0.005f, 0.0f)));
-			juliaShaders.juliaCOffset(juliaCOffset());
-			juliaShaders.minColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-			juliaShaders.maxColor({ 0.0f, 0.2f, 0.1f, 1.0f });
+			juliaShaders.juliaC(params.juliaCF_());
+			juliaShaders.juliaCOffset(params.juliaCOffsetF_());
+			juliaShaders.minColor(params.minColorF_());
+			juliaShaders.maxColor(params.maxColorF_());
+			juliaShaders.iterations(params.iterationsF_());
 			return nullptr;
 		};
 

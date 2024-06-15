@@ -175,12 +175,12 @@ namespace Levels
 
 		void createBackground() const
 		{
-			Tools::CreateJuliaBackground([this]() {
+			Tools::CreateJuliaBackground(Tools::JuliaParams{}.juliaCOffsetF([this]() {
 				const auto averageCenter = std::accumulate(playersHandler.getPlayersHandlers().begin(), playersHandler.getPlayersHandlers().end(),
 					glm::vec2(0.0f), [](const auto& acc, const auto& currentHandler) {
 						return acc + Globals::Components().planes()[currentHandler.playerId].getOrigin2D();
 					}) / (float)playersHandler.getPlayersHandlers().size();
-					return averageCenter * 0.0001f; });
+					return averageCenter * 0.0001f; }));
 		}
 
 		void createForeground() const
