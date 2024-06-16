@@ -36,7 +36,7 @@
 namespace
 {
 	constexpr int boardSize = 21;
-	constexpr float moveDuration = 0.1f;
+	constexpr float moveDuration = 0.2f;
 	constexpr int lenghtening = 40;
 	
 	constexpr glm::vec4 clearColor = { 0.0f, 0.1f, 0.15f, 1.0f };
@@ -210,7 +210,7 @@ namespace Levels
 						transformBase -= transformBaseStep;
 
 					auto transform = [this, simulationDuration = physics.simulationDuration](auto i) {
-						return glm::scale(glm::mat4(1.0f), glm::vec3(crossesScale))
+						return glm::scale(glm::mat4(1.0f), glm::vec3(crossesScale + crossScaleOffset))
 							* glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), { 0.0f, 1.0f, 0.0f })
 							* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.001f, { 1.0f, 0.0f, 0.0f })
 							* glm::rotate(glm::mat4(1.0f), i * glm::pi<float>() * 0.03f, { 0.0f, 1.0f, 0.0f })
@@ -272,6 +272,18 @@ namespace Levels
 			}
 
 			const auto& physics = Globals::Components().physics();
+
+			if (lastEatingTime > 0.0f)
+			{
+				const float driver = (physics.simulationDuration - lastEatingTime) * 6.0f;
+				crossScaleOffset = glm::sin(driver) * 0.005f;
+				if (driver >= glm::pi<float>())
+				{
+					lastEatingTime = 0.0f;
+					crossScaleOffset = 0.0f;
+				}
+			}
+
 			moveTime += physics.frameDuration;
 
 			if (moveTime < moveDuration)
@@ -333,6 +345,8 @@ namespace Levels
 			lenghteningLeft = lenghtening;
 			foodPos = std::nullopt;
 			score = 0;
+			lastEatingTime = 0.0f;
+			crossScaleOffset = 0.0f;
 			lightColorOffset = { 0.0f, 0.0f, 0.0f };
 			juliaIterations = 0;
 			juliaCOffset = { 0.0f, 0.0f };
@@ -396,6 +410,7 @@ namespace Levels
 				if (eating)
 				{
 					foodPos = std::nullopt;
+					lastEatingTime = Globals::Components().physics().simulationDuration;
 					Tools::CreateAndPlaySound(eatingSoundBuffer).setVolume(0.6f);
 					++score;
 
@@ -761,6 +776,8 @@ namespace Levels
 		std::optional<glm::ivec3> foodPos;
 		int score{};
 		ComponentId crossesId{};
+		float lastEatingTime{};
+		float crossScaleOffset{};
 		ComponentId eatingSoundBuffer{};
 		ComponentId growingSoundBuffer{};
 		ComponentId deadSoundBuffer{};
