@@ -2,6 +2,8 @@
 
 #include "common.hpp"
 
+#include <commonTypes/fTypes.hpp>
+
 #include <glm/vec2.hpp>
 
 #include <functional>
@@ -15,7 +17,7 @@ namespace Levels
 	class StartingLineEditing
 	{
 	public:
-		StartingLineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, std::function<bool()> ongoing);
+		StartingLineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing);
 
 		void edit(bool& cameraMoving);
 		void update() const;
@@ -32,7 +34,7 @@ namespace Levels
 
 		const float& zoomScale;
 
-		std::function<bool()> ongoing;
+		FBool ongoing;
 
 		ComponentId startingLineId;
 		ComponentId startingPositionLineId;

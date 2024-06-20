@@ -4,6 +4,7 @@
 
 #include <commonTypes/componentMappers.hpp>
 #include <commonTypes/renderLayer.hpp>
+#include <commonTypes/fTypes.hpp>
 
 #include <ogl/shaders.hpp>
 
@@ -13,7 +14,6 @@
 #include <glm/mat4x4.hpp>
 
 #include <vector>
-#include <functional>
 #include <optional>
 
 namespace Buffers
@@ -63,7 +63,7 @@ struct RenderableDef
 			return *this;
 		}
 
-		Params3D& illuminationF(std::function<glm::vec4()> value)
+		Params3D& illuminationF(FVec4 value)
 		{
 			illuminationF_ = std::move(value);
 			return *this;
@@ -93,7 +93,7 @@ struct RenderableDef
 		float specular_ = 3.0f;
 		float specularFocus_ = 8.0f;
 		float specularMaterialColorFactor_ = 0.0f;
-		std::function<glm::vec4()> illuminationF_;
+		FVec4 illuminationF_;
 		bool lightModelEnabled_ = true;
 		float alphaDiscardTreshold_ = 0.1f;
 		bool gpuSideInstancedNormalTransforms_ = false;
@@ -118,9 +118,9 @@ struct RenderableDef
 	std::vector<unsigned> indices;
 
 	RenderingSetupF renderingSetupF;
-	std::function<glm::mat4()> modelMatrixF = []() { return glm::mat4(1.0f); };
-	std::function<glm::vec3()> originF = [&]() { return modelMatrixF() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); };
-	std::function<glm::vec4()> colorF;
+	FMat4 modelMatrixF = glm::mat4(1.0f);
+	FVec3 originF = [&]() { return modelMatrixF() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); };
+	FVec4 colorF;
 	AbstractTextureComponentVariant texture;
 	std::optional<Params3D> params3D;
 
@@ -129,7 +129,7 @@ struct RenderableDef
 
 	bool preserveTextureRatio = false;
 
-	std::function<bool()> renderF = []() { return true; };
+	FBool renderF = true;
 
 	struct
 	{

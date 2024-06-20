@@ -2,7 +2,7 @@
 
 #include "_componentBase.hpp"
 
-#include <functional>
+#include <commonTypes/fTypes.hpp>
 
 namespace Components
 {
@@ -14,7 +14,7 @@ namespace Components
 		{
 		}
 
-		DeferredAction(std::function<bool()> deferredAction, float delay = 0.0f) :
+		DeferredAction(FBool deferredAction, float delay = 0.0f) :
 			deferredAction([=](auto) { return deferredAction(); }),
 			delay(delay)
 		{

@@ -2,20 +2,21 @@
 
 #include "_componentBase.hpp"
 
-#include <functional>
 #include <concepts>
 #include <type_traits>
+
+#include <commonTypes/fTypes.hpp>
 
 namespace Components
 {
 	struct Functor : ComponentBase
 	{
-		Functor(std::function<bool()> functor) :
+		Functor(FBool functor) :
 			functor(std::move(functor))
 		{
 		}
 
-		std::function<bool()> functor;
+		FBool functor;
 
 		inline bool operator()()
 		{

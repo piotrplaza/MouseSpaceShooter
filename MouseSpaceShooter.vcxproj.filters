@@ -681,6 +681,9 @@
     <ClInclude Include="levels\noise\noise.hpp">
       <Filter>src\levels\noise</Filter>
     </ClInclude>
+    <ClInclude Include="commonTypes\fTypes.hpp">
+      <Filter>src\commonTypes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">

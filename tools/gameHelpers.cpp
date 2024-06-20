@@ -276,8 +276,7 @@ namespace Tools
 			});
 	}
 
-	void CreateFogForeground(int numOfLayers, float alphaPerLayer, ComponentId fogTexture,
-		std::function<glm::vec4()> fColor)
+	void CreateFogForeground(int numOfLayers, float alphaPerLayer, ComponentId fogTexture, FVec4 fColor)
 	{
 		for (int layer = 0; layer < numOfLayers; ++layer)
 		for (int posYI = -1; posYI <= 1; ++posYI)
@@ -288,7 +287,7 @@ namespace Tools
 				if (!texturedProgram.isValid()) texturedProgram = program;
 				texturedProgram.vp(glm::translate(glm::scale(Globals::Components().mvp2D().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
 					glm::vec3(-Globals::Components().camera2D().details.prevPosition * (0.002f + layer * 0.002f), 0.0f)));
-				texturedProgram.color(fColor()* glm::vec4(1.0f, 1.0f, 1.0f, alphaPerLayer));
+				texturedProgram.color(fColor() * glm::vec4(1.0f, 1.0f, 1.0f, alphaPerLayer));
 
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -326,8 +325,7 @@ namespace Tools
 		background.resolutionMode = ResolutionMode::NormalLinearBlend1;
 	}
 
-	Components::Sound& CreateAndPlaySound(ComponentId soundBuffer, std::function<glm::vec2()> posF,
-		std::function<void(Components::Sound&)> config, std::function<void(Components::Sound&)> stepF)
+	Components::Sound& CreateAndPlaySound(ComponentId soundBuffer, FVec2 posF, std::function<void(Components::Sound&)> config, std::function<void(Components::Sound&)> stepF)
 	{
 		auto& sound = Globals::Components().sounds().emplace(soundBuffer);
 

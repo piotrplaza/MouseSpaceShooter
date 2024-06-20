@@ -26,7 +26,7 @@ namespace Levels
 	public:
 		void setup()
 		{
-			Globals::Components().graphicsSettings().clearColor = { 0.0f, 0.05f, 0.0f, 1.0f };
+			Globals::Components().graphicsSettings().clearColorF = glm::vec4{ 0.0f, 0.05f, 0.0f, 1.0f };
 			Globals::Components().graphicsSettings().lineWidth = 1.0f;
 			Globals::Components().camera3D().rotation = Components::Camera3D::LookAtRotation{};
 			for(unsigned i = 0; i < 4; ++i)
@@ -55,7 +55,7 @@ namespace Levels
 			for (const auto& light: Globals::Components().lights3D())
 			{
 				Shapes3D::AddSphere(staticDecorations.emplace(), 0.2f, 2, 3);
-				staticDecorations.last().colorF = [&]() { return glm::vec4(light.color, 1.0f) + Globals::Components().graphicsSettings().clearColor * light.clearColorFactor; };
+				staticDecorations.last().colorF = [&]() { return glm::vec4(light.color, 1.0f) + Globals::Components().graphicsSettings().clearColorF * light.clearColorFactor; };
 				staticDecorations.last().params3D->lightModelEnabled(false);
 				staticDecorations.last().modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), light.position), physics.simulationDuration * 4.0f, { 1.0f, 1.0f, 1.0f }); };
 			}

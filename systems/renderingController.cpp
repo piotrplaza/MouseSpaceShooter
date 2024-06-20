@@ -44,7 +44,7 @@ namespace
 				const auto modelMatrix = (buffers.renderable->modelMatrixF)();
 				Globals::Shaders().basicPhong().model(modelMatrix);
 				Globals::Shaders().basicPhong().normalMatrix(Globals::Components().mvp3D().getNormalMatrix(modelMatrix));
-				Globals::Shaders().basicPhong().color((buffers.renderable->colorF) ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColor);
+				Globals::Shaders().basicPhong().color((buffers.renderable->colorF) ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColorF());
 				Globals::Shaders().basicPhong().ambient(buffers.renderable->params3D->ambient_);
 				Globals::Shaders().basicPhong().diffuse(buffers.renderable->params3D->diffuse_);
 				Globals::Shaders().basicPhong().specular(buffers.renderable->params3D->specular_);
@@ -82,7 +82,7 @@ namespace
 				const auto modelMatrix = (buffers.renderable->modelMatrixF)();
 				Globals::Shaders().texturedPhong().model(modelMatrix);
 				Globals::Shaders().texturedPhong().normalMatrix(Globals::Components().mvp3D().getNormalMatrix(modelMatrix));
-				Globals::Shaders().texturedPhong().color((buffers.renderable->colorF) ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColor);
+				Globals::Shaders().texturedPhong().color((buffers.renderable->colorF) ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColorF());
 				Globals::Shaders().texturedPhong().ambient(buffers.renderable->params3D->ambient_);
 				Globals::Shaders().texturedPhong().diffuse(buffers.renderable->params3D->diffuse_);
 				Globals::Shaders().texturedPhong().specular(buffers.renderable->params3D->specular_);
@@ -120,7 +120,7 @@ namespace
 
 			buffers.draw(Globals::Shaders().basic().getProgramId(), [](const auto& buffers) {
 				Globals::Shaders().basic().model((buffers.renderable->modelMatrixF)());
-				Globals::Shaders().basic().color((buffers.renderable->colorF) ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColor);
+				Globals::Shaders().basic().color((buffers.renderable->colorF) ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColorF());
 			});
 		};
 
@@ -149,7 +149,7 @@ namespace
 			buffers.draw(Globals::Shaders().textured(), [](const auto& buffers) {
 				Globals::Shaders().textured().model((buffers.renderable->modelMatrixF)());
 				Globals::Shaders().textured().visibilityCenter((buffers.renderable->originF)());
-				Globals::Shaders().textured().color((buffers.renderable->colorF) ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColor);
+				Globals::Shaders().textured().color((buffers.renderable->colorF) ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColorF());
 				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers.renderable->texture, buffers.renderable->preserveTextureRatio);
 			});
 		};
@@ -201,7 +201,7 @@ namespace Systems
 	void RenderingController::render() const
 	{
 		const auto& graphicsSettings = Globals::Components().graphicsSettings();
-		const auto& clearColor = graphicsSettings.clearColor;
+		const auto clearColor = graphicsSettings.clearColorF();
 		const auto& screenInfo = Globals::Components().screenInfo();
 		const auto& framebuffers = Globals::Components().framebuffers();
 

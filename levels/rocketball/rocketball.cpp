@@ -30,8 +30,8 @@ namespace Levels
 	public:
 		void setGraphicsSettings() const
 		{
-			Globals::Components().graphicsSettings().clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-			Globals::Components().graphicsSettings().defaultColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+			Globals::Components().graphicsSettings().clearColorF = glm::vec4{ 0.0f, 0.0f, 0.0f, 1.0f };
+			Globals::Components().graphicsSettings().defaultColorF = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
 		}
 
 		void loadTextures()

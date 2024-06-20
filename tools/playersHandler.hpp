@@ -4,11 +4,12 @@
 
 #include "gameHelpers.hpp"
 
+#include <commonTypes/fTypes.hpp>
+
 #include <glm/glm.hpp>
 
 #include <array>
 #include <vector>
-#include <functional>
 #include <optional>
 
 namespace Tools
@@ -29,7 +30,7 @@ namespace Tools
 	public:
 		struct CameraParams
 		{
-			CameraParams& projectionHSizeMin(std::function<float()> value)
+			CameraParams& projectionHSizeMin(FFloat value)
 			{
 				projectionHSizeMin_ = value;
 				return *this;
@@ -53,17 +54,17 @@ namespace Tools
 				return *this;
 			}
 
-			CameraParams& additionalActors(std::function<glm::vec2()> value)
+			CameraParams& additionalActors(FVec2 value)
 			{
 				additionalActors_.push_back(std::move(value));
 				return *this;
 			}
 
-			std::function<float()> projectionHSizeMin_;
+			FFloat projectionHSizeMin_;
 			float scalingFactor_ = 0.6f;
 			float velocityFactor_ = 0.2f;
 			float transitionFactor_ = 10.0f;
-			std::vector<std::function<glm::vec2()>> additionalActors_;
+			std::vector<FVec2> additionalActors_;
 		};
 
 		~PlayersHandler();

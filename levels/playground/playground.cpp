@@ -45,6 +45,8 @@
 #include <tools/missilesHandler.hpp>
 #include <tools/splines.hpp>
 
+#include <commonTypes/fTypes.hpp>
+
 #include <algorithm>
 #include <numeric>
 #include <unordered_map>
@@ -61,7 +63,7 @@ namespace Levels
 	public:
 		void globalSettings() const
 		{
-			Globals::Components().graphicsSettings().defaultColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+			Globals::Components().graphicsSettings().defaultColorF = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
 			Globals::Components().mainFramebufferRenderer().renderer = Tools::Demo3DRotatedFullscreenRenderer(Globals::Shaders().textured());
 		}
 
@@ -248,7 +250,7 @@ namespace Levels
 				for (const auto& light : Globals::Components().lights3D())
 				{
 					Shapes3D::AddSphere(staticDecorations.emplace(), 0.2f, 2, 3);
-					staticDecorations.last().colorF = [&]() { return glm::vec4(light.color, 1.0f) + Globals::Components().graphicsSettings().clearColor * light.clearColorFactor; };
+					staticDecorations.last().colorF = [&]() { return glm::vec4(light.color, 1.0f) + Globals::Components().graphicsSettings().clearColorF * light.clearColorFactor; };
 					staticDecorations.last().params3D->lightModelEnabled(false);
 					staticDecorations.last().modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), light.position), physics.simulationDuration * 4.0f, { 1.0f, 1.0f, 1.0f }); };
 					staticDecorations.last().stepF = ([&lightSphere = staticDecorations.last(), &crosses = dynamicDecorations[crossesId]]() { lightSphere.setEnable(crosses.isEnabled()); });
@@ -264,7 +266,7 @@ namespace Levels
 				});
 		}
 
-		RenderableDef::RenderingSetupF createRecursiveFaceRS(std::function<glm::vec4()> colorF, glm::vec2 fadingRange) const
+		RenderableDef::RenderingSetupF createRecursiveFaceRS(FVec4 colorF, glm::vec2 fadingRange) const
 		{
 			return { [=,
 				colorUniform = Uniforms::Uniform4f(),
@@ -288,7 +290,7 @@ namespace Levels
 				invisibilityDistance(fadingRange.y);
 
 				return [=]() mutable {
-					colorUniform(Globals::Components().graphicsSettings().defaultColor);
+					colorUniform(Globals::Components().graphicsSettings().defaultColorF());
 					visibilityReduction(false);
 					};
 			} };
@@ -418,7 +420,7 @@ namespace Levels
 						texturedProgram.color(glm::vec4(
 							glm::sin(Globals::Components().physics().simulationDuration* glm::two_pi<float>() * 0.2f) + 1.0f) / 2.0f);
 						texturedProgram.model(Globals::Components().staticWalls()[wallId].modelMatrixF());
-						return [=]() mutable { texturedProgram.color(Globals::Components().graphicsSettings().defaultColor); };
+						return [=]() mutable { texturedProgram.color(Globals::Components().graphicsSettings().defaultColorF()); };
 					};
 
 				wall.subsequence.emplace_back(Shapes2D::CreateVerticesOfFunctionalRectangles({ 1.0f, 1.0f },
@@ -526,7 +528,7 @@ namespace Levels
 				auto renderingSetupF = [colorUniform = Uniforms::Uniform4f()](Shaders::ProgramId program) mutable {
 					if (!colorUniform.isValid()) colorUniform = Uniforms::Uniform4f(program, "color");
 					colorUniform(glm::vec4((glm::sin(Globals::Components().physics().simulationDuration / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f));
-					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColor); };
+					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColorF()); };
 				};
 
 				Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 0.0f, -10.0f })),
@@ -573,7 +575,7 @@ namespace Levels
 			auto standardRSF =  [=, colorUniform = Uniforms::Uniform4f()](Shaders::ProgramId program) mutable {
 					if (!colorUniform.isValid()) colorUniform = Uniforms::Uniform4f(program, "color");
 					colorUniform(glm::vec4(*alpha));
-					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColor); };
+					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColorF()); };
 				};
 
 			auto recursiveFaceRSF = createRecursiveFaceRS([=]() { return glm::vec4(*alpha); }, {1.0f, 2.0f});

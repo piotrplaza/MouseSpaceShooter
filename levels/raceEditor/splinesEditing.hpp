@@ -2,6 +2,8 @@
 
 #include "common.hpp"
 
+#include <commonTypes/fTypes.hpp>
+
 #include <functional>
 #include <optional>
 #include <fstream>
@@ -13,7 +15,7 @@ namespace Levels
 	class SplineEditing
 	{
 	public:
-		SplineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, std::function<bool()> ongoing);
+		SplineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing);
 
 		void edit(bool& cameraMoving);
 		void update() const;
@@ -35,7 +37,7 @@ namespace Levels
 
 		const float& zoomScale;
 
-		std::function<bool()> ongoing;
+		FBool ongoing;
 
 		std::unordered_map<ComponentId, SplineDef> splineDecorationIdToSplineDef;
 		std::optional<ComponentId> activeSplineDecorationId;

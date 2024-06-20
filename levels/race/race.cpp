@@ -39,7 +39,7 @@ namespace Levels
 	public:
 		void setGraphicsSettings() const
 		{
-			Globals::Components().graphicsSettings().clearColor = { 0.7f, 0.8f, 0.9f, 1.0f };
+			Globals::Components().graphicsSettings().clearColorF = glm::vec4{ 0.7f, 0.8f, 0.9f, 1.0f };
 		}
 
 		void loadTextures()

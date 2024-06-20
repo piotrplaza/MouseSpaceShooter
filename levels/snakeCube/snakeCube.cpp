@@ -75,7 +75,7 @@ namespace Levels
 			{
 				auto& graphicsSettings = Globals::Components().graphicsSettings();
 
-				graphicsSettings.clearColor = clearColor;
+				graphicsSettings.clearColorF = clearColor;
 				graphicsSettings.cullFace = false;
 				graphicsSettings.lineWidth = 1.0f;
 			}
@@ -137,7 +137,7 @@ namespace Levels
 
 						auto& lightDecoration = staticDecorations.emplace();
 						Shapes3D::AddSphere(lightDecoration, 0.2f * crossesScale, 2, 3);
-						lightDecoration.colorF = [&]() { return glm::vec4(light.color, 1.0f) + (Globals::Components().graphicsSettings().clearColor) * light.clearColorFactor; };
+						lightDecoration.colorF = [&]() { return glm::vec4(light.color, 1.0f) + (Globals::Components().graphicsSettings().clearColorF) * light.clearColorFactor; };
 						lightDecoration.params3D->lightModelEnabled(false);
 						lightDecoration.modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), light.position), physics.simulationDuration * 4.0f, { 1.0f, 1.0f, 1.0f }); };
 						lightDecoration.stepF = [&, &lightSphere = lightDecoration]() { lightSphere.setEnable(instancedCrosses.isEnabled()); };

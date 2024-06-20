@@ -321,7 +321,7 @@ namespace Tools
 		const auto& mvp3D = Globals::Components().mvp3D();
 		const auto& graphicsSettings = Globals::Components().graphicsSettings();
 
-		shadersProgram.clearColor(graphicsSettings.clearColor);
+		shadersProgram.clearColor(graphicsSettings.clearColorF());
 		shadersProgram.numOfLights(lights3D.size());
 		unsigned i = 0;
 		for (const auto& light : lights3D)

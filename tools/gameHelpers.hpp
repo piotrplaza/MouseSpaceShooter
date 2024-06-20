@@ -5,6 +5,7 @@
 #include <commonTypes/componentMappers.hpp>
 #include <commonTypes/resolutionMode.hpp>
 #include <commonTypes/componentId.hpp>
+#include <commonTypes/fTypes.hpp>
 
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
@@ -175,43 +176,41 @@ namespace Tools
 
 	struct JuliaParams
 	{
-		JuliaParams() = default; // Functors calls result in random issues without this, prob due to some bug in the compiler.
-
-		JuliaParams& juliaCF(std::function<glm::vec2()> value)
+		JuliaParams& juliaCF(FVec2 value)
 		{
 			juliaCF_ = std::move(value);
 			return *this;
 		}
 
-		JuliaParams& juliaCOffsetF(std::function<glm::vec2()> value)
+		JuliaParams& juliaCOffsetF(FVec2 value)
 		{
 			juliaCOffsetF_ = std::move(value);
 			return *this;
 		}
 
-		JuliaParams& minColorF(std::function<glm::vec4()> value)
+		JuliaParams& minColorF(FVec4 value)
 		{
 			minColorF_ = std::move(value);
 			return *this;
 		}
 
-		JuliaParams& maxColorF(std::function<glm::vec4()> value)
+		JuliaParams& maxColorF(FVec4 value)
 		{
 			maxColorF_ = std::move(value);
 			return *this;
 		}
 
-		JuliaParams& iterationsF(std::function<int()> value)
+		JuliaParams& iterationsF(FInt value)
 		{
 			iterationsF_ = std::move(value);
 			return *this;
 		}
 
-		std::function<glm::vec2()> juliaCF_ = []() { return glm::vec2{ -0.1f, 0.65f }; };
-		std::function<glm::vec2()> juliaCOffsetF_ = []() { return glm::vec2{ 0.0f }; };
-		std::function<glm::vec4()> minColorF_ = []() { return glm::vec4{ 0.0f, 0.0f, 0.0f, 1.0f }; };
-		std::function<glm::vec4()> maxColorF_ = []() { return glm::vec4{ 0.0f, 0.2f, 0.1f, 1.0f }; };
-		std::function<int()> iterationsF_ = []() { return 100; };
+		FVec2 juliaCF_ = glm::vec2{ -0.1f, 0.65f };
+		FVec2 juliaCOffsetF_ = glm::vec2{ 0.0f };
+		FVec4 minColorF_ = glm::vec4{ 0.0f, 0.0f, 0.0f, 1.0f };
+		FVec4 maxColorF_ = glm::vec4{ 0.0f, 0.2f, 0.1f, 1.0f };
+		FInt iterationsF_ = 100;
 	};
 
 	struct MissileHandler
@@ -255,10 +254,9 @@ namespace Tools
 		glm::vec2 initialVelocity, ComponentId missileTexture, ComponentId thrustAnimatedTexture, std::optional<ComponentId> planeId = std::nullopt,
 		std::optional<ComponentId> missileSoundBuffer = std::nullopt);
 	void CreateExplosion(ExplosionParams params);
-	void CreateFogForeground(int numOfLayers, float alphaPerLayer, ComponentId fogTexture,
-		std::function<glm::vec4()> fColor = []() { return glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); });
+	void CreateFogForeground(int numOfLayers, float alphaPerLayer, ComponentId fogTexture, FVec4 fColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	void CreateJuliaBackground(JuliaParams params);
-	Components::Sound& CreateAndPlaySound(ComponentId soundBuffer, std::function<glm::vec2()> posF = nullptr,
+	Components::Sound& CreateAndPlaySound(ComponentId soundBuffer, FVec2 posF = nullptr,
 		std::function<void(Components::Sound&)> config = nullptr, std::function<void(Components::Sound&)> stepF = nullptr);
 	std::function<void(b2Fixture&, b2Fixture&)> SkipDuplicatedBodiesCollisions(std::function<void(b2Fixture&, b2Fixture&)> handler);
 }

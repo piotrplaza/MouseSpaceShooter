@@ -29,7 +29,7 @@ namespace
 
 namespace Levels
 {
-	StartingLineEditing::StartingLineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, std::function<bool()> ongoing):
+	StartingLineEditing::StartingLineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing):
 		mousePos(mousePos),
 		oldMousePos(oldMousePos),
 		mouseDelta(mouseDelta),

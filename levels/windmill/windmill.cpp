@@ -53,7 +53,7 @@ namespace Levels
 
 		void setGraphicsSettings()
 		{
-			Globals::Components().graphicsSettings().defaultColor = { 0.7f, 0.7f, 0.7f, 1.0f };
+			Globals::Components().graphicsSettings().defaultColorF = glm::vec4{ 0.7f, 0.7f, 0.7f, 1.0f };
 
 			recursiveFaceRSF = [
 				this,
