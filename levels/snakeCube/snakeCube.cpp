@@ -13,7 +13,6 @@
 #include <components/sound.hpp>
 
 #include <globals/components.hpp>
-#include <globals/shaders.hpp>
 
 #include <tools/shapes3D.hpp>
 #include <tools/colorBufferEditor.hpp>
@@ -149,12 +148,15 @@ namespace Levels
 			{
 				auto decorations = Shapes3D::CreateCuboid(Globals::Components().staticDecorations(), cubeTextures, glm::vec3(cubeHSize));
 				for (auto* decoration : decorations)
-					decoration->params3D->lightModelEnabled(false);
+					decoration->params3D->lightModelEnabled(false).fogAmplification(0.5f);
 			}
 
 			auto& wiredCuboid = Globals::Components().staticDecorations().emplace();
 			Shapes3D::AddWiredCuboid(wiredCuboid, glm::vec3(cubeHSize - 0.001f), wiredCubeColor);
-			wiredCuboid.params3D->lightModelEnabled(false);
+			wiredCuboid.params3D->lightModelEnabled(false).fogAmplification(0.5f);
+			wiredCuboid.renderingSetupF = [](auto) {
+				return nullptr;
+			};
 #ifdef TEST
 			auto cuboidWalls = Shapes3D::CreateCuboid(Globals::Components().staticDecorations(), testCubeTextures, glm::vec3(cubeHSize) + 0.001f);
 			for (auto* wall : cuboidWalls)

@@ -50,7 +50,8 @@ namespace Shaders
 				lightModelColorNormalization(program, "lightModelColorNormalization"),
 				lightModelEnabled(program, "lightModelEnabled"),
 				alphaDiscardTreshold(program, "alphaDiscardTreshold"),
-				gpuSideInstancedNormalTransforms(program, "gpuSideInstancedNormalTransforms")
+				gpuSideInstancedNormalTransforms(program, "gpuSideInstancedNormalTransforms"),
+				fogAmplification(program, "fogAmplification")
 			{
 			}
 
@@ -93,6 +94,7 @@ namespace Shaders
 			Uniforms::Uniform1b lightModelEnabled;
 			Uniforms::Uniform1f alphaDiscardTreshold;
 			Uniforms::Uniform1b gpuSideInstancedNormalTransforms;
+			Uniforms::Uniform1f fogAmplification;
 		};
 
 		struct TexturedPhong : TexturedPhongAccessor
@@ -140,6 +142,7 @@ namespace Shaders
 				lightModelEnabled(true);
 				alphaDiscardTreshold(0.5f);
 				gpuSideInstancedNormalTransforms(false);
+				fogAmplification(0.0f);
 			}
 
 			TexturedPhong(const Textured&) = delete;

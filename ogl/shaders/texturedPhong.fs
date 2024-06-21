@@ -41,6 +41,7 @@ uniform vec3 visibilityCenter;
 uniform float fullVisibilityDistance;
 uniform float invisibilityDistance;
 uniform float alphaDiscardTreshold;
+uniform float fogAmplification;
 
 float getAmbientFactor()
 {
@@ -132,6 +133,12 @@ vec4 texturing(vec4 inColor)
 	}
 }
 
+float getFogAmplification()
+{
+	const float d = distance(vPos, viewPos);
+	return 1.0 - 1.0 / (1.0 + d * d * fogAmplification);
+}
+
 void main()
 {
 	const vec4 vColor = flatColor ? vFlatColor : vSmoothColor;
@@ -140,5 +147,10 @@ void main()
 	if (alphaDiscardTreshold > 0.0 && texturedColor.a + illumination.a <= alphaDiscardTreshold)
 		discard;
 
-	fColor = (lightModel(texturedColor) + illumination) * visibility();
+	vec4 finalColor = lightModel(texturedColor);
+	finalColor.xyz = mix(finalColor.xyz, clearColor.xyz, getFogAmplification());
+	finalColor += illumination;
+	finalColor *= visibility();
+
+	fColor = finalColor;
 }

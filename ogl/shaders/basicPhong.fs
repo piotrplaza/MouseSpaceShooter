@@ -26,6 +26,7 @@ uniform bool flatColor;
 uniform bool flatNormal;
 uniform bool lightModelColorNormalization;
 uniform bool lightModelEnabled;
+uniform float fogAmplification;
 
 float getAmbientFactor()
 {
@@ -42,10 +43,16 @@ float getSpecularFactor(const vec3 lightDir, const vec3 normal, const vec3 viewD
 	return pow(max(dot(viewDir, reflectDir), 0.0), specularFocus) * specular * frontFactor;
 }
 
-float getAttenuation(int lightId)
+float getLightAttenuation(int lightId)
 {
 	const float d = distance(vPos, lightsPos[lightId]) * lightsAttenuation[lightId];
 	return 1.0 / (1.0 + d * d);
+}
+
+float getFogAmplification()
+{
+	const float d = distance(vPos, viewPos);
+	return 1.0 - 1.0 / (1.0 + d * d * fogAmplification);
 }
 
 void main()
@@ -54,7 +61,10 @@ void main()
 
 	if (numOfLights == 0 || !lightModelEnabled)
 	{
-		fColor = color * vColor + illumination;
+		vec4 finalColor = color * vColor;
+		finalColor.xyz = mix(finalColor.xyz, clearColor.xyz, getFogAmplification()); 
+		finalColor += illumination;
+		fColor = finalColor;
 		return;
 	}
 
@@ -68,7 +78,7 @@ void main()
 	{
 		const vec3 lightDir = normalize(lightsPos[i] - vPos);
 		lightModelColor += mix(partialClearColor, partialClearColor * clearColorFactor[i] + vColor.rgb * color.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal, frontFactor))
-			+ mix(vec3(1.0f), vColor.rgb * color.rgb, specularMaterialColorFactor) * lightsCol[i] * getSpecularFactor(lightDir, normal, viewDir, frontFactor), getAttenuation(i));
+			+ mix(vec3(1.0f), vColor.rgb * color.rgb, specularMaterialColorFactor) * lightsCol[i] * getSpecularFactor(lightDir, normal, viewDir, frontFactor), getLightAttenuation(i));
 	}
 
 	if (lightModelColorNormalization)
@@ -79,5 +89,5 @@ void main()
 			lightModelColor /= lightModelColorComponentMax;
 	}
 
-	fColor = vec4(lightModelColor * vColor.a * color.a, vColor.a * color.a) + illumination;
+	fColor = vec4(mix(lightModelColor * vColor.a * color.a, clearColor.xyz, getFogAmplification()), vColor.a * color.a) + illumination;
 }
