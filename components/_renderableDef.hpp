@@ -99,6 +99,12 @@ struct RenderableDef
 			return *this;
 		}
 
+		Params3D& lightModelColorNormalization(bool value)
+		{
+			lightModelColorNormalization_ = value;
+			return *this;
+		}
+
 		std::vector<glm::vec3> normals_;
 		float ambient_ = 0.1f;
 		float diffuse_ = 0.8f;
@@ -111,6 +117,7 @@ struct RenderableDef
 		float alphaDiscardTreshold_ = 0.1f;
 		bool gpuSideInstancedNormalTransforms_ = false;
 		float fogAmplification_ = 0.0f;
+		bool lightModelColorNormalization_ = false;
 	};
 
 	RenderableDef() = default;
