@@ -69,6 +69,12 @@ struct RenderableDef
 			return *this;
 		}
 
+		Params3D& darkColor(FVec3 value)
+		{
+			darkColor_ = std::move(value);
+			return *this;
+		}
+
 		Params3D& lightModelEnabled(bool value)
 		{
 			lightModelEnabled_ = value;
@@ -100,6 +106,7 @@ struct RenderableDef
 		float specularFocus_ = 8.0f;
 		float specularMaterialColorFactor_ = 0.0f;
 		FVec4 illuminationF_;
+		FVec3 darkColor_;
 		bool lightModelEnabled_ = true;
 		float alphaDiscardTreshold_ = 0.1f;
 		bool gpuSideInstancedNormalTransforms_ = false;

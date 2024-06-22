@@ -29,6 +29,7 @@ namespace
 	{
 		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers.basicPhong;
 		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.basicPhong;
+		const auto& graphicsSettings = Globals::Components().graphicsSettings();
 
 		glUseProgram_proxy(Globals::Shaders().basicPhong().getProgramId());
 		Globals::Shaders().basicPhong().vp(Globals::Components().mvp3D().getVP());
@@ -40,17 +41,18 @@ namespace
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
 
-			buffers.draw(Globals::Shaders().basicPhong().getProgramId(), [](const auto& buffers) {
+			buffers.draw(Globals::Shaders().basicPhong().getProgramId(), [&](const auto& buffers) {
 				const auto modelMatrix = (buffers.renderable->modelMatrixF)();
 				Globals::Shaders().basicPhong().model(modelMatrix);
 				Globals::Shaders().basicPhong().normalMatrix(Globals::Components().mvp3D().getNormalMatrix(modelMatrix));
-				Globals::Shaders().basicPhong().color((buffers.renderable->colorF) ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColorF());
+				Globals::Shaders().basicPhong().color(buffers.renderable->colorF.isLoaded() ? (buffers.renderable->colorF)() : graphicsSettings.defaultColorF());
 				Globals::Shaders().basicPhong().ambient(buffers.renderable->params3D->ambient_);
 				Globals::Shaders().basicPhong().diffuse(buffers.renderable->params3D->diffuse_);
 				Globals::Shaders().basicPhong().specular(buffers.renderable->params3D->specular_);
 				Globals::Shaders().basicPhong().specularFocus(buffers.renderable->params3D->specularFocus_);
 				Globals::Shaders().basicPhong().specularMaterialColorFactor(buffers.renderable->params3D->specularMaterialColorFactor_);
-				Globals::Shaders().basicPhong().illumination((buffers.renderable->params3D->illuminationF_) ? (buffers.renderable->params3D->illuminationF_)() : glm::vec4(0.0f));
+				Globals::Shaders().basicPhong().illumination(buffers.renderable->params3D->illuminationF_.isLoaded() ? buffers.renderable->params3D->illuminationF_() : glm::vec4(0.0f));
+				Globals::Shaders().basicPhong().darkColor(buffers.renderable->params3D->darkColor_.isLoaded() ? buffers.renderable->params3D->darkColor_() : graphicsSettings.backgroundColorF());
 				Globals::Shaders().basicPhong().lightModelEnabled(buffers.renderable->params3D->lightModelEnabled_);
 				Globals::Shaders().basicPhong().gpuSideInstancedNormalTransforms(buffers.renderable->params3D->gpuSideInstancedNormalTransforms_);
 				Globals::Shaders().basicPhong().fogAmplification(buffers.renderable->params3D->fogAmplification_);
@@ -68,6 +70,7 @@ namespace
 	{
 		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers.texturedPhong;
 		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.texturedPhong;
+		const auto& graphicsSettings = Globals::Components().graphicsSettings();
 
 		glUseProgram_proxy(Globals::Shaders().texturedPhong().getProgramId());
 		Globals::Shaders().texturedPhong().vp(Globals::Components().mvp3D().getVP());
@@ -79,17 +82,18 @@ namespace
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
 
-			buffers.draw(Globals::Shaders().texturedPhong(), [](const auto& buffers) {
+			buffers.draw(Globals::Shaders().texturedPhong(), [&](const auto& buffers) {
 				const auto modelMatrix = (buffers.renderable->modelMatrixF)();
 				Globals::Shaders().texturedPhong().model(modelMatrix);
 				Globals::Shaders().texturedPhong().normalMatrix(Globals::Components().mvp3D().getNormalMatrix(modelMatrix));
-				Globals::Shaders().texturedPhong().color((buffers.renderable->colorF) ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColorF());
+				Globals::Shaders().texturedPhong().color(buffers.renderable->colorF.isLoaded() ? (buffers.renderable->colorF)() : graphicsSettings.defaultColorF());
 				Globals::Shaders().texturedPhong().ambient(buffers.renderable->params3D->ambient_);
 				Globals::Shaders().texturedPhong().diffuse(buffers.renderable->params3D->diffuse_);
 				Globals::Shaders().texturedPhong().specular(buffers.renderable->params3D->specular_);
 				Globals::Shaders().texturedPhong().specularFocus(buffers.renderable->params3D->specularFocus_);
 				Globals::Shaders().texturedPhong().specularMaterialColorFactor(buffers.renderable->params3D->specularMaterialColorFactor_);
-				Globals::Shaders().texturedPhong().illumination((buffers.renderable->params3D->illuminationF_) ? (buffers.renderable->params3D->illuminationF_)() : glm::vec4(0.0f));
+				Globals::Shaders().texturedPhong().illumination(buffers.renderable->params3D->illuminationF_.isLoaded() ? buffers.renderable->params3D->illuminationF_() : glm::vec4(0.0f));
+				Globals::Shaders().texturedPhong().darkColor(buffers.renderable->params3D->darkColor_.isLoaded() ? buffers.renderable->params3D->darkColor_() : graphicsSettings.backgroundColorF());
 				Globals::Shaders().texturedPhong().lightModelEnabled(buffers.renderable->params3D->lightModelEnabled_);
 				Globals::Shaders().texturedPhong().alphaDiscardTreshold(buffers.renderable->params3D->alphaDiscardTreshold_);
 				Globals::Shaders().texturedPhong().gpuSideInstancedNormalTransforms(buffers.renderable->params3D->gpuSideInstancedNormalTransforms_);
@@ -122,7 +126,7 @@ namespace
 
 			buffers.draw(Globals::Shaders().basic().getProgramId(), [](const auto& buffers) {
 				Globals::Shaders().basic().model((buffers.renderable->modelMatrixF)());
-				Globals::Shaders().basic().color((buffers.renderable->colorF) ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColorF());
+				Globals::Shaders().basic().color(buffers.renderable->colorF.isLoaded() ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColorF());
 			});
 		};
 
@@ -151,7 +155,7 @@ namespace
 			buffers.draw(Globals::Shaders().textured(), [](const auto& buffers) {
 				Globals::Shaders().textured().model((buffers.renderable->modelMatrixF)());
 				Globals::Shaders().textured().visibilityCenter((buffers.renderable->originF)());
-				Globals::Shaders().textured().color((buffers.renderable->colorF) ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColorF());
+				Globals::Shaders().textured().color(buffers.renderable->colorF.isLoaded() ? buffers.renderable->colorF() : Globals::Components().graphicsSettings().defaultColorF());
 				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers.renderable->texture, buffers.renderable->preserveTextureRatio);
 			});
 		};
@@ -203,7 +207,7 @@ namespace Systems
 	void RenderingController::render() const
 	{
 		const auto& graphicsSettings = Globals::Components().graphicsSettings();
-		const auto clearColor = graphicsSettings.clearColorF();
+		const auto clearColor = graphicsSettings.backgroundColorF();
 		const auto& screenInfo = Globals::Components().screenInfo();
 		const auto& framebuffers = Globals::Components().framebuffers();
 

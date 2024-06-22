@@ -27,7 +27,7 @@ namespace Levels
 	public:
 		void shadersSetup() const
 		{
-			Globals::Components().graphicsSettings().clearColorF = glm::vec4{ 0.0f, 0.05f, 0.0f, 1.0f };
+			Globals::Components().graphicsSettings().backgroundColorF = glm::vec4{ 0.0f, 0.05f, 0.0f, 1.0f };
 			Globals::Components().lights3D().emplace(glm::vec3(0.0f, 0.49f, 0.0f), glm::vec3(1.0f), 1.0f);
 		}
 

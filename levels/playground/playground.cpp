@@ -250,7 +250,7 @@ namespace Levels
 				for (const auto& light : Globals::Components().lights3D())
 				{
 					Shapes3D::AddSphere(staticDecorations.emplace(), 0.2f, 2, 3);
-					staticDecorations.last().colorF = [&]() { return glm::vec4(light.color, 1.0f) + Globals::Components().graphicsSettings().clearColorF * light.clearColorFactor; };
+					staticDecorations.last().colorF = [&]() { return glm::vec4(light.color, 1.0f) + Globals::Components().graphicsSettings().backgroundColorF() * light.darkColorFactor; };
 					staticDecorations.last().params3D->lightModelEnabled(false);
 					staticDecorations.last().modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), light.position), physics.simulationDuration * 4.0f, { 1.0f, 1.0f, 1.0f }); };
 					staticDecorations.last().stepF = ([&lightSphere = staticDecorations.last(), &crosses = dynamicDecorations[crossesId]]() { lightSphere.setEnable(crosses.isEnabled()); });

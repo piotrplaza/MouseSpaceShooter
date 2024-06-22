@@ -74,7 +74,7 @@ namespace Levels
 			{
 				auto& graphicsSettings = Globals::Components().graphicsSettings();
 
-				graphicsSettings.clearColorF = clearColor;
+				graphicsSettings.backgroundColorF = clearColor;
 				graphicsSettings.cullFace = false;
 				graphicsSettings.lineWidth = 1.0f;
 			}
@@ -117,7 +117,7 @@ namespace Levels
 
 				Shapes3D::AddCross(instancedCrosses, { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); }, glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)));
 				instancedCrosses.modelMatrixF = [&]() { return glm::scale(glm::mat4(1.0f), glm::vec3(0.5f)); };
-				instancedCrosses.params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true).gpuSideInstancedNormalTransforms(true);
+				instancedCrosses.params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true).gpuSideInstancedNormalTransforms(true).fogAmplification(0.2f);
 				instancedCrosses.texture = CM::StaticTexture(marbleTexture);
 				instancedCrosses.bufferDataUsage = GL_DYNAMIC_DRAW;
 				instancedCrosses.instancing.emplace().init(numOfCrosses, glm::mat4(1.0f));
@@ -136,7 +136,7 @@ namespace Levels
 
 						auto& lightDecoration = staticDecorations.emplace();
 						Shapes3D::AddSphere(lightDecoration, 0.2f * crossesScale, 2, 3);
-						lightDecoration.colorF = [&]() { return glm::vec4(light.color, 1.0f) + (Globals::Components().graphicsSettings().clearColorF) * light.clearColorFactor; };
+						lightDecoration.colorF = [&]() { return glm::vec4(light.color, 1.0f) + Globals::Components().graphicsSettings().backgroundColorF() * light.darkColorFactor; };
 						lightDecoration.params3D->lightModelEnabled(false);
 						lightDecoration.modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), light.position), physics.simulationDuration * 4.0f, { 1.0f, 1.0f, 1.0f }); };
 						lightDecoration.stepF = [&, &lightSphere = lightDecoration]() { lightSphere.setEnable(instancedCrosses.isEnabled()); };

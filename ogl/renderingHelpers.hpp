@@ -321,7 +321,7 @@ namespace Tools
 		const auto& mvp3D = Globals::Components().mvp3D();
 		const auto& graphicsSettings = Globals::Components().graphicsSettings();
 
-		shadersProgram.clearColor(graphicsSettings.clearColorF());
+		shadersProgram.clearColor(graphicsSettings.backgroundColorF());
 		shadersProgram.numOfLights(lights3D.size());
 		unsigned i = 0;
 		for (const auto& light : lights3D)
@@ -329,7 +329,7 @@ namespace Tools
 			shadersProgram.lightsPos(i, (light.viewSpace ? glm::inverse(mvp3D.view) : glm::mat4(1.0f)) * glm::vec4(light.position, 1.0f));
 			shadersProgram.lightsCol(i, light.color);
 			shadersProgram.lightsAttenuation(i, light.attenuation);
-			shadersProgram.clearColorFactor(i, light.clearColorFactor);
+			shadersProgram.lightsDarkColorFactor(i, light.darkColorFactor);
 			++i;
 		}
 	}

@@ -12,7 +12,7 @@ namespace Components
 {
 	struct GraphicsSettings : ComponentBase
 	{
-		FVec4 clearColorF = glm::vec4{ 0.0f, 0.0f, 0.0f, 1.0f };
+		FVec4 backgroundColorF = glm::vec4{ 0.0f, 0.0f, 0.0f, 1.0f };
 		FVec4 defaultColorF = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
 		std::optional<bool> forcedDepthTest;
 		bool cullFace = true;

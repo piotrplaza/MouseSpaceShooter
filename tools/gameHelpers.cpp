@@ -332,7 +332,7 @@ namespace Tools
 		sound.setRemoveOnStop(true);
 		sound.stepF = [&, posF = std::move(posF), stepF = std::move(stepF)]()
 		{
-			if (posF)
+			if (posF.isLoaded())
 				sound.setPosition(posF());
 
 			if (stepF)

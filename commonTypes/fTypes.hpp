@@ -25,7 +25,8 @@ public:
 	FType(Details::Callable auto f) : f(std::move(f)) {}
 
 	T operator()() const { return f(); }
-	operator bool() const { return (bool)f; }
+
+	bool isLoaded() const { return (bool)f; }
 
 private:
 	std::function<T()> f;
