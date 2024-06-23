@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.9.34723.18
+VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MouseSpaceShooter", "MouseSpaceShooter.vcxproj", "{F06DA511-D923-4671-8616-EB36E0651EB1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MouseSpaceShooter", "MouseSpaceShooter.vcxproj", "{0AB88D9F-D4CD-4639-834E-4F73814E9BAE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3C85B307-3655-4E50-9A40-825FFA47F31B} = {3C85B307-3655-4E50-9A40-825FFA47F31B}
 	EndProjectSection
@@ -16,10 +16,10 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F06DA511-D923-4671-8616-EB36E0651EB1}.Debug|x86.ActiveCfg = Debug|Win32
-		{F06DA511-D923-4671-8616-EB36E0651EB1}.Debug|x86.Build.0 = Debug|Win32
-		{F06DA511-D923-4671-8616-EB36E0651EB1}.Release|x86.ActiveCfg = Release|Win32
-		{F06DA511-D923-4671-8616-EB36E0651EB1}.Release|x86.Build.0 = Release|Win32
+		{0AB88D9F-D4CD-4639-834E-4F73814E9BAE}.Debug|x86.ActiveCfg = Debug|Win32
+		{0AB88D9F-D4CD-4639-834E-4F73814E9BAE}.Debug|x86.Build.0 = Debug|Win32
+		{0AB88D9F-D4CD-4639-834E-4F73814E9BAE}.Release|x86.ActiveCfg = Release|Win32
+		{0AB88D9F-D4CD-4639-834E-4F73814E9BAE}.Release|x86.Build.0 = Release|Win32
 		{3C85B307-3655-4E50-9A40-825FFA47F31B}.Debug|x86.ActiveCfg = Debug|Win32
 		{3C85B307-3655-4E50-9A40-825FFA47F31B}.Debug|x86.Build.0 = Debug|Win32
 		{3C85B307-3655-4E50-9A40-825FFA47F31B}.Release|x86.ActiveCfg = Release|Win32
@@ -27,8 +27,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {9A7092DE-1B7D-4936-B9FB-BD1CEB1B52BE}
 	EndGlobalSection
 EndGlobal

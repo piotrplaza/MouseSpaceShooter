@@ -9,17 +9,34 @@
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
+    <ClCompile Include="ogl\buffers\genericBuffers.cpp" />
+    <ClCompile Include="ogl\oglHelpers.cpp" />
+    <ClCompile Include="ogl\oglProxy.cpp" />
+    <ClCompile Include="ogl\shaders.cpp" />
+    <ClCompile Include="ogl\uniforms.cpp" />
+    <ClCompile Include="systems\actors.cpp" />
+    <ClCompile Include="systems\audio.cpp" />
+    <ClCompile Include="systems\camera.cpp" />
+    <ClCompile Include="systems\cleaner.cpp" />
+    <ClCompile Include="systems\decorations.cpp" />
+    <ClCompile Include="systems\deferredActions.cpp" />
+    <ClCompile Include="systems\physics.cpp" />
+    <ClCompile Include="systems\renderingController.cpp" />
+    <ClCompile Include="systems\stateController.cpp" />
+    <ClCompile Include="systems\structures.cpp" />
+    <ClCompile Include="systems\temporaries.cpp" />
+    <ClCompile Include="systems\textures.cpp" />
+    <ClCompile Include="tools\b2Helpers.cpp" />
+    <ClCompile Include="tools\gameHelpers.cpp" />
+    <ClCompile Include="tools\geometryHelpers.cpp" />
+    <ClCompile Include="tools\missilesHandler.cpp" />
+    <ClCompile Include="tools\playersHandler.cpp" />
+    <ClCompile Include="tools\shapes2D.cpp" />
+    <ClCompile Include="tools\shapes3D.cpp" />
+    <ClCompile Include="tools\utility.cpp" />
     <ClCompile Include="commonTypes\componentMappers.cpp" />
     <ClCompile Include="commonTypes\resolutionMode.cpp" />
     <ClCompile Include="components\animatedTexture.cpp" />
@@ -53,40 +70,12 @@
     <ClCompile Include="levels\raceEditor\startingLineEditing.cpp" />
     <ClCompile Include="levels\race\race.cpp" />
     <ClCompile Include="levels\rim\rim.cpp" />
-    <ClCompile Include="levels\rocketball\rocketball.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="levels\rocketball\rocketball.cpp" />
     <ClCompile Include="levels\snakeCube\snakeCube.cpp" />
     <ClCompile Include="levels\splineTest\splineTest.cpp" />
     <ClCompile Include="levels\squareRace\squareRace.cpp" />
     <ClCompile Include="levels\windmill\windmill.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ogl\buffers\genericBuffers.cpp" />
-    <ClCompile Include="ogl\oglHelpers.cpp" />
-    <ClCompile Include="ogl\oglProxy.cpp" />
-    <ClCompile Include="ogl\shaders.cpp" />
-    <ClCompile Include="ogl\uniforms.cpp" />
-    <ClCompile Include="systems\actors.cpp" />
-    <ClCompile Include="systems\audio.cpp" />
-    <ClCompile Include="systems\camera.cpp" />
-    <ClCompile Include="systems\cleaner.cpp" />
-    <ClCompile Include="systems\decorations.cpp" />
-    <ClCompile Include="systems\deferredActions.cpp" />
-    <ClCompile Include="systems\physics.cpp" />
-    <ClCompile Include="systems\renderingController.cpp" />
-    <ClCompile Include="systems\stateController.cpp" />
-    <ClCompile Include="systems\structures.cpp" />
-    <ClCompile Include="systems\temporaries.cpp" />
-    <ClCompile Include="systems\textures.cpp" />
-    <ClCompile Include="tools\b2Helpers.cpp" />
-    <ClCompile Include="tools\gameHelpers.cpp" />
-    <ClCompile Include="tools\geometryHelpers.cpp" />
-    <ClCompile Include="tools\missilesHandler.cpp" />
-    <ClCompile Include="tools\playersHandler.cpp" />
-    <ClCompile Include="tools\shapes2D.cpp" />
-    <ClCompile Include="tools\shapes3D.cpp" />
-    <ClCompile Include="tools\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdParty\stb_image\stb_image.h" />
@@ -228,8 +217,9 @@
     <None Include="ogl\shaders\texturedPhong.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{F06DA511-D923-4671-8616-EB36E0651EB1}</ProjectGuid>
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{0ab88d9f-d4cd-4639-834e-4f73814e9bae}</ProjectGuid>
     <RootNamespace>MouseSpaceShooter</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -247,19 +237,6 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -271,87 +248,39 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
-    <EnableMicrosoftCodeAnalysis>true</EnableMicrosoftCodeAnalysis>
-    <ClangTidyChecks>
-    </ClangTidyChecks>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.1;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.30.1\include;C:\libraries\SFML-2.6.1\include;$(ProjectDir)\3rdParty;$(ProjectDir);</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.30.1\lib\x86;C:\libraries\SFML-2.6.1\lib;</LibraryPath>
-    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
-    <EnableMicrosoftCodeAnalysis>true</EnableMicrosoftCodeAnalysis>
-    <ClangTidyChecks>
-    </ClangTidyChecks>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.1;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.30.1\include;C:\libraries\SFML-2.6.1\include;$(ProjectDir)\3rdParty;$(ProjectDir);</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.30.1\lib\x86;C:\libraries\SFML-2.6.1\lib;</LibraryPath>
-    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS;_DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>shcore.lib;opengl32.lib;glew32.lib;Box2DLib.lib;SDL2.lib;sfml-audio-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
-    </Link>
-    <ProjectReference>
-      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
-    </ProjectReference>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PreprocessorDefinitions>GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>shcore.lib;opengl32.lib;glew32.lib;SDL2.lib;sfml-audio-d.lib;sfml-system-d.lib;Box2DLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -360,50 +289,11 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>shcore.lib;opengl32.lib;glew32.lib;Box2DLib.lib;SDL2.lib;sfml-audio.lib;sfml-system.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
-    </Link>
-    <ProjectReference>
-      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
-    </ProjectReference>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>shcore.lib;opengl32.lib;glew32.lib;SDL2.lib;sfml-audio.lib;sfml-system.lib;Box2DLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  <PropertyGroup Condition="'$(Language)'=='C++'">
-    <CAExcludePath>C:\libraries\box2d-2.4.0\include;$(CAExcludePath)</CAExcludePath>
-    <CAExcludePath>$(ProjectDir)\3rdParty;$(CAExcludePath)</CAExcludePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.0;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.28.5\include;C:\libraries\SFML-2.6.1\include;$(ProjectDir)\3rdParty;$(ProjectDir);</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.28.5\lib\x86;C:\libraries\SFML-2.6.1\lib;</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.0;C:\libraries\box2d-2.4.1\include;C:\libraries\SDL2-2.28.5\include;C:\libraries\SFML-2.6.1\include;$(ProjectDir)\3rdParty;$(ProjectDir);</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.28.5\lib\x86;C:\libraries\SFML-2.6.1\lib;</LibraryPath>
-  </PropertyGroup>
 </Project>
