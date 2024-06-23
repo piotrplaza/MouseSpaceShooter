@@ -2,7 +2,7 @@
 
 #include "programBase.hpp"
 
-namespace Shaders
+namespace ShadersUtils
 {
 	namespace Programs
 	{
@@ -18,9 +18,9 @@ namespace Shaders
 			{
 			}
 
-			Uniforms::UniformMat4f model;
-			Uniforms::UniformMat4f vp;
-			Uniforms::Uniform4f color;
+			UniformsUtils::UniformMat4f model;
+			UniformsUtils::UniformMat4f vp;
+			UniformsUtils::Uniform4f color;
 		};
 
 		struct Basic : BasicAccessor

@@ -123,12 +123,12 @@ namespace Tools
 				CM::StaticAnimatedTexture(thrustAnimatedTexture));
 
 			planeDecoration.renderingSetupF = [&, i,
-				modelUniform = Uniforms::UniformMat4f(),
+				modelUniform = UniformsUtils::UniformMat4f(),
 				thrust = 1.0f,
 				thrustAnimatedTexture,
 				params
-			](Shaders::ProgramId program) mutable {
-					if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
+			](ShadersUtils::ProgramId program) mutable {
+					if (!modelUniform.isValid()) modelUniform = UniformsUtils::UniformMat4f(program, "model");
 					modelUniform(
 						glm::translate(
 							glm::scale(
@@ -173,9 +173,9 @@ namespace Tools
 		missile.preserveTextureRatio = true;
 
 		missile.renderingSetupF = [
-			modelUniform = Uniforms::UniformMat4f(), &body](Shaders::ProgramId program) mutable
+			modelUniform = UniformsUtils::UniformMat4f(), &body](ShadersUtils::ProgramId program) mutable
 			{
-				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
+				if (!modelUniform.isValid()) modelUniform = UniformsUtils::UniformMat4f(program, "model");
 				modelUniform(Tools::GetModelMatrix(body));
 				return nullptr;
 			};
@@ -185,10 +185,10 @@ namespace Tools
 		auto& decoration = Globals::Components().dynamicDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
 			CM::StaticAnimatedTexture(thrustAnimatedTexture), Shapes2D::CreateTexCoordOfRectangle());
 
-		decoration.renderingSetupF = [&, modelUniform = Uniforms::UniformMat4f(),
+		decoration.renderingSetupF = [&, modelUniform = UniformsUtils::UniformMat4f(),
 			thrustScale = 0.1f
-		](Shaders::ProgramId program) mutable {
-				if (!modelUniform.isValid()) modelUniform = Uniforms::UniformMat4f(program, "model");
+		](ShadersUtils::ProgramId program) mutable {
+				if (!modelUniform.isValid()) modelUniform = UniformsUtils::UniformMat4f(program, "model");
 				modelUniform(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*missile.body),
 					{ -0.5f, 0.0f, 0.0f }),
 					-glm::half_pi<float>(), { 0.0f, 0.0f, 1.0f }),
@@ -233,7 +233,7 @@ namespace Tools
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 
 			explosionDecoration.renderingSetupF = [=, startTime = Globals::Components().physics().simulationDuration,
-				&particlesShaders](Shaders::ProgramId program) mutable
+				&particlesShaders](ShadersUtils::ProgramId program) mutable
 				{
 					particlesShaders.vp(Globals::Components().mvp2D().getVP());
 					particlesShaders.texture1(params.explosionTexture_);
@@ -282,8 +282,8 @@ namespace Tools
 		for (int posYI = -1; posYI <= 1; ++posYI)
 		for (int posXI = -1; posXI <= 1; ++posXI)
 		{
-			auto renderingSetupF = [=, texturedProgram = Shaders::Programs::TexturedAccessor()
-			](Shaders::ProgramId program) mutable {
+			auto renderingSetupF = [=, texturedProgram = ShadersUtils::Programs::TexturedAccessor()
+			](ShadersUtils::ProgramId program) mutable {
 				if (!texturedProgram.isValid()) texturedProgram = program;
 				texturedProgram.vp(glm::translate(glm::scale(Globals::Components().mvp2D().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
 					glm::vec3(-Globals::Components().camera2D().details.prevPosition * (0.002f + layer * 0.002f), 0.0f)));

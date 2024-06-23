@@ -19,7 +19,7 @@
 #include <components/blendingTexture.hpp>
 #include <components/animatedTexture.hpp>
 
-#include <ogl/uniforms.hpp>
+#include <ogl/uniformsUtils.hpp>
 #include <ogl/shaders/textured.hpp>
 #include <ogl/renderingHelpers.hpp>
 

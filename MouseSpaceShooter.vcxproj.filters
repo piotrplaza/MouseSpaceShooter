@@ -157,9 +157,6 @@
     <ClCompile Include="ogl\oglProxy.cpp">
       <Filter>src\ogl</Filter>
     </ClCompile>
-    <ClCompile Include="ogl\shaders.cpp">
-      <Filter>src\ogl</Filter>
-    </ClCompile>
     <ClCompile Include="systems\decorations.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
@@ -219,9 +216,6 @@
     </ClCompile>
     <ClCompile Include="systems\structures.cpp">
       <Filter>src\systems</Filter>
-    </ClCompile>
-    <ClCompile Include="ogl\uniforms.cpp">
-      <Filter>src\ogl</Filter>
     </ClCompile>
     <ClCompile Include="levels\basic\basic.cpp">
       <Filter>src\levels\basic</Filter>
@@ -328,6 +322,12 @@
     <ClCompile Include="levels\noise\noise.cpp">
       <Filter>src\levels\noise</Filter>
     </ClCompile>
+    <ClCompile Include="ogl\shadersUtils.cpp">
+      <Filter>src\ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="ogl\uniformsUtils.cpp">
+      <Filter>src\ogl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mvp.hpp">
@@ -361,9 +361,6 @@
       <Filter>src\3rdParty\stb_image</Filter>
     </ClInclude>
     <ClInclude Include="ogl\oglProxy.hpp">
-      <Filter>src\ogl</Filter>
-    </ClInclude>
-    <ClInclude Include="ogl\shaders.hpp">
       <Filter>src\ogl</Filter>
     </ClInclude>
     <ClInclude Include="ogl\renderingHelpers.hpp">
@@ -497,9 +494,6 @@
     </ClInclude>
     <ClInclude Include="systems\structures.hpp">
       <Filter>src\systems</Filter>
-    </ClInclude>
-    <ClInclude Include="ogl\uniforms.hpp">
-      <Filter>src\ogl</Filter>
     </ClInclude>
     <ClInclude Include="commonTypes\renderLayer.hpp">
       <Filter>src\commonTypes</Filter>
@@ -683,6 +677,12 @@
     </ClInclude>
     <ClInclude Include="commonTypes\fTypes.hpp">
       <Filter>src\commonTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\shadersUtils.hpp">
+      <Filter>src\ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\uniformsUtils.hpp">
+      <Filter>src\ogl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

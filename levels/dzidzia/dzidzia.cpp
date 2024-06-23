@@ -62,18 +62,18 @@ namespace Levels
 			auto pos = std::make_shared<glm::vec2>(0.0f);
 
 			auto renderigSetupF = [
-				visibilityReduction = Uniforms::Uniform1b(),
-				visibilityCenter = Uniforms::Uniform2f(),
-				fullVisibilityDistance = Uniforms::Uniform1f(),
-				invisibilityDistance = Uniforms::Uniform1f(),
+				visibilityReduction = UniformsUtils::Uniform1b(),
+				visibilityCenter = UniformsUtils::Uniform2f(),
+				fullVisibilityDistance = UniformsUtils::Uniform1f(),
+				invisibilityDistance = UniformsUtils::Uniform1f(),
 				pos
-			](Shaders::ProgramId program) mutable {
+			](ShadersUtils::ProgramId program) mutable {
 				if (!visibilityReduction.isValid())
 				{
-					visibilityReduction = Uniforms::Uniform1b(program, "visibilityReduction");
-					visibilityCenter = Uniforms::Uniform2f(program, "visibilityCenter");
-					fullVisibilityDistance = Uniforms::Uniform1f(program, "fullVisibilityDistance");
-					invisibilityDistance = Uniforms::Uniform1f(program, "invisibilityDistance");
+					visibilityReduction = UniformsUtils::Uniform1b(program, "visibilityReduction");
+					visibilityCenter = UniformsUtils::Uniform2f(program, "visibilityCenter");
+					fullVisibilityDistance = UniformsUtils::Uniform1f(program, "fullVisibilityDistance");
+					invisibilityDistance = UniformsUtils::Uniform1f(program, "invisibilityDistance");
 				}
 
 				visibilityReduction(true);

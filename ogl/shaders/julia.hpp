@@ -2,7 +2,7 @@
 
 #include "programBase.hpp"
 
-namespace Shaders
+namespace ShadersUtils
 {
 	namespace Programs
 	{
@@ -23,14 +23,14 @@ namespace Shaders
 			{
 			}
 
-			Uniforms::UniformMat4f vp;
-			Uniforms::Uniform2f juliaC;
-			Uniforms::Uniform2f juliaCOffset;
-			Uniforms::Uniform4f minColor;
-			Uniforms::Uniform4f maxColor;
-			Uniforms::Uniform1f zoom;
-			Uniforms::Uniform2f translation;
-			Uniforms::Uniform1i iterations;
+			UniformsUtils::UniformMat4f vp;
+			UniformsUtils::Uniform2f juliaC;
+			UniformsUtils::Uniform2f juliaCOffset;
+			UniformsUtils::Uniform4f minColor;
+			UniformsUtils::Uniform4f maxColor;
+			UniformsUtils::Uniform1f zoom;
+			UniformsUtils::Uniform2f translation;
+			UniformsUtils::Uniform1i iterations;
 		};
 
 		struct Julia : JuliaAccessor

@@ -2,7 +2,7 @@
 
 #include <memory>
 
-namespace Shaders::Programs
+namespace ShadersUtils::Programs
 {
 	struct BasicPhong;
 	struct TexturedPhong;
@@ -19,26 +19,26 @@ namespace Globals
 	class ShadersHolder
 	{
 	public:
-		Shaders::Programs::BasicPhong& basicPhong();
-		Shaders::Programs::TexturedPhong& texturedPhong();
-		Shaders::Programs::Basic& basic();
-		Shaders::Programs::Julia& julia();
-		Shaders::Programs::Particles& particles();
-		Shaders::Programs::Textured& textured();
-		Shaders::Programs::TexturedColorThreshold& texturedColorThreshold();
-		Shaders::Programs::Noise& noise();
+		ShadersUtils::Programs::BasicPhong& basicPhong();
+		ShadersUtils::Programs::TexturedPhong& texturedPhong();
+		ShadersUtils::Programs::Basic& basic();
+		ShadersUtils::Programs::Julia& julia();
+		ShadersUtils::Programs::Particles& particles();
+		ShadersUtils::Programs::Textured& textured();
+		ShadersUtils::Programs::TexturedColorThreshold& texturedColorThreshold();
+		ShadersUtils::Programs::Noise& noise();
 
 		void frameSetup();
 
 	private:
-		std::unique_ptr<Shaders::Programs::BasicPhong> basicPhong_ = std::make_unique<Shaders::Programs::BasicPhong>();
-		std::unique_ptr<Shaders::Programs::TexturedPhong> texturedPhong_ = std::make_unique<Shaders::Programs::TexturedPhong>();
-		std::unique_ptr<Shaders::Programs::Basic> basic_ = std::make_unique<Shaders::Programs::Basic>();
-		std::unique_ptr<Shaders::Programs::Julia> julia_ = std::make_unique<Shaders::Programs::Julia>();
-		std::unique_ptr<Shaders::Programs::Particles> particles_ = std::make_unique<Shaders::Programs::Particles>();
-		std::unique_ptr<Shaders::Programs::Textured> textured_ = std::make_unique<Shaders::Programs::Textured>();
-		std::unique_ptr<Shaders::Programs::TexturedColorThreshold> texturedColorThreshold_ = std::make_unique<Shaders::Programs::TexturedColorThreshold>();
-		std::unique_ptr<Shaders::Programs::Noise> noise_ = std::make_unique<Shaders::Programs::Noise>();
+		std::unique_ptr<ShadersUtils::Programs::BasicPhong> basicPhong_ = std::make_unique<ShadersUtils::Programs::BasicPhong>();
+		std::unique_ptr<ShadersUtils::Programs::TexturedPhong> texturedPhong_ = std::make_unique<ShadersUtils::Programs::TexturedPhong>();
+		std::unique_ptr<ShadersUtils::Programs::Basic> basic_ = std::make_unique<ShadersUtils::Programs::Basic>();
+		std::unique_ptr<ShadersUtils::Programs::Julia> julia_ = std::make_unique<ShadersUtils::Programs::Julia>();
+		std::unique_ptr<ShadersUtils::Programs::Particles> particles_ = std::make_unique<ShadersUtils::Programs::Particles>();
+		std::unique_ptr<ShadersUtils::Programs::Textured> textured_ = std::make_unique<ShadersUtils::Programs::Textured>();
+		std::unique_ptr<ShadersUtils::Programs::TexturedColorThreshold> texturedColorThreshold_ = std::make_unique<ShadersUtils::Programs::TexturedColorThreshold>();
+		std::unique_ptr<ShadersUtils::Programs::Noise> noise_ = std::make_unique<ShadersUtils::Programs::Noise>();
 	};
 
 	void InitializeShaders();

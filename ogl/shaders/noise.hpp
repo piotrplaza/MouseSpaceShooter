@@ -2,7 +2,7 @@
 
 #include "programBase.hpp"
 
-namespace Shaders
+namespace ShadersUtils
 {
 	namespace Programs
 	{
@@ -23,14 +23,14 @@ namespace Shaders
 			{
 			}
 
-			Uniforms::UniformMat4f model;
-			Uniforms::UniformMat4f vp;
-			Uniforms::Uniform4f color;
-			Uniforms::Uniform1b separateNoises;
-			Uniforms::Uniform4f noiseWeights;
-			Uniforms::Uniform4f noiseMin;
-			Uniforms::Uniform4f noiseMax;
-			Uniforms::Uniform1f time;
+			UniformsUtils::UniformMat4f model;
+			UniformsUtils::UniformMat4f vp;
+			UniformsUtils::Uniform4f color;
+			UniformsUtils::Uniform1b separateNoises;
+			UniformsUtils::Uniform4f noiseWeights;
+			UniformsUtils::Uniform4f noiseMin;
+			UniformsUtils::Uniform4f noiseMax;
+			UniformsUtils::Uniform1f time;
 		};
 
 		struct Noise : NoiseAccessor

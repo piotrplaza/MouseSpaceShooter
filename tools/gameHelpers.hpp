@@ -18,7 +18,7 @@
 class b2Body;
 class b2Fixture;
 
-namespace Shaders
+namespace ShadersUtils
 {
 	namespace Programs
 	{

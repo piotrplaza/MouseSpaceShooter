@@ -32,7 +32,7 @@
 #include <globals/systems.hpp>
 #include <globals/collisionBits.hpp>
 
-#include <ogl/uniforms.hpp>
+#include <ogl/uniformsUtils.hpp>
 #include <ogl/shaders/texturedColorThreshold.hpp>
 #include <ogl/shaders/textured.hpp>
 #include <ogl/renderingHelpers.hpp>
@@ -269,18 +269,18 @@ namespace Levels
 		RenderableDef::RenderingSetupF createRecursiveFaceRS(FVec4 colorF, glm::vec2 fadingRange) const
 		{
 			return { [=,
-				colorUniform = Uniforms::Uniform4f(),
-				visibilityReduction = Uniforms::Uniform1b(),
-				fullVisibilityDistance = Uniforms::Uniform1f(),
-				invisibilityDistance = Uniforms::Uniform1f(),
+				colorUniform = UniformsUtils::Uniform4f(),
+				visibilityReduction = UniformsUtils::Uniform1b(),
+				fullVisibilityDistance = UniformsUtils::Uniform1f(),
+				invisibilityDistance = UniformsUtils::Uniform1f(),
 				colorF = std::move(colorF)
-			] (Shaders::ProgramId program) mutable {
+			] (ShadersUtils::ProgramId program) mutable {
 				if (!colorUniform.isValid())
 				{
-					colorUniform = Uniforms::Uniform4f(program, "color");
-					visibilityReduction = Uniforms::Uniform1b(program, "visibilityReduction");
-					fullVisibilityDistance = Uniforms::Uniform1f(program, "fullVisibilityDistance");
-					invisibilityDistance = Uniforms::Uniform1f(program, "invisibilityDistance");
+					colorUniform = UniformsUtils::Uniform4f(program, "color");
+					visibilityReduction = UniformsUtils::Uniform1b(program, "visibilityReduction");
+					fullVisibilityDistance = UniformsUtils::Uniform1f(program, "fullVisibilityDistance");
+					invisibilityDistance = UniformsUtils::Uniform1f(program, "invisibilityDistance");
 				}
 
 				colorUniform(colorF());
@@ -305,10 +305,10 @@ namespace Levels
 			{
 				glm::vec2 portraitCenter(i == 0 ? -40.0f : 40.0f, -40.0f);
 				auto renderingSetupF = [=,
-					addBlendingColor = Uniforms::Uniform4f()
-				](Shaders::ProgramId program) mutable {
+					addBlendingColor = UniformsUtils::Uniform4f()
+				](ShadersUtils::ProgramId program) mutable {
 					if (!addBlendingColor.isValid())
-						addBlendingColor = Uniforms::Uniform4f(program, "addBlendingColor");
+						addBlendingColor = UniformsUtils::Uniform4f(program, "addBlendingColor");
 
 					float minDistance = std::numeric_limits<float>::max();
 					for (const auto& playerHandler : playersHandler.getPlayersHandlers())
@@ -344,9 +344,9 @@ namespace Levels
 		void createMovableWalls()
 		{
 			auto renderingSetupF = [
-				texturesCustomTransformUniform = Uniforms::UniformMat4f()
-			](Shaders::ProgramId program) mutable {
-					if (!texturesCustomTransformUniform.isValid()) texturesCustomTransformUniform = Uniforms::UniformMat4f(program, "texturesCustomTransform");
+				texturesCustomTransformUniform = UniformsUtils::UniformMat4f()
+			](ShadersUtils::ProgramId program) mutable {
+					if (!texturesCustomTransformUniform.isValid()) texturesCustomTransformUniform = UniformsUtils::UniformMat4f(program, "texturesCustomTransform");
 					const float simulationDuration = Globals::Components().physics().simulationDuration;
 					texturesCustomTransformUniform(Tools::TextureTransform(glm::vec2(glm::cos(simulationDuration), glm::sin(simulationDuration)) * 0.1f ));
 					return [=]() mutable { texturesCustomTransformUniform(glm::mat4(1.0f)); };
@@ -414,8 +414,8 @@ namespace Levels
 
 				auto renderingSetupF = [
 						wallId = Globals::Components().staticWalls().size() - 1,
-						texturedProgram = Shaders::Programs::TexturedAccessor()
-					](Shaders::ProgramId program) mutable {
+						texturedProgram = ShadersUtils::Programs::TexturedAccessor()
+					](ShadersUtils::ProgramId program) mutable {
 						if (!texturedProgram.isValid()) texturedProgram = program;
 						texturedProgram.color(glm::vec4(
 							glm::sin(Globals::Components().physics().simulationDuration* glm::two_pi<float>() * 0.2f) + 1.0f) / 2.0f);
@@ -447,20 +447,20 @@ namespace Levels
 
 			{
 				auto renderingSetupF = [
-					alphaFromBlendingTextureUniform = Uniforms::Uniform1b(),
-						colorAccumulationUniform = Uniforms::Uniform1b(),
-						texturesCustomTransform = Uniforms::UniformMat4fv<5>(),
-						sceneCoordTextures = Uniforms::Uniform1b(),
+					alphaFromBlendingTextureUniform = UniformsUtils::Uniform1b(),
+						colorAccumulationUniform = UniformsUtils::Uniform1b(),
+						texturesCustomTransform = UniformsUtils::UniformMat4fv<5>(),
+						sceneCoordTextures = UniformsUtils::Uniform1b(),
 						this
-				](Shaders::ProgramId program) mutable {
+				](ShadersUtils::ProgramId program) mutable {
 					if (!alphaFromBlendingTextureUniform.isValid())
-						alphaFromBlendingTextureUniform = Uniforms::Uniform1b(program, "alphaFromBlendingTexture");
+						alphaFromBlendingTextureUniform = UniformsUtils::Uniform1b(program, "alphaFromBlendingTexture");
 					if (!colorAccumulationUniform.isValid())
-						colorAccumulationUniform = Uniforms::Uniform1b(program, "colorAccumulation");
+						colorAccumulationUniform = UniformsUtils::Uniform1b(program, "colorAccumulation");
 					if (!texturesCustomTransform.isValid())
-						texturesCustomTransform = Uniforms::UniformMat4fv<5>(program, "texturesCustomTransform");
+						texturesCustomTransform = UniformsUtils::UniformMat4fv<5>(program, "texturesCustomTransform");
 					if (!sceneCoordTextures.isValid())
-						sceneCoordTextures = Uniforms::Uniform1b(program, "sceneCoordTextures");
+						sceneCoordTextures = UniformsUtils::Uniform1b(program, "sceneCoordTextures");
 
 					alphaFromBlendingTextureUniform(true);
 					colorAccumulationUniform(true);
@@ -497,11 +497,11 @@ namespace Levels
 			}
 
 			auto renderingSetupF = [
-				playerUnhidingRadiusUniform = Uniforms::Uniform1f(),
+				playerUnhidingRadiusUniform = UniformsUtils::Uniform1f(),
 				this
-			](Shaders::ProgramId program) mutable {
+			](ShadersUtils::ProgramId program) mutable {
 					if (!playerUnhidingRadiusUniform.isValid())
-						playerUnhidingRadiusUniform = Uniforms::Uniform1f(program, "playerUnhidingRadius");
+						playerUnhidingRadiusUniform = UniformsUtils::Uniform1f(program, "playerUnhidingRadius");
 
 					playerUnhidingRadiusUniform(20.0f);
 
@@ -525,8 +525,8 @@ namespace Levels
 				CM::StaticTexture(orbTexture)).influenceRadius = 15.0f;
 
 			{
-				auto renderingSetupF = [colorUniform = Uniforms::Uniform4f()](Shaders::ProgramId program) mutable {
-					if (!colorUniform.isValid()) colorUniform = Uniforms::Uniform4f(program, "color");
+				auto renderingSetupF = [colorUniform = UniformsUtils::Uniform4f()](ShadersUtils::ProgramId program) mutable {
+					if (!colorUniform.isValid()) colorUniform = UniformsUtils::Uniform4f(program, "color");
 					colorUniform(glm::vec4((glm::sin(Globals::Components().physics().simulationDuration / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f));
 					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColorF()); };
 				};
@@ -537,9 +537,9 @@ namespace Levels
 
 			{
 				auto renderingSetupF = [
-					texturesCustomTransformUniform = Uniforms::UniformMat4f()
-				](Shaders::ProgramId program) mutable {
-					if (!texturesCustomTransformUniform.isValid()) texturesCustomTransformUniform = Uniforms::UniformMat4f(program, "texturesCustomTransform");
+					texturesCustomTransformUniform = UniformsUtils::UniformMat4f()
+				](ShadersUtils::ProgramId program) mutable {
+					if (!texturesCustomTransformUniform.isValid()) texturesCustomTransformUniform = UniformsUtils::UniformMat4f(program, "texturesCustomTransform");
 					texturesCustomTransformUniform(Tools::TextureTransform({ 0.0f, 0.0f }, 0.0f, { 2.0f, 2.0f }));
 					return [=]() mutable { texturesCustomTransformUniform(glm::mat4(1.0f)); };
 					};
@@ -572,8 +572,8 @@ namespace Levels
 		void createSpawners()
 		{
 			const auto alpha = std::make_shared<float>(0.0f);
-			auto standardRSF =  [=, colorUniform = Uniforms::Uniform4f()](Shaders::ProgramId program) mutable {
-					if (!colorUniform.isValid()) colorUniform = Uniforms::Uniform4f(program, "color");
+			auto standardRSF =  [=, colorUniform = UniformsUtils::Uniform4f()](ShadersUtils::ProgramId program) mutable {
+					if (!colorUniform.isValid()) colorUniform = UniformsUtils::Uniform4f(program, "color");
 					colorUniform(glm::vec4(*alpha));
 					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColorF()); };
 				};

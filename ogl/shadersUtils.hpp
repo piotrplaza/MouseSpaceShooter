@@ -5,7 +5,7 @@
 #include <string>
 #include <map>
 
-namespace Shaders
+namespace ShadersUtils
 {
 	using ShaderId = GLuint;
 	using ProgramId = GLuint;

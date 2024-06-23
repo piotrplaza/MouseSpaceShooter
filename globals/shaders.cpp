@@ -13,42 +13,42 @@ namespace Globals
 {
 	static std::unique_ptr<ShadersHolder> shadersHolder;
 
-	Shaders::Programs::BasicPhong& ShadersHolder::basicPhong()
+	ShadersUtils::Programs::BasicPhong& ShadersHolder::basicPhong()
 	{
 		return *basicPhong_;
 	}
 
-	Shaders::Programs::TexturedPhong& ShadersHolder::texturedPhong()
+	ShadersUtils::Programs::TexturedPhong& ShadersHolder::texturedPhong()
 	{
 		return *texturedPhong_;
 	}
 
-	Shaders::Programs::Basic& ShadersHolder::basic()
+	ShadersUtils::Programs::Basic& ShadersHolder::basic()
 	{
 		return *basic_;
 	}
 
-	Shaders::Programs::Julia& ShadersHolder::julia()
+	ShadersUtils::Programs::Julia& ShadersHolder::julia()
 	{
 		return *julia_;
 	}
 
-	Shaders::Programs::Particles& ShadersHolder::particles()
+	ShadersUtils::Programs::Particles& ShadersHolder::particles()
 	{
 		return *particles_;
 	}
 
-	Shaders::Programs::Textured& ShadersHolder::textured()
+	ShadersUtils::Programs::Textured& ShadersHolder::textured()
 	{
 		return *textured_;
 	}
 
-	Shaders::Programs::TexturedColorThreshold& ShadersHolder::texturedColorThreshold()
+	ShadersUtils::Programs::TexturedColorThreshold& ShadersHolder::texturedColorThreshold()
 	{
 		return *texturedColorThreshold_;
 	}
 
-	Shaders::Programs::Noise& ShadersHolder::noise()
+	ShadersUtils::Programs::Noise& ShadersHolder::noise()
 	{
 		return *noise_;
 	}

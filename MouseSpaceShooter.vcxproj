@@ -12,31 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
-    <ClCompile Include="ogl\buffers\genericBuffers.cpp" />
-    <ClCompile Include="ogl\oglHelpers.cpp" />
-    <ClCompile Include="ogl\oglProxy.cpp" />
-    <ClCompile Include="ogl\shaders.cpp" />
-    <ClCompile Include="ogl\uniforms.cpp" />
-    <ClCompile Include="systems\actors.cpp" />
-    <ClCompile Include="systems\audio.cpp" />
-    <ClCompile Include="systems\camera.cpp" />
-    <ClCompile Include="systems\cleaner.cpp" />
-    <ClCompile Include="systems\decorations.cpp" />
-    <ClCompile Include="systems\deferredActions.cpp" />
-    <ClCompile Include="systems\physics.cpp" />
-    <ClCompile Include="systems\renderingController.cpp" />
-    <ClCompile Include="systems\stateController.cpp" />
-    <ClCompile Include="systems\structures.cpp" />
-    <ClCompile Include="systems\temporaries.cpp" />
-    <ClCompile Include="systems\textures.cpp" />
-    <ClCompile Include="tools\b2Helpers.cpp" />
-    <ClCompile Include="tools\gameHelpers.cpp" />
-    <ClCompile Include="tools\geometryHelpers.cpp" />
-    <ClCompile Include="tools\missilesHandler.cpp" />
-    <ClCompile Include="tools\playersHandler.cpp" />
-    <ClCompile Include="tools\shapes2D.cpp" />
-    <ClCompile Include="tools\shapes3D.cpp" />
-    <ClCompile Include="tools\utility.cpp" />
     <ClCompile Include="commonTypes\componentMappers.cpp" />
     <ClCompile Include="commonTypes\resolutionMode.cpp" />
     <ClCompile Include="components\animatedTexture.cpp" />
@@ -76,6 +51,31 @@
     <ClCompile Include="levels\squareRace\squareRace.cpp" />
     <ClCompile Include="levels\windmill\windmill.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ogl\buffers\genericBuffers.cpp" />
+    <ClCompile Include="ogl\oglHelpers.cpp" />
+    <ClCompile Include="ogl\oglProxy.cpp" />
+    <ClCompile Include="ogl\shadersUtils.cpp" />
+    <ClCompile Include="ogl\uniformsUtils.cpp" />
+    <ClCompile Include="systems\actors.cpp" />
+    <ClCompile Include="systems\audio.cpp" />
+    <ClCompile Include="systems\camera.cpp" />
+    <ClCompile Include="systems\cleaner.cpp" />
+    <ClCompile Include="systems\decorations.cpp" />
+    <ClCompile Include="systems\deferredActions.cpp" />
+    <ClCompile Include="systems\physics.cpp" />
+    <ClCompile Include="systems\renderingController.cpp" />
+    <ClCompile Include="systems\stateController.cpp" />
+    <ClCompile Include="systems\structures.cpp" />
+    <ClCompile Include="systems\temporaries.cpp" />
+    <ClCompile Include="systems\textures.cpp" />
+    <ClCompile Include="tools\b2Helpers.cpp" />
+    <ClCompile Include="tools\gameHelpers.cpp" />
+    <ClCompile Include="tools\geometryHelpers.cpp" />
+    <ClCompile Include="tools\missilesHandler.cpp" />
+    <ClCompile Include="tools\playersHandler.cpp" />
+    <ClCompile Include="tools\shapes2D.cpp" />
+    <ClCompile Include="tools\shapes3D.cpp" />
+    <ClCompile Include="tools\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdParty\stb_image\stb_image.h" />
@@ -161,7 +161,7 @@
     <ClInclude Include="ogl\oglHelpers.hpp" />
     <ClInclude Include="ogl\oglProxy.hpp" />
     <ClInclude Include="ogl\renderingHelpers.hpp" />
-    <ClInclude Include="ogl\shaders.hpp" />
+    <ClInclude Include="ogl\shadersUtils.hpp" />
     <ClInclude Include="ogl\shaders\basic.hpp" />
     <ClInclude Include="ogl\shaders\basicPhong.hpp" />
     <ClInclude Include="ogl\shaders\julia.hpp" />
@@ -171,7 +171,7 @@
     <ClInclude Include="ogl\shaders\textured.hpp" />
     <ClInclude Include="ogl\shaders\texturedColorThreshold.hpp" />
     <ClInclude Include="ogl\shaders\texturedPhong.hpp" />
-    <ClInclude Include="ogl\uniforms.hpp" />
+    <ClInclude Include="ogl\uniformsUtils.hpp" />
     <ClInclude Include="systems\actors.hpp" />
     <ClInclude Include="systems\audio.hpp" />
     <ClInclude Include="systems\camera.hpp" />
@@ -264,7 +264,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -282,7 +282,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <ogl/shaders.hpp>
-#include <ogl/uniforms.hpp>
+#include <ogl/shadersUtils.hpp>
+#include <ogl/uniformsUtils.hpp>
 
 #include <functional>
 
-namespace Shaders
+namespace ShadersUtils
 {
 	template <typename Derived>
 	class ProgramBase

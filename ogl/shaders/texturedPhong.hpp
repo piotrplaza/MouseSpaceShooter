@@ -2,7 +2,7 @@
 
 #include "programBase.hpp"
 
-namespace Shaders
+namespace ShadersUtils
 {
 	namespace Programs
 	{
@@ -56,47 +56,47 @@ namespace Shaders
 			{
 			}
 
-			Uniforms::UniformMat4f model;
-			Uniforms::UniformMat4f vp;
-			Uniforms::UniformMat3f normalMatrix;
-			Uniforms::Uniform4f color;
-			Uniforms::Uniform4f mulBlendingColor;
-			Uniforms::Uniform4f addBlendingColor;
-			Uniforms::Uniform1i numOfTextures;
-			Uniforms::Uniform1iv<5> textures;
-			Uniforms::UniformMat4fv<5> texturesBaseTransform;
-			Uniforms::UniformMat4fv<5> texturesCustomTransform;
-			Uniforms::Uniform1b alphaFromBlendingTexture;
-			Uniforms::Uniform1b colorAccumulation;
-			Uniforms::Uniform1i numOfPlayers;
-			Uniforms::Uniform3f playerCenter;
-			Uniforms::Uniform1f playerUnhidingRadius;
-			Uniforms::Uniform1b visibilityReduction;
-			Uniforms::Uniform3f visibilityCenter;
-			Uniforms::Uniform1f fullVisibilityDistance;
-			Uniforms::Uniform1f invisibilityDistance;
-			Uniforms::Uniform1b sceneCoordTextures;
-			Uniforms::Uniform3f clearColor;
-			Uniforms::Uniform1i numOfLights;
-			Uniforms::Uniform3fv<128> lightsPos;
-			Uniforms::Uniform3fv<128> lightsCol;
-			Uniforms::Uniform1fv<128> lightsAttenuation;
-			Uniforms::Uniform1fv<128> lightsDarkColorFactor;
-			Uniforms::Uniform1f ambient;
-			Uniforms::Uniform1f diffuse;
-			Uniforms::Uniform3f viewPos;
-			Uniforms::Uniform1f specular;
-			Uniforms::Uniform1f specularFocus;
-			Uniforms::Uniform1f specularMaterialColorFactor;
-			Uniforms::Uniform4f illumination;
-			Uniforms::Uniform3f darkColor;
-			Uniforms::Uniform1b flatColor;
-			Uniforms::Uniform1b flatNormal;
-			Uniforms::Uniform1b lightModelColorNormalization;
-			Uniforms::Uniform1b lightModelEnabled;
-			Uniforms::Uniform1f alphaDiscardTreshold;
-			Uniforms::Uniform1b gpuSideInstancedNormalTransforms;
-			Uniforms::Uniform1f fogAmplification;
+			UniformsUtils::UniformMat4f model;
+			UniformsUtils::UniformMat4f vp;
+			UniformsUtils::UniformMat3f normalMatrix;
+			UniformsUtils::Uniform4f color;
+			UniformsUtils::Uniform4f mulBlendingColor;
+			UniformsUtils::Uniform4f addBlendingColor;
+			UniformsUtils::Uniform1i numOfTextures;
+			UniformsUtils::Uniform1iv<5> textures;
+			UniformsUtils::UniformMat4fv<5> texturesBaseTransform;
+			UniformsUtils::UniformMat4fv<5> texturesCustomTransform;
+			UniformsUtils::Uniform1b alphaFromBlendingTexture;
+			UniformsUtils::Uniform1b colorAccumulation;
+			UniformsUtils::Uniform1i numOfPlayers;
+			UniformsUtils::Uniform3f playerCenter;
+			UniformsUtils::Uniform1f playerUnhidingRadius;
+			UniformsUtils::Uniform1b visibilityReduction;
+			UniformsUtils::Uniform3f visibilityCenter;
+			UniformsUtils::Uniform1f fullVisibilityDistance;
+			UniformsUtils::Uniform1f invisibilityDistance;
+			UniformsUtils::Uniform1b sceneCoordTextures;
+			UniformsUtils::Uniform3f clearColor;
+			UniformsUtils::Uniform1i numOfLights;
+			UniformsUtils::Uniform3fv<128> lightsPos;
+			UniformsUtils::Uniform3fv<128> lightsCol;
+			UniformsUtils::Uniform1fv<128> lightsAttenuation;
+			UniformsUtils::Uniform1fv<128> lightsDarkColorFactor;
+			UniformsUtils::Uniform1f ambient;
+			UniformsUtils::Uniform1f diffuse;
+			UniformsUtils::Uniform3f viewPos;
+			UniformsUtils::Uniform1f specular;
+			UniformsUtils::Uniform1f specularFocus;
+			UniformsUtils::Uniform1f specularMaterialColorFactor;
+			UniformsUtils::Uniform4f illumination;
+			UniformsUtils::Uniform3f darkColor;
+			UniformsUtils::Uniform1b flatColor;
+			UniformsUtils::Uniform1b flatNormal;
+			UniformsUtils::Uniform1b lightModelColorNormalization;
+			UniformsUtils::Uniform1b lightModelEnabled;
+			UniformsUtils::Uniform1f alphaDiscardTreshold;
+			UniformsUtils::Uniform1b gpuSideInstancedNormalTransforms;
+			UniformsUtils::Uniform1f fogAmplification;
 		};
 
 		struct TexturedPhong : TexturedPhongAccessor

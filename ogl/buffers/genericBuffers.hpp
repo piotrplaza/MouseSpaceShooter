@@ -7,7 +7,7 @@
 #include <commonTypes/componentMappers.hpp>
 #include <commonTypes/resolutionMode.hpp>
 
-#include <ogl/shaders.hpp>
+#include <ogl/shadersUtils.hpp>
 #include <ogl/oglProxy.hpp>
 
 #include <glm/vec2.hpp>
@@ -88,7 +88,7 @@ namespace Buffers
 		void applyComponent(Renderable& renderableComponent, bool staticComponent);
 
 		template <typename GeneralSetup>
-		void draw(Shaders::ProgramId programId, GeneralSetup generalSetup) const
+		void draw(ShadersUtils::ProgramId programId, GeneralSetup generalSetup) const
 		{
 			auto setAndDraw = [&](const GenericSubBuffers& buffers)
 			{
@@ -134,7 +134,7 @@ namespace Buffers
 				setAndDraw(*this);
 		}
 
-		std::optional<Shaders::ProgramId>* customShadersProgram = nullptr;
+		std::optional<ShadersUtils::ProgramId>* customShadersProgram = nullptr;
 		std::optional<Renderable::Instancing>* instancing = nullptr;
 		ResolutionMode* resolutionMode = nullptr;
 		unsigned* subsequenceBegin = nullptr;

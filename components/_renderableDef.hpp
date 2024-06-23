@@ -6,7 +6,7 @@
 #include <commonTypes/renderLayer.hpp>
 #include <commonTypes/fTypes.hpp>
 
-#include <ogl/shaders.hpp>
+#include <ogl/shadersUtils.hpp>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -23,7 +23,7 @@ namespace Buffers
 
 struct RenderableDef
 {
-	using RenderingSetupF = std::function<std::function<void()>(Shaders::ProgramId)>;
+	using RenderingSetupF = std::function<std::function<void()>(ShadersUtils::ProgramId)>;
 
 	struct Params3D
 	{

@@ -2,7 +2,7 @@
 
 #include "programBase.hpp"
 
-namespace Shaders
+namespace ShadersUtils
 {
 	namespace Programs
 	{
@@ -39,30 +39,30 @@ namespace Shaders
 			{
 			}
 
-			Uniforms::UniformMat4f model;
-			Uniforms::UniformMat4f vp;
-			Uniforms::UniformMat3f normalMatrix;
-			Uniforms::Uniform4f color;
-			Uniforms::Uniform3f clearColor;
-			Uniforms::Uniform1i numOfLights;
-			Uniforms::Uniform3fv<128> lightsPos;
-			Uniforms::Uniform3fv<128> lightsCol;
-			Uniforms::Uniform1fv<128> lightsAttenuation;
-			Uniforms::Uniform1fv<128> lightsDarkColorFactor;
-			Uniforms::Uniform1f ambient;
-			Uniforms::Uniform1f diffuse;
-			Uniforms::Uniform3f viewPos;
-			Uniforms::Uniform1f specular;
-			Uniforms::Uniform1f specularFocus;
-			Uniforms::Uniform1f specularMaterialColorFactor;
-			Uniforms::Uniform4f illumination;
-			Uniforms::Uniform3f darkColor;
-			Uniforms::Uniform1b flatColor;
-			Uniforms::Uniform1b flatNormal;
-			Uniforms::Uniform1b lightModelColorNormalization;
-			Uniforms::Uniform1b lightModelEnabled;
-			Uniforms::Uniform1b gpuSideInstancedNormalTransforms;
-			Uniforms::Uniform1f fogAmplification;
+			UniformsUtils::UniformMat4f model;
+			UniformsUtils::UniformMat4f vp;
+			UniformsUtils::UniformMat3f normalMatrix;
+			UniformsUtils::Uniform4f color;
+			UniformsUtils::Uniform3f clearColor;
+			UniformsUtils::Uniform1i numOfLights;
+			UniformsUtils::Uniform3fv<128> lightsPos;
+			UniformsUtils::Uniform3fv<128> lightsCol;
+			UniformsUtils::Uniform1fv<128> lightsAttenuation;
+			UniformsUtils::Uniform1fv<128> lightsDarkColorFactor;
+			UniformsUtils::Uniform1f ambient;
+			UniformsUtils::Uniform1f diffuse;
+			UniformsUtils::Uniform3f viewPos;
+			UniformsUtils::Uniform1f specular;
+			UniformsUtils::Uniform1f specularFocus;
+			UniformsUtils::Uniform1f specularMaterialColorFactor;
+			UniformsUtils::Uniform4f illumination;
+			UniformsUtils::Uniform3f darkColor;
+			UniformsUtils::Uniform1b flatColor;
+			UniformsUtils::Uniform1b flatNormal;
+			UniformsUtils::Uniform1b lightModelColorNormalization;
+			UniformsUtils::Uniform1b lightModelEnabled;
+			UniformsUtils::Uniform1b gpuSideInstancedNormalTransforms;
+			UniformsUtils::Uniform1f fogAmplification;
 		};
 
 		struct BasicPhong : BasicPhongAccessor

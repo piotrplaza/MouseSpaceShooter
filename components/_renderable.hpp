@@ -9,7 +9,7 @@
 #include <commonTypes/resolutionMode.hpp>
 #include <commonTypes/renderLayer.hpp>
 
-#include <ogl/shaders.hpp>
+#include <ogl/shadersUtils.hpp>
 
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
@@ -60,7 +60,7 @@ struct Renderable : ComponentBase, RenderableDef
 	Renderable(AbstractTextureComponentVariant texture,
 		RenderingSetupF renderingSetupF,
 		RenderLayer renderLayer,
-		std::optional<Shaders::ProgramId> customShadersProgram,
+		std::optional<ShadersUtils::ProgramId> customShadersProgram,
 		std::vector<glm::vec3> vertices = {},
 		std::vector<glm::vec2> texCoord = {}):
 		RenderableDef(std::move(vertices), std::move(texCoord), texture, std::move(renderingSetupF)),
@@ -69,7 +69,7 @@ struct Renderable : ComponentBase, RenderableDef
 	{
 	}
 
-	std::optional<Shaders::ProgramId> customShadersProgram;
+	std::optional<ShadersUtils::ProgramId> customShadersProgram;
 	std::optional<Instancing> instancing;
 
 	ResolutionMode resolutionMode = ResolutionMode::Normal;

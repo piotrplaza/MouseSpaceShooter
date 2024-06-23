@@ -40,10 +40,10 @@ namespace Levels
 			Globals::Components().graphicsSettings().defaultColorF = glm::vec4{ 0.7f, 0.7f, 0.7f, 1.0f };
 
 			sceneCoordTexturesRSF = [
-				sceneCoordTextures = Uniforms::Uniform1b()
-			](Shaders::ProgramId program) mutable {
+				sceneCoordTextures = UniformsUtils::Uniform1b()
+			](ShadersUtils::ProgramId program) mutable {
 				if (!sceneCoordTextures.isValid())
-					sceneCoordTextures = Uniforms::Uniform1b(program, "sceneCoordTextures");
+					sceneCoordTextures = UniformsUtils::Uniform1b(program, "sceneCoordTextures");
 
 				sceneCoordTextures(true);
 
@@ -53,12 +53,12 @@ namespace Levels
 			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
 			{
 				recursiveFaceRSsF[i] = [
-					modelMatrix = Uniforms::UniformMat4f(),
-					color = Uniforms::Uniform4f(),
-					visibilityReduction = Uniforms::Uniform1b(),
-					visibilityCenter = Uniforms::Uniform2f(),
-					fullVisibilityDistance = Uniforms::Uniform1f(),
-					invisibilityDistance = Uniforms::Uniform1f(),
+					modelMatrix = UniformsUtils::UniformMat4f(),
+					color = UniformsUtils::Uniform4f(),
+					visibilityReduction = UniformsUtils::Uniform1b(),
+					visibilityCenter = UniformsUtils::Uniform2f(),
+					fullVisibilityDistance = UniformsUtils::Uniform1f(),
+					invisibilityDistance = UniformsUtils::Uniform1f(),
 					startTime = Globals::Components().physics().simulationDuration,
 					cycleDuration = Tools::RandomFloat(1.0f, 5.0f),
 					scale = Tools::RandomFloat(5.0f, 20.0f),
@@ -66,15 +66,15 @@ namespace Levels
 					pos = glm::vec2(Tools::RandomFloat(-borderHSize.x, borderHSize.x), Tools::RandomFloat(-borderHSize.y, borderHSize.y)) * 0.8f,
 					rotSpeed = Tools::RandomFloat(-5.0f, 5.0f),
 					targetColor = glm::vec3(Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f))
-				](Shaders::ProgramId program) mutable {
+				](ShadersUtils::ProgramId program) mutable {
 					if (!modelMatrix.isValid())
 					{
-						modelMatrix = Uniforms::UniformMat4f(program, "model");
-						color = Uniforms::Uniform4f(program, "color");
-						visibilityReduction = Uniforms::Uniform1b(program, "visibilityReduction");
-						visibilityCenter = Uniforms::Uniform2f(program, "visibilityCenter");
-						fullVisibilityDistance = Uniforms::Uniform1f(program, "fullVisibilityDistance");
-						invisibilityDistance = Uniforms::Uniform1f(program, "invisibilityDistance");
+						modelMatrix = UniformsUtils::UniformMat4f(program, "model");
+						color = UniformsUtils::Uniform4f(program, "color");
+						visibilityReduction = UniformsUtils::Uniform1b(program, "visibilityReduction");
+						visibilityCenter = UniformsUtils::Uniform2f(program, "visibilityCenter");
+						fullVisibilityDistance = UniformsUtils::Uniform1f(program, "fullVisibilityDistance");
+						invisibilityDistance = UniformsUtils::Uniform1f(program, "invisibilityDistance");
 					}
 
 					float cycleTime = Globals::Components().physics().simulationDuration - startTime;

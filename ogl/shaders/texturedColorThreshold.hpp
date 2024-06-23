@@ -2,7 +2,7 @@
 
 #include "programBase.hpp"
 
-namespace Shaders
+namespace ShadersUtils
 {
 	namespace Programs
 	{
@@ -29,20 +29,20 @@ namespace Shaders
 			{
 			}
 
-			Uniforms::UniformMat4f model;
-			Uniforms::UniformMat4f vp;
-			Uniforms::Uniform4f color;
-			Uniforms::Uniform4f mulBlendingColor;
-			Uniforms::Uniform4f addBlendingColor;
-			Uniforms::Uniform1i numOfTextures;
-			Uniforms::Uniform1iv<5> textures;
-			Uniforms::UniformMat4fv<5> texturesBaseTransform;
-			Uniforms::UniformMat4fv<5> texturesCustomTransform;
-			Uniforms::Uniform1b alphaFromBlendingTexture;
-			Uniforms::Uniform1b colorAccumulation;
-			Uniforms::Uniform3f invisibleColor;
-			Uniforms::Uniform1f invisibleColorThreshold;
-			Uniforms::Uniform1b sceneCoordTextures;
+			UniformsUtils::UniformMat4f model;
+			UniformsUtils::UniformMat4f vp;
+			UniformsUtils::Uniform4f color;
+			UniformsUtils::Uniform4f mulBlendingColor;
+			UniformsUtils::Uniform4f addBlendingColor;
+			UniformsUtils::Uniform1i numOfTextures;
+			UniformsUtils::Uniform1iv<5> textures;
+			UniformsUtils::UniformMat4fv<5> texturesBaseTransform;
+			UniformsUtils::UniformMat4fv<5> texturesCustomTransform;
+			UniformsUtils::Uniform1b alphaFromBlendingTexture;
+			UniformsUtils::Uniform1b colorAccumulation;
+			UniformsUtils::Uniform3f invisibleColor;
+			UniformsUtils::Uniform1f invisibleColorThreshold;
+			UniformsUtils::Uniform1b sceneCoordTextures;
 		};
 
 		struct TexturedColorThreshold : TexturedColorThresholdAccessor

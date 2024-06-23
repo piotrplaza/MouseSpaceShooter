@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shaders.hpp"
+#include "shadersUtils.hpp"
 
 #include "oglProxy.hpp"
 
@@ -13,19 +13,19 @@
 
 #include <array>
 
-namespace Uniforms
+namespace UniformsUtils
 {
 	class Uniform
 	{
 	public:
 		Uniform();
-		Uniform(Shaders::ProgramId programId, const std::string& uniformName);
+		Uniform(ShadersUtils::ProgramId programId, const std::string& uniformName);
 
 		bool isValid() const;
 
 	protected:
 		bool isValidInternal() const;
-		Shaders::ProgramId programId = 0;
+		ShadersUtils::ProgramId programId = 0;
 		GLint uniformId = -1;
 	};
 

@@ -1,4 +1,4 @@
-#include "shaders.hpp"
+#include "shadersUtils.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -6,7 +6,7 @@
 
 using namespace std::string_literals;
 
-namespace Shaders
+namespace ShadersUtils
 {
 	static const std::unordered_map< ShaderType, std::string> shaderTypesToNames =
 	{

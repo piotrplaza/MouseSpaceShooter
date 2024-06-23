@@ -5,7 +5,7 @@
 
 #include <components/framebuffers.hpp>
 
-TexturesFramebuffersRenderer::TexturesFramebuffersRenderer(Shaders::Programs::Textured& texturedShadersProgram):
+TexturesFramebuffersRenderer::TexturesFramebuffersRenderer(ShadersUtils::Programs::Textured& texturedShadersProgram):
 	texturedShadersProgram(texturedShadersProgram)
 {
 }

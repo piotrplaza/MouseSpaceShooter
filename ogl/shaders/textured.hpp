@@ -2,7 +2,7 @@
 
 #include "programBase.hpp"
 
-namespace Shaders
+namespace ShadersUtils
 {
 	namespace Programs
 	{
@@ -34,25 +34,25 @@ namespace Shaders
 			{
 			}
 
-			Uniforms::UniformMat4f model;
-			Uniforms::UniformMat4f vp;
-			Uniforms::Uniform4f color;
-			Uniforms::Uniform4f mulBlendingColor;
-			Uniforms::Uniform4f addBlendingColor;
-			Uniforms::Uniform1i numOfTextures;
-			Uniforms::Uniform1iv<5> textures;
-			Uniforms::UniformMat4fv<5> texturesBaseTransform;
-			Uniforms::UniformMat4fv<5> texturesCustomTransform;
-			Uniforms::Uniform1b alphaFromBlendingTexture;
-			Uniforms::Uniform1b colorAccumulation;
-			Uniforms::Uniform1i numOfPlayers;
-			Uniforms::Uniform2fv<4> playersCenter;
-			Uniforms::Uniform1f playerUnhidingRadius;
-			Uniforms::Uniform1b visibilityReduction;
-			Uniforms::Uniform2f visibilityCenter;
-			Uniforms::Uniform1f fullVisibilityDistance;
-			Uniforms::Uniform1f invisibilityDistance;
-			Uniforms::Uniform1b sceneCoordTextures;
+			UniformsUtils::UniformMat4f model;
+			UniformsUtils::UniformMat4f vp;
+			UniformsUtils::Uniform4f color;
+			UniformsUtils::Uniform4f mulBlendingColor;
+			UniformsUtils::Uniform4f addBlendingColor;
+			UniformsUtils::Uniform1i numOfTextures;
+			UniformsUtils::Uniform1iv<5> textures;
+			UniformsUtils::UniformMat4fv<5> texturesBaseTransform;
+			UniformsUtils::UniformMat4fv<5> texturesCustomTransform;
+			UniformsUtils::Uniform1b alphaFromBlendingTexture;
+			UniformsUtils::Uniform1b colorAccumulation;
+			UniformsUtils::Uniform1i numOfPlayers;
+			UniformsUtils::Uniform2fv<4> playersCenter;
+			UniformsUtils::Uniform1f playerUnhidingRadius;
+			UniformsUtils::Uniform1b visibilityReduction;
+			UniformsUtils::Uniform2f visibilityCenter;
+			UniformsUtils::Uniform1f fullVisibilityDistance;
+			UniformsUtils::Uniform1f invisibilityDistance;
+			UniformsUtils::Uniform1b sceneCoordTextures;
 		};
 
 		struct Textured : TexturedAccessor

@@ -16,7 +16,7 @@ namespace Components
 			std::vector<glm::vec2> texCoord = {},
 			RenderingSetupF renderingSetupF = nullptr,
 			RenderLayer renderLayer = RenderLayer::NearMidground,
-			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt) :
+			std::optional<ShadersUtils::ProgramId> customShadersProgram = std::nullopt) :
 			Renderable(texture, std::move(renderingSetupF), renderLayer, customShadersProgram, std::move(vertices), std::move(texCoord))
 		{
 		}

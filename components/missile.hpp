@@ -14,7 +14,7 @@ namespace Components
 			AbstractTextureComponentVariant texture = std::monostate{},
 			RenderingSetupF renderingSetupF = nullptr,
 			RenderLayer renderLayer = RenderLayer::Midground,
-			std::optional<Shaders::ProgramId> customShadersProgram = std::nullopt):
+			std::optional<ShadersUtils::ProgramId> customShadersProgram = std::nullopt):
 			Physical(std::move(body), texture, std::move(renderingSetupF), renderLayer, customShadersProgram),
 			thrustForce(thrustForce)
 		{

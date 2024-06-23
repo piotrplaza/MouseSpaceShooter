@@ -15,7 +15,7 @@
 
 #include <globals/components.hpp>
 
-#include <ogl/uniforms.hpp>
+#include <ogl/uniformsUtils.hpp>
 
 #include <tools/shapes2D.hpp>
 #include <tools/utility.hpp>

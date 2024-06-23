@@ -1,15 +1,15 @@
-#include "uniforms.hpp"
+#include "uniformsUtils.hpp"
 
 namespace
 {
 	constexpr bool invalidUniformsAllowed = false;
 }
 
-namespace Uniforms
+namespace UniformsUtils
 {
 	Uniform::Uniform() = default;
 
-	Uniform::Uniform(Shaders::ProgramId programId, const std::string& uniformName) :
+	Uniform::Uniform(ShadersUtils::ProgramId programId, const std::string& uniformName) :
 		programId(programId),
 		uniformId(glGetUniformLocation(programId, uniformName.c_str()))
 	{

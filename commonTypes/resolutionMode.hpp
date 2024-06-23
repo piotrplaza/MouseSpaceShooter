@@ -14,7 +14,7 @@ enum class ResolutionMode {
 	LowPixelArtBlend1
 };
 
-namespace Shaders::Programs
+namespace ShadersUtils::Programs
 {
 	struct Textured;
 }
@@ -22,13 +22,13 @@ namespace Shaders::Programs
 class TexturesFramebuffersRenderer
 {
 public:
-	TexturesFramebuffersRenderer(Shaders::Programs::Textured& texturedShadersProgram);
+	TexturesFramebuffersRenderer(ShadersUtils::Programs::Textured& texturedShadersProgram);
 	~TexturesFramebuffersRenderer();
 
 	void clearIfFirstOfMode(ResolutionMode resolutionMode);
 
 private:
-	Shaders::Programs::Textured& texturedShadersProgram;
+	ShadersUtils::Programs::Textured& texturedShadersProgram;
 
 	bool normalLinearBlend0 = false;
 	bool normalLinearBlend1 = false;
