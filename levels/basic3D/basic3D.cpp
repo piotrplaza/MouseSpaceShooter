@@ -50,7 +50,7 @@ namespace Levels
 #elif TEST == 1
 			auto& shape = staticDecorations.emplace();
 			Shapes3D::AddRectangle(shape, { 1.8f, 1.8f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } }, [](glm::vec2 d, auto) { return d; });
-			shape.texture = TCM::StaticTexture(skullTexture);
+			shape.texture = CM::StaticTexture(skullTexture);
 			//shape.params3D->illuminationF([]() { return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); });
 			//shape.params3D->specularMaterialColorFactor(1.0f);
 			//shape.colorF = []() { return glm::vec4(1.0f); };
@@ -66,7 +66,7 @@ namespace Levels
 			auto& shape = staticDecorations.emplace();
 			Shapes3D::AddCross(shape, { 0.2f, 1.0f, 0.2f }, { 0.7f, 0.2f, 0.2f }, 0.3f, [](auto, glm::vec3 p) { return glm::vec2(p.x, p.y - 1.2f); });
 			shape.modelMatrixF = [&]() { return glm::rotate(glm::mat4(1.0f), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }); };
-			shape.texture = TCM::StaticTexture(skullTexture);
+			shape.texture = CM::StaticTexture(skullTexture);
 			shape.params3D->illuminationF([]() { return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); });
 			//shape.params3D->specularMaterialColorFactor(1.0f);
 			//shape.colorF = []() { return glm::vec4(1.0f); };

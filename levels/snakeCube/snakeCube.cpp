@@ -35,7 +35,7 @@
 namespace
 {
 	constexpr int boardSize = 21;
-	constexpr float moveDuration = 0.2f;
+	constexpr float moveDuration = 0.1f;
 	constexpr int lenghtening = 40;
 	
 	constexpr glm::vec4 clearColor = { 0.0f, 0.1f, 0.15f, 1.0f };
@@ -160,7 +160,10 @@ namespace Levels
 #ifdef TEST
 			auto cuboidWalls = Shapes3D::CreateCuboid(Globals::Components().staticDecorations(), testCubeTextures, glm::vec3(cubeHSize) + 0.001f);
 			for (auto* wall : cuboidWalls)
+			{
+				wall->params3D->lightModelEnabled(false);
 				wall->colorF = []() { return glm::vec4(0.2f); };
+			}
 #endif
 			auto snakeHeadSphere = Globals::Components().staticDecorations().emplace();
 			Shapes3D::AddSphere(snakeHeadSphere, 0.2f / boardSize, 20, 20, nullptr, false);
