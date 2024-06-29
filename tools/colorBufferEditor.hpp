@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 #include <execution>
+#include <optional>
 
 namespace
 {
@@ -23,8 +24,7 @@ namespace Tools
 		ColorBufferEditor(std::vector<ColorType>& colorBuffer, glm::ivec2 res, Bottom bottom = Bottom::Down) :
 			colorBuffer(colorBuffer),
 			res(res),
-			bottom(bottom),
-			border(0.0f)
+			bottom(bottom)
 		{
 			updateRes(bottom);
 			if constexpr (doubleBuffering)
@@ -159,8 +159,14 @@ namespace Tools
 
 		ColorType getColor(const glm::ivec2& pos) const
 		{
-			if (pos.x < 0 || pos.x >= res.x || pos.y < 0 || pos.y >= res.y)
-				return border;
+			if (pos.x < 0)
+				return border.value_or(getColor({ 0, pos.y }));
+			if (pos.x >= res.x)
+				return border.value_or(getColor({ res.x - 1, pos.y }));
+			if (pos.y < 0)
+				return border.value_or(getColor({ pos.x, 0 }));
+			if (pos.y >= res.y)
+				return border.value_or(getColor({ pos.x, res.y - 1 }));
 
 			if constexpr (doubleBuffering)
 				return bufferTransformedLocation(pos, backColorBuffer);
@@ -184,12 +190,12 @@ namespace Tools
 			return bottom;
 		}
 
-		void setBorder(ColorType color)
+		void setBorder(std::optional<ColorType> color)
 		{
-			border = color;
+			border = std::move(color);
 		}
 
-		ColorType getBorder() const
+		const std::optional<ColorType>& getBorder() const
 		{
 			return border;
 		}
@@ -267,6 +273,6 @@ namespace Tools
 		Bottom bottom;
 		std::vector<ColorType>& colorBuffer;
 		std::vector<ColorType> backColorBuffer;
-		ColorType border;
+		std::optional<ColorType> border;
 	};
 }

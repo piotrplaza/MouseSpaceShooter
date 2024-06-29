@@ -95,6 +95,7 @@ namespace Systems
 #endif
 		physics.prevFrameTime = currentTime;
 		physics.simulationDuration += physics.frameDuration;
+		++physics.frameCount;
 		physics.world->Step(physics.frameDuration, physics.velocityIterationsPerStep, physics.positionIterationsPerStep);
 	}
 }

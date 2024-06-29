@@ -112,7 +112,7 @@ static void InitLevel()
 
 	//activeLevel = std::make_unique<Levels::Windmill>();
 	//activeLevel = std::make_unique<Levels::SquareRace>();
-	activeLevel = std::make_unique<Levels::SnakeCube>();
+	//activeLevel = std::make_unique<Levels::SnakeCube>();
 
 	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
@@ -128,7 +128,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Crosses3D>();
 	//activeLevel = std::make_unique<Levels::Crosses3DTexturing>();
 	//activeLevel = std::make_unique<Levels::Crosses3DInstancing>();
-	//activeLevel = std::make_unique<Levels::Paint>();
+	activeLevel = std::make_unique<Levels::Paint>();
 	//activeLevel = std::make_unique<Levels::Noise>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();

@@ -6,6 +6,7 @@
 #include <components/camera2d.hpp>
 #include <components/keyboard.hpp>
 #include <components/mouse.hpp>
+#include <components/physics.hpp>
 
 #include <globals/components.hpp>
 
@@ -61,6 +62,7 @@ namespace Levels
 			case 0: plasma(*editor); break;
 			case 1: colorChanneling(*editor); break;
 			case 2: flames(*editor); break;
+			case 3: blur(*editor); break;
 			}
 
 			if (mouse.pressing.lmb)
@@ -77,13 +79,9 @@ namespace Levels
 					editor->swapBuffers();
 			}
 
-			if (keyboard.pressed[(int)'1'])
-				effect = 0;
-			if (keyboard.pressed[(int)'2'])
-				effect = 1;
-			if (keyboard.pressed[(int)'3'])
-				effect = 2;
-
+			for (int i = 0; i < 4; ++i)
+				if (keyboard.pressed[(int)'1' + i])
+					effect = i;
 
 			const float colorStep = 0.1f;
 			if (keyboard.pressing[(int)'R'])
@@ -172,6 +170,34 @@ namespace Levels
 			flames(colorBuffer, newColorFactor);
 
 			colorBuffer.setBottom(originalBottom);
+		}
+
+		void blur(auto& colorBuffer, float centerColorFactor = 0.5f, glm::ivec2 range = { 0, 5 })
+		{
+			const auto& physics = Globals::Components().physics();
+			const float neighborsColorFactor = 1.0f - centerColorFactor;
+			auto innerLoop = [&](const auto y) {
+				for (int x = 0; x < colorBuffer.getRes().x; ++x)
+				{
+					const glm::ivec2 d = Tools::StableRandom::HashRange({ range.x, range.x }, { range.y, range.y }, glm::ivec3(x, y, physics.frameCount));
+					const glm::vec3 newColor = colorBuffer.getColor({ x, y }) * centerColorFactor +
+						(colorBuffer.getColor({ x - d.x, y - d.y }) + colorBuffer.getColor({ x, y - d.y }) + colorBuffer.getColor({ x + d.x, y - d.y }) + colorBuffer.getColor({ x - d.x, y }) + colorBuffer.getColor({ x + d.x, y }) +
+							colorBuffer.getColor({ x - d.x, y + d.y }) + colorBuffer.getColor({ x, y + d.y }) + colorBuffer.getColor({ x + d.x, y + d.y })) / 8.0f * neighborsColorFactor;
+					colorBuffer.putColor({ x, y }, newColor);
+				}
+			};
+
+			if constexpr (ColorBufferEditor::IsDoubleBuffering())
+			{
+				Tools::ItToId itToId(colorBuffer.getRes().y);
+				std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), innerLoop);
+			}
+			else
+				for (int y = 0; y < colorBuffer.getRes().y; ++y)
+					innerLoop(y);
+
+			if constexpr (ColorBufferEditor::IsDoubleBuffering())
+				editor->swapBuffers();
 		}
 
 		ComponentId textureId;

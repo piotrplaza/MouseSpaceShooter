@@ -1,6 +1,8 @@
 #pragma once
 
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -22,8 +24,8 @@ namespace Tools
 	void RandomInit();
 	float RandomFloat(float min, float max);
 	int RandomInt(int min, int max);
-	unsigned StableRandom(unsigned seed);
-	float StableRandom(float min, float max, unsigned seed);
+	unsigned FastStableRandom(unsigned seed);
+	float FastStableRandom(float min, float max, unsigned seed);
 
 	float ApplyDeadzone(float input, float deadzone = 0.3f);
 	glm::vec2 ApplyDeadzone(glm::vec2 input, float deadzone = 0.3f, bool axesSeparation = false);
@@ -105,5 +107,67 @@ namespace Tools
 	private:
 		size_t begin_;
 		size_t end_;
+	};
+
+	struct StableRandom
+	{
+		static int Hash(int x);
+		static int Hash(glm::ivec2 v);
+		static int Hash(glm::ivec3 v);
+		static int Hash(glm::ivec4 v);
+
+		static int Hash(int x, int seed);
+		static int Hash(glm::ivec2 v, int seed);
+		static int Hash(glm::ivec3 v, int seed);
+		static int Hash(glm::ivec4 v, int seed);
+
+		template <typename Seed>
+		static int HashRange(int min, int max, Seed seed)
+		{
+			return (int)Hash(seed) % (max - min + 1) + min;
+		}
+
+		template <typename Seed>
+		static glm::ivec2 HashRange(glm::ivec2 min, glm::ivec2 max, Seed seed)
+		{
+			int x = Hash(seed);
+			int y = Hash(seed, x);
+
+			return {
+				x % (max.x - min.x + 1) + min.x,
+				y % (max.y - min.y + 1) + min.y
+			};
+		}
+
+
+		template <typename Seed>
+		static glm::ivec3 HashRange(glm::ivec3 min, glm::ivec3 max, Seed seed)
+		{
+			unsigned x = Hash(seed);
+			unsigned y = Hash(seed, x);
+			unsigned z = Hash(seed, y);
+
+			return {
+				(int)(x % (max.x - min.x + 1) + min.x),
+				(int)(y % (max.y - min.y + 1) + min.y),
+				(int)(z % (max.z - min.z + 1) + min.z)
+			};
+		}
+
+		template <typename Seed>
+		static glm::ivec4 HashRange(glm::ivec4 min, glm::ivec4 max, Seed seed)
+		{
+			unsigned x = Hash(seed);
+			unsigned y = Hash(seed, x);
+			unsigned z = Hash(seed, y);
+			unsigned w = Hash(seed, z);
+
+			return {
+				(int)(x % (max.x - min.x + 1) + min.x),
+				(int)(y % (max.y - min.y + 1) + min.y),
+				(int)(z % (max.z - min.z + 1) + min.z),
+				(int)(w % (max.w - min.w + 1) + min.w)
+			};
+		}
 	};
 }

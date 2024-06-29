@@ -22,6 +22,7 @@ namespace Components
 
 		float simulationDuration = 0.0f;
 		float frameDuration = 0.0f;
+		unsigned long frameCount = 0;
 		float gameSpeed = 1.0f;
 
 		bool forceRefreshRateBasedStep = false;
