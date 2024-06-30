@@ -50,6 +50,7 @@ namespace Components
 		glm::vec2 scale{ 1.0f };
 
 		std::function<std::pair<glm::ivec2, glm::ivec2>(glm::ivec2)> sourceFragmentCornerAndSizeF;
+		std::function<glm::ivec2()> targetOffsetF;
 
 		struct
 		{

@@ -83,20 +83,6 @@ namespace Tools
 		return std::rand() % (max - min + 1) + min;
 	}
 
-	unsigned FastStableRandom(unsigned seed)
-	{
-		unsigned i = (seed ^ 12345391u) * 2654435769u;
-		i ^= (i << 6u) ^ (i >> 26u);
-		i *= 2654435769u;
-		i += (i << 5u) ^ (i >> 12u);
-		return i;
-	}
-
-	float FastStableRandom(float min, float max, unsigned seed)
-	{
-		return (float)FastStableRandom(seed) / UINT_MAX * (max - min) + min;
-	}
-
 	float ApplyDeadzone(float input, float deadzone)
 	{
 		return std::abs(input) < deadzone
@@ -118,50 +104,5 @@ namespace Tools
 			return std::abs(input.x) < deadzone && std::abs(input.y) < deadzone
 				? glm::vec2(0.0f)
 				: input;
-	}
-
-	int StableRandom::Hash(int x)
-	{
-		x += (x << 10u);
-		x ^= (x >> 6u);
-		x += (x << 3u);
-		x ^= (x >> 11u);
-		x += (x << 15u);
-		return x;
-	}
-
-	int StableRandom::Hash(glm::ivec2 v)
-	{
-		return Hash(v.x ^ Hash(v.y));
-	}
-
-	int StableRandom::Hash(glm::ivec3 v)
-	{
-		return Hash(v.x ^ Hash(v.y) ^ Hash(v.z));
-	}
-
-	int StableRandom::Hash(glm::ivec4 v)
-	{
-		return Hash(v.x ^ Hash(v.y) ^ Hash(v.z) ^ Hash(v.w));
-	}
-
-	int StableRandom::Hash(int x, int seed)
-	{
-		return Hash(x ^ Hash(seed));
-	}
-
-	int StableRandom::Hash(glm::ivec2 v, int seed)
-	{
-		return Hash(v.x ^ Hash(v.y) ^ Hash(seed));
-	}
-
-	int StableRandom::Hash(glm::ivec3 v, int seed)
-	{
-		return Hash(v.x ^ Hash(v.y) ^ Hash(v.z) ^ Hash(seed));
-	}
-
-	int StableRandom::Hash(glm::ivec4 v, int seed)
-	{
-		return Hash(v.x ^ Hash(v.y) ^ Hash(v.z) ^ Hash(v.w) ^ Hash(seed));
 	}
 }

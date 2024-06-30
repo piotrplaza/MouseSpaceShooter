@@ -59,10 +59,10 @@ namespace Levels
 
 			switch (effect)
 			{
-			case 0: plasma(*editor); break;
-			case 1: colorChanneling(*editor); break;
-			case 2: flames(*editor); break;
-			case 3: blur(*editor); break;
+			case 0: blur(*editor); break;
+			case 1: plasma(*editor); break;
+			case 2: colorChanneling(*editor); break;
+			case 3: flames(*editor); break;
 			}
 
 			if (mouse.pressing.lmb)
@@ -113,6 +113,34 @@ namespace Levels
 
 	private:
 		using ColorBufferEditor = Tools::ColorBufferEditor<glm::vec3, true>;
+
+		void blur(auto& colorBuffer, float centerColorFactor = 1.0f / 9.0f, glm::ivec2 range = { 1, 5 })
+		{
+			const auto& physics = Globals::Components().physics();
+			const float neighborsColorFactor = 1.0f - centerColorFactor;
+			auto innerLoop = [&](const auto y) {
+				for (int x = 0; x < colorBuffer.getRes().x; ++x)
+				{
+					const glm::ivec2 d = Tools::StableRandom::Std3Random::HashRange({ range.x, range.x }, { range.y, range.y }, glm::ivec3(x, y, physics.frameCount));
+					const glm::vec3 newColor = colorBuffer.getColor({ x, y }) * centerColorFactor +
+						(colorBuffer.getColor({ x - d.x, y - d.y }) + colorBuffer.getColor({ x, y - d.y }) + colorBuffer.getColor({ x + d.x, y - d.y }) + colorBuffer.getColor({ x - d.x, y }) + colorBuffer.getColor({ x + d.x, y }) +
+							colorBuffer.getColor({ x - d.x, y + d.y }) + colorBuffer.getColor({ x, y + d.y }) + colorBuffer.getColor({ x + d.x, y + d.y })) / 8.0f * neighborsColorFactor;
+					colorBuffer.putColor({ x, y }, newColor);
+				}
+				};
+
+			if constexpr (ColorBufferEditor::IsDoubleBuffering())
+			{
+				Tools::ItToId itToId(colorBuffer.getRes().y);
+				std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), innerLoop);
+			}
+			else
+				for (int y = 0; y < colorBuffer.getRes().y; ++y)
+					innerLoop(y);
+
+			if constexpr (ColorBufferEditor::IsDoubleBuffering())
+				editor->swapBuffers();
+		}
 
 		void flames(auto& colorBuffer, float newColorFactor = 0.249f, glm::vec3 initRgbMin = glm::vec3(-200), glm::vec3 initRgbMax = glm::vec3(200))
 		{
@@ -172,35 +200,7 @@ namespace Levels
 			colorBuffer.setBottom(originalBottom);
 		}
 
-		void blur(auto& colorBuffer, float centerColorFactor = 0.5f, glm::ivec2 range = { 0, 5 })
-		{
-			const auto& physics = Globals::Components().physics();
-			const float neighborsColorFactor = 1.0f - centerColorFactor;
-			auto innerLoop = [&](const auto y) {
-				for (int x = 0; x < colorBuffer.getRes().x; ++x)
-				{
-					const glm::ivec2 d = Tools::StableRandom::HashRange({ range.x, range.x }, { range.y, range.y }, glm::ivec3(x, y, physics.frameCount));
-					const glm::vec3 newColor = colorBuffer.getColor({ x, y }) * centerColorFactor +
-						(colorBuffer.getColor({ x - d.x, y - d.y }) + colorBuffer.getColor({ x, y - d.y }) + colorBuffer.getColor({ x + d.x, y - d.y }) + colorBuffer.getColor({ x - d.x, y }) + colorBuffer.getColor({ x + d.x, y }) +
-							colorBuffer.getColor({ x - d.x, y + d.y }) + colorBuffer.getColor({ x, y + d.y }) + colorBuffer.getColor({ x + d.x, y + d.y })) / 8.0f * neighborsColorFactor;
-					colorBuffer.putColor({ x, y }, newColor);
-				}
-			};
-
-			if constexpr (ColorBufferEditor::IsDoubleBuffering())
-			{
-				Tools::ItToId itToId(colorBuffer.getRes().y);
-				std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), innerLoop);
-			}
-			else
-				for (int y = 0; y < colorBuffer.getRes().y; ++y)
-					innerLoop(y);
-
-			if constexpr (ColorBufferEditor::IsDoubleBuffering())
-				editor->swapBuffers();
-		}
-
-		ComponentId textureId;
+		ComponentId textureId{};
 		std::unique_ptr<ColorBufferEditor> editor;
 		std::string texturePath = "textures/rose.png";
 		int effect = 0;

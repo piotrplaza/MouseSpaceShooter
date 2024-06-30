@@ -300,7 +300,10 @@ namespace Systems
 				if (prevSize != texture.loaded.size || prevNumOfChannels != texture.loaded.numOfChannels)
 					glTexImage2D(GL_TEXTURE_2D, 0, texture.loaded.getFormat(), finalSize.x, finalSize.y, 0, texture.loaded.getFormat(), GL_FLOAT, finalData);
 				else
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, finalSize.x, finalSize.y, texture.loaded.getFormat(), GL_FLOAT, finalData);
+				{
+					const glm::ivec2 offset = texture.targetOffsetF ? texture.targetOffsetF() : glm::ivec2(0);
+					glTexSubImage2D(GL_TEXTURE_2D, 0, offset.x, offset.y, finalSize.x, finalSize.y, texture.loaded.getFormat(), GL_FLOAT, finalData);
+				}
 			}
 
 			std::unordered_map<std::string, TextureCache>& keysToTexturesCache;

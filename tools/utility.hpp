@@ -24,8 +24,6 @@ namespace Tools
 	void RandomInit();
 	float RandomFloat(float min, float max);
 	int RandomInt(int min, int max);
-	unsigned FastStableRandom(unsigned seed);
-	float FastStableRandom(float min, float max, unsigned seed);
 
 	float ApplyDeadzone(float input, float deadzone = 0.3f);
 	glm::vec2 ApplyDeadzone(glm::vec2 input, float deadzone = 0.3f, bool axesSeparation = false);
@@ -109,65 +107,136 @@ namespace Tools
 		size_t end_;
 	};
 
-	struct StableRandom
+	namespace StableRandom
 	{
-		static int Hash(int x);
-		static int Hash(glm::ivec2 v);
-		static int Hash(glm::ivec3 v);
-		static int Hash(glm::ivec4 v);
-
-		static int Hash(int x, int seed);
-		static int Hash(glm::ivec2 v, int seed);
-		static int Hash(glm::ivec3 v, int seed);
-		static int Hash(glm::ivec4 v, int seed);
-
-		template <typename Seed>
-		static int HashRange(int min, int max, Seed seed)
+		struct Std1HashPolicy
 		{
-			return (int)Hash(seed) % (max - min + 1) + min;
-		}
+			static int Hash(int x)
+			{
+				x += (x << 10u);
+				x ^= (x >> 6u);
+				x += (x << 3u);
+				x ^= (x >> 11u);
+				x += (x << 15u);
+				return x;
+			}
+		};
 
-		template <typename Seed>
-		static glm::ivec2 HashRange(glm::ivec2 min, glm::ivec2 max, Seed seed)
+		struct Std2HashPolicy
 		{
-			int x = Hash(seed);
-			int y = Hash(seed, x);
+			static int Hash(int x)
+			{
+				int i = (x ^ 12345391u) * 2654435769u;
+				i ^= (i << 6u) ^ (i >> 26u);
+				i *= 2654435769u;
+				i += (i << 5u) ^ (i >> 12u);
+				return i;
+			}
+		};
 
-			return {
-				x % (max.x - min.x + 1) + min.x,
-				y % (max.y - min.y + 1) + min.y
-			};
-		}
-
-
-		template <typename Seed>
-		static glm::ivec3 HashRange(glm::ivec3 min, glm::ivec3 max, Seed seed)
+		struct Std3HashPolicy
 		{
-			unsigned x = Hash(seed);
-			unsigned y = Hash(seed, x);
-			unsigned z = Hash(seed, y);
+			static int Hash(int x)
+			{
+				constexpr int prime = 16777619;
+				constexpr int offset = (int)2166136261;
 
-			return {
-				(int)(x % (max.x - min.x + 1) + min.x),
-				(int)(y % (max.y - min.y + 1) + min.y),
-				(int)(z % (max.z - min.z + 1) + min.z)
-			};
-		}
+				return (offset ^ x) * prime;
+			}
+		};
 
-		template <typename Seed>
-		static glm::ivec4 HashRange(glm::ivec4 min, glm::ivec4 max, Seed seed)
+		template <typename HashPolicy>
+		struct Random : HashPolicy
 		{
-			unsigned x = Hash(seed);
-			unsigned y = Hash(seed, x);
-			unsigned z = Hash(seed, y);
-			unsigned w = Hash(seed, z);
+			using HashPolicy::Hash;
 
-			return {
-				(int)(x % (max.x - min.x + 1) + min.x),
-				(int)(y % (max.y - min.y + 1) + min.y),
-				(int)(z % (max.z - min.z + 1) + min.z),
-				(int)(w % (max.w - min.w + 1) + min.w)
-			};
-		}
-	};
+			static int Hash(glm::ivec2 v)
+			{
+				return Hash(v.x ^ Hash(v.y));
+			}
+
+			static int Hash(glm::ivec3 v)
+			{
+				return Hash(v.x ^ Hash(v.y) ^ Hash(v.z));
+			}
+
+			static int Hash(glm::ivec4 v)
+			{
+				return Hash(v.x ^ Hash(v.y) ^ Hash(v.z) ^ Hash(v.w));
+			}
+
+			static int Hash(int x, int seed)
+			{
+				return Hash(x ^ Hash(seed));
+			}
+
+			static int Hash(glm::ivec2 v, int seed)
+			{
+				return Hash(v.x ^ Hash(v.y) ^ Hash(seed));
+			}
+
+			static int Hash(glm::ivec3 v, int seed)
+			{
+				return Hash(v.x ^ Hash(v.y) ^ Hash(v.z) ^ Hash(seed));
+			}
+
+			static int Hash(glm::ivec4 v, int seed)
+			{
+				return Hash(v.x ^ Hash(v.y) ^ Hash(v.z) ^ Hash(v.w) ^ Hash(seed));
+			}
+
+			template <typename Seed>
+			static int HashRange(int min, int max, Seed seed)
+			{
+				return (int)Hash(seed) % (max - min + 1) + min;
+			}
+
+			template <typename Seed>
+			static glm::ivec2 HashRange(glm::ivec2 min, glm::ivec2 max, Seed seed)
+			{
+				int x = Hash(seed);
+				int y = Hash(seed, x);
+
+				return {
+					x % (max.x - min.x + 1) + min.x,
+					y % (max.y - min.y + 1) + min.y
+				};
+			}
+
+
+			template <typename Seed>
+			static glm::ivec3 HashRange(glm::ivec3 min, glm::ivec3 max, Seed seed)
+			{
+				unsigned x = Hash(seed);
+				unsigned y = Hash(seed, x);
+				unsigned z = Hash(seed, y);
+
+				return {
+					(int)(x % (max.x - min.x + 1) + min.x),
+					(int)(y % (max.y - min.y + 1) + min.y),
+					(int)(z % (max.z - min.z + 1) + min.z)
+				};
+			}
+
+			template <typename Seed>
+			static glm::ivec4 HashRange(glm::ivec4 min, glm::ivec4 max, Seed seed)
+			{
+				unsigned x = Hash(seed);
+				unsigned y = Hash(seed, x);
+				unsigned z = Hash(seed, y);
+				unsigned w = Hash(seed, z);
+
+				return {
+					(int)(x % (max.x - min.x + 1) + min.x),
+					(int)(y % (max.y - min.y + 1) + min.y),
+					(int)(z % (max.z - min.z + 1) + min.z),
+					(int)(w % (max.w - min.w + 1) + min.w)
+				};
+			}
+		};
+
+		using Std1Random = Random<Std1HashPolicy>;
+		using Std2Random = Random<Std2HashPolicy>;
+		using Std3Random = Random<Std3HashPolicy>;
+	}
 }
