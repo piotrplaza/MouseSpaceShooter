@@ -27,17 +27,17 @@
 namespace
 {
 	template <typename ShadersProgram>
-	inline void PrepareTexturedRender(ShadersProgram& shadersProgram, const AbstractTextureComponentVariant& texture, bool preserveTextureRatio,
+	inline void PrepareTexturedRender(ShadersProgram& shadersProgram, const AbstractTextureComponentVariant& texture,
 		const glm::mat4& additionalTransform, unsigned textureId);
 
-	inline void TexturedRenderInitialization(auto& shadersProgram, const Components::Texture& textureComponent, bool preserveTextureRatio,
+	inline void TexturedRenderInitialization(auto& shadersProgram, const Components::Texture& textureComponent,
 		glm::vec2 translate, float rotate, glm::vec2 scale, const glm::mat4& additionalTransform, unsigned textureId)
 	{
 		if (textureId == 0)
 			shadersProgram.numOfTextures(1);
 
 		shadersProgram.textures(textureId, textureComponent.loaded.textureUnit - GL_TEXTURE0);
-		shadersProgram.texturesBaseTransform(textureId, Tools::TextureTransform(textureComponent, preserveTextureRatio)
+		shadersProgram.texturesBaseTransform(textureId, Tools::TextureTransform(textureComponent)
 			* Tools::TextureTransform(translate, rotate, scale) * additionalTransform);
 	}
 
@@ -72,25 +72,24 @@ namespace
 	}
 
 	inline void BlendingTexturedRenderInitialization(auto& shadersProgram, const Components::BlendingTexture& blendingTextureComponent,
-		bool preserveTextureRatio, glm::vec2 translate, float rotate, glm::vec2 scale)
+		glm::vec2 translate, float rotate, glm::vec2 scale)
 	{
 		for (unsigned i = 0; i < (unsigned)blendingTextureComponent.textures.size(); ++i)
-			PrepareTexturedRender(shadersProgram, blendingTextureComponent.textures[i], preserveTextureRatio, Tools::TextureTransform(translate, rotate, scale), i);
+			PrepareTexturedRender(shadersProgram, blendingTextureComponent.textures[i], Tools::TextureTransform(translate, rotate, scale), i);
 
 		shadersProgram.numOfTextures(blendingTextureComponent.textures.size());
 	}
 
 	template <typename ShadersProgram>
-	inline void PrepareTexturedRender(ShadersProgram& shadersProgram, const AbstractTextureComponentVariant& texture, bool preserveTextureRatio,
+	inline void PrepareTexturedRender(ShadersProgram& shadersProgram, const AbstractTextureComponentVariant& texture,
 		const glm::mat4& additionalTransform, unsigned textureId)
 	{
 		class AbstractTexturedRenderInitializationVisitor
 		{
 		public:
-			AbstractTexturedRenderInitializationVisitor(ShadersProgram& shadersProgram, bool preserveTextureRatio,
+			AbstractTexturedRenderInitializationVisitor(ShadersProgram& shadersProgram,
 				const glm::mat4& additionalTransform, unsigned textureId) :
 				shadersProgram(shadersProgram),
-				preserveTextureRatio(preserveTextureRatio),
 				additionalTransform(additionalTransform),
 				textureId(textureId)
 			{
@@ -98,13 +97,13 @@ namespace
 
 			void operator ()(const CM::StaticTexture& texture) const
 			{
-				TexturedRenderInitialization(shadersProgram, *texture.component, preserveTextureRatio, texture.translate, texture.rotate, texture.scale,
+				TexturedRenderInitialization(shadersProgram, *texture.component, texture.translate, texture.rotate, texture.scale,
 					additionalTransform, textureId);
 			}
 
 			void operator ()(const CM::DynamicTexture& texture) const
 			{
-				TexturedRenderInitialization(shadersProgram, *texture.component, preserveTextureRatio, texture.translate, texture.rotate, texture.scale,
+				TexturedRenderInitialization(shadersProgram, *texture.component, texture.translate, texture.rotate, texture.scale,
 					additionalTransform, textureId);
 			}
 
@@ -122,12 +121,12 @@ namespace
 
 			void operator ()(const CM::StaticBlendingTexture& blendingTexture) const
 			{
-				BlendingTexturedRenderInitialization(shadersProgram, *blendingTexture.component, preserveTextureRatio, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
+				BlendingTexturedRenderInitialization(shadersProgram, *blendingTexture.component, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
 			}
 
 			void operator ()(const CM::DynamicBlendingTexture& blendingTexture) const
 			{
-				BlendingTexturedRenderInitialization(shadersProgram, *blendingTexture.component, preserveTextureRatio, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
+				BlendingTexturedRenderInitialization(shadersProgram, *blendingTexture.component, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
 			}
 
 			void operator ()(std::monostate) const
@@ -137,21 +136,20 @@ namespace
 
 		private:
 			ShadersProgram& shadersProgram;
-			bool preserveTextureRatio;
 			const glm::mat4& additionalTransform;
 			unsigned textureId;
 		};
 
-		std::visit(AbstractTexturedRenderInitializationVisitor{ shadersProgram, preserveTextureRatio, additionalTransform, textureId }, texture);
+		std::visit(AbstractTexturedRenderInitializationVisitor{ shadersProgram, additionalTransform, textureId }, texture);
 	}
 }
 
 namespace Tools
 {
-	inline void PrepareTexturedRender(auto& shadersProgram, const AbstractTextureComponentVariant& texture, bool preserveTextureRatio,
+	inline void PrepareTexturedRender(auto& shadersProgram, const AbstractTextureComponentVariant& texture,
 		const glm::mat4& additionalTransform = glm::mat4(1.0f), unsigned textureId = 0)
 	{
-		::PrepareTexturedRender(shadersProgram, texture, preserveTextureRatio, additionalTransform, textureId);
+		::PrepareTexturedRender(shadersProgram, texture, additionalTransform, textureId);
 	}
 
 	inline void MVPInitialization(auto& shadersProgram, std::optional<glm::mat4> modelMatrix = std::nullopt)

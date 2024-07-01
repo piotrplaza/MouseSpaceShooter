@@ -43,11 +43,13 @@ namespace Levels
 			textures.emplace("textures/photos/dzidzia1.png");
 			textures.last().scale = glm::vec2(1.0f, 1.0f);
 			textures.last().minFilter = GL_LINEAR;
+			textures.last().preserveAspectRatio = true;
 
 			dzidziaITata1Texture = textures.size();
 			textures.emplace("textures/photos/dzidzia i tata 1.png");
 			textures.last().scale = glm::vec2(1.0f, 1.0f);
 			textures.last().minFilter = GL_LINEAR;
+			textures.last().preserveAspectRatio = true;
 		}
 
 		void createBackground()
@@ -89,7 +91,7 @@ namespace Levels
 			};
 
 			staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.0f, 5.0f }),
-				CM::StaticTexture(dzidziaITata1Texture), Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF)).preserveTextureRatio = true;
+				CM::StaticTexture(dzidziaITata1Texture), Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
 			staticDecorations.last().modelMatrixF = [pos, step = glm::vec2(5.0f)]() mutable {
 				const auto& screenInfo = Globals::Components().screenInfo();
 				const glm::vec2 absClamp = { screenInfo.getAspectRatio() * 10.0f, 10.0f };
@@ -105,7 +107,6 @@ namespace Levels
 			dzidziaDecorationId = staticDecorations.size();
 			auto& dzidzia = staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
 				CM::StaticTexture(dzidzia1Texture), Shapes2D::CreateTexCoordOfRectangle());
-			dzidzia.preserveTextureRatio = true;
 			dzidzia.modelMatrixF = [this]() mutable {
 				return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(mousePos, 0.0f)), rotateAngle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
 			};
@@ -113,7 +114,6 @@ namespace Levels
 			for (unsigned i = 0; i < dzidziaTailSize; ++i)
 			{
 				dzidzia.subsequence.emplace_back(dzidzia.vertices, dzidzia.texCoord, dzidzia.texture);
-				dzidzia.subsequence.back().preserveTextureRatio = dzidzia.preserveTextureRatio;
 				dzidzia.subsequence.back().modelMatrixF = [pos = this->mousePos, angle = this->rotateAngle, scaleSin = this->scaleSin]() {
 					return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), angle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
 				};

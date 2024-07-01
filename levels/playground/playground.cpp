@@ -76,36 +76,43 @@ namespace Levels
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
 			textures.last().minFilter = GL_LINEAR;
+			textures.last().preserveAspectRatio = true;
 
 			planeTextures[1] = textures.size();
 			textures.emplace("textures/alien ship 1.png");
 			textures.last().translate = glm::vec2(-0.2f, 0.0f);
 			textures.last().scale = glm::vec2(1.9f);
 			textures.last().minFilter = GL_LINEAR;
+			textures.last().preserveAspectRatio = true;
 
 			planeTextures[2] = textures.size();
 			textures.emplace("textures/plane 2.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.8f, 1.8f);
 			textures.last().minFilter = GL_LINEAR;
+			textures.last().preserveAspectRatio = true;
 
 			planeTextures[3] = textures.size();
 			textures.emplace("textures/alien ship 2.png");
 			textures.last().translate = glm::vec2(0.0f, 0.0f);
 			textures.last().scale = glm::vec2(1.45f, 1.4f);
 			textures.last().minFilter = GL_LINEAR;
+			textures.last().preserveAspectRatio = true;
 
 			spaceRockTexture = textures.size();
 			textures.emplace("textures/space rock.jpg", GL_MIRRORED_REPEAT);
 			textures.last().scale = glm::vec2(5.0f);
+			textures.last().preserveAspectRatio = true;
 
 			woodTexture = textures.size();
 			textures.emplace("textures/wood.jpg", GL_MIRRORED_REPEAT);
 			textures.last().scale = glm::vec2(5.0f);
+			textures.last().preserveAspectRatio = true;
 
 			orbTexture = textures.size();
 			textures.emplace("textures/orb.png");
 			textures.last().scale = glm::vec2(2.0f);
+			textures.last().preserveAspectRatio = true;
 
 			weedTexture = textures.size();
 			textures.emplace("textures/weed.png");
@@ -127,11 +134,13 @@ namespace Levels
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(0.3f, 0.4f);
+			textures.last().preserveAspectRatio = true;
 
 			missile2Texture = textures.size();
 			textures.emplace("textures/missile 2.png");
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().scale = glm::vec2(0.4f, 0.45f);
+			textures.last().preserveAspectRatio = true;
 
 			explosionTexture = textures.size();
 			textures.emplace("textures/explosion.png");
@@ -139,10 +148,12 @@ namespace Levels
 			foiledEggsTexture = textures.size();
 			textures.emplace("textures/foiled eggs.jpg", GL_MIRRORED_REPEAT);
 			textures.last().scale = glm::vec2(100.0f, 100.0f);
+			textures.last().preserveAspectRatio = true;
 
 			fractalTexture = textures.size();
 			textures.emplace("textures/fractal.jpg", GL_MIRRORED_REPEAT);
 			textures.last().scale = glm::vec2(50.0f, 50.0f);
+			textures.last().preserveAspectRatio = true;
 
 			mosaicTexture = textures.size();
 			textures.emplace("textures/mosaic.jpg", GL_MIRRORED_REPEAT);
@@ -150,16 +161,19 @@ namespace Levels
 
 			ppTexture = textures.size();
 			textures.emplace("textures/pp.png");
+			textures.last().preserveAspectRatio = true;
 
 			skullTexture = textures.size();
 			textures.emplace("textures/skull rot.png");
 			textures.last().translate = glm::vec2(0.02f, 0.21f);
 			textures.last().scale = glm::vec2(0.46f, 0.44f);
+			textures.last().preserveAspectRatio = true;
 
 			avatarTexture = textures.size();
 			textures.emplace(TextureFile("textures/avatar rot.png", 0, true, TextureFile::AdditionalConversion::DarkToTransparent));
 			textures.last().translate = glm::vec2(0.02f, 0.16f);
 			textures.last().scale = glm::vec2(0.29f, 0.32f);
+			textures.last().preserveAspectRatio = true;
 
 			recursiveFaceAnimationTexture = textures.size();
 			textures.emplace("textures/recursive face animation.jpg");
@@ -326,7 +340,7 @@ namespace Levels
 
 				Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle(portraitCenter, { 10.0f, 10.0f }),
 					CM::StaticBlendingTexture(blendingTexture), Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF),
-					RenderLayer::NearMidground).preserveTextureRatio = true;
+					RenderLayer::NearMidground);
 			}
 
 			{
@@ -389,12 +403,12 @@ namespace Levels
 
 						if (pos < 0.0f)
 						{
-							Tools::PrepareTexturedRender(Globals::Shaders().texturedColorThreshold(), CM::StaticTexture(orbTexture), true);
+							Tools::PrepareTexturedRender(Globals::Shaders().texturedColorThreshold(), CM::StaticTexture(orbTexture));
 							Globals::Shaders().texturedColorThreshold().texturesCustomTransform(Tools::TextureTransform({ 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }));
 						}
 						else
 						{
-							Tools::PrepareTexturedRender(Globals::Shaders().texturedColorThreshold(), CM::StaticBlendingTexture(blendingTexture), true);
+							Tools::PrepareTexturedRender(Globals::Shaders().texturedColorThreshold(), CM::StaticBlendingTexture(blendingTexture));
 						}
 
 						const float simulationDuration = Globals::Components().physics().simulationDuration;
@@ -487,13 +501,13 @@ namespace Levels
 					Globals::Components().staticBlendingTextures().add({ CM::StaticTexture(fractalTexture), CM::StaticTexture(woodTexture), CM::StaticTexture(spaceRockTexture), CM::StaticTexture(foiledEggsTexture) });
 
 					Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHeightHSize + bordersHGauge * 2 },
-						Tools::BodyParams().position({ -levelWidthHSize - bordersHGauge, 0.0f })), CM::StaticBlendingTexture(blendingTexture), renderingSetupF, RenderLayer::NearMidground).preserveTextureRatio = true;
+						Tools::BodyParams().position({ -levelWidthHSize - bordersHGauge, 0.0f })), CM::StaticBlendingTexture(blendingTexture), renderingSetupF, RenderLayer::NearMidground);
 					Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHeightHSize + bordersHGauge * 2 },
-						Tools::BodyParams().position({ levelWidthHSize + bordersHGauge, 0.0f })), CM::StaticBlendingTexture(blendingTexture), renderingSetupF, RenderLayer::NearMidground).preserveTextureRatio = true;
+						Tools::BodyParams().position({ levelWidthHSize + bordersHGauge, 0.0f })), CM::StaticBlendingTexture(blendingTexture), renderingSetupF, RenderLayer::NearMidground);
 					Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHeightHSize + bordersHGauge * 2, bordersHGauge },
-						Tools::BodyParams().position({ 0.0f, -levelHeightHSize - bordersHGauge })), CM::StaticBlendingTexture(blendingTexture), renderingSetupF, RenderLayer::NearMidground).preserveTextureRatio = true;
+						Tools::BodyParams().position({ 0.0f, -levelHeightHSize - bordersHGauge })), CM::StaticBlendingTexture(blendingTexture), renderingSetupF, RenderLayer::NearMidground);
 					Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHeightHSize + bordersHGauge * 2, bordersHGauge },
-						Tools::BodyParams().position({ 0.0f, levelHeightHSize + bordersHGauge })), CM::StaticBlendingTexture(blendingTexture), std::move(renderingSetupF), RenderLayer::NearMidground).preserveTextureRatio = true;
+						Tools::BodyParams().position({ 0.0f, levelHeightHSize + bordersHGauge })), CM::StaticBlendingTexture(blendingTexture), std::move(renderingSetupF), RenderLayer::NearMidground);
 			}
 
 			auto renderingSetupF = [

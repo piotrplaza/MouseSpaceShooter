@@ -108,7 +108,6 @@ namespace Tools
 
 		plane.setOrigin(params.position_);
 		plane.setAngle(params.angle_);
-		plane.preserveTextureRatio = true;
 		plane.posInSubsequence = params.numOfThrusts_ + params.collisionBoxRendering_;
 
 		if (params.collisionBoxRendering_)
@@ -170,7 +169,6 @@ namespace Tools
 		body.SetBullet(true);
 
 		missile.texture = CM::StaticTexture(missileTexture);
-		missile.preserveTextureRatio = true;
 
 		missile.renderingSetupF = [
 			modelUniform = UniformsUtils::UniformMat4f(), &body](ShadersUtils::ProgramId program) mutable

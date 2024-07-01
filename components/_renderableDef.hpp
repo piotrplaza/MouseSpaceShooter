@@ -148,8 +148,6 @@ struct RenderableDef
 	GLenum drawMode = GL_TRIANGLES;
 	GLenum bufferDataUsage = GL_STATIC_DRAW;
 
-	bool preserveTextureRatio = false;
-
 	FBool renderF = true;
 
 	struct

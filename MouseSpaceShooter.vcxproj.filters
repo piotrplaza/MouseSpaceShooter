@@ -131,6 +131,9 @@
     <Filter Include="src\levels\noise">
       <UniqueIdentifier>{8891532d-36ab-48c3-b997-7dcc3274f69f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\decals">
+      <UniqueIdentifier>{975486a0-056e-42e8-9641-646f35c3b4f1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -327,6 +330,9 @@
     </ClCompile>
     <ClCompile Include="ogl\uniformsUtils.cpp">
       <Filter>src\ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\decals\decals.cpp">
+      <Filter>src\levels\decals</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -683,6 +689,9 @@
     </ClInclude>
     <ClInclude Include="ogl\uniformsUtils.hpp">
       <Filter>src\ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\decals\decals.hpp">
+      <Filter>src\levels\decals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

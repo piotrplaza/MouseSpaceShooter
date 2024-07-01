@@ -1,4 +1,4 @@
-#include "paint.hpp"
+#include "decals.hpp"
 
 #include <components/graphicsSettings.hpp>
 #include <components/texture.hpp>
@@ -7,30 +7,28 @@
 #include <components/keyboard.hpp>
 #include <components/mouse.hpp>
 #include <components/physics.hpp>
-
 #include <globals/components.hpp>
 
 #include <tools/shapes2D.hpp>
 #include <tools/colorBufferEditor.hpp>
-#include <tools/utility.hpp>
 
 #include <execution>
 
 namespace
 {
-	static constexpr char texturePath[] = "textures/rose.png";
+	static constexpr char mainTexturePath[] = "textures/pp.png";
 }
 
 namespace Levels
 {
-	class Paint::Impl
+	class Decals::Impl
 	{
 	public:
 		void setup()
 		{
 			Globals::Components().graphicsSettings().backgroundColorF = glm::vec4{ 0.0f, 0.1f, 0.1f, 1.0f };
 			Globals::Components().camera2D().targetProjectionHSizeF = []() { return 0.5f; };
-			auto& texture = Globals::Components().dynamicTextures().emplace(TextureData(TextureFile(texturePath, 3)));
+			auto& texture = Globals::Components().dynamicTextures().emplace(TextureData(TextureFile(mainTexturePath, 3)));
 			//texture.magFilter = GL_NEAREST;
 			texture.wrapMode = GL_CLAMP_TO_EDGE;
 			texture.sourceFragmentCornerAndSizeF = [marigin = 5](glm::ivec2 origSize) { return std::make_pair(glm::ivec2(marigin, marigin), origSize - glm::ivec2(marigin * 2)); };
@@ -109,7 +107,7 @@ namespace Levels
 			if (keyboard.pressing[0x20/*VK_SPACE*/])
 			{
 				auto& texture = Globals::Components().dynamicTextures()[textureId];
-				texture.source = TextureData(TextureFile(texturePath, 3));
+				texture.source = TextureData(TextureFile(mainTexturePath, 3));
 				editor.reset();
 			}
 
@@ -213,13 +211,13 @@ namespace Levels
 		float cursorSize = 0.05f;
 	};
 
-	Paint::Paint():
+	Decals::Decals():
 		impl(std::make_unique<Impl>())
 	{
 		impl->setup();
 	}
 
-	void Paint::step()
+	void Decals::step()
 	{
 		impl->step();
 	}

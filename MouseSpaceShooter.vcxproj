@@ -30,6 +30,7 @@
     <ClCompile Include="levels\crosses3DInstancing\crosses3DInstancing.cpp" />
     <ClCompile Include="levels\crosses3DTexturing\crosses3DTexturing.cpp" />
     <ClCompile Include="levels\crosses3D\crosses3D.cpp" />
+    <ClCompile Include="levels\decals\decals.cpp" />
     <ClCompile Include="levels\dzidzia2\dzidzia2.cpp" />
     <ClCompile Include="levels\dzidzia\dzidzia.cpp" />
     <ClCompile Include="levels\firstPersonCamera\firstPersonCamera.cpp" />
@@ -136,6 +137,7 @@
     <ClInclude Include="levels\crosses3DInstancing\crosses3DInstancing.hpp" />
     <ClInclude Include="levels\crosses3DTexturing\crosses3DTexturing.hpp" />
     <ClInclude Include="levels\crosses3D\crosses3D.hpp" />
+    <ClInclude Include="levels\decals\decals.hpp" />
     <ClInclude Include="levels\dzidzia2\dzidzia2.hpp" />
     <ClInclude Include="levels\dzidzia\dzidzia.hpp" />
     <ClInclude Include="levels\firstPersonCamera\firstPersonCamera.hpp" />
@@ -261,7 +263,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS ;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);_DEBUG</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)</ObjectFileName>
@@ -279,7 +281,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;GLM_ENABLE_EXPERIMENTAL;GLM_FORCE_RADIANS ;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)</ObjectFileName>

@@ -100,7 +100,7 @@ namespace
 				Globals::Shaders().texturedPhong().gpuSideInstancedNormalTransforms(buffers.renderable->params3D->gpuSideInstancedNormalTransforms_);
 				Globals::Shaders().texturedPhong().fogAmplification(buffers.renderable->params3D->fogAmplification_);
 				Globals::Shaders().texturedPhong().lightModelColorNormalization(buffers.renderable->params3D->lightModelColorNormalization_);
-				Tools::PrepareTexturedRender(Globals::Shaders().texturedPhong(), buffers.renderable->texture, buffers.renderable->preserveTextureRatio);
+				Tools::PrepareTexturedRender(Globals::Shaders().texturedPhong(), buffers.renderable->texture);
 			});
 		};
 
@@ -158,7 +158,7 @@ namespace
 				Globals::Shaders().textured().model((buffers.renderable->modelMatrixF)());
 				Globals::Shaders().textured().visibilityCenter((buffers.renderable->originF)());
 				Globals::Shaders().textured().color(buffers.renderable->colorF.isLoaded() ? buffers.renderable->colorF() : Globals::Components().graphicsSettings().defaultColorF());
-				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers.renderable->texture, buffers.renderable->preserveTextureRatio);
+				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers.renderable->texture);
 			});
 		};
 

@@ -48,6 +48,7 @@ namespace Components
 
 		glm::vec2 translate{ 0.0f };
 		glm::vec2 scale{ 1.0f };
+		bool preserveAspectRatio = false;
 
 		std::function<std::pair<glm::ivec2, glm::ivec2>(glm::ivec2)> sourceFragmentCornerAndSizeF;
 		std::function<glm::ivec2()> targetOffsetF;
