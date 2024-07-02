@@ -47,11 +47,12 @@ namespace Components
 		GLint magFilter = GL_LINEAR;
 
 		glm::vec2 translate{ 0.0f };
+		float rotate = 0.0f;
 		glm::vec2 scale{ 1.0f };
 		bool preserveAspectRatio = false;
 
 		std::function<std::pair<glm::ivec2, glm::ivec2>(glm::ivec2)> sourceFragmentCornerAndSizeF;
-		std::function<glm::ivec2()> targetOffsetF;
+		std::function<TextureSubData&()> subImagesF;
 
 		struct
 		{
@@ -71,6 +72,11 @@ namespace Components
 				case 4: return GL_RGBA;
 				default: assert(!"unsupported number of channels"); return 0;
 				}
+			}
+
+			float getAspectRatio() const
+			{
+				return (float)size.x / size.y;
 			}
 		} loaded;
 	};

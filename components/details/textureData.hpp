@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 #include <variant>
+#include <functional>
+#include <variant>
 
 struct TextureFile
 {
@@ -28,6 +30,8 @@ struct TextureFile
 
 struct TextureData
 {
+	TextureData() = default;
+
 	template<typename ColorType>
 	TextureData(std::vector<ColorType> data, glm::ivec2 size) :
 		loaded{ std::move(data), size }
@@ -36,6 +40,11 @@ struct TextureData
 
 	TextureData(std::vector<float> data, glm::ivec2 size, int numOfChannels = 1) :
 		loaded{ std::make_pair(std::move(data), numOfChannels), size }
+	{
+	}
+
+	TextureData(float* data, glm::ivec2 size, int numOfChannels = 1) :
+		loaded{ std::make_pair(data, numOfChannels), size }
 	{
 	}
 
@@ -48,9 +57,25 @@ struct TextureData
 
 	struct
 	{
-		std::variant<std::pair<std::vector<float>, int>, std::vector<glm::vec2>, std::vector<glm::vec3>, std::vector<glm::vec4>> data;
+		std::variant<std::monostate, std::pair<float*, int>, std::pair<std::vector<float>, int>, std::vector<glm::vec2>, std::vector<glm::vec3>, std::vector<glm::vec4>> data;
 		glm::ivec2 size = { 0, 0 };
 	} loaded;
 };
 
-using TextureSourceVariant = std::variant<std::string, TextureFile, TextureData>;
+struct TextureSubData
+{
+	TextureSubData() = default;
+
+	TextureSubData(std::vector<std::pair<std::variant<TextureData, TextureData*>, glm::ivec2>> textureSubData, std::function<glm::ivec2(const glm::ivec2& size, int i)> deferredOffsetPosF = nullptr, bool exclusiveLoad = false) :
+		textureSubData{ std::move(textureSubData) },
+		deferredOffsetPosF{ std::move(deferredOffsetPosF) },
+		exclusiveLoad{ exclusiveLoad }
+	{
+	}
+
+	std::vector<std::pair<std::variant<TextureData, TextureData*>, glm::ivec2>> textureSubData;
+	std::function<glm::ivec2(const glm::ivec2& size, int i)> deferredOffsetPosF;
+	bool exclusiveLoad{};
+};
+
+using TextureSourceVariant = std::variant<std::monostate, std::string, TextureFile, TextureData>;

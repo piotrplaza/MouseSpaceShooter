@@ -686,7 +686,8 @@ namespace Levels
 					snakeDirection = direction;
 				}
 
-			if (Globals::Components().keyboard().pressed['R'])
+			if (Globals::Components().keyboard().pressed['R'] ||
+				(Globals::Components().keyboard().pressed[0x20/*VK_SPACE*/] && snakeHead->second.type == SnakeNode::Type::DeadHead))
 				gameplayInit();
 		}
 

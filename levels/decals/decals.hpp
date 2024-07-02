@@ -11,6 +11,7 @@ namespace Levels
 	public:
 		Decals();
 
+		void postSetup() override;
 		void step() override;
 
 	private:

@@ -18,7 +18,8 @@
 
 namespace
 {
-	static constexpr char texturePath[] = "textures/rose.png";
+	constexpr bool parallelProcessing = true;
+	constexpr char texturePath[] = "textures/rose.png";
 }
 
 namespace Levels
@@ -33,7 +34,7 @@ namespace Levels
 			auto& texture = Globals::Components().dynamicTextures().emplace(TextureData(TextureFile(texturePath, 3)));
 			//texture.magFilter = GL_NEAREST;
 			texture.wrapMode = GL_CLAMP_TO_EDGE;
-			texture.sourceFragmentCornerAndSizeF = [marigin = 5](glm::ivec2 origSize) { return std::make_pair(glm::ivec2(marigin, marigin), origSize - glm::ivec2(marigin * 2)); };
+			//texture.sourceFragmentCornerAndSizeF = [marigin = 5](glm::ivec2 origSize) { return std::make_pair(glm::ivec2(marigin, marigin), origSize - glm::ivec2(marigin * 2)); };
 			textureId = texture.getComponentId();
 
 			auto& staticDecorations = Globals::Components().staticDecorations();
@@ -77,7 +78,7 @@ namespace Levels
 
 				const auto cursorPosInTexture = glm::ivec2((cursorPos + glm::vec2(0.5f)) * glm::vec2(textureSize - 1));
 				//editor->putRectangle(cursorPosInTexture, { cursorSize * textureSize.x, cursorSize * textureSize.y }, cursorColor);
-				//editor->putCircle(cursorPosInTexture, cursorSize * textureSize.y, cursorColor);
+				//editor->putCircle(cursorPosInTexture, int(cursorSize * textureSize.y), cursorColor);
 				editor->putEllipse(cursorPosInTexture, { cursorSize * textureSize.x, cursorSize * textureSize.y }, cursorColor);
 
 				if constexpr (ColorBufferEditor::IsDoubleBuffering())
@@ -117,7 +118,7 @@ namespace Levels
 		}
 
 	private:
-		using ColorBufferEditor = Tools::ColorBufferEditor<glm::vec3, true>;
+		using ColorBufferEditor = Tools::ColorBufferEditor<glm::vec3, parallelProcessing && 1>;
 
 		void blur(auto& colorBuffer, float centerColorFactor = 1.0f / 9.0f, glm::ivec2 range = { 1, 5 })
 		{

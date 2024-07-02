@@ -9,14 +9,9 @@
 #include <execution>
 #include <optional>
 
-namespace
-{
-	constexpr bool parallelProcessing = true;
-}
-
 namespace Tools
 {
-	template <typename ColorType, bool doubleBuffering = false>
+	template <typename ColorType, bool doubleBuffering = false, bool parallelProcessing = true>
 	class ColorBufferEditor
 	{
 	public:
@@ -65,7 +60,7 @@ namespace Tools
 					putColor({x, y}, color);
 			};
 
-			if constexpr (parallelProcessing)
+			if constexpr (parallelProcessing && 1)
 			{
 				ItToId itToId(min.y, max.y);
 				std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), drawRow);
@@ -105,7 +100,7 @@ namespace Tools
 			};
 
 
-			if constexpr (parallelProcessing)
+			if constexpr (parallelProcessing && 1)
 			{
 				ItToId itToId(min.y, max.y);
 				std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), drawRow);
@@ -147,7 +142,7 @@ namespace Tools
 				}
 			};
 
-			if constexpr (parallelProcessing)
+			if constexpr (parallelProcessing && 1)
 			{
 				ItToId itToId(min.y, max.y);
 				std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), drawRow);

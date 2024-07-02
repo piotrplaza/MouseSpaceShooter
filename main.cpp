@@ -113,9 +113,9 @@ static void InitLevel()
 
 	//activeLevel = std::make_unique<Levels::Windmill>();
 	//activeLevel = std::make_unique<Levels::SquareRace>();
-	activeLevel = std::make_unique<Levels::SnakeCube>();
+	//activeLevel = std::make_unique<Levels::SnakeCube>();
 
-	//activeLevel = std::make_unique<Levels::Playground>();
+	activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
@@ -139,6 +139,9 @@ static void InitLevel()
 static void PostInit()
 {
 	Globals::Systems().textures().postInit();
+
+	activeLevel->postSetup();
+
 	Globals::Systems().physics().postInit();
 	Globals::Systems().actors().postInit();
 	Globals::Systems().structures().postInit();
@@ -166,13 +169,13 @@ static void PrepareFrame()
 
 		activeLevel->step();
 
+		Globals::Systems().textures().step();
 		Globals::Systems().actors().step();
 		Globals::Systems().temporaries().step();
 		Globals::Systems().structures().step();
 		Globals::Systems().decorations().step();
 		Globals::Systems().camera().step();
 		Globals::Systems().audio().step();
-		Globals::Systems().textures().step();
 		Globals::Systems().stateController().stepTeardown();
 
 		Globals::Systems().cleaner().step();

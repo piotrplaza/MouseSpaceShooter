@@ -16,7 +16,9 @@
 
 namespace
 {
-	static constexpr char mainTexturePath[] = "textures/pp.png";
+	constexpr bool parallelProcessing = true;
+	constexpr char mainTexturePath[] = "textures/pp.png";
+	constexpr char decalTexturePath[] = "textures/skull rot.png";
 }
 
 namespace Levels
@@ -24,26 +26,31 @@ namespace Levels
 	class Decals::Impl
 	{
 	public:
-		void setup()
+		Decals::Impl():
+			decalTextureSubData({ { TextureData(TextureFile(decalTexturePath, 3)), {} } }),
+			decalTextureData(TextureFile(decalTexturePath, 3))
 		{
 			Globals::Components().graphicsSettings().backgroundColorF = glm::vec4{ 0.0f, 0.1f, 0.1f, 1.0f };
 			Globals::Components().camera2D().targetProjectionHSizeF = []() { return 0.5f; };
 			auto& texture = Globals::Components().dynamicTextures().emplace(TextureData(TextureFile(mainTexturePath, 3)));
 			//texture.magFilter = GL_NEAREST;
 			texture.wrapMode = GL_CLAMP_TO_EDGE;
-			texture.sourceFragmentCornerAndSizeF = [marigin = 5](glm::ivec2 origSize) { return std::make_pair(glm::ivec2(marigin, marigin), origSize - glm::ivec2(marigin * 2)); };
-			textureId = texture.getComponentId();
+			//texture.sourceFragmentCornerAndSizeF = [marigin = 5](glm::ivec2 origSize) { return std::make_pair(glm::ivec2(marigin, marigin), origSize - glm::ivec2(marigin * 2)); };
+			//texture.preserveAspectRatio = true;
+			//texture.translate = { 0.0f, -0.05f };
+			//texture.scale = { 1.12f, 1.12f };
+			mainTextureId = texture.getComponentId();
+		}
 
+		void postSetup()
+		{
+			auto& texture = Globals::Components().dynamicTextures()[mainTextureId];
 			auto& staticDecorations = Globals::Components().staticDecorations();
-			staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle(), CM::DynamicTexture(textureId), Shapes2D::CreateTexCoordOfRectangle());
+			staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f * texture.loaded.getAspectRatio(), 0.5f }), CM::DynamicTexture(mainTextureId), Shapes2D::CreateTexCoordOfRectangle());
 			auto& cursor = staticDecorations.emplace(Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, 1.0f, 100));
 			cursor.colorF = [&]() { return glm::vec4(cursorColor, 1.0f); };
 			cursor.modelMatrixF = [&]() {
-				cursorPos += Globals::Components().mouse().getCartesianDelta() * 0.0005f;
-				cursorPos.x = std::clamp(cursorPos.x, -0.5f, 0.5f);
-				cursorPos.y = std::clamp(cursorPos.y, -0.5f, 0.5f);
-				return glm::translate(glm::mat4(1.0f), glm::vec3(cursorPos, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(cursorSize, cursorSize, 1.0f)
-				);
+				return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(cursorPos, 0.0f)), glm::vec3(cursorSize, cursorSize, 1.0f));
 			};
 			cursor.renderLayer = RenderLayer::NearForeground;
 		}
@@ -52,13 +59,20 @@ namespace Levels
 		{
 			const auto& keyboard = Globals::Components().keyboard();
 			const auto& mouse = Globals::Components().mouse();
-			auto& texture = Globals::Components().dynamicTextures()[textureId];
+			auto& texture = Globals::Components().dynamicTextures()[mainTextureId];
 			auto& loadedTextureData = std::get<TextureData>(texture.source).loaded;
 			auto& buffer = std::get<std::vector<glm::vec3>>(loadedTextureData.data);
 			const auto& textureSize = loadedTextureData.size;
 
+			cursorPos += mouse.getCartesianDelta() * 0.0005f;
+			cursorPos.x = std::clamp(cursorPos.x, -0.5f * texture.loaded.getAspectRatio(), 0.5f * texture.loaded.getAspectRatio());
+			cursorPos.y = std::clamp(cursorPos.y, -0.5f, 0.5f);
+
 			if (!editor)
-				editor = std::make_unique<ColorBufferEditor>(buffer, textureSize);	
+			{
+				editor = std::make_unique<ColorBufferEditor>(buffer, textureSize);
+				//editor->setBorder(glm::vec3(0.0f));
+			}
 
 			switch (effect)
 			{
@@ -66,6 +80,7 @@ namespace Levels
 			case 1: plasma(*editor); break;
 			case 2: colorChanneling(*editor); break;
 			case 3: flames(*editor); break;
+			case 4: none(*editor); break;
 			}
 
 			if (mouse.pressing.lmb)
@@ -73,16 +88,51 @@ namespace Levels
 				if constexpr (ColorBufferEditor::IsDoubleBuffering())
 					editor->swapBuffers();
 
-				const auto cursorPosInTexture = glm::ivec2((cursorPos + glm::vec2(0.5f)) * glm::vec2(textureSize - 1));
-				//editor->putRectangle(cursorPosInTexture, { cursorSize * textureSize.x, cursorSize * textureSize.y }, cursorColor);
-				//editor->putCircle(cursorPosInTexture, cursorSize * textureSize.y, cursorColor);
-				editor->putEllipse(cursorPosInTexture, { cursorSize * textureSize.x, cursorSize * textureSize.y }, cursorColor);
+				const glm::vec2 normalizedCursorPos = (cursorPos - glm::vec2(-0.5f * texture.loaded.getAspectRatio(), -0.5f)) / glm::vec2(texture.loaded.getAspectRatio(), 1.0f);
+				const glm::ivec2 cursorPosInTexture = normalizedCursorPos * glm::vec2(textureSize) + 0.5f;
+
+#define TEST 6
+#if TEST == 0
+				editor->putRectangle(cursorPosInTexture, { cursorSize * textureSize.y, cursorSize * textureSize.y }, cursorColor);
+#elif TEST == 1
+				editor->putCircle(cursorPosInTexture, int(cursorSize * textureSize.y), cursorColor);
+#elif TEST == 2
+				editor->putEllipse(cursorPosInTexture, { cursorSize * textureSize.y, cursorSize * textureSize.y }, cursorColor);
+#elif TEST == 3
+				{
+					const auto size = glm::ivec2(cursorSize * textureSize.y, cursorSize * textureSize.y) * 2;
+					const glm::ivec2 offset(cursorPosInTexture - size / 2);
+					std::vector<glm::vec3> data; (size.x * size.y, glm::vec3(Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f)));
+					data.reserve(size.x * size.y);
+					for (int y = 0; y < size.y; ++y)
+						for (int x = 0; x < size.x; ++x)
+							data.push_back(glm::vec3(Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f)));
+					texture.subImagesF = [textureSubData = TextureSubData({ { TextureData(std::move(data), size), offset } }, false)]() mutable -> auto& {
+						return textureSubData;
+					};
+				}
+#elif TEST == 4
+				texture.subImagesF = [textureSubData = TextureSubData({ { TextureData(TextureFile(decalTexturePath, 3)), {} } }, [=](const auto& size, auto) { return cursorPosInTexture - size / 2; })]() mutable -> auto& {
+					return textureSubData;
+				};
+#elif TEST == 5
+				{
+					decalTextureSubData.deferredOffsetPosF = [=](const auto& size, auto) { return cursorPosInTexture - size / 2; };
+					texture.subImagesF = [&]() mutable -> auto& { return decalTextureSubData; };
+				}
+#elif TEST == 6
+				texture.subImagesF = [textureSubData = TextureSubData({ { &decalTextureData, {} } }, [=](const auto& size, auto) { return cursorPosInTexture - size / 2; })]() mutable -> auto& {
+					return textureSubData;
+				};
+#endif
 
 				if constexpr (ColorBufferEditor::IsDoubleBuffering())
 					editor->swapBuffers();
 			}
+			else
+				texture.subImagesF = {};
 
-			for (int i = 0; i < 4; ++i)
+			for (int i = 0; i < 5; ++i)
 				if (keyboard.pressed[(int)'1' + i])
 					effect = i;
 
@@ -106,7 +156,7 @@ namespace Levels
 
 			if (keyboard.pressing[0x20/*VK_SPACE*/])
 			{
-				auto& texture = Globals::Components().dynamicTextures()[textureId];
+				auto& texture = Globals::Components().dynamicTextures()[mainTextureId];
 				texture.source = TextureData(TextureFile(mainTexturePath, 3));
 				editor.reset();
 			}
@@ -115,7 +165,7 @@ namespace Levels
 		}
 
 	private:
-		using ColorBufferEditor = Tools::ColorBufferEditor<glm::vec3, true>;
+		using ColorBufferEditor = Tools::ColorBufferEditor<glm::vec3, parallelProcessing && 1>;
 
 		void blur(auto& colorBuffer, float centerColorFactor = 1.0f / 9.0f, glm::ivec2 range = { 1, 5 })
 		{
@@ -203,7 +253,22 @@ namespace Levels
 			colorBuffer.setBottom(originalBottom);
 		}
 
-		ComponentId textureId{};
+		void none(auto& colorBuffer)
+		{
+			if constexpr (ColorBufferEditor::IsDoubleBuffering())
+			{
+				Tools::ItToId itToId(colorBuffer.getRes().y);
+				std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), [&](const auto y) {
+					for (int x = 0; x < colorBuffer.getRes().x; ++x)
+						colorBuffer.putColor({ x, y }, colorBuffer.getColor({ x, y }));
+				});
+				editor->swapBuffers();
+			}
+		}
+
+		ComponentId mainTextureId{};
+		TextureSubData decalTextureSubData;
+		TextureData decalTextureData;
 		std::unique_ptr<ColorBufferEditor> editor;
 		int effect = 0;
 		glm::vec2 cursorPos = { 0.0f, 0.0f };
@@ -214,7 +279,11 @@ namespace Levels
 	Decals::Decals():
 		impl(std::make_unique<Impl>())
 	{
-		impl->setup();
+	}
+
+	void Decals::postSetup()
+	{
+		impl->postSetup();
 	}
 
 	void Decals::step()

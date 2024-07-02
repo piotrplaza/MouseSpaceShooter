@@ -35,13 +35,13 @@ namespace Tools
 		seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 	}
 
-	inline glm::mat4 TextureTransform(glm::vec2 translate, float angle = 0.0f, glm::vec2 scale = { 1.0f, 1.0f })
+	inline glm::mat4 TextureTransform(glm::vec2 translate, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f })
 	{
 		return
 			glm::translate(
 				glm::rotate(
 					glm::scale(glm::mat4(1.0f), glm::vec3(1.0f / scale.x, 1.0f / scale.y, 1.0f)),
-					angle, { 0.0f, 0.0f, -1.0f }),
+					rotate, { 0.0f, 0.0f, -1.0f }),
 				glm::vec3(-translate, 0.0f));
 	}
 
@@ -50,9 +50,11 @@ namespace Tools
 	{
 		return
 			glm::translate(
-				glm::scale(glm::mat4(1.0f), glm::vec3(
-					(textureComponent.preserveAspectRatio ? (float)textureComponent.loaded.size.y / textureComponent.loaded.size.x : 1.0f)
-					* 1.0f / textureComponent.scale.x, 1.0f / textureComponent.scale.y, 1.0f)),
+				glm::rotate(
+					glm::scale(glm::mat4(1.0f), glm::vec3(
+						(textureComponent.preserveAspectRatio ? (float)textureComponent.loaded.size.y / textureComponent.loaded.size.x : 1.0f)
+						* 1.0f / textureComponent.scale.x, 1.0f / textureComponent.scale.y, 1.0f)),
+					textureComponent.rotate, { 0.0f, 0.0f, -1.0f }),
 				glm::vec3(-textureComponent.translate, 0.0f));
 	}
 

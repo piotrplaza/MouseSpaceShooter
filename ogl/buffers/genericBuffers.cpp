@@ -386,7 +386,7 @@ namespace Buffers
 			normalTransforms[i] = glm::transpose(glm::inverse(glm::mat3(transforms[i])));
 		};
 
-		if constexpr (parallelProcessing)
+		if constexpr (parallelProcessing && 1)
 		{
 			Tools::ItToId itToId(transforms.size());
 			std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), inverseTranspose);
