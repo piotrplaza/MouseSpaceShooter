@@ -45,7 +45,7 @@ namespace Levels
 				cursorPos += Globals::Components().mouse().getCartesianDelta() * 0.0005f;
 				cursorPos.x = std::clamp(cursorPos.x, -0.5f, 0.5f);
 				cursorPos.y = std::clamp(cursorPos.y, -0.5f, 0.5f);
-				return glm::translate(glm::mat4(1.0f), glm::vec3(cursorPos, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(cursorSize, cursorSize, 1.0f)
+				return glm::translate(glm::mat4(1.0f), glm::vec3(cursorPos, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(cursorHSize, cursorHSize, 1.0f)
 				);
 			};
 			cursor.renderLayer = RenderLayer::NearForeground;
@@ -74,15 +74,15 @@ namespace Levels
 			if (mouse.pressing.lmb)
 			{
 				if constexpr (ColorBufferEditor::IsDoubleBuffering())
-					editor->swapBuffers();
+					editor->swapBuffers(false);
 
 				const auto cursorPosInTexture = glm::ivec2((cursorPos + glm::vec2(0.5f)) * glm::vec2(textureSize - 1));
-				//editor->putRectangle(cursorPosInTexture, { cursorSize * textureSize.x, cursorSize * textureSize.y }, cursorColor);
-				//editor->putCircle(cursorPosInTexture, int(cursorSize * textureSize.y), cursorColor);
-				editor->putEllipse(cursorPosInTexture, { cursorSize * textureSize.x, cursorSize * textureSize.y }, cursorColor);
+				//editor->putRectangle(cursorPosInTexture, { cursorHSize * textureSize.x, cursorHSize * textureSize.y }, cursorColor);
+				//editor->putCircle(cursorPosInTexture, int(cursorHSize * textureSize.y), cursorColor);
+				editor->putEllipse(cursorPosInTexture, { cursorHSize * textureSize.x, cursorHSize * textureSize.y }, cursorColor);
 
 				if constexpr (ColorBufferEditor::IsDoubleBuffering())
-					editor->swapBuffers();
+					editor->swapBuffers(false);
 			}
 
 			for (int i = 0; i < 4; ++i)
@@ -99,8 +99,8 @@ namespace Levels
 			else
 			{
 				const float sizeStep = 0.05f;
-				cursorSize += mouse.pressed.wheel * sizeStep * (cursorSize + 0.1f);
-				cursorSize = std::clamp(cursorSize, 0.0f, 1.0f);
+				cursorHSize += mouse.pressed.wheel * sizeStep * (cursorHSize + 0.1f);
+				cursorHSize = std::clamp(cursorHSize, 0.0f, 1.0f);
 			}
 
 			cursorColor.r = std::clamp(cursorColor.r, 0.0f, 1.0f);
@@ -145,7 +145,7 @@ namespace Levels
 					innerLoop(y);
 
 			if constexpr (ColorBufferEditor::IsDoubleBuffering())
-				editor->swapBuffers();
+				editor->swapBuffers(false);
 		}
 
 		void flames(auto& colorBuffer, float newColorFactor = 0.249f, glm::vec3 initRgbMin = glm::vec3(-200), glm::vec3 initRgbMax = glm::vec3(200))
@@ -171,7 +171,7 @@ namespace Levels
 					innerLoop(y);
 
 			if constexpr (ColorBufferEditor::IsDoubleBuffering())
-				editor->swapBuffers();
+				editor->swapBuffers(false);
 		}
 
 		void plasma(auto& colorBuffer)
@@ -211,7 +211,7 @@ namespace Levels
 		int effect = 0;
 		glm::vec2 cursorPos = { 0.0f, 0.0f };
 		glm::vec3 cursorColor = { 0.8f, 0.2f, 0.8f };
-		float cursorSize = 0.05f;
+		float cursorHSize = 0.05f;
 	};
 
 	Paint::Paint():

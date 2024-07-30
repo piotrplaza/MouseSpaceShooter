@@ -20,4 +20,5 @@ namespace Tools
 
 	void VSync(bool enabled);
 	void PrintCurrentGLErrors(const std::string& prefix);
+	int GetPixelFormat(int numOfChannels);
 }

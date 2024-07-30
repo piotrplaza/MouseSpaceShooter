@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utility.hpp"
+#include "buffersHelpers.hpp"
 
 #include <glm/glm.hpp>
 
@@ -16,6 +17,12 @@ namespace Tools
 	{
 	public:
 		enum class Bottom { Down, Left, Up, Right };
+
+		constexpr static bool IsDoubleBuffering()
+		{
+			return doubleBuffering;
+		}
+
 		ColorBufferEditor(std::vector<ColorType>& colorBuffer, glm::ivec2 res, Bottom bottom = Bottom::Down) :
 			colorBuffer(colorBuffer),
 			res(res),
@@ -36,7 +43,10 @@ namespace Tools
 			assert(pos.x >= 0 && pos.x < res.x);
 			assert(pos.y >= 0 && pos.y < res.y);
 
-			bufferTransformedLocation(pos, colorBuffer) = color;
+			if constexpr (doubleBuffering)
+				bufferTransformedLocation(pos, backColorBuffer) = color;
+			else
+				bufferTransformedLocation(pos, colorBuffer) = color;
 		}
 
 		void putRectangle(const glm::ivec2& pos, const glm::ivec2& hSize, const ColorType& color)
@@ -154,19 +164,14 @@ namespace Tools
 
 		ColorType getColor(const glm::ivec2& pos) const
 		{
-			if (pos.x < 0)
-				return border.value_or(getColor({ 0, pos.y }));
-			if (pos.x >= res.x)
-				return border.value_or(getColor({ res.x - 1, pos.y }));
-			if (pos.y < 0)
-				return border.value_or(getColor({ pos.x, 0 }));
-			if (pos.y >= res.y)
-				return border.value_or(getColor({ pos.x, res.y - 1 }));
+			return getColorFromBuffer(pos, colorBuffer);
+		}
 
-			if constexpr (doubleBuffering)
-				return bufferTransformedLocation(pos, backColorBuffer);
-			else
-				return bufferTransformedLocation(pos, colorBuffer);
+		ColorType getBackColor(const glm::ivec2& pos) const
+		{
+			static_assert(doubleBuffering);
+
+			return getColorFromBuffer(pos, backColorBuffer);
 		}
 
 		glm::ivec2 getRes() const
@@ -195,16 +200,28 @@ namespace Tools
 			return border;
 		}
 
-		void swapBuffers()
+		void swapBuffers(bool syncCopy = true)
 		{
 			static_assert(doubleBuffering);
 
 			std::swap(colorBuffer, backColorBuffer);
-		}
 
-		std::vector<ColorType>& getColorBuffer()
-		{
-			return colorBuffer;
+			if (syncCopy)
+			{
+				auto processRow = [&](int y) {
+					const int index = y * res.x;
+					std::memcpy(&backColorBuffer[index], &colorBuffer[index], res.x * sizeof(ColorType));
+				};
+
+				if constexpr (parallelProcessing && 1)
+				{
+					ItToId itToId(res.y);
+					std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), processRow);
+				}
+				else
+					for (int y = 0; y < res.y; ++y)
+						processRow(y);
+			}
 		}
 
 		const std::vector<ColorType>& getColorBuffer() const
@@ -212,11 +229,9 @@ namespace Tools
 			return colorBuffer;
 		}
 
-		std::vector<ColorType>& getBackColorBuffer()
+		std::vector<ColorType>& getColorBuffer()
 		{
-			static_assert(doubleBuffering);
-
-			return backColorBuffer;
+			return colorBuffer;
 		}
 
 		const std::vector<ColorType>& getBackColorBuffer() const
@@ -226,9 +241,91 @@ namespace Tools
 			return backColorBuffer;
 		}
 
-		constexpr static bool IsDoubleBuffering()
+		std::vector<ColorType>& getBackColorBuffer()
 		{
-			return doubleBuffering;
+			static_assert(doubleBuffering);
+
+			return backColorBuffer;
+		}
+
+		const float* getRawData() const
+		{
+			auto& buffer = [&]() -> auto& {
+				if constexpr (doubleBuffering)
+					return backColorBuffer;
+				else
+					return colorBuffer;
+				}();
+			assert(!buffer.empty());
+			if (buffer.empty())
+				return nullptr;
+			if constexpr (std::is_same_v<ColorType, float>)
+				return buffer.data();
+			else
+				return &buffer[0].r;
+		};
+
+		float* getRawData()
+		{
+			return const_cast<float*>(std::as_const(*this).getRawData());
+		}
+
+		int getNumOfChannels()
+		{
+			if constexpr (std::is_same_v<ColorType, float>)
+				return 1;
+			else if constexpr (std::is_same_v<ColorType, glm::vec2>)
+				return 2;
+			else if constexpr (std::is_same_v<ColorType, glm::vec3>)
+				return 3;
+			else if constexpr (std::is_same_v<ColorType, glm::vec4>)
+				return 4;
+
+			assert(!"unsupported ColorType");
+			throw std::runtime_error("getNumOfChannels - unsupported ColorType.");
+		}
+
+		void updateSubImage(const float* textureSubData, const glm::ivec2& size, const glm::ivec2& offset, int numOfChannels, float spriteAlphaThreshold = 0.0f)
+		{
+			auto clippedTextureSubData = Tools::ClipSubImage(textureSubData, size, offset, res, numOfChannels, operationalBuffer);
+			const int numOfDestChannels = getNumOfChannels();
+			const bool sprite = numOfChannels == 4 && spriteAlphaThreshold > 0.0f;
+			const bool perPixelProcessing = sprite || numOfChannels != numOfDestChannels;
+			float* bufferRawData = getRawData();
+
+			auto processRow = [&](const auto y) {
+				const int destIndex = (clippedTextureSubData.offset.y + y) * res.x * numOfDestChannels + clippedTextureSubData.offset.x * numOfDestChannels;
+				const int sourceIndex = y * clippedTextureSubData.size.x * numOfChannels;
+				if (perPixelProcessing)
+					for (int x = 0; x < clippedTextureSubData.size.x; ++x)
+					{
+						const int sourcePixelIndex = sourceIndex + x * numOfChannels;
+						const int destPixelIndex = destIndex + x * numOfDestChannels;
+						if (!sprite || clippedTextureSubData.data[sourcePixelIndex + 3] >= spriteAlphaThreshold)
+							std::memcpy(&bufferRawData[destPixelIndex], &clippedTextureSubData.data[sourcePixelIndex], numOfDestChannels * sizeof(float));
+					}
+				else
+					std::memcpy(&bufferRawData[destIndex], &clippedTextureSubData.data[sourceIndex], clippedTextureSubData.size.x * numOfDestChannels * sizeof(float));
+			};
+
+			if constexpr (parallelProcessing && 1)
+			{
+				Tools::ItToId itToId(clippedTextureSubData.size.y);
+				std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), processRow);
+			}
+			else
+				for (int y = 0; y < clippedTextureSubData.size.y; ++y)
+					processRow(y);
+		}
+
+		Tools::SubImageData getSubImage(const glm::ivec2& offset, const glm::ivec2& size, std::vector<float>& operationalBuffer)
+		{
+			return Tools::GetSubImage(getRawData(), res, offset, size, getNumOfChannels(), operationalBuffer);
+		}
+
+		Tools::SubImageData getSubImage(const glm::ivec2& offsetPos, const glm::ivec2& size)
+		{
+			return getSubImage(offsetPos, size, operationalBuffer);
 		}
 
 	private:
@@ -264,10 +361,25 @@ namespace Tools
 			return const_cast<ColorBufferEditor*>(this)->bufferTransformedLocation(pos, const_cast<std::vector<ColorType>&>(buffer));
 		}
 
+		ColorType getColorFromBuffer(const glm::ivec2& pos, const std::vector<ColorType>& buffer) const
+		{
+			if (pos.x < 0)
+				return border.value_or(getColorFromBuffer({ 0, pos.y }, buffer));
+			if (pos.x >= res.x)
+				return border.value_or(getColorFromBuffer({ res.x - 1, pos.y }, buffer));
+			if (pos.y < 0)
+				return border.value_or(getColorFromBuffer({ pos.x, 0 }, buffer));
+			if (pos.y >= res.y)
+				return border.value_or(getColorFromBuffer({ pos.x, res.y - 1 }, buffer));
+
+			return bufferTransformedLocation(pos, buffer);
+		}
+
 		glm::ivec2 res;
 		Bottom bottom;
 		std::vector<ColorType>& colorBuffer;
 		std::vector<ColorType> backColorBuffer;
 		std::optional<ColorType> border;
+		std::vector<float> operationalBuffer;
 	};
 }

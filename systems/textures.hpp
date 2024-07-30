@@ -36,6 +36,7 @@ namespace Systems
 		void step();
 
 		const TextureCache& loadFile(const TextureFile& file);
+		const TextureCache& textureDataFromFile(TextureData& textureData);
 
 	private:
 		void loadAndConfigureTexture(Components::Texture& texture, bool initial = true);
@@ -43,7 +44,6 @@ namespace Systems
 		void updateStaticTextures();
 		void updateDynamicTextures();
 		void deleteTexture(Components::Texture& texture);
-		const TextureCache& textureDataFromFile(TextureData& textureData);
 
 		IdGenerator<unsigned, GL_TEXTURE0, GL_TEXTURE0 + GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS> textureUnits;
 		unsigned staticTexturesOffset = 0;

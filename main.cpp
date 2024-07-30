@@ -66,7 +66,7 @@
 
 const bool debugFullscreen = false;
 const bool releaseFullscreen = true;
-const bool fastFullScreen = true;
+const bool fastFullScreen = false;
 const bool console = true;
 const glm::ivec2 windowRes = { 1920, 1080 };
 
@@ -92,7 +92,7 @@ static void InitOGL()
 static void InitEngine()
 {
 	if (console)
-		Tools::RedirectIOToConsole({ 3850, 10 });
+		Tools::RedirectIOToConsole({ 1930, 10 });
 	Tools::RandomInit();
 	InitOGL();
 	int sdlInitResult = SDL_Init(SDL_INIT_GAMECONTROLLER);
@@ -115,7 +115,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::SquareRace>();
 	//activeLevel = std::make_unique<Levels::SnakeCube>();
 
-	activeLevel = std::make_unique<Levels::Playground>();
+	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
@@ -131,7 +131,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Crosses3DInstancing>();
 	//activeLevel = std::make_unique<Levels::Paint>();
 	//activeLevel = std::make_unique<Levels::Noise>();
-	//activeLevel = std::make_unique<Levels::Decals>();
+	activeLevel = std::make_unique<Levels::Decals>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }

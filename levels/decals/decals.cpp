@@ -9,6 +9,9 @@
 #include <components/physics.hpp>
 #include <globals/components.hpp>
 
+#include <systems/textures.hpp>
+#include <globals/systems.hpp>
+
 #include <tools/shapes2D.hpp>
 #include <tools/colorBufferEditor.hpp>
 
@@ -17,7 +20,7 @@
 namespace
 {
 	constexpr bool parallelProcessing = true;
-	constexpr char mainTexturePath[] = "textures/pp.png";
+	constexpr char mainTexturePath[] = "textures/play field.jpg";
 	constexpr char decalTexturePath[] = "textures/skull rot.png";
 }
 
@@ -27,8 +30,8 @@ namespace Levels
 	{
 	public:
 		Decals::Impl():
-			decalTextureSubData({ { TextureData(TextureFile(decalTexturePath, 3)), {} } }),
-			decalTextureData(TextureFile(decalTexturePath, 3))
+			decalTextureSubData(TextureSubData::Params{}.imagesData({ { TextureData(TextureFile(decalTexturePath, 4)), {} } })),
+			decalTextureData(TextureFile(decalTexturePath, 4))
 		{
 			Globals::Components().graphicsSettings().backgroundColorF = glm::vec4{ 0.0f, 0.1f, 0.1f, 1.0f };
 			Globals::Components().camera2D().targetProjectionHSizeF = []() { return 0.5f; };
@@ -50,7 +53,7 @@ namespace Levels
 			auto& cursor = staticDecorations.emplace(Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, 1.0f, 100));
 			cursor.colorF = [&]() { return glm::vec4(cursorColor, 1.0f); };
 			cursor.modelMatrixF = [&]() {
-				return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(cursorPos, 0.0f)), glm::vec3(cursorSize, cursorSize, 1.0f));
+				return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(cursorPos, 0.0f)), glm::vec3(glm::vec2(cursorHSize) * 0.1f, 1.0f));
 			};
 			cursor.renderLayer = RenderLayer::NearForeground;
 		}
@@ -74,6 +77,11 @@ namespace Levels
 				//editor->setBorder(glm::vec3(0.0f));
 			}
 
+			if (!decalTextureData.file.path.empty())
+				Globals::Systems().textures().textureDataFromFile(decalTextureData);
+
+#define TEST 7
+#if TEST != 7
 			switch (effect)
 			{
 			case 0: blur(*editor); break;
@@ -82,55 +90,57 @@ namespace Levels
 			case 3: flames(*editor); break;
 			case 4: none(*editor); break;
 			}
+#endif
 
 			if (mouse.pressing.lmb)
 			{
-				if constexpr (ColorBufferEditor::IsDoubleBuffering())
-					editor->swapBuffers();
-
 				const glm::vec2 normalizedCursorPos = (cursorPos - glm::vec2(-0.5f * texture.loaded.getAspectRatio(), -0.5f)) / glm::vec2(texture.loaded.getAspectRatio(), 1.0f);
 				const glm::ivec2 cursorPosInTexture = normalizedCursorPos * glm::vec2(textureSize) + 0.5f;
-
-#define TEST 6
 #if TEST == 0
-				editor->putRectangle(cursorPosInTexture, { cursorSize * textureSize.y, cursorSize * textureSize.y }, cursorColor);
+				editor->putRectangle(cursorPosInTexture, { cursorHSize * textureSize.y, cursorHSize * textureSize.y }, cursorColor);
 #elif TEST == 1
-				editor->putCircle(cursorPosInTexture, int(cursorSize * textureSize.y), cursorColor);
+				editor->putCircle(cursorPosInTexture, int(cursorHSize * textureSize.y), cursorColor);
 #elif TEST == 2
-				editor->putEllipse(cursorPosInTexture, { cursorSize * textureSize.y, cursorSize * textureSize.y }, cursorColor);
+				editor->putEllipse(cursorPosInTexture, { cursorHSize * textureSize.y, cursorHSize * textureSize.y }, cursorColor);
 #elif TEST == 3
 				{
-					const auto size = glm::ivec2(cursorSize * textureSize.y, cursorSize * textureSize.y) * 2;
+					const auto size = glm::ivec2(cursorHSize * textureSize.y, cursorHSize * textureSize.y) * 2;
 					const glm::ivec2 offset(cursorPosInTexture - size / 2);
 					std::vector<glm::vec3> data; (size.x * size.y, glm::vec3(Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f)));
 					data.reserve(size.x * size.y);
 					for (int y = 0; y < size.y; ++y)
 						for (int x = 0; x < size.x; ++x)
 							data.push_back(glm::vec3(Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f)));
-					texture.subImagesF = [textureSubData = TextureSubData({ { TextureData(std::move(data), size), offset } }, false)]() mutable -> auto& {
+					texture.subImagesF = [textureSubData = TextureSubData(TextureSubData::Params{}.imagesData({ { TextureData(std::move(data), size), offset } }).exclusiveLoad(false))]() mutable -> auto& {
 						return textureSubData;
-					};
+						};
 				}
 #elif TEST == 4
-				texture.subImagesF = [textureSubData = TextureSubData({ { TextureData(TextureFile(decalTexturePath, 3)), {} } }, [=](const auto& size, auto) { return cursorPosInTexture - size / 2; })]() mutable -> auto& {
+				texture.subImagesF = [textureSubData = TextureSubData(TextureSubData::Params{}.imagesData({ { TextureData(TextureFile(decalTexturePath, 3)), {} } })
+					.deferredOffsetPosF([=](const auto& size, auto, auto) { return cursorPosInTexture - size / 2; }))]() mutable -> auto& {
 					return textureSubData;
-				};
+					};
 #elif TEST == 5
 				{
-					decalTextureSubData.deferredOffsetPosF = [=](const auto& size, auto) { return cursorPosInTexture - size / 2; };
+					decalTextureSubData.deferredOffsetPosF = [=](const auto& size, auto, auto) { return cursorPosInTexture - size / 2; };
 					texture.subImagesF = [&]() mutable -> auto& { return decalTextureSubData; };
 				}
 #elif TEST == 6
-				texture.subImagesF = [textureSubData = TextureSubData({ { &decalTextureData, {} } }, [=](const auto& size, auto) { return cursorPosInTexture - size / 2; })]() mutable -> auto& {
-					return textureSubData;
-				};
+				editor->updateSubImage(decalTextureData.getRawData(), decalTextureData.loaded.size, cursorPosInTexture - decalTextureData.loaded.size / 2, decalTextureData.getNumOfChannels(), 1.0f);
+#elif TEST == 7
+				{
+					texture.subImagesF = [&, cursorPosInTexture, operationalBuffer = std::vector<float>()]() mutable {
+						const glm::ivec2 subImgSize = decalTextureData.loaded.size;
+						const glm::ivec2 subImgOffset = cursorPosInTexture - subImgSize / 2;
+						editor->updateSubImage(decalTextureData.getRawData(), subImgSize, subImgOffset, decalTextureData.getNumOfChannels(), 1.0f);
+						const auto subImage = editor->getSubImage(subImgOffset, subImgSize, operationalBuffer);
+						auto textureData = TextureData(subImage.data, subImage.size, editor->getNumOfChannels());
+						auto textureSubData = TextureSubData(TextureSubData::Params{}.imagesData({ { std::move(textureData), subImage.offset } }).exclusiveLoad(true));
+						return textureSubData;
+					};
+				}
 #endif
-
-				if constexpr (ColorBufferEditor::IsDoubleBuffering())
-					editor->swapBuffers();
 			}
-			else
-				texture.subImagesF = {};
 
 			for (int i = 0; i < 5; ++i)
 				if (keyboard.pressed[(int)'1' + i])
@@ -146,8 +156,8 @@ namespace Levels
 			else
 			{
 				const float sizeStep = 0.05f;
-				cursorSize += mouse.pressed.wheel * sizeStep * (cursorSize + 0.1f);
-				cursorSize = std::clamp(cursorSize, 0.0f, 1.0f);
+				cursorHSize += mouse.pressed.wheel * sizeStep * (cursorHSize + 0.1f);
+				cursorHSize = std::clamp(cursorHSize, 0.0f, 1.0f);
 			}
 
 			cursorColor.r = std::clamp(cursorColor.r, 0.0f, 1.0f);
@@ -160,6 +170,8 @@ namespace Levels
 				texture.source = TextureData(TextureFile(mainTexturePath, 3));
 				editor.reset();
 			}
+			else if constexpr (ColorBufferEditor::IsDoubleBuffering())
+				editor->swapBuffers();
 
 			texture.state = ComponentState::Changed;
 		}
@@ -190,9 +202,6 @@ namespace Levels
 			else
 				for (int y = 0; y < colorBuffer.getRes().y; ++y)
 					innerLoop(y);
-
-			if constexpr (ColorBufferEditor::IsDoubleBuffering())
-				editor->swapBuffers();
 		}
 
 		void flames(auto& colorBuffer, float newColorFactor = 0.249f, glm::vec3 initRgbMin = glm::vec3(-200), glm::vec3 initRgbMax = glm::vec3(200))
@@ -216,9 +225,6 @@ namespace Levels
 			else
 				for (int y = 1; y < colorBuffer.getRes().y; ++y)
 					innerLoop(y);
-
-			if constexpr (ColorBufferEditor::IsDoubleBuffering())
-				editor->swapBuffers();
 		}
 
 		void plasma(auto& colorBuffer)
@@ -262,7 +268,6 @@ namespace Levels
 					for (int x = 0; x < colorBuffer.getRes().x; ++x)
 						colorBuffer.putColor({ x, y }, colorBuffer.getColor({ x, y }));
 				});
-				editor->swapBuffers();
 			}
 		}
 
@@ -273,7 +278,7 @@ namespace Levels
 		int effect = 0;
 		glm::vec2 cursorPos = { 0.0f, 0.0f };
 		glm::vec3 cursorColor = { 0.8f, 0.2f, 0.8f };
-		float cursorSize = 0.05f;
+		float cursorHSize = 0.05f;
 	};
 
 	Decals::Decals():

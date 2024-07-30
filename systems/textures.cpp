@@ -6,8 +6,10 @@
 #include <globals/components.hpp>
 
 #include <tools/utility.hpp>
+#include <tools/buffersHelpers.hpp>
 
 #include <ogl/oglProxy.hpp>
+#include <ogl/oglHelpers.hpp>
 
 #include <stb_image/stb_image.h>
 
@@ -22,97 +24,6 @@
 namespace
 {
 	constexpr bool parallelProcessing = true;
-
-	template<typename ColorType>
-	inline const float* getFirstFloatPtr(const std::vector<ColorType>& data)
-	{
-		assert(!data.empty());
-		if (data.empty())
-			return nullptr;
-		if constexpr (std::is_same_v<ColorType, float>)
-			return data.data();
-		else
-			return &data[0].r;
-	};
-
-	inline const float* getFirstFloatPtr(const std::pair<std::vector<float>, int>& data)
-	{
-		assert(!data.first.empty());
-		return data.first.data();
-	}
-
-	inline const float* getFirstFloatPtr(const std::pair<float*, int>& data)
-	{
-		assert(!data.first);
-		return data.first;
-	}
-
-	inline const float* getFirstFloatPtr(std::monostate)
-	{
-		assert(!"uninitialised textureData.loaded.data");
-		throw std::runtime_error("getFirstFloatPtr - uninitialised textureData.loaded.data.");
-	}
-
-	template<typename Variant>
-	inline const float* getFirstFloatPtrFromVariant(const Variant& variant)
-	{
-		return std::visit([&](auto& data) { return getFirstFloatPtr(data); }, variant);
-	}
-
-	template<typename Variant>
-	inline float* getFirstFloatPtrFromVariant(Variant& variant)
-	{
-		return const_cast<float*>(getFirstFloatPtrFromVariant(static_cast<const Variant&>(variant)));
-	}
-
-	template<typename Variant>
-	inline int getNumOfChannelsFromVariant(const Variant& variant)
-	{
-		if (std::holds_alternative<std::pair<float*, int>>(variant))
-			return std::get<std::pair<float*, int>>(variant).second;
-		else if (std::holds_alternative<std::pair<std::vector<float>, int>>(variant))
-			return std::get<std::pair<std::vector<float>, int>>(variant).second;
-		else if (std::holds_alternative<std::vector<glm::vec2>>(variant))
-			return 2;
-		else if (std::holds_alternative<std::vector<glm::vec3>>(variant))
-			return 3;
-		else if (std::holds_alternative<std::vector<glm::vec4>>(variant))
-			return 4;
-
-		assert(!"unsupported variant type");
-		throw std::runtime_error("getNumOfChannelsFromVariant - unsupported variant type.");
-	}
-
-	template<typename Variant>
-	inline int getFormatFromVariant(const Variant& variant)
-	{
-		switch (getNumOfChannelsFromVariant(variant))
-		{
-		case 1: return GL_RED;
-		case 2: return GL_RG;
-		case 3: return GL_RGB;
-		case 4: return GL_RGBA;
-		default: assert(!"unsupported number of channels"); return 0;
-		}
-	}
-
-	template<typename Variant>
-	inline const TextureData& getTextureDataFromVariant(const Variant& variant)
-	{
-		if (std::holds_alternative<TextureData>(variant))
-			return std::get<TextureData>(variant);
-		else if (std::holds_alternative<TextureData*>(variant))
-			return *std::get<TextureData*>(variant);
-
-		assert(!"unsupported variant type");
-		throw std::runtime_error("getTextureDataFromVariant - unsupported variant type.");
-	}
-
-	template<typename Variant>
-	inline TextureData& getTextureDataFromVariant(Variant& variant)
-	{
-		return const_cast<TextureData&>(getTextureDataFromVariant(static_cast<const Variant&>(variant)));
-	}
 
 	void optionalAlphaProcessing(float* data, glm::ivec2 size, int numOfChannels, bool convertToPremultipliedAlpha, TextureFile::AdditionalConversion additionalConversion)
 	{
@@ -201,62 +112,6 @@ namespace
 		textureCache.data = std::move(newData);
 		textureCache.numOfChannels = newNumOfChannels;
 	}
-
-	std::tuple<const float*, glm::ivec2, glm::ivec2> getClippedTextureSubData(
-		const float* textureSubData,
-		const glm::ivec2& textureSubSize,
-		const glm::ivec2& offsetPos,
-		const glm::ivec2& targetTextureSize,
-		const int numOfChannels,
-		std::vector<float>& operationalBuffer)
-	{
-		const int startX = offsetPos.x;
-		const int startY = offsetPos.y;
-		const int endX = startX + textureSubSize.x;
-		const int endY = startY + textureSubSize.y;
-
-		const bool withinBounds = (startX >= 0) && (startY >= 0) && (endX <= targetTextureSize.x) && (endY <= targetTextureSize.y);
-
-		if (withinBounds)
-			return std::make_tuple(textureSubData, textureSubSize, offsetPos);
-		else
-		{
-			if (startX >= targetTextureSize.x || startY >= targetTextureSize.y || endX <= 0 || endY <= 0)
-				return std::make_tuple(nullptr, glm::ivec2(0), glm::ivec2(0));
-
-			const int clippedStartX = std::max(0, startX);
-			const int clippedStartY = std::max(0, startY);
-			const int clippedEndX = std::min(targetTextureSize.x, endX);
-			const int clippedEndY = std::min(targetTextureSize.y, endY);
-
-			const glm::ivec2 clippedSize(clippedEndX - clippedStartX, clippedEndY - clippedStartY);
-			const glm::ivec2 newOffset(std::max(0, startX), std::max(0, startY));
-
-			const int rowSize = clippedSize.x * numOfChannels * sizeof(float);
-			const int sourceX = clippedStartX - startX;
-
-			operationalBuffer.resize(clippedSize.x * clippedSize.y * numOfChannels);
-
-			auto processRow = [&](const auto y) {
-				const int sourceY = y - startY;
-				const int destIndex = (y - clippedStartY) * clippedSize.x * numOfChannels;
-				const int sourceIndex = (sourceY * textureSubSize.x + sourceX) * numOfChannels;
-
-				std::memcpy(&operationalBuffer[destIndex], &textureSubData[sourceIndex], rowSize);
-			};
-
-			if constexpr (parallelProcessing && 1)
-			{
-				Tools::ItToId itToId(clippedStartY, clippedEndY);
-				std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), processRow);
-			}
-			else
-				for (int y = clippedStartY; y < clippedEndY; ++y)
-					processRow(y);
-
-			return std::make_tuple(operationalBuffer.data(), clippedSize, newOffset);
-		}
-	}
 }
 
 namespace Systems
@@ -307,6 +162,42 @@ namespace Systems
 		return textureCache;
 	}
 
+	const Textures::TextureCache& Textures::textureDataFromFile(TextureData& textureData)
+	{
+		const auto& textureCache = loadFile(textureData.file);
+		textureData.loaded.size = textureCache.size;
+
+		if (std::holds_alternative<std::pair<float*, int>>(textureData.loaded.data))
+			textureData.loaded.data = std::make_pair(textureCache.data.get(), textureCache.numOfChannels);
+		else
+		{
+			switch (textureCache.numOfChannels)
+			{
+			case 1:
+				textureData.loaded.data = std::make_pair(std::vector<float>(textureCache.size.x * textureCache.size.y), 1);
+				break;
+			case 2:
+				textureData.loaded.data = std::vector<glm::vec2>(textureCache.size.x * textureCache.size.y);
+				break;
+			case 3:
+				textureData.loaded.data = std::vector<glm::vec3>(textureCache.size.x * textureCache.size.y);
+				break;
+			case 4:
+				textureData.loaded.data = std::vector<glm::vec4>(textureCache.size.x * textureCache.size.y);
+				break;
+			default:
+				assert(!"unsupported number of channels");
+				throw std::runtime_error("Unsupported number of channels in texture \"" + textureData.file.path + "\".");
+			}
+
+			std::copy(textureCache.data.get(), textureCache.data.get() + textureCache.numOfChannels * textureCache.size.x * textureCache.size.y,
+				textureData.getRawData());
+		}
+		textureData.file = {};
+
+		return textureCache;
+	}
+
 	void Textures::loadAndConfigureTexture(Components::Texture& texture, bool initial)
 	{
 		class DataSourceVisitor
@@ -327,7 +218,7 @@ namespace Systems
 				texture.loaded.size = textureCache.size;
 				texture.loaded.numOfChannels = textureCache.numOfChannels;
 
-				texImage2D(textureCache.data.get(), prevSize, prevNumOfChannels);
+				applyTexture(textureCache.data.get(), prevSize, prevNumOfChannels);
 			}
 
 			void operator()(TextureData& textureData)
@@ -336,13 +227,13 @@ namespace Systems
 				const int prevNumOfChannels = texture.loaded.numOfChannels;
 
 				if (textureData.file.path.empty())
-					texture.loaded.numOfChannels = getNumOfChannelsFromVariant(textureData.loaded.data);
+					texture.loaded.numOfChannels = textureData.getNumOfChannels();
 				else
 					texture.loaded.numOfChannels = textures.textureDataFromFile(textureData).numOfChannels;
 
 				texture.loaded.size = textureData.loaded.size;
 
-				texImage2D(getFirstFloatPtrFromVariant(textureData.loaded.data), prevSize, prevNumOfChannels);
+				applyTexture(textureData.getRawData(), prevSize, prevNumOfChannels);
 			}
 
 			void operator ()(std::monostate) const
@@ -352,39 +243,41 @@ namespace Systems
 			}
 
 		private:
-			void texImage2D(const float* data, glm::ivec2 prevSize, int prevNumOfChannels) const
+			void applyTexture(const float* data, glm::ivec2 prevSize, int prevNumOfChannels) const
 			{
-				auto* const subImages = texture.subImagesF ? &texture.subImagesF() : nullptr;
+				std::optional<TextureSubData> subData = texture.subImagesF
+					? std::optional<TextureSubData>(texture.subImagesF())
+					: std::nullopt;
 
-				if (!subImages || !subImages->exclusiveLoad)
+				if (!subData || !subData->exclusiveLoad)
 				{
 					const auto& finalData = !texture.sourceFragmentCornerAndSizeF
 						? data
 						: [&]() {
-						const auto [fragmentCorner, fragmentSize] = texture.sourceFragmentCornerAndSizeF(texture.loaded.size);
-						const size_t rowSize = fragmentSize.x * texture.loaded.numOfChannels * sizeof(float);
-						const size_t totalSize = fragmentSize.y * fragmentSize.x * texture.loaded.numOfChannels;
+							const auto [fragmentCorner, fragmentSize] = texture.sourceFragmentCornerAndSizeF(texture.loaded.size);
+							const size_t rowSize = fragmentSize.x * texture.loaded.numOfChannels * sizeof(float);
+							const size_t totalSize = fragmentSize.y * fragmentSize.x * texture.loaded.numOfChannels;
 
-						textures.operationalBuffer.resize(totalSize);
+							textures.operationalBuffer.resize(totalSize);
 
-						auto copyRow = [&](const auto y) {
-							const float* rowStart = data + ((fragmentCorner.y + y) * texture.loaded.size.x + fragmentCorner.x) * texture.loaded.numOfChannels;
-							float* destStart = textures.operationalBuffer.data() + y * fragmentSize.x * texture.loaded.numOfChannels;
-							std::memcpy(destStart, rowStart, rowSize);
-							};
+							auto copyRow = [&](const auto y) {
+								const float* rowStart = data + ((fragmentCorner.y + y) * texture.loaded.size.x + fragmentCorner.x) * texture.loaded.numOfChannels;
+								float* destStart = textures.operationalBuffer.data() + y * fragmentSize.x * texture.loaded.numOfChannels;
+								std::memcpy(destStart, rowStart, rowSize);
+								};
 
-						if constexpr (parallelProcessing && 1)
-						{
-							Tools::ItToId itToId(fragmentSize.y);
-							std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), copyRow);
-						}
-						else
-							for (int y = 0; y < fragmentSize.y; ++y)
-								copyRow(y);
+							if constexpr (parallelProcessing && 1)
+							{
+								Tools::ItToId itToId(fragmentSize.y);
+								std::for_each(std::execution::par_unseq, itToId.begin(), itToId.end(), copyRow);
+							}
+							else
+								for (int y = 0; y < fragmentSize.y; ++y)
+									copyRow(y);
 
-						texture.loaded.size = fragmentSize;
+							texture.loaded.size = fragmentSize;
 
-						return textures.operationalBuffer.data();
+							return textures.operationalBuffer.data();
 						}();
 					if (prevSize != texture.loaded.size || prevNumOfChannels != texture.loaded.numOfChannels)
 						glTexImage2D(GL_TEXTURE_2D, 0, texture.loaded.getFormat(), texture.loaded.size.x, texture.loaded.size.y, 0, texture.loaded.getFormat(), GL_FLOAT, finalData);
@@ -392,29 +285,38 @@ namespace Systems
 						glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture.loaded.size.x, texture.loaded.size.y, texture.loaded.getFormat(), GL_FLOAT, finalData);
 				}
 
-				if (subImages)
+				if (subData)
 				{
 					int i = 0;
-					for (auto& [textureSubDataVariant, offsetPos] : subImages->textureSubData)
+					for (auto& [imageDataVariant, offsetPos] : subData->imagesData)
 					{
-						auto& textureSubData = getTextureDataFromVariant(textureSubDataVariant);
+						auto& imageData = TextureSubData::GetTextureDataFromVariant(imageDataVariant);
 
-						if (!textureSubData.file.path.empty())
-							textures.textureDataFromFile(textureSubData);
+						if (!imageData.file.path.empty())
+							textures.textureDataFromFile(imageData);
 
-						assert(texture.loaded.numOfChannels == getNumOfChannelsFromVariant(textureSubData.loaded.data));
+						const int imageNumOfChannels = imageData.getNumOfChannels();
 
-						if (subImages->deferredOffsetPosF)
-							offsetPos = subImages->deferredOffsetPosF(textureSubData.loaded.size, i++);
+						assert(texture.loaded.numOfChannels == imageNumOfChannels);
 
-						const auto& [clippedTextureSubData, clippedSize, clippedOffsetPos] =
-							getClippedTextureSubData(getFirstFloatPtrFromVariant(textureSubData.loaded.data), textureSubData.loaded.size, offsetPos,
-								texture.loaded.size, getNumOfChannelsFromVariant(textureSubData.loaded.data), textures.operationalBuffer);
-						if (clippedTextureSubData)
-							glTexSubImage2D(GL_TEXTURE_2D, 0, clippedOffsetPos.x, clippedOffsetPos.y, clippedSize.x, clippedSize.y, getFormatFromVariant(textureSubData.loaded.data), GL_FLOAT, clippedTextureSubData);
+						if (subData->deferredOffsetPosF)
+							offsetPos = subData->deferredOffsetPosF(imageData.loaded.size, texture.loaded.size, i++);
+
+						const auto subImageData =
+							Tools::ClipSubImage(imageData.getRawData(), imageData.loaded.size, offsetPos,
+								texture.loaded.size, imageNumOfChannels, textures.operationalBuffer);
+
+						if (subImageData.data)
+						{
+							if (subData->updateCallbackF)
+								subData->updateCallbackF(subImageData.data, subImageData.size, subImageData.offset, imageNumOfChannels);
+							glTexSubImage2D(GL_TEXTURE_2D, 0, subImageData.offset.x, subImageData.offset.y, subImageData.size.x, subImageData.size.y,
+								Tools::GetPixelFormat(imageData.getNumOfChannels()), GL_FLOAT, subImageData.data);
+						}
 					}
 
-					subImages->deferredOffsetPosF = nullptr;
+					if (!subData->permanent)
+						texture.subImagesF = nullptr;
 				}
 			}
 
@@ -532,41 +434,5 @@ namespace Systems
 		texture.loaded.textureUnit = 0;
 		glDeleteTextures(1, &texture.loaded.textureObject);
 		texture.loaded.textureObject = 0;
-	}
-
-	const Textures::TextureCache& Textures::textureDataFromFile(TextureData& textureData)
-	{
-		const auto& textureCache = loadFile(textureData.file);
-		textureData.loaded.size = textureCache.size;
-
-		if (std::holds_alternative<std::pair<float*, int>>(textureData.loaded.data))
-			textureData.loaded.data = std::make_pair(textureCache.data.get(), textureCache.numOfChannels);
-		else
-		{
-			switch (textureCache.numOfChannels)
-			{
-			case 1:
-				textureData.loaded.data = std::make_pair(std::vector<float>(textureCache.size.x * textureCache.size.y), 1);
-				break;
-			case 2:
-				textureData.loaded.data = std::vector<glm::vec2>(textureCache.size.x * textureCache.size.y);
-				break;
-			case 3:
-				textureData.loaded.data = std::vector<glm::vec3>(textureCache.size.x * textureCache.size.y);
-				break;
-			case 4:
-				textureData.loaded.data = std::vector<glm::vec4>(textureCache.size.x * textureCache.size.y);
-				break;
-			default:
-				assert(!"unsupported number of channels");
-				throw std::runtime_error("Unsupported number of channels in texture \"" + textureData.file.path + "\".");
-			}
-
-			std::copy(textureCache.data.get(), textureCache.data.get() + textureCache.numOfChannels * textureCache.size.x * textureCache.size.y,
-				getFirstFloatPtrFromVariant(textureData.loaded.data));
-		}
-		textureData.file = {};
-
-		return textureCache;
 	}
 }

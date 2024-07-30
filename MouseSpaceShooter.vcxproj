@@ -70,6 +70,7 @@
     <ClCompile Include="systems\temporaries.cpp" />
     <ClCompile Include="systems\textures.cpp" />
     <ClCompile Include="tools\b2Helpers.cpp" />
+    <ClCompile Include="tools\buffersHelpers.cpp" />
     <ClCompile Include="tools\gameHelpers.cpp" />
     <ClCompile Include="tools\geometryHelpers.cpp" />
     <ClCompile Include="tools\missilesHandler.cpp" />
