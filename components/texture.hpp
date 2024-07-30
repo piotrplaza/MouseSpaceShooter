@@ -52,7 +52,7 @@ namespace Components
 		bool preserveAspectRatio = false;
 
 		std::function<std::pair<glm::ivec2, glm::ivec2>(glm::ivec2)> sourceFragmentCornerAndSizeF;
-		std::function<TextureSubData&()> subImagesF;
+		std::function<TextureSubData()> subImagesF;
 
 		struct
 		{

@@ -59,4 +59,16 @@ namespace Tools
 			std::cout << prefix << ": 0x" << std::hex << err << std::endl;
 		}
 	}
+
+	int GetPixelFormat(int numOfChannels)
+	{
+		switch (numOfChannels)
+		{
+		case 1: return GL_RED;
+		case 2: return GL_RG;
+		case 3: return GL_RGB;
+		case 4: return GL_RGBA;
+		default: assert(!"unsupported number of channels"); return 0;
+		}
+	}
 }

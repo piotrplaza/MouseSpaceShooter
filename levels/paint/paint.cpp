@@ -74,7 +74,7 @@ namespace Levels
 			if (mouse.pressing.lmb)
 			{
 				if constexpr (ColorBufferEditor::IsDoubleBuffering())
-					editor->swapBuffers();
+					editor->swapBuffers(false);
 
 				const auto cursorPosInTexture = glm::ivec2((cursorPos + glm::vec2(0.5f)) * glm::vec2(textureSize - 1));
 				//editor->putRectangle(cursorPosInTexture, { cursorSize * textureSize.x, cursorSize * textureSize.y }, cursorColor);
@@ -82,7 +82,7 @@ namespace Levels
 				editor->putEllipse(cursorPosInTexture, { cursorSize * textureSize.x, cursorSize * textureSize.y }, cursorColor);
 
 				if constexpr (ColorBufferEditor::IsDoubleBuffering())
-					editor->swapBuffers();
+					editor->swapBuffers(false);
 			}
 
 			for (int i = 0; i < 4; ++i)
@@ -145,7 +145,7 @@ namespace Levels
 					innerLoop(y);
 
 			if constexpr (ColorBufferEditor::IsDoubleBuffering())
-				editor->swapBuffers();
+				editor->swapBuffers(false);
 		}
 
 		void flames(auto& colorBuffer, float newColorFactor = 0.249f, glm::vec3 initRgbMin = glm::vec3(-200), glm::vec3 initRgbMax = glm::vec3(200))
@@ -171,7 +171,7 @@ namespace Levels
 					innerLoop(y);
 
 			if constexpr (ColorBufferEditor::IsDoubleBuffering())
-				editor->swapBuffers();
+				editor->swapBuffers(false);
 		}
 
 		void plasma(auto& colorBuffer)

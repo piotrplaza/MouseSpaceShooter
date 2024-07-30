@@ -82,4 +82,27 @@ namespace Tools
 			selectedBuffers.applyComponentSubsequence(component, false);
 		}
 	}
+
+	struct SubImageData
+	{
+		float* data;
+		glm::ivec2 size;
+		glm::ivec2 offsetPos;
+	};
+
+	SubImageData GetSubImage(
+		const float* sourceImageData,
+		const glm::ivec2& sourceImageSize,
+		const glm::ivec2& offsetPos,
+		const glm::ivec2& subImageSize,
+		int numOfChannels,
+		std::vector<float>& operationalBuffer);
+
+	SubImageData GetClippedSubImage(
+		float* subImageData,
+		const glm::ivec2& subImagebSize,
+		const glm::ivec2& offsetPos,
+		const glm::ivec2& targetImageSize,
+		const int numOfChannels,
+		std::vector<float>& operationalBuffer);
 }

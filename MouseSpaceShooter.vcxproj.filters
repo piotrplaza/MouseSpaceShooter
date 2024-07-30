@@ -334,6 +334,9 @@
     <ClCompile Include="levels\decals\decals.cpp">
       <Filter>src\levels\decals</Filter>
     </ClCompile>
+    <ClCompile Include="tools\buffersHelpers.cpp">
+      <Filter>src\tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mvp.hpp">

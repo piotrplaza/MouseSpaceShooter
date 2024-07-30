@@ -9,6 +9,9 @@
 #include <components/physics.hpp>
 #include <globals/components.hpp>
 
+#include <systems/textures.hpp>
+#include <globals/systems.hpp>
+
 #include <tools/shapes2D.hpp>
 #include <tools/colorBufferEditor.hpp>
 
@@ -27,8 +30,8 @@ namespace Levels
 	{
 	public:
 		Decals::Impl():
-			decalTextureSubData({ { TextureData(TextureFile(decalTexturePath, 3)), {} } }),
-			decalTextureData(TextureFile(decalTexturePath, 3))
+			decalTextureSubData(TextureSubData::Params{}.imagesData({ { TextureData(TextureFile(decalTexturePath, 4)), {} } })),
+			decalTextureData(TextureFile(decalTexturePath, 4))
 		{
 			Globals::Components().graphicsSettings().backgroundColorF = glm::vec4{ 0.0f, 0.1f, 0.1f, 1.0f };
 			Globals::Components().camera2D().targetProjectionHSizeF = []() { return 0.5f; };
@@ -74,6 +77,8 @@ namespace Levels
 				//editor->setBorder(glm::vec3(0.0f));
 			}
 
+#define TEST 7
+#if TEST != 7
 			switch (effect)
 			{
 			case 0: blur(*editor); break;
@@ -82,16 +87,12 @@ namespace Levels
 			case 3: flames(*editor); break;
 			case 4: none(*editor); break;
 			}
+#endif
 
 			if (mouse.pressing.lmb)
 			{
-				if constexpr (ColorBufferEditor::IsDoubleBuffering())
-					editor->swapBuffers();
-
 				const glm::vec2 normalizedCursorPos = (cursorPos - glm::vec2(-0.5f * texture.loaded.getAspectRatio(), -0.5f)) / glm::vec2(texture.loaded.getAspectRatio(), 1.0f);
 				const glm::ivec2 cursorPosInTexture = normalizedCursorPos * glm::vec2(textureSize) + 0.5f;
-
-#define TEST 6
 #if TEST == 0
 				editor->putRectangle(cursorPosInTexture, { cursorSize * textureSize.y, cursorSize * textureSize.y }, cursorColor);
 #elif TEST == 1
@@ -107,30 +108,35 @@ namespace Levels
 					for (int y = 0; y < size.y; ++y)
 						for (int x = 0; x < size.x; ++x)
 							data.push_back(glm::vec3(Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f)));
-					texture.subImagesF = [textureSubData = TextureSubData({ { TextureData(std::move(data), size), offset } }, false)]() mutable -> auto& {
+					texture.subImagesF = [textureSubData = TextureSubData(TextureSubData::Params{}.imagesData({ { TextureData(std::move(data), size), offset } }).exclusiveLoad(false))]() mutable -> auto& {
 						return textureSubData;
-					};
+						};
 				}
 #elif TEST == 4
-				texture.subImagesF = [textureSubData = TextureSubData({ { TextureData(TextureFile(decalTexturePath, 3)), {} } }, [=](const auto& size, auto) { return cursorPosInTexture - size / 2; })]() mutable -> auto& {
+				texture.subImagesF = [textureSubData = TextureSubData(TextureSubData::Params{}.imagesData({ { TextureData(TextureFile(decalTexturePath, 3)), {} } })
+					.deferredOffsetPosF([=](const auto& size, auto, auto) { return cursorPosInTexture - size / 2; }))]() mutable -> auto& {
 					return textureSubData;
-				};
+					};
 #elif TEST == 5
 				{
-					decalTextureSubData.deferredOffsetPosF = [=](const auto& size, auto) { return cursorPosInTexture - size / 2; };
+					decalTextureSubData.deferredOffsetPosF = [=](const auto& size, auto, auto) { return cursorPosInTexture - size / 2; };
 					texture.subImagesF = [&]() mutable -> auto& { return decalTextureSubData; };
 				}
 #elif TEST == 6
-				texture.subImagesF = [textureSubData = TextureSubData({ { &decalTextureData, {} } }, [=](const auto& size, auto) { return cursorPosInTexture - size / 2; })]() mutable -> auto& {
-					return textureSubData;
-				};
+				if (!decalTextureData.file.path.empty())
+					Globals::Systems().textures().textureDataFromFile(decalTextureData);
+				editor->updateSubImage(decalTextureData.getRawData(), decalTextureData.loaded.size, cursorPosInTexture - decalTextureData.loaded.size / 2, decalTextureData.getNumOfChannels(), 1.0f);
+#elif TEST == 7
+				{
+					texture.subImagesF = [&, operationalBuffer = std::vector<float>()]() mutable {
+						const auto subImage = editor->getSubImage(cursorPosInTexture, { cursorSize * textureSize.y, cursorSize * textureSize.y }, operationalBuffer);
+						auto textureData = TextureData(subImage.data, subImage.size, editor->getNumOfChannels());
+						auto textureSubData = TextureSubData(TextureSubData::Params{}.imagesData({ { std::move(textureData), subImage.offsetPos } }).exclusiveLoad(true));
+						return textureSubData;
+					};
+				}
 #endif
-
-				if constexpr (ColorBufferEditor::IsDoubleBuffering())
-					editor->swapBuffers();
 			}
-			else
-				texture.subImagesF = {};
 
 			for (int i = 0; i < 5; ++i)
 				if (keyboard.pressed[(int)'1' + i])
@@ -160,6 +166,8 @@ namespace Levels
 				texture.source = TextureData(TextureFile(mainTexturePath, 3));
 				editor.reset();
 			}
+			else if constexpr (ColorBufferEditor::IsDoubleBuffering())
+				editor->swapBuffers();
 
 			texture.state = ComponentState::Changed;
 		}
@@ -190,9 +198,6 @@ namespace Levels
 			else
 				for (int y = 0; y < colorBuffer.getRes().y; ++y)
 					innerLoop(y);
-
-			if constexpr (ColorBufferEditor::IsDoubleBuffering())
-				editor->swapBuffers();
 		}
 
 		void flames(auto& colorBuffer, float newColorFactor = 0.249f, glm::vec3 initRgbMin = glm::vec3(-200), glm::vec3 initRgbMax = glm::vec3(200))
@@ -216,9 +221,6 @@ namespace Levels
 			else
 				for (int y = 1; y < colorBuffer.getRes().y; ++y)
 					innerLoop(y);
-
-			if constexpr (ColorBufferEditor::IsDoubleBuffering())
-				editor->swapBuffers();
 		}
 
 		void plasma(auto& colorBuffer)
@@ -262,7 +264,6 @@ namespace Levels
 					for (int x = 0; x < colorBuffer.getRes().x; ++x)
 						colorBuffer.putColor({ x, y }, colorBuffer.getColor({ x, y }));
 				});
-				editor->swapBuffers();
 			}
 		}
 
