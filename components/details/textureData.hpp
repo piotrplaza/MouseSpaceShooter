@@ -60,9 +60,15 @@ struct TextureData
 	{
 	}
 
-	const float* getRawData()
+	const float* getRawData() const
 	{
 		return std::visit([&](auto& data) { return getRawData(data); }, loaded.data);
+	}
+
+	float* getRawData()
+	{
+		// TODO: Could be done better.
+		return const_cast<float*>(std::as_const(*this).getRawData());
 	}
 
 	int getNumOfChannels()
@@ -94,7 +100,7 @@ struct TextureData
 
 private:
 	template<typename ColorType>
-	const float* getRawData(std::vector<ColorType>& data) const
+	const float* getRawData(const std::vector<ColorType>& data) const
 	{
 		assert(!data.empty());
 		if (data.empty())
@@ -105,19 +111,19 @@ private:
 			return &data[0].r;
 	};
 
-	const float* getRawData(std::pair<std::vector<float>, int>& data) const
+	const float* getRawData(const std::pair<std::vector<float>, int>& data) const
 	{
 		assert(!data.first.empty());
 		return data.first.data();
 	}
 
-	const float* getRawData(std::pair<const float*, int>& data) const
+	const float* getRawData(const std::pair<const float*, int>& data) const
 	{
 		assert(data.first);
 		return data.first;
 	}
 
-	const float* getRawData(std::pair<float*, int>& data) const
+	const float* getRawData(const std::pair<float*, int>& data) const
 	{
 		assert(data.first);
 		return data.first;
