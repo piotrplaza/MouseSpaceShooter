@@ -8,7 +8,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MouseSpaceShooter", "MouseS
 		{3C85B307-3655-4E50-9A40-825FFA47F31B} = {3C85B307-3655-4E50-9A40-825FFA47F31B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Box2DLib", "Box2DLib\Box2DLib.vcxproj", "{3C85B307-3655-4E50-9A40-825FFA47F31B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Box2Dv2", "Box2Dv2\Box2Dv2.vcxproj", "{3C85B307-3655-4E50-9A40-825FFA47F31B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
