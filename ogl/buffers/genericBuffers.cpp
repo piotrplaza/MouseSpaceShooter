@@ -64,7 +64,7 @@ namespace Buffers
 		numOfAllocatedInstancedTransforms(other.numOfAllocatedInstancedTransforms),
 		numOfAllocatedInstancedNormalTransforms(other.numOfAllocatedInstancedNormalTransforms),
 		numOfAllocatedIndices(other.numOfAllocatedIndices),
-		allocatedBufferDataUsage(std::move(other.allocatedBufferDataUsage))
+		allocatedBufferDataUsage(other.allocatedBufferDataUsage)
 	{
 		other.expired = true;
 	}

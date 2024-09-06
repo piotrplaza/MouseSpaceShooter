@@ -134,6 +134,12 @@
     <Filter Include="src\levels\decals">
       <UniqueIdentifier>{975486a0-056e-42e8-9641-646f35c3b4f1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ogl\shaders\tfOrbitingParticles">
+      <UniqueIdentifier>{79adcb5f-9930-4442-8590-ce37bdcff838}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\levels\particles">
+      <UniqueIdentifier>{92c45fba-89a3-4506-92f1-350ebfc69a0a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -336,6 +342,9 @@
     </ClCompile>
     <ClCompile Include="tools\buffersHelpers.cpp">
       <Filter>src\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\particles\particles.cpp">
+      <Filter>src\levels\particles</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -696,6 +705,15 @@
     <ClInclude Include="levels\decals\decals.hpp">
       <Filter>src\levels\decals</Filter>
     </ClInclude>
+    <ClInclude Include="ogl\shaders\tfOrbitingParticles.hpp">
+      <Filter>src\ogl\shaders\tfOrbitingParticles</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\particles\particles.hpp">
+      <Filter>src\levels\particles</Filter>
+    </ClInclude>
+    <ClInclude Include="components\particles.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">
@@ -748,6 +766,9 @@
     </None>
     <None Include="ogl\shaders\noise.vs">
       <Filter>src\ogl\shaders\noise</Filter>
+    </None>
+    <None Include="ogl\shaders\tfOrbitingParticles.vs">
+      <Filter>src\ogl\shaders\tfOrbitingParticles</Filter>
     </None>
   </ItemGroup>
 </Project>

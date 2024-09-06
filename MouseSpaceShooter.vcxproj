@@ -39,6 +39,7 @@
     <ClCompile Include="levels\level.cpp" />
     <ClCompile Include="levels\noise\noise.cpp" />
     <ClCompile Include="levels\paint\paint.cpp" />
+    <ClCompile Include="levels\particles\particles.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
     <ClCompile Include="levels\raceEditor\presets.cpp" />
     <ClCompile Include="levels\raceEditor\raceEditor.cpp" />
@@ -98,6 +99,7 @@
     <ClInclude Include="components\collisionFilter.hpp" />
     <ClInclude Include="components\collisionHandler.hpp" />
     <ClInclude Include="components\decoration.hpp" />
+    <ClInclude Include="components\particles.hpp" />
     <ClInclude Include="components\deferredAction.hpp" />
     <ClInclude Include="components\framebuffers.hpp" />
     <ClInclude Include="components\functor.hpp" />
@@ -147,6 +149,7 @@
     <ClInclude Include="levels\level.hpp" />
     <ClInclude Include="levels\noise\noise.hpp" />
     <ClInclude Include="levels\paint\paint.hpp" />
+    <ClInclude Include="levels\particles\particles.hpp" />
     <ClInclude Include="levels\playground\playground.hpp" />
     <ClInclude Include="levels\raceEditor\common.hpp" />
     <ClInclude Include="levels\raceEditor\raceEditor.hpp" />
@@ -174,6 +177,7 @@
     <ClInclude Include="ogl\shaders\textured.hpp" />
     <ClInclude Include="ogl\shaders\texturedColorThreshold.hpp" />
     <ClInclude Include="ogl\shaders\texturedPhong.hpp" />
+    <ClInclude Include="ogl\shaders\tfOrbitingParticles.hpp" />
     <ClInclude Include="ogl\uniformsUtils.hpp" />
     <ClInclude Include="systems\actors.hpp" />
     <ClInclude Include="systems\audio.hpp" />
@@ -218,6 +222,7 @@
     <None Include="ogl\shaders\texturedColorThreshold.vs" />
     <None Include="ogl\shaders\texturedPhong.fs" />
     <None Include="ogl\shaders\texturedPhong.vs" />
+    <None Include="ogl\shaders\tfOrbitingParticles.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

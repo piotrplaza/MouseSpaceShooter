@@ -14,7 +14,7 @@ namespace Components
 
 		AudioListener();
 
-		void setEnable(bool value) override;
+		void setEnabled(bool value) override;
 
 		void setVolume(float value);
 		float getVolume() const;

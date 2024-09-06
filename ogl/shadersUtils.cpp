@@ -54,6 +54,21 @@ namespace ShadersUtils
 		glDetachShader(program, fragmentShader);
 	}
 
+	VertexShader::VertexShader(ShaderId vertexShader) :
+		vertexShader(vertexShader)
+	{
+	}
+
+	void VertexShader::attach(ProgramId program) const
+	{
+		glAttachShader(program, vertexShader);
+	}
+
+	void VertexShader::detach(ProgramId program) const
+	{
+		glDetachShader(program, vertexShader);
+	}
+
 	ShaderId CompileShader(const std::string& path, ShaderType shaderType)
 	{
 		std::ifstream file(path);
@@ -103,20 +118,25 @@ namespace ShadersUtils
 		return { CompileShader(vsPath, GL_VERTEX_SHADER), CompileShader(gsPath, GL_GEOMETRY_SHADER), CompileShader(fsPath, GL_FRAGMENT_SHADER) };
 	}
 
-	ProgramId LinkProgram(const ShadersBase& shaders, const std::map<AttribLocation, std::string>& attribLocationsToNames)
+	VertexShader CompileVertexShader(const std::string& vsPath)
+	{
+		return CompileShader(vsPath, GL_VERTEX_SHADER);
+	}
+
+	ProgramId LinkProgram(const ShadersBase& shaders, const std::map<AttribLocation, std::string>& attribLocationsToNames, std::function<void(ProgramId)> preLinkSetup)
 	{
 		ProgramId program = glCreateProgram();
 
 		shaders.attach(program);
 
 		for (const auto& attribLocationAndName : attribLocationsToNames)
-		{
 			glBindAttribLocation(program, attribLocationAndName.first, attribLocationAndName.second.c_str());
-		}
-		
-		GLint linkStatus;
+
+		if (preLinkSetup)
+			preLinkSetup(program);
 
 		glLinkProgram(program);
+		GLint linkStatus;
 		glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
 		if (linkStatus != GL_TRUE)
 		{

@@ -36,14 +36,14 @@ struct ComponentBase
 		this->static_ = static_;
 	}
 
-	virtual void setEnable(bool value)
+	virtual void setEnabled(bool value)
 	{
-		enable_ = value;
+		enabled_ = value;
 	}
 
 	virtual bool isEnabled() const
 	{
-		return enable_;
+		return enabled_;
 	}
 
 	virtual void step()
@@ -67,6 +67,6 @@ struct ComponentBase
 
 private:
 	ComponentId componentId = 0;
-	bool enable_ = true;
+	bool enabled_ = true;
 	bool static_ = true;
 };

@@ -20,7 +20,7 @@ namespace Systems
 	{
 		Globals::Components().stepTeardowns().emplace([]()
 		{
-			Globals::Components().audioListener().setEnable(true);
+			Globals::Components().audioListener().setEnabled(true);
 			return false;
 		});
 	}

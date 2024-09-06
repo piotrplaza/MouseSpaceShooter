@@ -86,7 +86,7 @@ namespace Tools
 		auto& sounds = Globals::Components().sounds();
 
 		std::erase_if(playersHandlers, [&](const auto& playerHandler) mutable {
-			planes[playerHandler.playerId].setEnable(false);
+			planes[playerHandler.playerId].setEnabled(false);
 			planes[playerHandler.playerId].state = ComponentState::Outdated;
 			if (playerHandler.thrustSound)
 				sounds[*playerHandler.thrustSound].state = ComponentState::Outdated;

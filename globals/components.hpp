@@ -31,6 +31,7 @@ namespace Components
 	struct Camera2D;
 	struct Camera3D;
 	struct Decoration;
+	struct Particles;
 	struct GraphicsSettings;
 	struct Missile;
 	struct CollisionFilter;
@@ -81,6 +82,8 @@ namespace Globals
 		DynamicComponents<Components::Polyline>& dynamicPolylines();
 		StaticComponents<Components::Decoration>& staticDecorations();
 		DynamicComponents<Components::Decoration>& dynamicDecorations();
+		StaticComponents<Components::Particles>& staticParticles();
+		DynamicComponents<Components::Particles>& dynamicParticles();
 		DynamicComponents<Components::Missile>& missiles();
 		DynamicComponents<Components::CollisionFilter>& collisionFilters();
 		DynamicComponents<Components::CollisionHandler>& beginCollisionHandlers();
@@ -128,6 +131,8 @@ namespace Globals
 		std::unique_ptr<DynamicComponents<Components::Polyline>> dynamicPolylines_ = std::make_unique<DynamicComponents<Components::Polyline>>();
 		std::unique_ptr<StaticComponents<Components::Decoration>> staticDecorations_ = std::make_unique<StaticComponents<Components::Decoration>>();
 		std::unique_ptr<DynamicComponents<Components::Decoration>> dynamicDecorations_ = std::make_unique<DynamicComponents<Components::Decoration>>();
+		std::unique_ptr<StaticComponents<Components::Particles>> staticParticles_ = std::make_unique<StaticComponents<Components::Particles>>();
+		std::unique_ptr<DynamicComponents<Components::Particles>> dynamicParticles_ = std::make_unique<DynamicComponents<Components::Particles>>();
 		std::unique_ptr<DynamicComponents<Components::Missile>> missiles_ = std::make_unique<DynamicComponents<Components::Missile>>();
 		std::unique_ptr<DynamicComponents<Components::CollisionFilter>> collisionFilters_ = std::make_unique<DynamicComponents<Components::CollisionFilter>>();
 		std::unique_ptr<DynamicComponents<Components::CollisionHandler>> beginCollisionHandlers_ = std::make_unique<DynamicComponents<Components::CollisionHandler>>();

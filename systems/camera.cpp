@@ -27,14 +27,23 @@ namespace Systems
 		camera.details.position = camera.targetPositionF();
 		camera.details.prevPosition = camera.details.position;
 		camera.details.prevProjectionHSize = targetProjectionHSize;
-
-		postInit3D();
 	}
 
 	void Camera::step(bool paused) const
 	{
-		const auto& screenInfo = Globals::Components().screenInfo();
+		step2D(paused);
+		step3D(paused);
+	}
+
+
+	void Camera::step2D(bool paused) const
+	{
 		auto& camera = Globals::Components().camera2D();
+
+		if (!camera.isEnabled())
+			return;
+
+		const auto& screenInfo = Globals::Components().screenInfo();
 		auto& mvp = Globals::Components().mvp2D();
 		auto& physics = Globals::Components().physics();
 
@@ -50,7 +59,6 @@ namespace Systems
 			const float targetProjectionHSize = camera.targetProjectionHSizeF();
 			const glm::vec2 targetPosition = camera.targetPositionF();
 
-			// TODO: Steps dependent on frame time.
 			camera.details.projectionHSize = camera.details.prevProjectionHSize + (targetProjectionHSize - camera.details.prevProjectionHSize)
 				* std::clamp(camera.projectionTransitionFactor * physics.frameDuration, 0.0f, 1.0f);
 			camera.details.position = camera.details.prevPosition + (targetPosition - camera.details.prevPosition)
@@ -59,23 +67,24 @@ namespace Systems
 			camera.details.prevProjectionHSize = camera.details.projectionHSize;
 			camera.details.prevPosition = camera.details.position;
 
+			camera.details.completeProjectionHSize = glm::vec2(camera.details.projectionHSize * windowWidthRatio, camera.details.projectionHSize * windowHeightRatio);
+			camera.details.prevCompleteProjectionHSize = glm::vec2(camera.details.prevProjectionHSize * windowWidthRatio, camera.details.prevProjectionHSize * windowHeightRatio);
+
 			mvp.view = glm::translate(glm::mat4(1.0f), glm::vec3(-camera.details.position, 0.0f));
 		}
-		
+
 		mvp.projection = glm::ortho(-camera.details.projectionHSize * windowWidthRatio, camera.details.projectionHSize * windowWidthRatio,
 			-camera.details.projectionHSize * windowHeightRatio, camera.details.projectionHSize * windowHeightRatio);
-
-		step3D(paused);
-	}
-
-	void Camera::postInit3D() const
-	{
 	}
 
 	void Camera::step3D(bool paused) const
 	{
-		const auto& screenInfo = Globals::Components().screenInfo();
 		const auto& camera = Globals::Components().camera3D();
+
+		if (!camera.isEnabled())
+			return;
+
+		const auto& screenInfo = Globals::Components().screenInfo();
 		auto& mvp = Globals::Components().mvp3D();
 
 		if (!paused)

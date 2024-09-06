@@ -11,7 +11,7 @@ namespace Systems
 		void step(bool paused = false) const;
 
 	private:
-		void postInit3D() const;
+		void step2D(bool paused) const;
 		void step3D(bool paused) const;
 	};
 }

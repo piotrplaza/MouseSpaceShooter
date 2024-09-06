@@ -22,6 +22,7 @@
 #include "levels/paint/paint.hpp"
 #include "levels/noise/noise.hpp"
 #include "levels/decals/decals.hpp"
+#include "levels/particles/particles.hpp"
 
 #include "components/mouse.hpp"
 #include "components/physics.hpp"
@@ -66,7 +67,7 @@
 
 const bool debugFullscreen = false;
 const bool releaseFullscreen = true;
-const bool fastFullScreen = false;
+const bool fastFullScreen = true;
 const bool console = true;
 const glm::ivec2 windowRes = { 1920, 1080 };
 
@@ -131,7 +132,8 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Crosses3DInstancing>();
 	//activeLevel = std::make_unique<Levels::Paint>();
 	//activeLevel = std::make_unique<Levels::Noise>();
-	activeLevel = std::make_unique<Levels::Decals>();
+	//activeLevel = std::make_unique<Levels::Decals>();
+	activeLevel = std::make_unique<Levels::Particles>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }
@@ -151,7 +153,7 @@ static void PostInit()
 	Globals::Systems().audio().postInit();
 	Globals::Systems().stateController().postInit();
 
-	//Globals::Components().audioListener().setEnable(false);
+	//Globals::Components().audioListener().setEnabled(false);
 }
 
 static void PrepareFrame()

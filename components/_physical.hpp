@@ -34,9 +34,9 @@ struct Physical : Renderable
 			: Tools::GetVertices(*body);
 	}
 
-	void setEnable(bool value) override
+	void setEnabled(bool value) override
 	{
-		Renderable::setEnable(value);
+		Renderable::setEnabled(value);
 		body->SetEnabled(value);
 	}
 

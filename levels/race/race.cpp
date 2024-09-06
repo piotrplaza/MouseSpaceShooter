@@ -251,7 +251,7 @@ namespace Levels
 			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getOrigin2D()).sourceVelocity(plane.getVelocity()).
 				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
 			Tools::CreateAndPlaySound(playerExplosionSoundBuffer, [pos = plane.getOrigin2D()]() { return pos; });
-			plane.setEnable(false);
+			plane.setEnabled(false);
 			playersToCircuits.erase(plane.getComponentId());
 		}
 

@@ -4,6 +4,7 @@
 
 #include <string>
 #include <map>
+#include <functional>
 
 namespace ShadersUtils
 {
@@ -41,8 +42,19 @@ namespace ShadersUtils
 		void detach(ProgramId program) const override;
 	};
 
-	ShaderId CompileShader(const std::string& path, const ShaderType shaderType);
+	struct VertexShader : ShadersBase
+	{
+		VertexShader(ShaderId vertexShader);
+
+		ShaderId vertexShader;
+
+		void attach(ProgramId program) const override;
+		void detach(ProgramId program) const override;
+	};
+
+	ShaderId CompileShader(const std::string& path, ShaderType shaderType);
 	VertexFragmentShaders CompileShaders(const std::string& vsPath, const std::string& fsPath);
 	VertexGeometryFragmentShaders CompileShaders(const std::string& vsPath, const std::string& gsPath, const std::string& fsPath);
-	ProgramId LinkProgram(const ShadersBase& shaders, const std::map<AttribLocation, std::string>& attribLocationsToNames);
+	VertexShader CompileVertexShader(const std::string& vsPath);
+	ProgramId LinkProgram(const ShadersBase& shaders, const std::map<AttribLocation, std::string>& attribLocationsToNames, std::function<void(ProgramId)> preLinkSetup = nullptr);
 }

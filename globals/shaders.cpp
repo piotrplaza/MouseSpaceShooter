@@ -8,6 +8,7 @@
 #include "ogl/shaders/textured.hpp"
 #include "ogl/shaders/texturedColorThreshold.hpp"
 #include "ogl/shaders/noise.hpp"
+#include "ogl/shaders/tfOrbitingParticles.hpp"
 
 namespace Globals
 {
@@ -53,6 +54,11 @@ namespace Globals
 		return *noise_;
 	}
 
+	ShadersUtils::Programs::TFOrbitingParticles& ShadersHolder::tfOrbitingParticles()
+	{
+		return *tfOrbitingParticles_;
+	}
+
 	void ShadersHolder::frameSetup()
 	{
 		auto setup = [](auto& program) {
@@ -68,6 +74,7 @@ namespace Globals
 		setup(textured());
 		setup(texturedColorThreshold());
 		setup(noise());
+		setup(tfOrbitingParticles());
 	}
 
 	void InitializeShaders()

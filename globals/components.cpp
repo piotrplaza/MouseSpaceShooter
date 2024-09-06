@@ -21,6 +21,7 @@
 #include <components/camera2D.hpp>
 #include <components/camera3D.hpp>
 #include <components/decoration.hpp>
+#include <components/particles.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/missile.hpp>
 #include <components/collisionFilter.hpp>
@@ -192,6 +193,16 @@ namespace Globals
 	DynamicComponents<Components::Decoration>& ComponentsHolder::dynamicDecorations()
 	{
 		return *dynamicDecorations_;
+	}
+
+	StaticComponents<Components::Particles>& ComponentsHolder::staticParticles()
+	{
+		return *staticParticles_;
+	}
+
+	DynamicComponents<Components::Particles>& ComponentsHolder::dynamicParticles()
+	{
+		return *dynamicParticles_;
 	}
 
 	DynamicComponents<Components::Missile>& ComponentsHolder::missiles()

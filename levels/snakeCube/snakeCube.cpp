@@ -132,14 +132,14 @@ namespace Levels
 					for (unsigned i = 0; i < numOfLights; ++i)
 					{
 						auto& light = lights3D.emplace(glm::vec3(0.0f), glm::vec3(1.0f), 0.3f / crossesScale, 0.0f);
-						light.stepF = [&]() { light.setEnable(instancedCrosses.isEnabled()); };
+						light.stepF = [&]() { light.setEnabled(instancedCrosses.isEnabled()); };
 
 						auto& lightDecoration = staticDecorations.emplace();
 						Shapes3D::AddSphere(lightDecoration, 0.2f * crossesScale, 2, 3);
 						lightDecoration.colorF = [&]() { return glm::vec4(light.color, 1.0f) + Globals::Components().graphicsSettings().backgroundColorF() * light.darkColorFactor; };
 						lightDecoration.params3D->lightModelEnabled(false);
 						lightDecoration.modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), light.position), physics.simulationDuration * 4.0f, { 1.0f, 1.0f, 1.0f }); };
-						lightDecoration.stepF = [&, &lightSphere = lightDecoration]() { lightSphere.setEnable(instancedCrosses.isEnabled()); };
+						lightDecoration.stepF = [&, &lightSphere = lightDecoration]() { lightSphere.setEnabled(instancedCrosses.isEnabled()); };
 						lightDecoration.renderLayer = RenderLayer::NearBackground;
 					}
 				}
@@ -198,7 +198,7 @@ namespace Levels
 
 				if (keyboard.pressed['C'])
 				{
-					crosses.setEnable(!crosses.isEnabled());
+					crosses.setEnabled(!crosses.isEnabled());
 				}
 
 				if (crosses.isEnabled())

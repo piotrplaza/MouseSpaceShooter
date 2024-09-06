@@ -283,7 +283,7 @@ namespace Levels
 
 			for (const auto debrisId : dynamicWallsDebris)
 			{
-				dynamicWalls[debrisId].setEnable(false);
+				dynamicWalls[debrisId].setEnabled(false);
 				dynamicWalls[debrisId].state = ComponentState::Outdated;
 			}
 
@@ -328,7 +328,7 @@ namespace Levels
 						Tools::CreateExplosion(Tools::ExplosionParams().center(planeComponent.getOrigin2D()).sourceVelocity(planeComponent.getVelocity()).
 							initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
 						Tools::CreateAndPlaySound(playerExplosionSoundBuffer, [pos = planeComponent.getOrigin2D()]() { return pos; });
-						planeComponent.setEnable(false);
+						planeComponent.setEnabled(false);
 						return false;
 						});
 				});
