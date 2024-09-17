@@ -11,6 +11,7 @@ namespace Components
 	struct Texture;
 	struct AnimatedTexture;
 	struct BlendingTexture;
+	struct Actor;
 	struct Grapple;
 	struct Missile;
 	struct Plane;
@@ -114,6 +115,18 @@ namespace ComponentMappers
 		glm::vec2 scale{};
 
 		bool operator==(const DynamicBlendingTexture&) const = default;
+	};
+
+	struct Actor
+	{
+		Actor() = default;
+		Actor(Components::Actor* component);
+		Actor(ComponentId id);
+
+		Components::Actor* component = nullptr;
+		ComponentId componentId = 0;
+
+		bool operator==(const Actor&) const = default;
 	};
 
 	struct Grapple
@@ -221,6 +234,7 @@ using BodyComponentVariant = std::variant<
 	std::monostate,
 	CM::Grapple,
 	CM::Missile,
+	CM::Actor,
 	CM::Plane,
 	CM::StaticWall,
 	CM::DynamicWall,

@@ -60,6 +60,7 @@ namespace Tools
 		bodyDef.allowSleep = bodyParams.autoSleeping_;
 		bodyDef.awake = !bodyParams.sleeping_;
 		bodyDef.bullet = bodyParams.bullet_;
+		bodyDef.fixedRotation = bodyParams.fixedRotation_;
 		Body body(Globals::Components().physics().world->CreateBody(&bodyDef));
 
 		body->GetUserData().pointer = reinterpret_cast<uintptr_t>(new BodyUserData);

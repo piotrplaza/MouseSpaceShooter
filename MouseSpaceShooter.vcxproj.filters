@@ -140,6 +140,12 @@
     <Filter Include="src\levels\particles">
       <UniqueIdentifier>{92c45fba-89a3-4506-92f1-350ebfc69a0a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\levels\_damageOn">
+      <UniqueIdentifier>{8fea5a81-f66e-4a4f-96d2-f7c1b3483c0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\levels\_damageOn\animationTesting">
+      <UniqueIdentifier>{e41f9aac-b24d-4f38-b29c-ac9172a70ee3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -345,6 +351,9 @@
     </ClCompile>
     <ClCompile Include="levels\particles\particles.cpp">
       <Filter>src\levels\particles</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\_damageOn\animationTesting\animationTesting.cpp">
+      <Filter>src\levels\_damageOn\animationTesting</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -712,6 +721,12 @@
       <Filter>src\levels\particles</Filter>
     </ClInclude>
     <ClInclude Include="components\particles.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\_damageOn\animationTesting\animationTesting.hpp">
+      <Filter>src\levels\_damageOn\animationTesting</Filter>
+    </ClInclude>
+    <ClInclude Include="components\actor.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>

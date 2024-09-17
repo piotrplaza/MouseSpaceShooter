@@ -5,6 +5,7 @@
 #include <components/Texture.hpp>
 #include <components/AnimatedTexture.hpp>
 #include <components/BlendingTexture.hpp>
+#include <components/Actor.hpp>
 #include <components/Grapple.hpp>
 #include <components/Missile.hpp>
 #include <components/Plane.hpp>
@@ -118,6 +119,18 @@ namespace ComponentMappers
 		translate(translate),
 		rotate(rotate),
 		scale(scale)
+	{
+	}
+
+	Actor::Actor(Components::Actor* component):
+		component(component),
+		componentId(component->getComponentId())
+	{
+	}
+
+	Actor::Actor(ComponentId id) :
+		component(&Globals::Components().actors()[id]),
+		componentId(id)
 	{
 	}
 

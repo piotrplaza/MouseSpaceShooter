@@ -24,6 +24,8 @@
 #include "levels/decals/decals.hpp"
 #include "levels/particles/particles.hpp"
 
+#include "levels/_damageOn/animationTesting/animationTesting.hpp"
+
 #include "components/mouse.hpp"
 #include "components/physics.hpp"
 #include "components/audioListener.hpp"
@@ -133,25 +135,27 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Paint>();
 	//activeLevel = std::make_unique<Levels::Noise>();
 	//activeLevel = std::make_unique<Levels::Decals>();
-	activeLevel = std::make_unique<Levels::Particles>();
+	//activeLevel = std::make_unique<Levels::Particles>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
+
+	activeLevel = std::make_unique<Levels::DamageOn::AnimationTesting>();
 }
 
 static void PostInit()
 {
+	Globals::Systems().stateController().postInit();
+	Globals::Systems().physics().postInit();
+	Globals::Systems().camera().postInit();
 	Globals::Systems().textures().postInit();
 
 	activeLevel->postSetup();
 
-	Globals::Systems().physics().postInit();
 	Globals::Systems().actors().postInit();
 	Globals::Systems().structures().postInit();
 	Globals::Systems().decorations().postInit();
-	Globals::Systems().camera().postInit();
 	Globals::Systems().renderingController().postInit();
 	Globals::Systems().audio().postInit();
-	Globals::Systems().stateController().postInit();
 
 	//Globals::Components().audioListener().setEnabled(false);
 }

@@ -1,5 +1,6 @@
 #include "actors.hpp"
 
+#include <components/actor.hpp>
 #include <components/plane.hpp>
 #include <components/physics.hpp>
 #include <components/mvp.hpp>
@@ -55,40 +56,48 @@ namespace Systems
 
 	void Actors::step()
 	{
-		auto& planes = Globals::Components().planes();
-		auto& grapples = Globals::Components().grapples();
-
-		std::erase_if(allConnections, [&](const auto& element) {
-			return !planes.contains(element.first);
-			});
-
-		for (auto& plane : planes)
 		{
-			auto& planeConnections = allConnections[plane.getComponentId()];
+			auto& actors = Globals::Components().actors();
+			for (auto& actor : actors)
+				actor.step();
+		}
 
-			if (!plane.isEnabled())
+		{
+			auto& planes = Globals::Components().planes();
+			auto& grapples = Globals::Components().grapples();
+
+			std::erase_if(allConnections, [&](const auto& element) {
+				return !planes.contains(element.first);
+				});
+
+			for (auto& plane : planes)
 			{
-				planeConnections.params.clear();
+				auto& planeConnections = allConnections[plane.getComponentId()];
+
+				if (!plane.isEnabled())
+				{
+					planeConnections.params.clear();
+					planeConnections.updateBuffers();
+					continue;
+				}
+
+				if (plane.details.connectedGrappleId && !Globals::Components().grapples().contains(*plane.details.connectedGrappleId))
+				{
+					plane.details.grappleJoint.release();
+					plane.details.connectedGrappleId = std::nullopt;
+				}
+
+				if (plane.details.weakConnectedGrappleId && !Globals::Components().grapples().contains(*plane.details.weakConnectedGrappleId))
+					plane.details.weakConnectedGrappleId = std::nullopt;
+
+				turn(plane);
+				throttle(plane);
+				magneticHook(plane, planeConnections);
+
 				planeConnections.updateBuffers();
-				continue;
+
+				plane.step();
 			}
-
-			if (plane.details.connectedGrappleId && !Globals::Components().grapples().contains(*plane.details.connectedGrappleId))
-			{
-				plane.details.grappleJoint.release();
-				plane.details.connectedGrappleId = std::nullopt;
-			}
-
-			if (plane.details.weakConnectedGrappleId && !Globals::Components().grapples().contains(*plane.details.weakConnectedGrappleId))
-				plane.details.weakConnectedGrappleId = std::nullopt;
-
-			turn(plane);
-			throttle(plane);
-			magneticHook(plane, planeConnections);
-
-			planeConnections.updateBuffers();
-
-			plane.step();
 		}
 
 		updateDynamicBuffers();
@@ -96,6 +105,7 @@ namespace Systems
 
 	void Actors::updateDynamicBuffers()
 	{
+		Tools::UpdateDynamicBuffers(Globals::Components().actors());
 		Tools::UpdateDynamicBuffers(Globals::Components().planes());
 	}
 

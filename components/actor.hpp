@@ -6,13 +6,13 @@
 
 namespace Components
 {
-	struct Wall : Physical
+	struct Actor : Physical
 	{
-		Wall(Body body,
+		Actor(Body body,
 			AbstractTextureComponentVariant texture = std::monostate{},
 			RenderingSetupF renderingSetupF = nullptr,
 			RenderLayer renderLayer = RenderLayer::Midground,
-			std::optional<ShadersUtils::ProgramId> customShadersProgram = std::nullopt):
+			std::optional<ShadersUtils::ProgramId> customShadersProgram = std::nullopt) :
 			Physical(std::move(body), texture, std::move(renderingSetupF), renderLayer, customShadersProgram)
 		{
 		}
@@ -21,9 +21,7 @@ namespace Components
 		{
 			ComponentBase::init(id, static_);
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
-			setBodyComponentVariant(static_
-				? BodyComponentVariant(CM::StaticWall(this))
-				: BodyComponentVariant(CM::DynamicWall(this)));
+			setBodyComponentVariant(CM::Actor(this));
 		}
 	};
 }

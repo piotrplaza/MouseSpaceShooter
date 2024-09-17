@@ -16,11 +16,13 @@ struct TextureFile
 
 	TextureFile() = default;
 
-	TextureFile(std::string path, int desiredChannels = 0, bool convertToPremultipliedAlpha = true, AdditionalConversion additionalConversion = AdditionalConversion::None) :
+	TextureFile(std::string path, int desiredChannels = 0, bool convertToPremultipliedAlpha = true, AdditionalConversion additionalConversion = AdditionalConversion::None,
+		std::function<void(float* data, glm::ivec2 size, int numOfChannels)> customConversionF = nullptr) :
 		path{ std::move(path) },
 		desiredChannels{ desiredChannels },
+		convertToPremultipliedAlpha{ convertToPremultipliedAlpha },
 		additionalConversion{ additionalConversion },
-		convertToPremultipliedAlpha{ convertToPremultipliedAlpha }
+		customConversionF{ std::move(customConversionF) }
 	{
 	}
 
@@ -28,6 +30,7 @@ struct TextureFile
 	int desiredChannels{};
 	bool convertToPremultipliedAlpha{};
 	AdditionalConversion additionalConversion{};
+	std::function<void(float* data, glm::ivec2 size, int numOfChannels)> customConversionF;
 };
 
 struct TextureData

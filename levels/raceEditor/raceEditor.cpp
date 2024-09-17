@@ -109,8 +109,8 @@ namespace Levels
 			camera.targetPositionF = [&]() {
 				return cameraPos;
 			};
-			camera.positionTransitionFactor = 1.0f;
-			camera.projectionTransitionFactor = 1.0f;
+			camera.positionTransitionFactor = 10.0f;
+			camera.projectionTransitionFactor = 10.0f;
 		}
 
 		void initPlayersHandler(bool startingLine)

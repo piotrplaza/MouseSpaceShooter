@@ -126,6 +126,12 @@ namespace Tools
 			return *this;
 		}
 
+		BodyParams& fixedRotation(bool value)
+		{
+			fixedRotation_ = value;
+			return *this;
+		}
+
 		glm::vec2 position_ = { 0.0f, 0.0f };
 		float angle_ = 0.0f;
 		b2BodyType bodyType_ = b2_staticBody;
@@ -139,6 +145,7 @@ namespace Tools
 		bool autoSleeping_ = false;
 		bool sleeping_ = false;
 		bool bullet_ = false;
+		bool fixedRotation_ = false;
 	};
 
 	Body CreateEmptyBody(const BodyParams& bodyParams = BodyParams{});

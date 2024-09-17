@@ -152,11 +152,14 @@ namespace Systems
 				throw std::runtime_error("Unable to load image \"" + file.path + "\".");
 			}
 
-			optionalAlphaProcessing(textureCache.data.get(), textureCache.size, textureCache.numOfChannels,
-				file.convertToPremultipliedAlpha, file.additionalConversion);
-
 			if (file.desiredChannels)
 				changeNumOfChannels(textureCache, file.desiredChannels);
+
+			if (file.customConversionF)
+				file.customConversionF(textureCache.data.get(), textureCache.size, textureCache.numOfChannels);
+
+			optionalAlphaProcessing(textureCache.data.get(), textureCache.size, textureCache.numOfChannels,
+				file.convertToPremultipliedAlpha, file.additionalConversion);
 		}
 
 		return textureCache;

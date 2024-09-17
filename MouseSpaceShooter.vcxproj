@@ -52,6 +52,7 @@
     <ClCompile Include="levels\splineTest\splineTest.cpp" />
     <ClCompile Include="levels\squareRace\squareRace.cpp" />
     <ClCompile Include="levels\windmill\windmill.cpp" />
+    <ClCompile Include="levels\_damageOn\animationTesting\animationTesting.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ogl\buffers\genericBuffers.cpp" />
     <ClCompile Include="ogl\oglHelpers.cpp" />
@@ -91,6 +92,7 @@
     <ClInclude Include="commonTypes\idGenerator.hpp" />
     <ClInclude Include="commonTypes\renderLayer.hpp" />
     <ClInclude Include="commonTypes\resolutionMode.hpp" />
+    <ClInclude Include="components\actor.hpp" />
     <ClInclude Include="components\animatedTexture.hpp" />
     <ClInclude Include="components\audioListener.hpp" />
     <ClInclude Include="components\blendingTexture.hpp" />
@@ -163,6 +165,7 @@
     <ClInclude Include="levels\splineTest\splineTest.hpp" />
     <ClInclude Include="levels\squareRace\squareRace.hpp" />
     <ClInclude Include="levels\windmill\windmill.hpp" />
+    <ClInclude Include="levels\_damageOn\animationTesting\animationTesting.hpp" />
     <ClInclude Include="ogl\buffers\genericBuffers.hpp" />
     <ClInclude Include="ogl\oglHelpers.hpp" />
     <ClInclude Include="ogl\oglProxy.hpp" />

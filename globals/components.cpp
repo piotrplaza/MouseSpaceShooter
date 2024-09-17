@@ -14,6 +14,7 @@
 #include <components/music.hpp>
 #include <components/soundBuffer.hpp>
 #include <components/sound.hpp>
+#include <components/actor.hpp>
 #include <components/plane.hpp>
 #include <components/wall.hpp>
 #include <components/grapple.hpp>
@@ -153,6 +154,11 @@ namespace Globals
 	DynamicComponents<Components::Sound>& ComponentsHolder::sounds()
 	{
 		return *sounds_;
+	}
+
+	DynamicComponents<Components::Actor>& ComponentsHolder::actors()
+	{
+		return *actors_;
 	}
 
 	DynamicComponents<Components::Plane>& ComponentsHolder::planes()

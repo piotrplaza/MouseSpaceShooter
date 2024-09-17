@@ -22,11 +22,23 @@ namespace Systems
 
 	void Camera::postInit() const
 	{
+		const auto& screenInfo = Globals::Components().screenInfo();
+
+		const float windowWidthRatio = screenInfo.windowSize.x > screenInfo.windowSize.y
+			? screenInfo.getAspectRatio()
+			: 1.0f;
+		const float windowHeightRatio = screenInfo.windowSize.x < screenInfo.windowSize.y
+			? 1.0f / screenInfo.getAspectRatio()
+			: 1.0f;
+
 		auto& camera = Globals::Components().camera2D();
 		const float targetProjectionHSize = camera.targetProjectionHSizeF();
 		camera.details.position = camera.targetPositionF();
-		camera.details.prevPosition = camera.details.position;
-		camera.details.prevProjectionHSize = targetProjectionHSize;
+		camera.details.prevPosition = camera.details.prevPosition = camera.details.position;
+		camera.details.projectionHSize = camera.details.prevProjectionHSize = targetProjectionHSize;
+
+		camera.details.completeProjectionHSize = glm::vec2(camera.details.projectionHSize * windowWidthRatio, camera.details.projectionHSize * windowHeightRatio);
+		camera.details.prevCompleteProjectionHSize = glm::vec2(camera.details.prevProjectionHSize * windowWidthRatio, camera.details.prevProjectionHSize * windowHeightRatio);
 	}
 
 	void Camera::step(bool paused) const
