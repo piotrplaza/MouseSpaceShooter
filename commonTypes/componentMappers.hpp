@@ -117,6 +117,8 @@ namespace ComponentMappers
 		bool operator==(const DynamicBlendingTexture&) const = default;
 	};
 
+	struct DummyTexture {};
+
 	struct Actor
 	{
 		Actor() = default;
@@ -228,7 +230,8 @@ using AbstractTextureComponentVariant = std::variant<
 	CM::StaticAnimatedTexture,
 	CM::DynamicAnimatedTexture,
 	CM::StaticBlendingTexture,
-	CM::DynamicBlendingTexture>;
+	CM::DynamicBlendingTexture,
+	CM::DummyTexture>;
 
 using BodyComponentVariant = std::variant<
 	std::monostate,

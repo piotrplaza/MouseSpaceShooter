@@ -46,17 +46,17 @@ namespace
 	{
 		struct TextureComponentSelectorVisitor
 		{
-			const Components::Texture& operator ()(const CM::StaticTexture& texture) const
+			const std::pair<const Components::Texture&, glm::mat4> operator ()(const CM::StaticTexture& texture) const
 			{
-				return *texture.component;
+				return { *texture.component, Tools::TextureTransform(texture.translate, texture.rotate, texture.scale) };
 			}
 
-			const Components::Texture& operator ()(const CM::DynamicTexture& texture) const
+			const std::pair<const Components::Texture&, glm::mat4> operator ()(const CM::DynamicTexture& texture) const
 			{
-				return *texture.component;
+				return { *texture.component, Tools::TextureTransform(texture.translate, texture.rotate, texture.scale) };
 			}
 
-			const Components::Texture& operator ()(std::monostate) const
+			const std::pair<const Components::Texture&, glm::mat4> operator ()(std::monostate) const
 			{
 				throw std::runtime_error("TextureComponentSelectorVisitor: std::monostate not allowed.");
 			}
@@ -65,10 +65,10 @@ namespace
 		if (textureId == 0)
 			shadersProgram.numOfTextures(1);
 
-		const Components::Texture& textureComponent = std::visit(TextureComponentSelectorVisitor{}, animatedTextureComponent.getTexture());
+		const auto& [textureComponent, textureAdditionalTransform] = std::visit(TextureComponentSelectorVisitor{}, animatedTextureComponent.getTexture());
 		shadersProgram.textures(textureId, textureComponent.loaded.textureUnit - GL_TEXTURE0);
-		shadersProgram.texturesBaseTransform(textureId, animatedTextureComponent.getFrameTransformation() * Tools::TextureTransform(translate, rotate, scale)
-			* additionalTransform);
+		shadersProgram.texturesBaseTransform(textureId, animatedTextureComponent.getFrameTransformation() * Tools::TextureTransform(textureComponent)
+			* textureAdditionalTransform * Tools::TextureTransform(translate, rotate, scale) * additionalTransform);
 	}
 
 	inline void BlendingTexturedRenderInitialization(auto& shadersProgram, const Components::BlendingTexture& blendingTextureComponent,
@@ -127,6 +127,11 @@ namespace
 			void operator ()(const CM::DynamicBlendingTexture& blendingTexture) const
 			{
 				BlendingTexturedRenderInitialization(shadersProgram, *blendingTexture.component, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
+			}
+
+			void operator ()(CM::DummyTexture) const
+			{
+				shadersProgram.numOfTextures(0);
 			}
 
 			void operator ()(std::monostate) const

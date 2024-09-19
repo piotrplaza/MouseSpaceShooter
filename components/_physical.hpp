@@ -85,6 +85,8 @@ struct Physical : Renderable
 	{
 		this->body = std::move(body);
 		init(getComponentId(), isStatic());
+		modelMatrixF = [this]() { return Tools::GetModelMatrix(*this->body); };
+		originF = [this]() { return glm::vec3(ToVec2<glm::vec2>(this->body->GetPosition()), 0.0f); };
 		state = ComponentState::Changed;
 	}
 };

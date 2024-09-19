@@ -36,6 +36,6 @@ namespace Systems
 		Components::Mouse::Buttons prevMouseKeys;
 		std::array<Components::Gamepad::Buttons, 4> prevGamepadsKeys;
 		std::unordered_map<int, int> controllersToComponents;
-		bool deferredPause = false;
+		//bool deferredPause = false;
 	};
 }

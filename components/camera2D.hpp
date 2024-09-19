@@ -13,8 +13,8 @@ namespace Components
 		FVec2 targetPositionF = glm::vec2(0.0f, 0.0f);
 		FFloat targetProjectionHSizeF = 10.0f;
 
-		float positionTransitionFactor = 1.0f;
-		float projectionTransitionFactor = 1.0f;
+		float positionTransitionFactor = 10.0f;
+		float projectionTransitionFactor = 10.0f;
 
 		struct
 		{

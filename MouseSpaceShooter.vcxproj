@@ -227,6 +227,9 @@
     <None Include="ogl\shaders\texturedPhong.vs" />
     <None Include="ogl\shaders\tfOrbitingParticles.vs" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="levels\_damageOn\animationTesting\params.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

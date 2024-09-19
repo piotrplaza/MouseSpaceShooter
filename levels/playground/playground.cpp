@@ -418,11 +418,11 @@ namespace Levels
 						};
 
 					Globals::Components().staticWalls().emplace(Tools::CreateCircleBody(5.0f, Tools::BodyParams().position({ 0.0f, pos }).bodyType(b2_dynamicBody).density(0.01f)),
-						CM::StaticTexture(), std::move(renderingSetupF), RenderLayer::Midground, Globals::Shaders().texturedColorThreshold().getProgramId());
+						CM::DummyTexture(), std::move(renderingSetupF), RenderLayer::Midground, Globals::Shaders().texturedColorThreshold().getProgramId());
 				}
 
 				auto& wall = Globals::Components().staticWalls().emplace(Tools::CreateCircleBody(10.0f, Tools::BodyParams().position({ pos, 0.0f }).bodyType(b2_dynamicBody).density(0.01f)),
-					CM::StaticTexture());
+					CM::DummyTexture());
 				wall.renderLayer = RenderLayer::NearMidground;
 				wall.renderF = []() { return false; };
 
@@ -564,7 +564,7 @@ namespace Levels
 			}
 
 			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(4.0f,
-				Tools::BodyParams().position({ -10.0f, 30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)), CM::StaticAnimatedTexture());
+				Tools::BodyParams().position({ -10.0f, 30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)), CM::DummyTexture());
 			grapple.influenceRadius = 30.0f;
 			grapple.renderF = []() { return false; };
 			grapple.subsequence.emplace_back(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.2f, 5.2f }),

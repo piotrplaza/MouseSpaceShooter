@@ -1,0 +1,10 @@
+player.radius 1.0
+player.maxVelocity 5.0
+player.density 4.0
+player.linearDamping 6.0
+player.dash 20.0
+
+player.presentation.radiusProportions.x 1.0
+player.presentation.radiusProportions.y 1.5
+player.presentation.scale.x 2.0
+player.presentation.scale.y 3.0

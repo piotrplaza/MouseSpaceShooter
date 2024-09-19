@@ -8,6 +8,8 @@ namespace Components
 {
 	struct Actor : Physical
 	{
+		Actor() = default;
+
 		Actor(Body body,
 			AbstractTextureComponentVariant texture = std::monostate{},
 			RenderingSetupF renderingSetupF = nullptr,
@@ -20,7 +22,11 @@ namespace Components
 		void init(ComponentId id, bool static_) override
 		{
 			ComponentBase::init(id, static_);
-			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
+
+			if (!body)
+				return;
+
+			Tools::SetCollisionFilteringBits(*body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
 			setBodyComponentVariant(CM::Actor(this));
 		}
 	};

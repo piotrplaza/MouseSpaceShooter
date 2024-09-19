@@ -56,11 +56,11 @@ namespace Systems
 
 	void StateController::stepSetup()
 	{
-		if (deferredPause)
+		/*if (deferredPause)
 		{
 			Globals::Components().physics().paused = true;
 			deferredPause = false;
-		}
+		}*/
 
 		ProcessFunctors(Globals::Components().stepSetups());
 	}
@@ -148,7 +148,8 @@ namespace Systems
 
 	void StateController::killWindowFocus()
 	{
-		deferredPause = true;
+		//deferredPause = true;
+		Globals::Components().physics().paused = true;
 	}
 
 	void StateController::resetMousePosition() const

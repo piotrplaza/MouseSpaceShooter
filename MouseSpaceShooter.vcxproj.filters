@@ -786,4 +786,9 @@
       <Filter>src\ogl\shaders\tfOrbitingParticles</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="levels\_damageOn\animationTesting\params.txt">
+      <Filter>src\levels\_damageOn\animationTesting</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

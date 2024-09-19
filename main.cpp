@@ -69,7 +69,7 @@
 
 const bool debugFullscreen = false;
 const bool releaseFullscreen = true;
-const bool fastFullScreen = true;
+const bool devFullScreen = true;
 const bool console = true;
 const glm::ivec2 windowRes = { 1920, 1080 };
 
@@ -95,7 +95,7 @@ static void InitOGL()
 static void InitEngine()
 {
 	if (console)
-		Tools::RedirectIOToConsole({ 1930, 10 });
+		Tools::RedirectIOToConsole({ 3850, 10 });
 	Tools::RandomInit();
 	InitOGL();
 	int sdlInitResult = SDL_Init(SDL_INIT_GAMECONTROLLER);
@@ -434,7 +434,7 @@ int APIENTRY WinMain(
 		return false;
 	}
 
-	if (fullScreen && fastFullScreen) // It makes the full screen borderless window appear faster, but on some systems it's not as smooth as the other way.
+	if (fullScreen && devFullScreen) // It makes the full screen borderless window appear faster, but on some systems it's not as smooth as the other way.
 		SetWindowLong(hWnd, GWL_STYLE, 0);
 
 	RegisterRawInputDevices(hWnd);
