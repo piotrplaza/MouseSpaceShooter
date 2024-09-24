@@ -8,6 +8,7 @@
 #include <components/actor.hpp>
 #include <components/wall.hpp>
 #include <components/decoration.hpp>
+#include <components/music.hpp>
 #include <globals/components.hpp>
 
 #include <tools/shapes2D.hpp>
@@ -66,6 +67,9 @@ namespace Levels::DamageOn
 	public:
 		void setup()
 		{
+			auto& musics = Globals::Components().musics();
+			musics.emplace("audio/Damage On.ogg", 0.8f).play();
+
 			auto& textures = Globals::Components().staticTextures();
 			auto& animatedTextures = Globals::Components().staticAnimatedTextures();
 
