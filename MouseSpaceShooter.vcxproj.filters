@@ -217,9 +217,6 @@
     <ClCompile Include="globals\systems.cpp">
       <Filter>src\globals</Filter>
     </ClCompile>
-    <ClCompile Include="components\animatedTexture.cpp">
-      <Filter>src\components</Filter>
-    </ClCompile>
     <ClCompile Include="levels\gravity\gravity.cpp">
       <Filter>src\levels\gravity</Filter>
     </ClCompile>
@@ -354,6 +351,9 @@
     </ClCompile>
     <ClCompile Include="levels\_damageOn\animationTesting\animationTesting.cpp">
       <Filter>src\levels\_damageOn\animationTesting</Filter>
+    </ClCompile>
+    <ClCompile Include="components\details\animationData.cpp">
+      <Filter>src\components\details</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -728,6 +728,9 @@
     </ClInclude>
     <ClInclude Include="components\actor.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\details\animationData.hpp">
+      <Filter>src\components\details</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

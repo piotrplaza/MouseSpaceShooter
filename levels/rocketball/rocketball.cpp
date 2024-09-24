@@ -65,7 +65,7 @@ namespace Levels
 		{
 			flame1AnimatedTexture = Globals::Components().staticAnimatedTextures().size();
 			Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(flame1AnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
-				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
+				AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 			Globals::Components().staticAnimatedTextures().last().start(true);
 		}
 

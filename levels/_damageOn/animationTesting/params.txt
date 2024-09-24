@@ -1,10 +1,29 @@
 player.radius 1.0
-player.maxVelocity 5.0
-player.density 4.0
+player.maxVelocity 8.0
+player.density 10.0
 player.linearDamping 6.0
-player.dash 20.0
+player.dash 30.0
 
 player.presentation.radiusProportions.x 1.0
 player.presentation.radiusProportions.y 1.5
+player.presentation.translation.x 0.0
+player.presentation.translation.y 0.0
 player.presentation.scale.x 2.0
 player.presentation.scale.y 3.0
+
+player.animation.textureSize.x 500
+player.animation.textureSize.y 498
+player.animation.framesGrid.x 8
+player.animation.framesGrid.y 4
+player.animation.leftTopFrameLeftTopCorner.x 3
+player.animation.leftTopFrameLeftTopCorner.y 0
+player.animation.rightTopFrameLeftEdge 442
+player.animation.leftBottomFrameTopEdge 374
+player.animation.frameSize.x 55
+player.animation.frameSize.y 122
+player.animation.frameDuration 0.02
+player.animation.numOfFrames 32
+player.animation.startFrame 0
+player.animation.direction Forward
+player.animation.mode Repeat
+player.animation.textureLayout Horizontal

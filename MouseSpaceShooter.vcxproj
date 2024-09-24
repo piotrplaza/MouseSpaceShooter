@@ -14,8 +14,8 @@
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
     <ClCompile Include="commonTypes\componentMappers.cpp" />
     <ClCompile Include="commonTypes\resolutionMode.cpp" />
-    <ClCompile Include="components\animatedTexture.cpp" />
     <ClCompile Include="components\audioListener.cpp" />
+    <ClCompile Include="components\details\animationData.cpp" />
     <ClCompile Include="components\details\textureData.hpp" />
     <ClCompile Include="components\music.cpp" />
     <ClCompile Include="components\sound.cpp" />
@@ -101,6 +101,7 @@
     <ClInclude Include="components\collisionFilter.hpp" />
     <ClInclude Include="components\collisionHandler.hpp" />
     <ClInclude Include="components\decoration.hpp" />
+    <ClInclude Include="components\details\animationData.hpp" />
     <ClInclude Include="components\particles.hpp" />
     <ClInclude Include="components\deferredAction.hpp" />
     <ClInclude Include="components\framebuffers.hpp" />

@@ -151,7 +151,7 @@ namespace Levels
 		{
 			flame1AnimatedTexture = Globals::Components().staticAnimatedTextures().size();
 			Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(flame1AnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, Tools::RandomFloat(0.01f, 0.03f), 32, 0,
-				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
+				AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 			Globals::Components().staticAnimatedTextures().last().start(true);
 
 			recursiveFaceAnimatedTextureBegin = Globals::Components().staticAnimatedTextures().size();
@@ -159,7 +159,7 @@ namespace Levels
 			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
 			{
 				Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(recursiveFaceAnimationTexture), { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, rand() % 50,
-					(i % 2 == 0) ? AnimationDirection::Forward : AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
+					(i % 2 == 0) ? AnimationData::Direction::Forward : AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
 		}

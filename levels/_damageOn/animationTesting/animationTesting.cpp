@@ -13,6 +13,7 @@
 
 #include <tools/shapes2D.hpp>
 #include <tools/utility.hpp>
+#include <tools/gameHelpers.hpp>
 
 #include <ogl/uniformsUtils.hpp>
 
@@ -31,7 +32,7 @@ namespace Levels::DamageOn
 		constexpr float enemyRadius = 0.5f;
 		constexpr float enemyMaxVelocity = 2.0f;
 		constexpr float enemyDensity = 1.0f;
-		constexpr int enemyCount = 100;
+		constexpr int enemyCount = 200;
 		constexpr float debrisDensity = 100.0f;
 		constexpr float gamepadDeadZone = 0.1f;
 
@@ -86,6 +87,10 @@ namespace Levels::DamageOn
 			textures.last().magFilter = GL_NEAREST;
 			//textures.last().scale = glm::vec2(30.0f);
 
+			fogTextureId = textures.size();
+			textures.emplace("textures/fog.png");
+			textures.last().scale = glm::vec2(0.15f);
+
 			playerAnimationTextureId = textures.emplace("textures/damageOn/player.png").getComponentId();
 			textures.last().magFilter = GL_NEAREST;
 
@@ -99,16 +104,16 @@ namespace Levels::DamageOn
 			})).getComponentId();
 			textures.last().minFilter = GL_NEAREST;
 
-			playerAnimatedTextureId = animatedTextures.add({ CM::StaticTexture(playerAnimationTextureId), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
-				AnimationDirection::Forward, AnimationPolicy::Repeat, TextureLayout::Horizontal }).getComponentId();
-			animatedTextures.last().start(true);
+			playerAnimatedTextureId = animatedTextures.emplace().getComponentId();
 
 			for (auto& enemyAnimatedTextureId : enemyAnimatedTextureIds)
 			{
 				enemyAnimatedTextureId = animatedTextures.add({ CM::StaticTexture(enemyAnimationTextureId), { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, Tools::RandomInt(0, 49),
-					AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal }).getComponentId();
+					AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal }).getComponentId();
 				animatedTextures.last().start(true);
 			}
+
+			Tools::CreateFogForeground(2, 0.2f, fogTextureId);
 
 			reload();
 		}
@@ -122,7 +127,7 @@ namespace Levels::DamageOn
 			auto& textures = Globals::Components().staticTextures();
 
 			const glm::vec2 levelHSize(textures[backgroundTextureId].loaded.getAspectRatio() * mapHSize, mapHSize);
-			camera.targetProjectionHSizeF = camera.details.projectionHSize = camera.details.prevProjectionHSize = playerRadius * 8.0f;
+			camera.targetProjectionHSizeF = camera.details.projectionHSize = camera.details.prevProjectionHSize = 10.0f;
 			camera.targetPositionF = [&, levelHSize]() { return glm::clamp(actors[playerId].getOrigin2D(), -levelHSize + camera.details.completeProjectionHSize, levelHSize - camera.details.completeProjectionHSize); };
 			camera.positionTransitionFactor = 5.0f;
 
@@ -242,7 +247,32 @@ namespace Levels::DamageOn
 			playerDash = std::stof(params["player.dash"]);
 
 			playerPresentationRadiusProportions = { std::stof(params["player.presentation.radiusProportions.x"]), std::stof(params["player.presentation.radiusProportions.y"]) };
+			playerPresentationTranslation = { std::stof(params["player.presentation.translation.x"]), std::stof(params["player.presentation.translation.y"]) };
 			playerPresentationScale = { std::stof(params["player.presentation.scale.x"]), std::stof(params["player.presentation.scale.y"]) };
+
+			playerAnimationTextureSize = { std::stoi(params["player.animation.textureSize.x"]), std::stoi(params["player.animation.textureSize.y"]) };
+			playerAnimationFramesGrid = { std::stoi(params["player.animation.framesGrid.x"]), std::stoi(params["player.animation.framesGrid.y"]) };
+			playerAnimationLeftTopFrameLeftTopCorner = { std::stoi(params["player.animation.leftTopFrameLeftTopCorner.x"]), std::stoi(params["player.animation.leftTopFrameLeftTopCorner.y"]) };
+			playerAnimationRightTopFrameLeftEdge = std::stoi(params["player.animation.rightTopFrameLeftEdge"]);
+			playerAnimationLeftBottomFrameTopEdge = std::stoi(params["player.animation.leftBottomFrameTopEdge"]);
+			playerAnimationFrameSize = { std::stoi(params["player.animation.frameSize.x"]), std::stoi(params["player.animation.frameSize.y"]) };
+			playerAnimationFrameDuration = std::stof(params["player.animation.frameDuration"]);
+			playerAnimationNumOfFrames = std::stoi(params["player.animation.numOfFrames"]);
+			playerAnimationStartFrame = std::stoi(params["player.animation.startFrame"]);
+
+			playerAnimationDirection = params["player.animation.direction"] == "Forward"
+				? AnimationData::Direction::Forward
+				: AnimationData::Direction::Backward;
+
+			playerAnimationMode = params["player.animation.mode"] == "Repeat"
+				? AnimationData::Mode::Repeat
+				: params["player.animation.mode"] == "Pingpong"
+				? AnimationData::Mode::Pingpong
+				: AnimationData::Mode::StopOnLastFrame;
+
+			playerAnimationTextureLayout = params["player.animation.textureLayout"] == "Horizontal"
+				? AnimationData::TextureLayout::Horizontal
+				: AnimationData::TextureLayout::Vertical;
 
 			auto& actors = Globals::Components().actors();
 			const glm::vec2 playerPresentationSize = playerPresentationRadiusProportions * playerRadius;
@@ -251,7 +281,8 @@ namespace Levels::DamageOn
 				auto& player = actors[playerId];
 				player.changeBody(Tools::CreateCircleBody(playerRadius, Tools::BodyParams{}.linearDamping(playerLinearDamping).fixedRotation(true).bodyType(b2_dynamicBody).density(playerDensity).position(player.getOrigin2D())));
 				player.subsequence.back().vertices = Shapes2D::CreateVerticesOfRectangle({ 0.0f, playerPresentationSize.y - playerRadius }, playerPresentationSize);
-				player.subsequence.back().texture = CM::StaticAnimatedTexture(playerAnimatedTextureId, { 0.0f, playerPresentationSize.y - playerRadius }, {}, playerPresentationSize * playerPresentationScale);
+				player.subsequence.back().texture = CM::StaticAnimatedTexture(playerAnimatedTextureId,
+					glm::vec2( 0.0f, playerPresentationSize.y - playerRadius ) + playerPresentationSize * playerPresentationTranslation, {}, playerPresentationSize * playerPresentationScale);
 				player.subsequence.back().modelMatrixF = player.modelMatrixF;
 				player.state = ComponentState::Changed;
 			};
@@ -270,6 +301,14 @@ namespace Levels::DamageOn
 			}
 			else
 				reloadPlayer();
+
+			auto& animatedTextures = Globals::Components().staticAnimatedTextures();
+			auto& playerAnimatedTexture = animatedTextures[playerAnimatedTextureId];
+
+			playerAnimatedTexture.setAnimationData({ CM::StaticTexture(playerAnimationTextureId), playerAnimationTextureSize, playerAnimationFramesGrid, playerAnimationLeftTopFrameLeftTopCorner,
+				playerAnimationRightTopFrameLeftEdge, playerAnimationLeftBottomFrameTopEdge, playerAnimationFrameSize, playerAnimationFrameDuration, playerAnimationNumOfFrames, playerAnimationStartFrame,
+				playerAnimationDirection, playerAnimationMode, playerAnimationTextureLayout });
+			playerAnimatedTexture.start(true);
 		}
 
 		const Tools::BodyParams defaultBodyParams = Tools::BodyParams{}
@@ -282,6 +321,7 @@ namespace Levels::DamageOn
 		ComponentId backgroundTextureId{};
 		ComponentId greenMarbleTextureId{};
 		ComponentId coffinTextureId{};
+		ComponentId fogTextureId{};
 
 		ComponentId playerAnimationTextureId{};
 		ComponentId enemyAnimationTextureId{};
@@ -298,8 +338,23 @@ namespace Levels::DamageOn
 		float playerDensity{};
 		float playerLinearDamping{};
 		float playerDash{};
+
 		glm::vec2 playerPresentationRadiusProportions{};
+		glm::vec2 playerPresentationTranslation{};
 		glm::vec2 playerPresentationScale{};
+
+		glm::ivec2 playerAnimationTextureSize{};
+		glm::ivec2 playerAnimationFramesGrid{};
+		glm::ivec2 playerAnimationLeftTopFrameLeftTopCorner{};
+		int playerAnimationRightTopFrameLeftEdge{};
+		int playerAnimationLeftBottomFrameTopEdge{};
+		glm::ivec2 playerAnimationFrameSize{};
+		float playerAnimationFrameDuration{};
+		int playerAnimationNumOfFrames{};
+		int playerAnimationStartFrame{};
+		AnimationData::Direction playerAnimationDirection{};
+		AnimationData::Mode playerAnimationMode{};
+		AnimationData::TextureLayout playerAnimationTextureLayout{};
 	};
 
 	AnimationTesting::AnimationTesting():

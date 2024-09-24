@@ -107,13 +107,13 @@ namespace Levels
 		{
 			flame1AnimatedTexture = Globals::Components().staticAnimatedTextures().size();
 			Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(flame1AnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
-				AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
+				AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 			Globals::Components().staticAnimatedTextures().last().start(true);
 
 			/*flame2AnimatedTexture = Globals::Components().animatedTextures().size();
 			Globals::Components().animatedTextures().push_back(Components::AnimatedTexture(
 				flame1AnimationTexture, { 500, 498 }, { 2, 0 }, { 61, 120 }, { 8, 4 }, { 62.5f, 124.9f }, 0.02f, 0,
-				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationPolicy::Repeat,
+				AnimationLayout::Horizontal, AnimationPlayback::Backward, AnimationData::Mode::Repeat,
 				{ 4.1f, 2.0f }, { 1.2f, -1.2f }));
 			Globals::Components().animatedTextures().back().start();*/
 		}

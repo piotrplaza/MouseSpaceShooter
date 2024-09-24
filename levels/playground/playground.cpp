@@ -210,7 +210,7 @@ namespace Levels
 			{
 				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().size();
 				Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(flameAnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
-					AnimationDirection::Backward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
+					AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
 
@@ -223,7 +223,7 @@ namespace Levels
 
 			recursiveFaceAnimatedTexture = Globals::Components().staticAnimatedTextures().size();
 			Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(recursiveFaceAnimationTexture), { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
-				AnimationDirection::Forward, AnimationPolicy::Repeat, TextureLayout::Horizontal });
+				AnimationData::Direction::Forward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 			Globals::Components().staticAnimatedTextures().last().start(true);
 		}
 
