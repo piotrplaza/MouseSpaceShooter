@@ -17,7 +17,7 @@ namespace Tools
 
 		for (auto& component : components.underlyingContainer() | std::views::drop(offset))
 		{
-			if (component.state == ComponentState::Outdated)
+			if (component.state == ComponentState::Ongoing || component.state == ComponentState::Outdated)
 				continue;
 
 			auto& selectedBuffers = [&, layer = (size_t)component.renderLayer]() -> auto& {
@@ -38,6 +38,16 @@ namespace Tools
 
 			selectedBuffers.applyComponent(component, true);
 			selectedBuffers.applyComponentSubsequence(component, true);
+
+			switch (component.state)
+			{
+			case ComponentState::Changed:
+				component.state = ComponentState::Ongoing;
+				break;
+			case ComponentState::LastShot:
+				component.state = ComponentState::Outdated;
+				break;
+			}
 		}
 	}
 
@@ -70,16 +80,21 @@ namespace Tools
 					return dynamicBuffers.textured[layer];
 			}();
 
-			if (component.state == ComponentState::Outdated)
-			{
-				mapOfSelectedBuffers.erase(component.getComponentId());
-				continue;
-			}
-
 			auto& selectedBuffers = mapOfSelectedBuffers[component.getComponentId()];
 
 			selectedBuffers.applyComponent(component, false);
 			selectedBuffers.applyComponentSubsequence(component, false);
+			component.teardownF = [&]() { mapOfSelectedBuffers.erase(component.getComponentId()); };
+
+			switch (component.state)
+			{
+			case ComponentState::Changed:
+				component.state = ComponentState::Ongoing;
+				break;
+			case ComponentState::LastShot:
+				component.state = ComponentState::Outdated;
+				break;
+			}
 		}
 	}
 

@@ -4,7 +4,7 @@
 
 #include <functional>
 
-enum class ComponentState { Ongoing, Changed, Outdated };
+enum class ComponentState { Ongoing, Changed, LastShot, Outdated };
 
 struct ComponentBase
 {
@@ -43,6 +43,7 @@ struct ComponentBase
 	}
 
 	std::function<void()> stepF;
+	std::function<void()> teardownF;
 	ComponentState state = ComponentState::Changed;
 
 private:

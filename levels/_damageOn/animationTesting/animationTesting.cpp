@@ -1,5 +1,6 @@
 #include "animationTesting.hpp"
 
+#include <components/graphicsSettings.hpp>
 #include <components/camera2D.hpp>
 #include <components/keyboard.hpp>
 #include <components/gamepad.hpp>
@@ -30,12 +31,19 @@ namespace Levels::DamageOn
 	namespace
 	{
 		constexpr float mapHSize = 15.0f;
+
 		constexpr float enemyRadius = 0.5f;
-		constexpr float enemyMaxVelocity = 2.0f;
+		constexpr float enemyBaseVelocity = 2.0f;
+		constexpr float enemyBoostDistance = 5.0f;
+		constexpr float enemyBoostFactor = 2.0f;
 		constexpr float enemyDensity = 1.0f;
 		constexpr int enemyCount = 200;
+
+		constexpr float sparkingDistance = 10.0f;
+
 		constexpr float debrisDensity = 100.0f;
 		constexpr float gamepadDeadZone = 0.1f;
+		constexpr float gamepadTriggerDeadZone = 0.1f;
 
 		RenderableDef::RenderingSetupF createRecursiveFaceRS(glm::vec2 fadingRange)
 		{
@@ -69,6 +77,9 @@ namespace Levels::DamageOn
 	public:
 		void setup()
 		{
+			auto& graphicsSettings = Globals::Components().graphicsSettings();
+			graphicsSettings.lineWidth = 5.0f;
+
 			auto& musics = Globals::Components().musics();
 			musics.emplace("audio/Damage On.ogg", 0.8f).play();
 
@@ -170,8 +181,26 @@ namespace Levels::DamageOn
 					.density(enemyDensity)
 					.position(glm::linearRand(-levelHSize, levelHSize))), CM::StaticAnimatedTexture(enemyAnimatedTextureIds[i], {}, {}, { 1.3f, 1.3f }))
 					.getComponentId();
-				actors.last().renderingSetupF = createRecursiveFaceRS({ enemyRadius * 0.6f, enemyRadius });
-				actors.last().colorF = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f;
+				auto& enemy = actors.last();
+				enemy.renderingSetupF = createRecursiveFaceRS({ enemyRadius * 0.6f, enemyRadius });
+				enemy.colorF = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f;
+				enemy.stepF = [&]() {
+					const auto& player = actors[playerId];
+					const auto direction = player.getOrigin2D() - enemy.getOrigin2D();
+					const auto distance = glm::length(direction);
+					if (distance > 0.0f && distance < enemyBoostDistance)
+						enemy.setVelocity(direction / distance * enemyBaseVelocity * enemyBoostFactor);
+
+					if (distance <= sparkingDistance && (playerFire || playerAutoFire))
+					{
+						auto& decorations = Globals::Components().dynamicDecorations();
+						auto& spark = decorations.emplace(Shapes2D::CreateVerticesOfLightning(player.getOrigin2D() + glm::diskRand(playerRadius * 0.2f),
+							enemy.getOrigin2D() + glm::diskRand(enemyRadius * 0.5f),int(20 * distance), 2.0f / glm::sqrt(distance)));
+						spark.drawMode = GL_LINE_STRIP;
+						spark.colorF = glm::vec4(0.0f, glm::linearRand(0.0f, 0.2f), glm::linearRand(0.4f, 0.6f), 1.0f) * 0.8f;
+						spark.state = ComponentState::LastShot;
+					}
+				};
 			}
 
 			decorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, levelHSize), CM::StaticTexture(backgroundTextureId), Shapes2D::CreateTexCoordOfRectangle()).renderLayer = RenderLayer::FarBackground;
@@ -187,9 +216,9 @@ namespace Levels::DamageOn
 			{
 				auto& enemy = Globals::Components().actors()[enemyId];
 				const auto direction = player.getOrigin2D() - enemy.getOrigin2D();
-				const auto directionLength = glm::length(direction);
-				if (directionLength > 0.1f)
-					enemy.setVelocity(direction / directionLength * enemyMaxVelocity);
+				const auto distance = glm::length(direction);
+				if (distance > 0.0f)
+					enemy.setVelocity(direction / distance * enemyBaseVelocity);
 			}
 
 			const glm::vec2 gamepadDirection = [&]() {
@@ -221,7 +250,18 @@ namespace Levels::DamageOn
 			if (glm::length(newVelocity) > glm::length(player.getVelocity()))
 				player.setVelocity(newVelocity);
 
-			if (keyboard.pressed[' '] || gamepad.pressed.a)
+			if (keyboard.pressing[/*VK_CONTROL*/0x11] || gamepad.rTrigger > gamepadTriggerDeadZone || gamepad.lTrigger > gamepadTriggerDeadZone)
+			{
+				playerFire = true;
+				playerAutoFire = false;
+			}
+			else
+				playerFire = false;
+
+			if (keyboard.pressed[/*VK_SHIFT*/0x10] || gamepad.pressed.rShoulder || gamepad.pressed.lShoulder)
+				playerAutoFire = !playerAutoFire;
+
+			if (keyboard.pressed[/*VK_SPACE*/0x20] || gamepad.pressed.a)
 				player.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerDash * player.body->GetMass()), true);
 
 			if (keyboard.pressed['T'] || gamepad.pressed.y)
@@ -338,6 +378,9 @@ namespace Levels::DamageOn
 
 		bool playerTransparency = true;
 		bool playerBodyRendering = false;
+
+		bool playerFire = false;
+		bool playerAutoFire = false;
 
 		std::unordered_map<std::string, std::string> params;
 

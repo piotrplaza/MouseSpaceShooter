@@ -392,6 +392,9 @@ public:
 		{
 			if (it->second.state == ::ComponentState::Outdated)
 			{
+				if (it->second.teardownF)
+					it->second.teardownF();
+
 				Globals::ComponentIdGenerator().release(it->first);
 				it = components.erase(it);
 			}
@@ -414,6 +417,10 @@ public:
 
 	void clear() override
 	{
+		for (auto& [id, component] : components)
+			if (component.teardownF)
+				component.teardownF();
+
 		components.clear();
 		last_ = nullptr;
 	}
@@ -519,6 +526,11 @@ public:
 		return components.size();
 	}
 
+	bool empty() const
+	{
+		return components.empty();
+	}
+
 	Container& underlyingContainer()
 	{
 		return components;
@@ -541,12 +553,18 @@ public:
 		{
 			if (it->state == ::ComponentState::Outdated)
 			{
+				if (it->teardownF)
+					it->teardownF();
+
 				Globals::ComponentIdGenerator().release(it->getComponentId());
 				it = components.erase(it);
 			}
 			else
 				++it;
 		}
+
+		if (empty())
+			last_ = nullptr;
 	}
 
 	void markAsDirty() override
@@ -560,7 +578,12 @@ public:
 
 	void clear() override
 	{
+		for (auto& component : components)
+			if (component.teardownF)
+				component.teardownF();
+
 		components.clear();
+		last_ = nullptr;
 	}
 
 private:

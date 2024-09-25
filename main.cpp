@@ -183,13 +183,14 @@ static void PrepareFrame()
 		Globals::Systems().camera().step();
 		Globals::Systems().audio().step();
 		Globals::Systems().stateController().stepTeardown();
-
-		Globals::Systems().cleaner().step();
 	}
 
 	Globals::Systems().stateController().renderSetup();
 	Globals::Systems().renderingController().render();
 	Globals::Systems().stateController().renderTeardown();
+
+	if (!Globals::Components().physics().paused)
+		Globals::Systems().cleaner().step();
 }
 
 static void TearDown()

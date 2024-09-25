@@ -16,7 +16,6 @@
     <ClCompile Include="commonTypes\resolutionMode.cpp" />
     <ClCompile Include="components\audioListener.cpp" />
     <ClCompile Include="components\details\animationData.cpp" />
-    <ClCompile Include="components\details\textureData.hpp" />
     <ClCompile Include="components\music.cpp" />
     <ClCompile Include="components\sound.cpp" />
     <ClCompile Include="components\soundBuffer.cpp" />
@@ -92,6 +91,7 @@
     <ClInclude Include="commonTypes\idGenerator.hpp" />
     <ClInclude Include="commonTypes\renderLayer.hpp" />
     <ClInclude Include="commonTypes\resolutionMode.hpp" />
+	<ClInclude Include="components\details\textureData.hpp" />
     <ClInclude Include="components\actor.hpp" />
     <ClInclude Include="components\animatedTexture.hpp" />
     <ClInclude Include="components\audioListener.hpp" />
@@ -281,6 +281,9 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

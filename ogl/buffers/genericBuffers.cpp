@@ -46,9 +46,11 @@ namespace Buffers
 		setInstancedNormalTransformsBuffer({});
 	}
 
-	GenericSubBuffers::GenericSubBuffers(GenericSubBuffers&& other) noexcept :
+	GenericSubBuffers::GenericSubBuffers(GenericSubBuffers&& other) noexcept:
 		renderable(other.renderable),
 		vertexArray(other.vertexArray),
+		drawCount(other.drawCount),
+		instanceCount(other.instanceCount),
 		positionsBuffer(other.positionsBuffer),
 		colorsBuffer(other.colorsBuffer),
 		texCoordsBuffer(other.texCoordsBuffer),
@@ -56,7 +58,6 @@ namespace Buffers
 		instancedTransformsBuffer(other.instancedTransformsBuffer),
 		instancedNormalTransformsBuffer(other.instancedNormalTransformsBuffer),
 		indicesBuffer(other.indicesBuffer),
-		drawCount(other.drawCount),
 		numOfAllocatedVertices(other.numOfAllocatedVertices),
 		numOfAllocatedColors(other.numOfAllocatedColors),
 		numOfAllocatedTexCoords(other.numOfAllocatedTexCoords),
@@ -374,7 +375,8 @@ namespace Buffers
 		resolutionMode(other.resolutionMode),
 		subsequenceBegin(other.subsequenceBegin),
 		posInSubsequence(other.posInSubsequence),
-		subsequence(std::move(other.subsequence))
+		subsequence(std::move(other.subsequence)),
+		normalTransforms(std::move(other.normalTransforms))
 	{
 	}
 
@@ -439,6 +441,5 @@ namespace Buffers
 		}
 
 		renderableComponent.loaded.buffers = this;
-		renderableComponent.state = ComponentState::Ongoing;
 	}
 }
