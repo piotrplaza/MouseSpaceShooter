@@ -254,7 +254,7 @@ namespace Tools
 		glm::vec2 initialVelocity, ComponentId missileTexture, ComponentId thrustAnimatedTexture, std::optional<ComponentId> planeId = std::nullopt,
 		std::optional<ComponentId> missileSoundBuffer = std::nullopt);
 	void CreateExplosion(ExplosionParams params);
-	void CreateFogForeground(int numOfLayers, float alphaPerLayer, ComponentId fogTexture, FVec4 fColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	void CreateFogForeground(int numOfLayers, float alphaPerLayer, ComponentId fogTexture, FVec4 fColor = glm::vec4(1.0f), std::function<glm::vec2(int layer)> textureTranslation = nullptr);
 	void CreateJuliaBackground(JuliaParams params);
 	Components::Sound& CreateAndPlaySound(ComponentId soundBuffer, FVec2 posF = nullptr,
 		std::function<void(Components::Sound&)> config = nullptr, std::function<void(Components::Sound&)> stepF = nullptr);

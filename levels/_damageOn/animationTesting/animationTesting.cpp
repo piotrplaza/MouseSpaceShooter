@@ -9,6 +9,7 @@
 #include <components/wall.hpp>
 #include <components/decoration.hpp>
 #include <components/music.hpp>
+#include <components/physics.hpp>
 #include <globals/components.hpp>
 
 #include <tools/shapes2D.hpp>
@@ -88,7 +89,7 @@ namespace Levels::DamageOn
 			//textures.last().scale = glm::vec2(30.0f);
 
 			fogTextureId = textures.size();
-			textures.emplace("textures/fog.png");
+			textures.emplace("textures/fog.png", GL_REPEAT);
 			textures.last().scale = glm::vec2(0.15f);
 
 			playerAnimationTextureId = textures.emplace("textures/damageOn/player.png").getComponentId();
@@ -113,7 +114,13 @@ namespace Levels::DamageOn
 				animatedTextures.last().start(true);
 			}
 
-			Tools::CreateFogForeground(2, 0.2f, fogTextureId);
+			Tools::CreateFogForeground(2, 0.1f, fogTextureId, glm::vec4(1.0f), [x = 0.0f](int layer) mutable {
+				(void)layer;
+				const auto& physics = Globals::Components().physics();
+				x += physics.frameDuration * 0.01f;
+				const float y = std::sin(x) * 0.5f;
+				return glm::vec2(x, y);
+			});
 
 			reload();
 		}
@@ -333,6 +340,7 @@ namespace Levels::DamageOn
 		bool playerBodyRendering = false;
 
 		std::unordered_map<std::string, std::string> params;
+
 		float playerRadius{};
 		float playerMaxVelocity{};
 		float playerDensity{};

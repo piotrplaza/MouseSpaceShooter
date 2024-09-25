@@ -274,7 +274,7 @@ namespace Tools
 			});
 	}
 
-	void CreateFogForeground(int numOfLayers, float alphaPerLayer, ComponentId fogTexture, FVec4 fColor)
+	void CreateFogForeground(int numOfLayers, float alphaPerLayer, ComponentId fogTexture, FVec4 fColor, std::function<glm::vec2(int layer)> textureTranslation)
 	{
 		for (int layer = 0; layer < numOfLayers; ++layer)
 		for (int posYI = -1; posYI <= 1; ++posYI)
@@ -295,9 +295,13 @@ namespace Tools
 				};
 			};
 
-			Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
-				CM::StaticTexture(fogTexture), Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF)).renderLayer = RenderLayer::Foreground;
-			Globals::Components().staticDecorations().last().resolutionMode = ResolutionMode::LowestLinearBlend1;
+			auto& fogLayer = Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
+				CM::DummyTexture(), Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
+			fogLayer.renderLayer = RenderLayer::Foreground;
+			fogLayer.stepF = [=, &fogLayer]() {
+				fogLayer.texture = CM::StaticTexture(fogTexture, textureTranslation ? textureTranslation(layer) : glm::vec2(0.0f));
+			};
+			fogLayer.resolutionMode = ResolutionMode::LowestLinearBlend1;
 		}
 	}
 
