@@ -19,7 +19,7 @@
 
 #include <tools/gameHelpers.hpp>
 #include <tools/b2Helpers.hpp>
-#include <tools/shapes2D.hpp>
+#include <tools/Shapes2D.hpp>
 
 #include <algorithm>
 
@@ -215,8 +215,8 @@ namespace Levels
 
 			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
 			{
-				staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }),
-					CM::StaticAnimatedTexture(recursiveFaceAnimatedTextureBegin + i), Shapes2D::CreateTexCoordOfRectangle(), std::move(recursiveFaceRSsF[i]), RenderLayer::NearBackground);
+				staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }),
+					CM::StaticAnimatedTexture(recursiveFaceAnimatedTextureBegin + i), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(recursiveFaceRSsF[i]), RenderLayer::NearBackground);
 			}
 		}
 

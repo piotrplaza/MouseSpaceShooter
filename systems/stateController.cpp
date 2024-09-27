@@ -194,6 +194,11 @@ namespace Systems
 
 		if (keyboard.pressed['P'])
 			Globals::Components().physics().paused = !Globals::Components().physics().paused;
+		for (const auto& gamepad : Globals::Components().gamepads())
+		{
+			if (gamepad.isEnabled() && gamepad.pressed.start)
+				Globals::Components().physics().paused = !Globals::Components().physics().paused;
+		}
 	}
 
 	void StateController::handleSDL()

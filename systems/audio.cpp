@@ -18,11 +18,7 @@ namespace Systems
 
 	void Audio::postInit() const
 	{
-		Globals::Components().stepTeardowns().emplace([]()
-		{
-			Globals::Components().audioListener().setEnabled(true);
-			return false;
-		});
+		Globals::Components().audioListener().setEnabled(true);
 	}
 
 	void Audio::step() const

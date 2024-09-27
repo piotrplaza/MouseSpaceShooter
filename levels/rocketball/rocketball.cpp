@@ -17,7 +17,7 @@
 
 #include <ogl/uniformsUtils.hpp>
 
-#include <tools/shapes2D.hpp>
+#include <tools/Shapes2D.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
 
@@ -71,8 +71,8 @@ namespace Levels
 
 		void createBackground() const
 		{
-			Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 100.0f, 60.0f }),
-				CM::StaticTexture(playFieldTexture), Shapes2D::CreateTexCoordOfRectangle(), nullptr, RenderLayer::Background);
+			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 100.0f, 60.0f }),
+				CM::StaticTexture(playFieldTexture), Tools::Shapes2D::CreateTexCoordOfRectangle(), nullptr, RenderLayer::Background);
 		}
 
 		void createPlayers()

@@ -18,7 +18,7 @@ namespace Components {
 	struct Decoration;
 }
 
-namespace Shapes3D
+namespace Tools::Shapes3D
 {
 	template <typename DecorationComponents, typename CMTexture>
 	std::array<Components::Decoration*, 6> CreateCuboid(DecorationComponents& decorationComponents, const std::array<CMTexture, 6>& textures, const glm::vec3& hSize = { 0.5f, 0.5f, 0.5f })

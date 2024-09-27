@@ -22,5 +22,10 @@ namespace Components
 		{
 			return 1.0f / refreshRate;
 		}
+
+		glm::vec2 getNormalizedWindowSize() const
+		{
+			return glm::vec2(windowSize) / (float)std::min(windowSize.x, windowSize.y);
+		}
 	};
 }

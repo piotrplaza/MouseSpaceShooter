@@ -11,7 +11,7 @@
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
 
-#include <tools/shapes2D.hpp>
+#include <tools/Shapes2D.hpp>
 
 namespace Levels
 {
@@ -20,7 +20,7 @@ namespace Levels
 	public:
 		void setup()
 		{
-			auto& screen = Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }));
+			auto& screen = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }));
 			auto& duration = Globals::Components().physics().simulationDuration;
 			screen.customShadersProgram = Globals::Shaders().noise().getProgramId();
 

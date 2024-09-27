@@ -14,7 +14,7 @@
 #include <globals/components.hpp>
 
 #include <tools/playersHandler.hpp>
-#include <tools/shapes2D.hpp>
+#include <tools/Shapes2D.hpp>
 
 #include <glm/gtx/vector_angle.hpp>
 
@@ -46,7 +46,7 @@ namespace Levels
 			auto& staticDecoration = Globals::Components().staticDecorations();
 			auto& textures = Globals::Components().staticTextures();
 
-			staticDecoration.emplace(Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, cursorRadius, 20));
+			staticDecoration.emplace(Tools::Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, cursorRadius, 20));
 			staticDecoration.last().modelMatrixF = [this]() {
 				return glm::scale(glm::translate(glm::mat4{ 1.0f }, { mousePos, 0.0f }), glm::vec3(zoomScale));
 			};
@@ -164,7 +164,7 @@ namespace Levels
 				fs << "\n";
 				fs << "#include <globals/components.hpp>\n";
 				fs << "\n";
-				fs << "#include <tools/shapes2D.hpp>\n";
+				fs << "#include <tools/Shapes2D.hpp>\n";
 				fs << "\n";
 				fs << "#include <glm/vec2.hpp>\n";
 				fs << "#include <glm/vec3.hpp>\n";

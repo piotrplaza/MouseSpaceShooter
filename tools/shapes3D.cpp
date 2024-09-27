@@ -1,4 +1,4 @@
-#include "shapes3D.hpp"
+#include "Shapes3D.hpp"
 
 #include "geometryHelpers.hpp"
 
@@ -75,7 +75,7 @@ namespace
 	}
 }
 
-namespace Shapes3D
+namespace Tools::Shapes3D
 {
 	RenderableDef& AddPoint(RenderableDef& renderableDef, const glm::vec3& pos, const glm::vec4& color, const glm::mat4& transform)
 	{

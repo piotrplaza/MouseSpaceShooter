@@ -14,7 +14,7 @@
 
 #include <globals/components.hpp>
 
-#include <tools/shapes3D.hpp>
+#include <tools/Shapes3D.hpp>
 #include <tools/colorBufferEditor.hpp>
 #include <tools/glmHelpers.hpp>
 #include <tools/gameHelpers.hpp>
@@ -115,7 +115,7 @@ namespace Levels
 				auto& dynamicDecorations = Globals::Components().dynamicDecorations();
 				auto& instancedCrosses = dynamicDecorations.emplace();
 
-				Shapes3D::AddCross(instancedCrosses, { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); }, glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)));
+				Tools::Shapes3D::AddCross(instancedCrosses, { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); }, glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)));
 				instancedCrosses.modelMatrixF = [&]() { return glm::scale(glm::mat4(1.0f), glm::vec3(0.5f)); };
 				instancedCrosses.params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true).gpuSideInstancedNormalTransforms(true).fogAmplification(0.2f);
 				instancedCrosses.texture = CM::StaticTexture(marbleTexture);
@@ -135,7 +135,7 @@ namespace Levels
 						light.stepF = [&]() { light.setEnabled(instancedCrosses.isEnabled()); };
 
 						auto& lightDecoration = staticDecorations.emplace();
-						Shapes3D::AddSphere(lightDecoration, 0.2f * crossesScale, 2, 3);
+						Tools::Shapes3D::AddSphere(lightDecoration, 0.2f * crossesScale, 2, 3);
 						lightDecoration.colorF = [&]() { return glm::vec4(light.color, 1.0f) + Globals::Components().graphicsSettings().backgroundColorF() * light.darkColorFactor; };
 						lightDecoration.params3D->lightModelEnabled(false);
 						lightDecoration.modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), light.position), physics.simulationDuration * 4.0f, { 1.0f, 1.0f, 1.0f }); };
@@ -146,19 +146,19 @@ namespace Levels
 			}
 
 			{
-				auto decorations = Shapes3D::CreateCuboid(Globals::Components().staticDecorations(), cubeTextures, glm::vec3(cubeHSize));
+				auto decorations = Tools::Shapes3D::CreateCuboid(Globals::Components().staticDecorations(), cubeTextures, glm::vec3(cubeHSize));
 				for (auto* decoration : decorations)
 					decoration->params3D->lightModelEnabled(false).fogAmplification(0.5f);
 			}
 
 			auto& wiredCuboid = Globals::Components().staticDecorations().emplace();
-			Shapes3D::AddWiredCuboid(wiredCuboid, glm::vec3(cubeHSize - 0.001f), wiredCubeColor);
+			Tools::Shapes3D::AddWiredCuboid(wiredCuboid, glm::vec3(cubeHSize - 0.001f), wiredCubeColor);
 			wiredCuboid.params3D->lightModelEnabled(false).fogAmplification(0.5f);
 			wiredCuboid.renderingSetupF = [](auto) {
 				return nullptr;
 			};
 #ifdef TEST
-			auto cuboidWalls = Shapes3D::CreateCuboid(Globals::Components().staticDecorations(), testCubeTextures, glm::vec3(cubeHSize) + 0.001f);
+			auto cuboidWalls = Tools::Shapes3D::CreateCuboid(Globals::Components().staticDecorations(), testCubeTextures, glm::vec3(cubeHSize) + 0.001f);
 			for (auto* wall : cuboidWalls)
 			{
 				wall->params3D->lightModelEnabled(false);
@@ -166,7 +166,7 @@ namespace Levels
 			}
 #endif
 			auto snakeHeadSphere = Globals::Components().staticDecorations().emplace();
-			Shapes3D::AddSphere(snakeHeadSphere, 0.2f / boardSize, 20, 20, nullptr, false);
+			Tools::Shapes3D::AddSphere(snakeHeadSphere, 0.2f / boardSize, 20, 20, nullptr, false);
 			snakeHeadSphere.colorF = []() { return snakeHeadSphereColor; };
 			snakeHeadSphere.modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), cubeCoordToPos(snakeHead->first)); };
 			snakeHeadSphere.params3D->lightModelEnabled(false);

@@ -37,8 +37,8 @@
 #include <ogl/shaders/textured.hpp>
 #include <ogl/renderingHelpers.hpp>
 
-#include <tools/shapes2D.hpp>
-#include <tools/shapes3D.hpp>
+#include <tools/Shapes2D.hpp>
+#include <tools/Shapes3D.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
 #include <tools/playersHandler.hpp>
@@ -245,7 +245,7 @@ namespace Levels
 				auto& dynamicDecorations = Globals::Components().dynamicDecorations();
 
 				{
-					Shapes3D::AddCross(dynamicDecorations.emplace(), { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); });
+					Tools::Shapes3D::AddCross(dynamicDecorations.emplace(), { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); });
 					dynamicDecorations.last().params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true).gpuSideInstancedNormalTransforms(true);
 					dynamicDecorations.last().texture = CM::StaticTexture(marbleTexture);
 					dynamicDecorations.last().bufferDataUsage = GL_DYNAMIC_DRAW;
@@ -263,7 +263,7 @@ namespace Levels
 
 				for (const auto& light : Globals::Components().lights3D())
 				{
-					Shapes3D::AddSphere(staticDecorations.emplace(), 0.2f, 2, 3);
+					Tools::Shapes3D::AddSphere(staticDecorations.emplace(), 0.2f, 2, 3);
 					staticDecorations.last().colorF = [&]() { return glm::vec4(light.color, 1.0f) + Globals::Components().graphicsSettings().backgroundColorF() * light.darkColorFactor; };
 					staticDecorations.last().params3D->lightModelEnabled(false);
 					staticDecorations.last().modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), light.position), physics.simulationDuration * 4.0f, { 1.0f, 1.0f, 1.0f }); };
@@ -338,8 +338,8 @@ namespace Levels
 					};
 				};
 
-				Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle(portraitCenter, { 10.0f, 10.0f }),
-					CM::StaticBlendingTexture(blendingTexture), Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF),
+				Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle(portraitCenter, { 10.0f, 10.0f }),
+					CM::StaticBlendingTexture(blendingTexture), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF),
 					RenderLayer::NearMidground);
 			}
 
@@ -369,9 +369,9 @@ namespace Levels
 			{
 				auto setRenderingSetupAndSubsequence = [&]()
 				{
-					Globals::Components().staticWalls().last().subsequence.emplace_back(Shapes2D::CreateVerticesOfLineOfRectangles({ 0.4f, 0.4f },
+					Globals::Components().staticWalls().last().subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfLineOfRectangles({ 0.4f, 0.4f },
 						{ { -0.5f, -5.0f }, { 0.5f, -5.0f }, { 0.5f, 5.0f }, { -0.5f, 5.0f }, { -0.5f, -5.0f } },
-						{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }), Shapes2D::CreateTexCoordOfRectangle(),
+						{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }), Tools::Shapes2D::CreateTexCoordOfRectangle(),
 						CM::StaticTexture(roseTexture));
 					Globals::Components().staticWalls().last().subsequence.back().modelMatrixF =
 						Globals::Components().staticWalls()[Globals::Components().staticWalls().size() - 1].modelMatrixF;
@@ -437,7 +437,7 @@ namespace Levels
 						return [=]() mutable { texturedProgram.color(Globals::Components().graphicsSettings().defaultColorF()); };
 					};
 
-				wall.subsequence.emplace_back(Shapes2D::CreateVerticesOfFunctionalRectangles({ 1.0f, 1.0f },
+				wall.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfFunctionalRectangles({ 1.0f, 1.0f },
 					[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
 					[](float input) { return glm::vec2(input + 0.3f, input + 0.3f); },
 					[](float input) { return input * 600.0f; },
@@ -446,7 +446,7 @@ namespace Levels
 						float result = value;
 						value += 0.002f;
 						return result;
-					}), Shapes2D::CreateTexCoordOfRectangle(), CM::StaticTexture(roseTexture), std::move(renderingSetupF));
+					}), Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::StaticTexture(roseTexture), std::move(renderingSetupF));
 			}
 
 			Globals::Components().staticWalls().last().resolutionMode = ResolutionMode::PixelArtBlend0;
@@ -525,10 +525,10 @@ namespace Levels
 					};
 				};
 
-			Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfLineOfRectangles({ 1.5f, 1.5f },
+			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfLineOfRectangles({ 1.5f, 1.5f },
 				{ { -levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, levelHeightHSize },
 				{ -levelWidthHSize, levelHeightHSize }, { -levelWidthHSize, -levelHeightHSize } },
-				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), CM::StaticTexture(weedTexture), Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
+				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), CM::StaticTexture(weedTexture), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
 			Globals::Components().staticDecorations().last().renderLayer = RenderLayer::FarForeground;
 			//Globals::Components().decorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
 		}
@@ -567,8 +567,8 @@ namespace Levels
 				Tools::BodyParams().position({ -10.0f, 30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)), CM::DummyTexture());
 			grapple.influenceRadius = 30.0f;
 			grapple.renderF = []() { return false; };
-			grapple.subsequence.emplace_back(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.2f, 5.2f }),
-				Shapes2D::CreateTexCoordOfRectangle(), CM::StaticAnimatedTexture(recursiveFaceAnimatedTexture));
+			grapple.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.2f, 5.2f }),
+				Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::StaticAnimatedTexture(recursiveFaceAnimatedTexture));
 			grapple.subsequence.back().modelMatrixF = grapple.modelMatrixF;
 			grapple.subsequence.back().renderingSetupF = createRecursiveFaceRS([]() { return glm::vec4(1.0f); }, { 3.0f, 4.0f });
 		}

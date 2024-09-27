@@ -29,6 +29,7 @@
     <ClCompile Include="levels\crosses3DInstancing\crosses3DInstancing.cpp" />
     <ClCompile Include="levels\crosses3DTexturing\crosses3DTexturing.cpp" />
     <ClCompile Include="levels\crosses3D\crosses3D.cpp" />
+    <ClCompile Include="levels\damageOn\animationTesting\animationTesting.cpp" />
     <ClCompile Include="levels\decals\decals.cpp" />
     <ClCompile Include="levels\dzidzia2\dzidzia2.cpp" />
     <ClCompile Include="levels\dzidzia\dzidzia.cpp" />
@@ -50,8 +51,8 @@
     <ClCompile Include="levels\snakeCube\snakeCube.cpp" />
     <ClCompile Include="levels\splineTest\splineTest.cpp" />
     <ClCompile Include="levels\squareRace\squareRace.cpp" />
+    <ClCompile Include="levels\tmp\tmp.cpp" />
     <ClCompile Include="levels\windmill\windmill.cpp" />
-    <ClCompile Include="levels\_damageOn\animationTesting\animationTesting.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ogl\buffers\genericBuffers.cpp" />
     <ClCompile Include="ogl\oglHelpers.cpp" />
@@ -91,7 +92,7 @@
     <ClInclude Include="commonTypes\idGenerator.hpp" />
     <ClInclude Include="commonTypes\renderLayer.hpp" />
     <ClInclude Include="commonTypes\resolutionMode.hpp" />
-	<ClInclude Include="components\details\textureData.hpp" />
+    <ClInclude Include="components\details\textureData.hpp" />
     <ClInclude Include="components\actor.hpp" />
     <ClInclude Include="components\animatedTexture.hpp" />
     <ClInclude Include="components\audioListener.hpp" />
@@ -143,6 +144,7 @@
     <ClInclude Include="levels\crosses3DInstancing\crosses3DInstancing.hpp" />
     <ClInclude Include="levels\crosses3DTexturing\crosses3DTexturing.hpp" />
     <ClInclude Include="levels\crosses3D\crosses3D.hpp" />
+    <ClInclude Include="levels\damageOn\animationTesting\animationTesting.hpp" />
     <ClInclude Include="levels\decals\decals.hpp" />
     <ClInclude Include="levels\dzidzia2\dzidzia2.hpp" />
     <ClInclude Include="levels\dzidzia\dzidzia.hpp" />
@@ -165,8 +167,8 @@
     <ClInclude Include="levels\snakeCube\snakeCube.hpp" />
     <ClInclude Include="levels\splineTest\splineTest.hpp" />
     <ClInclude Include="levels\squareRace\squareRace.hpp" />
+    <ClInclude Include="levels\tmp\tmp.hpp" />
     <ClInclude Include="levels\windmill\windmill.hpp" />
-    <ClInclude Include="levels\_damageOn\animationTesting\animationTesting.hpp" />
     <ClInclude Include="ogl\buffers\genericBuffers.hpp" />
     <ClInclude Include="ogl\oglHelpers.hpp" />
     <ClInclude Include="ogl\oglProxy.hpp" />
@@ -229,7 +231,7 @@
     <None Include="ogl\shaders\tfOrbitingParticles.vs" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="levels\_damageOn\animationTesting\params.txt" />
+    <Text Include="levels\damageOn\animationTesting\params.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

@@ -1,11 +1,11 @@
-#include "shapes2D.hpp"
+#include "Shapes2D.hpp"
 
 #include "geometryHelpers.hpp"
 #include "utility.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace Shapes2D
+namespace Tools::Shapes2D
 {
 	std::vector<glm::vec3> CreateVerticesOfRectangle(const glm::vec2& position, const glm::vec2& hSize, float angle, float z)
 	{

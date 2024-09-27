@@ -25,7 +25,7 @@
 #include <ogl/shaders/julia.hpp>
 #include <ogl/shaders/particles.hpp>
 
-#include <tools/shapes2D.hpp>
+#include <tools/Shapes2D.hpp>
 
 #include <set>
 
@@ -118,7 +118,7 @@ namespace Tools
 
 		for (int i = 0; i < params.numOfThrusts_; ++i)
 		{
-			auto& planeDecoration = plane.subsequence.emplace_back(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }), std::vector<glm::vec2>{},
+			auto& planeDecoration = plane.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }), std::vector<glm::vec2>{},
 				CM::StaticAnimatedTexture(thrustAnimatedTexture));
 
 			planeDecoration.renderingSetupF = [&, i,
@@ -180,8 +180,8 @@ namespace Tools
 
 		missile.renderLayer = RenderLayer::FarMidground;
 
-		auto& decoration = Globals::Components().dynamicDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
-			CM::StaticAnimatedTexture(thrustAnimatedTexture), Shapes2D::CreateTexCoordOfRectangle());
+		auto& decoration = Globals::Components().dynamicDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
+			CM::StaticAnimatedTexture(thrustAnimatedTexture), Tools::Shapes2D::CreateTexCoordOfRectangle());
 
 		decoration.renderingSetupF = [&, modelUniform = UniformsUtils::UniformMat4f(),
 			thrustScale = 0.1f
@@ -295,8 +295,8 @@ namespace Tools
 				};
 			};
 
-			auto& fogLayer = Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
-				CM::DummyTexture(), Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
+			auto& fogLayer = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
+				CM::DummyTexture(), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
 			fogLayer.renderLayer = RenderLayer::Foreground;
 			fogLayer.stepF = [=, &fogLayer]() {
 				fogLayer.texture = CM::StaticTexture(fogTexture, textureTranslation ? textureTranslation(layer) : glm::vec2(0.0f));
@@ -308,7 +308,7 @@ namespace Tools
 	void CreateJuliaBackground(JuliaParams params)
 	{
 		auto& juliaShaders = Globals::Shaders().julia();
-		auto& background = Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
+		auto& background = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
 		background.customShadersProgram = juliaShaders.getProgramId();
 
 		background.renderingSetupF = [=, &juliaShaders, &screenInfo = Globals::Components().screenInfo()](auto) {

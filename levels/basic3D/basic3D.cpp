@@ -12,7 +12,7 @@
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
 
-#include <tools/shapes3D.hpp>
+#include <tools/Shapes3D.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -45,18 +45,18 @@ namespace Levels
 #define TEST 2
 #if TEST == 0
 			auto& shape = staticDecorations.emplace();
-			Shapes3D::AddRectangle(shape, { 1.8f, 1.8f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
+			Tools::Shapes3D::AddRectangle(shape, { 1.8f, 1.8f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
 			//shape.params3D->specularMaterialColorFactor(1.0f);
 #elif TEST == 1
 			auto& shape = staticDecorations.emplace();
-			Shapes3D::AddRectangle(shape, { 1.8f, 1.8f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } }, [](glm::vec2 d, auto) { return d; });
+			Tools::Shapes3D::AddRectangle(shape, { 1.8f, 1.8f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } }, [](glm::vec2 d, auto) { return d; });
 			shape.texture = CM::StaticTexture(skullTexture);
 			//shape.params3D->illuminationF([]() { return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); });
 			//shape.params3D->specularMaterialColorFactor(1.0f);
 			//shape.colorF = []() { return glm::vec4(1.0f); };
 #elif TEST == 2
 			auto& shape = staticDecorations.emplace();
-			Shapes3D::AddCuboid(shape, { 0.8f, 0.8f, 0.8f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } }, [](glm::vec2 d, auto) { return d; });
+			Tools::Shapes3D::AddCuboid(shape, { 0.8f, 0.8f, 0.8f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } }, [](glm::vec2 d, auto) { return d; });
 			shape.modelMatrixF = [&]() { return glm::rotate(glm::mat4(1.0f), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }); };
 			shape.texture = CM::StaticTexture(skullTexture);
 			shape.params3D->illuminationF([]() { return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); });
@@ -64,7 +64,7 @@ namespace Levels
 			//shape.colorF = []() { return glm::vec4(1.0f); };
 #elif TEST == 3
 			auto& shape = staticDecorations.emplace();
-			Shapes3D::AddCross(shape, { 0.2f, 1.0f, 0.2f }, { 0.7f, 0.2f, 0.2f }, 0.3f, [](auto, glm::vec3 p) { return glm::vec2(p.x, p.y - 1.2f); });
+			Tools::Shapes3D::AddCross(shape, { 0.2f, 1.0f, 0.2f }, { 0.7f, 0.2f, 0.2f }, 0.3f, [](auto, glm::vec3 p) { return glm::vec2(p.x, p.y - 1.2f); });
 			shape.modelMatrixF = [&]() { return glm::rotate(glm::mat4(1.0f), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }); };
 			shape.texture = CM::StaticTexture(skullTexture);
 			shape.params3D->illuminationF([]() { return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); });
@@ -72,11 +72,11 @@ namespace Levels
 			//shape.colorF = []() { return glm::vec4(1.0f); };
 #elif TEST == 4
 			auto& shape = staticDecorations.emplace();
-			Shapes3D::AddCuboid(shape, { 0.5f, 0.5f, 0.5f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
-			Shapes3D::AddSphere(shape, 0.65f, 50, 50, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
+			Tools::Shapes3D::AddCuboid(shape, { 0.5f, 0.5f, 0.5f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });
+			Tools::Shapes3D::AddSphere(shape, 0.65f, 50, 50, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
 			for (const auto tX : {-0.52f, 0.52f})
 				for (const auto tZ : { -0.52f, 0.52f })
-					Shapes3D::AddSphere(shape, 0.5f, 50, 50, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); }, false,
+					Tools::Shapes3D::AddSphere(shape, 0.5f, 50, 50, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); }, false,
 						glm::scale(glm::translate(glm::mat4(1.0f), { tX, 0.0f, tZ }), {0.1f, 1.0f, 0.1f}));
 			shape.modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }); };
 #elif TEST == 5
@@ -84,11 +84,11 @@ namespace Levels
 			const float size = 2.0f;
 			auto scaleF = [](float t) { return std::min((std::cos(t * 0.5f) + 1.1f) / 2.0f, 1.0f); };
 			auto localTransformF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -2.0f }), physics.simulationDuration, { 1.0f, 1.0f, 1.0f }); };
-			Shapes3D::AddSphere(staticDecorations.emplace(), 0.5f, sphereComplexity, sphereComplexity, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
+			Tools::Shapes3D::AddSphere(staticDecorations.emplace(), 0.5f, sphereComplexity, sphereComplexity, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
 			staticDecorations.last().modelMatrixF = [=, &physics]() { return glm::scale(localTransformF(), glm::vec3(1.0f, scaleF(physics.simulationDuration), scaleF(physics.simulationDuration)) * size); };
-			Shapes3D::AddSphere(staticDecorations.emplace(), 0.5f, sphereComplexity, sphereComplexity, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
+			Tools::Shapes3D::AddSphere(staticDecorations.emplace(), 0.5f, sphereComplexity, sphereComplexity, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
 			staticDecorations.last().modelMatrixF = [=, &physics]() { return glm::scale(localTransformF(), glm::vec3(scaleF(physics.simulationDuration), 1.0f, scaleF(physics.simulationDuration)) * size); };
-			Shapes3D::AddSphere(staticDecorations.emplace(), 0.5f, sphereComplexity, sphereComplexity, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
+			Tools::Shapes3D::AddSphere(staticDecorations.emplace(), 0.5f, sphereComplexity, sphereComplexity, [](glm::vec3 normal) { return glm::vec4(normal, 1.0f); });
 			staticDecorations.last().modelMatrixF = [=, &physics]() { return glm::scale(localTransformF(), glm::vec3(scaleF(physics.simulationDuration), scaleF(physics.simulationDuration), 1.0f) * size); };
 #endif
 		}

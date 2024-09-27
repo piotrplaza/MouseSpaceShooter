@@ -13,7 +13,7 @@
 #include <components/physics.hpp>
 #include <globals/components.hpp>
 
-#include <tools/shapes2D.hpp>
+#include <tools/Shapes2D.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
 
@@ -30,12 +30,14 @@ namespace Levels::DamageOn
 {
 	namespace
 	{
+		constexpr const char* paramsPath = "levels/damageOn/animationTesting/params.txt";
 		constexpr float mapHSize = 15.0f;
 
 		constexpr float enemyRadius = 0.5f;
 		constexpr float enemyBaseVelocity = 2.0f;
-		constexpr float enemyBoostDistance = 5.0f;
+		constexpr float enemyBoostDistance = 8.0f;
 		constexpr float enemyBoostFactor = 2.0f;
+		constexpr float enemySlowFactor = 0.5f;
 		constexpr float enemyDensity = 1.0f;
 		constexpr int enemyCount = 200;
 
@@ -78,7 +80,7 @@ namespace Levels::DamageOn
 		void setup()
 		{
 			auto& graphicsSettings = Globals::Components().graphicsSettings();
-			graphicsSettings.lineWidth = 5.0f;
+			graphicsSettings.lineWidth = 10.0f;
 
 			auto& musics = Globals::Components().musics();
 			musics.emplace("audio/Damage On.ogg", 0.8f).play();
@@ -129,7 +131,7 @@ namespace Levels::DamageOn
 				(void)layer;
 				const auto& physics = Globals::Components().physics();
 				x += physics.frameDuration * 0.01f;
-				const float y = std::sin(x) * 0.5f;
+				const float y = std::sin(x * 10) * 0.01f;
 				return glm::vec2(x, y);
 			});
 
@@ -171,7 +173,7 @@ namespace Levels::DamageOn
 				const float debrisHeight = debrisWidth * glm::linearRand(1.6f, 2.0f);
 				walls.emplace(Tools::CreateBoxBody({ debrisWidth, debrisHeight }, Tools::BodyParams{}.position(glm::linearRand(-levelHSize, levelHSize))
 					.bodyType(b2_dynamicBody).linearDamping(10.0f).angularDamping(10.0f).density(debrisDensity)), CM::StaticTexture(coffinTextureId));
-				walls.last().texCoord = Shapes2D::CreateTexCoordOfRectangle();
+				walls.last().texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 			}
 
 			for (int i = 0; i < enemyCount; ++i)
@@ -183,8 +185,9 @@ namespace Levels::DamageOn
 					.getComponentId();
 				auto& enemy = actors.last();
 				enemy.renderingSetupF = createRecursiveFaceRS({ enemyRadius * 0.6f, enemyRadius });
-				enemy.colorF = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f;
-				enemy.stepF = [&]() {
+				auto rgFactor = std::make_shared<float>(1.0f);
+				enemy.colorF = [baseColor = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f, rgFactor]() { return baseColor * glm::vec4(*rgFactor, *rgFactor, 1.0f, 1.0f); };
+				enemy.stepF = [&, &spark = Globals::Components().dynamicDecorations().emplace(), rgFactor]() {
 					const auto& player = actors[playerId];
 					const auto direction = player.getOrigin2D() - enemy.getOrigin2D();
 					const auto distance = glm::length(direction);
@@ -193,17 +196,25 @@ namespace Levels::DamageOn
 
 					if (distance <= sparkingDistance && (playerFire || playerAutoFire))
 					{
-						auto& decorations = Globals::Components().dynamicDecorations();
-						auto& spark = decorations.emplace(Shapes2D::CreateVerticesOfLightning(player.getOrigin2D() + glm::diskRand(playerRadius * 0.2f),
-							enemy.getOrigin2D() + glm::diskRand(enemyRadius * 0.5f),int(20 * distance), 2.0f / glm::sqrt(distance)));
+						enemy.setVelocity(direction / distance * enemyBaseVelocity * enemySlowFactor);
+
+						spark.vertices = Tools::Shapes2D::CreateVerticesOfLightning(player.getOrigin2D() + glm::diskRand(playerRadius * 0.2f),
+							enemy.getOrigin2D() + glm::diskRand(enemyRadius * 0.5f),int(20 * distance), 2.0f / glm::sqrt(distance));
 						spark.drawMode = GL_LINE_STRIP;
-						spark.colorF = glm::vec4(0.0f, glm::linearRand(0.0f, 0.2f), glm::linearRand(0.4f, 0.6f), 1.0f) * 0.8f;
-						spark.state = ComponentState::LastShot;
+						spark.colorF = glm::vec4(0.0f, glm::linearRand(0.0f, 0.2f), glm::linearRand(0.4f, 0.6f), 1.0f) * 0.6f;
+						*rgFactor = 0.6f;
+						spark.renderF = true;
+						spark.state = ComponentState::Changed;
+					}
+					else
+					{
+						*rgFactor = 1.0f;
+						spark.renderF = false;
 					}
 				};
 			}
 
-			decorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, levelHSize), CM::StaticTexture(backgroundTextureId), Shapes2D::CreateTexCoordOfRectangle()).renderLayer = RenderLayer::FarBackground;
+			decorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, levelHSize), CM::StaticTexture(backgroundTextureId), Tools::Shapes2D::CreateTexCoordOfRectangle()).renderLayer = RenderLayer::FarBackground;
 		}
 
 		void step()
@@ -211,6 +222,7 @@ namespace Levels::DamageOn
 			auto& keyboard = Globals::Components().keyboard();
 			auto& gamepad = Globals::Components().gamepads()[0];
 			auto& player = Globals::Components().actors()[playerId];
+			auto& physics = Globals::Components().physics();
 
 			for (auto enemyId : enemyIds)
 			{
@@ -269,15 +281,17 @@ namespace Levels::DamageOn
 			if (keyboard.pressed['B'] || gamepad.pressed.x)
 				playerBodyRendering = !playerBodyRendering;
 			if (keyboard.pressed['P'] || gamepad.pressed.start)
+			{
 				reload();
+			}
 		}
 
 	private:
 		void reload()
 		{
-			std::ifstream file("levels/_damageOn/animationTesting/params.txt");
+			std::ifstream file(paramsPath);
 			if (!file.is_open())
-				std::cout << "unable to open \"levels/_damageOn/animationTesting/params.txt\"" << std::endl;
+				std::cout << "unable to open \"" << paramsPath << "\"" << std::endl;
 
 			std::string key, value;
 			while (file >> key >> value)
@@ -327,7 +341,7 @@ namespace Levels::DamageOn
 			auto reloadPlayer = [&]() {
 				auto& player = actors[playerId];
 				player.changeBody(Tools::CreateCircleBody(playerRadius, Tools::BodyParams{}.linearDamping(playerLinearDamping).fixedRotation(true).bodyType(b2_dynamicBody).density(playerDensity).position(player.getOrigin2D())));
-				player.subsequence.back().vertices = Shapes2D::CreateVerticesOfRectangle({ 0.0f, playerPresentationSize.y - playerRadius }, playerPresentationSize);
+				player.subsequence.back().vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, playerPresentationSize.y - playerRadius }, playerPresentationSize);
 				player.subsequence.back().texture = CM::StaticAnimatedTexture(playerAnimatedTextureId,
 					glm::vec2( 0.0f, playerPresentationSize.y - playerRadius ) + playerPresentationSize * playerPresentationTranslation, {}, playerPresentationSize * playerPresentationScale);
 				player.subsequence.back().modelMatrixF = player.modelMatrixF;

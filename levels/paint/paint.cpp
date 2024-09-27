@@ -10,7 +10,7 @@
 
 #include <globals/components.hpp>
 
-#include <tools/shapes2D.hpp>
+#include <tools/Shapes2D.hpp>
 #include <tools/colorBufferEditor.hpp>
 #include <tools/utility.hpp>
 
@@ -38,8 +38,8 @@ namespace Levels
 			textureId = texture.getComponentId();
 
 			auto& staticDecorations = Globals::Components().staticDecorations();
-			staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle(), CM::DynamicTexture(textureId), Shapes2D::CreateTexCoordOfRectangle());
-			auto& cursor = staticDecorations.emplace(Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, 1.0f, 100));
+			staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle(), CM::DynamicTexture(textureId), Tools::Shapes2D::CreateTexCoordOfRectangle());
+			auto& cursor = staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, 1.0f, 100));
 			cursor.colorF = [&]() { return glm::vec4(cursorColor, 1.0f); };
 			cursor.modelMatrixF = [&]() {
 				cursorPos += Globals::Components().mouse().getCartesianDelta() * 0.0005f;

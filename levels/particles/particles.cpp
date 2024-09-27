@@ -8,7 +8,7 @@
 #include <components/mouse.hpp>
 #include <globals/components.hpp>
 
-#include <tools/shapes2D.hpp>
+#include <tools/Shapes2D.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/random.hpp>
@@ -24,7 +24,7 @@ namespace Levels
 		void setup()
 		{
 			auto& camera = Globals::Components().camera2D();
-			auto& cursor = Globals::Components().staticDecorations().emplace(Shapes2D::CreateVerticesOfCircle(glm::vec2(0.0f), 1.0f, 20));
+			auto& cursor = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfCircle(glm::vec2(0.0f), 1.0f, 20));
 			auto& particles = Globals::Components().staticParticles();
 
 			camera.targetProjectionHSizeF = 100.0f;

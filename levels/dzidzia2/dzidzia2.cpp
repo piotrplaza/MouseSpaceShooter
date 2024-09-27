@@ -16,7 +16,7 @@
 #include <ogl/renderingHelpers.hpp>
 #include <ogl/shaders/textured.hpp>
 
-#include <tools/shapes2D.hpp>
+#include <tools/Shapes2D.hpp>
 #include <tools/gameHelpers.hpp>
 
 namespace
@@ -90,8 +90,8 @@ namespace Levels
 				};
 			};
 
-			staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.0f, 5.0f }),
-				CM::StaticTexture(dzidziaITata1Texture), Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
+			staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.0f, 5.0f }),
+				CM::StaticTexture(dzidziaITata1Texture), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
 			staticDecorations.last().modelMatrixF = [pos, step = glm::vec2(5.0f)]() mutable {
 				const auto& screenInfo = Globals::Components().screenInfo();
 				const glm::vec2 absClamp = { screenInfo.getAspectRatio() * 10.0f, 10.0f };
@@ -105,8 +105,8 @@ namespace Levels
 			};
 
 			dzidziaDecorationId = staticDecorations.size();
-			auto& dzidzia = staticDecorations.emplace(Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
-				CM::StaticTexture(dzidzia1Texture), Shapes2D::CreateTexCoordOfRectangle());
+			auto& dzidzia = staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
+				CM::StaticTexture(dzidzia1Texture), Tools::Shapes2D::CreateTexCoordOfRectangle());
 			dzidzia.modelMatrixF = [this]() mutable {
 				return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(mousePos, 0.0f)), rotateAngle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
 			};

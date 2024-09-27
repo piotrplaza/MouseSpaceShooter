@@ -8,7 +8,7 @@
 
 #include <globals/components.hpp>
 
-#include <tools/shapes3D.hpp>
+#include <tools/Shapes3D.hpp>
 #include <tools/glmHelpers.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -35,12 +35,12 @@ namespace Levels
 			const auto& physics = Globals::Components().physics();
 			auto& staticDecorations = Globals::Components().staticDecorations();
 
-			Shapes3D::AddGrid(staticDecorations.emplace(), numOfCrosses * distanceBetweenCrosses, numOfCrosses);
+			Tools::Shapes3D::AddGrid(staticDecorations.emplace(), numOfCrosses * distanceBetweenCrosses, numOfCrosses);
 			staticDecorations.last().params3D->ambient(1.0f);
 
 			for (const auto& light : Globals::Components().lights3D())
 			{
-				Shapes3D::AddSphere(staticDecorations.emplace(), 0.2f, 2, 3);
+				Tools::Shapes3D::AddSphere(staticDecorations.emplace(), 0.2f, 2, 3);
 				staticDecorations.last().colorF = [&]() { return glm::vec4(light.color, 1.0f) + Globals::Components().graphicsSettings().backgroundColorF() * light.darkColorFactor; };
 				staticDecorations.last().params3D->lightModelEnabled(false);
 				staticDecorations.last().modelMatrixF = [&]() { return glm::rotate(glm::translate(glm::mat4(1.0f), light.position), physics.simulationDuration * 4.0f, { 1.0f, 1.0f, 1.0f }); };
@@ -52,7 +52,7 @@ namespace Levels
 				staticDecorations.emplace();
 				for (int z = 0; z < numOfCrosses.y; ++z)
 					for (int x = 0; x < numOfCrosses.x; ++x)
-						Shapes3D::AddCross(staticDecorations.last(), { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); }, glm::translate(glm::mat4(1.0f),
+						Tools::Shapes3D::AddCross(staticDecorations.last(), { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); }, glm::translate(glm::mat4(1.0f),
 							glm::vec3(x * distanceBetweenCrosses.x, 0.0f, z * distanceBetweenCrosses.y) - offset));
 				staticDecorations.last().params3D->ambient(0.5f).diffuse(0.2f).specular(0.2f).specularMaterialColorFactor(0.2f).lightModelEnabled(true);
 				//staticDecorations.last().instancing = Renderable::Instancing{}.addTransforms({ glm::mat4(1.0f), glm::rotate(glm::mat4(1.0f), glm::pi<float>(), {1.0f, 0.0f, 0.0f}) });

@@ -23,8 +23,9 @@
 #include "levels/noise/noise.hpp"
 #include "levels/decals/decals.hpp"
 #include "levels/particles/particles.hpp"
+#include "levels/tmp/tmp.hpp"
 
-#include "levels/_damageOn/animationTesting/animationTesting.hpp"
+#include "levels/damageOn/animationTesting/animationTesting.hpp"
 
 #include "components/mouse.hpp"
 #include "components/physics.hpp"
@@ -118,6 +119,8 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::SquareRace>();
 	//activeLevel = std::make_unique<Levels::SnakeCube>();
 
+	activeLevel = std::make_unique<Levels::DamageOn::AnimationTesting>();
+
 	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
@@ -136,10 +139,9 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Noise>();
 	//activeLevel = std::make_unique<Levels::Decals>();
 	//activeLevel = std::make_unique<Levels::Particles>();
+	//activeLevel = std::make_unique<Levels::Tmp>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
-
-	activeLevel = std::make_unique<Levels::DamageOn::AnimationTesting>();
 }
 
 static void PostInit()
