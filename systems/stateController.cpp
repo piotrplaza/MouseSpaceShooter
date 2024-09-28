@@ -138,18 +138,33 @@ namespace Systems
 		Globals::Components().screenInfo().refreshRate = refreshRate;
 	}
 
-	void StateController::setWindowFocus() const
+	void StateController::setWindowFocus(bool focus)
 	{
-		resetMousePosition();
-		Globals::Components().mouse().pressing = Components::Mouse::Buttons();
-		Globals::Components().keyboard().pressing = std::array<bool, 256>({});
-		Globals::Components().physics().prevFrameTime = std::chrono::high_resolution_clock::now();
-	}
+		if (!focus)
+			Globals::Components().physics().paused = true;
 
-	void StateController::killWindowFocus()
-	{
-		//deferredPause = true;
-		Globals::Components().physics().paused = true;
+		if (!Globals::Components().physics().paused)
+		{
+			Tools::SetMouseCursorVisibility(false);
+			resetMousePosition();
+			return;
+		}
+
+		resetMousePosition();
+		resetPrevKeys();
+		Tools::SetMouseCursorVisibility(true);
+
+		auto& mouse = Globals::Components().mouse();
+		mouse.pressing = mouse.pressed = mouse.released = {};
+
+		auto& keyboard = Globals::Components().keyboard();
+		keyboard.pressing = keyboard.pressed = keyboard.released = {};
+
+		auto gamepads = Globals::Components().gamepads();
+		for (auto& gamepad : gamepads)
+			gamepad.pressing = gamepad.pressed = gamepad.released = {};
+
+		Globals::Components().physics().prevFrameTime = std::chrono::high_resolution_clock::now();
 	}
 
 	void StateController::resetMousePosition() const
@@ -194,11 +209,6 @@ namespace Systems
 
 		if (keyboard.pressed['P'])
 			Globals::Components().physics().paused = !Globals::Components().physics().paused;
-		for (const auto& gamepad : Globals::Components().gamepads())
-		{
-			if (gamepad.isEnabled() && gamepad.pressed.start)
-				Globals::Components().physics().paused = !Globals::Components().physics().paused;
-		}
 	}
 
 	void StateController::handleSDL()
@@ -365,5 +375,18 @@ namespace Systems
 		updateButton(&Components::Gamepad::Buttons::dDown);
 		updateButton(&Components::Gamepad::Buttons::dLeft);
 		updateButton(&Components::Gamepad::Buttons::dRight);
+
+		for (const auto& gamepad : Globals::Components().gamepads())
+		{
+			if (gamepad.isEnabled() && gamepad.pressed.start)
+				Globals::Components().physics().paused = !Globals::Components().physics().paused;
+		}
+	}
+
+	void StateController::resetPrevKeys()
+	{
+		prevKeyboardKeys = {};
+		prevMouseKeys = {};
+		prevGamepadsKeys = {};
 	}
 }

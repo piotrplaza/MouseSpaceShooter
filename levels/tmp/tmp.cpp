@@ -20,8 +20,11 @@ namespace Levels
 		void step()
 		{
 			const auto& screenInfo = Globals::Components().screenInfo();
-			auto& decorations = Globals::Components().dynamicDecorations().emplace(Tools::Shapes2D::CreateVerticesOfCircle(glm::linearRand(-screenInfo.getNormalizedWindowSize(), screenInfo.getNormalizedWindowSize()) * 9.0f, 1.0f, 20));
-			//decorations.state = ComponentState::LastShot;
+			const auto pos = glm::linearRand(-screenInfo.getNormalizedWindowSize(), screenInfo.getNormalizedWindowSize()) * 9.0f;
+			auto& decorations = Globals::Components().dynamicDecorations().emplace(Tools::Shapes2D::CreateVerticesOfCircle(pos, 1.0f, 20));
+			decorations.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfCircle(pos, 0.2f, 20));
+			decorations.subsequence.back().colorF = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+			decorations.state = ComponentState::LastShot;
 		}
 	};
 

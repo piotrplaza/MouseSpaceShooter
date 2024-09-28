@@ -93,14 +93,18 @@ static void InitOGL()
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-static void InitEngine()
+static void InitSDL()
 {
-	if (console)
-		Tools::RedirectIOToConsole({ 3850, 10 });
-	Tools::RandomInit();
-	InitOGL();
 	int sdlInitResult = SDL_Init(SDL_INIT_GAMECONTROLLER);
 	assert(!sdlInitResult);
+}
+
+static void InitEngine()
+{
+	Tools::RandomInit();
+
+	InitOGL();
+	InitSDL();
 
 	Globals::InitializeShaders();
 	Globals::InitializeComponents();
@@ -208,6 +212,10 @@ void SetDCPixelFormat(HDC hDC);
 static std::array<bool, 256> keys;
 static bool quit;
 static bool focus;
+static bool prevFocus;
+static bool first = true;
+static std::optional<glm::ivec2> newPos;
+static std::optional<glm::ivec2> newSize;
 static int init = 0;
 static HDC hDC;
 
@@ -219,13 +227,6 @@ static LRESULT CALLBACK WndProc(
 {
 	static HGLRC hRC;
 
-	auto dummyIfPaused = [](auto& state) -> decltype(state) {
-		static std::remove_reference<decltype(state)>::type dummy{};
-		return Globals::Components().physics().paused
-			? dummy
-			: state;
-	};
-
 	switch(message)
 	{
 		case WM_CREATE:
@@ -234,16 +235,6 @@ static LRESULT CALLBACK WndProc(
 			SetDCPixelFormat(hDC);
 			hRC = wglCreateContext(hDC);
 			wglMakeCurrent(hDC, hRC);
-			try
-			{
-				InitEngine();
-			}
-			catch (const std::runtime_error& error)
-			{
-				MessageBox(nullptr, error.what(), "Runtime error",
-					MB_OK | MB_ICONEXCLAMATION);
-				ExitProcess(0);
-			}
 			break;
 		}
 		case WM_DESTROY:
@@ -253,71 +244,37 @@ static LRESULT CALLBACK WndProc(
 			quit = true;
 			break;
 		case WM_SIZE:
-		{
-			if (fullScreen && init == 0) // Workaround for detecting initial, relevant WM_SIZE - in case of fullscreen, first one is messy.
-			{
-				++init;
-				break;
-			}
-
-			const glm::ivec2 size{ LOWORD(lParam), HIWORD(lParam) };
-			Globals::Systems().stateController().changeWindowSize(size);
-
-			if (init == 0 || init == 1)
-			{
-				try
-				{
-					InitLevel();
-					PostInit();
-				}
-				catch (const std::runtime_error& error)
-				{
-					MessageBox(nullptr, error.what(), "Runtime error",
-						MB_OK | MB_ICONEXCLAMATION);
-					ExitProcess(0);
-				}
-				init = 2;
-			}
-
+			newSize = { LOWORD(lParam), HIWORD(lParam) };
 			break;
-		}
 		case WM_MOVE:
-		{
-			const glm::ivec2 location{ LOWORD(lParam), HIWORD(lParam) };
-			Globals::Systems().stateController().changeWindowLocation(location);
-			Globals::Systems().stateController().changeRefreshRate(GetDeviceCaps(hDC, VREFRESH));
+			newPos = { LOWORD(lParam), HIWORD(lParam) };
 			break;
-		}
 		case WM_SETFOCUS:
-			Globals::Systems().stateController().setWindowFocus();
 			focus = true;
 			break;
 		case WM_KILLFOCUS:
-			Globals::Systems().stateController().killWindowFocus();
-			Tools::SetMouseCursorVisibility(true);
 			focus = false;
 			break;
 		case WM_KEYDOWN:
-			if (wParam == 'P' || wParam == VK_ESCAPE) keys[wParam] = true;
-			else dummyIfPaused(keys[wParam]) = true;
+			keys[wParam] = true;
 			break;
 		case WM_KEYUP:
 			keys[wParam] = false;
 			break;
 		case WM_RBUTTONDOWN:
-			dummyIfPaused(Globals::Components().mouse().pressing.rmb) = true;
+			Globals::Components().mouse().pressing.rmb = true;
 			break;
 		case WM_RBUTTONUP:
 			Globals::Components().mouse().pressing.rmb = false;
 			break;
 		case WM_LBUTTONDOWN:
-			dummyIfPaused(Globals::Components().mouse().pressing.lmb) = true;
+			Globals::Components().mouse().pressing.lmb = true;
 			break;
 		case WM_LBUTTONUP:
 			Globals::Components().mouse().pressing.lmb = false;
 			break;
 		case WM_MBUTTONDOWN:
-			dummyIfPaused(Globals::Components().mouse().pressing.mmb) = true;
+			Globals::Components().mouse().pressing.mmb = true;
 			break;
 		case WM_MBUTTONUP:
 			Globals::Components().mouse().pressing.mmb = false;
@@ -325,8 +282,8 @@ static LRESULT CALLBACK WndProc(
 		case WM_XBUTTONDOWN:
 			switch (HIWORD(wParam))
 			{
-				case XBUTTON1: dummyIfPaused(Globals::Components().mouse().pressing.xmb1) = true; break;
-				case XBUTTON2: dummyIfPaused(Globals::Components().mouse().pressing.xmb2) = true; break;
+				case XBUTTON1: Globals::Components().mouse().pressing.xmb1 = true; break;
+				case XBUTTON2: Globals::Components().mouse().pressing.xmb2 = true; break;
 			}
 			break;
 		case WM_XBUTTONUP:
@@ -337,8 +294,8 @@ static LRESULT CALLBACK WndProc(
 			}
 			break;
 		case WM_MOUSEWHEEL:
-			if ((int)wParam > 0) ++dummyIfPaused(Globals::Components().mouse().pressing.wheel);
-			else if ((int)wParam < 0) --dummyIfPaused(Globals::Components().mouse().pressing.wheel);
+			if ((int)wParam > 0) ++Globals::Components().mouse().pressing.wheel;
+			else if ((int)wParam < 0) --Globals::Components().mouse().pressing.wheel;
 			break;
 		case WM_INPUT:
 		{
@@ -348,8 +305,7 @@ static LRESULT CALLBACK WndProc(
 
 			if (raw.header.dwType == RIM_TYPEMOUSE)
 			{
-				dummyIfPaused(Globals::Components().mouse().delta)
-					+= glm::ivec2((int)raw.data.mouse.lLastX, (int)raw.data.mouse.lLastY);
+				Globals::Components().mouse().delta += glm::ivec2((int)raw.data.mouse.lLastX, (int)raw.data.mouse.lLastY);
 			}
 			break;
 		}
@@ -399,6 +355,9 @@ int APIENTRY WinMain(
 	_In_ int nShowCmd
 )
 {
+	if (console)
+		Tools::RedirectIOToConsole({ 3850, 10 });
+
 	const LPCTSTR lpszAppName = "OpenGL window";
 	const int winPosX = 10, winPosY = 10;
 
@@ -441,19 +400,62 @@ int APIENTRY WinMain(
 		SetWindowLong(hWnd, GWL_STYLE, 0);
 
 	RegisterRawInputDevices(hWnd);
-
 	ShowWindow(hWnd, SW_SHOW);
+
+	try
+	{
+		InitEngine();
+	}
+	catch (const std::runtime_error& error)
+	{
+		MessageBox(nullptr, error.what(), "Runtime error",
+			MB_OK | MB_ICONEXCLAMATION);
+		ExitProcess(0);
+	}
 	
 	MSG msg{};
-
 	while (!keys[VK_ESCAPE] && !quit)
 	{
-		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		else if (focus)
+
+		if (newPos)
+		{
+			Globals::Systems().stateController().changeWindowLocation(*newPos);
+			Globals::Systems().stateController().changeRefreshRate(GetDeviceCaps(hDC, VREFRESH));
+		}
+
+		if (newSize)
+		{
+			Globals::Systems().stateController().changeWindowSize(*newSize);
+		}
+
+		if (prevFocus != focus)
+		{
+			keys = {};
+			Globals::Systems().stateController().setWindowFocus(focus);
+		}
+
+		if (first)
+		{
+			try
+			{
+				InitLevel();
+				PostInit();
+			}
+			catch (const std::runtime_error& error)
+			{
+				MessageBox(nullptr, error.what(), "Runtime error",
+					MB_OK | MB_ICONEXCLAMATION);
+				ExitProcess(0);
+			}
+			first = false;
+		}
+
+		if (focus)
 		{
 			if (!Globals::Components().physics().paused)
 			{
@@ -477,6 +479,10 @@ int APIENTRY WinMain(
 		}
 		else
 			Tools::SetMouseCursorVisibility(true);
+
+		prevFocus = focus;
+		newPos = {};
+		newSize = {};
 	}
 
 	TearDown();

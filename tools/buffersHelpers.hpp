@@ -39,15 +39,8 @@ namespace Tools
 			selectedBuffers.applyComponent(component, true);
 			selectedBuffers.applyComponentSubsequence(component, true);
 
-			switch (component.state)
-			{
-			case ComponentState::Changed:
-				component.state = ComponentState::Ongoing;
-				break;
-			case ComponentState::LastShot:
+			if (ComponentState::LastShot == component.state)
 				component.state = ComponentState::Outdated;
-				break;
-			}
 		}
 	}
 
@@ -58,7 +51,7 @@ namespace Tools
 
 		for (auto& component : components)
 		{
-			if (component.state == ComponentState::Ongoing)
+			if (component.state == ComponentState::Ongoing || component.state == ComponentState::Outdated)
 				continue;
 
 			const auto layer = (size_t)component.renderLayer;
@@ -86,15 +79,8 @@ namespace Tools
 			selectedBuffers.applyComponentSubsequence(component, false);
 			component.teardownF = [&]() { mapOfSelectedBuffers.erase(component.getComponentId()); };
 
-			switch (component.state)
-			{
-			case ComponentState::Changed:
-				component.state = ComponentState::Ongoing;
-				break;
-			case ComponentState::LastShot:
+			if (ComponentState::LastShot == component.state)
 				component.state = ComponentState::Outdated;
-				break;
-			}
 		}
 	}
 

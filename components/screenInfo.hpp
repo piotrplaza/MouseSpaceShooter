@@ -15,17 +15,21 @@ namespace Components
 
 		float getAspectRatio() const
 		{
+			assert(windowSize.y != 0);
 			return (float)windowSize.x / windowSize.y;
 		}
 
 		float getRefreshDuration() const
 		{
+			assert(refreshRate != 0);
 			return 1.0f / refreshRate;
 		}
 
 		glm::vec2 getNormalizedWindowSize() const
 		{
-			return glm::vec2(windowSize) / (float)std::min(windowSize.x, windowSize.y);
+			const float shortestSide = (float)std::min(windowSize.x, windowSize.y);
+			assert(shortestSide != 0);
+			return glm::vec2(windowSize) / shortestSide;
 		}
 	};
 }

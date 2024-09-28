@@ -421,6 +421,12 @@ namespace Buffers
 
 	void GenericBuffers::applyComponent(Renderable& renderableComponent, bool staticComponent)
 	{
+		if(renderableComponent.state == ComponentState::Changed || renderableComponent.state == ComponentState::LastShot);
+		else
+		{
+			int tmp = 0;
+		}
+
 		renderable = &renderableComponent;
 		customShadersProgram = &renderableComponent.customShadersProgram;
 		instancing = &renderableComponent.instancing;
@@ -441,5 +447,7 @@ namespace Buffers
 		}
 
 		renderableComponent.loaded.buffers = this;
+		if (renderableComponent.state == ComponentState::Changed)
+			renderableComponent.state = ComponentState::Ongoing;
 	}
 }

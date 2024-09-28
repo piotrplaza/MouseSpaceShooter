@@ -281,9 +281,7 @@ namespace Levels::DamageOn
 			if (keyboard.pressed['B'] || gamepad.pressed.x)
 				playerBodyRendering = !playerBodyRendering;
 			if (keyboard.pressed['P'] || gamepad.pressed.start)
-			{
 				reload();
-			}
 		}
 
 	private:
