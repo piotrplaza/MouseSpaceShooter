@@ -28,6 +28,38 @@
 
 namespace Levels::DamageOn
 {
+	struct PlayerParams
+	{
+		float radius;
+		float maxVelocity;
+		float density;
+		float linearDamping;
+		float dash;
+
+		struct Presentation
+		{
+			glm::vec2 radiusProportions;
+			glm::vec2 translation;
+			glm::vec2 scale;
+		} presentation;
+
+		struct Animation
+		{
+			glm::ivec2 textureSize;
+			glm::ivec2 framesGrid;
+			glm::ivec2 leftTopFrameLeftTopCorner;
+			int rightTopFrameLeftEdge;
+			int leftBottomFrameTopEdge;
+			glm::ivec2 frameSize;
+			float frameDuration;
+			int numOfFrames;
+			int startFrame;
+			AnimationData::Direction direction;
+			AnimationData::Mode mode;
+			AnimationData::TextureLayout textureLayout;
+		} animation;
+	};
+
 	namespace
 	{
 		constexpr const char* paramsPath = "levels/damageOn/animationTesting/params.txt";
@@ -37,7 +69,7 @@ namespace Levels::DamageOn
 		constexpr float enemyBaseVelocity = 2.0f;
 		constexpr float enemyBoostDistance = 8.0f;
 		constexpr float enemyBoostFactor = 2.0f;
-		constexpr float enemySlowFactor = 0.5f;
+		constexpr float enemySlowFactor = 0.2f;
 		constexpr float enemyDensity = 1.0f;
 		constexpr int enemyCount = 200;
 
@@ -71,6 +103,33 @@ namespace Levels::DamageOn
 					visibilityReduction(false);
 					};
 			} };
+		}
+
+		void enemyBoost(auto& enemy, glm::vec2 direction, float distance)
+		{
+			if (distance > 0.0f && distance < enemyBoostDistance)
+				enemy.setVelocity(direction / distance * enemyBaseVelocity * enemyBoostFactor);
+		}
+
+		void enemyTakesDamage(auto& enemy, auto& spark, const auto& player, glm::vec2 direction, float distance, float& rgFactor, bool fire, const PlayerParams& playerParams)
+		{
+			if (distance <= sparkingDistance && fire)
+			{
+				enemy.setVelocity(direction / distance * enemyBaseVelocity * enemySlowFactor);
+
+				spark.vertices = Tools::Shapes2D::CreateVerticesOfLightning(player.getOrigin2D() + glm::diskRand(playerParams.radius * 0.2f),
+					enemy.getOrigin2D() + glm::diskRand(enemyRadius * 0.5f), int(20 * distance), 2.0f / glm::sqrt(distance));
+				spark.drawMode = GL_LINE_STRIP;
+				spark.colorF = glm::vec4(0.0f, glm::linearRand(0.0f, 0.2f), glm::linearRand(0.4f, 0.6f), 1.0f) * 0.6f;
+				rgFactor = glm::linearRand(0.0f, 1.0f);
+				spark.renderF = true;
+				spark.state = ComponentState::Changed;
+			}
+			else
+			{
+				rgFactor = 1.0f;
+				spark.renderF = false;
+			}
 		}
 	}
 
@@ -187,30 +246,15 @@ namespace Levels::DamageOn
 				enemy.renderingSetupF = createRecursiveFaceRS({ enemyRadius * 0.6f, enemyRadius });
 				auto rgFactor = std::make_shared<float>(1.0f);
 				enemy.colorF = [baseColor = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f, rgFactor]() { return baseColor * glm::vec4(*rgFactor, *rgFactor, 1.0f, 1.0f); };
-				enemy.stepF = [&, &spark = Globals::Components().dynamicDecorations().emplace(), rgFactor]() {
+				enemy.stepF = [&,
+					&spark = Globals::Components().dynamicDecorations().emplace(),
+					rgFactor]() {
 					const auto& player = actors[playerId];
 					const auto direction = player.getOrigin2D() - enemy.getOrigin2D();
 					const auto distance = glm::length(direction);
-					if (distance > 0.0f && distance < enemyBoostDistance)
-						enemy.setVelocity(direction / distance * enemyBaseVelocity * enemyBoostFactor);
 
-					if (distance <= sparkingDistance && (playerFire || playerAutoFire))
-					{
-						enemy.setVelocity(direction / distance * enemyBaseVelocity * enemySlowFactor);
-
-						spark.vertices = Tools::Shapes2D::CreateVerticesOfLightning(player.getOrigin2D() + glm::diskRand(playerRadius * 0.2f),
-							enemy.getOrigin2D() + glm::diskRand(enemyRadius * 0.5f),int(20 * distance), 2.0f / glm::sqrt(distance));
-						spark.drawMode = GL_LINE_STRIP;
-						spark.colorF = glm::vec4(0.0f, glm::linearRand(0.0f, 0.2f), glm::linearRand(0.4f, 0.6f), 1.0f) * 0.6f;
-						*rgFactor = 0.6f;
-						spark.renderF = true;
-						spark.state = ComponentState::Changed;
-					}
-					else
-					{
-						*rgFactor = 1.0f;
-						spark.renderF = false;
-					}
+					enemyBoost(enemy, direction, distance);
+					enemyTakesDamage(enemy, spark, player, direction, distance, *rgFactor, playerFire || playerAutoFire, playerParams);
 				};
 			}
 
@@ -258,7 +302,7 @@ namespace Levels::DamageOn
 				return direction;
 			}();
 
-			const glm::vec2 newVelocity = direction * playerMaxVelocity;
+			const glm::vec2 newVelocity = direction * playerParams.maxVelocity;
 			if (glm::length(newVelocity) > glm::length(player.getVelocity()))
 				player.setVelocity(newVelocity);
 
@@ -274,7 +318,7 @@ namespace Levels::DamageOn
 				playerAutoFire = !playerAutoFire;
 
 			if (keyboard.pressed[/*VK_SPACE*/0x20] || gamepad.pressed.a)
-				player.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerDash * player.body->GetMass()), true);
+				player.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerParams.dash * player.body->GetMass()), true);
 
 			if (keyboard.pressed['T'] || gamepad.pressed.y)
 				playerTransparency = !playerTransparency;
@@ -299,49 +343,49 @@ namespace Levels::DamageOn
 			for (const auto& [key, value] : params)
 				std::cout << key << " " << value << std::endl;
 
-			playerRadius = std::stof(params["player.radius"]);
-			playerMaxVelocity = std::stof(params["player.maxVelocity"]);
-			playerDensity = std::stof(params["player.density"]);
-			playerLinearDamping = std::stof(params["player.linearDamping"]);
-			playerDash = std::stof(params["player.dash"]);
+			playerParams.radius = std::stof(params["player.radius"]);
+			playerParams.maxVelocity = std::stof(params["player.maxVelocity"]);
+			playerParams.density = std::stof(params["player.density"]);
+			playerParams.linearDamping = std::stof(params["player.linearDamping"]);
+			playerParams.dash = std::stof(params["player.dash"]);
 
-			playerPresentationRadiusProportions = { std::stof(params["player.presentation.radiusProportions.x"]), std::stof(params["player.presentation.radiusProportions.y"]) };
-			playerPresentationTranslation = { std::stof(params["player.presentation.translation.x"]), std::stof(params["player.presentation.translation.y"]) };
-			playerPresentationScale = { std::stof(params["player.presentation.scale.x"]), std::stof(params["player.presentation.scale.y"]) };
+			playerParams.presentation.radiusProportions = { std::stof(params["player.presentation.radiusProportions.x"]), std::stof(params["player.presentation.radiusProportions.y"]) };
+			playerParams.presentation.translation = { std::stof(params["player.presentation.translation.x"]), std::stof(params["player.presentation.translation.y"]) };
+			playerParams.presentation.scale = { std::stof(params["player.presentation.scale.x"]), std::stof(params["player.presentation.scale.y"]) };
+			
+			playerParams.animation.textureSize = { std::stoi(params["player.animation.textureSize.x"]), std::stoi(params["player.animation.textureSize.y"]) };
+			playerParams.animation.framesGrid = { std::stoi(params["player.animation.framesGrid.x"]), std::stoi(params["player.animation.framesGrid.y"]) };
+			playerParams.animation.leftTopFrameLeftTopCorner = { std::stoi(params["player.animation.leftTopFrameLeftTopCorner.x"]), std::stoi(params["player.animation.leftTopFrameLeftTopCorner.y"]) };
+			playerParams.animation.rightTopFrameLeftEdge = std::stoi(params["player.animation.rightTopFrameLeftEdge"]);
+			playerParams.animation.leftBottomFrameTopEdge = std::stoi(params["player.animation.leftBottomFrameTopEdge"]);
+			playerParams.animation.frameSize = { std::stoi(params["player.animation.frameSize.x"]), std::stoi(params["player.animation.frameSize.y"]) };
+			playerParams.animation.frameDuration = std::stof(params["player.animation.frameDuration"]);
+			playerParams.animation.numOfFrames = std::stoi(params["player.animation.numOfFrames"]);
+			playerParams.animation.startFrame = std::stoi(params["player.animation.startFrame"]);
 
-			playerAnimationTextureSize = { std::stoi(params["player.animation.textureSize.x"]), std::stoi(params["player.animation.textureSize.y"]) };
-			playerAnimationFramesGrid = { std::stoi(params["player.animation.framesGrid.x"]), std::stoi(params["player.animation.framesGrid.y"]) };
-			playerAnimationLeftTopFrameLeftTopCorner = { std::stoi(params["player.animation.leftTopFrameLeftTopCorner.x"]), std::stoi(params["player.animation.leftTopFrameLeftTopCorner.y"]) };
-			playerAnimationRightTopFrameLeftEdge = std::stoi(params["player.animation.rightTopFrameLeftEdge"]);
-			playerAnimationLeftBottomFrameTopEdge = std::stoi(params["player.animation.leftBottomFrameTopEdge"]);
-			playerAnimationFrameSize = { std::stoi(params["player.animation.frameSize.x"]), std::stoi(params["player.animation.frameSize.y"]) };
-			playerAnimationFrameDuration = std::stof(params["player.animation.frameDuration"]);
-			playerAnimationNumOfFrames = std::stoi(params["player.animation.numOfFrames"]);
-			playerAnimationStartFrame = std::stoi(params["player.animation.startFrame"]);
-
-			playerAnimationDirection = params["player.animation.direction"] == "Forward"
+			playerParams.animation.direction = params["player.animation.direction"] == "Forward"
 				? AnimationData::Direction::Forward
 				: AnimationData::Direction::Backward;
 
-			playerAnimationMode = params["player.animation.mode"] == "Repeat"
+			playerParams.animation.mode = params["player.animation.mode"] == "Repeat"
 				? AnimationData::Mode::Repeat
 				: params["player.animation.mode"] == "Pingpong"
 				? AnimationData::Mode::Pingpong
 				: AnimationData::Mode::StopOnLastFrame;
 
-			playerAnimationTextureLayout = params["player.animation.textureLayout"] == "Horizontal"
+			playerParams.animation.textureLayout = params["player.animation.textureLayout"] == "Horizontal"
 				? AnimationData::TextureLayout::Horizontal
 				: AnimationData::TextureLayout::Vertical;
-
+			
 			auto& actors = Globals::Components().actors();
-			const glm::vec2 playerPresentationSize = playerPresentationRadiusProportions * playerRadius;
+			const glm::vec2 playerPresentationSize = playerParams.presentation.radiusProportions * playerParams.radius;
 
 			auto reloadPlayer = [&]() {
 				auto& player = actors[playerId];
-				player.changeBody(Tools::CreateCircleBody(playerRadius, Tools::BodyParams{}.linearDamping(playerLinearDamping).fixedRotation(true).bodyType(b2_dynamicBody).density(playerDensity).position(player.getOrigin2D())));
-				player.subsequence.back().vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, playerPresentationSize.y - playerRadius }, playerPresentationSize);
+				player.changeBody(Tools::CreateCircleBody(playerParams.radius, Tools::BodyParams{}.linearDamping(playerParams.linearDamping).fixedRotation(true).bodyType(b2_dynamicBody).density(playerParams.density).position(player.getOrigin2D())));
+				player.subsequence.back().vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, playerPresentationSize.y - playerParams.radius }, playerPresentationSize);
 				player.subsequence.back().texture = CM::StaticAnimatedTexture(playerAnimatedTextureId,
-					glm::vec2( 0.0f, playerPresentationSize.y - playerRadius ) + playerPresentationSize * playerPresentationTranslation, {}, playerPresentationSize * playerPresentationScale);
+					glm::vec2( 0.0f, playerPresentationSize.y - playerParams.radius) + playerPresentationSize * playerParams.presentation.translation, {}, playerPresentationSize * playerParams.presentation.scale);
 				player.subsequence.back().modelMatrixF = player.modelMatrixF;
 				player.state = ComponentState::Changed;
 			};
@@ -364,9 +408,9 @@ namespace Levels::DamageOn
 			auto& animatedTextures = Globals::Components().staticAnimatedTextures();
 			auto& playerAnimatedTexture = animatedTextures[playerAnimatedTextureId];
 
-			playerAnimatedTexture.setAnimationData({ CM::StaticTexture(playerAnimationTextureId), playerAnimationTextureSize, playerAnimationFramesGrid, playerAnimationLeftTopFrameLeftTopCorner,
-				playerAnimationRightTopFrameLeftEdge, playerAnimationLeftBottomFrameTopEdge, playerAnimationFrameSize, playerAnimationFrameDuration, playerAnimationNumOfFrames, playerAnimationStartFrame,
-				playerAnimationDirection, playerAnimationMode, playerAnimationTextureLayout });
+			playerAnimatedTexture.setAnimationData({ CM::StaticTexture(playerAnimationTextureId), playerParams.animation.textureSize, playerParams.animation.framesGrid, playerParams.animation.leftTopFrameLeftTopCorner,
+				playerParams.animation.rightTopFrameLeftEdge, playerParams.animation.leftBottomFrameTopEdge, playerParams.animation.frameSize, playerParams.animation.frameDuration, playerParams.animation.numOfFrames, playerParams.animation.startFrame,
+				playerParams.animation.direction, playerParams.animation.mode, playerParams.animation.textureLayout });
 			playerAnimatedTexture.start(true);
 		}
 
@@ -396,28 +440,7 @@ namespace Levels::DamageOn
 
 		std::unordered_map<std::string, std::string> params;
 
-		float playerRadius{};
-		float playerMaxVelocity{};
-		float playerDensity{};
-		float playerLinearDamping{};
-		float playerDash{};
-
-		glm::vec2 playerPresentationRadiusProportions{};
-		glm::vec2 playerPresentationTranslation{};
-		glm::vec2 playerPresentationScale{};
-
-		glm::ivec2 playerAnimationTextureSize{};
-		glm::ivec2 playerAnimationFramesGrid{};
-		glm::ivec2 playerAnimationLeftTopFrameLeftTopCorner{};
-		int playerAnimationRightTopFrameLeftEdge{};
-		int playerAnimationLeftBottomFrameTopEdge{};
-		glm::ivec2 playerAnimationFrameSize{};
-		float playerAnimationFrameDuration{};
-		int playerAnimationNumOfFrames{};
-		int playerAnimationStartFrame{};
-		AnimationData::Direction playerAnimationDirection{};
-		AnimationData::Mode playerAnimationMode{};
-		AnimationData::TextureLayout playerAnimationTextureLayout{};
+		PlayerParams playerParams{};
 	};
 
 	AnimationTesting::AnimationTesting():
