@@ -111,7 +111,7 @@ namespace Levels::DamageOn
 				enemy.setVelocity(direction / distance * enemyBaseVelocity * enemyBoostFactor);
 		}
 
-		void enemyTakesDamage(auto& enemy, auto& spark, const auto& player, glm::vec2 direction, float distance, float& rgFactor, bool fire, const PlayerParams& playerParams)
+		void enemyTakesDamage(auto& enemy, auto& spark, const auto& player, glm::vec2 direction, float distance, glm::vec4& playerColorFactor, bool fire, const PlayerParams& playerParams)
 		{
 			if (distance <= sparkingDistance && fire)
 			{
@@ -120,14 +120,14 @@ namespace Levels::DamageOn
 				spark.vertices = Tools::Shapes2D::CreateVerticesOfLightning(player.getOrigin2D() + glm::diskRand(playerParams.radius * 0.2f),
 					enemy.getOrigin2D() + glm::diskRand(enemyRadius * 0.5f), int(20 * distance), 2.0f / glm::sqrt(distance));
 				spark.drawMode = GL_LINE_STRIP;
-				spark.colorF = glm::vec4(0.0f, glm::linearRand(0.0f, 0.2f), glm::linearRand(0.4f, 0.6f), 1.0f) * 0.6f;
-				rgFactor = glm::linearRand(0.0f, 1.0f);
+				spark.colorF = glm::vec4(0.0f, glm::linearRand(0.2f, 0.6f), glm::linearRand(0.4f, 0.8f), 1.0f) * 0.6f;
+				playerColorFactor = spark.colorF();
 				spark.renderF = true;
 				spark.state = ComponentState::Changed;
 			}
 			else
 			{
-				rgFactor = 1.0f;
+				playerColorFactor = glm::vec4(1.0f);
 				spark.renderF = false;
 			}
 		}
@@ -223,8 +223,8 @@ namespace Levels::DamageOn
 				return [=]() mutable { sceneCoordTextures(false); };
 			};
 
-			for (auto sign : { -1, 1 })
-				walls.emplace(Tools::CreateBoxBody(glm::vec2(2.0f), Tools::BodyParams{}.position({ sign * levelHSize.x / 2.5f, 0.0f })), CM::StaticTexture(greenMarbleTextureId)).renderingSetupF = screenCordTexturesF;
+			//for (auto sign : { -1, 1 })
+			//	walls.emplace(Tools::CreateBoxBody(glm::vec2(2.0f), Tools::BodyParams{}.position({ sign * levelHSize.x / 2.5f, 0.0f })), CM::StaticTexture(greenMarbleTextureId)).renderingSetupF = screenCordTexturesF;
 
 			for (int i = 0; i < 20; ++i)
 			{
@@ -244,17 +244,17 @@ namespace Levels::DamageOn
 					.getComponentId();
 				auto& enemy = actors.last();
 				enemy.renderingSetupF = createRecursiveFaceRS({ enemyRadius * 0.6f, enemyRadius });
-				auto rgFactor = std::make_shared<float>(1.0f);
-				enemy.colorF = [baseColor = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f, rgFactor]() { return baseColor * glm::vec4(*rgFactor, *rgFactor, 1.0f, 1.0f); };
+				auto playerColorFactor = std::make_shared<glm::vec4>(1.0f);
+				enemy.colorF = [baseColor = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f, playerColorFactor]() { return glm::mix(baseColor, *playerColorFactor, 0.5f); };
 				enemy.stepF = [&,
 					&spark = Globals::Components().dynamicDecorations().emplace(),
-					rgFactor]() {
+					playerColorFactor]() {
 					const auto& player = actors[playerId];
 					const auto direction = player.getOrigin2D() - enemy.getOrigin2D();
 					const auto distance = glm::length(direction);
 
 					enemyBoost(enemy, direction, distance);
-					enemyTakesDamage(enemy, spark, player, direction, distance, *rgFactor, playerFire || playerAutoFire, playerParams);
+					enemyTakesDamage(enemy, spark, player, direction, distance, *playerColorFactor, playerFire || playerAutoFire, playerParams);
 				};
 			}
 
