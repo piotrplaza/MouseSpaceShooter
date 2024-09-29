@@ -38,9 +38,6 @@ namespace Tools
 
 			selectedBuffers.applyComponent(component, true);
 			selectedBuffers.applyComponentSubsequence(component, true);
-
-			if (ComponentState::LastShot == component.state)
-				component.state = ComponentState::Outdated;
 		}
 	}
 
@@ -55,6 +52,8 @@ namespace Tools
 				continue;
 
 			const auto layer = (size_t)component.renderLayer;
+
+			// TODO: What if shader type was changed? Prob leak.
 
 			auto& mapOfSelectedBuffers = [&]() -> auto&
 			{
@@ -78,9 +77,6 @@ namespace Tools
 			selectedBuffers.applyComponent(component, false);
 			selectedBuffers.applyComponentSubsequence(component, false);
 			component.teardownF = [&]() { mapOfSelectedBuffers.erase(component.getComponentId()); };
-
-			if (ComponentState::LastShot == component.state)
-				component.state = ComponentState::Outdated;
 		}
 	}
 

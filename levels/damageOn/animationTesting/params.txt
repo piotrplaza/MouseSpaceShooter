@@ -27,3 +27,6 @@ player.animation.startFrame 0
 player.animation.direction Forward
 player.animation.mode Repeat
 player.animation.textureLayout Horizontal
+
+sparking.overheatingRate 0.25
+sparking.coolingRate 0.5

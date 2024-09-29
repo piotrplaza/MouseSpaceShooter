@@ -408,11 +408,13 @@ namespace Buffers
 		for (auto& renderableDef : renderableComponent.subsequence)
 		{
 			auto& subBuffers = ReuseOrEmplaceBack(subsequence, subBuffersIt);
+
 			subBuffers.renderable = &renderableDef;
 			renderableDef.loaded.subBuffers = &subBuffers;
 
-			if (!staticComponent && !renderableDef.renderF())
-				continue;
+			// TODO: Investigate why this optimization makes renderable permanently invisible if renderF returns false initially.
+			/*if (!staticComponent && !renderableComponent.renderF())
+				continue;*/
 
 			RenderableCommonsToBuffersCommons(renderableDef, subBuffers);
 		}
@@ -421,21 +423,17 @@ namespace Buffers
 
 	void GenericBuffers::applyComponent(Renderable& renderableComponent, bool staticComponent)
 	{
-		if(renderableComponent.state == ComponentState::Changed || renderableComponent.state == ComponentState::LastShot);
-		else
-		{
-			int tmp = 0;
-		}
-
 		renderable = &renderableComponent;
 		customShadersProgram = &renderableComponent.customShadersProgram;
 		instancing = &renderableComponent.instancing;
 		resolutionMode = &renderableComponent.resolutionMode;
 		subsequenceBegin = &renderableComponent.subsequenceBegin;
 		posInSubsequence = &renderableComponent.posInSubsequence;
+		renderableComponent.loaded.buffers = this;
 
-		if (!staticComponent && !renderableComponent.renderF())
-			return;
+		// TODO: Investigate why this optimization makes renderable permanently invisible if renderF returns false initially.
+		/*if (!staticComponent && !renderableComponent.renderF())
+			return;*/
 
 		RenderableCommonsToBuffersCommons(renderableComponent, *this);
 
@@ -446,8 +444,11 @@ namespace Buffers
 				setInstancedNormalTransformsBuffer(calcNormalTransforms(renderableComponent.instancing->transforms_));
 		}
 
-		renderableComponent.loaded.buffers = this;
-		if (renderableComponent.state == ComponentState::Changed)
-			renderableComponent.state = ComponentState::Ongoing;
+		switch (renderableComponent.state)
+		{
+		case ComponentState::Changed: renderableComponent.state = ComponentState::Ongoing; break;
+		case ComponentState::LastShot: renderableComponent.state = ComponentState::Outdated; break;
+		default: assert(!"Unexpected state");
+		}
 	}
 }

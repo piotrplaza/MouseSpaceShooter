@@ -227,6 +227,9 @@ static LRESULT CALLBACK WndProc(
 {
 	static HGLRC hRC;
 
+	if (wParam == SC_KEYMENU)
+		return 0;
+
 	switch(message)
 	{
 		case WM_CREATE:
@@ -312,7 +315,7 @@ static LRESULT CALLBACK WndProc(
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
-	return 0l;
+	return 0;
 }
 
 static void SetDCPixelFormat(HDC hDC)
