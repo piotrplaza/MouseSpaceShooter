@@ -1,3 +1,5 @@
+player.startPosition.x -20.0
+player.startPosition.y 0.0
 player.radius 1.0
 player.maxVelocity 8.0
 player.density 10.0

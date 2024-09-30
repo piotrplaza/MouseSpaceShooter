@@ -30,6 +30,7 @@ namespace Levels::DamageOn
 {
 	struct PlayerParams
 	{
+		glm::vec2 startPosition;
 		float radius;
 		float maxVelocity;
 		float density;
@@ -69,7 +70,7 @@ namespace Levels::DamageOn
 	namespace
 	{
 		constexpr const char* paramsPath = "levels/damageOn/animationTesting/params.txt";
-		constexpr float mapHSize = 15.0f;
+		constexpr float mapHSize = 20.0f;
 
 		constexpr int enemyCount = 200;
 		constexpr float enemyRadius = 0.5f;
@@ -126,9 +127,10 @@ namespace Levels::DamageOn
 			auto& textures = Globals::Components().staticTextures();
 			auto& animatedTextures = Globals::Components().staticAnimatedTextures();
 
-			backgroundTextureId = textures.emplace("textures/damageOn/cemetary.jpg", GL_CLAMP_TO_BORDER).getComponentId();
+			backgroundTextureId = textures.emplace("textures/damageOn/head.jpg", GL_CLAMP_TO_BORDER).getComponentId();
 			textures.last().magFilter = GL_NEAREST;
-			//textures.last().preserveAspectRatio = true;
+			textures.last().scale = glm::vec2(1.0f);
+			textures.last().preserveAspectRatio = true;
 
 			greenMarbleTextureId = textures.emplace("textures/green marble.jpg", GL_MIRRORED_REPEAT).getComponentId();
 			textures.last().magFilter = GL_NEAREST;
@@ -194,6 +196,11 @@ namespace Levels::DamageOn
 			walls.emplace(Tools::CreateBoxBody({ levelHSize.x + borderHThickness, borderHThickness }, Tools::BodyParams{}.position({ 0.0f, levelHSize.y + borderHThickness }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 			walls.emplace(Tools::CreateBoxBody({ borderHThickness, levelHSize.y + borderHThickness }, Tools::BodyParams{}.position({ -levelHSize.x - borderHThickness, 0.0f }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 			walls.emplace(Tools::CreateBoxBody({ borderHThickness, levelHSize.y + borderHThickness }, Tools::BodyParams{}.position({ levelHSize.x + borderHThickness, 0.0f }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+			const glm::vec2 headCenter = { 1.8f, 2.6f };
+			walls.emplace(Tools::CreateCircleBody(6.0f, Tools::BodyParams{}.position(headCenter))).renderF = false;
+			walls.emplace(Tools::CreateCircleBody(5.5f, Tools::BodyParams{}.position(headCenter + glm::vec2(-2.5f)))).renderF = false;
+			walls.emplace(Tools::CreateCircleBody(3.0f, Tools::BodyParams{}.position(headCenter + glm::vec2(-6.0f)))).renderF = false;
 
 			auto screenCordTexturesF = [sceneCoordTextures = UniformsUtils::Uniform1b()](ShadersUtils::ProgramId program) mutable {
 				if (!sceneCoordTextures.isValid())
@@ -375,6 +382,7 @@ namespace Levels::DamageOn
 				std::cout << key << " " << value << std::endl;
 
 			{
+				playerParams.startPosition = { std::stof(params["player.startPosition.x"]), std::stof(params["player.startPosition.y"]) };
 				playerParams.radius = std::stof(params["player.radius"]);
 				playerParams.maxVelocity = std::stof(params["player.maxVelocity"]);
 				playerParams.density = std::stof(params["player.density"]);
@@ -419,9 +427,11 @@ namespace Levels::DamageOn
 			auto& physics = Globals::Components().physics();
 			const glm::vec2 playerPresentationSize = playerParams.presentation.radiusProportions * playerParams.radius;
 
-			auto reloadPlayer = [&]() {
+			auto reloadPlayer = [&](bool resetPos) {
 				auto& player = actors[playerId];
-				player.changeBody(Tools::CreateCircleBody(playerParams.radius, Tools::BodyParams{}.linearDamping(playerParams.linearDamping).fixedRotation(true).bodyType(b2_dynamicBody).density(playerParams.density).position(player.getOrigin2D())));
+				player.changeBody(Tools::CreateCircleBody(playerParams.radius, Tools::BodyParams{}.linearDamping(playerParams.linearDamping).fixedRotation(true).bodyType(b2_dynamicBody).density(playerParams.density).position(resetPos
+					? playerParams.startPosition
+					: player.getOrigin2D())));
 				player.subsequence.back().vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, playerPresentationSize.y - playerParams.radius }, playerPresentationSize);
 				player.subsequence.back().texture = CM::StaticAnimatedTexture(playerAnimatedTextureId,
 					glm::vec2( 0.0f, playerPresentationSize.y - playerParams.radius) + playerPresentationSize * playerParams.presentation.translation, {}, playerPresentationSize * playerParams.presentation.scale);
@@ -442,10 +452,10 @@ namespace Levels::DamageOn
 				player.subsequence.emplace_back();
 				player.subsequence.back().renderingSetupF = [this](auto) { if (!playerTransparency) glDisable(GL_BLEND); return []() mutable { glEnable(GL_BLEND); }; };
 				player.posInSubsequence = 1;
-				reloadPlayer();
+				reloadPlayer(true);
 			}
 			else
-				reloadPlayer();
+				reloadPlayer(false);
 
 			auto& animatedTextures = Globals::Components().staticAnimatedTextures();
 			auto& playerAnimatedTexture = animatedTextures[playerAnimatedTextureId];
