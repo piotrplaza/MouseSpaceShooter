@@ -7,6 +7,7 @@ namespace Components
 	AudioListener::AudioListener()
 	{
 		savedVolume = getVolume();
+		setPositioning(Positioning::Camera2D);
 		state = ComponentState::Ongoing;
 		setEnabled(false);
 	}
@@ -17,7 +18,6 @@ namespace Components
 			return;
 
 		ComponentBase::setEnabled(value);
-
 		if (value)
 			setVolume(savedVolume);
 		else

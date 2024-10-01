@@ -8,6 +8,8 @@
 
 namespace Components
 {
+	struct Camera2D;
+
 	struct AudioListener : ComponentBase
 	{
 		enum class Positioning { Camera2D, Camera3D, Unbound };
@@ -31,8 +33,10 @@ namespace Components
 		void setPositioning(Positioning value);
 		Positioning getPositioning() const;
 
+		std::function<float(const Camera2D&)> camera2DZF;
+
 	private:
 		float savedVolume;
-		Positioning positioning = Positioning::Camera2D;
+		Positioning positioning;
 	};
 }

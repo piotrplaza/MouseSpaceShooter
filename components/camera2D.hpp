@@ -27,15 +27,5 @@ namespace Components
 			glm::vec2 completeProjectionHSize{ 0.0f };
 			glm::vec2 prevCompleteProjectionHSize{ 0.0f };
 		} details;
-
-		std::function<float(float)> projectionHSizeToZ = [](float projectionHSize) { return projectionHSize * 0.5f; };
-
-		float getZ() const
-		{
-			if (!projectionHSizeToZ)
-				return 0.0f;
-
-			return projectionHSizeToZ(details.projectionHSize);
-		}
 	};
 }

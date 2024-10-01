@@ -14,7 +14,12 @@
 
 namespace Systems
 {
-	Audio::Audio() = default;
+	Audio::Audio()
+	{
+		auto& audioListener = Globals::Components().audioListener();
+		const auto& camera2D = Globals::Components().camera2D();
+		audioListener.camera2DZF = [camera2D](const Components::Camera2D& camera2D) { return camera2D.details.projectionHSize * 1.0f; };
+	}
 
 	void Audio::postInit() const
 	{
@@ -24,10 +29,11 @@ namespace Systems
 	void Audio::step() const
 	{
 		auto& audioListener = Globals::Components().audioListener();
+		const auto& camera2D = Globals::Components().camera2D();
 		switch(audioListener.getPositioning())
 		{
 			case Components::AudioListener::Positioning::Camera2D:
-				audioListener.setPosition(glm::vec3(Globals::Components().camera2D().details.position, Globals::Components().camera2D().getZ()));
+				audioListener.setPosition(glm::vec3(camera2D.details.position, audioListener.camera2DZF(camera2D)));
 				audioListener.setDirection(glm::vec3(0.0f, 0.0f, -1.0f));
 				audioListener.setUpVector(glm::vec3(0.0f, 1.0f, 0.0f));
 				break;

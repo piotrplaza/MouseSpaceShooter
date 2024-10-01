@@ -23,6 +23,7 @@ namespace Components
 
 		Sound& play();
 		Sound& stop();
+		Sound& pause();
 
 		Sound& setRemoveOnStop(bool value);
 

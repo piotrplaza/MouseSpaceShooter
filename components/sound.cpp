@@ -75,6 +75,16 @@ namespace Components
 		return *this;
 	}
 
+	Sound& Sound::pause()
+	{
+		if (!details)
+			return *this;
+
+		details->sfSound.pause();
+
+		return *this;
+	}
+
 	Sound& Sound::setRemoveOnStop(bool value)
 	{
 		removeOnStop = value;

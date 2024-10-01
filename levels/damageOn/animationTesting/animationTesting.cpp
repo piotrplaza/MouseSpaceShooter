@@ -10,6 +10,8 @@
 #include <components/wall.hpp>
 #include <components/decoration.hpp>
 #include <components/music.hpp>
+#include <components/soundBuffer.hpp>
+#include <components/sound.hpp>
 #include <components/physics.hpp>
 #include <globals/components.hpp>
 
@@ -75,8 +77,8 @@ namespace Levels::DamageOn
 		constexpr int enemyCount = 200;
 		constexpr float enemyRadius = 0.5f;
 		constexpr float enemyBaseVelocity = 2.0f;
-		constexpr float enemyBoostDistance = 8.0f;
-		constexpr float enemyBoostFactor = 2.0f;
+		constexpr float enemyBoostDistance = 15.0f;
+		constexpr float enemyBoostFactor = 4.0f;
 		constexpr float enemySlowFactor = 0.2f;
 		constexpr float enemyDensity = 1.0f;
 
@@ -122,7 +124,7 @@ namespace Levels::DamageOn
 			graphicsSettings.lineWidth = 10.0f;
 
 			auto& musics = Globals::Components().musics();
-			musics.emplace("audio/Damage On.ogg", 0.8f).play();
+			musics.emplace("audio/Damage On.ogg", 0.6f).play();
 
 			auto& textures = Globals::Components().staticTextures();
 			auto& animatedTextures = Globals::Components().staticAnimatedTextures();
@@ -132,17 +134,12 @@ namespace Levels::DamageOn
 			textures.last().scale = glm::vec2(1.0f);
 			textures.last().preserveAspectRatio = true;
 
-			greenMarbleTextureId = textures.emplace("textures/green marble.jpg", GL_MIRRORED_REPEAT).getComponentId();
-			textures.last().magFilter = GL_NEAREST;
-			textures.last().scale = glm::vec2(30.0f);
-			textures.last().preserveAspectRatio = true;
-
 			coffinTextureId = textures.emplace("textures/damageOn/coffin.png", GL_MIRRORED_REPEAT).getComponentId();
 			textures.last().magFilter = GL_NEAREST;
 			//textures.last().scale = glm::vec2(30.0f);
 
 			fogTextureId = textures.size();
-			textures.emplace("textures/fog.png", GL_REPEAT);
+			textures.emplace("textures/damageOn/fog.png", GL_REPEAT);
 			textures.last().scale = glm::vec2(0.15f);
 
 			playerAnimationTextureId = textures.emplace("textures/damageOn/player.png").getComponentId();
@@ -167,11 +164,21 @@ namespace Levels::DamageOn
 				animatedTextures.last().start(true);
 			}
 
+			auto& soundsBuffers = Globals::Components().soundsBuffers();
+			auto& sounds = Globals::Components().sounds();
+
+			sparkingSoundId = sounds.emplace(soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId()).getComponentId();
+			sounds.last().setLoop(true).play().pause();
+			overchargeSoundId = sounds.emplace(soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav").getComponentId()).getComponentId();
+			sounds.last().setLoop(true).play().pause();
+			dashSoundId = sounds.emplace(soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav").getComponentId()).getComponentId();
+			sounds.last().setVolume(0.15f);
+
 			Tools::CreateFogForeground(2, 0.1f, fogTextureId, glm::vec4(1.0f), [x = 0.0f](int layer) mutable {
 				(void)layer;
 				const auto& physics = Globals::Components().physics();
 				x += physics.frameDuration * 0.01f;
-				const float y = std::sin(x * 10) * 0.01f;
+				const float y = std::sin(x * 30) * 0.01f;
 				return glm::vec2(x, y);
 			});
 
@@ -197,10 +204,11 @@ namespace Levels::DamageOn
 			walls.emplace(Tools::CreateBoxBody({ borderHThickness, levelHSize.y + borderHThickness }, Tools::BodyParams{}.position({ -levelHSize.x - borderHThickness, 0.0f }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 			walls.emplace(Tools::CreateBoxBody({ borderHThickness, levelHSize.y + borderHThickness }, Tools::BodyParams{}.position({ levelHSize.x + borderHThickness, 0.0f }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-			const glm::vec2 headCenter = { 1.8f, 2.6f };
-			walls.emplace(Tools::CreateCircleBody(6.0f, Tools::BodyParams{}.position(headCenter))).renderF = false;
-			walls.emplace(Tools::CreateCircleBody(5.5f, Tools::BodyParams{}.position(headCenter + glm::vec2(-2.5f)))).renderF = false;
-			walls.emplace(Tools::CreateCircleBody(3.0f, Tools::BodyParams{}.position(headCenter + glm::vec2(-6.0f)))).renderF = false;
+			const float mapScaleFactor = mapHSize / 20.0f;
+			const glm::vec2 headCenter = glm::vec2(1.8f, 2.6f) * mapScaleFactor;
+			walls.emplace(Tools::CreateCircleBody(6.0f * mapScaleFactor, Tools::BodyParams{}.position(headCenter))).renderF = false;
+			walls.emplace(Tools::CreateCircleBody(5.5f * mapScaleFactor, Tools::BodyParams{}.position(headCenter + glm::vec2(-2.5f) * mapScaleFactor))).renderF = false;
+			walls.emplace(Tools::CreateCircleBody(3.0f * mapScaleFactor, Tools::BodyParams{}.position(headCenter + glm::vec2(-6.0f) * mapScaleFactor))).renderF = false;
 
 			auto screenCordTexturesF = [sceneCoordTextures = UniformsUtils::Uniform1b()](ShadersUtils::ProgramId program) mutable {
 				if (!sceneCoordTextures.isValid())
@@ -304,7 +312,11 @@ namespace Levels::DamageOn
 				playerAutoFire = !playerAutoFire;
 
 			if (keyboard.pressed[/*VK_SPACE*/0x20] || gamepad.pressed.a)
+			{
+				auto& dashSound = Globals::Components().sounds()[dashSoundId];
+				dashSound.stop().setPlayingOffset(0.35f).setPosition(player.getOrigin2D()).play();
 				player.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerParams.dash * player.body->GetMass()), true);
+			}
 
 			if (keyboard.pressed['T'] || gamepad.pressed.y)
 				playerTransparency = !playerTransparency;
@@ -346,25 +358,40 @@ namespace Levels::DamageOn
 		void sparking(bool fire)
 		{
 			const auto& physics = Globals::Components().physics();
+			const auto& player = Globals::Components().actors()[playerId];
+			auto& sparkingSound = Globals::Components().sounds()[sparkingSoundId];
+			auto& overchargeSound = Globals::Components().sounds()[overchargeSoundId];
 
 			if (fire)
 			{
+				if (!sparkingSound.isPlaying())
+					sparkingSound.play();
+				sparkingSound.setPosition(player.getOrigin2D());
 				sparkingOverheating += physics.frameDuration * sparkingParams.overheatingRate;
 				if (sparkingOverheating >= 1.0f)
 				{
+					
+					sparkingSound.pause();
+					if (!overchargeSound.isPlaying())
+						overchargeSound.play();
 					sparkingOverheating = 1.0f;
 					sparkingOverheated = true;
 				}
 			}
 			else
 			{
+				sparkingSound.pause();
 				sparkingOverheating -= physics.frameDuration * sparkingParams.coolingRate;
 				if (sparkingOverheating <= 0.0f)
 				{
+					overchargeSound.stop();
 					sparkingOverheating = 0.0f;
 					sparkingOverheated = false;
 				}
 			}
+
+			overchargeSound.setVolume(sparkingOverheating);
+			overchargeSound.setPosition(player.getOrigin2D());
 		}
 
 		void reload()
@@ -474,7 +501,6 @@ namespace Levels::DamageOn
 		std::array<ComponentId, enemyCount> enemyIds{};
 
 		ComponentId backgroundTextureId{};
-		ComponentId greenMarbleTextureId{};
 		ComponentId coffinTextureId{};
 		ComponentId fogTextureId{};
 
@@ -483,6 +509,10 @@ namespace Levels::DamageOn
 
 		ComponentId playerAnimatedTextureId{};
 		std::array<ComponentId, enemyCount> enemyAnimatedTextureIds{};
+
+		ComponentId sparkingSoundId{};
+		ComponentId overchargeSoundId{};
+		ComponentId dashSoundId{};
 
 		bool playerTransparency = true;
 		bool playerBodyRendering = false;
