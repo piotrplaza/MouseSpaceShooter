@@ -38,41 +38,161 @@ namespace Components
 		--numOfInstances;
 	}
 
-	void Music::play()
+	Music& Music::play()
 	{
 		if (!details)
-			return;
+			return *this;
 
 		details->sfMusic.play();
+
+		return *this;
 	}
 
-	void Music::stop()
+	Music& Music::stop()
 	{
 		if (!details)
-			return;
+			return *this;
 
 		details->sfMusic.stop();
+
+		return *this;
 	}
 
-	void Music::setLoop(bool value)
+	Music& Music::pause()
+	{
+		if (!details)
+			return *this;
+
+		details->sfMusic.pause();
+
+		return *this;
+	}
+
+	bool Music::isRelativeToAudioListener() const
+	{
+		if (!details)
+			return false;
+
+		return details->sfMusic.isRelativeToListener();
+	}
+
+	bool Music::isStopped() const
+	{
+		if (!details)
+			return true;
+
+		return details->sfMusic.getStatus() == sf::Music::Status::Stopped;
+	}
+
+	bool Music::isPaused() const
+	{
+		if (!details)
+			return true;
+
+		return details->sfMusic.getStatus() == sf::Music::Status::Paused;
+	}
+
+	bool Music::isPlaying() const
+	{
+		if (!details)
+			return false;
+
+		return details->sfMusic.getStatus() == sf::Music::Status::Playing;
+	}
+
+	Music& Music::setRelativeToAudioListener(bool value)
+	{
+		if (!details)
+			return *this;
+
+		details->sfMusic.setRelativeToListener(value);
+
+		return *this;
+	}
+
+	Music& Music::setLoop(bool value)
 	{
 		if (!details)
 		{
 			if (value)
 				Tools::PrintError("Loop for dummy music was set. It may cause permanent issue.");
 
-			return;
+			return *this;
 		}
 
 		details->sfMusic.setLoop(value);
+
+		return *this;
 	}
 
-	void Music::setVolume(float value)
+	Music& Music::setVolume(float value)
 	{
 		if (!details)
-			return;
+			return *this;
 
 		details->sfMusic.setVolume(std::clamp(value, 0.0f, 1.0f) * maxVolume * 100.0f);
+
+		return *this;
+	}
+
+	Music& Music::setPitch(float value)
+	{
+		if (!details)
+			return *this;
+
+		details->sfMusic.setPitch(value);
+
+		return *this;
+	}
+
+	Music& Music::setPosition(glm::vec3 pos)
+	{
+		if (!details)
+			return *this;
+
+		details->sfMusic.setPosition(pos.x, pos.y, pos.z);
+
+		return *this;
+	}
+
+	Music& Music::setPosition(glm::vec2 pos)
+	{
+		if (!details)
+			return *this;
+
+		details->sfMusic.setPosition(pos.x, pos.y, 0.0f);
+
+		return *this;
+	}
+
+	Music& Music::setMinDistance(float value)
+	{
+		if (!details)
+			return *this;
+
+		details->sfMusic.setMinDistance(value);
+
+		return *this;
+	}
+
+	Music& Music::setAttenuation(float value)
+	{
+		if (!details)
+			return *this;
+
+		details->sfMusic.setAttenuation(value);
+
+		return *this;
+	}
+
+	Music& Music::setPlayingOffset(float seconds)
+	{
+		if (!details)
+			return *this;
+
+		details->sfMusic.setPlayingOffset(sf::seconds(seconds));
+
+		return *this;
 	}
 
 	unsigned Music::getNumOfInstances()

@@ -186,7 +186,13 @@ namespace Levels::DamageOn
 
 			Globals::Components().pauseHandler().handler = [&](bool prevPauseState) {
 				auto& audioListener = Globals::Components().audioListener();
-				audioListener.setEnabled(prevPauseState);
+				audioListener.setEnabled(!audioListener.isEnabled());
+
+				if (musics.last().isPlaying())
+					musics.last().pause();
+				else
+					musics.last().play();
+
 				return !prevPauseState;
 			};
 
