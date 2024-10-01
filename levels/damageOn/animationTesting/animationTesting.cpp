@@ -275,6 +275,7 @@ namespace Levels::DamageOn
 			auto& gamepad = Globals::Components().gamepads()[0];
 			auto& player = Globals::Components().actors()[playerId];
 			auto& physics = Globals::Components().physics();
+			auto& animatedTextures = Globals::Components().staticAnimatedTextures();
 
 			for (auto enemyId : enemyIds)
 			{
@@ -294,25 +295,36 @@ namespace Levels::DamageOn
 				if (directionLength > 1.0f)
 					return gamepad.lStick / directionLength;
 				return gamepad.lStick;
-			}();
+				}();
 
 			const glm::vec2 keyboardDirection = [&]() {
 				const glm::vec2 direction(-(int)keyboard.pressing[/*VK_LEFT*/0x25] + (int)keyboard.pressing[/*VK_RIGHT*/0x27], -(int)keyboard.pressing[/*VK_DOWN*/0x28] + (int)keyboard.pressing[/*VK_UP*/0x26]);
 				if (direction == glm::vec2(0.0f))
 					return glm::vec2(0.0f);
 				return direction / glm::length(direction);
-			}();
+				}();
 
 			const glm::vec2 direction = [&]() {
 				const glm::vec2 direction = gamepadDirection + keyboardDirection;
 				if (glm::length(direction) > 1.0f)
 					return direction / glm::length(direction);
 				return direction;
-			}();
+				}();
 
 			const glm::vec2 newVelocity = direction * playerParams.maxVelocity;
 			if (glm::length(newVelocity) > glm::length(player.getVelocity()))
 				player.setVelocity(newVelocity);
+
+			auto& playerAnimatedTexture = animatedTextures[playerAnimatedTextureId];
+			playerAnimatedTexture.setSpeedScaling(glm::length(direction));
+			if (direction.x < 0.0f)
+				playerAnimatedTexture.setAdditionalTransformation({}, {}, { -1.0f, 1.0f });
+			else if (direction.x > 0.0f)
+				playerAnimatedTexture.setAdditionalTransformation({}, {}, { 1.0f, 1.0f });
+			//else
+			//	playerAnimatedTexture.start(true);
+
+
 
 			if (keyboard.pressing[/*VK_CONTROL*/0x11] || gamepad.rTrigger > gamepadTriggerDeadZone || gamepad.lTrigger > gamepadTriggerDeadZone)
 			{
