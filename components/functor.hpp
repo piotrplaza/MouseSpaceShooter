@@ -2,9 +2,6 @@
 
 #include "_componentBase.hpp"
 
-#include <concepts>
-#include <type_traits>
-
 #include <commonTypes/fTypes.hpp>
 
 namespace Components

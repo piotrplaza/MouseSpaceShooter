@@ -739,6 +739,9 @@
     <ClInclude Include="levels\tmp\tmp.hpp">
       <Filter>src\levels\tmp</Filter>
     </ClInclude>
+    <ClInclude Include="components\pauseHandler.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">

@@ -118,6 +118,7 @@
     <ClInclude Include="components\mouse.hpp" />
     <ClInclude Include="components\music.hpp" />
     <ClInclude Include="components\mvp.hpp" />
+    <ClInclude Include="components\pauseHandler.hpp" />
     <ClInclude Include="components\physics.hpp" />
     <ClInclude Include="components\plane.hpp" />
     <ClInclude Include="components\polyline.hpp" />

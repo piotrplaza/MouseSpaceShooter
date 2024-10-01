@@ -12,7 +12,9 @@
 #include <components/music.hpp>
 #include <components/soundBuffer.hpp>
 #include <components/sound.hpp>
+#include <components/audioListener.hpp>
 #include <components/physics.hpp>
+#include <components/pauseHandler.hpp>
 #include <globals/components.hpp>
 
 #include <tools/Shapes2D.hpp>
@@ -181,6 +183,12 @@ namespace Levels::DamageOn
 				const float y = std::sin(x * 30) * 0.01f;
 				return glm::vec2(x, y);
 			});
+
+			Globals::Components().pauseHandler().handler = [&](bool prevPauseState) {
+				auto& audioListener = Globals::Components().audioListener();
+				audioListener.setEnabled(prevPauseState);
+				return !prevPauseState;
+			};
 
 			reload();
 		}

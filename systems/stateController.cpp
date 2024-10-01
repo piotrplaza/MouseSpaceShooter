@@ -11,6 +11,7 @@
 #include <components/functor.hpp>
 #include <components/physics.hpp>
 #include <components/gamepad.hpp>
+#include <components/pauseHandler.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -197,6 +198,8 @@ namespace Systems
 	void StateController::handleKeyboard(const std::array<bool, 256>& keys)
 	{
 		auto& keyboard = Globals::Components().keyboard();
+		auto& physics = Globals::Components().physics();
+		const auto& pauseHandler = Globals::Components().pauseHandler();
 
 		for (size_t i = 0; i < keys.size(); ++i)
 		{
@@ -208,7 +211,7 @@ namespace Systems
 		prevKeyboardKeys = keys;
 
 		if (keyboard.pressed['P'])
-			Globals::Components().physics().paused = !Globals::Components().physics().paused;
+			physics.paused = pauseHandler.handler(physics.paused);
 	}
 
 	void StateController::handleSDL()
@@ -376,11 +379,12 @@ namespace Systems
 		updateButton(&Components::Gamepad::Buttons::dLeft);
 		updateButton(&Components::Gamepad::Buttons::dRight);
 
+		const auto& pauseHandler = Globals::Components().pauseHandler();
+		auto& physics = Globals::Components().physics();
+
 		for (const auto& gamepad : Globals::Components().gamepads())
-		{
 			if (gamepad.isEnabled() && gamepad.pressed.start)
-				Globals::Components().physics().paused = !Globals::Components().physics().paused;
-		}
+				physics.paused = pauseHandler.handler(physics.paused);
 	}
 
 	void StateController::resetPrevKeys()

@@ -34,6 +34,7 @@
 #include <components/functor.hpp>
 #include <components/mainFramebufferRenderer.hpp>
 #include <components/deferredAction.hpp>
+#include <components/pauseHandler.hpp>
 
 #include "componentIdGenerator.hpp"
 
@@ -109,6 +110,11 @@ namespace Globals
 	Components::AudioListener& ComponentsHolder::audioListener()
 	{
 		return *audioListener_;
+	}
+
+	Components::PauseHandler& ComponentsHolder::pauseHandler()
+	{
+		return *pauseHandler_;
 	}
 
 	StaticComponents<Components::Texture>& ComponentsHolder::staticTextures()

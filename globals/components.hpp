@@ -44,6 +44,7 @@ namespace Components
 	struct Functor;
 	struct MainFramebufferRenderer;
 	struct DeferredAction;
+	struct PauseHandler;
 }
 
 namespace Globals
@@ -65,6 +66,7 @@ namespace Globals
 		Components::Framebuffers& framebuffers();
 		Components::MainFramebufferRenderer& mainFramebufferRenderer();
 		Components::AudioListener& audioListener();
+		Components::PauseHandler& pauseHandler();
 
 		StaticComponents<Components::Texture>& staticTextures();
 		DynamicComponents<Components::Texture>& dynamicTextures();
@@ -115,6 +117,7 @@ namespace Globals
 		std::unique_ptr<Components::Framebuffers> framebuffers_ = std::make_unique<Components::Framebuffers>();
 		std::unique_ptr<Components::MainFramebufferRenderer> mainFramebufferRenderer_ = std::make_unique<Components::MainFramebufferRenderer>();
 		std::unique_ptr<Components::AudioListener> audioListener_ = std::make_unique<Components::AudioListener>();
+		std::unique_ptr<Components::PauseHandler> pauseHandler_ = std::make_unique<Components::PauseHandler>();
 
 		std::unique_ptr<StaticComponents<Components::Texture>> staticTextures_ = std::make_unique<StaticComponents<Components::Texture>>();
 		std::unique_ptr<DynamicComponents<Components::Texture>> dynamicTextures_ = std::make_unique<DynamicComponents<Components::Texture>>();
