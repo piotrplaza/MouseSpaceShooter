@@ -142,7 +142,11 @@ namespace Systems
 	void StateController::setWindowFocus(bool focus)
 	{
 		if (!focus)
+		{
+			if (Globals::Components().physics().paused)
+				return;
 			Globals::Components().physics().paused = true;
+		}
 
 		if (!Globals::Components().physics().paused)
 		{
