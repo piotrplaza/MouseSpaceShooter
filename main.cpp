@@ -405,9 +405,84 @@ int APIENTRY WinMain(
 	RegisterRawInputDevices(hWnd);
 	ShowWindow(hWnd, SW_SHOW);
 
+	MSG msg{};
+
 	try
 	{
 		InitEngine();
+
+		while (!keys[VK_ESCAPE] && !quit)
+		{
+			while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+
+			if (newPos)
+			{
+				Globals::Systems().stateController().changeWindowLocation(*newPos);
+				Globals::Systems().stateController().changeRefreshRate(GetDeviceCaps(hDC, VREFRESH));
+			}
+
+			if (newSize)
+			{
+				Globals::Systems().stateController().changeWindowSize(*newSize);
+			}
+
+			if (prevFocus != focus)
+			{
+				keys = {};
+				Globals::Systems().stateController().setWindowFocus(focus);
+			}
+
+			if (first)
+			{
+				try
+				{
+					InitLevel();
+					PostInit();
+				}
+				catch (const std::runtime_error& error)
+				{
+					MessageBox(nullptr, error.what(), "Runtime error",
+						MB_OK | MB_ICONEXCLAMATION);
+					ExitProcess(0);
+				}
+				first = false;
+			}
+
+			if (focus)
+			{
+				if (!Globals::Components().physics().paused)
+				{
+					Tools::SetMouseCursorVisibility(false);
+					Globals::Systems().stateController().resetMousePosition();
+				}
+				else
+					Tools::SetMouseCursorVisibility(true);
+
+				Globals::Systems().stateController().handleKeyboard(keys);
+				Globals::Systems().stateController().handleMouseButtons();
+				Globals::Systems().stateController().handleSDL();
+
+				PrepareFrame();
+
+				Globals::Components().mouse().delta = { 0, 0 };
+
+				glFinish(); // Not sure why, but it helps with stuttering in some scenarios, e.g. if missile was launched (release + lower display refresh rate => bigger stuttering without it).
+				//GdiFlush();
+				SwapBuffers(hDC);
+			}
+			else
+				Tools::SetMouseCursorVisibility(true);
+
+			prevFocus = focus;
+			newPos = {};
+			newSize = {};
+		}
+
+		TearDown();
 	}
 	catch (const std::runtime_error& error)
 	{
@@ -415,80 +490,6 @@ int APIENTRY WinMain(
 			MB_OK | MB_ICONEXCLAMATION);
 		ExitProcess(0);
 	}
-	
-	MSG msg{};
-	while (!keys[VK_ESCAPE] && !quit)
-	{
-		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-
-		if (newPos)
-		{
-			Globals::Systems().stateController().changeWindowLocation(*newPos);
-			Globals::Systems().stateController().changeRefreshRate(GetDeviceCaps(hDC, VREFRESH));
-		}
-
-		if (newSize)
-		{
-			Globals::Systems().stateController().changeWindowSize(*newSize);
-		}
-
-		if (prevFocus != focus)
-		{
-			keys = {};
-			Globals::Systems().stateController().setWindowFocus(focus);
-		}
-
-		if (first)
-		{
-			try
-			{
-				InitLevel();
-				PostInit();
-			}
-			catch (const std::runtime_error& error)
-			{
-				MessageBox(nullptr, error.what(), "Runtime error",
-					MB_OK | MB_ICONEXCLAMATION);
-				ExitProcess(0);
-			}
-			first = false;
-		}
-
-		if (focus)
-		{
-			if (!Globals::Components().physics().paused)
-			{
-				Tools::SetMouseCursorVisibility(false);
-				Globals::Systems().stateController().resetMousePosition();
-			}
-			else
-				Tools::SetMouseCursorVisibility(true);
-
-			Globals::Systems().stateController().handleKeyboard(keys);
-			Globals::Systems().stateController().handleMouseButtons();
-			Globals::Systems().stateController().handleSDL();
-			
-			PrepareFrame();
-
-			Globals::Components().mouse().delta = { 0, 0 };
-
-			glFinish(); // Not sure why, but it helps with stuttering in some scenarios, e.g. if missile was launched (release + lower display refresh rate => bigger stuttering without it).
-			//GdiFlush();
-			SwapBuffers(hDC);
-		}
-		else
-			Tools::SetMouseCursorVisibility(true);
-
-		prevFocus = focus;
-		newPos = {};
-		newSize = {};
-	}
-
-	TearDown();
 	
 	return (int)msg.wParam;
 }

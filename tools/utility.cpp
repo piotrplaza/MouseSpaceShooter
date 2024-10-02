@@ -105,4 +105,35 @@ namespace Tools
 				? glm::vec2(0.0f)
 				: input;
 	}
+
+	int Stoi(const std::string& str)
+	{
+		try
+		{
+			return std::stoi(str);
+		}
+		catch (...)
+		{
+			throw std::runtime_error("Failed to convert string to integer: " + str);
+		}
+	}
+
+	float Stof(const std::string& str)
+	{
+		try
+		{
+			return std::stof(str);
+		}
+		catch (...)
+		{
+			throw std::runtime_error("Failed to convert string to float: " + str);
+		}
+	}
+
+	bool Stob(const std::string& str)
+	{
+		return str == "true" ? true
+			: str == "false" ? false
+			: throw std::runtime_error("Failed to convert string to boolean: " + str);
+	}
 }

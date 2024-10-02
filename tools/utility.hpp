@@ -241,4 +241,8 @@ namespace Tools
 		using Std2Random = Random<Std2HashPolicy>;
 		using Std3Random = Random<Std3HashPolicy>;
 	}
+
+	int Stoi(const std::string& str);
+	float Stof(const std::string& str);
+	bool Stob(const std::string& str);
 }

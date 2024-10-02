@@ -1,4 +1,4 @@
-player.startPosition.x -20.0
+player.startPosition.x -15.0
 player.startPosition.y 0.0
 player.radius 1.0
 player.maxVelocity 8.0
@@ -23,20 +23,28 @@ player.animation.rightTopFrameLeftEdge 1120
 player.animation.leftBottomFrameTopEdge 642
 player.animation.frameSize.x 166
 player.animation.frameSize.y 151
-player.animation.frameDuration 0.01
+player.animation.frameDuration 0.06
 player.animation.numOfFrames 40
 player.animation.startFrame 32
 player.animation.direction Forward
 player.animation.mode Repeat
 player.animation.textureLayout Horizontal
 
-sparking.damageFactor 10
+sparking.distance 10.0
+sparking.damageFactor 10.0
 sparking.overheatingRate 0.25
 sparking.coolingRate 0.5
 
+enemy.ghost.initSpawnPosition.x 15.0
+enemy.ghost.initSpawnPosition.y 0.0
 enemy.ghost.initCount 400
 enemy.ghost.initHP 10.0
 enemy.ghost.initRadius 0.5
-enemy.ghost.radiusReductionFactor 0.5f
+enemy.ghost.density 1.0
+enemy.ghost.baseVelocity 2.0
+enemy.ghost.boostDistance 15.0
+enemy.ghost.boostFactor 4.0
+enemy.ghost.slowFactor 0.2
+enemy.ghost.radiusReductionFactor 0.5
 enemy.ghost.minimalRadius 0.25
 enemy.ghost.killSpawns 2
