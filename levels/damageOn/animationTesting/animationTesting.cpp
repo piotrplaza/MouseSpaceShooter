@@ -379,9 +379,9 @@ namespace Levels::DamageOn
 					if (hp <= 0.0f)
 					{
 						Tools::CreateAndPlaySound(killSoundBufferId, enemy.getOrigin2D(), [&](auto& sound) {
-							const float basePitch = 2.0f * enemyGhostParams.initRadius / radius;
-							sound.setPitch(glm::linearRand(basePitch, basePitch * 2.0f));
-							sound.setVolume(0.7f);
+							const float basePitch = 5.0f * enemyGhostParams.initRadius / radius;
+							sound.setPitch(glm::linearRand(basePitch, basePitch * 5.0f));
+							sound.setVolume(0.5f);
 						});
 						enemyIds.erase(enemy.getComponentId());
 						enemy.state = ComponentState::Outdated;
