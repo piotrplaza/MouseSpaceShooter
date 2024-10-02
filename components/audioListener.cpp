@@ -29,6 +29,7 @@ namespace Components
 
 	void AudioListener::setVolume(float value)
 	{
+		savedVolume = value;
 		sf::Listener::setGlobalVolume(value * 100.0f);
 	}
 

@@ -1,3 +1,8 @@
+game.mapHSize 20.0
+game.numOfPlayers 1
+game.globalVolume 1.0
+game.musicVolume 0.7
+
 player.startPosition.x -15.0
 player.startPosition.y 0.0
 player.radius 1.0
