@@ -67,6 +67,13 @@ bool AnimationData::isPaused() const
 	return paused;
 }
 
+
+void AnimationData::setFrame(int frame)
+{
+	animationTime = frame * frameDuration;
+}
+
+
 void AnimationData::setSpeedScaling(float speedScaling)
 {
 	this->speedScaling = speedScaling;

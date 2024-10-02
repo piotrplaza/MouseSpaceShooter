@@ -25,10 +25,18 @@ player.animation.frameSize.x 166
 player.animation.frameSize.y 151
 player.animation.frameDuration 0.01
 player.animation.numOfFrames 40
-player.animation.startFrame 0
+player.animation.startFrame 32
 player.animation.direction Forward
 player.animation.mode Repeat
 player.animation.textureLayout Horizontal
 
+sparking.damageFactor 5
 sparking.overheatingRate 0.25
 sparking.coolingRate 0.5
+
+enemy.ghost.initCount 100
+enemy.ghost.initHP 10.0
+enemy.ghost.initRadius 1.0
+enemy.ghost.radiusReductionFactor 0.5f
+enemy.ghost.minimalRadius 0.25
+enemy.ghost.killSpawns 2

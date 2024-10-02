@@ -27,6 +27,7 @@ struct AnimationData
 	void pause(bool value);
 	bool isPaused() const;
 
+	void setFrame(int frame);
 	void setSpeedScaling(float speedScaling);
 
 	void setAdditionalTransformation(glm::vec2 translate, float angle = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });

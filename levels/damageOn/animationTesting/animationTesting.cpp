@@ -67,8 +67,19 @@ namespace Levels::DamageOn
 
 	struct SparkingParams
 	{
+		float damageFactor;
 		float overheatingRate;
 		float coolingRate;
+	};
+
+	struct EnemyGhostParams
+	{
+		int initCount;
+		float initHP;
+		float initRadius;
+		float radiusReductionFactor;
+		float minimalRadius;
+		int killSpawns;
 	};
 
 	namespace
@@ -76,8 +87,6 @@ namespace Levels::DamageOn
 		constexpr const char* paramsPath = "levels/damageOn/animationTesting/params.txt";
 		constexpr float mapHSize = 20.0f;
 
-		constexpr int enemyCount = 200;
-		constexpr float enemyRadius = 0.5f;
 		constexpr float enemyBaseVelocity = 2.0f;
 		constexpr float enemyBoostDistance = 15.0f;
 		constexpr float enemyBoostFactor = 4.0f;
@@ -86,6 +95,7 @@ namespace Levels::DamageOn
 
 		constexpr float sparkingDistance = 10.0f;
 
+		constexpr int debrisCount = 10;
 		constexpr float debrisDensity = 100.0f;
 		constexpr float gamepadDeadZone = 0.1f;
 		constexpr float gamepadTriggerDeadZone = 0.1f;
@@ -112,7 +122,7 @@ namespace Levels::DamageOn
 
 				return [=]() mutable {
 					visibilityReduction(false);
-					};
+				};
 			} };
 		}
 	}
@@ -176,6 +186,8 @@ namespace Levels::DamageOn
 			dashSoundId = sounds.emplace(soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav").getComponentId()).getComponentId();
 			sounds.last().setVolume(0.15f);
 
+			killSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
+
 			Tools::CreateFogForeground(2, 0.1f, fogTextureId, glm::vec4(1.0f), [x = 0.0f](int layer) mutable {
 				(void)layer;
 				const auto& physics = Globals::Components().physics();
@@ -206,6 +218,7 @@ namespace Levels::DamageOn
 			auto& walls = Globals::Components().staticWalls();
 			auto& decorations = Globals::Components().staticDecorations();
 			auto& textures = Globals::Components().staticTextures();
+			auto& physics = Globals::Components().physics();
 
 			const glm::vec2 levelHSize(textures[backgroundTextureId].loaded.getAspectRatio() * mapHSize, mapHSize);
 			camera.targetProjectionHSizeF = camera.details.projectionHSize = camera.details.prevProjectionHSize = 10.0f;
@@ -234,7 +247,7 @@ namespace Levels::DamageOn
 			//for (auto sign : { -1, 1 })
 			//	walls.emplace(Tools::CreateBoxBody(glm::vec2(2.0f), Tools::BodyParams{}.position({ sign * levelHSize.x / 2.5f, 0.0f })), CM::StaticTexture(greenMarbleTextureId)).renderingSetupF = screenCordTexturesF;
 
-			for (int i = 0; i < 20; ++i)
+			for (int i = 0; i < debrisCount; ++i)
 			{
 				const float debrisWidth = glm::linearRand(0.3f, 1.0f);
 				const float debrisHeight = debrisWidth * glm::linearRand(1.6f, 2.0f);
@@ -243,28 +256,8 @@ namespace Levels::DamageOn
 				walls.last().texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 			}
 
-			for (int i = 0; i < enemyCount; ++i)
-			{
-				enemyIds[i] = actors.emplace(Tools::CreateCircleBody(enemyRadius, Tools::BodyParams{ defaultBodyParams }
-					.bodyType(b2_dynamicBody)
-					.density(enemyDensity)
-					.position(glm::linearRand(-levelHSize, levelHSize))), CM::StaticAnimatedTexture(enemyAnimatedTextureIds[i], {}, {}, { 1.3f, 1.3f }))
-					.getComponentId();
-				auto& enemy = actors.last();
-				enemy.renderingSetupF = createRecursiveFaceRS({ enemyRadius * 0.6f, enemyRadius });
-				auto damageColorFactor = std::make_shared<glm::vec4>(1.0f);
-				enemy.colorF = [baseColor = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f, damageColorFactor]() { return glm::mix(baseColor, *damageColorFactor, 0.5f); };
-				enemy.stepF = [&,
-					&spark = Globals::Components().dynamicDecorations().emplace(),
-					damageColorFactor]() {
-					const auto& player = actors[playerId];
-					const auto direction = player.getOrigin2D() - enemy.getOrigin2D();
-					const auto distance = glm::length(direction);
-
-					enemyBoost(enemy, direction, distance);
-					enemyTakesDamage(enemy, spark, player, direction, distance, *damageColorFactor, playerFire || playerAutoFire);
-				};
-			}
+			for (int i = 0; i < enemyGhostParams.initCount; ++i)
+				enemySpawn(glm::linearRand(-levelHSize, levelHSize), enemyGhostParams.initRadius);
 
 			decorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, levelHSize), CM::StaticTexture(backgroundTextureId), Tools::Shapes2D::CreateTexCoordOfRectangle()).renderLayer = RenderLayer::FarBackground;
 		}
@@ -321,10 +314,8 @@ namespace Levels::DamageOn
 				playerAnimatedTexture.setAdditionalTransformation({}, {}, { -1.0f, 1.0f });
 			else if (direction.x > 0.0f)
 				playerAnimatedTexture.setAdditionalTransformation({}, {}, { 1.0f, 1.0f });
-			//else
-			//	playerAnimatedTexture.start(true);
-
-
+			else
+				playerAnimatedTexture.start(true);
 
 			if (keyboard.pressing[/*VK_CONTROL*/0x11] || gamepad.rTrigger > gamepadTriggerDeadZone || gamepad.lTrigger > gamepadTriggerDeadZone)
 			{
@@ -355,30 +346,82 @@ namespace Levels::DamageOn
 		}
 
 	private:
+		void enemySpawn(glm::vec2 position, float radius)
+		{
+			auto& actors = Globals::Components().actors();
+			auto& physics = Globals::Components().physics();
+
+			const auto enemyId = actors.emplace(Tools::CreateCircleBody(radius, Tools::BodyParams{ defaultBodyParams }
+				.bodyType(b2_dynamicBody)
+				.density(enemyDensity)
+				.position(position)), CM::StaticAnimatedTexture(enemyAnimatedTextureIds[enemyIds.size() % enemyAnimatedTextureIds.size()], {}, {}, glm::vec2(2.6f * radius)))
+				.getComponentId();
+
+			enemyIds.insert(enemyId);
+			auto& enemy = actors.last();
+			enemy.renderingSetupF = createRecursiveFaceRS({ radius * 0.6f, radius });
+			auto damageColorFactor = std::make_shared<glm::vec4>(1.0f);
+			enemy.colorF = [baseColor = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f, damageColorFactor]() { return glm::mix(baseColor, *damageColorFactor, 0.5f); };
+			enemy.stepF = [&,
+				radius,
+				&spark = Globals::Components().dynamicDecorations().emplace(),
+				damageColorFactor,
+				hp = enemyGhostParams.initHP]() mutable {
+				const auto& player = actors[playerId];
+				const auto direction = player.getOrigin2D() - enemy.getOrigin2D();
+				const auto distance = glm::length(direction);
+
+				enemyBoost(enemy, direction, distance);
+				if (enemyTakesDamage(enemy, spark, player, direction, distance, *damageColorFactor, playerFire || playerAutoFire))
+				{
+					++activeSparks;
+					hp -= physics.frameDuration * sparkingParams.damageFactor;
+					if (hp <= 0.0f)
+					{
+						Tools::CreateAndPlaySound(killSoundBufferId, enemy.getOrigin2D(), [&](auto& sound) {
+							const float basePitch = 2.0f * enemyGhostParams.initRadius / radius;
+							sound.setPitch(glm::linearRand(basePitch, basePitch * 2.0f));
+							sound.setVolume(0.7f);
+						});
+						enemyIds.erase(enemy.getComponentId());
+						enemy.state = ComponentState::Outdated;
+						spark.state = ComponentState::Outdated;
+
+						const float newRadius = radius * enemyGhostParams.radiusReductionFactor;
+						if (newRadius >= enemyGhostParams.minimalRadius)
+							for (int i = 0; i < enemyGhostParams.killSpawns; ++i)
+								enemySpawn(enemy.getOrigin2D() + glm::circularRand(0.1f), radius * enemyGhostParams.radiusReductionFactor);
+					}
+				}
+			};
+		}
+
 		void enemyBoost(auto& enemy, glm::vec2 direction, float distance)
 		{
 			if (distance > 0.0f && distance < enemyBoostDistance)
 				enemy.setVelocity(direction / distance * enemyBaseVelocity * enemyBoostFactor);
 		}
 
-		void enemyTakesDamage(auto& enemy, auto& spark, const auto& player, glm::vec2 direction, float distance, glm::vec4& damageColorFactor, bool fire)
+		bool enemyTakesDamage(auto& enemy, auto& spark, const auto& player, glm::vec2 direction, float distance, glm::vec4& damageColorFactor, bool fire)
 		{
 			if (distance <= sparkingDistance && fire && !sparkingOverheated)
 			{
 				enemy.setVelocity(direction / distance * enemyBaseVelocity * enemySlowFactor);
 
 				spark.vertices = Tools::Shapes2D::CreateVerticesOfLightning(player.getOrigin2D() + glm::diskRand(playerParams.radius * 0.2f),
-					enemy.getOrigin2D() + glm::diskRand(enemyRadius * 0.5f), int(20 * distance), 2.0f / glm::sqrt(distance));
+					enemy.getOrigin2D() + glm::diskRand(enemyGhostParams.minimalRadius), int(20 * distance), 2.0f / glm::sqrt(distance));
 				spark.drawMode = GL_LINE_STRIP;
 				spark.colorF = damageColorFactor = glm::mix(glm::vec4(0.0f, glm::linearRand(0.2f, 0.6f), glm::linearRand(0.4f, 0.8f), 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), sparkingOverheating) * 0.6f;
 				spark.renderF = true;
 				spark.state = ComponentState::Changed;
+
+				return true;
 			}
-			else
-			{
-				spark.renderF = false;
-				damageColorFactor = glm::vec4(1.0f);
-			}
+
+			spark.renderF = false;
+			damageColorFactor = glm::vec4(1.0f);
+
+			return false;
 		}
 
 		void sparking(bool fire)
@@ -388,7 +431,7 @@ namespace Levels::DamageOn
 			auto& sparkingSound = Globals::Components().sounds()[sparkingSoundId];
 			auto& overchargeSound = Globals::Components().sounds()[overchargeSoundId];
 
-			if (fire)
+			if (fire && activeSparks)
 			{
 				if (!sparkingSound.isPlaying())
 					sparkingSound.play();
@@ -418,6 +461,7 @@ namespace Levels::DamageOn
 
 			overchargeSound.setVolume(sparkingOverheating);
 			overchargeSound.setPosition(player.getOrigin2D());
+			activeSparks = 0;
 		}
 
 		void reload()
@@ -472,8 +516,18 @@ namespace Levels::DamageOn
 			}
 
 			{
+				sparkingParams.damageFactor = std::stof(params["sparking.damageFactor"]);
 				sparkingParams.overheatingRate = std::stof(params["sparking.overheatingRate"]);
 				sparkingParams.coolingRate = std::stof(params["sparking.coolingRate"]);
+			}
+
+			{
+				enemyGhostParams.initCount = std::stoi(params["enemy.ghost.initCount"]);
+				enemyGhostParams.initHP = std::stof(params["enemy.ghost.initHP"]);
+				enemyGhostParams.initRadius = std::stof(params["enemy.ghost.initRadius"]);
+				enemyGhostParams.radiusReductionFactor = std::stof(params["enemy.ghost.radiusReductionFactor"]);
+				enemyGhostParams.minimalRadius = std::stof(params["enemy.ghost.minimalRadius"]);
+				enemyGhostParams.killSpawns = std::stoi(params["enemy.ghost.killSpawns"]);
 			}
 			
 			auto& actors = Globals::Components().actors();
@@ -524,21 +578,23 @@ namespace Levels::DamageOn
 			.fixedRotation(true);
 
 		ComponentId playerId{};
-		std::array<ComponentId, enemyCount> enemyIds{};
+		std::unordered_set<ComponentId> enemyIds;
 
 		ComponentId backgroundTextureId{};
 		ComponentId coffinTextureId{};
 		ComponentId fogTextureId{};
 
 		ComponentId playerAnimationTextureId{};
-		ComponentId enemyAnimationTextureId{};
-
 		ComponentId playerAnimatedTextureId{};
-		std::array<ComponentId, enemyCount> enemyAnimatedTextureIds{};
+
+		ComponentId enemyAnimationTextureId{};
+		std::array<ComponentId, 10> enemyAnimatedTextureIds;
 
 		ComponentId sparkingSoundId{};
 		ComponentId overchargeSoundId{};
 		ComponentId dashSoundId{};
+
+		ComponentId killSoundBufferId{};
 
 		bool playerTransparency = true;
 		bool playerBodyRendering = false;
@@ -548,10 +604,12 @@ namespace Levels::DamageOn
 
 		float sparkingOverheating = 0.0f;
 		bool sparkingOverheated = false;
+		int activeSparks = 0;
 
 		std::unordered_map<std::string, std::string> params;
 		PlayerParams playerParams{};
 		SparkingParams sparkingParams{};
+		EnemyGhostParams enemyGhostParams{};
 	};
 
 	AnimationTesting::AnimationTesting():
