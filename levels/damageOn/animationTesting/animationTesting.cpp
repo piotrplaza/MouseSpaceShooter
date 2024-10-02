@@ -314,7 +314,7 @@ namespace Levels::DamageOn
 				playerAnimatedTexture.setAdditionalTransformation({}, {}, { -1.0f, 1.0f });
 			else if (direction.x > 0.0f)
 				playerAnimatedTexture.setAdditionalTransformation({}, {}, { 1.0f, 1.0f });
-			else
+			else if (direction.y == 0.0f)
 				playerAnimatedTexture.start(true);
 
 			if (keyboard.pressing[/*VK_CONTROL*/0x11] || gamepad.rTrigger > gamepadTriggerDeadZone || gamepad.lTrigger > gamepadTriggerDeadZone)
@@ -328,7 +328,7 @@ namespace Levels::DamageOn
 			if (keyboard.pressed[/*VK_SHIFT*/0x10] || gamepad.pressed.rShoulder || gamepad.pressed.lShoulder)
 				playerAutoFire = !playerAutoFire;
 
-			if (keyboard.pressed[/*VK_SPACE*/0x20] || gamepad.pressed.a)
+			if ((keyboard.pressed[/*VK_SPACE*/0x20] || gamepad.pressed.a) && glm::length(direction) > 0.0f)
 			{
 				auto& dashSound = Globals::Components().sounds()[dashSoundId];
 				dashSound.stop().setPlayingOffset(0.35f).setPosition(player.getOrigin2D()).play();
