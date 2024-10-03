@@ -11,12 +11,14 @@ player.density 10.0
 player.linearDamping 6.0
 player.dash 30.0
 
-player.presentation.radiusProportions.x 1.0
-player.presentation.radiusProportions.y 1.0
-player.presentation.translation.x -0.1
-player.presentation.translation.y -0.0
-player.presentation.scale.x 3.0
-player.presentation.scale.y 3.0
+player.presentation.radiusProportions.x 1.2
+player.presentation.radiusProportions.y 1.2
+player.presentation.translation.x -0.3
+player.presentation.translation.y 0.0
+player.presentation.scale.x 2.8
+player.presentation.scale.y 2.8
+player.presentation.weaponOffset.x 0.15
+player.presentation.weaponOffset.y 0.0
 
 player.animation.textureSize.x 1280
 player.animation.textureSize.y 1280
@@ -24,25 +26,26 @@ player.animation.framesGrid.x 8
 player.animation.framesGrid.y 5
 player.animation.leftTopFrameLeftTopCorner.x 0
 player.animation.leftTopFrameLeftTopCorner.y 0
-player.animation.rightTopFrameLeftEdge 1120
-player.animation.leftBottomFrameTopEdge 642
-player.animation.frameSize.x 166
-player.animation.frameSize.y 151
-player.animation.frameDuration 0.06
-player.animation.numOfFrames 40
-player.animation.startFrame 32
+player.animation.rightTopFrameLeftEdge 1122
+player.animation.leftBottomFrameTopEdge 638
+player.animation.frameSize.x 142
+player.animation.frameSize.y 130
+player.animation.frameDuration 0.1
+player.animation.numOfFrames 33
+player.animation.startFrame 13
 player.animation.direction Forward
 player.animation.mode Repeat
 player.animation.textureLayout Horizontal
+player.animation.neutralFrame 35
 
 sparking.distance 10.0
 sparking.damageFactor 10.0
 sparking.overheatingRate 0.25
 sparking.coolingRate 0.5
 
+enemy.ghost.initCount 400
 enemy.ghost.initSpawnPosition.x 15.0
 enemy.ghost.initSpawnPosition.y 0.0
-enemy.ghost.initCount 400
 enemy.ghost.initHP 10.0
 enemy.ghost.initRadius 0.5
 enemy.ghost.density 1.0

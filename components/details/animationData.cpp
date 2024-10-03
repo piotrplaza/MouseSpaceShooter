@@ -67,12 +67,10 @@ bool AnimationData::isPaused() const
 	return paused;
 }
 
-
 void AnimationData::setFrame(int frame)
 {
 	animationTime = frame * frameDuration;
 }
-
 
 void AnimationData::setSpeedScaling(float speedScaling)
 {
@@ -82,6 +80,16 @@ void AnimationData::setSpeedScaling(float speedScaling)
 void AnimationData::setAdditionalTransformation(glm::vec2 translate, float angle, glm::vec2 scale)
 {
 	additionalTransform = Tools::TextureTransform(translate, angle, scale);
+}
+
+void AnimationData::forceFrame(std::optional<int> frame)
+{
+	forcedFrame = frame;
+}
+
+bool AnimationData::isForcingFrame() const
+{
+	return forcedFrame.has_value();
 }
 
 int AnimationData::getAbsoluteFrame() const
@@ -97,6 +105,9 @@ int AnimationData::getAbsoluteFrame() const
 
 int AnimationData::getCurrentFrame() const
 {
+	if (forcedFrame)
+		return *forcedFrame;
+
 	const int absoluteFrame = getAbsoluteFrame();
 	const int absoluteFrameWithMode = [&]()
 		{
@@ -132,6 +143,5 @@ int AnimationData::getCurrentFrame() const
 glm::ivec2 AnimationData::getFrameLocation() const
 {
 	const int currentFrame = getCurrentFrame();
-
 	return { currentFrame % framesGrid.x, currentFrame / framesGrid.x };
 }

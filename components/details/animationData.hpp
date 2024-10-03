@@ -5,6 +5,8 @@
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
 
+#include <optional>
+
 struct AnimationData
 {
 	enum class TextureLayout { Horizontal, Vertical };
@@ -31,6 +33,9 @@ struct AnimationData
 	void setSpeedScaling(float speedScaling);
 
 	void setAdditionalTransformation(glm::vec2 translate, float angle = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
+
+	void forceFrame(std::optional<int> frame);
+	bool isForcingFrame() const;
 
 private:
 	int getAbsoluteFrame() const;
@@ -60,4 +65,6 @@ private:
 	mutable float animationTime{};
 
 	glm::mat4 additionalTransform{ 1.0f };
+
+	std::optional<int> forcedFrame;
 };
