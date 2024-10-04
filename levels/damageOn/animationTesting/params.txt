@@ -1,7 +1,7 @@
 game.mapHSize 20.0
 game.numOfPlayers 1
 game.globalVolume 1.0
-game.musicVolume 0.7
+game.musicVolume 0.3
 
 player.startPosition.x -15.0
 player.startPosition.y 0.0
@@ -11,14 +11,15 @@ player.density 10.0
 player.linearDamping 6.0
 player.dash 30.0
 
-player.presentation.radiusProportions.x 1.2
-player.presentation.radiusProportions.y 1.2
-player.presentation.translation.x -0.3
+player.presentation.radiusProportions.x 1.0
+player.presentation.radiusProportions.y 1.0
+player.presentation.translation.x 0.0
 player.presentation.translation.y 0.0
-player.presentation.scale.x 2.8
-player.presentation.scale.y 2.8
-player.presentation.weaponOffset.x 0.15
-player.presentation.weaponOffset.y 0.0
+player.presentation.rotation 0.0
+player.presentation.scale.x 1.0
+player.presentation.scale.y 1.0
+player.presentation.weaponOffset.x 0.0
+player.presentation.weaponOffset.y 0.2
 
 player.animation.textureSize.x 1280
 player.animation.textureSize.y 1280
@@ -30,12 +31,17 @@ player.animation.rightTopFrameLeftEdge 1122
 player.animation.leftBottomFrameTopEdge 638
 player.animation.frameSize.x 142
 player.animation.frameSize.y 130
-player.animation.frameDuration 0.1
+player.animation.frameDuration 0.075
 player.animation.numOfFrames 33
 player.animation.startFrame 13
 player.animation.direction Forward
 player.animation.mode Repeat
 player.animation.textureLayout Horizontal
+player.animation.frameTranslation.x -0.1
+player.animation.frameTranslation.y 0.1
+player.animation.frameRotation 0.0
+player.animation.frameScale.x 1.5
+player.animation.frameScale.y 1.5
 player.animation.neutralFrame 35
 
 sparking.distance 10.0

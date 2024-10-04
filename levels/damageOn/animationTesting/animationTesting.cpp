@@ -20,6 +20,7 @@
 #include <tools/Shapes2D.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
+#include <tools/glmHelpers.hpp>
 
 #include <ogl/uniformsUtils.hpp>
 
@@ -53,6 +54,7 @@ namespace Levels::DamageOn
 		{
 			glm::vec2 radiusProportions;
 			glm::vec2 translation;
+			float rotation;
 			glm::vec2 scale;
 			glm::vec2 weaponOffset;
 		} presentation;
@@ -71,6 +73,9 @@ namespace Levels::DamageOn
 			AnimationData::Direction direction;
 			AnimationData::Mode mode;
 			AnimationData::TextureLayout textureLayout;
+			glm::vec2 frameTranslation;
+			float frameRotation;
+			glm::vec2 frameScale;
 			int neutralFrame;
 		} animation;
 	};
@@ -283,13 +288,12 @@ namespace Levels::DamageOn
 			auto& player = actors[playerIdsToData.begin()->first];
 			auto& playerData = playerIdsToData.begin()->second;
 
-			for (auto enemyId : enemyIds)
+			for (auto& [enemyId, enemyData] : enemyIdsToData)
 			{
-				auto& enemy = actors[enemyId];
-				const auto direction = player.getOrigin2D() - enemy.getOrigin2D();
+				const auto direction = player.getOrigin2D() - enemyData.actor.getOrigin2D();
 				const auto distance = glm::length(direction);
 				if (distance > 0.0f)
-					enemy.setVelocity(direction / distance * enemyGhostParams.baseVelocity);
+					enemyData.actor.setVelocity(direction / distance * enemyGhostParams.baseVelocity);
 			}
 
 			const glm::vec2 gamepadDirection = [&]() {
@@ -326,17 +330,14 @@ namespace Levels::DamageOn
 			}
 
 			if (direction.x < 0.0f)
-			{
-				playerData.leftSided = true;
-				playerAnimatedTexture.setAdditionalTransformation({ -playerData.presentationTranslation.x, playerData.presentationTranslation.y }, 0.0f, { -playerData.presentationScale.x, playerData.presentationScale.y });
-			}
+				playerData.sideFactor = -1.0f;
 			else if (direction.x > 0.0f)
-			{
-				playerData.leftSided = false;
-				playerAnimatedTexture.setAdditionalTransformation(playerData.presentationTranslation, 0.0f, playerData.presentationScale);
-			}
+				playerData.sideFactor = 1.0f;
 			else if (direction.y == 0.0f)
 				playerAnimatedTexture.forceFrame(playerParams.animation.neutralFrame);
+
+			playerAnimatedTexture.setAdditionalTransformation(playerParams.animation.frameTranslation * glm::vec2(playerData.sideFactor, 1.0f),
+				playerParams.animation.frameRotation * playerData.sideFactor, playerParams.animation.frameScale * glm::vec2(playerData.sideFactor, 1.0f));
 
 			const glm::vec2 newVelocity = direction * playerParams.maxVelocity;
 			if (glm::length(newVelocity) > glm::length(player.getVelocity()))
@@ -367,54 +368,49 @@ namespace Levels::DamageOn
 			if (keyboard.pressed['P'] || gamepad.pressed.start)
 				reload();
 
-			for (auto& [id, data] : playerIdsToData)
-				sparking(actors[id], data, playerFire || playerAutoFire);
+			for (auto& [id, playerData] : playerIdsToData)
+				sparkingHandler(playerData, playerFire || playerAutoFire);
 		}
 
 	private:
 		void playerSpawn(glm::vec2 position)
 		{
 			const auto playerPresentationSize = playerParams.presentation.radiusProportions * playerParams.radius;
-			const PlayerData playerData{
-				playerPresentationSize,
-				playerPresentationSize * playerParams.presentation.translation,
-				playerPresentationSize * playerParams.presentation.scale
-			};
-
-			auto& animatedTextures = Globals::Components().staticAnimatedTextures();
-			animatedTextures[playerAnimatedTextureId].setAdditionalTransformation(playerData.presentationTranslation, 0.0f, playerData.presentationScale);
 
 			auto& actors = Globals::Components().actors();
+			const auto& physics = Globals::Components().physics();
 			auto& player = actors.emplace(Tools::CreateCircleBody(playerParams.radius, Tools::BodyParams{}.linearDamping(playerParams.linearDamping).fixedRotation(true).bodyType(b2_dynamicBody).density(playerParams.density).position(position)),
 				CM::DummyTexture{});
-			const auto& physics = Globals::Components().physics();
-			
+			const auto& playerData = playerIdsToData.emplace(player.getComponentId(), PlayerData{ player }).first->second;
+
 			player.renderF = [this]() { return playerBodyRendering; };
 			player.colorF = glm::vec4(0.4f);
-			player.subsequence.emplace_back();
-			player.subsequence.back().renderingSetupF = [this](auto) { if (!playerTransparency) glDisable(GL_BLEND); return []() mutable { glEnable(GL_BLEND); }; };
 			player.posInSubsequence = 1;
 
-			player.subsequence.back().vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, playerPresentationSize.y - playerParams.radius }, playerPresentationSize);
-			player.subsequence.back().texture = CM::StaticAnimatedTexture(playerAnimatedTextureId, glm::vec2(0.0f, playerPresentationSize.y - playerParams.radius));
-			player.subsequence.back().modelMatrixF = player.modelMatrixF;
-			player.subsequence.back().colorF = [&]() {
+			auto& playerPresentation = player.subsequence.emplace_back();
+			playerPresentation.renderingSetupF = [this](auto) { if (!playerTransparency) glDisable(GL_BLEND); return []() mutable { glEnable(GL_BLEND); }; };
+			playerPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, playerPresentationSize);
+			playerPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
+			playerPresentation.texture = CM::StaticAnimatedTexture(playerAnimatedTextureId);
+			playerPresentation.modelMatrixF = [&]() {
+				return player.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(playerParams.presentation.translation, 0.0f) * glm::vec3(playerData.sideFactor, 1.0f, 1.0f))
+					* glm::rotate(glm::mat4(1.0f), playerParams.presentation.rotation * playerData.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
+					* glm::scale(glm::mat4(1.0f), glm::vec3(playerParams.presentation.scale, 1.0f));
+			};
+			playerPresentation.colorF = [&]() {
 				return glm::mix(glm::vec4(1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), sparkingOverheating) * (sparkingOverheated ? (glm::sin(physics.simulationDuration * 20.0f) + 1.0f) / 2.0f : 1.0f);
 			};
-
-			playerIdsToData.emplace(player.getComponentId(), playerData);
 		}
 
 		void enemySpawn(glm::vec2 position, float radius)
 		{
 			auto& actors = Globals::Components().actors();
 			auto& physics = Globals::Components().physics();
-			const auto enemyId = actors.emplace(Tools::CreateCircleBody(radius, Tools::BodyParams{ defaultBodyParams }
+			auto& enemy = actors.emplace(Tools::CreateCircleBody(radius, Tools::BodyParams{ defaultBodyParams }
 				.bodyType(b2_dynamicBody)
 				.density(enemyGhostParams.density)
-				.position(position)), CM::StaticAnimatedTexture(enemyAnimatedTextureIds[enemyIds.size() % enemyAnimatedTextureIds.size()], {}, {}, glm::vec2(2.6f * radius)))
-				.getComponentId();
-			auto& enemy = actors.last();
+				.position(position)), CM::StaticAnimatedTexture(enemyAnimatedTextureIds[enemyIdsToData.size() % enemyAnimatedTextureIds.size()], {}, {}, glm::vec2(2.6f * radius)));
+			auto& enemyData = enemyIdsToData.emplace(enemy.getComponentId(), EnemyData{ enemy }).first->second;
 			auto damageColorFactor = std::make_shared<glm::vec4>(1.0f);
 
 			enemy.renderingSetupF = createRecursiveFaceRS({ radius * 0.6f, radius });
@@ -424,13 +420,13 @@ namespace Levels::DamageOn
 				&spark = Globals::Components().dynamicDecorations().emplace(),
 				damageColorFactor,
 				hp = enemyGhostParams.initHP]() mutable {
-				const auto& player = actors[playerIdsToData.begin()->first];
 				const auto& playerData = playerIdsToData.begin()->second;
-				const auto direction = player.getOrigin2D() - enemy.getOrigin2D();
+				const auto direction = playerData.actor.getOrigin2D() - enemy.getOrigin2D();
 				const auto distance = glm::length(direction);
+				auto& enemyData = enemyIdsToData.find(enemy.getComponentId())->second;
 
 				enemyBoost(enemy, direction, distance);
-				if (enemyTakesDamage(enemy, spark, player, playerData, direction, distance, *damageColorFactor, playerFire || playerAutoFire))
+				if (sparkHandler(playerData, enemyData, spark, direction, distance, *damageColorFactor, playerFire || playerAutoFire))
 				{
 					++playerIdsToData.begin()->second.activeSparks;
 					hp -= physics.frameDuration * sparkingParams.damageFactor;
@@ -441,7 +437,7 @@ namespace Levels::DamageOn
 							sound.setPitch(glm::linearRand(basePitch, basePitch * 5.0f));
 							sound.setVolume(0.2f);
 						});
-						enemyIds.erase(enemy.getComponentId());
+						enemyIdsToData.erase(enemy.getComponentId());
 						enemy.state = ComponentState::Outdated;
 						spark.state = ComponentState::Outdated;
 
@@ -452,8 +448,6 @@ namespace Levels::DamageOn
 					}
 				}
 			};
-
-			enemyIds.insert(enemyId);
 		}
 
 		void enemyBoost(auto& enemy, glm::vec2 direction, float distance)
@@ -462,15 +456,22 @@ namespace Levels::DamageOn
 				enemy.setVelocity(direction / distance * enemyGhostParams.baseVelocity * enemyGhostParams.boostFactor);
 		}
 
-		bool enemyTakesDamage(auto& enemy, auto& spark, const auto& player, const auto& playerData, glm::vec2 direction, float distance, glm::vec4& damageColorFactor, bool fire)
+		bool sparkHandler(const auto& sourceData, auto& targetData, auto& spark, glm::vec2 direction, float distance, glm::vec4& damageColorFactor, bool fire)
 		{
 			if (distance <= sparkingParams.distance && fire && !sparkingOverheated)
 			{
-				enemy.setVelocity(direction / distance * enemyGhostParams.baseVelocity * enemyGhostParams.slowFactor);
+				const glm::vec2 sourceScalingFactor = playerParams.radius * playerParams.presentation.radiusProportions * glm::vec2(sourceData.sideFactor, 1.0f);
+				const glm::vec2 weaponOffset =
+					
+					glm::translate(glm::mat4(1.0f), glm::vec3(playerParams.presentation.translation, 0.0f) * glm::vec3(sourceData.sideFactor, 1.0f, 1.0f))
+					* glm::rotate(glm::mat4(1.0f), playerParams.presentation.rotation * sourceData.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
+					* glm::scale(glm::mat4(1.0f), glm::vec3(playerParams.presentation.scale * glm::vec2(sourceData.sideFactor, 1.0f), 1.0f))
+					* glm::vec4(playerParams.presentation.weaponOffset, 0.0f, 1.0f);
 
-				const glm::vec2 weaponOffset = playerData.presentationScale * playerParams.presentation.weaponOffset * glm::vec2(playerData.leftSided ? -1.0f : 1.0f, 1.0f);
-				spark.vertices = Tools::Shapes2D::CreateVerticesOfLightning(player.getOrigin2D() + weaponOffset + glm::diskRand(playerParams.radius * 0.2f),
-					enemy.getOrigin2D() + glm::diskRand(enemyGhostParams.minimalRadius), int(20 * distance), 2.0f / glm::sqrt(distance));
+				targetData.actor.setVelocity(direction / distance * enemyGhostParams.baseVelocity * enemyGhostParams.slowFactor);
+
+				spark.vertices = Tools::Shapes2D::CreateVerticesOfLightning(sourceData.actor.getOrigin2D() + weaponOffset + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
+					targetData.actor.getOrigin2D() + glm::diskRand(enemyGhostParams.minimalRadius), int(20 * distance), 2.0f / glm::sqrt(distance));
 				spark.drawMode = GL_LINE_STRIP;
 				spark.colorF = damageColorFactor = glm::mix(glm::vec4(0.0f, glm::linearRand(0.2f, 0.6f), glm::linearRand(0.4f, 0.8f), 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), sparkingOverheating) * 0.6f;
 				spark.renderF = true;
@@ -485,17 +486,17 @@ namespace Levels::DamageOn
 			return false;
 		}
 
-		void sparking(const auto& player, auto& playerData, bool fire)
+		void sparkingHandler(auto& sourceData, bool fire)
 		{
 			const auto& physics = Globals::Components().physics();
 			auto& sparkingSound = Globals::Components().sounds()[sparkingSoundId];
 			auto& overchargeSound = Globals::Components().sounds()[overchargeSoundId];
 
-			if (fire && playerData.activeSparks)
+			if (fire && sourceData.activeSparks)
 			{
 				if (!sparkingSound.isPlaying())
 					sparkingSound.play();
-				sparkingSound.setPosition(player.getOrigin2D());
+				sparkingSound.setPosition(sourceData.actor.getOrigin2D());
 				sparkingOverheating += physics.frameDuration * sparkingParams.overheatingRate;
 				if (sparkingOverheating >= 1.0f)
 				{
@@ -520,8 +521,8 @@ namespace Levels::DamageOn
 			}
 
 			overchargeSound.setVolume(sparkingOverheating);
-			overchargeSound.setPosition(player.getOrigin2D());
-			playerData.activeSparks = 0;
+			overchargeSound.setPosition(sourceData.actor.getOrigin2D());
+			sourceData.activeSparks = 0;
 		}
 
 		void loadParams()
@@ -567,6 +568,7 @@ namespace Levels::DamageOn
 
 				playerParams.presentation.radiusProportions = { Tools::Stof(getParam("player.presentation.radiusProportions.x")), Tools::Stof(getParam("player.presentation.radiusProportions.y")) };
 				playerParams.presentation.translation = { Tools::Stof(getParam("player.presentation.translation.x")), Tools::Stof(getParam("player.presentation.translation.y")) };
+				playerParams.presentation.rotation = Tools::Stof(getParam("player.presentation.rotation"));
 				playerParams.presentation.scale = { Tools::Stof(getParam("player.presentation.scale.x")), Tools::Stof(getParam("player.presentation.scale.y")) };
 				playerParams.presentation.weaponOffset = { Tools::Stof(getParam("player.presentation.weaponOffset.x")), Tools::Stof(getParam("player.presentation.weaponOffset.y")) };
 
@@ -594,6 +596,9 @@ namespace Levels::DamageOn
 					? AnimationData::TextureLayout::Horizontal
 					: AnimationData::TextureLayout::Vertical;
 
+				playerParams.animation.frameTranslation = { Tools::Stof(getParam("player.animation.frameTranslation.x")), Tools::Stof(getParam("player.animation.frameTranslation.y")) };
+				playerParams.animation.frameRotation = Tools::Stof(getParam("player.animation.frameRotation"));
+				playerParams.animation.frameScale = { Tools::Stof(getParam("player.animation.frameScale.x")), Tools::Stof(getParam("player.animation.frameScale.y")) };
 				playerParams.animation.neutralFrame = Tools::Stoi(getParam("player.animation.neutralFrame"));
 			}
 
@@ -665,16 +670,19 @@ namespace Levels::DamageOn
 
 		struct PlayerData
 		{
-			glm::vec2 presentationSize{};
-			glm::vec2 presentationTranslation{};
-			glm::vec2 presentationScale{};
-			bool leftSided{};
+			Components::Actor& actor;
 
+			float sideFactor = 1.0f;
 			int activeSparks{};
 		};
 
+		struct EnemyData
+		{
+			Components::Actor& actor;
+		};
+
 		std::unordered_map<ComponentId, PlayerData> playerIdsToData;
-		std::unordered_set<ComponentId> enemyIds;
+		std::unordered_map<ComponentId, EnemyData> enemyIdsToData;
 
 		ComponentId backgroundTextureId{};
 		ComponentId coffinTextureId{};
