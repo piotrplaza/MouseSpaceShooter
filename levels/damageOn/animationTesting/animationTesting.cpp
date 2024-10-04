@@ -56,6 +56,7 @@ namespace Levels::DamageOn
 			glm::vec2 translation;
 			float rotation;
 			glm::vec2 scale;
+			float velocityRotationFactor;
 			glm::vec2 weaponOffset;
 		} presentation;
 
@@ -370,6 +371,9 @@ namespace Levels::DamageOn
 
 			for (auto& [id, playerData] : playerIdsToData)
 				sparkingHandler(playerData, playerFire || playerAutoFire);
+
+			const float vLength = glm::length(player.getVelocity());
+			playerData.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * playerParams.presentation.velocityRotationFactor));
 		}
 
 	private:
@@ -394,7 +398,7 @@ namespace Levels::DamageOn
 			playerPresentation.texture = CM::StaticAnimatedTexture(playerAnimatedTextureId);
 			playerPresentation.modelMatrixF = [&]() {
 				return player.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(playerParams.presentation.translation, 0.0f) * glm::vec3(playerData.sideFactor, 1.0f, 1.0f))
-					* glm::rotate(glm::mat4(1.0f), playerParams.presentation.rotation * playerData.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
+					* glm::rotate(glm::mat4(1.0f), (playerParams.presentation.rotation + playerData.angle) * playerData.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
 					* glm::scale(glm::mat4(1.0f), glm::vec3(playerParams.presentation.scale, 1.0f));
 			};
 			playerPresentation.colorF = [&]() {
@@ -570,6 +574,7 @@ namespace Levels::DamageOn
 				playerParams.presentation.translation = { Tools::Stof(getParam("player.presentation.translation.x")), Tools::Stof(getParam("player.presentation.translation.y")) };
 				playerParams.presentation.rotation = Tools::Stof(getParam("player.presentation.rotation"));
 				playerParams.presentation.scale = { Tools::Stof(getParam("player.presentation.scale.x")), Tools::Stof(getParam("player.presentation.scale.y")) };
+				playerParams.presentation.velocityRotationFactor = Tools::Stof(getParam("player.presentation.velocityRotationFactor"));
 				playerParams.presentation.weaponOffset = { Tools::Stof(getParam("player.presentation.weaponOffset.x")), Tools::Stof(getParam("player.presentation.weaponOffset.y")) };
 
 				playerParams.animation.textureSize = { Tools::Stoi(getParam("player.animation.textureSize.x")), Tools::Stoi(getParam("player.animation.textureSize.y")) };
@@ -674,6 +679,7 @@ namespace Levels::DamageOn
 
 			float sideFactor = 1.0f;
 			int activeSparks{};
+			float angle{};
 		};
 
 		struct EnemyData

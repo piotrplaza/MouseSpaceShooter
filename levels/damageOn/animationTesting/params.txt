@@ -18,6 +18,7 @@ player.presentation.translation.y 0.0
 player.presentation.rotation 0.0
 player.presentation.scale.x 1.0
 player.presentation.scale.y 1.0
+player.presentation.velocityRotationFactor 0.001
 player.presentation.weaponOffset.x 0.0
 player.presentation.weaponOffset.y 0.2
 
