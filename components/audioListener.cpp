@@ -22,8 +22,9 @@ namespace Components
 			setVolume(savedVolume);
 		else
 		{
-			savedVolume = getVolume();
+			const auto volume = getVolume();
 			setVolume(0.0f);
+			savedVolume = volume;
 		}
 	}
 

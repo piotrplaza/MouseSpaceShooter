@@ -35,11 +35,11 @@ namespace
 		Globals::Shaders().basicPhong().vp(Globals::Components().mvp3D().getVP());
 
 		auto render = [&](const auto& buffers) {
-			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(*buffers.resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(*buffers.resolutionMode != ResolutionMode::Normal, subBuffers.fbo,
+			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.renderable->resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(buffers.renderable->resolutionMode != ResolutionMode::Normal, subBuffers.fbo,
 				subBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
+			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.renderable->resolutionMode);
 
 			buffers.draw(Globals::Shaders().basicPhong().getProgramId(), [&](const auto& buffers) {
 				const auto modelMatrix = (buffers.renderable->modelMatrixF)();
@@ -77,11 +77,11 @@ namespace
 		Globals::Shaders().texturedPhong().vp(Globals::Components().mvp3D().getVP());
 
 		auto render = [&](const auto& buffers) {
-			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(*buffers.resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(*buffers.resolutionMode != ResolutionMode::Normal, subBuffers.fbo,
+			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.renderable->resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(buffers.renderable->resolutionMode != ResolutionMode::Normal, subBuffers.fbo,
 				subBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
+			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.renderable->resolutionMode);
 
 			buffers.draw(Globals::Shaders().texturedPhong(), [&](const auto& buffers) {
 				const auto modelMatrix = (buffers.renderable->modelMatrixF)();
@@ -120,11 +120,11 @@ namespace
 		Globals::Shaders().basic().vp(Globals::Components().mvp2D().getVP());
 
 		auto render = [&](const auto& buffers) {
-			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(*buffers.resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(*buffers.resolutionMode != ResolutionMode::Normal, subBuffers.fbo,
+			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.renderable->resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(buffers.renderable->resolutionMode != ResolutionMode::Normal, subBuffers.fbo,
 				subBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
+			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.renderable->resolutionMode);
 
 			buffers.draw(Globals::Shaders().basic().getProgramId(), [](const auto& buffers) {
 				Globals::Shaders().basic().model((buffers.renderable->modelMatrixF)());
@@ -148,11 +148,11 @@ namespace
 		Globals::Shaders().textured().vp(Globals::Components().mvp2D().getVP());
 
 		auto render = [&](const auto& buffers) {
-			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(*buffers.resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(*buffers.resolutionMode != ResolutionMode::Normal, subBuffers.fbo,
+			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.renderable->resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(buffers.renderable->resolutionMode != ResolutionMode::Normal, subBuffers.fbo,
 				subBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
+			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.renderable->resolutionMode);
 
 			buffers.draw(Globals::Shaders().textured(), [](const auto& buffers) {
 				Globals::Shaders().textured().model((buffers.renderable->modelMatrixF)());
@@ -175,16 +175,16 @@ namespace
 		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.customShaders;
 
 		auto render = [&](const auto& buffers) {
-			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(*buffers.resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(*buffers.resolutionMode != ResolutionMode::Normal, subBuffers.fbo,
+			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.renderable->resolutionMode);
+			Tools::ConditionalScopedFramebuffer csfb(buffers.renderable->resolutionMode != ResolutionMode::Normal, subBuffers.fbo,
 				subBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(*buffers.resolutionMode);
+			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.renderable->resolutionMode);
 
-			assert(buffers.customShadersProgram);
-			glUseProgram_proxy(**buffers.customShadersProgram);
+			assert(buffers.renderable->customShadersProgram);
+			glUseProgram_proxy(*buffers.renderable->customShadersProgram);
 
-			buffers.draw(**buffers.customShadersProgram, [](auto&) {});
+			buffers.draw(*buffers.renderable->customShadersProgram, [](auto&) {});
 		};
 
 		for (const auto& buffers : staticBuffers[layer])

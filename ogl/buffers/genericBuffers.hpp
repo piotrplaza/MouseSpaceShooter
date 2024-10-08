@@ -90,6 +90,9 @@ namespace Buffers
 		template <typename GeneralSetup>
 		void draw(ShadersUtils::ProgramId programId, GeneralSetup generalSetup) const
 		{
+			if (!renderable || renderable->state == ComponentState::Outdated)
+				return;
+
 			auto setAndDraw = [&](const GenericSubBuffers& buffers)
 			{
 				if (!(buffers.renderable->renderF)())
@@ -124,21 +127,17 @@ namespace Buffers
 
 			for (unsigned i = 0; i < subsequence.size(); ++i)
 			{
-				const unsigned id = (i + *subsequenceBegin) % subsequence.size();
-				if (id == *posInSubsequence)
+				const unsigned id = (i + renderable->subsequenceBegin) % subsequence.size();
+				if (id == renderable->posInSubsequence)
 					setAndDraw(*this);
 				setAndDraw(subsequence[id]);
 			}
 
-			if (subsequence.empty() || *posInSubsequence == subsequence.size())
+			if (subsequence.empty() || renderable->posInSubsequence == subsequence.size())
 				setAndDraw(*this);
 		}
 
-		std::optional<ShadersUtils::ProgramId>* customShadersProgram = nullptr;
-		std::optional<Renderable::Instancing>* instancing = nullptr;
-		ResolutionMode* resolutionMode = nullptr;
-		unsigned* subsequenceBegin = nullptr;
-		unsigned* posInSubsequence = nullptr;
+		Renderable* renderable = nullptr;
 
 		std::deque<GenericSubBuffers> subsequence;
 		std::vector<glm::mat3> normalTransforms;

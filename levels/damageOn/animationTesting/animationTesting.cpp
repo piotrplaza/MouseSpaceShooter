@@ -376,9 +376,8 @@ namespace Levels::DamageOn
 		void playerSpawn(int playerId, glm::vec2 position)
 		{
 			const auto playerPresentationSize = playerParams.presentation.radiusProportions * playerParams.radius;
-
 			const auto& physics = Globals::Components().physics();
-			
+
 			auto& playerAnimatedTexture = Globals::Components().dynamicAnimatedTextures().emplace();
 			playerAnimatedTexture.setAnimationData({ CM::StaticTexture(playerAnimationTextureId), playerParams.animation.textureSize, playerParams.animation.framesGrid, playerParams.animation.leftTopFrameLeftTopCorner,
 				playerParams.animation.rightTopFrameLeftEdge, playerParams.animation.leftBottomFrameTopEdge, playerParams.animation.frameSize, playerParams.animation.frameDuration, playerParams.animation.numOfFrames,
@@ -405,7 +404,7 @@ namespace Levels::DamageOn
 					* glm::scale(glm::mat4(1.0f), glm::vec3(playerParams.presentation.scale, 1.0f));
 			};
 			playerPresentation.colorF = [&]() {
-				return glm::mix(glm::vec4(1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), sparkingOverheating) * (sparkingOverheated ? (glm::sin(physics.simulationDuration * 20.0f) + 1.0f) / 2.0f : 1.0f);
+				return glm::mix(glm::vec4(1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), playerData.manaOverheating) * (playerData.manaOverheated ? (glm::sin(physics.simulationDuration * 20.0f) + 1.0f) / 2.0f : 1.0f);
 			};
 		}
 
@@ -423,13 +422,17 @@ namespace Levels::DamageOn
 
 			enemyActor.renderingSetupF = createRecursiveFaceRS({ radius * 0.6f, radius });
 			enemyActor.colorF = [baseColor = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f, damageColorFactor]() { return glm::mix(baseColor, *damageColorFactor, 0.5f); };
-			enemyActor.stepF = [&,
-				enemyId,
-				radius,
-				sparks = std::array<Components::Decoration*, 4>{ &Globals::Components().dynamicDecorations().emplace(), &Globals::Components().dynamicDecorations().emplace(),
-					&Globals::Components().dynamicDecorations().emplace(), &Globals::Components().dynamicDecorations().emplace() },
-				damageColorFactor,
-				hp = enemyGhostParams.initHP]() mutable {
+			enemyActor.stepF = [&, enemyId, radius, sparks = std::vector<Components::Decoration*>{}, damageColorFactor, hp = enemyGhostParams.initHP]() mutable {
+				if (sparks.size() != gameParams.numOfPlayers)
+				{
+					for (auto& spark: sparks)
+						spark->state = ComponentState::Outdated;
+					sparks.clear();
+					sparks.reserve(gameParams.numOfPlayers);
+					for (int i = 0; i < gameParams.numOfPlayers; ++i)
+						sparks.push_back(&Globals::Components().dynamicDecorations().emplace());
+				}
+
 				bool kill = false;
 				for (auto& [playerId, playerData] : playerIdsToData)
 				{
@@ -472,7 +475,7 @@ namespace Levels::DamageOn
 
 		bool sparkHandler(const auto& sourceData, auto& targetData, auto& spark, glm::vec2 direction, float distance, glm::vec4& damageColorFactor, bool fire)
 		{
-			if (distance <= sparkingParams.distance && fire && !sparkingOverheated)
+			if (distance <= sparkingParams.distance && fire && !sourceData.manaOverheated)
 			{
 				const glm::vec2 sourceScalingFactor = playerParams.radius * playerParams.presentation.radiusProportions * glm::vec2(sourceData.sideFactor, 1.0f);
 				const glm::vec2 weaponOffset =
@@ -487,7 +490,7 @@ namespace Levels::DamageOn
 				spark.vertices = Tools::Shapes2D::CreateVerticesOfLightning(sourceData.actor.getOrigin2D() + weaponOffset + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
 					targetData.actor.getOrigin2D() + glm::diskRand(enemyGhostParams.minimalRadius), int(20 * distance), 2.0f / glm::sqrt(distance));
 				spark.drawMode = GL_LINE_STRIP;
-				spark.colorF = damageColorFactor = glm::mix(glm::vec4(0.0f, glm::linearRand(0.2f, 0.6f), glm::linearRand(0.4f, 0.8f), 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), sparkingOverheating) * 0.6f;
+				spark.colorF = damageColorFactor = glm::mix(glm::vec4(0.0f, glm::linearRand(0.2f, 0.6f), glm::linearRand(0.4f, 0.8f), 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), sourceData.manaOverheating) * 0.6f;
 				spark.renderF = true;
 				spark.state = ComponentState::Changed;
 
@@ -511,29 +514,29 @@ namespace Levels::DamageOn
 				if (!sparkingSound.isPlaying())
 					sparkingSound.play();
 				sparkingSound.setPosition(sourceData.actor.getOrigin2D());
-				sparkingOverheating += physics.frameDuration * sparkingParams.overheatingRate;
-				if (sparkingOverheating >= 1.0f)
+				sourceData.manaOverheating += physics.frameDuration * sparkingParams.overheatingRate;
+				if (sourceData.manaOverheating >= 1.0f)
 				{
 					sparkingSound.pause();
 					if (!overchargeSound.isPlaying())
 						overchargeSound.play();
-					sparkingOverheating = 1.0f;
-					sparkingOverheated = true;
+					sourceData.manaOverheating = 1.0f;
+					sourceData.manaOverheated = true;
 				}
 			}
 			else
 			{
 				sparkingSound.pause();
-				sparkingOverheating -= physics.frameDuration * sparkingParams.coolingRate;
-				if (sparkingOverheating <= 0.0f)
+				sourceData.manaOverheating -= physics.frameDuration * sparkingParams.coolingRate;
+				if (sourceData.manaOverheating <= 0.0f)
 				{
 					overchargeSound.stop();
-					sparkingOverheating = 0.0f;
-					sparkingOverheated = false;
+					sourceData.manaOverheating = 0.0f;
+					sourceData.manaOverheated = false;
 				}
 			}
 
-			overchargeSound.setVolume(sparkingOverheating);
+			overchargeSound.setVolume(sourceData.manaOverheating);
 			overchargeSound.setPosition(sourceData.actor.getOrigin2D());
 
 			sourceData.activeSparks = 0;
@@ -699,6 +702,9 @@ namespace Levels::DamageOn
 			bool fire = false;
 			bool autoFire = false;
 
+			float manaOverheating = 0.0f;
+			bool manaOverheated = false;
+
 			float sideFactor = 1.0f;
 			int activeSparks{};
 			float angle{};
@@ -753,9 +759,6 @@ namespace Levels::DamageOn
 		ComponentId dashSoundId{};
 
 		ComponentId killSoundBufferId{};
-
-		float sparkingOverheating = 0.0f;
-		bool sparkingOverheated = false;
 
 		GameParams gameParams{};
 		PlayerParams playerParams{};

@@ -390,7 +390,7 @@ public:
 		auto it = components.begin();
 		while (it != components.end())
 		{
-			if (it->second.state == ::ComponentState::Outdated)
+			if (it->second.state == ::ComponentState::Outdated || it->second.state == ::ComponentState::LastShot)
 			{
 				if (it->second.teardownF)
 					it->second.teardownF();
@@ -551,7 +551,7 @@ public:
 		auto it = components.begin();
 		while (it != components.end())
 		{
-			if (it->state == ::ComponentState::Outdated)
+			if (it->state == ::ComponentState::Outdated || it->state == ::ComponentState::LastShot)
 			{
 				if (it->teardownF)
 					it->teardownF();

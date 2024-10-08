@@ -17,7 +17,7 @@ namespace Tools
 
 		for (auto& component : components.underlyingContainer() | std::views::drop(offset))
 		{
-			if (component.state == ComponentState::Ongoing || component.state == ComponentState::Outdated)
+			if (component.state == ComponentState::Ongoing)
 				continue;
 
 			auto& selectedBuffers = [&, layer = (size_t)component.renderLayer]() -> auto& {
@@ -48,7 +48,7 @@ namespace Tools
 
 		for (auto& component : components)
 		{
-			if (component.state == ComponentState::Ongoing || component.state == ComponentState::Outdated)
+			if (component.state == ComponentState::Ongoing)
 				continue;
 
 			const auto layer = (size_t)component.renderLayer;
@@ -76,6 +76,7 @@ namespace Tools
 
 			selectedBuffers.applyComponent(component, false);
 			selectedBuffers.applyComponentSubsequence(component, false);
+
 			component.teardownF = [&]() { mapOfSelectedBuffers.erase(component.getComponentId()); };
 		}
 	}

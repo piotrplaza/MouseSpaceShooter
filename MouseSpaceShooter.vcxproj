@@ -268,12 +268,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.1;C:\libraries\box2d-2.4.2\include;C:\libraries\SDL2-2.30.1\include;C:\libraries\SFML-2.6.1\include;$(ProjectDir)\3rdParty;$(ProjectDir)</IncludePath>
+    <IncludePath>$(ProjectDir)</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.30.1\lib\x86;C:\libraries\SFML-2.6.1\lib;</LibraryPath>
+    <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.1;C:\libraries\box2d-2.4.2\include;C:\libraries\SDL2-2.30.1\include;C:\libraries\SFML-2.6.1\include;$(ProjectDir)\3rdParty</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.1;C:\libraries\box2d-2.4.2\include;C:\libraries\SDL2-2.30.1\include;C:\libraries\SFML-2.6.1\include;$(ProjectDir)\3rdParty;$(ProjectDir)</IncludePath>
+    <IncludePath>$(ProjectDir)</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.30.1\lib\x86;C:\libraries\SFML-2.6.1\lib;</LibraryPath>
+    <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.1;C:\libraries\box2d-2.4.2\include;C:\libraries\SDL2-2.30.1\include;C:\libraries\SFML-2.6.1\include;$(ProjectDir)\3rdParty</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -287,6 +289,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
+      <ExternalTemplatesDiagnostics>true</ExternalTemplatesDiagnostics>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -305,6 +310,9 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
+      <ExternalTemplatesDiagnostics>true</ExternalTemplatesDiagnostics>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

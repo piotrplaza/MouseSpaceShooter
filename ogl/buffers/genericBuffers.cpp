@@ -370,11 +370,7 @@ namespace Buffers
 	GenericBuffers::GenericBuffers(GenericBuffers&& other) noexcept :
 		GenericSubBuffers(std::move(other)),
 
-		customShadersProgram(other.customShadersProgram),
-		instancing(other.instancing),
-		resolutionMode(other.resolutionMode),
-		subsequenceBegin(other.subsequenceBegin),
-		posInSubsequence(other.posInSubsequence),
+		renderable(other.renderable),
 		subsequence(std::move(other.subsequence)),
 		normalTransforms(std::move(other.normalTransforms))
 	{
@@ -423,12 +419,8 @@ namespace Buffers
 
 	void GenericBuffers::applyComponent(Renderable& renderableComponent, bool staticComponent)
 	{
+		GenericSubBuffers::renderable = &renderableComponent;
 		renderable = &renderableComponent;
-		customShadersProgram = &renderableComponent.customShadersProgram;
-		instancing = &renderableComponent.instancing;
-		resolutionMode = &renderableComponent.resolutionMode;
-		subsequenceBegin = &renderableComponent.subsequenceBegin;
-		posInSubsequence = &renderableComponent.posInSubsequence;
 		renderableComponent.loaded.buffers = this;
 
 		// TODO: Investigate why this optimization makes renderable permanently invisible if renderF returns false initially.
@@ -442,13 +434,6 @@ namespace Buffers
 			setInstancedTransformsBuffer(renderableComponent.instancing->transforms_);
 			if (renderableComponent.params3D && !renderableComponent.params3D->gpuSideInstancedNormalTransforms_)
 				setInstancedNormalTransformsBuffer(calcNormalTransforms(renderableComponent.instancing->transforms_));
-		}
-
-		switch (renderableComponent.state)
-		{
-		case ComponentState::Changed: renderableComponent.state = ComponentState::Ongoing; break;
-		case ComponentState::LastShot: renderableComponent.state = ComponentState::Outdated; break;
-		default: assert(!"Unexpected state");
 		}
 	}
 }
