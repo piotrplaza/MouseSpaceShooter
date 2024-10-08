@@ -1,7 +1,7 @@
-game.mapHSize 20.0
-game.numOfPlayers 1
+game.numOfPlayers 4
 game.globalVolume 1.0
 game.musicVolume 0.3
+game.mapHSize 20.0
 
 player.startPosition.x -15.0
 player.startPosition.y 0.0
@@ -18,7 +18,7 @@ player.presentation.translation.y 0.0
 player.presentation.rotation 0.0
 player.presentation.scale.x 1.0
 player.presentation.scale.y 1.0
-player.presentation.velocityRotationFactor 0.001
+player.presentation.velocityRotationFactor 0.0005
 player.presentation.weaponOffset.x 0.0
 player.presentation.weaponOffset.y 0.2
 
@@ -34,7 +34,7 @@ player.animation.frameSize.x 142
 player.animation.frameSize.y 130
 player.animation.frameDuration 0.075
 player.animation.numOfFrames 33
-player.animation.startFrame 13
+player.animation.startFrame -1
 player.animation.direction Forward
 player.animation.mode Repeat
 player.animation.textureLayout Horizontal

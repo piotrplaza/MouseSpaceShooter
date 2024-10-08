@@ -35,10 +35,10 @@ namespace Levels::DamageOn
 {
 	struct GameParams
 	{
-		float mapHSize;
 		int numOfPlayers;
 		float globalVolume;
 		float musicVolume;
+		float mapHSize;
 	};
 
 	struct PlayerParams
@@ -152,7 +152,7 @@ namespace Levels::DamageOn
 			graphicsSettings.lineWidth = 10.0f;
 
 			auto& textures = Globals::Components().staticTextures();
-			auto& animatedTextures = Globals::Components().staticAnimatedTextures();
+			auto& animatedTextures = Globals::Components().dynamicAnimatedTextures();
 
 			backgroundTextureId = textures.emplace("textures/damageOn/head.jpg", GL_CLAMP_TO_BORDER).getComponentId();
 			textures.last().magFilter = GL_NEAREST;
@@ -179,8 +179,6 @@ namespace Levels::DamageOn
 				}
 			})).getComponentId();
 			textures.last().minFilter = GL_NEAREST;
-
-			playerAnimatedTextureId = animatedTextures.emplace().getComponentId();
 			
 			for (auto& enemyAnimatedTextureId : enemyAnimatedTextureIds)
 			{
@@ -231,7 +229,6 @@ namespace Levels::DamageOn
 		void postSetup()
 		{
 			auto& camera = Globals::Components().camera2D();
-			auto& actors = Globals::Components().actors();
 			auto& walls = Globals::Components().staticWalls();
 			auto& decorations = Globals::Components().staticDecorations();
 			auto& textures = Globals::Components().staticTextures();
@@ -239,7 +236,8 @@ namespace Levels::DamageOn
 
 			const glm::vec2 levelHSize(textures[backgroundTextureId].loaded.getAspectRatio() * gameParams.mapHSize, gameParams.mapHSize);
 			camera.targetProjectionHSizeF = camera.details.projectionHSize = camera.details.prevProjectionHSize = 10.0f;
-			camera.targetPositionF = [&, levelHSize]() { return glm::clamp(actors[playerIdsToData.begin()->first].getOrigin2D(), -levelHSize + camera.details.completeProjectionHSize, levelHSize - camera.details.completeProjectionHSize); };
+			camera.targetPositionF = [&, levelHSize]() { return glm::clamp(playerIdsToData.begin()->second.actor.getOrigin2D(),
+				-levelHSize + camera.details.completeProjectionHSize, levelHSize - camera.details.completeProjectionHSize); };
 			camera.positionTransitionFactor = 5.0f;
 
 			const float borderHThickness = 10.0f;
@@ -283,121 +281,126 @@ namespace Levels::DamageOn
 		{
 			auto& keyboard = Globals::Components().keyboard();
 			auto& gamepad = Globals::Components().gamepads()[0];
-			auto& actors = Globals::Components().actors();
 			auto& physics = Globals::Components().physics();
-			auto& animatedTextures = Globals::Components().staticAnimatedTextures();
-			auto& player = actors[playerIdsToData.begin()->first];
-			auto& playerData = playerIdsToData.begin()->second;
 
-			for (auto& [enemyId, enemyData] : enemyIdsToData)
-			{
-				const auto direction = player.getOrigin2D() - enemyData.actor.getOrigin2D();
-				const auto distance = glm::length(direction);
-				if (distance > 0.0f)
-					enemyData.actor.setVelocity(direction / distance * enemyGhostParams.baseVelocity);
-			}
-
-			const glm::vec2 gamepadDirection = [&]() {
-				if (!gamepad.enabled)
-					return glm::vec2(0.0f);
-				const float directionLength = glm::length(gamepad.lStick);
-				if (directionLength < gamepadDeadZone)
-					return glm::vec2(0.0f);
-				if (directionLength > 1.0f)
-					return gamepad.lStick / directionLength;
-				return gamepad.lStick;
-			}();
-
-			const glm::vec2 keyboardDirection = [&]() {
-				const glm::vec2 direction(-(int)keyboard.pressing[/*VK_LEFT*/0x25] + (int)keyboard.pressing[/*VK_RIGHT*/0x27], -(int)keyboard.pressing[/*VK_DOWN*/0x28] + (int)keyboard.pressing[/*VK_UP*/0x26]);
-				if (direction == glm::vec2(0.0f))
-					return glm::vec2(0.0f);
-				return direction / glm::length(direction);
-			}();
-
-			const glm::vec2 direction = [&]() {
-				const glm::vec2 direction = gamepadDirection + keyboardDirection;
-				if (glm::length(direction) > 1.0f)
-					return direction / glm::length(direction);
-				return direction;
-			}();
-
-			auto& playerAnimatedTexture = animatedTextures[playerAnimatedTextureId];
-			playerAnimatedTexture.setSpeedScaling(glm::length(player.getVelocity()));
-			if (playerAnimatedTexture.isForcingFrame())
-			{
-				playerAnimatedTexture.forceFrame(std::nullopt);
-				playerAnimatedTexture.start(true);
-			}
-
-			if (direction.x < 0.0f)
-				playerData.sideFactor = -1.0f;
-			else if (direction.x > 0.0f)
-				playerData.sideFactor = 1.0f;
-			else if (direction.y == 0.0f)
-				playerAnimatedTexture.forceFrame(playerParams.animation.neutralFrame);
-
-			playerAnimatedTexture.setAdditionalTransformation(playerParams.animation.frameTranslation * glm::vec2(playerData.sideFactor, 1.0f),
-				playerParams.animation.frameRotation * playerData.sideFactor, playerParams.animation.frameScale * glm::vec2(playerData.sideFactor, 1.0f));
-
-			const glm::vec2 newVelocity = direction * playerParams.maxVelocity;
-			if (glm::length(newVelocity) > glm::length(player.getVelocity()))
-				player.setVelocity(newVelocity);
-
-			if (keyboard.pressing[/*VK_CONTROL*/0x11] || gamepad.rTrigger > gamepadTriggerDeadZone || gamepad.lTrigger > gamepadTriggerDeadZone)
-			{
-				playerFire = true;
-				playerAutoFire = false;
-			}
-			else
-				playerFire = false;
-
-			if (keyboard.pressed[/*VK_SHIFT*/0x10] || gamepad.pressed.rShoulder || gamepad.pressed.lShoulder)
-				playerAutoFire = !playerAutoFire;
-
-			if ((keyboard.pressed[/*VK_SPACE*/0x20] || gamepad.pressed.a) && glm::length(direction) > 0.0f)
-			{
-				auto& dashSound = Globals::Components().sounds()[dashSoundId];
-				dashSound.stop().setPlayingOffset(0.35f).setPosition(player.getOrigin2D()).play();
-				player.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerParams.dash * player.body->GetMass()), true);
-			}
-
-			if (keyboard.pressed['T'] || gamepad.pressed.y)
-				playerTransparency = !playerTransparency;
-			if (keyboard.pressed['B'] || gamepad.pressed.x)
-				playerBodyRendering = !playerBodyRendering;
 			if (keyboard.pressed['P'] || gamepad.pressed.start)
 				reload();
 
-			for (auto& [id, playerData] : playerIdsToData)
-				sparkingHandler(playerData, playerFire || playerAutoFire);
+			for (auto& [playerId, playerData] : playerIdsToData)
+			{
+				for (auto& [enemyId, enemyData] : enemyIdsToData)
+				{
+					const auto direction = playerData.actor.getOrigin2D() - enemyData.actor.getOrigin2D();
+					const auto distance = glm::length(direction);
+					if (distance > 0.0f)
+						enemyData.actor.setVelocity(direction / distance * enemyGhostParams.baseVelocity);
+				}
 
-			const float vLength = glm::length(player.getVelocity());
-			playerData.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * playerParams.presentation.velocityRotationFactor));
+				const glm::vec2 gamepadDirection = [&]() {
+					if (!gamepad.enabled)
+						return glm::vec2(0.0f);
+					const float directionLength = glm::length(gamepad.lStick);
+					if (directionLength < gamepadDeadZone)
+						return glm::vec2(0.0f);
+					if (directionLength > 1.0f)
+						return gamepad.lStick / directionLength;
+					return gamepad.lStick;
+					}();
+
+				const glm::vec2 keyboardDirection = [&]() {
+					const glm::vec2 direction(-(int)keyboard.pressing[/*VK_LEFT*/0x25] + (int)keyboard.pressing[/*VK_RIGHT*/0x27], -(int)keyboard.pressing[/*VK_DOWN*/0x28] + (int)keyboard.pressing[/*VK_UP*/0x26]);
+					if (direction == glm::vec2(0.0f))
+						return glm::vec2(0.0f);
+					return direction / glm::length(direction);
+					}();
+
+				const glm::vec2 direction = [&]() {
+					const glm::vec2 direction = gamepadDirection + keyboardDirection;
+					if (glm::length(direction) > 1.0f)
+						return direction / glm::length(direction);
+					return direction;
+					}();
+
+				playerData.animatedTexture.setSpeedScaling(glm::length(playerData.actor.getVelocity()));
+				if (playerData.animatedTexture.isForcingFrame())
+				{
+					playerData.animatedTexture.forceFrame(std::nullopt);
+					playerData.animatedTexture.start(true);
+				}
+
+				if (direction.x < 0.0f)
+					playerData.sideFactor = -1.0f;
+				else if (direction.x > 0.0f)
+					playerData.sideFactor = 1.0f;
+				else if (direction.y == 0.0f)
+					playerData.animatedTexture.forceFrame(playerParams.animation.neutralFrame);
+
+				playerData.animatedTexture.setAdditionalTransformation(playerParams.animation.frameTranslation * glm::vec2(playerData.sideFactor, 1.0f),
+					playerParams.animation.frameRotation * playerData.sideFactor, playerParams.animation.frameScale * glm::vec2(playerData.sideFactor, 1.0f));
+
+				const glm::vec2 newVelocity = direction * playerParams.maxVelocity;
+				if (glm::length(newVelocity) > glm::length(playerData.actor.getVelocity()))
+					playerData.actor.setVelocity(newVelocity);
+
+				if (keyboard.pressing[/*VK_CONTROL*/0x11] || gamepad.rTrigger > gamepadTriggerDeadZone || gamepad.lTrigger > gamepadTriggerDeadZone)
+				{
+					playerData.fire = true;
+					playerData.autoFire = false;
+				}
+				else
+					playerData.fire = false;
+
+				if (keyboard.pressed[/*VK_SHIFT*/0x10] || gamepad.pressed.rShoulder || gamepad.pressed.lShoulder)
+					playerData.autoFire = !playerData.autoFire;
+
+				if ((keyboard.pressed[/*VK_SPACE*/0x20] || gamepad.pressed.a) && glm::length(direction) > 0.0f)
+				{
+					auto& dashSound = Globals::Components().sounds()[dashSoundId];
+					dashSound.stop().setPlayingOffset(0.35f).setPosition(playerData.actor.getOrigin2D()).play();
+					playerData.actor.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerParams.dash * playerData.actor.body->GetMass()), true);
+				}
+
+				if (keyboard.pressed['T'] || gamepad.pressed.y)
+					playerData.presentationTransparency = !playerData.presentationTransparency;
+				if (keyboard.pressed['B'] || gamepad.pressed.x)
+					playerData.bodyRendering = !playerData.bodyRendering;
+
+				sparkingHandler(playerData, playerData.fire || playerData.autoFire);
+
+				const float vLength = glm::length(playerData.actor.getVelocity());
+				playerData.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * playerParams.presentation.velocityRotationFactor));
+			}
 		}
 
 	private:
-		void playerSpawn(glm::vec2 position)
+		void playerSpawn(int playerId, glm::vec2 position)
 		{
 			const auto playerPresentationSize = playerParams.presentation.radiusProportions * playerParams.radius;
 
-			auto& actors = Globals::Components().actors();
 			const auto& physics = Globals::Components().physics();
-			auto& player = actors.emplace(Tools::CreateCircleBody(playerParams.radius, Tools::BodyParams{}.linearDamping(playerParams.linearDamping).fixedRotation(true).bodyType(b2_dynamicBody).density(playerParams.density).position(position)),
+			
+			auto& playerAnimatedTexture = Globals::Components().dynamicAnimatedTextures().emplace();
+			playerAnimatedTexture.setAnimationData({ CM::StaticTexture(playerAnimationTextureId), playerParams.animation.textureSize, playerParams.animation.framesGrid, playerParams.animation.leftTopFrameLeftTopCorner,
+				playerParams.animation.rightTopFrameLeftEdge, playerParams.animation.leftBottomFrameTopEdge, playerParams.animation.frameSize, playerParams.animation.frameDuration, playerParams.animation.numOfFrames,
+				playerParams.animation.startFrame == -1 ? glm::linearRand(0, playerParams.animation.numOfFrames - 1) : playerParams.animation.startFrame,
+				playerParams.animation.direction, playerParams.animation.mode, playerParams.animation.textureLayout });
+			playerAnimatedTexture.start(true);
+
+			auto& playerActor = Globals::Components().actors().emplace(Tools::CreateCircleBody(playerParams.radius, Tools::BodyParams{}.linearDamping(playerParams.linearDamping).fixedRotation(true).bodyType(b2_dynamicBody).density(playerParams.density).position(position)),
 				CM::DummyTexture{});
-			const auto& playerData = playerIdsToData.emplace(player.getComponentId(), PlayerData{ player }).first->second;
+			const auto& playerData = playerIdsToData.emplace(playerId, PlayerData{ playerActor, playerAnimatedTexture }).first->second;
 
-			player.renderF = [this]() { return playerBodyRendering; };
-			player.colorF = glm::vec4(0.4f);
-			player.posInSubsequence = 1;
+			playerActor.renderF = [&]() { return playerData.bodyRendering; };
+			playerActor.colorF = glm::vec4(0.4f);
+			playerActor.posInSubsequence = 1;
 
-			auto& playerPresentation = player.subsequence.emplace_back();
-			playerPresentation.renderingSetupF = [this](auto) { if (!playerTransparency) glDisable(GL_BLEND); return []() mutable { glEnable(GL_BLEND); }; };
+			auto& playerPresentation = playerActor.subsequence.emplace_back();
+			playerPresentation.renderingSetupF = [&](auto) { if (!playerData.presentationTransparency) glDisable(GL_BLEND); return []() mutable { glEnable(GL_BLEND); }; };
 			playerPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, playerPresentationSize);
 			playerPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
-			playerPresentation.texture = CM::StaticAnimatedTexture(playerAnimatedTextureId);
+			playerPresentation.texture = CM::DynamicAnimatedTexture(playerData.animatedTexture.getComponentId());
 			playerPresentation.modelMatrixF = [&]() {
-				return player.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(playerParams.presentation.translation, 0.0f) * glm::vec3(playerData.sideFactor, 1.0f, 1.0f))
+				return playerActor.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(playerParams.presentation.translation, 0.0f) * glm::vec3(playerData.sideFactor, 1.0f, 1.0f))
 					* glm::rotate(glm::mat4(1.0f), (playerParams.presentation.rotation + playerData.angle) * playerData.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
 					* glm::scale(glm::mat4(1.0f), glm::vec3(playerParams.presentation.scale, 1.0f));
 			};
@@ -410,46 +413,53 @@ namespace Levels::DamageOn
 		{
 			auto& actors = Globals::Components().actors();
 			auto& physics = Globals::Components().physics();
-			auto& enemy = actors.emplace(Tools::CreateCircleBody(radius, Tools::BodyParams{ defaultBodyParams }
+			auto& enemyActor = actors.emplace(Tools::CreateCircleBody(radius, Tools::BodyParams{ defaultBodyParams }
 				.bodyType(b2_dynamicBody)
 				.density(enemyGhostParams.density)
-				.position(position)), CM::StaticAnimatedTexture(enemyAnimatedTextureIds[enemyIdsToData.size() % enemyAnimatedTextureIds.size()], {}, {}, glm::vec2(2.6f * radius)));
-			auto& enemyData = enemyIdsToData.emplace(enemy.getComponentId(), EnemyData{ enemy }).first->second;
+				.position(position)), CM::DynamicAnimatedTexture(enemyAnimatedTextureIds[enemyIdsToData.size() % enemyAnimatedTextureIds.size()], {}, {}, glm::vec2(2.6f * radius)));
+			const auto enemyId = enemyIdGenerator.acquire();
+			auto& enemyData = enemyIdsToData.emplace(enemyId, EnemyData{ enemyActor }).first->second;
 			auto damageColorFactor = std::make_shared<glm::vec4>(1.0f);
 
-			enemy.renderingSetupF = createRecursiveFaceRS({ radius * 0.6f, radius });
-			enemy.colorF = [baseColor = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f, damageColorFactor]() { return glm::mix(baseColor, *damageColorFactor, 0.5f); };
-			enemy.stepF = [&,
+			enemyActor.renderingSetupF = createRecursiveFaceRS({ radius * 0.6f, radius });
+			enemyActor.colorF = [baseColor = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f, damageColorFactor]() { return glm::mix(baseColor, *damageColorFactor, 0.5f); };
+			enemyActor.stepF = [&,
+				enemyId,
 				radius,
-				&spark = Globals::Components().dynamicDecorations().emplace(),
+				sparks = std::array<Components::Decoration*, 4>{ &Globals::Components().dynamicDecorations().emplace(), &Globals::Components().dynamicDecorations().emplace(),
+					&Globals::Components().dynamicDecorations().emplace(), &Globals::Components().dynamicDecorations().emplace() },
 				damageColorFactor,
 				hp = enemyGhostParams.initHP]() mutable {
-				const auto& playerData = playerIdsToData.begin()->second;
-				const auto direction = playerData.actor.getOrigin2D() - enemy.getOrigin2D();
-				const auto distance = glm::length(direction);
-				auto& enemyData = enemyIdsToData.find(enemy.getComponentId())->second;
-
-				enemyBoost(enemy, direction, distance);
-				if (sparkHandler(playerData, enemyData, spark, direction, distance, *damageColorFactor, playerFire || playerAutoFire))
+				bool kill = false;
+				for (auto& [playerId, playerData] : playerIdsToData)
 				{
-					++playerIdsToData.begin()->second.activeSparks;
-					hp -= physics.frameDuration * sparkingParams.damageFactor;
-					if (hp <= 0.0f)
-					{
-						Tools::CreateAndPlaySound(killSoundBufferId, enemy.getOrigin2D(), [&](auto& sound) {
-							const float basePitch = 5.0f * enemyGhostParams.initRadius / radius;
-							sound.setPitch(glm::linearRand(basePitch, basePitch * 5.0f));
-							sound.setVolume(0.2f);
-						});
-						enemyIdsToData.erase(enemy.getComponentId());
-						enemy.state = ComponentState::Outdated;
-						spark.state = ComponentState::Outdated;
+					const auto direction = playerData.actor.getOrigin2D() - enemyActor.getOrigin2D();
+					const auto distance = glm::length(direction);
 
-						const float newRadius = radius * enemyGhostParams.radiusReductionFactor;
-						if (newRadius >= enemyGhostParams.minimalRadius)
-							for (int i = 0; i < enemyGhostParams.killSpawns; ++i)
-								enemySpawn(enemy.getOrigin2D() + glm::circularRand(0.1f), radius * enemyGhostParams.radiusReductionFactor);
+					enemyBoost(enemyActor, direction, distance);
+					if (sparkHandler(playerData, enemyData, *sparks[playerId], direction, distance, *damageColorFactor, playerData.fire || playerData.autoFire))
+					{
+						++playerData.activeSparks;
+						hp -= physics.frameDuration * sparkingParams.damageFactor;
+						if (hp <= 0.0f)
+							kill = true;
 					}
+				}
+				if (kill)
+				{
+					Tools::CreateAndPlaySound(killSoundBufferId, enemyActor.getOrigin2D(), [&](auto& sound) {
+						const float basePitch = 5.0f * enemyGhostParams.initRadius / radius;
+						sound.setPitch(glm::linearRand(basePitch, basePitch * 5.0f));
+						sound.setVolume(0.2f);
+						});
+					for (auto& spark: sparks)
+						spark->state = ComponentState::Outdated;
+					enemyIdsToData.erase(enemyId);
+
+					const float newRadius = radius * enemyGhostParams.radiusReductionFactor;
+					if (newRadius >= enemyGhostParams.minimalRadius)
+						for (int i = 0; i < enemyGhostParams.killSpawns; ++i)
+							enemySpawn(enemyActor.getOrigin2D() + glm::circularRand(0.1f), radius * enemyGhostParams.radiusReductionFactor);
 				}
 			};
 		}
@@ -504,7 +514,6 @@ namespace Levels::DamageOn
 				sparkingOverheating += physics.frameDuration * sparkingParams.overheatingRate;
 				if (sparkingOverheating >= 1.0f)
 				{
-					
 					sparkingSound.pause();
 					if (!overchargeSound.isPlaying())
 						overchargeSound.play();
@@ -526,6 +535,7 @@ namespace Levels::DamageOn
 
 			overchargeSound.setVolume(sparkingOverheating);
 			overchargeSound.setPosition(sourceData.actor.getOrigin2D());
+
 			sourceData.activeSparks = 0;
 		}
 
@@ -556,10 +566,10 @@ namespace Levels::DamageOn
 			};
 
 			{
-				gameParams.mapHSize = Tools::Stof(getParam("game.mapHSize"));
 				gameParams.numOfPlayers = Tools::Stoi(getParam("game.numOfPlayers"));
 				gameParams.globalVolume = Tools::Stof(getParam("game.globalVolume"));
 				gameParams.musicVolume = Tools::Stof(getParam("game.musicVolume"));
+				gameParams.mapHSize = Tools::Stof(getParam("game.mapHSize"));
 			}
 
 			{
@@ -635,32 +645,18 @@ namespace Levels::DamageOn
 			if (loadParams)
 				this->loadParams();
 
-			auto& actors = Globals::Components().actors();
-
 			std::vector<glm::vec2> playerPositions;
 
 			if (!playerIdsToData.empty())
 			{
 				playerPositions.reserve(playerIdsToData.size());
-				for (const auto& [id, data] : playerIdsToData)
-				{
-					auto& player = actors[id];
-					playerPositions.push_back(player.getOrigin2D());
-					player.state = ComponentState::Outdated;
-				}
+				for (const auto& [playerId, playerData] : playerIdsToData)
+					playerPositions.push_back(playerData.actor.getOrigin2D());
 				playerIdsToData.clear();
 			}
 
-			auto& animatedTextures = Globals::Components().staticAnimatedTextures();
-			auto& playerAnimatedTexture = animatedTextures[playerAnimatedTextureId];
-
-			playerAnimatedTexture.setAnimationData({ CM::StaticTexture(playerAnimationTextureId), playerParams.animation.textureSize, playerParams.animation.framesGrid, playerParams.animation.leftTopFrameLeftTopCorner,
-				playerParams.animation.rightTopFrameLeftEdge, playerParams.animation.leftBottomFrameTopEdge, playerParams.animation.frameSize, playerParams.animation.frameDuration, playerParams.animation.numOfFrames, playerParams.animation.startFrame,
-				playerParams.animation.direction, playerParams.animation.mode, playerParams.animation.textureLayout });
-			playerAnimatedTexture.start(true);
-
 			for (int i = 0; i < gameParams.numOfPlayers; ++i)
-				playerSpawn(i < (int)playerPositions.size() ? playerPositions[i] : playerParams.startPosition + glm::circularRand(0.1f));
+				playerSpawn(i, i < (int)playerPositions.size() ? playerPositions[i] : playerParams.startPosition + glm::circularRand(0.1f));
 
 			auto& audioListener = Globals::Components().audioListener();
 			audioListener.setVolume(gameParams.globalVolume);
@@ -675,28 +671,78 @@ namespace Levels::DamageOn
 
 		struct PlayerData
 		{
+			PlayerData(Components::Actor& actor, Components::AnimatedTexture& animatedTexture) :
+				actor(actor),
+				animatedTexture(animatedTexture)
+			{
+			}
+
+			PlayerData(PlayerData&& playerData) noexcept :
+				actor(playerData.actor),
+				animatedTexture(playerData.animatedTexture)
+			{
+				playerData.outdated = true;
+			}
+
+			~PlayerData()
+			{
+				if (outdated)
+					return;
+
+				actor.state = ComponentState::Outdated;
+				animatedTexture.state = ComponentState::Outdated;
+			}
+
 			Components::Actor& actor;
+			Components::AnimatedTexture& animatedTexture;
+
+			bool fire = false;
+			bool autoFire = false;
 
 			float sideFactor = 1.0f;
 			int activeSparks{};
 			float angle{};
+
+			bool presentationTransparency = true;
+			bool bodyRendering = false;
+
+			bool outdated{};
 		};
 
 		struct EnemyData
 		{
+			EnemyData(Components::Actor& actor) :
+				actor(actor)
+			{
+			}
+
+			EnemyData(EnemyData&& enemyData) noexcept :
+				actor(enemyData.actor)
+			{
+				enemyData.outdated = true;
+			}
+
+			~EnemyData()
+			{
+				if (outdated)
+					return;
+
+				actor.state = ComponentState::Outdated;
+			}
+
 			Components::Actor& actor;
+			
+			bool outdated{};
 		};
 
-		std::unordered_map<ComponentId, PlayerData> playerIdsToData;
-		std::unordered_map<ComponentId, EnemyData> enemyIdsToData;
+		std::unordered_map<int, PlayerData> playerIdsToData;
+		std::unordered_map<int, EnemyData> enemyIdsToData;
 
 		ComponentId backgroundTextureId{};
 		ComponentId coffinTextureId{};
 		ComponentId fogTextureId{};
 
 		ComponentId playerAnimationTextureId{};
-		ComponentId playerAnimatedTextureId{};
-
 		ComponentId enemyAnimationTextureId{};
 		std::array<ComponentId, 10> enemyAnimatedTextureIds{};
 
@@ -708,12 +754,6 @@ namespace Levels::DamageOn
 
 		ComponentId killSoundBufferId{};
 
-		bool playerTransparency = true;
-		bool playerBodyRendering = false;
-
-		bool playerFire = false;
-		bool playerAutoFire = false;
-
 		float sparkingOverheating = 0.0f;
 		bool sparkingOverheated = false;
 
@@ -721,6 +761,8 @@ namespace Levels::DamageOn
 		PlayerParams playerParams{};
 		SparkingParams sparkingParams{};
 		EnemyGhostParams enemyGhostParams{};
+
+		IdGenerator<int> enemyIdGenerator{};
 	};
 
 	AnimationTesting::AnimationTesting():
