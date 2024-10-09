@@ -321,7 +321,11 @@ namespace Levels::DamageOn
 					return direction;
 					}();
 
-				playerData.animatedTexture.setSpeedScaling(glm::length(playerData.actor.getVelocity()));
+				const float vLength = glm::length(playerData.actor.getVelocity());
+
+				playerData.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * playerParams.presentation.velocityRotationFactor));
+
+				playerData.animatedTexture.setSpeedScaling(vLength);
 				if (playerData.animatedTexture.isForcingFrame())
 				{
 					playerData.animatedTexture.forceFrame(std::nullopt);
@@ -366,9 +370,6 @@ namespace Levels::DamageOn
 					playerData.bodyRendering = !playerData.bodyRendering;
 
 				sparkingHandler(playerData, playerData.fire || playerData.autoFire);
-
-				const float vLength = glm::length(playerData.actor.getVelocity());
-				playerData.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * playerParams.presentation.velocityRotationFactor));
 			}
 		}
 
