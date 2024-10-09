@@ -201,12 +201,10 @@ namespace Levels
 			const auto& planet = Globals::Components().grapples()[planetId];
 
 			Globals::Components().camera2D().projectionTransitionFactor = 6;
-			Globals::Components().camera2D().targetProjectionHSizeF = [&]() {
-				return (glm::distance(plane.getOrigin2D(), planet.getOrigin2D()) * 0.6f + glm::length(plane.getVelocity()) * 0.2f) * projectionHSizeBase * 0.2f;
-			};
 			Globals::Components().camera2D().positionTransitionFactor = 6;
-			Globals::Components().camera2D().targetPositionF = [&]() {
-				return (plane.getOrigin2D() + planet.getOrigin2D()) / 2.0f + glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * 5.0f + plane.getVelocity() * 0.4f;
+			Globals::Components().camera2D().targetPositionAndProjectionHSizeF = [&]() {
+				return glm::vec3((plane.getOrigin2D() + planet.getOrigin2D()) / 2.0f + glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * 5.0f + plane.getVelocity() * 0.4f,
+					(glm::distance(plane.getOrigin2D(), planet.getOrigin2D()) * 0.6f + glm::length(plane.getVelocity()) * 0.2f) * projectionHSizeBase * 0.2f);
 			};
 		}
 

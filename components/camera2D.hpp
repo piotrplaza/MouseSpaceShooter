@@ -10,8 +10,7 @@ namespace Components
 {
 	struct Camera2D : ComponentBase
 	{
-		FVec2 targetPositionF = glm::vec2(0.0f, 0.0f);
-		FFloat targetProjectionHSizeF = 10.0f;
+		FVec3 targetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, 10.0f);
 
 		float positionTransitionFactor = 10.0f;
 		float projectionTransitionFactor = 10.0f;

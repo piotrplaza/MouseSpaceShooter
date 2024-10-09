@@ -27,7 +27,7 @@ namespace Levels
 			auto& cursor = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfCircle(glm::vec2(0.0f), 1.0f, 20));
 			auto& particles = Globals::Components().staticParticles();
 
-			camera.targetProjectionHSizeF = 100.0f;
+			camera.targetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, 100.0f);
 			cursor.modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), glm::vec3(cursorPosition, 0.0f)); };
 
 			const auto particlesCount = 1000;

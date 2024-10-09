@@ -1,7 +1,14 @@
-game.numOfPlayers 4
+game.numOfPlayers 2
 game.globalVolume 1.0
 game.musicVolume 0.3
 game.mapHSize 20.0
+
+game.camera.minProjectionHSize 8.0
+game.camera.trackingMargin 3.0
+
+game.gamepad.firstPlayer true
+game.gamepad.deadZone 0.2
+game.gamepad.triggerDeadZone 0.1
 
 player.startPosition.x -15.0
 player.startPosition.y 0.0
@@ -35,9 +42,9 @@ player.animation.frameSize.y 130
 player.animation.frameDuration 0.075
 player.animation.numOfFrames 33
 player.animation.startFrame -1
-player.animation.direction Forward
-player.animation.mode Repeat
-player.animation.textureLayout Horizontal
+player.animation.direction forward
+player.animation.mode repeat
+player.animation.textureLayout horizontal
 player.animation.frameTranslation.x -0.1
 player.animation.frameTranslation.y 0.1
 player.animation.frameRotation 0.0
@@ -50,9 +57,9 @@ sparking.damageFactor 10.0
 sparking.overheatingRate 0.25
 sparking.coolingRate 0.5
 
-enemy.ghost.initCount 400
-enemy.ghost.initSpawnPosition.x 15.0
-enemy.ghost.initSpawnPosition.y 0.0
+enemy.ghost.initCount 500
+enemy.ghost.startPosition.x 15.0
+enemy.ghost.startPosition.y 0.0
 enemy.ghost.initHP 10.0
 enemy.ghost.initRadius 0.5
 enemy.ghost.density 1.0

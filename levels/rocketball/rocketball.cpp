@@ -112,12 +112,9 @@ namespace Levels
 			const auto& player = Globals::Components().planes()[player1Id];
 
 			Globals::Components().camera2D().projectionTransitionFactor = 6;
-			Globals::Components().camera2D().targetProjectionHSizeF = [&]() {
-				return 30.0f + glm::distance(player.getOrigin2D(), ball->getOrigin2D()) * 0.3f;
-			};
 			Globals::Components().camera2D().positionTransitionFactor = 6;
-			Globals::Components().camera2D().targetPositionF = [&]() {
-				return (player.getOrigin2D() + ball->getOrigin2D()) * 0.5f;
+			Globals::Components().camera2D().targetPositionAndProjectionHSizeF = [&]() {
+				return glm::vec3((player.getOrigin2D() + ball->getOrigin2D()) * 0.5f, 30.0f + glm::distance(player.getOrigin2D(), ball->getOrigin2D()) * 0.3f);
 			};
 		}
 

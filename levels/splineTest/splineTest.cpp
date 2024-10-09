@@ -40,11 +40,8 @@ namespace Levels
 			dynamicDecorations.last().drawMode = GL_LINE_STRIP;
 			dynamicDecorations.last().renderLayer = RenderLayer::Foreground;
 
-			camera.targetProjectionHSizeF = [&]() {
-				return projectionHSize;
-			};
-			camera.targetPositionF = [&]() {
-				return cameraPos;
+			camera.targetPositionAndProjectionHSizeF = [&]() {
+				return glm::vec3(cameraPos, projectionHSize);
 			};
 		}
 

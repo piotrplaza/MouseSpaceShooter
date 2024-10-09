@@ -138,72 +138,75 @@ namespace Tools
 			return plane.getVelocity() * velocityFactor;
 		};
 
+		Globals::Components().camera2D().positionTransitionFactor = cameraParams.transitionFactor_;
 		Globals::Components().camera2D().projectionTransitionFactor = cameraParams.transitionFactor_;
-		Globals::Components().camera2D().targetProjectionHSizeF = [&, velocityCorrection,
+		Globals::Components().camera2D().targetPositionAndProjectionHSizeF = [&, velocityCorrection,
 				projectionHSizeMin = std::move(cameraParams.projectionHSizeMin_),
 				scalingFactor = cameraParams.scalingFactor_,
 				additionalActors = cameraParams.additionalActors_]() {
-			const float maxDistance = [&]() {
-				const auto activePlayersHandlers = getActivePlayersHandlers();
 
-				if (activePlayersHandlers.size() == 1 && additionalActors.empty())
-					return glm::length(velocityCorrection(planes[activePlayersHandlers[0]->playerId])) + projectionHSizeMin();
-
+			auto targetPosition = [&]() {
+				glm::vec2 min(std::numeric_limits<float>::max());
+				glm::vec2 max(std::numeric_limits<float>::lowest());
+				glm::vec2 sumOfVelocityCorrections(0.0f);
+				auto activePlayersHandlers = getActivePlayersHandlers();
 				std::vector<glm::vec2> allActorsPos;
 				allActorsPos.reserve(activePlayersHandlers.size() + additionalActors.size());
 
 				for (const auto& playerHandler : activePlayersHandlers)
 				{
 					const auto& plane = planes[playerHandler->playerId];
-					allActorsPos.emplace_back(plane.getOrigin2D() + velocityCorrection(plane));
+					allActorsPos.emplace_back(plane.getOrigin2D());
+					sumOfVelocityCorrections += velocityCorrection(plane);
 				}
 				for (const auto& additionalActor : additionalActors)
 					allActorsPos.emplace_back(additionalActor());
 
-				float maxDistance = 0.0f;
-				for (unsigned i = 0; i < allActorsPos.size() - 1; ++i)
-					for (unsigned j = i + 1; j < allActorsPos.size(); ++j)
-					{
-						const auto pos1 = allActorsPos[i];
-						const auto pos2 = allActorsPos[j];
-						/*maxDistance = std::max(maxDistance, glm::max(glm::abs(pos1.x - pos2.x) * screenInfo.windowSize.y / screenInfo.windowSize.x * scalingFactor,
-							glm::abs(pos1.y - pos2.y) * scalingFactor));*/
-						maxDistance = std::max(maxDistance, glm::distance(glm::vec2(pos1.x / screenInfo.getAspectRatio(), pos1.y),
-							glm::vec2(pos2.x / screenInfo.getAspectRatio(), pos2.y)) * scalingFactor);
-					}
-				return maxDistance;
+				for (const auto& actorPos : allActorsPos)
+				{
+					min = { std::min(min.x, actorPos.x), std::min(min.y, actorPos.y) };
+					max = { std::max(max.x, actorPos.x), std::max(max.y, actorPos.y) };
+				}
+
+				return (min + max) / 2.0f + sumOfVelocityCorrections / (float)activePlayersHandlers.size();
 			}();
 
-			return std::max(projectionHSizeMin(), maxDistance);
-		};
+			auto targetProjection = [&]() {
+				const float maxDistance = [&]() {
+					const auto activePlayersHandlers = getActivePlayersHandlers();
 
-		Globals::Components().camera2D().positionTransitionFactor = cameraParams.transitionFactor_;
-		Globals::Components().camera2D().targetPositionF = [&, velocityCorrection,
-			additionalActors = cameraParams.additionalActors_]() {
+					if (activePlayersHandlers.size() == 1 && additionalActors.empty())
+						return glm::length(velocityCorrection(planes[activePlayersHandlers[0]->playerId])) + projectionHSizeMin();
 
-			glm::vec2 min(std::numeric_limits<float>::max());
-			glm::vec2 max(std::numeric_limits<float>::lowest());
-			glm::vec2 sumOfVelocityCorrections(0.0f);
-			auto activePlayersHandlers = getActivePlayersHandlers();
-			std::vector<glm::vec2> allActorsPos;
-			allActorsPos.reserve(activePlayersHandlers.size() + additionalActors.size());
+					std::vector<glm::vec2> allActorsPos;
+					allActorsPos.reserve(activePlayersHandlers.size() + additionalActors.size());
 
-			for (const auto& playerHandler : activePlayersHandlers)
-			{
-				const auto& plane = planes[playerHandler->playerId];
-				allActorsPos.emplace_back(plane.getOrigin2D());
-				sumOfVelocityCorrections += velocityCorrection(plane);
-			}
-			for (const auto& additionalActor : additionalActors)
-				allActorsPos.emplace_back(additionalActor());
+					for (const auto& playerHandler : activePlayersHandlers)
+					{
+						const auto& plane = planes[playerHandler->playerId];
+						allActorsPos.emplace_back(plane.getOrigin2D() + velocityCorrection(plane));
+					}
+					for (const auto& additionalActor : additionalActors)
+						allActorsPos.emplace_back(additionalActor());
 
-			for (const auto& actorPos : allActorsPos)
-			{
-				min = { std::min(min.x, actorPos.x), std::min(min.y, actorPos.y) };
-				max = { std::max(max.x, actorPos.x), std::max(max.y, actorPos.y) };
-			}
+					float maxDistance = 0.0f;
+					for (unsigned i = 0; i < allActorsPos.size() - 1; ++i)
+						for (unsigned j = i + 1; j < allActorsPos.size(); ++j)
+						{
+							const auto pos1 = allActorsPos[i];
+							const auto pos2 = allActorsPos[j];
+							/*maxDistance = std::max(maxDistance, glm::max(glm::abs(pos1.x - pos2.x) * screenInfo.windowSize.y / screenInfo.windowSize.x * scalingFactor,
+								glm::abs(pos1.y - pos2.y) * scalingFactor));*/
+							maxDistance = std::max(maxDistance, glm::distance(glm::vec2(pos1.x / screenInfo.getAspectRatio(), pos1.y),
+								glm::vec2(pos2.x / screenInfo.getAspectRatio(), pos2.y)) * scalingFactor);
+						}
+					return maxDistance;
+					}();
 
-			return (min + max) / 2.0f + sumOfVelocityCorrections / (float)activePlayersHandlers.size();
+				return std::max(projectionHSizeMin(), maxDistance);
+				}();
+
+			return glm::vec3(targetPosition, targetProjection);
 		};
 	}
 

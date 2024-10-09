@@ -22,9 +22,8 @@ namespace Components
 			setVolume(savedVolume);
 		else
 		{
-			const auto volume = getVolume();
-			setVolume(0.0f);
-			savedVolume = volume;
+			savedVolume = getVolume();
+			sf::Listener::setGlobalVolume(0.0f);
 		}
 	}
 

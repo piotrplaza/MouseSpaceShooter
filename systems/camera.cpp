@@ -32,10 +32,10 @@ namespace Systems
 			: 1.0f;
 
 		auto& camera = Globals::Components().camera2D();
-		const float targetProjectionHSize = camera.targetProjectionHSizeF();
-		camera.details.position = camera.targetPositionF();
+		const glm::vec3 targetPositionAndProjectionHSize = camera.targetPositionAndProjectionHSizeF();
+		camera.details.position = glm::vec2(targetPositionAndProjectionHSize);
 		camera.details.prevPosition = camera.details.prevPosition = camera.details.position;
-		camera.details.projectionHSize = camera.details.prevProjectionHSize = targetProjectionHSize;
+		camera.details.projectionHSize = camera.details.prevProjectionHSize = targetPositionAndProjectionHSize.z;
 
 		camera.details.completeProjectionHSize = glm::vec2(camera.details.projectionHSize * windowWidthRatio, camera.details.projectionHSize * windowHeightRatio);
 		camera.details.prevCompleteProjectionHSize = glm::vec2(camera.details.prevProjectionHSize * windowWidthRatio, camera.details.prevProjectionHSize * windowHeightRatio);
@@ -68,12 +68,11 @@ namespace Systems
 
 		if (!paused)
 		{
-			const float targetProjectionHSize = camera.targetProjectionHSizeF();
-			const glm::vec2 targetPosition = camera.targetPositionF();
+			const glm::vec3 targetPositionAndProjectionHSize = camera.targetPositionAndProjectionHSizeF();
 
-			camera.details.projectionHSize = camera.details.prevProjectionHSize + (targetProjectionHSize - camera.details.prevProjectionHSize)
+			camera.details.projectionHSize = camera.details.prevProjectionHSize + (targetPositionAndProjectionHSize.z - camera.details.prevProjectionHSize)
 				* std::clamp(camera.projectionTransitionFactor * physics.frameDuration, 0.0f, 1.0f);
-			camera.details.position = camera.details.prevPosition + (targetPosition - camera.details.prevPosition)
+			camera.details.position = camera.details.prevPosition + (glm::vec2(targetPositionAndProjectionHSize) - camera.details.prevPosition)
 				* std::clamp(camera.positionTransitionFactor * physics.frameDuration, 0.0f, 1.0f);
 
 			camera.details.prevProjectionHSize = camera.details.projectionHSize;

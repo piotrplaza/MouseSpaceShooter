@@ -34,7 +34,7 @@ namespace Levels
 			decalTextureData(TextureFile(decalTexturePath, 4))
 		{
 			Globals::Components().graphicsSettings().backgroundColorF = glm::vec4{ 0.0f, 0.1f, 0.1f, 1.0f };
-			Globals::Components().camera2D().targetProjectionHSizeF = []() { return 0.5f; };
+			Globals::Components().camera2D().targetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, 0.5f);
 			auto& texture = Globals::Components().dynamicTextures().emplace(TextureData(TextureFile(mainTexturePath, 3)));
 			//texture.magFilter = GL_NEAREST;
 			texture.wrapMode = GL_CLAMP_TO_EDGE;
