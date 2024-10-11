@@ -33,6 +33,12 @@ public:
 		releasedIds.push_back(id);
 	}
 
+	void reset()
+	{
+		counter = firstId;
+		releasedIds.clear();
+	}
+
 private:
 	IdType counter = firstId;
 	std::deque<IdType> releasedIds;

@@ -1,68 +1,50 @@
 game.numOfPlayers 2
 game.globalVolume 1.0
-game.musicVolume 0.3
+game.musicVolume 0.7
 game.mapHSize 20.0
-
 game.camera.minProjectionHSize 8.0
-game.camera.trackingMargin 3.0
-
-game.gamepad.firstPlayer true
+game.camera.trackingMargin 5.0
+game.camera.positionTransitionFactor 5.0
+game.camera.projectionTransitionFactor 5.0
+game.gamepad.firstPlayer false
 game.gamepad.deadZone 0.2
 game.gamepad.triggerDeadZone 0.1
 
-player.startPosition.x -15.0
-player.startPosition.y 0.0
-player.radius 1.0
-player.maxVelocity 8.0
-player.density 10.0
-player.linearDamping 6.0
-player.dash 30.0
+player.frankenstein.startPosition -25.0 0.0
+player.frankenstein.radius 1.0
+player.frankenstein.maxVelocity 8.0
+player.frankenstein.density 10.0
+player.frankenstein.linearDamping 6.0
+player.frankenstein.dash 30.0
+player.frankenstein.presentation.radiusProportions 1.0 1.0
+player.frankenstein.presentation.translation 0.0 0.0
+player.frankenstein.presentation.rotation 0.0
+player.frankenstein.presentation.scale 1.0 1.0
+player.frankenstein.presentation.velocityRotationFactor 0.0005
+player.frankenstein.presentation.velocityScalingFactor 1.0
+player.frankenstein.presentation.weaponOffset 0.0 0.2
+player.frankenstein.animation.textureSize 1280 1280
+player.frankenstein.animation.framesGrid 8 5
+player.frankenstein.animation.leftTopFrameLeftTopCorner 0 0
+player.frankenstein.animation.rightTopFrameLeftEdge 1122
+player.frankenstein.animation.leftBottomFrameTopEdge 638
+player.frankenstein.animation.frameSize 142 130
+player.frankenstein.animation.frameDuration 0.075
+player.frankenstein.animation.numOfFrames 33
+player.frankenstein.animation.startFrame -1
+player.frankenstein.animation.direction forward
+player.frankenstein.animation.mode repeat
+player.frankenstein.animation.textureLayout horizontal
+player.frankenstein.animation.frameTranslation -0.1 0.1
+player.frankenstein.animation.frameRotation 0.0
+player.frankenstein.animation.frameScale 1.5 1.5
+player.frankenstein.animation.neutralFrame 35
 
-player.presentation.radiusProportions.x 1.0
-player.presentation.radiusProportions.y 1.0
-player.presentation.translation.x 0.0
-player.presentation.translation.y 0.0
-player.presentation.rotation 0.0
-player.presentation.scale.x 1.0
-player.presentation.scale.y 1.0
-player.presentation.velocityRotationFactor 0.0005
-player.presentation.weaponOffset.x 0.0
-player.presentation.weaponOffset.y 0.2
-
-player.animation.textureSize.x 1280
-player.animation.textureSize.y 1280
-player.animation.framesGrid.x 8
-player.animation.framesGrid.y 5
-player.animation.leftTopFrameLeftTopCorner.x 0
-player.animation.leftTopFrameLeftTopCorner.y 0
-player.animation.rightTopFrameLeftEdge 1122
-player.animation.leftBottomFrameTopEdge 638
-player.animation.frameSize.x 142
-player.animation.frameSize.y 130
-player.animation.frameDuration 0.075
-player.animation.numOfFrames 33
-player.animation.startFrame -1
-player.animation.direction forward
-player.animation.mode repeat
-player.animation.textureLayout horizontal
-player.animation.frameTranslation.x -0.1
-player.animation.frameTranslation.y 0.1
-player.animation.frameRotation 0.0
-player.animation.frameScale.x 1.5
-player.animation.frameScale.y 1.5
-player.animation.neutralFrame 35
-
-sparking.distance 10.0
-sparking.damageFactor 10.0
-sparking.overheatingRate 0.25
-sparking.coolingRate 0.5
-
-enemy.ghost.initCount 500
-enemy.ghost.startPosition.x 15.0
-enemy.ghost.startPosition.y 0.0
+enemy.ghost.initCount 200
+enemy.ghost.startPosition 25.0 10.0
 enemy.ghost.initHP 10.0
-enemy.ghost.initRadius 0.5
-enemy.ghost.density 1.0
+enemy.ghost.initRadiusRange 0.3 0.7
+enemy.ghost.density 0.5
 enemy.ghost.baseVelocity 2.0
 enemy.ghost.boostDistance 15.0
 enemy.ghost.boostFactor 4.0
@@ -70,3 +52,67 @@ enemy.ghost.slowFactor 0.2
 enemy.ghost.radiusReductionFactor 0.5
 enemy.ghost.minimalRadius 0.25
 enemy.ghost.killSpawns 2
+enemy.ghost.presentation.radiusProportions 1.0 1.0
+enemy.ghost.presentation.translation 0.0 0.0
+enemy.ghost.presentation.rotation 0.0
+enemy.ghost.presentation.scale 1.0 1.0
+enemy.ghost.presentation.velocityRotationFactor 0.0005
+enemy.ghost.presentation.velocityScalingFactor 0.3
+enemy.ghost.presentation.weaponOffset 0.0 0.0
+enemy.ghost.animation.textureSize 263 525
+enemy.ghost.animation.framesGrid 5 10
+enemy.ghost.animation.leftTopFrameLeftTopCorner 0 0
+enemy.ghost.animation.rightTopFrameLeftEdge 210
+enemy.ghost.animation.leftBottomFrameTopEdge 473
+enemy.ghost.animation.frameSize 52 52
+enemy.ghost.animation.frameDuration 0.02
+enemy.ghost.animation.numOfFrames 50
+enemy.ghost.animation.startFrame -1
+enemy.ghost.animation.direction backward
+enemy.ghost.animation.mode repeat
+enemy.ghost.animation.textureLayout horizontal
+enemy.ghost.animation.frameTranslation 0.0 0.0
+enemy.ghost.animation.frameRotation 0.0
+enemy.ghost.animation.frameScale 1.0 1.0
+enemy.ghost.animation.neutralFrame 0
+
+enemy.chicken.initCount 40
+enemy.chicken.startPosition 25.0 -10.0
+enemy.chicken.initHP 50.0
+enemy.chicken.initRadiusRange 1.0 3.0
+enemy.chicken.density 0.2
+enemy.chicken.baseVelocity 4.0
+enemy.chicken.boostDistance 15.0
+enemy.chicken.boostFactor 2.0
+enemy.chicken.slowFactor 0.5
+enemy.chicken.radiusReductionFactor 0.0
+enemy.chicken.minimalRadius 0.5
+enemy.chicken.killSpawns 0
+enemy.chicken.presentation.radiusProportions 1.0 1.0
+enemy.chicken.presentation.translation 0.0 0.0
+enemy.chicken.presentation.rotation 0.0
+enemy.chicken.presentation.scale 1.0 1.0
+enemy.chicken.presentation.velocityRotationFactor 0.0005
+enemy.chicken.presentation.velocityScalingFactor 1.0
+enemy.chicken.presentation.weaponOffset 0.0 0.0
+enemy.chicken.animation.textureSize 2048 2048
+enemy.chicken.animation.framesGrid 8 5
+enemy.chicken.animation.leftTopFrameLeftTopCorner 0 0
+enemy.chicken.animation.rightTopFrameLeftEdge 1790
+enemy.chicken.animation.leftBottomFrameTopEdge 1025
+enemy.chicken.animation.frameSize 200 175
+enemy.chicken.animation.frameDuration 0.1
+enemy.chicken.animation.numOfFrames 41
+enemy.chicken.animation.startFrame 1
+enemy.chicken.animation.direction forward
+enemy.chicken.animation.mode repeat
+enemy.chicken.animation.textureLayout horizontal
+enemy.chicken.animation.frameTranslation -0.1 0.07
+enemy.chicken.animation.frameRotation 0.0
+enemy.chicken.animation.frameScale 1.275 1.275
+enemy.chicken.animation.neutralFrame 35
+
+sparking.distance 10.0
+sparking.damageFactor 10.0
+sparking.overheatingRate 0.25
+sparking.coolingRate 0.5
