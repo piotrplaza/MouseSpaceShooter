@@ -29,7 +29,7 @@
     <ClCompile Include="levels\crosses3DInstancing\crosses3DInstancing.cpp" />
     <ClCompile Include="levels\crosses3DTexturing\crosses3DTexturing.cpp" />
     <ClCompile Include="levels\crosses3D\crosses3D.cpp" />
-    <ClCompile Include="levels\damageOn\animationTesting\animationTesting.cpp" />
+    <ClCompile Include="levels\damageOn\nest\nest.cpp" />
     <ClCompile Include="levels\decals\decals.cpp" />
     <ClCompile Include="levels\dzidzia2\dzidzia2.cpp" />
     <ClCompile Include="levels\dzidzia\dzidzia.cpp" />
@@ -145,7 +145,7 @@
     <ClInclude Include="levels\crosses3DInstancing\crosses3DInstancing.hpp" />
     <ClInclude Include="levels\crosses3DTexturing\crosses3DTexturing.hpp" />
     <ClInclude Include="levels\crosses3D\crosses3D.hpp" />
-    <ClInclude Include="levels\damageOn\animationTesting\animationTesting.hpp" />
+    <ClInclude Include="levels\damageOn\nest\nest.hpp" />
     <ClInclude Include="levels\decals\decals.hpp" />
     <ClInclude Include="levels\dzidzia2\dzidzia2.hpp" />
     <ClInclude Include="levels\dzidzia\dzidzia.hpp" />
@@ -232,7 +232,7 @@
     <None Include="ogl\shaders\tfOrbitingParticles.vs" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="levels\damageOn\animationTesting\params.txt" />
+    <Text Include="levels\damageOn\nest\params.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

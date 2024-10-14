@@ -6,11 +6,11 @@
 
 namespace Levels::DamageOn
 {
-	class AnimationTesting: public Level
+	class Nest: public Level
 	{
 	public:
-		AnimationTesting();
-		~AnimationTesting();
+		Nest();
+		~Nest();
 
 		void postSetup() override;
 		void step() override;

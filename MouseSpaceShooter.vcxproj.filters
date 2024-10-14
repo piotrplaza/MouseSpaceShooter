@@ -143,11 +143,11 @@
     <Filter Include="src\levels\damageOn">
       <UniqueIdentifier>{8fea5a81-f66e-4a4f-96d2-f7c1b3483c0e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\levels\damageOn\animationTesting">
-      <UniqueIdentifier>{e41f9aac-b24d-4f38-b29c-ac9172a70ee3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\levels\tmp">
       <UniqueIdentifier>{36a76f89-808a-4007-8af0-91c974b8a8db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\levels\damageOn\nest">
+      <UniqueIdentifier>{934a3f5f-fa14-4b51-a3c2-b75c9558c8cf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -352,11 +352,11 @@
     <ClCompile Include="components\details\animationData.cpp">
       <Filter>src\components\details</Filter>
     </ClCompile>
-    <ClCompile Include="levels\damageOn\animationTesting\animationTesting.cpp">
-      <Filter>src\levels\damageOn\animationTesting</Filter>
-    </ClCompile>
     <ClCompile Include="levels\tmp\tmp.cpp">
       <Filter>src\levels\tmp</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\damageOn\nest\nest.cpp">
+      <Filter>src\levels\damageOn\nest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -733,14 +733,14 @@
       <Filter>src\components\details</Filter>
     </ClInclude>
     <ClInclude Include="components\details\textureData.hpp" />
-    <ClInclude Include="levels\damageOn\animationTesting\animationTesting.hpp">
-      <Filter>src\levels\damageOn\animationTesting</Filter>
-    </ClInclude>
     <ClInclude Include="levels\tmp\tmp.hpp">
       <Filter>src\levels\tmp</Filter>
     </ClInclude>
     <ClInclude Include="components\pauseHandler.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\damageOn\nest\nest.hpp">
+      <Filter>src\levels\damageOn\nest</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -800,8 +800,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="levels\damageOn\animationTesting\params.txt">
-      <Filter>src\levels\damageOn\animationTesting</Filter>
+    <Text Include="levels\damageOn\nest\params.txt">
+      <Filter>src\levels\damageOn\nest</Filter>
     </Text>
   </ItemGroup>
 </Project>

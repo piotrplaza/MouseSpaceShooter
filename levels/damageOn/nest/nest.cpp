@@ -1,4 +1,4 @@
-#include "animationTesting.hpp"
+#include "nest.hpp"
 
 #include <components/graphicsSettings.hpp>
 #include <components/screenInfo.hpp>
@@ -29,6 +29,7 @@
 
 #include <array>
 #include <unordered_map>
+#include <map>
 #include <fstream>
 #include <iostream>
 #include <format>
@@ -225,13 +226,13 @@ namespace Levels::DamageOn
 
 	namespace
 	{
-		constexpr const char* paramsPath = "levels/damageOn/animationTesting/params.txt";
+		constexpr const char* paramsPath = "levels/damageOn/nest/params.txt";
 
 		constexpr int debrisCount = 20;
 		constexpr float debrisDensity = 20.0f;
 	}
 
-	class AnimationTesting::Impl
+	class Nest::Impl
 	{
 	public:
 		void setup()
@@ -244,7 +245,7 @@ namespace Levels::DamageOn
 			auto& textures = Globals::Components().staticTextures();
 			auto& animatedTextures = Globals::Components().dynamicAnimatedTextures();
 
-			backgroundTextureId = textures.emplace("textures/damageOn/egg.jpg", GL_CLAMP_TO_BORDER).getComponentId();
+			backgroundTextureId = textures.emplace("textures/damageOn/nest.jpg", GL_CLAMP_TO_BORDER).getComponentId();
 			//textures.last().magFilter = GL_NEAREST;
 			textures.last().scale = glm::vec2(1.0f);
 			//textures.last().preserveAspectRatio = true;
@@ -360,12 +361,12 @@ namespace Levels::DamageOn
 			walls.emplace(Tools::CreateBoxBody({ borderHThickness, levelHSize.y + borderHThickness }, Tools::BodyParams{}.position({ levelHSize.x + borderHThickness, 0.0f }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 			const float mapScaleFactor = gameParams.mapHSize / 20.0f;
-			const glm::vec2 eggCenter = glm::vec2(1.8f, 2.6f) * mapScaleFactor;
-			walls.emplace(Tools::CreateCircleBody(6.0f * mapScaleFactor, Tools::BodyParams{}.position(eggCenter))).renderF = [&]() { return debug.levelBodiesRendering; };
+			const glm::vec2 nestCenter = glm::vec2(1.8f, 2.6f) * mapScaleFactor;
+			walls.emplace(Tools::CreateCircleBody(6.0f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter))).renderF = [&]() { return debug.levelBodiesRendering; };
 			walls.last().colorF = glm::vec4(0.2f);
-			walls.emplace(Tools::CreateCircleBody(5.5f * mapScaleFactor, Tools::BodyParams{}.position(eggCenter + glm::vec2(-2.5f) * mapScaleFactor))).renderF = [&]() { return debug.levelBodiesRendering; };
+			walls.emplace(Tools::CreateCircleBody(5.5f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter + glm::vec2(-2.5f) * mapScaleFactor))).renderF = [&]() { return debug.levelBodiesRendering; };
 			walls.last().colorF = glm::vec4(0.2f);
-			walls.emplace(Tools::CreateCircleBody(3.0f * mapScaleFactor, Tools::BodyParams{}.position(eggCenter + glm::vec2(-6.0f) * mapScaleFactor))).renderF = [&]() { return debug.levelBodiesRendering; };
+			walls.emplace(Tools::CreateCircleBody(3.0f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter + glm::vec2(-6.0f) * mapScaleFactor))).renderF = [&]() { return debug.levelBodiesRendering; };
 			walls.last().colorF = glm::vec4(0.2f);
 
 			auto screenCordTexturesF = [sceneCoordTextures = UniformsUtils::Uniform1b()](ShadersUtils::ProgramId program) mutable {
@@ -742,7 +743,7 @@ namespace Levels::DamageOn
 			if (!file.is_open())
 				std::cout << "unable to open \"" << paramsPath << "\"" << std::endl;
 
-			std::unordered_map<std::string, std::string> params;
+			std::map<std::string, std::string> params;
 			std::string line;
 			while (std::getline(file, line)) {
 				std::istringstream iss(line);
@@ -758,6 +759,7 @@ namespace Levels::DamageOn
 			std::cout << params.size() << " params loaded:" << std::endl;
 			for (const auto& [key, value] : params)
 				std::cout << key << " " << value << std::endl;
+			std::cout << std::endl;
 
 			auto getValue = [&](const std::string& key) {
 				try
@@ -1044,20 +1046,20 @@ namespace Levels::DamageOn
 		} debug;
 	};
 
-	AnimationTesting::AnimationTesting():
+	Nest::Nest():
 		impl(std::make_unique<Impl>())
 	{
 		impl->setup();
 	}
 
-	AnimationTesting::~AnimationTesting() = default;
+	Nest::~Nest() = default;
 
-	void AnimationTesting::postSetup()
+	void Nest::postSetup()
 	{
 		impl->postSetup();
 	}
 
-	void AnimationTesting::step()
+	void Nest::step()
 	{
 		impl->step();
 	}
