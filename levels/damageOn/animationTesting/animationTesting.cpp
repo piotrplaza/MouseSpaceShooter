@@ -273,6 +273,9 @@ namespace Levels::DamageOn
 			enemyAnimationTextures.push_back(&textures.emplace("textures/damageOn/enemy 2.png"));
 			textures.last().magFilter = GL_LINEAR;
 
+			enemyAnimationTextures.push_back(&textures.emplace("textures/damageOn/enemy 3.png"));
+			textures.last().magFilter = GL_LINEAR;
+
 			auto& soundsBuffers = Globals::Components().soundsBuffers();
 
 			sparkingSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
@@ -427,7 +430,7 @@ namespace Levels::DamageOn
 							enemyData.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * enemy.params.presentation.velocityRotationFactor));
 							enemyData.animatedTexture.setAdditionalTransformation(enemy.params.animation.frameTranslation * glm::vec2(enemyData.sideFactor, 1.0f),
 								enemy.params.animation.frameRotation * enemyData.sideFactor, enemy.params.animation.frameScale * glm::vec2(enemyData.sideFactor, 1.0f));
-							enemyData.animatedTexture.setSpeedScaling(glm::length(enemyData.actor.getVelocity() * enemy.params.presentation.velocityScalingFactor));
+							enemyData.animatedTexture.setSpeedScaling(enemy.params.presentation.velocityScalingFactor == 0.0f ? 1.0f : glm::length(enemyData.actor.getVelocity() * enemy.params.presentation.velocityScalingFactor));
 
 							minDistances[enemyId] = distance;
 						}
@@ -435,6 +438,7 @@ namespace Levels::DamageOn
 				};
 				enemyInteractionsF(enemyGhost);
 				enemyInteractionsF(enemyChicken);
+				enemyInteractionsF(enemyZombie);
 
 				const glm::vec2 gamepadDirection = gamepadEnabled
 					? [&]() {
@@ -469,7 +473,7 @@ namespace Levels::DamageOn
 
 				playerData.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * playerFrankenstein.params.presentation.velocityRotationFactor));
 
-				playerData.animatedTexture.setSpeedScaling(vLength * playerFrankenstein.params.presentation.velocityScalingFactor);
+				playerData.animatedTexture.setSpeedScaling(playerFrankenstein.params.presentation.velocityScalingFactor == 0.0f ? 1.0f : vLength * playerFrankenstein.params.presentation.velocityScalingFactor);
 				if (playerData.animatedTexture.isForcingFrame())
 				{
 					playerData.animatedTexture.forceFrame(std::nullopt);
@@ -904,6 +908,7 @@ namespace Levels::DamageOn
 
 			loadEnemyParams(enemyGhost.params, "ghost");
 			loadEnemyParams(enemyChicken.params, "chicken");
+			loadEnemyParams(enemyZombie.params, "zombie");
 
 			loadParam(sparkingParams.distance, "sparking.distance");
 			loadParam(sparkingParams.damageFactor, "sparking.damageFactor");
@@ -959,10 +964,12 @@ namespace Levels::DamageOn
 			const auto playerFrankensteinPositions = clearPlayer(playerFrankenstein);
 			const auto enemyGhostPositionsAndRadiuses = clearEnemy(enemyGhost);
 			const auto enemyChickenPositionsAndRadiuses = clearEnemy(enemyChicken);
+			const auto enemyZombiePositionsAndRadiuses = clearEnemy(enemyZombie);
 
 			spawnPlayer(playerFrankenstein, playerFrankensteinPositions);
 			spawnEnemy(enemyGhost, enemyGhostPositionsAndRadiuses, 0);
 			spawnEnemy(enemyChicken, enemyChickenPositionsAndRadiuses, 1);
+			spawnEnemy(enemyZombie, enemyZombiePositionsAndRadiuses, 2);
 
 			auto& audioListener = Globals::Components().audioListener();
 			audioListener.setVolume(gameParams.globalVolume);
@@ -1023,6 +1030,7 @@ namespace Levels::DamageOn
 		Player playerFrankenstein{};
 		Enemy enemyGhost{};
 		Enemy enemyChicken{};
+		Enemy enemyZombie{};
 		SparkingParams sparkingParams{};
 
 		IdGenerator<int> playerIdGenerator{};
