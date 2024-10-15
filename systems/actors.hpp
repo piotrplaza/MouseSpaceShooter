@@ -24,8 +24,6 @@ namespace Systems
 		void postInit();
 		void step();
 
-		void updateDynamicBuffers();
-
 	private:
 		struct Connections
 		{
@@ -55,6 +53,8 @@ namespace Systems
 
 			void updateBuffers();
 		};
+
+		void updateDynamicBuffers();
 
 		void turn(Components::Plane& plane) const;
 		void throttle(Components::Plane& plane) const;

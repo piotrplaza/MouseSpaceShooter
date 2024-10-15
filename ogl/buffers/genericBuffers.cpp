@@ -398,42 +398,45 @@ namespace Buffers
 		return normalTransforms;
 	}
 
-	void GenericBuffers::applyComponentSubsequence(Renderable& renderableComponent, bool staticComponent)
-	{
-		auto subBuffersIt = subsequence.begin();
-		for (auto& renderableDef : renderableComponent.subsequence)
-		{
-			auto& subBuffers = ReuseOrEmplaceBack(subsequence, subBuffersIt);
-
-			subBuffers.renderable = &renderableDef;
-			renderableDef.loaded.subBuffers = &subBuffers;
-
-			// TODO: Investigate why this optimization makes renderable permanently invisible if renderF returns false initially.
-			/*if (!staticComponent && !renderableComponent.renderF())
-				continue;*/
-
-			RenderableCommonsToBuffersCommons(renderableDef, subBuffers);
-		}
-		subsequence.resize(std::distance(subsequence.begin(), subBuffersIt));
-	}
-
 	void GenericBuffers::applyComponent(Renderable& renderableComponent, bool staticComponent)
 	{
-		GenericSubBuffers::renderable = &renderableComponent;
-		renderable = &renderableComponent;
+		auto applyMainPart = [&]() {
+			GenericSubBuffers::renderable = &renderableComponent;
+			renderable = &renderableComponent;
+
+			if (!staticComponent && !renderableComponent.renderF() && renderableComponent.loaded.buffers)
+				return;
+
+			RenderableCommonsToBuffersCommons(renderableComponent, *this);
+
+			if (renderableComponent.instancing)
+			{
+				setInstancedTransformsBuffer(renderableComponent.instancing->transforms_);
+				if (renderableComponent.params3D && !renderableComponent.params3D->gpuSideInstancedNormalTransforms_)
+					setInstancedNormalTransformsBuffer(calcNormalTransforms(renderableComponent.instancing->transforms_));
+			}
+		};
+
+		auto applySubsequencePart = [&]() {
+			auto subBuffersIt = subsequence.begin();
+			for (auto& renderableDef : renderableComponent.subsequence)
+			{
+				auto& subBuffers = ReuseOrEmplaceBack(subsequence, subBuffersIt);
+
+				subBuffers.renderable = &renderableDef;
+				renderableDef.loaded.subBuffers = &subBuffers;
+
+				if (!staticComponent && !renderableComponent.renderF() && renderableComponent.loaded.buffers)
+					continue;
+
+				RenderableCommonsToBuffersCommons(renderableDef, subBuffers);
+			}
+			subsequence.resize(std::distance(subsequence.begin(), subBuffersIt));
+		};
+
+		applyMainPart();
+		applySubsequencePart();
+
 		renderableComponent.loaded.buffers = this;
-
-		// TODO: Investigate why this optimization makes renderable permanently invisible if renderF returns false initially.
-		/*if (!staticComponent && !renderableComponent.renderF())
-			return;*/
-
-		RenderableCommonsToBuffersCommons(renderableComponent, *this);
-
-		if (renderableComponent.instancing)
-		{
-			setInstancedTransformsBuffer(renderableComponent.instancing->transforms_);
-			if (renderableComponent.params3D && !renderableComponent.params3D->gpuSideInstancedNormalTransforms_)
-				setInstancedNormalTransformsBuffer(calcNormalTransforms(renderableComponent.instancing->transforms_));
-		}
 	}
 }

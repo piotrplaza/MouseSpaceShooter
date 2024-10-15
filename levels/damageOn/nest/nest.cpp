@@ -240,7 +240,7 @@ namespace Levels::DamageOn
 			loadParams();
 
 			auto& graphicsSettings = Globals::Components().graphicsSettings();
-			graphicsSettings.lineWidth = 10.0f;
+			graphicsSettings.lineWidth = 6.0f;
 
 			auto& textures = Globals::Components().staticTextures();
 			auto& animatedTextures = Globals::Components().dynamicAnimatedTextures();
@@ -683,17 +683,24 @@ namespace Levels::DamageOn
 					* glm::vec4(playerFrankenstein.params.presentation.weaponOffset, 0.0f, 1.0f);
 
 				targetData.actor.setVelocity(direction / distance * target.params.baseVelocity * target.params.slowFactor);
+				targetData.animatedTexture.setSpeedScaling(target.params.presentation.velocityScalingFactor == 0.0f ? 1.0f : glm::length(targetData.actor.getVelocity() * target.params.presentation.velocityScalingFactor));
 
-				spark.vertices = Tools::Shapes2D::CreateVerticesOfLightning(sourceData.actor.getOrigin2D() + weaponOffset + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
-					targetData.actor.getOrigin2D() + glm::diskRand(target.params.minimalRadius), int(20 * distance), 2.0f / glm::sqrt(distance));
-				spark.drawMode = GL_LINE_STRIP;
-				spark.colorF = damageColorFactor = glm::mix(glm::vec4(0.0f, glm::linearRand(0.2f, 0.6f), glm::linearRand(0.4f, 0.8f), 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), sourceData.manaOverheating) * 0.6f;
+				spark.vertices.clear();
+				for (int i = 0; i < 10; ++i)
+					Tools::Shapes2D::AppendVerticesOfLightning(spark.vertices, sourceData.actor.getOrigin2D() + weaponOffset + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
+						targetData.actor.getOrigin2D() + glm::diskRand(targetData.radius * 0.1f), int(20 * distance), 3.0f / glm::sqrt(distance));
+				
+				spark.bufferDataUsage = GL_DYNAMIC_DRAW;
+				spark.drawMode = GL_LINES;
+				auto sparkColor = glm::mix(glm::vec4(0.0f, glm::linearRand(0.2f, 0.6f), glm::linearRand(0.4f, 0.8f), 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), sourceData.manaOverheating);
+				spark.colorF = sparkColor * 0.2f;
+				damageColorFactor = sparkColor * glm::linearRand(0.0f, 1.0f);
 				spark.renderF = true;
 				spark.state = ComponentState::Changed;
 
 				return true;
 			}
-
+			//spark.vertices.clear();
 			spark.renderF = false;
 			damageColorFactor = glm::vec4(1.0f);
 

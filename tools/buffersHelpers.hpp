@@ -37,7 +37,6 @@ namespace Tools
 			}();
 
 			selectedBuffers.applyComponent(component, true);
-			selectedBuffers.applyComponentSubsequence(component, true);
 		}
 	}
 
@@ -75,7 +74,6 @@ namespace Tools
 			auto& selectedBuffers = mapOfSelectedBuffers[component.getComponentId()];
 
 			selectedBuffers.applyComponent(component, false);
-			selectedBuffers.applyComponentSubsequence(component, false);
 
 			component.teardownF = [&]() { mapOfSelectedBuffers.erase(component.getComponentId()); };
 		}

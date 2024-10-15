@@ -94,10 +94,10 @@ namespace Tools::Shapes2D
 		return vertices;
 	}
 
-	void AppendVerticesOfCircle(std::vector<glm::vec3>& result, const glm::vec2& position, float radius, int complexity,
+	void AppendVerticesOfCircle(std::vector<glm::vec3>& vertices, const glm::vec2& position, float radius, int complexity,
 		const glm::mat4& modelMatrix, float z)
 	{
-		result.reserve(result.size() + complexity * 3);
+		vertices.reserve(vertices.size() + complexity * 3);
 
 		const float radialStep = glm::two_pi<float>() / complexity;
 
@@ -106,10 +106,10 @@ namespace Tools::Shapes2D
 			const float radialPosition = i * radialStep;
 			const float nextRadialPosition = (i + 1) * radialStep;
 
-			result.push_back(modelMatrix * glm::vec4(position, z, 1.0f));
-			result.push_back(modelMatrix * glm::vec4(position + glm::vec2(glm::cos(radialPosition),
+			vertices.push_back(modelMatrix * glm::vec4(position, z, 1.0f));
+			vertices.push_back(modelMatrix * glm::vec4(position + glm::vec2(glm::cos(radialPosition),
 				glm::sin(radialPosition)) * radius, z, 1.0f));
-			result.push_back(modelMatrix * glm::vec4(position + glm::vec2(glm::cos(nextRadialPosition),
+			vertices.push_back(modelMatrix * glm::vec4(position + glm::vec2(glm::cos(nextRadialPosition),
 				glm::sin(nextRadialPosition)) * radius, z, 1.0f));
 		}
 	}
@@ -122,12 +122,13 @@ namespace Tools::Shapes2D
 		return vertices;
 	}
 
-	std::vector<glm::vec3> CreateVerticesOfLightning(const glm::vec2& p1, const glm::vec2& p2,
+	void AppendVerticesOfLightning(std::vector<glm::vec3>& vertices, const glm::vec2& p1, const glm::vec2& p2,
 		int segmentsNum, float frayFactor, float z)
 	{
-		std::vector<glm::vec3> vertices;
-		vertices.reserve(segmentsNum * 2);
+		// TODO: Investigate why this reserve is slowing down the program.
+		//vertices.reserve(vertices.size() + segmentsNum * 2);
 
+		const size_t initialSize = vertices.size();
 		const glm::vec2 d = glm::normalize(p2 - p1);
 		const glm::vec2 step = (p2 - p1) / (float)segmentsNum;
 		const float stepLength = glm::length(step);
@@ -143,7 +144,7 @@ namespace Tools::Shapes2D
 			currentPos += orthoD * variationStep;
 
 			vertices.emplace_back(currentPos, z);
-			if (i != segmentsNum - 1) vertices.push_back(vertices.back());
+			if (i < segmentsNum - 1) vertices.push_back(vertices.back());
 		}
 
 		const glm::vec2 delta = p2 - glm::vec2(vertices.back());
@@ -151,10 +152,16 @@ namespace Tools::Shapes2D
 
 		for (int i = 0; i < segmentsNum; ++i)
 		{
-			vertices[i * 2] += glm::vec3(stepCorrection * (float)i, 0.0f);
-			vertices[i * 2 + 1] += glm::vec3(stepCorrection * (float)(i + 1), 0.0f);
+			vertices[initialSize + i * 2] += glm::vec3(stepCorrection * (float)i, 0.0f);
+			vertices[initialSize + i * 2 + 1] += glm::vec3(stepCorrection * (float)(i + 1), 0.0f);
 		}
+	}
 
+	std::vector<glm::vec3> CreateVerticesOfLightning(const glm::vec2& p1, const glm::vec2& p2,
+		int segmentsNum, float frayFactor, float z)
+	{
+		std::vector<glm::vec3> vertices;
+		AppendVerticesOfLightning(vertices, p1, p2, segmentsNum, frayFactor, z);
 		return vertices;
 	}
 }
