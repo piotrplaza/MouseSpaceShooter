@@ -3,6 +3,9 @@
 #include "_renderableDef.hpp"
 #include "_componentBase.hpp"
 
+#include "defaults.hpp"
+#include <globals/components.hpp>
+
 #include <tools/geometryHelpers.hpp>
 
 #include <commonTypes/componentMappers.hpp>
@@ -72,8 +75,8 @@ struct Renderable : ComponentBase, RenderableDef
 	std::optional<ShadersUtils::ProgramId> customShadersProgram;
 	std::optional<Instancing> instancing;
 
-	ResolutionMode resolutionMode = ResolutionMode::Normal;
-	RenderLayer renderLayer = RenderLayer::Midground;
+	ResolutionMode resolutionMode = Globals::Components().defaults().resolutionMode;
+	RenderLayer renderLayer = Globals::Components().defaults().renderLayer;
 
 	std::deque<RenderableDef> subsequence;
 	unsigned subsequenceBegin = 0;

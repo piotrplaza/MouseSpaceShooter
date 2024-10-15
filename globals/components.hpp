@@ -10,6 +10,7 @@
 
 namespace Components
 {
+	struct Defaults;
 	struct RenderingBuffers;
 	struct Keyboard;
 	struct Mouse;
@@ -52,6 +53,7 @@ namespace Globals
 	class ComponentsHolder
 	{
 	public:
+		Components::Defaults& defaults();
 		Components::RenderingBuffers& renderingBuffers();
 		Components::Keyboard& keyboard();
 		Components::Mouse& mouse();
@@ -103,6 +105,7 @@ namespace Globals
 		DynamicOrderedComponents<Components::DeferredAction>& deferredActions();
 
 	private:
+		std::unique_ptr<Components::Defaults> defaults_ = std::make_unique<Components::Defaults>();
 		std::unique_ptr<Components::RenderingBuffers> renderingBuffers_ = std::make_unique<Components::RenderingBuffers>();
 		std::unique_ptr<Components::Keyboard> keyboardState_ = std::make_unique<Components::Keyboard>();
 		std::unique_ptr<Components::Mouse> mouseState_ = std::make_unique<Components::Mouse>();

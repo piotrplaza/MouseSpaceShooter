@@ -1,5 +1,6 @@
 #include "nest.hpp"
 
+#include <components/defaults.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/screenInfo.hpp>
 #include <components/camera2D.hpp>
@@ -238,6 +239,9 @@ namespace Levels::DamageOn
 		void setup()
 		{
 			loadParams();
+
+			auto& defaults = Globals::Components().defaults();
+			//defaults.resolutionMode = ResolutionMode::PixelArtBlend0;
 
 			auto& graphicsSettings = Globals::Components().graphicsSettings();
 			graphicsSettings.lineWidth = 6.0f;
@@ -584,18 +588,16 @@ namespace Levels::DamageOn
 				.bodyType(b2_dynamicBody)
 				.density(enemy.params.density)
 				.position(position)), CM::DummyTexture());
+			enemyActor.renderF = [&]() { return debug.bodyRendering; };
+			enemyActor.colorF = glm::vec4(0.4f);
+			enemyActor.posInSubsequence = 1;
 
 			const auto enemyId = enemyIdGenerator.acquire();
 			auto& enemyData = enemy.idsToData.emplace(enemyId, Enemy::Data{ enemyActor, enemyAnimatedTexture }).first->second;
 			enemyData.radius = radius;
 
-			enemyActor.renderF = [&]() { return debug.bodyRendering; };
-			enemyActor.colorF = glm::vec4(0.4f);
-			enemyActor.posInSubsequence = 1;
-
 			auto& enemyPresentation = enemyActor.subsequence.emplace_back();
 			const auto enemyPresentationSize = enemy.params.presentation.radiusProportions * radius;
-
 			enemyPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, enemyPresentationSize);
 			enemyPresentation.modelMatrixF = [&]() {
 				return enemyActor.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(enemy.params.presentation.translation, 0.0f) * glm::vec3(enemyData.sideFactor, 1.0f, 1.0f))

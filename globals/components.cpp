@@ -42,6 +42,11 @@ namespace Globals
 {
 	static std::unique_ptr<ComponentsHolder> componentsHolder;
 
+	Components::Defaults& ComponentsHolder::defaults()
+	{
+		return *defaults_;
+	}
+
 	Components::RenderingBuffers& ComponentsHolder::renderingBuffers()
 	{
 		return *renderingBuffers_;

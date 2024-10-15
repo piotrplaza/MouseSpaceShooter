@@ -92,6 +92,7 @@
     <ClInclude Include="commonTypes\idGenerator.hpp" />
     <ClInclude Include="commonTypes\renderLayer.hpp" />
     <ClInclude Include="commonTypes\resolutionMode.hpp" />
+    <ClInclude Include="components\defaults.hpp" />
     <ClInclude Include="components\details\textureData.hpp" />
     <ClInclude Include="components\actor.hpp" />
     <ClInclude Include="components\animatedTexture.hpp" />
