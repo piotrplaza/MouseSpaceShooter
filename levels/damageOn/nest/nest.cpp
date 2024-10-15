@@ -241,7 +241,7 @@ namespace Levels::DamageOn
 			loadParams();
 
 			auto& defaults = Globals::Components().defaults();
-			//defaults.resolutionMode = ResolutionMode::PixelArtBlend0;
+			//defaults.resolutionMode = { ResolutionMode::Resolution::H270 };
 
 			auto& graphicsSettings = Globals::Components().graphicsSettings();
 			graphicsSettings.lineWidth = 6.0f;

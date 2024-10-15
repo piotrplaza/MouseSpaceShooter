@@ -29,7 +29,7 @@ namespace
 
 		if (defaultAndPosToTexCoordF)
 		{
-			//texCoords.reserve(texCoords.size() + rectangleVertices.size()); // Extremely slowing down if multiple calls.
+			//texCoords.reserve(texCoords.size() + rectangleVertices.size()); // TODO: Investigate why extremely slowing down if multiple calls.
 			for (size_t i = 0; i < rectangleVertices.size(); ++i)
 				texCoords.push_back(defaultAndPosToTexCoordF(defaultRectangleTexCoords[i], rectangleVertices[i]));
 		}
