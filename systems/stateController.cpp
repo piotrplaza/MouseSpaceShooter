@@ -23,11 +23,6 @@
 
 namespace
 {
-	constexpr int lowerResDivisor = 2;
-	constexpr int lowestResDivisor = 4;
-	constexpr int pixelArtShorterDim = 100;
-	constexpr int lowPixelArtShorterDim = 30;
-
 	void ProcessFunctors(DynamicOrderedComponents<Components::Functor>& functors)
 	{
 		auto it = functors.begin();
@@ -105,25 +100,24 @@ namespace Systems
 			assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 		};
 
-		const glm::ivec2 pixelArtTextureFramebufferSize = size.x > size.y
-			? glm::ivec2((int)(pixelArtShorterDim * (float)size.x / size.y), pixelArtShorterDim)
-			: glm::ivec2(pixelArtShorterDim, (int)(pixelArtShorterDim * (float)size.y / size.x));
+		const float aspectRatio = screenInfo.getAspectRatio();
 
-		const glm::ivec2 lowPixelArtTextureFramebufferSize = size.x > size.y
-			? glm::ivec2((int)(lowPixelArtShorterDim * (float)size.x / size.y), lowPixelArtShorterDim)
-			: glm::ivec2(lowPixelArtShorterDim, (int)(lowPixelArtShorterDim * (float)size.y / size.x));
-
-		setTextureFramebufferSize(framebuffers.main, size);
-		setTextureFramebufferSize(framebuffers.normalLinearBlend0, size);
-		setTextureFramebufferSize(framebuffers.normalLinearBlend1, size);
-		setTextureFramebufferSize(framebuffers.lowerLinearBlend0, size / lowerResDivisor);
-		setTextureFramebufferSize(framebuffers.lowerLinearBlend1, size / lowerResDivisor);
-		setTextureFramebufferSize(framebuffers.lowestLinearBlend0, size / lowestResDivisor);
-		setTextureFramebufferSize(framebuffers.lowestLinearBlend1, size / lowestResDivisor);
-		setTextureFramebufferSize(framebuffers.pixelArtBlend0, pixelArtTextureFramebufferSize);
-		setTextureFramebufferSize(framebuffers.pixelArtBlend1, pixelArtTextureFramebufferSize);
-		setTextureFramebufferSize(framebuffers.lowPixelArtBlend0, lowPixelArtTextureFramebufferSize);
-		setTextureFramebufferSize(framebuffers.lowPixelArtBlend1, lowPixelArtTextureFramebufferSize);
+		for (size_t scaling = 0; scaling < (size_t)ResolutionMode::Scaling::COUNT; ++scaling)
+			for (size_t blending = 0; blending < (size_t)ResolutionMode::Blending::COUNT; ++blending)
+			{
+				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::Native][scaling][blending], size);
+				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::HalfNative][scaling][blending], size / 2);
+				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::QuarterNative][scaling][blending], size / 4);
+				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::OctaNative][scaling][blending], size / 8);
+				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H2160][scaling][blending], { 2160 * aspectRatio, 2160 });
+				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H1080][scaling][blending], { 1080 * aspectRatio, 1080 });
+				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H540][scaling][blending], { 540 * aspectRatio, 540 });
+				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H270][scaling][blending], { 270 * aspectRatio, 270 });
+				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H135][scaling][blending], { 135 * aspectRatio, 135 });
+				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H68][scaling][blending], { 68 * aspectRatio, 68 });
+				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H34][scaling][blending], { 34 * aspectRatio, 34 });
+				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H17][scaling][blending], { 17 * aspectRatio, 17 });
+			}
 	}
 
 	void StateController::changeWindowLocation(glm::ivec2 location) const

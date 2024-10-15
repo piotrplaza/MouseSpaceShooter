@@ -449,7 +449,7 @@ namespace Levels
 					}), Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::StaticTexture(roseTexture), std::move(renderingSetupF));
 			}
 
-			Globals::Components().staticWalls().last().resolutionMode = ResolutionMode::PixelArtBlend0;
+			Globals::Components().staticWalls().last().resolutionMode = { ResolutionMode::Resolution::H68 };
 			lowResBodies.insert(Globals::Components().staticWalls().last().body.get());
 		}
 
@@ -647,7 +647,9 @@ namespace Levels
 			missilesHandler.setMissileTexture(missile2Texture);
 			missilesHandler.setFlameAnimatedTexture(flameAnimatedTexture);
 			missilesHandler.setResolutionModeF([this](const auto& targetBody) {
-				return lowResBodies.count(&targetBody) ? ResolutionMode::LowPixelArtBlend1 : ResolutionMode::LowestLinearBlend1;
+				return lowResBodies.contains(&targetBody)
+					? ResolutionMode{ ResolutionMode::Resolution::H135, ResolutionMode::Scaling::Nearest, ResolutionMode::Blending::Additive }
+					: ResolutionMode{ ResolutionMode::Resolution::QuarterNative, ResolutionMode::Scaling::Linear, ResolutionMode::Blending::Additive};
 				});
 			missilesHandler.setExplosionF([this](auto pos) {
 				Tools::CreateAndPlaySound(missileExplosionSoundBuffer, [pos]() { return pos; });

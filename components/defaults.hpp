@@ -7,7 +7,7 @@ namespace Components
 {
 	struct Defaults
 	{
-		ResolutionMode resolutionMode = ResolutionMode::Normal;
+		ResolutionMode resolutionMode = {};
 		RenderLayer renderLayer = RenderLayer::Midground;
 	};
 }

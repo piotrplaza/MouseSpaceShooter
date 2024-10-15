@@ -36,8 +36,8 @@ namespace
 
 		auto render = [&](const auto& buffers) {
 			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.renderable->resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(buffers.renderable->resolutionMode != ResolutionMode::Normal, subBuffers.fbo,
-				subBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
+			Tools::ConditionalScopedFramebuffer csfb(!buffers.renderable->resolutionMode.isMainMode(), subBuffers.fbo,
+				subBuffers.size, Globals::Components().framebuffers().getMainSubBuffers().fbo, Globals::Components().framebuffers().getMainSubBuffers().size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.renderable->resolutionMode);
 
@@ -78,8 +78,8 @@ namespace
 
 		auto render = [&](const auto& buffers) {
 			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.renderable->resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(buffers.renderable->resolutionMode != ResolutionMode::Normal, subBuffers.fbo,
-				subBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
+			Tools::ConditionalScopedFramebuffer csfb(!buffers.renderable->resolutionMode.isMainMode(), subBuffers.fbo,
+				subBuffers.size, Globals::Components().framebuffers().getMainSubBuffers().fbo, Globals::Components().framebuffers().getMainSubBuffers().size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.renderable->resolutionMode);
 
@@ -121,8 +121,8 @@ namespace
 
 		auto render = [&](const auto& buffers) {
 			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.renderable->resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(buffers.renderable->resolutionMode != ResolutionMode::Normal, subBuffers.fbo,
-				subBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
+			Tools::ConditionalScopedFramebuffer csfb(!buffers.renderable->resolutionMode.isMainMode(), subBuffers.fbo,
+				subBuffers.size, Globals::Components().framebuffers().getMainSubBuffers().fbo, Globals::Components().framebuffers().getMainSubBuffers().size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.renderable->resolutionMode);
 
@@ -149,8 +149,8 @@ namespace
 
 		auto render = [&](const auto& buffers) {
 			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.renderable->resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(buffers.renderable->resolutionMode != ResolutionMode::Normal, subBuffers.fbo,
-				subBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
+			Tools::ConditionalScopedFramebuffer csfb(!buffers.renderable->resolutionMode.isMainMode(), subBuffers.fbo,
+				subBuffers.size, Globals::Components().framebuffers().getMainSubBuffers().fbo, Globals::Components().framebuffers().getMainSubBuffers().size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.renderable->resolutionMode);
 
@@ -176,8 +176,8 @@ namespace
 
 		auto render = [&](const auto& buffers) {
 			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(buffers.renderable->resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(buffers.renderable->resolutionMode != ResolutionMode::Normal, subBuffers.fbo,
-				subBuffers.size, Globals::Components().framebuffers().main.fbo, Globals::Components().framebuffers().main.size);
+			Tools::ConditionalScopedFramebuffer csfb(!buffers.renderable->resolutionMode.isMainMode(), subBuffers.fbo,
+				subBuffers.size, Globals::Components().framebuffers().getMainSubBuffers().fbo, Globals::Components().framebuffers().getMainSubBuffers().size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(buffers.renderable->resolutionMode);
 
@@ -228,8 +228,8 @@ namespace Systems
 
 		glLineWidth(graphicsSettings.lineWidth);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.main.fbo);
-		glViewport(0, 0, framebuffers.main.size.x, framebuffers.main.size.y);
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.getMainSubBuffers().fbo);
+		glViewport(0, 0, framebuffers.getMainSubBuffers().size.x, framebuffers.getMainSubBuffers().size.y);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		Tools::Lights3DSetup(Globals::Shaders().basicPhong());
@@ -263,6 +263,6 @@ namespace Systems
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		assert(Globals::Components().mainFramebufferRenderer().renderer);
-		Globals::Components().mainFramebufferRenderer().renderer(framebuffers.main.textureUnit - GL_TEXTURE0);
+		Globals::Components().mainFramebufferRenderer().renderer(framebuffers.getMainSubBuffers().textureUnit - GL_TEXTURE0);
 	}
 }

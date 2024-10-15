@@ -1,17 +1,39 @@
 #pragma once
 
-enum class ResolutionMode {
-	Normal,
-	NormalLinearBlend0,
-	NormalLinearBlend1,
-	LowerLinearBlend0,
-	LowerLinearBlend1,
-	LowestLinearBlend0,
-	LowestLinearBlend1,
-	PixelArtBlend0,
-	PixelArtBlend1,
-	LowPixelArtBlend0,
-	LowPixelArtBlend1
+struct ResolutionMode
+{
+	enum class Resolution {
+		Native,
+		HalfNative,
+		QuarterNative,
+		OctaNative,
+		H2160,
+		H1080,
+		H540,
+		H270,
+		H135,
+		H68,
+		H34,
+		H17,
+		COUNT
+	} resolution;
+
+	enum class Scaling {
+		Nearest,
+		Linear,
+		COUNT
+	} scaling;
+
+	enum class Blending {
+		Standard,
+		Additive,
+		COUNT
+	} blending;
+
+	bool isMainMode() const
+	{
+		return resolution == Resolution::Native && scaling == Scaling::Nearest && blending == Blending::Standard;
+	}
 };
 
 namespace ShadersUtils::Programs
@@ -25,19 +47,9 @@ public:
 	TexturesFramebuffersRenderer(ShadersUtils::Programs::Textured& texturedShadersProgram);
 	~TexturesFramebuffersRenderer();
 
-	void clearIfFirstOfMode(ResolutionMode resolutionMode);
+	void clearIfFirstOfMode(ResolutionMode mode);
 
 private:
 	ShadersUtils::Programs::Textured& texturedShadersProgram;
-
-	bool normalLinearBlend0 = false;
-	bool normalLinearBlend1 = false;
-	bool lowerLinearBlend0 = false;
-	bool lowerLinearBlend1 = false;
-	bool lowestLinearBlend0 = false;
-	bool lowestLinearBlend1 = false;
-	bool pixelArtBlend0 = false;
-	bool pixelArtBlend1 = false;
-	bool lowPixelArtBlend0 = false;
-	bool lowPixelArtBlend1 = false;
+	bool ongoingModes[(size_t)ResolutionMode::Resolution::COUNT][(size_t)ResolutionMode::Scaling::COUNT][(size_t)ResolutionMode::Blending::COUNT]{};
 };

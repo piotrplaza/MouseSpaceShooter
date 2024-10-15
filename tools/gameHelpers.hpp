@@ -125,7 +125,7 @@ namespace Tools
 		float explosionDuration_ = 1.0f;
 		ComponentId explosionTexture_ = 0;
 		int particlesPerDecoration_ = 4;
-		ResolutionMode resolutionMode_ = ResolutionMode::Normal;
+		ResolutionMode resolutionMode_{};
 	};
 
 	struct PlaneParams

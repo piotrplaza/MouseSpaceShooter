@@ -301,7 +301,7 @@ namespace Tools
 			fogLayer.stepF = [=, &fogLayer]() {
 				fogLayer.texture = CM::StaticTexture(fogTexture, textureTranslation ? textureTranslation(layer) : glm::vec2(0.0f));
 			};
-			fogLayer.resolutionMode = ResolutionMode::LowestLinearBlend1;
+			fogLayer.resolutionMode = { ResolutionMode::Resolution::H540, ResolutionMode::Scaling::Linear };
 		}
 	}
 
@@ -324,7 +324,7 @@ namespace Tools
 		};
 
 		background.renderLayer = RenderLayer::Background;
-		background.resolutionMode = ResolutionMode::NormalLinearBlend1;
+		background.resolutionMode = { ResolutionMode::Resolution::Native, ResolutionMode::Scaling::Linear, ResolutionMode::Blending::Additive };
 	}
 
 	Components::Sound& CreateAndPlaySound(ComponentId soundBuffer, FVec2 posF, std::function<void(Components::Sound&)> config, std::function<void(Components::Sound&)> stepF)

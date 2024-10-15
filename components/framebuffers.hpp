@@ -24,47 +24,18 @@ namespace Components
 
 		const SubBuffers& getSubBuffers(ResolutionMode resolutionMode) const
 		{
-			switch (resolutionMode)
-			{
-			case ResolutionMode::Normal:
+			if (resolutionMode.isMainMode())
 				return dummy;
-			case ResolutionMode::NormalLinearBlend0:
-				return normalLinearBlend0;
-			case ResolutionMode::NormalLinearBlend1:
-				return normalLinearBlend1;
-			case ResolutionMode::LowerLinearBlend0:
-				return lowerLinearBlend0;
-			case ResolutionMode::LowerLinearBlend1:
-				return lowerLinearBlend1;
-			case ResolutionMode::LowestLinearBlend0:
-				return lowestLinearBlend0;
-			case ResolutionMode::LowestLinearBlend1:
-				return lowestLinearBlend1;
-			case ResolutionMode::PixelArtBlend0:
-				return pixelArtBlend0;
-			case ResolutionMode::PixelArtBlend1:
-				return pixelArtBlend1;
-			case ResolutionMode::LowPixelArtBlend0:
-				return lowPixelArtBlend0;
-			case ResolutionMode::LowPixelArtBlend1:
-				return lowPixelArtBlend1;
-			default:
-				assert(!"unsupported resolution mode");
-				return dummy;
-			}
+
+			return subBuffers[(size_t)resolutionMode.resolution][(size_t)resolutionMode.scaling][(size_t)resolutionMode.blending];
+		}
+
+		const SubBuffers& getMainSubBuffers() const
+		{
+			return subBuffers[(size_t)ResolutionMode::Resolution::Native][(size_t)ResolutionMode::Scaling::Nearest][(size_t)ResolutionMode::Blending::Standard];
 		}
 
 		SubBuffers dummy;
-		SubBuffers main;
-		SubBuffers normalLinearBlend0;
-		SubBuffers normalLinearBlend1;
-		SubBuffers lowerLinearBlend0;
-		SubBuffers lowerLinearBlend1;
-		SubBuffers lowestLinearBlend0;
-		SubBuffers lowestLinearBlend1;
-		SubBuffers pixelArtBlend0;
-		SubBuffers pixelArtBlend1;
-		SubBuffers lowPixelArtBlend0;
-		SubBuffers lowPixelArtBlend1;
+		SubBuffers subBuffers[(size_t)ResolutionMode::Resolution::COUNT][(size_t)ResolutionMode::Scaling::COUNT][(size_t)ResolutionMode::Blending::COUNT];
 	};
 }

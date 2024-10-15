@@ -380,17 +380,10 @@ namespace Systems
 
 		auto& framebuffers = Globals::Components().framebuffers();
 
-		createTextureFramebuffer(framebuffers.main, GL_LINEAR);
-		createTextureFramebuffer(framebuffers.normalLinearBlend0, GL_LINEAR);
-		createTextureFramebuffer(framebuffers.normalLinearBlend1, GL_LINEAR);
-		createTextureFramebuffer(framebuffers.lowerLinearBlend0, GL_LINEAR);
-		createTextureFramebuffer(framebuffers.lowerLinearBlend1, GL_LINEAR);
-		createTextureFramebuffer(framebuffers.lowestLinearBlend0, GL_LINEAR);
-		createTextureFramebuffer(framebuffers.lowestLinearBlend1, GL_LINEAR);
-		createTextureFramebuffer(framebuffers.pixelArtBlend0, GL_NEAREST);
-		createTextureFramebuffer(framebuffers.pixelArtBlend1, GL_NEAREST);
-		createTextureFramebuffer(framebuffers.lowPixelArtBlend0, GL_NEAREST);
-		createTextureFramebuffer(framebuffers.lowPixelArtBlend1, GL_NEAREST);
+		for (size_t res = 0; res < (size_t)ResolutionMode::Resolution::COUNT; ++res)
+			for (size_t scaling = 0; scaling < (size_t)ResolutionMode::Scaling::COUNT; ++scaling)
+				for (size_t blending = 0; blending < (size_t)ResolutionMode::Blending::COUNT; ++blending)
+					createTextureFramebuffer(framebuffers.subBuffers[res][scaling][blending], (ResolutionMode::Scaling)scaling == ResolutionMode::Scaling::Nearest ? GL_NEAREST : GL_LINEAR);
 	}
 
 	void Textures::updateStaticTextures()
