@@ -360,6 +360,8 @@ namespace Levels::DamageOn
 				return glm::vec3(centerPos, projectionHSize);
 			};
 
+			alternativeTargetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, gameParams.mapHSize);
+
 			const float borderHThickness = 10.0f;
 			walls.emplace(Tools::CreateBoxBody({ levelHSize.x + borderHThickness, borderHThickness }, Tools::BodyParams{}.position({ 0.0f, -levelHSize.y - borderHThickness }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 			walls.emplace(Tools::CreateBoxBody({ levelHSize.x + borderHThickness, borderHThickness }, Tools::BodyParams{}.position({ 0.0f, levelHSize.y + borderHThickness }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -537,6 +539,8 @@ namespace Levels::DamageOn
 						: "textures/damageOn/nest.jpg";
 					backgroundTexture.state = ComponentState::Changed;
 				}
+				if (keyboard.pressed['C'] * keyboardEnabled)
+					std::swap(Globals::Components().camera2D().targetPositionAndProjectionHSizeF, alternativeTargetPositionAndProjectionHSizeF);
 
 				sparkingHandler(playerData, playerData.fire || playerData.autoFire);
 			}
@@ -1070,6 +1074,7 @@ namespace Levels::DamageOn
 		} debug;
 
 		bool bonusBackground = false;
+		FVec3 alternativeTargetPositionAndProjectionHSizeF;
 	};
 
 	Nest::Nest():
