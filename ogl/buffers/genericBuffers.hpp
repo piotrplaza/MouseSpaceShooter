@@ -89,7 +89,7 @@ namespace Buffers
 		template <typename GeneralSetup>
 		void draw(ShadersUtils::ProgramId programId, GeneralSetup generalSetup) const
 		{
-			if (!renderable || renderable->state == ComponentState::Outdated)
+			if (!renderable || renderable->state == ComponentState::Outdated || !renderable->isEnabled())
 				return;
 
 			auto setAndDraw = [&](const GenericSubBuffers& buffers)

@@ -241,31 +241,32 @@ namespace Levels::DamageOn
 			loadParams();
 
 			auto& defaults = Globals::Components().defaults();
-			//defaults.resolutionMode = { ResolutionMode::Resolution::H270 };
+			//defaults.forcedResolutionMode = { ResolutionMode::Resolution::H270, ResolutionMode::Scaling::Nearest };
 
 			auto& graphicsSettings = Globals::Components().graphicsSettings();
 			graphicsSettings.lineWidth = 6.0f;
 
-			auto& textures = Globals::Components().staticTextures();
+			auto& staticTextures = Globals::Components().staticTextures();
+			auto& dynamicTextures = Globals::Components().dynamicTextures();
 			auto& animatedTextures = Globals::Components().dynamicAnimatedTextures();
 
-			backgroundTextureId = textures.emplace("textures/damageOn/nest.jpg", GL_CLAMP_TO_BORDER).getComponentId();
-			//textures.last().magFilter = GL_NEAREST;
-			textures.last().scale = glm::vec2(1.0f);
-			//textures.last().preserveAspectRatio = true;
+			backgroundTextureId = dynamicTextures.emplace("textures/damageOn/nest.jpg", GL_CLAMP_TO_BORDER).getComponentId();
+			//staticTextures.last().magFilter = GL_NEAREST;
+			staticTextures.last().scale = glm::vec2(1.0f);
+			//staticTextures.last().preserveAspectRatio = true;
 
-			coffinTextureId = textures.emplace("textures/damageOn/coffin.png", GL_MIRRORED_REPEAT).getComponentId();
-			//textures.last().magFilter = GL_NEAREST;
-			//textures.last().scale = glm::vec2(30.0f);
+			coffinTextureId = staticTextures.emplace("textures/damageOn/coffin.png", GL_MIRRORED_REPEAT).getComponentId();
+			//staticTextures.last().magFilter = GL_NEAREST;
+			//staticTextures.last().scale = glm::vec2(30.0f);
 
-			fogTextureId = textures.size();
-			textures.emplace("textures/damageOn/fog.png", GL_REPEAT);
-			textures.last().scale = glm::vec2(0.15f);
+			fogTextureId = staticTextures.size();
+			staticTextures.emplace("textures/damageOn/fog.png", GL_REPEAT);
+			staticTextures.last().scale = glm::vec2(0.15f);
 
-			playerAnimationTextures.push_back(&textures.emplace("textures/damageOn/player 1.png"));
-			textures.last().magFilter = GL_LINEAR;
+			playerAnimationTextures.push_back(&staticTextures.emplace("textures/damageOn/player 1.png"));
+			staticTextures.last().magFilter = GL_LINEAR;
 
-			enemyAnimationTextures.push_back(&textures.emplace(TextureFile("textures/damageOn/enemy 1.jpg", 4, true, TextureFile::AdditionalConversion::DarkToTransparent, [](float* data, glm::ivec2 size, int numOfChannels) {
+			enemyAnimationTextures.push_back(&staticTextures.emplace(TextureFile("textures/damageOn/enemy 1.jpg", 4, true, TextureFile::AdditionalConversion::DarkToTransparent, [](float* data, glm::ivec2 size, int numOfChannels) {
 				for (int i = 0; i < size.x * size.y; ++i)
 				{
 					glm::vec4& pixel = reinterpret_cast<glm::vec4*>(data)[i];
@@ -273,13 +274,13 @@ namespace Levels::DamageOn
 						pixel = {};
 				}
 				})));
-			textures.last().minFilter = GL_LINEAR;
+			staticTextures.last().minFilter = GL_LINEAR;
 
-			enemyAnimationTextures.push_back(&textures.emplace("textures/damageOn/enemy 2.png"));
-			textures.last().magFilter = GL_LINEAR;
+			enemyAnimationTextures.push_back(&staticTextures.emplace("textures/damageOn/enemy 2.png"));
+			staticTextures.last().magFilter = GL_LINEAR;
 
-			enemyAnimationTextures.push_back(&textures.emplace("textures/damageOn/enemy 3.png"));
-			textures.last().magFilter = GL_LINEAR;
+			enemyAnimationTextures.push_back(&staticTextures.emplace("textures/damageOn/enemy 3.png"));
+			staticTextures.last().magFilter = GL_LINEAR;
 
 			auto& soundsBuffers = Globals::Components().soundsBuffers();
 
@@ -321,10 +322,11 @@ namespace Levels::DamageOn
 			auto& camera = Globals::Components().camera2D();
 			auto& walls = Globals::Components().staticWalls();
 			auto& decorations = Globals::Components().staticDecorations();
-			auto& textures = Globals::Components().staticTextures();
+			auto& staticTextures = Globals::Components().staticTextures();
+			auto& dynamicTextures = Globals::Components().dynamicTextures();
 			auto& physics = Globals::Components().physics();
 
-			const glm::vec2 levelHSize(textures[backgroundTextureId].loaded.getAspectRatio() * gameParams.mapHSize, gameParams.mapHSize);
+			const glm::vec2 levelHSize(dynamicTextures[backgroundTextureId].loaded.getAspectRatio() * gameParams.mapHSize, gameParams.mapHSize);
 
 			camera.positionTransitionFactor = gameParams.camera.positionTransitionFactor;
 			camera.projectionTransitionFactor = gameParams.camera.projectionTransitionFactor;
@@ -368,10 +370,14 @@ namespace Levels::DamageOn
 			const glm::vec2 nestCenter = glm::vec2(1.8f, 2.6f) * mapScaleFactor;
 			walls.emplace(Tools::CreateCircleBody(6.0f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter))).renderF = [&]() { return debug.levelBodiesRendering; };
 			walls.last().colorF = glm::vec4(0.2f);
+			walls.last().stepF = [&, &wall = walls.last()]() { 
+				wall.setEnabled(!bonusBackground); };
 			walls.emplace(Tools::CreateCircleBody(5.5f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter + glm::vec2(-2.5f) * mapScaleFactor))).renderF = [&]() { return debug.levelBodiesRendering; };
 			walls.last().colorF = glm::vec4(0.2f);
+			walls.last().stepF = [&, &wall = walls.last()]() { wall.setEnabled(!bonusBackground); };
 			walls.emplace(Tools::CreateCircleBody(3.0f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter + glm::vec2(-6.0f) * mapScaleFactor))).renderF = [&]() { return debug.levelBodiesRendering; };
 			walls.last().colorF = glm::vec4(0.2f);
+			walls.last().stepF = [&, &wall = walls.last()]() { wall.setEnabled(!bonusBackground); };
 
 			auto screenCordTexturesF = [sceneCoordTextures = UniformsUtils::Uniform1b()](ShadersUtils::ProgramId program) mutable {
 				if (!sceneCoordTextures.isValid())
@@ -389,7 +395,7 @@ namespace Levels::DamageOn
 				walls.last().texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 			}
 
-			decorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, levelHSize), CM::StaticTexture(backgroundTextureId), Tools::Shapes2D::CreateTexCoordOfRectangle()).renderLayer = RenderLayer::FarBackground;
+			decorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, levelHSize), CM::DynamicTexture(backgroundTextureId), Tools::Shapes2D::CreateTexCoordOfRectangle()).renderLayer = RenderLayer::FarBackground;
 		}
 
 		void step()
@@ -518,10 +524,19 @@ namespace Levels::DamageOn
 
 				if (keyboard.pressed['T'] * keyboardEnabled || gamepad.pressed.y * gamepadEnabled)
 					debug.presentationTransparency = !debug.presentationTransparency;
-				if (keyboard.pressed['B'] * keyboardEnabled || gamepad.pressed.x * gamepadEnabled)
+				if (keyboard.pressed['H'] * keyboardEnabled || gamepad.pressed.x * gamepadEnabled)
 					debug.bodyRendering = !debug.bodyRendering;
 				if (keyboard.pressed['L'] * keyboardEnabled)
 					debug.levelBodiesRendering = !debug.levelBodiesRendering;
+				if (keyboard.pressed['B'] * keyboardEnabled)
+				{
+					bonusBackground = !bonusBackground;
+					auto& backgroundTexture = Globals::Components().dynamicTextures()[backgroundTextureId];
+					backgroundTexture.source = bonusBackground
+						? "textures/damageOn/sanfranfromairship.jpg"
+						: "textures/damageOn/nest.jpg";
+					backgroundTexture.state = ComponentState::Changed;
+				}
 
 				sparkingHandler(playerData, playerData.fire || playerData.autoFire);
 			}
@@ -1053,6 +1068,8 @@ namespace Levels::DamageOn
 			bool presentationTransparency = true;
 			bool bodyRendering = false;
 		} debug;
+
+		bool bonusBackground = false;
 	};
 
 	Nest::Nest():

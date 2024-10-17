@@ -39,7 +39,7 @@ namespace Systems
 		const TextureCache& textureDataFromFile(TextureData& textureData);
 
 	private:
-		void loadAndConfigureTexture(Components::Texture& texture, bool initial = true);
+		void loadAndConfigureTexture(Components::Texture& texture);
 		void createTextureFramebuffers();
 		void updateStaticTextures();
 		void updateDynamicTextures();

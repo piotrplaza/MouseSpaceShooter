@@ -86,12 +86,4 @@ struct Renderable : ComponentBase, RenderableDef
 	{
 		Buffers::GenericBuffers* buffers = nullptr;
 	} loaded;
-
-	void setEnabled(bool value) override
-	{
-		ComponentBase::setEnabled(value);
-		renderF = [value]() { return value; };
-		for (auto& e : subsequence)
-			e.renderF = [value]() { return value; };
-	}
 };

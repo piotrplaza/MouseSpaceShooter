@@ -404,7 +404,7 @@ namespace Buffers
 			GenericSubBuffers::renderable = &renderableComponent;
 			renderable = &renderableComponent;
 
-			if (!staticComponent && !renderableComponent.renderF() && renderableComponent.loaded.buffers)
+			if (!staticComponent && (!renderableComponent.isEnabled() || !renderableComponent.renderF()) && renderableComponent.loaded.buffers)
 				return;
 
 			RenderableCommonsToBuffersCommons(renderableComponent, *this);
@@ -426,7 +426,7 @@ namespace Buffers
 				subBuffers.renderable = &renderableDef;
 				renderableDef.loaded.subBuffers = &subBuffers;
 
-				if (!staticComponent && !renderableComponent.renderF() && renderableComponent.loaded.buffers)
+				if (!staticComponent && (!renderableComponent.isEnabled() || !renderableComponent.renderF()) && renderableComponent.loaded.buffers)
 					continue;
 
 				RenderableCommonsToBuffersCommons(renderableDef, subBuffers);

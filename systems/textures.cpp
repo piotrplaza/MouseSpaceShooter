@@ -201,7 +201,7 @@ namespace Systems
 		return textureCache;
 	}
 
-	void Textures::loadAndConfigureTexture(Components::Texture& texture, bool initial)
+	void Textures::loadAndConfigureTexture(Components::Texture& texture)
 	{
 		class DataSourceVisitor
 		{
@@ -327,9 +327,13 @@ namespace Systems
 			Components::Texture& texture;
 		};
 
-		glActiveTexture(texture.loaded.textureUnit);
-		if (initial)
+		if (texture.loaded.textureUnit == 0)
+		{
+			texture.loaded.textureUnit = textureUnits.acquire();
 			glGenTextures(1, &texture.loaded.textureObject);
+		}
+
+		glActiveTexture(texture.loaded.textureUnit);
 		glBindTexture(GL_TEXTURE_2D, texture.loaded.textureObject);
 
 		std::visit(DataSourceVisitor{ *this, texture }, texture.source);
@@ -383,7 +387,7 @@ namespace Systems
 		for (size_t res = 0; res < (size_t)ResolutionMode::Resolution::COUNT; ++res)
 			for (size_t scaling = 0; scaling < (size_t)ResolutionMode::Scaling::COUNT; ++scaling)
 				for (size_t blending = 0; blending < (size_t)ResolutionMode::Blending::COUNT; ++blending)
-					createTextureFramebuffer(framebuffers.subBuffers[res][scaling][blending], (ResolutionMode::Scaling)scaling == ResolutionMode::Scaling::Nearest ? GL_NEAREST : GL_LINEAR);
+					createTextureFramebuffer(framebuffers.subBuffers[res][scaling][blending], (ResolutionMode::Scaling)scaling == ResolutionMode::Scaling::Linear ? GL_LINEAR : GL_NEAREST);
 	}
 
 	void Textures::updateStaticTextures()
@@ -392,7 +396,6 @@ namespace Systems
 		{
 			if (texture.state == ComponentState::Changed)
 			{
-				texture.loaded.textureUnit = textureUnits.acquire();
 				loadAndConfigureTexture(texture);
 				texture.state = ComponentState::Ongoing;
 			}
@@ -409,12 +412,9 @@ namespace Systems
 			else if (texture.state == ComponentState::Changed)
 			{
 				if (texture.loaded.textureUnit == 0)
-				{
-					texture.loaded.textureUnit = textureUnits.acquire();
 					loadAndConfigureTexture(texture);
-				}
 				else
-					loadAndConfigureTexture(texture, false);
+					loadAndConfigureTexture(texture);
 				texture.state = ComponentState::Ongoing;
 			}
 			else if (texture.state == ComponentState::Outdated)
