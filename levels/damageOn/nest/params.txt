@@ -1,3 +1,5 @@
+startup.pixelArt false
+
 game.numOfPlayers 2
 game.globalVolume 1.0
 game.musicVolume 0.7

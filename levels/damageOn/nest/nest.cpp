@@ -37,6 +37,11 @@
 
 namespace Levels::DamageOn
 {
+	struct StartupParams
+	{
+		bool pixelArt;
+	};
+
 	struct GameParams
 	{
 		int numOfPlayers;
@@ -151,7 +156,9 @@ namespace Levels::DamageOn
 			float manaOverheating = 0.0f;
 			bool manaOverheated = false;
 
+			glm::vec4 baseColor{};
 			float sideFactor = 1.0f;
+			float sideTransition = 0.0f;
 			int activeSparks{};
 			float angle{};
 
@@ -208,7 +215,9 @@ namespace Levels::DamageOn
 			Components::Actor& actor;
 			Components::AnimatedTexture& animatedTexture;
 
+			glm::vec4 baseColor{};
 			float sideFactor = 1.0f;
+			float sideTransition = 0.0f;
 			float radius{};
 			float angle{};
 
@@ -241,7 +250,8 @@ namespace Levels::DamageOn
 			loadParams();
 
 			auto& defaults = Globals::Components().defaults();
-			//defaults.forcedResolutionMode = { ResolutionMode::Resolution::H270, ResolutionMode::Scaling::Nearest };
+			if (startupParams.pixelArt)
+				defaults.forcedResolutionMode = { ResolutionMode::Resolution::H270, ResolutionMode::Scaling::Nearest };
 
 			auto& graphicsSettings = Globals::Components().graphicsSettings();
 			graphicsSettings.lineWidth = 6.0f;
@@ -429,7 +439,7 @@ namespace Levels::DamageOn
 					gamepadEnabled = false;
 				}
 
-				auto enemyInteractionsF = [&](auto& enemy) {
+				auto enemyPlayerInteractionsF = [&](auto& enemy) {
 					for (auto& [enemyId, enemyData] : enemy.idsToData)
 					{
 						const auto direction = playerData.actor.getOrigin2D() - enemyData.actor.getOrigin2D();
@@ -439,19 +449,13 @@ namespace Levels::DamageOn
 							enemyData.actor.setVelocity(direction / distance * enemy.params.baseVelocity);
 							enemyBoost(enemy, enemyData.actor, direction, distance);
 							enemyData.sideFactor = direction.x < 0.0f ? -1.0f : 1.0f;
-							const float vLength = glm::length(enemyData.actor.getVelocity());
-							enemyData.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * enemy.params.presentation.velocityRotationFactor));
-							enemyData.animatedTexture.setAdditionalTransformation(enemy.params.animation.frameTranslation * glm::vec2(enemyData.sideFactor, 1.0f),
-								enemy.params.animation.frameRotation * enemyData.sideFactor, enemy.params.animation.frameScale * glm::vec2(enemyData.sideFactor, 1.0f));
-							enemyData.animatedTexture.setSpeedScaling(enemy.params.presentation.velocityScalingFactor == 0.0f ? 1.0f : glm::length(enemyData.actor.getVelocity() * enemy.params.presentation.velocityScalingFactor));
-
 							minDistances[enemyId] = distance;
 						}
 					}
 				};
-				enemyInteractionsF(enemyGhost);
-				enemyInteractionsF(enemyChicken);
-				enemyInteractionsF(enemyZombie);
+				enemyPlayerInteractionsF(enemyGhost);
+				enemyPlayerInteractionsF(enemyChicken);
+				enemyPlayerInteractionsF(enemyZombie);
 
 				const glm::vec2 gamepadDirection = gamepadEnabled
 					? [&]() {
@@ -497,11 +501,11 @@ namespace Levels::DamageOn
 					playerData.sideFactor = -1.0f;
 				else if (direction.x > 0.0f)
 					playerData.sideFactor = 1.0f;
-				else if (direction.y == 0.0f)
+				else
 					playerData.animatedTexture.forceFrame(playerFrankenstein.params.animation.neutralFrame);
 
-				playerData.animatedTexture.setAdditionalTransformation(playerFrankenstein.params.animation.frameTranslation * glm::vec2(playerData.sideFactor, 1.0f),
-					playerFrankenstein.params.animation.frameRotation * playerData.sideFactor, playerFrankenstein.params.animation.frameScale * glm::vec2(playerData.sideFactor, 1.0f));
+				playerData.sideTransition += playerData.sideFactor * physics.frameDuration * 5.0f;
+				playerData.sideTransition = glm::clamp(playerData.sideTransition, 0.0f, 1.0f);
 
 				const glm::vec2 newVelocity = direction * playerFrankenstein.params.maxVelocity;
 				if (glm::length(newVelocity) > glm::length(playerData.actor.getVelocity()))
@@ -544,6 +548,20 @@ namespace Levels::DamageOn
 
 				sparkingHandler(playerData, playerData.fire || playerData.autoFire);
 			}
+
+			auto enemyActionsF = [&](auto& enemy) {
+				for (auto& [enemyId, enemyData] : enemy.idsToData)
+				{
+					const float vLength = glm::length(enemyData.actor.getVelocity());
+					enemyData.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * enemy.params.presentation.velocityRotationFactor));
+					enemyData.animatedTexture.setSpeedScaling(enemy.params.presentation.velocityScalingFactor == 0.0f ? 1.0f : glm::length(enemyData.actor.getVelocity() * enemy.params.presentation.velocityScalingFactor));
+					enemyData.sideTransition += enemyData.sideFactor * physics.frameDuration * 5.0f;
+					enemyData.sideTransition = glm::clamp(enemyData.sideTransition, 0.0f, 1.0f);
+				}
+			};
+			enemyActionsF(enemyGhost);
+			enemyActionsF(enemyChicken);
+			enemyActionsF(enemyZombie);
 		}
 
 	private:
@@ -570,26 +588,39 @@ namespace Levels::DamageOn
 			dashSoundBuffer.setVolume(0.15f);
 
 			const auto playerId = playerIdGenerator.acquire();
-			const auto& playerData = player.idsToData.emplace(playerId, Player::Data{ playerActor, playerAnimatedTexture, sparkingSound, overchargingSound, dashSoundBuffer }).first->second;
+			auto& playerData = player.idsToData.emplace(playerId, Player::Data{ playerActor, playerAnimatedTexture, sparkingSound, overchargingSound, dashSoundBuffer }).first->second;
 
 			playerActor.renderF = [&]() { return debug.bodyRendering; };
 			playerActor.colorF = glm::vec4(0.4f);
-			playerActor.posInSubsequence = 1;
+			playerActor.posInSubsequence = 2;
 
 			const auto playerPresentationSize = player.params.presentation.radiusProportions * player.params.radius;
-			auto& playerPresentation = playerActor.subsequence.emplace_back();
-			playerPresentation.renderingSetupF = [&](auto) { if (!debug.presentationTransparency) glDisable(GL_BLEND); return []() mutable { glEnable(GL_BLEND); }; };
-			playerPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, playerPresentationSize);
-			playerPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
-			playerPresentation.texture = CM::DynamicAnimatedTexture(playerData.animatedTexture.getComponentId());
-			playerPresentation.modelMatrixF = [&]() {
-				return playerActor.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(player.params.presentation.translation, 0.0f) * glm::vec3(playerData.sideFactor, 1.0f, 1.0f))
-					* glm::rotate(glm::mat4(1.0f), (player.params.presentation.rotation + playerData.angle) * playerData.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
-					* glm::scale(glm::mat4(1.0f), glm::vec3(player.params.presentation.scale, 1.0f));
-			};
-			playerPresentation.colorF = [&]() {
-				return glm::mix(glm::vec4(1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), playerData.manaOverheating) * (playerData.manaOverheated ? (glm::sin(physics.simulationDuration * 20.0f) + 1.0f) / 2.0f : 1.0f);
-			};
+			for (float sideFactor : { -1.0f, 1.0f })
+			{
+				auto& playerPresentation = playerActor.subsequence.emplace_back();
+				playerPresentation.renderingSetupF = [&, sideFactor](auto) {
+					if (!debug.presentationTransparency)
+						glDisable(GL_BLEND);
+					return []() mutable { glEnable(GL_BLEND); };
+				};
+				playerPresentation.renderF = [&, sideFactor]() { return debug.presentationTransparency || sideFactor == playerData.sideFactor; };
+				playerPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, playerPresentationSize);
+				playerPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
+				playerPresentation.texture = CM::DynamicAnimatedTexture(playerData.animatedTexture.getComponentId());
+				playerPresentation.modelMatrixF = [&, sideFactor]() {
+					playerData.animatedTexture.setAdditionalTransformation(player.params.animation.frameTranslation * glm::vec2(sideFactor, 1.0f),
+						player.params.animation.frameRotation * sideFactor, player.params.animation.frameScale * glm::vec2(sideFactor, 1.0f));
+					return playerActor.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(player.params.presentation.translation, 0.0f) * glm::vec3(playerData.sideFactor, 1.0f, 1.0f))
+						* glm::rotate(glm::mat4(1.0f), (player.params.presentation.rotation + playerData.angle) * playerData.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
+						* glm::scale(glm::mat4(1.0f), glm::vec3(player.params.presentation.scale, 1.0f));
+					};
+
+				playerData.baseColor = glm::vec4(1.0f);
+				playerPresentation.colorF = [&, sideFactor]() {
+					return glm::mix(playerData.baseColor, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), playerData.manaOverheating) * (playerData.manaOverheated ? (glm::sin(physics.simulationDuration * 20.0f) + 1.0f) / 2.0f : 1.0f)
+						* (sideFactor > 0.0f ? playerData.sideTransition : 1.0f - playerData.sideTransition);
+				};
+			}
 		}
 
 		void enemySpawn(Enemy& enemy, glm::vec2 position, float radius, int enemyType)
@@ -609,37 +640,58 @@ namespace Levels::DamageOn
 				.position(position)), CM::DummyTexture());
 			enemyActor.renderF = [&]() { return debug.bodyRendering; };
 			enemyActor.colorF = glm::vec4(0.4f);
-			enemyActor.posInSubsequence = 1;
+			enemyActor.posInSubsequence = 2;
 
 			const auto enemyId = enemyIdGenerator.acquire();
 			auto& enemyData = enemy.idsToData.emplace(enemyId, Enemy::Data{ enemyActor, enemyAnimatedTexture }).first->second;
 			enemyData.radius = radius;
 
-			auto& enemyPresentation = enemyActor.subsequence.emplace_back();
-			const auto enemyPresentationSize = enemy.params.presentation.radiusProportions * radius;
-			enemyPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, enemyPresentationSize);
-			enemyPresentation.modelMatrixF = [&]() {
-				return enemyActor.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(enemy.params.presentation.translation, 0.0f) * glm::vec3(enemyData.sideFactor, 1.0f, 1.0f))
-					* glm::rotate(glm::mat4(1.0f), (enemy.params.presentation.rotation + enemyData.angle) * enemyData.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
-					* glm::scale(glm::mat4(1.0f), glm::vec3(enemy.params.presentation.scale, 1.0f));
+			auto damageColorFactor = std::make_shared<glm::vec4>(1.0f);
+
+			for (float sideFactor : { -1.0f, 1.0f })
+			{
+				auto& enemyPresentation = enemyActor.subsequence.emplace_back();
+				const auto enemyPresentationSize = enemy.params.presentation.radiusProportions * radius;
+				enemyPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, enemyPresentationSize);
+				enemyPresentation.modelMatrixF = [&, sideFactor]() {
+					enemyData.animatedTexture.setAdditionalTransformation(enemy.params.animation.frameTranslation * glm::vec2(sideFactor, 1.0f),
+						enemy.params.animation.frameRotation * sideFactor, enemy.params.animation.frameScale * glm::vec2(sideFactor, 1.0f));
+					return enemyActor.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(enemy.params.presentation.translation, 0.0f) * glm::vec3(sideFactor, 1.0f, 1.0f))
+						* glm::rotate(glm::mat4(1.0f), (enemy.params.presentation.rotation + enemyData.angle) * sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
+						* glm::scale(glm::mat4(1.0f), glm::vec3(enemy.params.presentation.scale, 1.0f));
 				};
 
-			auto damageColorFactor = std::make_shared<glm::vec4>(1.0f);
-			if (enemyType == 0)
-			{
-				enemyPresentation.texture = CM::DynamicAnimatedTexture(enemyData.animatedTexture.getComponentId(), {}, {}, glm::vec2(2.6f * radius));
-				enemyPresentation.renderingSetupF = createRecursiveFaceRS({ radius * 0.6f, radius });
-				enemyPresentation.colorF = [baseColor = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f, damageColorFactor]() { return glm::mix(baseColor, *damageColorFactor, 0.5f); };
-			}
-			else
-			{
-				enemyPresentation.texture = CM::DynamicAnimatedTexture(enemyData.animatedTexture.getComponentId());
-				enemyPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
-				enemyPresentation.renderingSetupF = [&](auto) { if (!debug.presentationTransparency) glDisable(GL_BLEND); return []() mutable { glEnable(GL_BLEND); }; };
-				enemyPresentation.colorF = [
-					baseColor = glm::vec4(glm::vec3(glm::linearRand(0.5f, 1.0f), glm::linearRand(0.5f, 1.0f), glm::linearRand(0.5f, 1.0f)), 1.0f),
-						damageColorFactor
-				]() { return glm::mix(baseColor, *damageColorFactor, 0.5f); };
+				enemyPresentation.renderF = [&, sideFactor]() { return debug.presentationTransparency || sideFactor == enemyData.sideFactor; };
+
+				if (enemyType == 0)
+				{
+					enemyPresentation.texture = CM::DynamicAnimatedTexture(enemyData.animatedTexture.getComponentId(), {}, {}, glm::vec2(2.6f * radius));
+					enemyPresentation.renderingSetupF = [&, sideFactor](auto program) {
+						if (!debug.presentationTransparency)
+							glDisable(GL_BLEND);
+						return createRecursiveFaceRS({ enemyData.radius * 0.6f, enemyData.radius })(program);
+					};
+
+					enemyData.baseColor = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f;
+					enemyPresentation.colorF = [&, damageColorFactor, sideFactor]() {
+						return glm::mix(enemyData.baseColor, *damageColorFactor, 0.5f) * (sideFactor > 0.0f ? enemyData.sideTransition : 1.0f - enemyData.sideTransition);
+					};
+				}
+				else
+				{
+					enemyPresentation.texture = CM::DynamicAnimatedTexture(enemyData.animatedTexture.getComponentId());
+					enemyPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
+					enemyPresentation.renderingSetupF = [&, sideFactor](auto) {
+						if (!debug.presentationTransparency)
+							glDisable(GL_BLEND);
+						return []() mutable { glEnable(GL_BLEND); };
+					};
+
+					enemyData.baseColor = glm::vec4(glm::vec3(glm::linearRand(0.5f, 1.0f), glm::linearRand(0.5f, 1.0f), glm::linearRand(0.5f, 1.0f)), 1.0f);
+					enemyPresentation.colorF = [&, damageColorFactor, sideFactor]() {
+						return glm::mix(enemyData.baseColor, *damageColorFactor, 0.5f) * (sideFactor > 0.0f ? enemyData.sideTransition : 1.0f - enemyData.sideTransition);
+					};
+				}
 			}
 
 			enemyActor.stepF = [&, enemyId, radius, enemyType, sparks = std::vector<Components::Decoration*>{}, damageColorFactor, hp = enemy.params.initHP]() mutable {
@@ -865,6 +917,8 @@ namespace Levels::DamageOn
 					throw std::runtime_error("Unsupported type for key " + key);
 			};
 
+			loadParam(startupParams.pixelArt, "startup.pixelArt");
+
 			auto loadPresentationParams = [&](auto& presentationParams, std::string actorName) {
 				loadParam(presentationParams.radiusProportions, std::format("{}.presentation.radiusProportions", actorName));
 				loadParam(presentationParams.translation, std::format("{}.presentation.translation", actorName));
@@ -1024,9 +1078,6 @@ namespace Levels::DamageOn
 					invisibilityDistance = UniformsUtils::Uniform1f(program, "invisibilityDistance");
 				}
 
-				if (!debug.presentationTransparency)
-					glDisable(GL_BLEND);
-
 				visibilityReduction(true);
 				fullVisibilityDistance(fadingRange.x);
 				invisibilityDistance(fadingRange.y);
@@ -1056,6 +1107,7 @@ namespace Levels::DamageOn
 		ComponentId dashSoundBufferId{};
 		ComponentId killSoundBufferId{};
 
+		StartupParams startupParams{};
 		GameParams gameParams{};
 		Player playerFrankenstein{};
 		Enemy enemyGhost{};
