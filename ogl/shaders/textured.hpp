@@ -30,7 +30,8 @@ namespace ShadersUtils
 				visibilityCenter(program, "visibilityCenter"),
 				fullVisibilityDistance(program, "fullVisibilityDistance"),
 				invisibilityDistance(program, "invisibilityDistance"),
-				sceneCoordTextures(program, "sceneCoordTextures")
+				sceneCoordTextures(program, "sceneCoordTextures"),
+				forcedAlpha(program, "forcedAlpha")
 			{
 			}
 
@@ -53,6 +54,7 @@ namespace ShadersUtils
 			UniformsUtils::Uniform1f fullVisibilityDistance;
 			UniformsUtils::Uniform1f invisibilityDistance;
 			UniformsUtils::Uniform1b sceneCoordTextures;
+			UniformsUtils::Uniform1f forcedAlpha;
 		};
 
 		struct Textured : TexturedAccessor
@@ -80,6 +82,7 @@ namespace ShadersUtils
 				fullVisibilityDistance(0.0f);
 				invisibilityDistance(0.0f);
 				sceneCoordTextures(false);
+				forcedAlpha(-1.0f);
 			}
 
 			Textured(const Textured&) = delete;

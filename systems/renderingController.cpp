@@ -37,9 +37,16 @@ namespace
 	{
 		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers.basicPhong;
 		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.basicPhong;
+
+		if (staticBuffers[layer].empty() && dynamicBuffers[layer].empty())
+			return;
+
 		const auto& graphicsSettings = Globals::Components().graphicsSettings();
 
-		glUseProgram_proxy(Globals::Shaders().basicPhong().getProgramId());
+		glProxyUseProgram(Globals::Shaders().basicPhong().getProgramId());
+
+		const float prevForcedAlpha = Globals::Shaders().basicPhong().forcedAlpha.getValue();
+
 		Globals::Shaders().basicPhong().vp(Globals::Components().mvp3D().getVP());
 
 		auto render = [&](const auto& buffers) {
@@ -66,6 +73,8 @@ namespace
 				Globals::Shaders().basicPhong().gpuSideInstancedNormalTransforms(buffers.renderable->params3D->gpuSideInstancedNormalTransforms_);
 				Globals::Shaders().basicPhong().fogAmplification(buffers.renderable->params3D->fogAmplification_);
 				Globals::Shaders().basicPhong().lightModelColorNormalization(buffers.renderable->params3D->lightModelColorNormalization_);
+			}, [](auto&) {
+				Globals::Shaders().basicPhong().forcedAlpha(!glProxyIsBlendEnabled() * 2 - 1.0f);
 			});
 		};
 
@@ -74,15 +83,24 @@ namespace
 
 		for (const auto& [id, buffers] : dynamicBuffers[layer])
 			render(buffers);
+
+		Globals::Shaders().basicPhong().forcedAlpha(prevForcedAlpha);
 	}
 
 	void TexturedPhongRender(size_t layer, TexturesFramebuffersRenderer& texturesFramebuffersRenderer)
 	{
 		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers.texturedPhong;
 		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.texturedPhong;
+
+		if (staticBuffers[layer].empty() && dynamicBuffers[layer].empty())
+			return;
+
 		const auto& graphicsSettings = Globals::Components().graphicsSettings();
 
-		glUseProgram_proxy(Globals::Shaders().texturedPhong().getProgramId());
+		glProxyUseProgram(Globals::Shaders().texturedPhong().getProgramId());
+
+		const float prevForcedAlpha = Globals::Shaders().texturedPhong().forcedAlpha.getValue();
+
 		Globals::Shaders().texturedPhong().vp(Globals::Components().mvp3D().getVP());
 
 		auto render = [&](const auto& buffers) {
@@ -111,6 +129,8 @@ namespace
 				Globals::Shaders().texturedPhong().fogAmplification(buffers.renderable->params3D->fogAmplification_);
 				Globals::Shaders().texturedPhong().lightModelColorNormalization(buffers.renderable->params3D->lightModelColorNormalization_);
 				Tools::PrepareTexturedRender(Globals::Shaders().texturedPhong(), buffers.renderable->texture);
+			}, [](auto&) {
+				Globals::Shaders().texturedPhong().forcedAlpha(!glProxyIsBlendEnabled() * 2 - 1.0f);
 			});
 		};
 
@@ -119,6 +139,8 @@ namespace
 
 		for (const auto& [id, buffers] : dynamicBuffers[layer])
 			render(buffers);
+
+		Globals::Shaders().texturedPhong().forcedAlpha(prevForcedAlpha);
 	}
 
 	void BasicRender(size_t layer, TexturesFramebuffersRenderer& texturesFramebuffersRenderer)
@@ -126,7 +148,13 @@ namespace
 		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers.basic;
 		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.basic;
 
-		glUseProgram_proxy(Globals::Shaders().basic().getProgramId());
+		if (staticBuffers[layer].empty() && dynamicBuffers[layer].empty())
+			return;
+
+		glProxyUseProgram(Globals::Shaders().basic().getProgramId());
+
+		const float prevForcedAlpha = Globals::Shaders().basic().forcedAlpha.getValue();
+
 		Globals::Shaders().basic().vp(Globals::Components().mvp2D().getVP());
 
 		auto render = [&](const auto& buffers) {
@@ -140,6 +168,8 @@ namespace
 			buffers.draw(Globals::Shaders().basic().getProgramId(), [](const auto& buffers) {
 				Globals::Shaders().basic().model((buffers.renderable->modelMatrixF)());
 				Globals::Shaders().basic().color(buffers.renderable->colorF.isLoaded() ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColorF());
+			}, [](auto&) {
+				Globals::Shaders().basic().forcedAlpha(!glProxyIsBlendEnabled() * 2 - 1.0f);
 			});
 		};
 
@@ -148,6 +178,8 @@ namespace
 
 		for (const auto& [id, buffers] : dynamicBuffers[layer])
 			render(buffers);
+
+		Globals::Shaders().basic().forcedAlpha(prevForcedAlpha);
 	}
 
 	void TexturedRender(size_t layer, TexturesFramebuffersRenderer& texturesFramebuffersRenderer)
@@ -155,7 +187,13 @@ namespace
 		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers.textured;
 		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.textured;
 
-		glUseProgram_proxy(Globals::Shaders().textured().getProgramId());
+		if (staticBuffers[layer].empty() && dynamicBuffers[layer].empty())
+			return;
+
+		glProxyUseProgram(Globals::Shaders().textured().getProgramId());
+
+		const float prevForcedAlpha = Globals::Shaders().textured().forcedAlpha.getValue();
+
 		Globals::Shaders().textured().vp(Globals::Components().mvp2D().getVP());
 
 		auto render = [&](const auto& buffers) {
@@ -171,6 +209,8 @@ namespace
 				Globals::Shaders().textured().visibilityCenter((buffers.renderable->originF)());
 				Globals::Shaders().textured().color(buffers.renderable->colorF.isLoaded() ? buffers.renderable->colorF() : Globals::Components().graphicsSettings().defaultColorF());
 				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers.renderable->texture);
+			}, [](auto&) {
+				Globals::Shaders().textured().forcedAlpha(!glProxyIsBlendEnabled() * 2 - 1.0f);
 			});
 		};
 
@@ -179,12 +219,17 @@ namespace
 
 		for (const auto& [id, buffers] : dynamicBuffers[layer])
 			render(buffers);
+
+		Globals::Shaders().textured().forcedAlpha(prevForcedAlpha);
 	}
 
 	void CustomShadersRender(size_t layer, TexturesFramebuffersRenderer& texturesFramebuffersRenderer)
 	{
 		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers.customShaders;
 		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.customShaders;
+
+		if (staticBuffers[layer].empty() && dynamicBuffers[layer].empty())
+			return;
 
 		auto render = [&](const auto& buffers) {
 			const auto& resolutionMode = getResolutionMode(*buffers.renderable);
@@ -195,9 +240,9 @@ namespace
 			texturesFramebuffersRenderer.clearIfFirstOfMode(resolutionMode);
 
 			assert(buffers.renderable->customShadersProgram);
-			glUseProgram_proxy(*buffers.renderable->customShadersProgram);
+			glProxyUseProgram(*buffers.renderable->customShadersProgram);
 
-			buffers.draw(*buffers.renderable->customShadersProgram, [](auto&) {});
+			buffers.draw(*buffers.renderable->customShadersProgram, [](auto&) {}, [](auto&) {});
 		};
 
 		for (const auto& buffers : staticBuffers[layer])
@@ -230,14 +275,14 @@ namespace Systems
 
 		if (graphicsSettings.forcedDepthTest)
 			if (*graphicsSettings.forcedDepthTest)
-				glEnable(GL_DEPTH_TEST);
+				glProxySetDepthTest(true);
 			else
-				glDisable(GL_DEPTH_TEST);
+				glProxySetDepthTest(false);
 
 		if (graphicsSettings.cullFace)
-			glEnable(GL_CULL_FACE);
+			glProxySetCullFace(true);
 		else
-			glDisable(GL_CULL_FACE);
+			glProxySetCullFace(false);
 
 		glLineWidth(graphicsSettings.lineWidth);
 
@@ -259,12 +304,12 @@ namespace Systems
 			TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
 
 			if (!graphicsSettings.forcedDepthTest)
-				glEnable(GL_DEPTH_TEST);
+				glProxySetDepthTest(true);
 			BasicPhongRender(layer, texturesFramebuffersRenderer);
 			TexturedPhongRender(layer, texturesFramebuffersRenderer);
 
 			if (!graphicsSettings.forcedDepthTest)
-				glDisable(GL_DEPTH_TEST);
+				glProxySetDepthTest(false);
 			BasicRender(layer, texturesFramebuffersRenderer);
 			TexturedRender(layer, texturesFramebuffersRenderer);
 			CustomShadersRender(layer, texturesFramebuffersRenderer);

@@ -86,8 +86,8 @@ namespace Buffers
 
 		void applyComponent(Renderable& renderableComponent, bool staticComponent);
 
-		template <typename GeneralSetup>
-		void draw(ShadersUtils::ProgramId programId, GeneralSetup generalSetup) const
+		template <typename GeneralSetup, typename PostSetup>
+		void draw(ShadersUtils::ProgramId programId, GeneralSetup generalSetup, PostSetup postSetup) const
 		{
 			if (!renderable || renderable->state == ComponentState::Outdated || !renderable->isEnabled())
 				return;
@@ -97,13 +97,16 @@ namespace Buffers
 				if (!(buffers.renderable->renderF)())
 					return;
 
-				glBindVertexArray_proxy(buffers.vertexArray);
+				glProxyBindVertexArray(buffers.vertexArray);
 
 				generalSetup(buffers);
 
 				std::function<void()> renderingTeardown;
+
 				if (buffers.renderable->renderingSetupF)
 					renderingTeardown = buffers.renderable->renderingSetupF(programId);
+
+				postSetup(buffers);
 
 				if (isInstancingActive())
 				{

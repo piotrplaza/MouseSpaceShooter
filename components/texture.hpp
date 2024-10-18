@@ -20,6 +20,8 @@ namespace Components
 {
 	struct Texture : ComponentBase
 	{
+		Texture() = default;
+
 		Texture(TextureSourceVariant source, GLint wrapMode = GL_CLAMP_TO_BORDER, GLint minFilter = GL_LINEAR_MIPMAP_LINEAR,
 			GLint magFilter = GL_LINEAR) :
 			source(std::move(source)),

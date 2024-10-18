@@ -89,7 +89,7 @@ static void InitOGL()
 	assert(GLEW_OK == glewInitResult);
 
 	Tools::VSync(true);
-	glEnable(GL_BLEND);
+	glProxySetBlend(true);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -438,17 +438,8 @@ int APIENTRY WinMain(
 
 			if (first)
 			{
-				try
-				{
-					InitLevel();
-					PostInit();
-				}
-				catch (const std::runtime_error& error)
-				{
-					MessageBox(nullptr, error.what(), "Runtime error",
-						MB_OK | MB_ICONEXCLAMATION);
-					ExitProcess(0);
-				}
+				InitLevel();
+				PostInit();
 				first = false;
 			}
 

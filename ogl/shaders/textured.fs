@@ -20,6 +20,7 @@ uniform bool visibilityReduction;
 uniform vec2 visibilityCenter;
 uniform float fullVisibilityDistance;
 uniform float invisibilityDistance;
+uniform float forcedAlpha;
 
 float playersDistanceAlpha()
 {
@@ -42,10 +43,12 @@ float visibility()
 
 void main()
 {
+	vec4 finalColor;
+
 	if (numOfTextures == 1)
-		fColor = texture(textures[0], vTexCoord[0]) * vColor * color * visibility();
+		finalColor = texture(textures[0], vTexCoord[0]) * vColor * color * visibility();
 	else if (numOfTextures == 0)
-		fColor = vColor * color * visibility();
+		finalColor = vColor * color * visibility();
 	else
 	{
 		const vec4 finalBlendingColor = texture(textures[0], vTexCoord[0]) * mulBlendingColor + addBlendingColor;
@@ -54,8 +57,13 @@ void main()
 		for (int i = 1; i < numOfTextures; ++i)
 			accumulatedColor += finalBlendingColor[i - 1] * texture(textures[i], vTexCoord[i]);
 
-		fColor = vec4((accumulatedColor / (colorAccumulation ? 1 : (numOfTextures - 1))).rgb,
+		finalColor = vec4((accumulatedColor / (colorAccumulation ? 1 : (numOfTextures - 1))).rgb,
 			alphaFromBlendingTexture ? finalBlendingColor.a : accumulatedColor.a
 		) * vColor * color * visibility();
 	}
+
+	if (forcedAlpha >= 0.0)
+		finalColor.a = forcedAlpha;
+
+	fColor = finalColor;
 }

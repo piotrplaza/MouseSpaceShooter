@@ -28,6 +28,7 @@ uniform bool flatNormal;
 uniform bool lightModelColorNormalization;
 uniform bool lightModelEnabled;
 uniform float fogAmplification;
+uniform float forcedAlpha;
 
 float getAmbientFactor()
 {
@@ -59,36 +60,42 @@ float getFogAmplification()
 void main()
 {
 	const vec4 vColor = flatColor ? vFlatColor : vSmoothColor;
+	vec4 finalColor;
 
 	if (numOfLights == 0 || !lightModelEnabled)
 	{
-		vec4 finalColor = color * vColor;
+		finalColor = color * vColor;
 		finalColor.xyz = mix(finalColor.xyz, clearColor, getFogAmplification()); 
 		finalColor += illumination;
-		fColor = finalColor;
-		return;
 	}
-
-	const vec3 normal = normalize(flatNormal ? vFlatNormal : vSmoothNormal);
-	const vec3 viewDir = normalize(viewPos - vPos);
-	const float frontFactor = step(0.0, dot(normal, viewDir));
-	const vec3 partialDarkColor = darkColor / numOfLights;
-	vec3 lightModelColor = vec3(0.0);
-
-	for (int i = 0; i < numOfLights; ++i)
+	else
 	{
-		const vec3 lightDir = normalize(lightsPos[i] - vPos);
-		lightModelColor += mix(partialDarkColor, partialDarkColor * lightsDarkColorFactor[i] + vColor.rgb * color.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal, frontFactor))
-			+ mix(vec3(1.0f), vColor.rgb * color.rgb, specularMaterialColorFactor) * lightsCol[i] * getSpecularFactor(lightDir, normal, viewDir, frontFactor), getLightAttenuation(i));
+		const vec3 normal = normalize(flatNormal ? vFlatNormal : vSmoothNormal);
+		const vec3 viewDir = normalize(viewPos - vPos);
+		const float frontFactor = step(0.0, dot(normal, viewDir));
+		const vec3 partialDarkColor = darkColor / numOfLights;
+		vec3 lightModelColor = vec3(0.0);
+
+		for (int i = 0; i < numOfLights; ++i)
+		{
+			const vec3 lightDir = normalize(lightsPos[i] - vPos);
+			lightModelColor += mix(partialDarkColor, partialDarkColor * lightsDarkColorFactor[i] + vColor.rgb * color.rgb * lightsCol[i] * (getAmbientFactor() + getDiffuseFactor(lightDir, normal, frontFactor))
+				+ mix(vec3(1.0f), vColor.rgb * color.rgb, specularMaterialColorFactor) * lightsCol[i] * getSpecularFactor(lightDir, normal, viewDir, frontFactor), getLightAttenuation(i));
+		}
+
+		if (lightModelColorNormalization)
+		{
+			const float lightModelColorComponentMax = max(max(lightModelColor.r, lightModelColor.g), lightModelColor.b);
+
+			if (lightModelColorComponentMax > 1.0)
+				lightModelColor /= lightModelColorComponentMax;
+		}
+
+		finalColor = vec4(mix(lightModelColor * vColor.a * color.a, clearColor, getFogAmplification()), vColor.a * color.a) + illumination;
 	}
 
-	if (lightModelColorNormalization)
-	{
-		const float lightModelColorComponentMax = max(max(lightModelColor.r, lightModelColor.g), lightModelColor.b);
+	if (forcedAlpha >= 0.0)
+			finalColor.a = forcedAlpha;
 
-		if (lightModelColorComponentMax > 1.0)
-			lightModelColor /= lightModelColorComponentMax;
-	}
-
-	fColor = vec4(mix(lightModelColor * vColor.a * color.a, clearColor, getFogAmplification()), vColor.a * color.a) + illumination;
+	fColor = finalColor;
 }

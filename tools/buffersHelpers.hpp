@@ -50,9 +50,9 @@ namespace Tools
 			if (component.state == ComponentState::Ongoing)
 				continue;
 
-			const auto layer = (size_t)component.renderLayer;
+			// TODO: What if the layer or shader type was changed? Prob leak.
 
-			// TODO: What if shader type was changed? Prob leak.
+			const auto layer = (size_t)component.renderLayer;
 
 			auto& mapOfSelectedBuffers = [&]() -> auto&
 			{

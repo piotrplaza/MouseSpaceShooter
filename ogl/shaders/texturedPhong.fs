@@ -43,6 +43,7 @@ uniform float fullVisibilityDistance;
 uniform float invisibilityDistance;
 uniform float alphaDiscardTreshold;
 uniform float fogAmplification;
+uniform float forcedAlpha;
 
 float getAmbientFactor()
 {
@@ -152,6 +153,9 @@ void main()
 	finalColor.xyz = mix(finalColor.xyz, clearColor, getFogAmplification());
 	finalColor += illumination;
 	finalColor *= visibility();
+
+	if (forcedAlpha >= 0.0)
+		finalColor.a = forcedAlpha;
 
 	fColor = finalColor;
 }

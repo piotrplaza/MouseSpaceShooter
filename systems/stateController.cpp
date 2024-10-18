@@ -112,6 +112,7 @@ namespace Systems
 				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H2160][scaling][blending], { 2160 * aspectRatio, 2160 });
 				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H1080][scaling][blending], { 1080 * aspectRatio, 1080 });
 				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H540][scaling][blending], { 540 * aspectRatio, 540 });
+				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H405][scaling][blending], { 405 * aspectRatio, 405 });
 				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H270][scaling][blending], { 270 * aspectRatio, 270 });
 				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H135][scaling][blending], { 135 * aspectRatio, 135 });
 				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H68][scaling][blending], { 68 * aspectRatio, 68 });

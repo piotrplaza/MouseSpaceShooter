@@ -200,7 +200,7 @@ namespace Tools
 
 		static std::array<glm::vec3, numOfVertices> customPositions;
 
-		glBindVertexArray_proxy(0);
+		glProxyBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		if (positionsGenerator)
@@ -218,7 +218,7 @@ namespace Tools
 		glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, &defaultTexCoords);
 		glEnableVertexAttribArray(2);
 
-		glUseProgram_proxy(shadersProgram.getProgramId());
+		glProxyUseProgram(shadersProgram.getProgramId());
 
 		shadersProgram.model(glm::mat4(1.0f));
 		shadersProgram.vp(glm::mat4(1.0f));
@@ -239,7 +239,8 @@ namespace Tools
 
 		return[&](unsigned textureId)
 		{
-			glDisable(GL_BLEND);
+			const bool prevBlend = glProxyIsBlendEnabled();
+			glProxySetBlend(false);
 			TexturedScreenRender(shadersProgram, textureId, nullptr, [&]()
 				{
 					const float quakeIntensity = 0.001f * Globals::Components().shockwaves().size();
@@ -254,7 +255,7 @@ namespace Tools
 
 					return std::array<glm::vec3, 6>{ p1, p2, p3, p3, p2, p4 };
 				});
-			glEnable(GL_BLEND);
+			glProxySetBlend(prevBlend);
 		};
 	}
 
@@ -284,13 +285,11 @@ namespace Tools
 				angle = 0.0f;
 			}
 
-			const bool blendEnabled = glIsEnabled(GL_BLEND);
-			const bool cullFaceEnabled = glIsEnabled(GL_CULL_FACE);
+			const bool prevBlend = glProxyIsBlendEnabled();
+			const bool prevCullFace = glProxyIsCullFaceEnabled();
 
-			if (blendEnabled)
-				glDisable(GL_BLEND);
-			if (cullFaceEnabled)
-				glDisable(GL_CULL_FACE);
+			glProxySetBlend(false);
+			glProxySetCullFace(false);
 
 			Tools::TexturedScreenRender(shadersProgram, textureId, [&]()
 				{
@@ -311,10 +310,8 @@ namespace Tools
 					return std::array<glm::vec3, 6>{ p1, p2, p3, p3, p2, p4 };
 				});
 
-			if (blendEnabled)
-				glEnable(GL_BLEND);
-			if (cullFaceEnabled)
-				glEnable(GL_CULL_FACE);
+				glProxySetBlend(prevBlend);
+				glProxySetCullFace(prevCullFace);
 		};
 	}
 

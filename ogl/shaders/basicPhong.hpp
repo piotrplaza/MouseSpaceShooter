@@ -35,7 +35,8 @@ namespace ShadersUtils
 				lightModelColorNormalization(program, "lightModelColorNormalization"),
 				lightModelEnabled(program, "lightModelEnabled"),
 				gpuSideInstancedNormalTransforms(program, "gpuSideInstancedNormalTransforms"),
-				fogAmplification(program, "fogAmplification")
+				fogAmplification(program, "fogAmplification"),
+				forcedAlpha(program, "forcedAlpha")
 			{
 			}
 
@@ -63,6 +64,7 @@ namespace ShadersUtils
 			UniformsUtils::Uniform1b lightModelEnabled;
 			UniformsUtils::Uniform1b gpuSideInstancedNormalTransforms;
 			UniformsUtils::Uniform1f fogAmplification;
+			UniformsUtils::Uniform1f forcedAlpha;
 		};
 
 		struct BasicPhong : BasicPhongAccessor
@@ -95,6 +97,7 @@ namespace ShadersUtils
 				lightModelEnabled(true);
 				gpuSideInstancedNormalTransforms(false);
 				fogAmplification(0.0f);
+				forcedAlpha(-1.0f);
 			}
 
 			BasicPhong(const BasicPhong&) = delete;

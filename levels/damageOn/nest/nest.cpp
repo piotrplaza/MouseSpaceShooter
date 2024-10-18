@@ -251,7 +251,7 @@ namespace Levels::DamageOn
 
 			auto& defaults = Globals::Components().defaults();
 			if (startupParams.pixelArt)
-				defaults.forcedResolutionMode = { ResolutionMode::Resolution::H270, ResolutionMode::Scaling::Nearest };
+				defaults.forcedResolutionMode = { ResolutionMode::Resolution::H405, ResolutionMode::Scaling::Nearest };
 
 			auto& graphicsSettings = Globals::Components().graphicsSettings();
 			graphicsSettings.lineWidth = 6.0f;
@@ -598,10 +598,11 @@ namespace Levels::DamageOn
 			for (float sideFactor : { -1.0f, 1.0f })
 			{
 				auto& playerPresentation = playerActor.subsequence.emplace_back();
-				playerPresentation.renderingSetupF = [&, sideFactor](auto) {
+				playerPresentation.renderingSetupF = [&](auto) {
+					bool prevBlend = glProxyIsBlendEnabled();
 					if (!debug.presentationTransparency)
-						glDisable(GL_BLEND);
-					return []() mutable { glEnable(GL_BLEND); };
+						glProxySetBlend(false);
+					return [prevBlend]() mutable { glProxySetBlend(prevBlend); };
 				};
 				playerPresentation.renderF = [&, sideFactor]() { return debug.presentationTransparency || sideFactor == playerData.sideFactor; };
 				playerPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, playerPresentationSize);
@@ -666,10 +667,14 @@ namespace Levels::DamageOn
 				if (enemyType == 0)
 				{
 					enemyPresentation.texture = CM::DynamicAnimatedTexture(enemyData.animatedTexture.getComponentId(), {}, {}, glm::vec2(2.6f * radius));
-					enemyPresentation.renderingSetupF = [&, sideFactor](auto program) {
+					enemyPresentation.renderingSetupF = [&](auto program) {
+						bool prevBlend = glProxyIsBlendEnabled();
 						if (!debug.presentationTransparency)
-							glDisable(GL_BLEND);
-						return createRecursiveFaceRS({ enemyData.radius * 0.6f, enemyData.radius })(program);
+							glProxySetBlend(false);
+						return [&, prevBlend](auto program) {
+							glProxySetBlend(prevBlend);
+							return createRecursiveFaceRS({ enemyData.radius * 0.6f, enemyData.radius })(program);
+						}(program);
 					};
 
 					enemyData.baseColor = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f;
@@ -681,10 +686,11 @@ namespace Levels::DamageOn
 				{
 					enemyPresentation.texture = CM::DynamicAnimatedTexture(enemyData.animatedTexture.getComponentId());
 					enemyPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
-					enemyPresentation.renderingSetupF = [&, sideFactor](auto) {
+					enemyPresentation.renderingSetupF = [&](auto) {
+						bool prevBlend = glProxyIsBlendEnabled();
 						if (!debug.presentationTransparency)
-							glDisable(GL_BLEND);
-						return []() mutable { glEnable(GL_BLEND); };
+							glProxySetBlend(false);
+						return [prevBlend]() mutable { glProxySetBlend(prevBlend); };
 					};
 
 					enemyData.baseColor = glm::vec4(glm::vec3(glm::linearRand(0.5f, 1.0f), glm::linearRand(0.5f, 1.0f), glm::linearRand(0.5f, 1.0f)), 1.0f);
@@ -1084,7 +1090,6 @@ namespace Levels::DamageOn
 
 				return [=]() mutable {
 					visibilityReduction(false);
-					glEnable(GL_BLEND);
 				};
 			} };
 		}

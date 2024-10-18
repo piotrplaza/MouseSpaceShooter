@@ -38,7 +38,7 @@ namespace Buffers
 	GenericSubBuffers::GenericSubBuffers()
 	{
 		glGenVertexArrays(1, &vertexArray);
-		glBindVertexArray_proxy(vertexArray);
+		glProxyBindVertexArray(vertexArray);
 
 		createPositionsBuffer();
 		setColorsBuffer({});
@@ -117,7 +117,7 @@ namespace Buffers
 
 	void GenericSubBuffers::setColorsBuffer(const std::vector<glm::vec4>& colors)
 	{
-		glBindVertexArray_proxy(vertexArray);
+		glProxyBindVertexArray(vertexArray);
 
 		if (colors.empty())
 		{
@@ -145,7 +145,7 @@ namespace Buffers
 
 	void GenericSubBuffers::setTexCoordsBuffer(const std::vector<glm::vec2>& texCoords)
 	{
-		glBindVertexArray_proxy(vertexArray);
+		glProxyBindVertexArray(vertexArray);
 
 		if (texCoords.empty())
 		{
@@ -172,7 +172,7 @@ namespace Buffers
 
 	void GenericSubBuffers::setNormalsBuffer(const std::vector<glm::vec3>& normals)
 	{
-		glBindVertexArray_proxy(vertexArray);
+		glProxyBindVertexArray(vertexArray);
 
 		if (normals.empty())
 		{
@@ -199,7 +199,7 @@ namespace Buffers
 
 	void GenericSubBuffers::setInstancedTransformsBuffer(const std::vector<glm::mat4>& transforms)
 	{
-		glBindVertexArray_proxy(vertexArray);
+		glProxyBindVertexArray(vertexArray);
 
 		if (transforms.empty())
 		{
@@ -234,7 +234,7 @@ namespace Buffers
 
 	void GenericSubBuffers::setInstancedNormalTransformsBuffer(const std::vector<glm::mat3>& transforms)
 	{
-		glBindVertexArray_proxy(vertexArray);
+		glProxyBindVertexArray(vertexArray);
 
 		if (transforms.empty())
 		{
@@ -267,7 +267,7 @@ namespace Buffers
 
 	void GenericSubBuffers::setIndicesBuffer(const std::vector<unsigned>& indices)
 	{
-		glBindVertexArray_proxy(vertexArray);
+		glProxyBindVertexArray(vertexArray);
 
 		if (indices.empty())
 			return;

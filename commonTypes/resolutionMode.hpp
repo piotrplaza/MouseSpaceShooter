@@ -10,6 +10,7 @@ struct ResolutionMode
 		H2160,
 		H1080,
 		H540,
+		H405,
 		H270,
 		H135,
 		H68,
