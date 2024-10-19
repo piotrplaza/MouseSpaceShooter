@@ -490,6 +490,7 @@ namespace Levels::DamageOn
 
 				playerData.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * playerFrankenstein.params.presentation.velocityRotationFactor));
 
+				std::cout << vLength << std::endl;
 				playerData.animatedTexture.setSpeedScaling(playerFrankenstein.params.presentation.velocityScalingFactor == 0.0f ? 1.0f : vLength * playerFrankenstein.params.presentation.velocityScalingFactor);
 				if (playerData.animatedTexture.isForcingFrame())
 				{
@@ -501,7 +502,7 @@ namespace Levels::DamageOn
 					playerData.sideFactor = -1.0f;
 				else if (direction.x > 0.0f)
 					playerData.sideFactor = 1.0f;
-				else
+				else if (vLength == 0.0f)
 					playerData.animatedTexture.forceFrame(playerFrankenstein.params.animation.neutralFrame);
 
 				playerData.sideTransition += playerData.sideFactor * physics.frameDuration * 5.0f;
@@ -671,10 +672,10 @@ namespace Levels::DamageOn
 						bool prevBlend = glProxyIsBlendEnabled();
 						if (!debug.presentationTransparency)
 							glProxySetBlend(false);
-						return [&, prevBlend](auto program) {
+						return [&, prevBlend, tearDown = createRecursiveFaceRS({ enemyData.radius * 0.6f, enemyData.radius })(program)]() {
+							tearDown();
 							glProxySetBlend(prevBlend);
-							return createRecursiveFaceRS({ enemyData.radius * 0.6f, enemyData.radius })(program);
-						}(program);
+						};
 					};
 
 					enemyData.baseColor = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f;

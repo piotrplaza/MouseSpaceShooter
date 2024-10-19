@@ -1,6 +1,6 @@
 startup.pixelArt false
 
-game.numOfPlayers 2
+game.numOfPlayers 1
 game.globalVolume 1.0
 game.musicVolume 0.7
 game.mapHSize 20.0
