@@ -1,6 +1,6 @@
 startup.pixelArt false
 
-game.numOfPlayers 1
+game.numOfPlayers 2
 game.globalVolume 1.0
 game.musicVolume 0.7
 game.mapHSize 20.0
@@ -8,7 +8,7 @@ game.camera.minProjectionHSize 8.0
 game.camera.trackingMargin 5.0
 game.camera.positionTransitionFactor 5.0
 game.camera.projectionTransitionFactor 5.0
-game.gamepad.firstPlayer false
+game.gamepad.firstPlayer true
 game.gamepad.deadZone 0.2
 game.gamepad.triggerDeadZone 0.1
 

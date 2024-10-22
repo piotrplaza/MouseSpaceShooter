@@ -284,7 +284,7 @@ namespace Tools
 			](ShadersUtils::ProgramId program) mutable {
 				if (!texturedProgram.isValid()) texturedProgram = program;
 				texturedProgram.vp(glm::translate(glm::scale(Globals::Components().mvp2D().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
-					glm::vec3(-Globals::Components().camera2D().details.prevPosition * (0.002f + layer * 0.002f), 0.0f)));
+					glm::vec3(-Globals::Components().camera2D().details.prevPosition * (0.0002f + layer * 0.0002f), 0.0f)));
 				texturedProgram.color(fColor() * glm::vec4(1.0f, 1.0f, 1.0f, alphaPerLayer));
 
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);

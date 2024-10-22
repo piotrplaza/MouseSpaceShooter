@@ -39,109 +39,121 @@ namespace Levels::DamageOn
 {
 	struct StartupParams
 	{
-		bool pixelArt;
+		bool pixelArt{};
 	};
 
 	struct GameParams
 	{
-		int numOfPlayers;
-		float globalVolume;
-		float musicVolume;
-		float mapHSize;
+		int numOfPlayers{};
+		float globalVolume{};
+		float musicVolume{};
+		float mapHSize{};
 
 		struct Camera
 		{
-			float minProjectionHSize;
-			float trackingMargin;
-			float positionTransitionFactor;
-			float projectionTransitionFactor;
+			float minProjectionHSize{};
+			float trackingMargin{};
+			float positionTransitionFactor{};
+			float projectionTransitionFactor{};
 		} camera;
 
 		struct Gamepad
 		{
-			bool firstPlayer;
-			float deadZone;
-			float triggerDeadZone;
+			bool firstPlayer{};
+			float deadZone{};
+			float triggerDeadZone{};
 		} gamepad;
 	};
 
 	struct Animation
 	{
-		glm::ivec2 textureSize;
-		glm::ivec2 framesGrid;
-		glm::ivec2 leftTopFrameLeftTopCorner;
-		int rightTopFrameLeftEdge;
-		int leftBottomFrameTopEdge;
-		glm::ivec2 frameSize;
-		float frameDuration;
-		int numOfFrames;
-		int startFrame;
-		AnimationData::Direction direction;
-		AnimationData::Mode mode;
-		AnimationData::TextureLayout textureLayout;
-		glm::vec2 frameTranslation;
-		float frameRotation;
-		glm::vec2 frameScale;
-		int neutralFrame;
+		glm::ivec2 textureSize{};
+		glm::ivec2 framesGrid{};
+		glm::ivec2 leftTopFrameLeftTopCorner{};
+		int rightTopFrameLeftEdge{};
+		int leftBottomFrameTopEdge{};
+		glm::ivec2 frameSize{};
+		float frameDuration{};
+		int numOfFrames{};
+		int startFrame{};
+		AnimationData::Direction direction{};
+		AnimationData::Mode mode{};
+		AnimationData::TextureLayout textureLayout{};
+		glm::vec2 frameTranslation{};
+		float frameRotation{};
+		glm::vec2 frameScale{};
+		int neutralFrame{};
 	};
 
 	struct ActorPresentation
 	{
-		glm::vec2 radiusProportions;
-		glm::vec2 translation;
-		float rotation;
-		glm::vec2 scale;
-		float velocityRotationFactor;
-		float velocityScalingFactor;
-		glm::vec2 weaponOffset;
+		glm::vec2 radiusProportions{};
+		glm::vec2 translation{};
+		float rotation{};
+		glm::vec2 scale{};
+		float velocityRotationFactor{};
+		float velocityScalingFactor{};
+		glm::vec2 weaponOffset{};
 	};
 
 	struct Player
 	{
 		struct Params
 		{
-			glm::vec2 startPosition;
-			float radius;
-			float maxVelocity;
-			float density;
-			float linearDamping;
-			float dash;
+			std::string type;
 
-			ActorPresentation presentation;
-			Animation animation;
+			glm::vec2 startPosition{};
+			float radius{};
+			float maxVelocity{};
+			float density{};
+			float linearDamping{};
+			float dash{};
+
+			ActorPresentation presentation{};
+			Animation animation{};
+
+			struct LoadedBase
+			{
+				LoadedBase(Components::Texture& animationTexture) :
+					animationTexture(animationTexture)
+				{
+				}
+
+				Components::Texture& animationTexture;
+			};
+
+			struct Loaded : LoadedBase
+			{
+				using LoadedBase::LoadedBase;
+
+				Loaded(Loaded&& loaded) noexcept :
+					LoadedBase(std::move(loaded))
+				{
+					loaded.outdated = true;
+				}
+
+				~Loaded()
+				{
+					if (outdated)
+						return;
+
+					animationTexture.state = ComponentState::Outdated;
+				}
+
+				bool outdated{};
+			};
+			std::optional<Loaded> loaded;
 		} params;
 
-		struct Data
+		struct DataBase
 		{
-			Data(Components::Actor& actor, Components::AnimatedTexture& animatedTexture, Components::Sound& sparkingSound, Components::Sound& overchargeSound, Components::Sound& dashSound) :
+			DataBase(Components::Actor& actor, Components::AnimatedTexture& animatedTexture, Components::Sound& sparkingSound, Components::Sound& overchargeSound, Components::Sound& dashSound) :
 				actor(actor),
 				animatedTexture(animatedTexture),
 				sparkingSound(sparkingSound),
 				overchargeSound(overchargeSound),
 				dashSound(dashSound)
 			{
-			}
-
-			Data(Data&& playerData) noexcept :
-				actor(playerData.actor),
-				animatedTexture(playerData.animatedTexture),
-				sparkingSound(playerData.sparkingSound),
-				overchargeSound(playerData.overchargeSound),
-				dashSound(playerData.dashSound)
-			{
-				playerData.outdated = true;
-			}
-
-			~Data()
-			{
-				if (outdated)
-					return;
-
-				actor.state = ComponentState::Outdated;
-				animatedTexture.state = ComponentState::Outdated;
-				sparkingSound.state = ComponentState::Outdated;
-				overchargeSound.state = ComponentState::Outdated;
-				dashSound.state = ComponentState::Outdated;
 			}
 
 			Components::Actor& actor;
@@ -161,46 +173,16 @@ namespace Levels::DamageOn
 			float sideTransition = 0.0f;
 			int activeSparks{};
 			float angle{};
-
-			bool outdated{};
 		};
-		std::unordered_map<int, Data> idsToData;
-	};
 
-	struct Enemy
-	{
-		struct Params
+		struct Data: DataBase
 		{
-			int initCount;
-			glm::vec2 startPosition;
-			float initHP;
-			glm::vec2 initRadiusRange;
-			float density;
-			float baseVelocity;
-			float boostDistance;
-			float boostFactor;
-			float slowFactor;
-			float radiusReductionFactor;
-			float minimalRadius;
-			int killSpawns;
+			using DataBase::DataBase;
 
-			ActorPresentation presentation;
-			Animation animation;
-		} params;
-
-		struct Data
-		{
-			Data(Components::Actor& actor, Components::AnimatedTexture& animatedTexture) :
-				actor(actor),
-				animatedTexture(animatedTexture)
+			Data(Data&& data) noexcept :
+				DataBase(std::move(data))
 			{
-			}
-
-			Data(Data&& enemyData) noexcept :
-				actor(enemyData.actor),
-				animatedTexture(enemyData.animatedTexture)
-			{
-				enemyData.outdated = true;
+				data.outdated = true;
 			}
 
 			~Data()
@@ -210,6 +192,78 @@ namespace Levels::DamageOn
 
 				actor.state = ComponentState::Outdated;
 				animatedTexture.state = ComponentState::Outdated;
+				sparkingSound.state = ComponentState::Outdated;
+				overchargeSound.state = ComponentState::Outdated;
+				dashSound.state = ComponentState::Outdated;
+			}
+
+			bool outdated{};
+		};
+
+		std::unordered_map<int, Data> idsToData;
+	};
+
+	struct EnemyType
+	{
+		struct Params
+		{
+			std::string type{};
+
+			int initCount{};
+			glm::vec2 startPosition{};
+			float initHP{};
+			glm::vec2 initRadiusRange{};
+			float density{};
+			float baseVelocity{};
+			float boostDistance{};
+			float boostFactor{};
+			float slowFactor{};
+			float radiusReductionFactor{};
+			float minimalRadius{};
+			int killSpawns{};
+
+			ActorPresentation presentation{};
+			Animation animation{};
+
+			struct LoadedBase
+			{
+				LoadedBase(Components::Texture& animationTexture) :
+					animationTexture(animationTexture)
+				{
+				}
+
+				Components::Texture& animationTexture;
+			};
+
+			struct Loaded : LoadedBase
+			{
+				using LoadedBase::LoadedBase;
+
+				Loaded(Loaded&& loaded) noexcept :
+					LoadedBase(std::move(loaded))
+				{
+					loaded.outdated = true;
+				}
+
+				~Loaded()
+				{
+					if (outdated)
+						return;
+
+					animationTexture.state = ComponentState::Outdated;
+				}
+
+				bool outdated{};
+			};
+			std::optional<Loaded> loaded;
+		} params;
+
+		struct DataBase
+		{
+			DataBase(Components::Actor& actor, Components::AnimatedTexture& animatedTexture) :
+				actor(actor),
+				animatedTexture(animatedTexture)
+			{
 			}
 
 			Components::Actor& actor;
@@ -220,6 +274,26 @@ namespace Levels::DamageOn
 			float sideTransition = 0.0f;
 			float radius{};
 			float angle{};
+		};
+
+		struct Data: DataBase
+		{
+			using DataBase::DataBase;
+
+			Data(Data&& data) noexcept :
+				DataBase(std::move(data))
+			{
+				data.outdated = true;
+			}
+
+			~Data()
+			{
+				if (outdated)
+					return;
+
+				actor.state = ComponentState::Outdated;
+				animatedTexture.state = ComponentState::Outdated;
+			}
 
 			bool outdated{};
 		};
@@ -261,36 +335,16 @@ namespace Levels::DamageOn
 			auto& animatedTextures = Globals::Components().dynamicAnimatedTextures();
 
 			backgroundTextureId = dynamicTextures.emplace("textures/damageOn/nest.jpg", GL_CLAMP_TO_BORDER).getComponentId();
-			//staticTextures.last().magFilter = GL_NEAREST;
-			staticTextures.last().scale = glm::vec2(1.0f);
-			//staticTextures.last().preserveAspectRatio = true;
+			//dynamicTextures.last().magFilter = GL_NEAREST;
+			dynamicTextures.last().scale = glm::vec2(1.0f);
+			//dynamicTextures.last().preserveAspectRatio = true;
 
-			coffinTextureId = staticTextures.emplace("textures/damageOn/coffin.png", GL_MIRRORED_REPEAT).getComponentId();
-			//staticTextures.last().magFilter = GL_NEAREST;
-			//staticTextures.last().scale = glm::vec2(30.0f);
-
-			fogTextureId = staticTextures.size();
-			staticTextures.emplace("textures/damageOn/fog.png", GL_REPEAT);
+			coffinTextureId = dynamicTextures.emplace("textures/damageOn/coffin.png", GL_MIRRORED_REPEAT).getComponentId();
+			//dynamicTextures.last().magFilter = GL_NEAREST;
+			//dynamicTextures.last().scale = glm::vec2(30.0f);
+ 
+			fogTextureId = staticTextures.emplace("textures/damageOn/fog.png", GL_REPEAT).getComponentId();
 			staticTextures.last().scale = glm::vec2(0.15f);
-
-			playerAnimationTextures.push_back(&staticTextures.emplace("textures/damageOn/player 1.png"));
-			staticTextures.last().magFilter = GL_LINEAR;
-
-			enemyAnimationTextures.push_back(&staticTextures.emplace(TextureFile("textures/damageOn/enemy 1.jpg", 4, true, TextureFile::AdditionalConversion::DarkToTransparent, [](float* data, glm::ivec2 size, int numOfChannels) {
-				for (int i = 0; i < size.x * size.y; ++i)
-				{
-					glm::vec4& pixel = reinterpret_cast<glm::vec4*>(data)[i];
-					if (pixel.r + pixel.g + pixel.b < 0.2f)
-						pixel = {};
-				}
-				})));
-			staticTextures.last().minFilter = GL_LINEAR;
-
-			enemyAnimationTextures.push_back(&staticTextures.emplace("textures/damageOn/enemy 2.png"));
-			staticTextures.last().magFilter = GL_LINEAR;
-
-			enemyAnimationTextures.push_back(&staticTextures.emplace("textures/damageOn/enemy 3.png"));
-			staticTextures.last().magFilter = GL_LINEAR;
 
 			auto& soundsBuffers = Globals::Components().soundsBuffers();
 
@@ -315,7 +369,7 @@ namespace Levels::DamageOn
 				auto& audioListener = Globals::Components().audioListener();
 				audioListener.setEnabled(!audioListener.isEnabled());
 
-				if (musics.last().isPlaying())
+				if (!prevPauseState)
 					musics.last().pause();
 				else
 					musics.last().play();
@@ -330,9 +384,8 @@ namespace Levels::DamageOn
 		{
 			const auto& screenInfo = Globals::Components().screenInfo();
 			auto& camera = Globals::Components().camera2D();
-			auto& walls = Globals::Components().staticWalls();
-			auto& decorations = Globals::Components().staticDecorations();
-			auto& staticTextures = Globals::Components().staticTextures();
+			auto& dynamicWalls = Globals::Components().dynamicWalls();
+			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
 			auto& dynamicTextures = Globals::Components().dynamicTextures();
 			auto& physics = Globals::Components().physics();
 
@@ -373,23 +426,23 @@ namespace Levels::DamageOn
 			alternativeTargetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, gameParams.mapHSize);
 
 			const float borderHThickness = 10.0f;
-			walls.emplace(Tools::CreateBoxBody({ levelHSize.x + borderHThickness, borderHThickness }, Tools::BodyParams{}.position({ 0.0f, -levelHSize.y - borderHThickness }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-			walls.emplace(Tools::CreateBoxBody({ levelHSize.x + borderHThickness, borderHThickness }, Tools::BodyParams{}.position({ 0.0f, levelHSize.y + borderHThickness }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-			walls.emplace(Tools::CreateBoxBody({ borderHThickness, levelHSize.y + borderHThickness }, Tools::BodyParams{}.position({ -levelHSize.x - borderHThickness, 0.0f }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-			walls.emplace(Tools::CreateBoxBody({ borderHThickness, levelHSize.y + borderHThickness }, Tools::BodyParams{}.position({ levelHSize.x + borderHThickness, 0.0f }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			dynamicWalls.emplace(Tools::CreateBoxBody({ levelHSize.x + borderHThickness, borderHThickness }, Tools::BodyParams{}.position({ 0.0f, -levelHSize.y - borderHThickness }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			dynamicWalls.emplace(Tools::CreateBoxBody({ levelHSize.x + borderHThickness, borderHThickness }, Tools::BodyParams{}.position({ 0.0f, levelHSize.y + borderHThickness }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			dynamicWalls.emplace(Tools::CreateBoxBody({ borderHThickness, levelHSize.y + borderHThickness }, Tools::BodyParams{}.position({ -levelHSize.x - borderHThickness, 0.0f }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			dynamicWalls.emplace(Tools::CreateBoxBody({ borderHThickness, levelHSize.y + borderHThickness }, Tools::BodyParams{}.position({ levelHSize.x + borderHThickness, 0.0f }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 			const float mapScaleFactor = gameParams.mapHSize / 20.0f;
 			const glm::vec2 nestCenter = glm::vec2(1.8f, 2.6f) * mapScaleFactor;
-			walls.emplace(Tools::CreateCircleBody(6.0f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter))).renderF = [&]() { return debug.levelBodiesRendering; };
-			walls.last().colorF = glm::vec4(0.2f);
-			walls.last().stepF = [&, &wall = walls.last()]() { 
+			dynamicWalls.emplace(Tools::CreateCircleBody(6.0f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter))).renderF = [&]() { return debug.levelBodiesRendering; };
+			dynamicWalls.last().colorF = glm::vec4(0.2f);
+			dynamicWalls.last().stepF = [&, &wall = dynamicWalls.last()]() { 
 				wall.setEnabled(!bonusBackground); };
-			walls.emplace(Tools::CreateCircleBody(5.5f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter + glm::vec2(-2.5f) * mapScaleFactor))).renderF = [&]() { return debug.levelBodiesRendering; };
-			walls.last().colorF = glm::vec4(0.2f);
-			walls.last().stepF = [&, &wall = walls.last()]() { wall.setEnabled(!bonusBackground); };
-			walls.emplace(Tools::CreateCircleBody(3.0f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter + glm::vec2(-6.0f) * mapScaleFactor))).renderF = [&]() { return debug.levelBodiesRendering; };
-			walls.last().colorF = glm::vec4(0.2f);
-			walls.last().stepF = [&, &wall = walls.last()]() { wall.setEnabled(!bonusBackground); };
+			dynamicWalls.emplace(Tools::CreateCircleBody(5.5f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter + glm::vec2(-2.5f) * mapScaleFactor))).renderF = [&]() { return debug.levelBodiesRendering; };
+			dynamicWalls.last().colorF = glm::vec4(0.2f);
+			dynamicWalls.last().stepF = [&, &wall = dynamicWalls.last()]() { wall.setEnabled(!bonusBackground); };
+			dynamicWalls.emplace(Tools::CreateCircleBody(3.0f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter + glm::vec2(-6.0f) * mapScaleFactor))).renderF = [&]() { return debug.levelBodiesRendering; };
+			dynamicWalls.last().colorF = glm::vec4(0.2f);
+			dynamicWalls.last().stepF = [&, &wall = dynamicWalls.last()]() { wall.setEnabled(!bonusBackground); };
 
 			auto screenCordTexturesF = [sceneCoordTextures = UniformsUtils::Uniform1b()](ShadersUtils::ProgramId program) mutable {
 				if (!sceneCoordTextures.isValid())
@@ -402,12 +455,12 @@ namespace Levels::DamageOn
 			{
 				const float debrisWidth = glm::linearRand(0.3f, 1.0f);
 				const float debrisHeight = debrisWidth * glm::linearRand(1.6f, 2.0f);
-				walls.emplace(Tools::CreateBoxBody({ debrisWidth, debrisHeight }, Tools::BodyParams{}.position(glm::linearRand(-levelHSize, levelHSize)).angle(glm::linearRand(0.0f, glm::two_pi<float>()))
-					.bodyType(b2_dynamicBody).linearDamping(10.0f).angularDamping(10.0f).density(debrisDensity)), CM::StaticTexture(coffinTextureId));
-				walls.last().texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
+				dynamicWalls.emplace(Tools::CreateBoxBody({ debrisWidth, debrisHeight }, Tools::BodyParams{}.position(glm::linearRand(-levelHSize, levelHSize)).angle(glm::linearRand(0.0f, glm::two_pi<float>()))
+					.bodyType(b2_dynamicBody).linearDamping(10.0f).angularDamping(10.0f).density(debrisDensity)), CM::DynamicTexture(coffinTextureId));
+				dynamicWalls.last().texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 			}
 
-			decorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, levelHSize), CM::DynamicTexture(backgroundTextureId), Tools::Shapes2D::CreateTexCoordOfRectangle()).renderLayer = RenderLayer::FarBackground;
+			dynamicDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, levelHSize), CM::DynamicTexture(backgroundTextureId), Tools::Shapes2D::CreateTexCoordOfRectangle()).renderLayer = RenderLayer::FarBackground;
 		}
 
 		void step()
@@ -426,6 +479,8 @@ namespace Levels::DamageOn
 				reload();
 
 			std::unordered_map<int, float> minDistances;
+			bool anyGamepadPressedX = false;
+			bool anyGamepadPressedY = false;
 			for (auto& [playerId, playerData] : playerFrankenstein.idsToData)
 			{
 				const bool keyboardEnabled = gameParams.gamepad.firstPlayer ? true : playerId == 0;
@@ -439,7 +494,7 @@ namespace Levels::DamageOn
 					gamepadEnabled = false;
 				}
 
-				auto enemyPlayerInteractionsF = [&](auto& enemy) {
+				auto enemyTypePlayerInteractionsF = [&](auto& enemy) {
 					for (auto& [enemyId, enemyData] : enemy.idsToData)
 					{
 						const auto direction = playerData.actor.getOrigin2D() - enemyData.actor.getOrigin2D();
@@ -453,9 +508,9 @@ namespace Levels::DamageOn
 						}
 					}
 				};
-				enemyPlayerInteractionsF(enemyGhost);
-				enemyPlayerInteractionsF(enemyChicken);
-				enemyPlayerInteractionsF(enemyZombie);
+
+				for (auto& enemyType: enemyTypes)
+					enemyTypePlayerInteractionsF(enemyType);
 
 				const glm::vec2 gamepadDirection = gamepadEnabled
 					? [&]() {
@@ -490,7 +545,6 @@ namespace Levels::DamageOn
 
 				playerData.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * playerFrankenstein.params.presentation.velocityRotationFactor));
 
-				std::cout << vLength << std::endl;
 				playerData.animatedTexture.setSpeedScaling(playerFrankenstein.params.presentation.velocityScalingFactor == 0.0f ? 1.0f : vLength * playerFrankenstein.params.presentation.velocityScalingFactor);
 				if (playerData.animatedTexture.isForcingFrame())
 				{
@@ -502,10 +556,10 @@ namespace Levels::DamageOn
 					playerData.sideFactor = -1.0f;
 				else if (direction.x > 0.0f)
 					playerData.sideFactor = 1.0f;
-				else if (vLength == 0.0f)
+				else if (vLength < 1.0f)
 					playerData.animatedTexture.forceFrame(playerFrankenstein.params.animation.neutralFrame);
 
-				playerData.sideTransition += playerData.sideFactor * physics.frameDuration * 5.0f;
+				playerData.sideTransition += playerData.sideFactor * physics.frameDuration * 7.0f;
 				playerData.sideTransition = glm::clamp(playerData.sideTransition, 0.0f, 1.0f);
 
 				const glm::vec2 newVelocity = direction * playerFrankenstein.params.maxVelocity;
@@ -529,45 +583,52 @@ namespace Levels::DamageOn
 					playerData.actor.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerFrankenstein.params.dash * playerData.actor.body->GetMass()), true);
 				}
 
-				if (keyboard.pressed['T'] * keyboardEnabled || gamepad.pressed.y * gamepadEnabled)
-					debug.presentationTransparency = !debug.presentationTransparency;
-				if (keyboard.pressed['H'] * keyboardEnabled || gamepad.pressed.x * gamepadEnabled)
-					debug.bodyRendering = !debug.bodyRendering;
-				if (keyboard.pressed['L'] * keyboardEnabled)
-					debug.levelBodiesRendering = !debug.levelBodiesRendering;
-				if (keyboard.pressed['B'] * keyboardEnabled)
-				{
-					bonusBackground = !bonusBackground;
-					auto& backgroundTexture = Globals::Components().dynamicTextures()[backgroundTextureId];
-					backgroundTexture.source = bonusBackground
-						? "textures/damageOn/sanfranfromairship.jpg"
-						: "textures/damageOn/nest.jpg";
-					backgroundTexture.state = ComponentState::Changed;
-				}
-				if (keyboard.pressed['C'] * keyboardEnabled)
-					std::swap(Globals::Components().camera2D().targetPositionAndProjectionHSizeF, alternativeTargetPositionAndProjectionHSizeF);
+				if (gamepad.pressed.x * gamepadEnabled)
+					anyGamepadPressedX = true;
+				if (gamepad.pressed.y * gamepadEnabled)
+					anyGamepadPressedY = true;
 
 				sparkingHandler(playerData, playerData.fire || playerData.autoFire);
 			}
 
-			auto enemyActionsF = [&](auto& enemy) {
+			if (keyboard.pressed['H'] || anyGamepadPressedX)
+				debug.bodyRendering = !debug.bodyRendering;
+			if (keyboard.pressed['T'] || anyGamepadPressedY)
+				debug.presentationTransparency = !debug.presentationTransparency;
+			if (keyboard.pressed['L'])
+				debug.levelBodiesRendering = !debug.levelBodiesRendering;
+			if (keyboard.pressed['B'])
+			{
+				bonusBackground = !bonusBackground;
+				auto& backgroundTexture = Globals::Components().dynamicTextures()[backgroundTextureId];
+				backgroundTexture.source = bonusBackground
+					? "textures/damageOn/sanfranfromairship.jpg"
+					: "textures/damageOn/nest.jpg";
+				backgroundTexture.state = ComponentState::Changed;
+			}
+			if (keyboard.pressed['C'])
+				std::swap(Globals::Components().camera2D().targetPositionAndProjectionHSizeF, alternativeTargetPositionAndProjectionHSizeF);
+
+			auto enemyTypeActionsF = [&](auto& enemy) {
 				for (auto& [enemyId, enemyData] : enemy.idsToData)
 				{
 					const float vLength = glm::length(enemyData.actor.getVelocity());
 					enemyData.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * enemy.params.presentation.velocityRotationFactor));
 					enemyData.animatedTexture.setSpeedScaling(enemy.params.presentation.velocityScalingFactor == 0.0f ? 1.0f : glm::length(enemyData.actor.getVelocity() * enemy.params.presentation.velocityScalingFactor));
-					enemyData.sideTransition += enemyData.sideFactor * physics.frameDuration * 5.0f;
+					enemyData.sideTransition += enemyData.sideFactor * physics.frameDuration * 7.0f;
 					enemyData.sideTransition = glm::clamp(enemyData.sideTransition, 0.0f, 1.0f);
 				}
 			};
-			enemyActionsF(enemyGhost);
-			enemyActionsF(enemyChicken);
-			enemyActionsF(enemyZombie);
+
+			for (auto& enemyType : enemyTypes)
+				enemyTypeActionsF(enemyType);
 		}
 
 	private:
 		void playerSpawn(Player& player, glm::vec2 position)
 		{
+			const auto playerId = playerIdGenerator.acquire();
+
 			const auto& physics = Globals::Components().physics();
 			auto& sounds = Globals::Components().sounds();
 
@@ -575,7 +636,7 @@ namespace Levels::DamageOn
 				.linearDamping(player.params.linearDamping).fixedRotation(true).bodyType(b2_dynamicBody).density(player.params.density).position(position)), CM::DummyTexture{});
 
 			auto& playerAnimatedTexture = Globals::Components().dynamicAnimatedTextures().emplace();
-			playerAnimatedTexture.setAnimationData({ CM::StaticTexture(playerAnimationTextures[0]->getComponentId()), player.params.animation.textureSize, player.params.animation.framesGrid, player.params.animation.leftTopFrameLeftTopCorner,
+			playerAnimatedTexture.setAnimationData({ CM::DynamicTexture(player.params.loaded->animationTexture.getComponentId()), player.params.animation.textureSize, player.params.animation.framesGrid, player.params.animation.leftTopFrameLeftTopCorner,
 				player.params.animation.rightTopFrameLeftEdge, player.params.animation.leftBottomFrameTopEdge, player.params.animation.frameSize, player.params.animation.frameDuration, player.params.animation.numOfFrames,
 				player.params.animation.startFrame == -1 ? glm::linearRand(0, player.params.animation.numOfFrames - 1) : player.params.animation.startFrame,
 				player.params.animation.direction, player.params.animation.mode, player.params.animation.textureLayout });
@@ -588,7 +649,6 @@ namespace Levels::DamageOn
 			auto& dashSoundBuffer = sounds.emplace(dashSoundBufferId);
 			dashSoundBuffer.setVolume(0.15f);
 
-			const auto playerId = playerIdGenerator.acquire();
 			auto& playerData = player.idsToData.emplace(playerId, Player::Data{ playerActor, playerAnimatedTexture, sparkingSound, overchargingSound, dashSoundBuffer }).first->second;
 
 			playerActor.renderF = [&]() { return debug.bodyRendering; };
@@ -625,11 +685,11 @@ namespace Levels::DamageOn
 			}
 		}
 
-		void enemySpawn(Enemy& enemy, glm::vec2 position, float radius, int enemyType)
+		void enemySpawn(EnemyType& enemy, glm::vec2 position, float radius)
 		{
 			const auto& physics = Globals::Components().physics();
 
-			auto& enemyAnimatedTexture = Globals::Components().dynamicAnimatedTextures().add({ CM::StaticTexture(enemyAnimationTextures[enemyType]->getComponentId()), enemy.params.animation.textureSize,
+			auto& enemyAnimatedTexture = Globals::Components().dynamicAnimatedTextures().add({ CM::DynamicTexture(enemy.params.loaded->animationTexture.getComponentId()), enemy.params.animation.textureSize,
 				enemy.params.animation.framesGrid, enemy.params.animation.leftTopFrameLeftTopCorner, enemy.params.animation.rightTopFrameLeftEdge, enemy.params.animation.leftBottomFrameTopEdge,
 				enemy.params.animation.frameSize, enemy.params.animation.frameDuration, enemy.params.animation.numOfFrames,
 				enemy.params.animation.startFrame == -1 ? glm::linearRand(0, enemy.params.animation.numOfFrames - 1) : enemy.params.animation.startFrame,
@@ -645,7 +705,7 @@ namespace Levels::DamageOn
 			enemyActor.posInSubsequence = 2;
 
 			const auto enemyId = enemyIdGenerator.acquire();
-			auto& enemyData = enemy.idsToData.emplace(enemyId, Enemy::Data{ enemyActor, enemyAnimatedTexture }).first->second;
+			auto& enemyData = enemy.idsToData.emplace(enemyId, EnemyType::Data{ enemyActor, enemyAnimatedTexture }).first->second;
 			enemyData.radius = radius;
 
 			auto damageColorFactor = std::make_shared<glm::vec4>(1.0f);
@@ -665,7 +725,7 @@ namespace Levels::DamageOn
 
 				enemyPresentation.renderF = [&, sideFactor]() { return debug.presentationTransparency || sideFactor == enemyData.sideFactor; };
 
-				if (enemyType == 0)
+				if (enemy.params.type == "ghost")
 				{
 					enemyPresentation.texture = CM::DynamicAnimatedTexture(enemyData.animatedTexture.getComponentId(), {}, {}, glm::vec2(2.6f * radius));
 					enemyPresentation.renderingSetupF = [&](auto program) {
@@ -701,7 +761,7 @@ namespace Levels::DamageOn
 				}
 			}
 
-			enemyActor.stepF = [&, enemyId, radius, enemyType, sparks = std::vector<Components::Decoration*>{}, damageColorFactor, hp = enemy.params.initHP]() mutable {
+			enemyActor.stepF = [&, enemyId, radius, sparks = std::vector<Components::Decoration*>{}, damageColorFactor, hp = enemy.params.initHP]() mutable {
 				if (sparks.size() != gameParams.numOfPlayers)
 				{
 					for (auto& spark: sparks)
@@ -731,7 +791,7 @@ namespace Levels::DamageOn
 					Tools::CreateAndPlaySound(killSoundBufferId, enemyActor.getOrigin2D(), [&](auto& sound) {
 						const float basePitch = 5.0f * enemyData.radius / radius;
 						sound.setPitch(glm::linearRand(basePitch, basePitch * 5.0f));
-						sound.setVolume(0.2f);
+						sound.setVolume(0.5f);
 						});
 					for (auto& spark: sparks)
 						spark->state = ComponentState::Outdated;
@@ -740,12 +800,12 @@ namespace Levels::DamageOn
 					const float newRadius = radius * enemy.params.radiusReductionFactor;
 					if (enemy.params.killSpawns > 0 && newRadius >= enemy.params.minimalRadius)
 						for (int i = 0; i < enemy.params.killSpawns; ++i)
-							enemySpawn(enemy, enemyActor.getOrigin2D() + glm::circularRand(0.1f), radius * enemy.params.radiusReductionFactor, enemyType);
+							enemySpawn(enemy, enemyActor.getOrigin2D() + glm::circularRand(0.1f), radius * enemy.params.radiusReductionFactor);
 				}
 			};
 		}
 
-		void enemyBoost(const Enemy& enemy, auto& enemyBody, glm::vec2 direction, float distance)
+		void enemyBoost(const EnemyType& enemy, auto& enemyBody, glm::vec2 direction, float distance)
 		{
 			if (distance > 0.0f && distance < enemy.params.boostDistance)
 				enemyBody.setVelocity(direction / distance * enemy.params.baseVelocity * enemy.params.boostFactor);
@@ -780,7 +840,6 @@ namespace Levels::DamageOn
 
 				return true;
 			}
-			//spark.vertices.clear();
 			spark.renderF = false;
 			damageColorFactor = glm::vec4(1.0f);
 
@@ -830,7 +889,7 @@ namespace Levels::DamageOn
 			if (!file.is_open())
 				std::cout << "unable to open \"" << paramsPath << "\"" << std::endl;
 
-			std::map<std::string, std::string> params;
+			std::map<std::string, std::string> keysToValues;
 			std::string line;
 			while (std::getline(file, line)) {
 				std::istringstream iss(line);
@@ -839,23 +898,24 @@ namespace Levels::DamageOn
 				if (iss >> key) {
 					std::getline(iss, value);
 					value.erase(0, 1);
-					params.emplace(std::move(key), std::move(value));
+					keysToValues.emplace(std::move(key), std::move(value));
 				}
 			}
 
-			std::cout << params.size() << " params loaded:" << std::endl;
-			for (const auto& [key, value] : params)
+			std::cout << keysToValues.size() << " params loaded:" << std::endl;
+			for (const auto& [key, value] : keysToValues)
 				std::cout << key << " " << value << std::endl;
 			std::cout << std::endl;
 
 			auto getValue = [&](const std::string& key) {
 				try
 				{
-					return params.at(key);
+					return keysToValues.at(key);
 				}
 				catch (...)
 				{
-					throw std::runtime_error("Failed to get value for key " + key);
+					assert(!"loadParams(): failed to get value for key");
+					throw std::runtime_error("loadParams(): Failed to get value for key " + key);
 				}
 			};
 
@@ -921,7 +981,10 @@ namespace Levels::DamageOn
 				else if constexpr (std::is_same_v<ParamType, AnimationData::TextureLayout>)
 					param = getValue(key) == "horizontal" ? AnimationData::TextureLayout::Horizontal : AnimationData::TextureLayout::Vertical;
 				else
+				{
+					assert(!"loadParams(): unsupported type for key for key");
 					throw std::runtime_error("Unsupported type for key " + key);
+				}
 			};
 
 			loadParam(startupParams.pixelArt, "startup.pixelArt");
@@ -955,6 +1018,21 @@ namespace Levels::DamageOn
 				loadParam(animationParams.neutralFrame, std::format("{}.animation.neutralFrame", actorName));
 			};
 
+			auto extractName = [](const std::string& line, const std::string& prefix) -> std::string {
+				std::size_t startPos = line.find(prefix);
+
+				if (startPos != std::string::npos) {
+					startPos += prefix.length();
+					std::size_t endPos = line.find('.', startPos);
+					if (endPos != std::string::npos) {
+						return line.substr(startPos, endPos - startPos);
+					}
+				}
+				return "";
+			};
+
+			auto& dynamicTextures = Globals::Components().dynamicTextures();
+
 			auto loadPlayerParams = [&](auto& playerParams, std::string playerName) {
 				loadParam(playerParams.startPosition, std::format("player.{}.startPosition", playerName));
 				loadParam(playerParams.radius, std::format("player.{}.radius", playerName));
@@ -964,23 +1042,67 @@ namespace Levels::DamageOn
 				loadParam(playerParams.dash, std::format("player.{}.dash", playerName));
 				loadPresentationParams(playerParams.presentation, std::format("player.{}", playerName));
 				loadAnimationParams(playerParams.animation, std::format("player.{}", playerName));
+
+				if (playerName == "frankenstein")
+				{
+					playerParams.loaded.emplace(dynamicTextures.emplace("textures/damageOn/player 1.png"));
+					playerParams.loaded->animationTexture.magFilter = GL_LINEAR;
+				}
+				else
+					assert(!"Unsupported player id");
 			};
 
-			auto loadEnemyParams = [&](auto& enemyParams, std::string enemyName) {
-				loadParam(enemyParams.initCount, std::format("enemy.{}.initCount", enemyName));
-				loadParam(enemyParams.startPosition, std::format("enemy.{}.startPosition", enemyName));
-				loadParam(enemyParams.initHP, std::format("enemy.{}.initHP", enemyName));
-				loadParam(enemyParams.initRadiusRange, std::format("enemy.{}.initRadiusRange", enemyName));
-				loadParam(enemyParams.density, std::format("enemy.{}.density", enemyName));
-				loadParam(enemyParams.baseVelocity, std::format("enemy.{}.baseVelocity", enemyName));
-				loadParam(enemyParams.boostDistance, std::format("enemy.{}.boostDistance", enemyName));
-				loadParam(enemyParams.boostFactor, std::format("enemy.{}.boostFactor", enemyName));
-				loadParam(enemyParams.slowFactor, std::format("enemy.{}.slowFactor", enemyName));
-				loadParam(enemyParams.radiusReductionFactor, std::format("enemy.{}.radiusReductionFactor", enemyName));
-				loadParam(enemyParams.minimalRadius, std::format("enemy.{}.minimalRadius", enemyName));
-				loadParam(enemyParams.killSpawns, std::format("enemy.{}.killSpawns", enemyName));
-				loadPresentationParams(enemyParams.presentation, std::format("enemy.{}", enemyName));
-				loadAnimationParams(enemyParams.animation, std::format("enemy.{}", enemyName));
+			auto loadEnemyParams = [&]() {
+				std::string prevEnemyName;
+				for (const auto& [key, value] : keysToValues)
+				{
+					if (auto enemyName = extractName(key, "enemy."); !enemyName.empty() && enemyName != prevEnemyName)
+					{
+						auto& enemyTypeParams = enemyTypes.emplace_back().params;
+						enemyTypeParams.type = std::move(enemyName);
+
+						if (enemyTypeParams.type == "ghost")
+						{
+							enemyTypeParams.loaded.emplace(dynamicTextures.emplace(TextureFile("textures/damageOn/enemy 1.jpg", 4, true, TextureFile::AdditionalConversion::DarkToTransparent, [](float* data, glm::ivec2 size, int numOfChannels) {
+								for (int i = 0; i < size.x * size.y; ++i)
+								{
+									glm::vec4& pixel = reinterpret_cast<glm::vec4*>(data)[i];
+									if (pixel.r + pixel.g + pixel.b < 0.2f)
+										pixel = {};
+								}
+							})));
+						}
+						else if (enemyTypeParams.type == "chicken")
+						{
+							enemyTypeParams.loaded.emplace(dynamicTextures.emplace("textures/damageOn/enemy 2.png"));
+						}
+						else if (enemyTypeParams.type == "zombie")
+						{
+							enemyTypeParams.loaded.emplace(dynamicTextures.emplace("textures/damageOn/enemy 3.png"));
+						}
+						else
+							assert(!"Unsupported enemy id");
+
+						dynamicTextures.last().magFilter = GL_LINEAR;
+
+						loadParam(enemyTypeParams.initCount, std::format("enemy.{}.initCount", enemyTypeParams.type));
+						loadParam(enemyTypeParams.startPosition, std::format("enemy.{}.startPosition", enemyTypeParams.type));
+						loadParam(enemyTypeParams.initHP, std::format("enemy.{}.initHP", enemyTypeParams.type));
+						loadParam(enemyTypeParams.initRadiusRange, std::format("enemy.{}.initRadiusRange", enemyTypeParams.type));
+						loadParam(enemyTypeParams.density, std::format("enemy.{}.density", enemyTypeParams.type));
+						loadParam(enemyTypeParams.baseVelocity, std::format("enemy.{}.baseVelocity", enemyTypeParams.type));
+						loadParam(enemyTypeParams.boostDistance, std::format("enemy.{}.boostDistance", enemyTypeParams.type));
+						loadParam(enemyTypeParams.boostFactor, std::format("enemy.{}.boostFactor", enemyTypeParams.type));
+						loadParam(enemyTypeParams.slowFactor, std::format("enemy.{}.slowFactor", enemyTypeParams.type));
+						loadParam(enemyTypeParams.radiusReductionFactor, std::format("enemy.{}.radiusReductionFactor", enemyTypeParams.type));
+						loadParam(enemyTypeParams.minimalRadius, std::format("enemy.{}.minimalRadius", enemyTypeParams.type));
+						loadParam(enemyTypeParams.killSpawns, std::format("enemy.{}.killSpawns", enemyTypeParams.type));
+						loadPresentationParams(enemyTypeParams.presentation, std::format("enemy.{}", enemyTypeParams.type));
+						loadAnimationParams(enemyTypeParams.animation, std::format("enemy.{}", enemyTypeParams.type));
+
+						prevEnemyName = enemyTypeParams.type;
+					}
+				}
 			};
 
 			loadParam(gameParams.numOfPlayers, "game.numOfPlayers");
@@ -996,10 +1118,7 @@ namespace Levels::DamageOn
 			loadParam(gameParams.gamepad.triggerDeadZone, "game.gamepad.triggerDeadZone");
 
 			loadPlayerParams(playerFrankenstein.params, "frankenstein");
-
-			loadEnemyParams(enemyGhost.params, "ghost");
-			loadEnemyParams(enemyChicken.params, "chicken");
-			loadEnemyParams(enemyZombie.params, "zombie");
+			loadEnemyParams();
 
 			loadParam(sparkingParams.distance, "sparking.distance");
 			loadParam(sparkingParams.damageFactor, "sparking.damageFactor");
@@ -1009,58 +1128,66 @@ namespace Levels::DamageOn
 
 		void reload(bool loadParams = true)
 		{
-			if (loadParams)
-				this->loadParams();
-
-			auto clearPlayer = [&](auto& player) {
-				std::vector<glm::vec2> playerPositions;
-				if (!player.idsToData.empty())
+			auto enemyTypesToPositionsAndRadiuses = [&]() {
+				std::unordered_map<std::string, std::vector<glm::vec3>> result;
+				for (const auto& enemyType : enemyTypes)
 				{
-					playerPositions.reserve(player.idsToData.size());
-					for (const auto& [playerId, playerData] : player.idsToData)
+					std::vector<glm::vec3> positionsAndRadiuses;
+					positionsAndRadiuses.reserve(enemyType.idsToData.size());
+					for (const auto& [enemyId, enemyData] : enemyType.idsToData)
+						positionsAndRadiuses.emplace_back(enemyData.actor.getOrigin2D(), enemyData.radius);
+					result.emplace(enemyType.params.type, std::move(positionsAndRadiuses));
+				}
+				return result;
+			}();
+
+			if (loadParams)
+			{
+				enemyTypes.clear();
+				this->loadParams();
+			}
+
+			auto clearPlayers = [&](auto& playerType) {
+				std::vector<glm::vec2> playerPositions;
+				if (!playerType.idsToData.empty())
+				{
+					playerPositions.reserve(playerType.idsToData.size());
+					for (const auto& [playerId, playerData] : playerType.idsToData)
 						playerPositions.push_back(playerData.actor.getOrigin2D());
-					player.idsToData.clear();
+					playerType.idsToData.clear();
 				}
 				return playerPositions;
 			};
 
-			auto clearEnemy = [&](auto& enemy) {
-				std::vector<glm::vec3> enemyPositionsAndRadiuses;
-				if (!enemy.idsToData.empty())
-				{
-					enemyPositionsAndRadiuses.reserve(enemy.idsToData.size());
-					for (const auto& [enemyId, enemyData] : enemy.idsToData)
-						enemyPositionsAndRadiuses.emplace_back(enemyData.actor.getOrigin2D(), enemyData.radius);
-					enemy.idsToData.clear();
-				}
-				return enemyPositionsAndRadiuses;
-			};
-
-			auto spawnPlayer = [&](auto& player, const auto& playerPositions) {
+			auto spawnPlayers = [&](auto& player, const auto& playerPositions) {
 				for (int i = 0; i < gameParams.numOfPlayers; ++i)
 					playerSpawn(player, i < (int)playerPositions.size() ? playerPositions[i] : player.params.startPosition + glm::circularRand(0.1f));
 			};
 
-			auto spawnEnemy = [&](auto& enemy, const auto& enemyPositionsAndRadiuses, int enemyType) {
-				for (int i = 0; i < enemy.params.initCount; ++i)
-					if (i < (int)enemyPositionsAndRadiuses.size())
-						enemySpawn(enemy, glm::vec2(enemyPositionsAndRadiuses[i]), enemyPositionsAndRadiuses[i].z, enemyType);
+			auto spawnEnemies = [&](auto& enemyType, std::optional<std::vector<glm::vec3>*> enemyPositionsAndRadiuses = std::nullopt) {
+				for (int i = 0; i < enemyType.params.initCount; ++i)
+					if (enemyPositionsAndRadiuses && i < (int)(**enemyPositionsAndRadiuses).size())
+						enemySpawn(enemyType, glm::vec2((**enemyPositionsAndRadiuses)[i]), (**enemyPositionsAndRadiuses)[i].z);
 					else
-						enemySpawn(enemy, enemy.params.startPosition + glm::circularRand(0.1f), glm::linearRand(enemy.params.initRadiusRange.x, enemy.params.initRadiusRange.y), enemyType);
+						enemySpawn(enemyType, enemyType.params.startPosition + glm::circularRand(0.1f), glm::linearRand(enemyType.params.initRadiusRange.x, enemyType.params.initRadiusRange.y));
 			};
 
 			playerIdGenerator.reset();
 			enemyIdGenerator.reset();
 
-			const auto playerFrankensteinPositions = clearPlayer(playerFrankenstein);
-			const auto enemyGhostPositionsAndRadiuses = clearEnemy(enemyGhost);
-			const auto enemyChickenPositionsAndRadiuses = clearEnemy(enemyChicken);
-			const auto enemyZombiePositionsAndRadiuses = clearEnemy(enemyZombie);
+			const auto playerFrankensteinPositions = clearPlayers(playerFrankenstein);
+			spawnPlayers(playerFrankenstein, playerFrankensteinPositions);
 
-			spawnPlayer(playerFrankenstein, playerFrankensteinPositions);
-			spawnEnemy(enemyGhost, enemyGhostPositionsAndRadiuses, 0);
-			spawnEnemy(enemyChicken, enemyChickenPositionsAndRadiuses, 1);
-			spawnEnemy(enemyZombie, enemyZombiePositionsAndRadiuses, 2);
+			for (auto& enemyType : enemyTypes)
+			{
+				auto it = enemyTypesToPositionsAndRadiuses.find(enemyType.params.type);
+				if (it != enemyTypesToPositionsAndRadiuses.end())
+					spawnEnemies(enemyType, &it->second);
+				else
+					spawnEnemies(enemyType);
+			}
+
+			std::cout << enemyTypes.size() << std::endl;
 
 			auto& audioListener = Globals::Components().audioListener();
 			audioListener.setVolume(gameParams.globalVolume);
@@ -1103,9 +1230,6 @@ namespace Levels::DamageOn
 		ComponentId coffinTextureId{};
 		ComponentId fogTextureId{};
 
-		std::vector<Components::Texture*> playerAnimationTextures;
-		std::vector<Components::Texture*> enemyAnimationTextures;
-
 		ComponentId musicId{};
 
 		ComponentId sparkingSoundBufferId{};
@@ -1116,9 +1240,7 @@ namespace Levels::DamageOn
 		StartupParams startupParams{};
 		GameParams gameParams{};
 		Player playerFrankenstein{};
-		Enemy enemyGhost{};
-		Enemy enemyChicken{};
-		Enemy enemyZombie{};
+		std::vector<EnemyType> enemyTypes{};
 		SparkingParams sparkingParams{};
 
 		IdGenerator<int> playerIdGenerator{};
