@@ -2,7 +2,7 @@
 
 #include <components/defaults.hpp>
 #include <components/graphicsSettings.hpp>
-#include <components/screenInfo.hpp>
+#include <components/systemInfo.hpp>
 #include <components/camera2D.hpp>
 #include <components/keyboard.hpp>
 #include <components/gamepad.hpp>
@@ -170,7 +170,7 @@ namespace Levels::DamageOn
 
 			glm::vec4 baseColor{};
 			float sideFactor = 1.0f;
-			float sideTransition = 0.0f;
+			float sideTransition = 1.0f;
 			int activeSparks{};
 			float angle{};
 		};
@@ -271,7 +271,7 @@ namespace Levels::DamageOn
 
 			glm::vec4 baseColor{};
 			float sideFactor = 1.0f;
-			float sideTransition = 0.0f;
+			float sideTransition = 1.0f;
 			float radius{};
 			float angle{};
 		};
@@ -382,7 +382,7 @@ namespace Levels::DamageOn
 
 		void postSetup()
 		{
-			const auto& screenInfo = Globals::Components().screenInfo();
+			const auto& screenInfo = Globals::Components().systemInfo().screen;
 			auto& camera = Globals::Components().camera2D();
 			auto& dynamicWalls = Globals::Components().dynamicWalls();
 			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
@@ -789,9 +789,9 @@ namespace Levels::DamageOn
 				if (kill)
 				{
 					Tools::CreateAndPlaySound(killSoundBufferId, enemyActor.getOrigin2D(), [&](auto& sound) {
-						const float basePitch = 5.0f * enemyData.radius / radius;
-						sound.setPitch(glm::linearRand(basePitch, basePitch * 5.0f));
-						sound.setVolume(0.5f);
+						const float basePitch = 0.5f * enemyData.radius / radius;
+						sound.setPitch(glm::linearRand(basePitch, basePitch * 20));
+						sound.setVolume(0.7f);
 						});
 					for (auto& spark: sparks)
 						spark->state = ComponentState::Outdated;
@@ -1045,7 +1045,8 @@ namespace Levels::DamageOn
 
 				if (playerName == "frankenstein")
 				{
-					playerParams.loaded.emplace(dynamicTextures.emplace("textures/damageOn/player 1.png"));
+					auto& texture = dynamicTextures.emplace("textures/damageOn/player 1.png");
+					playerParams.loaded.emplace(texture);
 					playerParams.loaded->animationTexture.magFilter = GL_LINEAR;
 				}
 				else
@@ -1063,22 +1064,25 @@ namespace Levels::DamageOn
 
 						if (enemyTypeParams.type == "ghost")
 						{
-							enemyTypeParams.loaded.emplace(dynamicTextures.emplace(TextureFile("textures/damageOn/enemy 1.jpg", 4, true, TextureFile::AdditionalConversion::DarkToTransparent, [](float* data, glm::ivec2 size, int numOfChannels) {
+							auto& texture = dynamicTextures.emplace(TextureFile("textures/damageOn/enemy 1.jpg", 4, true, TextureFile::AdditionalConversion::DarkToTransparent, [](float* data, glm::ivec2 size, int numOfChannels) {
 								for (int i = 0; i < size.x * size.y; ++i)
 								{
 									glm::vec4& pixel = reinterpret_cast<glm::vec4*>(data)[i];
 									if (pixel.r + pixel.g + pixel.b < 0.2f)
 										pixel = {};
 								}
-							})));
+								}));
+							enemyTypeParams.loaded.emplace(texture);
 						}
 						else if (enemyTypeParams.type == "chicken")
 						{
-							enemyTypeParams.loaded.emplace(dynamicTextures.emplace("textures/damageOn/enemy 2.png"));
+							auto& texture = dynamicTextures.emplace("textures/damageOn/enemy 2.png");
+							enemyTypeParams.loaded.emplace(texture);
 						}
 						else if (enemyTypeParams.type == "zombie")
 						{
-							enemyTypeParams.loaded.emplace(dynamicTextures.emplace("textures/damageOn/enemy 3.png"));
+							auto& texture = dynamicTextures.emplace("textures/damageOn/enemy 3.png");
+							enemyTypeParams.loaded.emplace(texture);
 						}
 						else
 							assert(!"Unsupported enemy id");
@@ -1186,8 +1190,6 @@ namespace Levels::DamageOn
 				else
 					spawnEnemies(enemyType);
 			}
-
-			std::cout << enemyTypes.size() << std::endl;
 
 			auto& audioListener = Globals::Components().audioListener();
 			audioListener.setVolume(gameParams.globalVolume);

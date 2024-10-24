@@ -4,7 +4,7 @@
 #include <components/keyboard.hpp>
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
-#include <components/screenInfo.hpp>
+#include <components/systemInfo.hpp>
 #include <components/mvp.hpp>
 #include <components/physics.hpp>
 #include <components/texture.hpp>
@@ -67,9 +67,9 @@ namespace Globals
 		return *gamepads_;
 	}
 
-	Components::ScreenInfo& ComponentsHolder::screenInfo()
+	Components::SystemInfo& ComponentsHolder::systemInfo()
 	{
-		return *screenInfo_;
+		return *systemInfo_;
 	}
 
 	Components::MVP& ComponentsHolder::mvp2D()

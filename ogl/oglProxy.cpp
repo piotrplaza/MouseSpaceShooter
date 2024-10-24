@@ -1,5 +1,7 @@
 #include "oglProxy.hpp"
 
+#include <iostream>
+
 #ifndef GL_USE_PROGRAM_PROXY_OPTIMISATION_DISABLED
 
 namespace
@@ -7,6 +9,7 @@ namespace
 	bool blend = false;
 	bool depthTest = false;
 	bool cullFace = false;
+	GLenum debugOutputMinSeverity = 0;
 }
 
 void glProxyUseProgram(GLuint id)
@@ -81,3 +84,23 @@ bool glProxyIsCullFaceEnabled()
 }
 
 #endif
+
+void glProxyEnableDebugOutput(GLenum minSeverity)
+{
+	glEnable(GL_DEBUG_OUTPUT);
+	debugOutputMinSeverity = minSeverity;
+	glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+		if ((severity == GL_DEBUG_SEVERITY_MEDIUM && debugOutputMinSeverity == GL_DEBUG_SEVERITY_HIGH) ||
+			(severity == GL_DEBUG_SEVERITY_LOW && (debugOutputMinSeverity == GL_DEBUG_SEVERITY_MEDIUM || debugOutputMinSeverity == GL_DEBUG_SEVERITY_HIGH)) ||
+			(severity == GL_DEBUG_SEVERITY_NOTIFICATION && (debugOutputMinSeverity == GL_DEBUG_SEVERITY_LOW || debugOutputMinSeverity == GL_DEBUG_SEVERITY_MEDIUM || debugOutputMinSeverity == GL_DEBUG_SEVERITY_HIGH)))
+			return;
+
+		std::cout << std::hex << "glDebug: source=0x" << source << "; type=0x" << type << "; id=0x" << id << "; severity=0x" << severity << "; message=\"" << message << "\"" << std::endl;
+	}, 0);
+}
+
+void glProxyDisableDebugOutput()
+{
+	glDisable(GL_DEBUG_OUTPUT);
+	debugOutputMinSeverity = 0;
+}

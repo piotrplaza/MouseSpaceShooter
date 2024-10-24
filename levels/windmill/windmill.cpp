@@ -307,7 +307,7 @@ namespace Levels
 			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 30.0f; }).scalingFactor(0.7f).additionalActors([]() { return glm::vec2(0.0f); }));
 
 			missilesHandler.setPlayersHandler(playersHandler);
-			missilesHandler.setExplosionTexture(explosionTexture);
+			missilesHandler.setExplosionTexture(CM::StaticTexture(explosionTexture));
 			missilesHandler.setMissileTexture(missileTexture);
 			missilesHandler.setFlameAnimatedTexture(flameAnimatedTexture);
 			missilesHandler.setExplosionParams(Tools::ExplosionParams().particlesDensity(0.2f).particlesRadius(2.0f).initExplosionVelocity(100.0f));
@@ -326,7 +326,7 @@ namespace Levels
 					Globals::Components().deferredActions().emplace([&](auto) {
 						auto& planeComponent = *std::get<CM::Plane>(Tools::AccessUserData(*plane.GetBody()).bodyComponentVariant).component;
 						Tools::CreateExplosion(Tools::ExplosionParams().center(planeComponent.getOrigin2D()).sourceVelocity(planeComponent.getVelocity()).
-							initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
+							initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(CM::StaticTexture(explosionTexture)));
 						Tools::CreateAndPlaySound(playerExplosionSoundBuffer, [pos = planeComponent.getOrigin2D()]() { return pos; });
 						planeComponent.setEnabled(false);
 						return false;

@@ -23,7 +23,7 @@
 #include "levels/noise/noise.hpp"
 #include "levels/decals/decals.hpp"
 #include "levels/particles/particles.hpp"
-#include "levels/tmp/tmp.hpp"
+#include "levels/tests/tests.hpp"
 
 #include "levels/damageOn/nest/nest.hpp"
 
@@ -72,6 +72,8 @@ const bool debugFullscreen = false;
 const bool releaseFullscreen = true;
 const bool devFullScreen = true;
 const bool console = true;
+const bool glDebug = false;
+const GLenum glDebugMinSeverity = GL_DEBUG_SEVERITY_LOW;
 const glm::ivec2 windowRes = { 1920, 1080 };
 
 const bool fullScreen =
@@ -87,6 +89,9 @@ static void InitOGL()
 {
 	const GLenum glewInitResult = glewInit();
 	assert(GLEW_OK == glewInitResult);
+
+	if (glDebug)
+		glProxyEnableDebugOutput(glDebugMinSeverity);
 
 	Tools::VSync(true);
 	glProxySetBlend(true);
@@ -143,7 +148,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Noise>();
 	//activeLevel = std::make_unique<Levels::Decals>();
 	//activeLevel = std::make_unique<Levels::Particles>();
-	//activeLevel = std::make_unique<Levels::Tmp>();
+	//activeLevel = std::make_unique<Levels::Tests>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }

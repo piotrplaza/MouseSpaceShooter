@@ -51,7 +51,7 @@
     <ClCompile Include="levels\snakeCube\snakeCube.cpp" />
     <ClCompile Include="levels\splineTest\splineTest.cpp" />
     <ClCompile Include="levels\squareRace\squareRace.cpp" />
-    <ClCompile Include="levels\tmp\tmp.cpp" />
+    <ClCompile Include="levels\tests\tests.cpp" />
     <ClCompile Include="levels\windmill\windmill.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ogl\buffers\genericBuffers.cpp" />
@@ -125,10 +125,10 @@
     <ClInclude Include="components\polyline.hpp" />
     <ClInclude Include="components\renderingBuffers.hpp" />
     <ClInclude Include="components\renderingSetup.hpp" />
-    <ClInclude Include="components\screenInfo.hpp" />
     <ClInclude Include="components\shockwave.hpp" />
     <ClInclude Include="components\sound.hpp" />
     <ClInclude Include="components\soundBuffer.hpp" />
+    <ClInclude Include="components\systemInfo.hpp" />
     <ClInclude Include="components\texture.hpp" />
     <ClInclude Include="components\wall.hpp" />
     <ClInclude Include="components\_componentBase.hpp" />
@@ -169,7 +169,7 @@
     <ClInclude Include="levels\snakeCube\snakeCube.hpp" />
     <ClInclude Include="levels\splineTest\splineTest.hpp" />
     <ClInclude Include="levels\squareRace\squareRace.hpp" />
-    <ClInclude Include="levels\tmp\tmp.hpp" />
+    <ClInclude Include="levels\tests\tests.hpp" />
     <ClInclude Include="levels\windmill\windmill.hpp" />
     <ClInclude Include="ogl\buffers\genericBuffers.hpp" />
     <ClInclude Include="ogl\oglHelpers.hpp" />

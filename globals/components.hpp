@@ -15,7 +15,7 @@ namespace Components
 	struct Keyboard;
 	struct Mouse;
 	struct Gamepad;
-	struct ScreenInfo;
+	struct SystemInfo;
 	struct MVP;
 	struct Physics;
 	struct Texture;
@@ -58,7 +58,7 @@ namespace Globals
 		Components::Keyboard& keyboard();
 		Components::Mouse& mouse();
 		std::array<Components::Gamepad, 4>& gamepads();
-		Components::ScreenInfo& screenInfo();
+		Components::SystemInfo& systemInfo();
 		Components::MVP& mvp2D();
 		Components::MVP& mvp3D();
 		Components::Physics& physics();
@@ -110,7 +110,7 @@ namespace Globals
 		std::unique_ptr<Components::Keyboard> keyboardState_ = std::make_unique<Components::Keyboard>();
 		std::unique_ptr<Components::Mouse> mouseState_ = std::make_unique<Components::Mouse>();
 		std::unique_ptr<std::array<Components::Gamepad, 4>> gamepads_ = std::make_unique< std::array<Components::Gamepad, 4>>();
-		std::unique_ptr<Components::ScreenInfo> screenInfo_ = std::make_unique<Components::ScreenInfo>();
+		std::unique_ptr<Components::SystemInfo> systemInfo_ = std::make_unique<Components::SystemInfo>();
 		std::unique_ptr<Components::MVP> mvp2D_ = std::make_unique<Components::MVP>();
 		std::unique_ptr<Components::MVP> mvp3D_ = std::make_unique<Components::MVP>();
 		std::unique_ptr<Components::Physics> physics_ = std::make_unique<Components::Physics>();

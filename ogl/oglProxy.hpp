@@ -67,3 +67,6 @@ bool glProxyIsDepthTestEnabled();
 bool glProxyIsCullFaceEnabled();
 
 #endif
+
+void glProxyEnableDebugOutput(GLenum minSeverity = GL_DEBUG_SEVERITY_LOW);
+void glProxyDisableDebugOutput();

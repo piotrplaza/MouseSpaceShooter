@@ -3,7 +3,7 @@
 #include <components/mouse.hpp>
 #include <components/keyboard.hpp>
 #include <components/decoration.hpp>
-#include <components/screenInfo.hpp>
+#include <components/systemInfo.hpp>
 #include <components/camera2D.hpp>
 
 #include <globals/components.hpp>
@@ -51,7 +51,7 @@ namespace Levels
 
 			const auto& mouse = Globals::Components().mouse();
 			const auto& keyboard = Globals::Components().keyboard();
-			const auto& screenInfo = Globals::Components().screenInfo();
+			const auto& screenInfo = Globals::Components().systemInfo().screen;
 			const float screenRatio = screenInfo.getAspectRatio();
 			const glm::vec2 oldMousePos = mousePos;
 

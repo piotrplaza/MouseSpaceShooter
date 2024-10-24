@@ -14,13 +14,13 @@ namespace ShadersUtils
 				ProgramBase(program),
 				vp(program, "vp"),
 				color(program, "color"),
-				texture1(program, "texture1")
+				texture0(program, "texture0")
 			{
 			}
 
 			UniformsUtils::UniformMat4f vp;
 			UniformsUtils::Uniform4f color;
-			UniformsUtils::Uniform1i texture1;
+			UniformsUtils::Uniform1i texture0;
 		};
 
 		struct Particles : ParticlesAccessor

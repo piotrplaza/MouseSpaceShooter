@@ -1,6 +1,6 @@
 #include "rocketball.hpp"
 
-#include <components/screenInfo.hpp>
+#include <components/systemInfo.hpp>
 #include <components/physics.hpp>
 #include <components/texture.hpp>
 #include <components/plane.hpp>

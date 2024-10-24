@@ -95,9 +95,9 @@ namespace Tools
 			return *this;
 		}
 
-		ExplosionParams& explosionTexture(ComponentId value)
+		ExplosionParams& explosionTexture(TextureComponentVariant value)
 		{
-			explosionTexture_ = value;
+			explosionTexture_ = std::move(value);
 			return *this;
 		}
 
@@ -123,7 +123,7 @@ namespace Tools
 		float particlesLinearDamping_ = 3.0f;
 		bool particlesAsBullets_ = false;
 		float explosionDuration_ = 1.0f;
-		ComponentId explosionTexture_ = 0;
+		TextureComponentVariant explosionTexture_;
 		int particlesPerDecoration_ = 4;
 		ResolutionMode resolutionMode_{};
 	};

@@ -1,6 +1,6 @@
 #include "playground.hpp"
 
-#include <components/screenInfo.hpp>
+#include <components/systemInfo.hpp>
 #include <components/physics.hpp>
 #include <components/plane.hpp>
 #include <components/wall.hpp>
@@ -643,7 +643,7 @@ namespace Levels
 
 			missilesHandler.initCollisions();
 			missilesHandler.setPlayersHandler(playersHandler);
-			missilesHandler.setExplosionTexture(explosionTexture);
+			missilesHandler.setExplosionTexture(CM::StaticTexture(explosionTexture));
 			missilesHandler.setMissileTexture(missile2Texture);
 			missilesHandler.setFlameAnimatedTexture(flameAnimatedTexture);
 			missilesHandler.setResolutionModeF([this](const auto& targetBody) {

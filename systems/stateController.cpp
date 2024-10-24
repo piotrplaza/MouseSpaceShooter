@@ -2,7 +2,7 @@
 
 #include "tools/utility.hpp"
 
-#include <components/screenInfo.hpp>
+#include <components/systemInfo.hpp>
 #include <components/keyboard.hpp>
 #include <components/mouse.hpp>
 #include <components/graphicsSettings.hpp>
@@ -40,6 +40,8 @@ namespace Systems
 {
 	StateController::StateController()
 	{
+		auto& limits = Globals::Components().systemInfo().limits;
+		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &limits.maxTextureUnits);
 		handleSDL();
 	}
 
@@ -78,7 +80,7 @@ namespace Systems
 
 	void StateController::changeWindowSize(glm::ivec2 size) const
 	{
-		auto& screenInfo = Globals::Components().screenInfo();
+		auto& screenInfo = Globals::Components().systemInfo().screen;
 		auto& framebuffers = Globals::Components().framebuffers();
 
 		screenInfo.windowSize = size;
@@ -88,10 +90,10 @@ namespace Systems
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, subBuffers.fbo);
 
-			glActiveTexture(subBuffers.textureUnit);
+			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, subBuffers.textureObject);
 			subBuffers.size = size;
-			Globals::Components().staticTextures()[subBuffers.textureUnit - GL_TEXTURE0].loaded.size = subBuffers.size;
+			Globals::Components().staticTextures()[subBuffers.textureId].loaded.size = subBuffers.size;
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, subBuffers.size.x, subBuffers.size.y, 0, GL_RGBA, GL_FLOAT, nullptr);
 
 			glBindRenderbuffer(GL_RENDERBUFFER, subBuffers.depthBuffer);
@@ -123,7 +125,7 @@ namespace Systems
 
 	void StateController::changeWindowLocation(glm::ivec2 location) const
 	{
-		auto& screenInfo = Globals::Components().screenInfo();
+		auto& screenInfo = Globals::Components().systemInfo().screen;
 
 		screenInfo.windowLocation = location;
 		screenInfo.windowCenterInScreenSpace = { location + screenInfo.windowSize / 2 };
@@ -131,7 +133,7 @@ namespace Systems
 
 	void StateController::changeRefreshRate(int refreshRate) const
 	{
-		Globals::Components().screenInfo().refreshRate = refreshRate;
+		Globals::Components().systemInfo().screen.refreshRate = refreshRate;
 	}
 
 	void StateController::setWindowFocus(bool focus)
@@ -169,7 +171,7 @@ namespace Systems
 
 	void StateController::resetMousePosition() const
 	{
-		Tools::SetMousePos(Globals::Components().screenInfo().windowCenterInScreenSpace);
+		Tools::SetMousePos(Globals::Components().systemInfo().screen.windowCenterInScreenSpace);
 	}
 
 	void StateController::handleMouseButtons()

@@ -24,7 +24,7 @@ TexturesFramebuffersRenderer::~TexturesFramebuffersRenderer()
 		else
 			glBlendFunc(GL_ONE, GL_ONE);
 
-		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components().framebuffers().getSubBuffers(mode).textureUnit - GL_TEXTURE0);
+		Tools::TexturedScreenRender(texturedShadersProgram, Globals::Components().framebuffers().getSubBuffers(mode).textureObject);
 
 		if (mode.blending == ResolutionMode::Blending::Additive)
 			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);

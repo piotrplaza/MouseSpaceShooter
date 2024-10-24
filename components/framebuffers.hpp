@@ -16,7 +16,7 @@ namespace Components
 		{
 			unsigned fbo = 0;
 			unsigned depthBuffer = 0;
-			unsigned textureUnit = 0;
+			unsigned textureId = 0;
 			unsigned textureObject = 0;
 
 			glm::ivec2 size = { 0, 0 };

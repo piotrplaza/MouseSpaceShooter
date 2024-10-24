@@ -51,12 +51,22 @@ namespace Tools
 		}
 	}
 
-	void PrintCurrentGLErrors(const std::string& prefix)
+	void PrintGLErrors(const std::string& prefix)
 	{
 		GLenum err = GL_NO_ERROR;
 		while ((err = glGetError()) != GL_NO_ERROR)
 		{
 			std::cout << prefix << ": 0x" << std::hex << err << std::endl;
+		}
+	}
+
+	void PrintGLErrorsOnce(const std::string& prefix)
+	{
+		static bool printed = false;
+		if (!printed)
+		{
+			PrintGLErrors(prefix);
+			printed = true;
 		}
 	}
 

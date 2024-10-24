@@ -3,7 +3,7 @@
 #include <components/physics.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/collisionFilter.hpp>
-#include <components/screenInfo.hpp>
+#include <components/systemInfo.hpp>
 
 #include <globals/components.hpp>
 
@@ -78,7 +78,7 @@ namespace Systems
 			return;
 		}
 
-		const auto& screenInfo = Globals::Components().screenInfo();
+		const auto& screenInfo = Globals::Components().systemInfo().screen;
 		const auto currentTime = std::chrono::high_resolution_clock::now();
 
 #if defined _DEBUG || FORCE_REFRESH_RATE_BASED_STEP

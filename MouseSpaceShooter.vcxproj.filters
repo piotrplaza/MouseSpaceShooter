@@ -143,11 +143,11 @@
     <Filter Include="src\levels\damageOn">
       <UniqueIdentifier>{8fea5a81-f66e-4a4f-96d2-f7c1b3483c0e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\levels\tmp">
-      <UniqueIdentifier>{36a76f89-808a-4007-8af0-91c974b8a8db}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\levels\damageOn\nest">
       <UniqueIdentifier>{934a3f5f-fa14-4b51-a3c2-b75c9558c8cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\levels\tests">
+      <UniqueIdentifier>{36a76f89-808a-4007-8af0-91c974b8a8db}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -352,18 +352,15 @@
     <ClCompile Include="components\details\animationData.cpp">
       <Filter>src\components\details</Filter>
     </ClCompile>
-    <ClCompile Include="levels\tmp\tmp.cpp">
-      <Filter>src\levels\tmp</Filter>
-    </ClCompile>
     <ClCompile Include="levels\damageOn\nest\nest.cpp">
       <Filter>src\levels\damageOn\nest</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\tests\tests.cpp">
+      <Filter>src\levels\tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mvp.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
-    <ClInclude Include="components\screenInfo.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
     <ClInclude Include="components\physics.hpp">
@@ -733,9 +730,6 @@
       <Filter>src\components\details</Filter>
     </ClInclude>
     <ClInclude Include="components\details\textureData.hpp" />
-    <ClInclude Include="levels\tmp\tmp.hpp">
-      <Filter>src\levels\tmp</Filter>
-    </ClInclude>
     <ClInclude Include="components\pauseHandler.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -743,6 +737,12 @@
       <Filter>src\levels\damageOn\nest</Filter>
     </ClInclude>
     <ClInclude Include="components\defaults.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\tests\tests.hpp">
+      <Filter>src\levels\tests</Filter>
+    </ClInclude>
+    <ClInclude Include="components\systemInfo.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>

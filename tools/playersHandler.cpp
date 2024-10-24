@@ -6,7 +6,7 @@
 #include <components/camera2D.hpp>
 #include <components/plane.hpp>
 #include <components/physics.hpp>
-#include <components/screenInfo.hpp>
+#include <components/systemInfo.hpp>
 #include <components/sound.hpp>
 #include <components/audioListener.hpp>
 #include <components/mouse.hpp>
@@ -132,7 +132,7 @@ namespace Tools
 	void PlayersHandler::setCamera(CameraParams cameraParams) const
 	{
 		const auto& planes = Globals::Components().planes();
-		const auto& screenInfo = Globals::Components().screenInfo();
+		const auto& screenInfo = Globals::Components().systemInfo().screen;
 
 		auto velocityCorrection = [velocityFactor = cameraParams.velocityFactor_](const auto& plane) {
 			return plane.getVelocity() * velocityFactor;
@@ -195,7 +195,7 @@ namespace Tools
 						{
 							const auto pos1 = allActorsPos[i];
 							const auto pos2 = allActorsPos[j];
-							/*maxDistance = std::max(maxDistance, glm::max(glm::abs(pos1.x - pos2.x) * screenInfo.windowSize.y / screenInfo.windowSize.x * scalingFactor,
+							/*maxDistance = std::max(maxDistance, glm::max(glm::abs(pos1.x - pos2.x) * systemInfo.windowSize.y / systemInfo.windowSize.x * scalingFactor,
 								glm::abs(pos1.y - pos2.y) * scalingFactor));*/
 							maxDistance = std::max(maxDistance, glm::distance(glm::vec2(pos1.x / screenInfo.getAspectRatio(), pos1.y),
 								glm::vec2(pos2.x / screenInfo.getAspectRatio(), pos2.y)) * scalingFactor);

@@ -9,11 +9,12 @@
 #include <components/shockwave.hpp>
 #include <components/mvp.hpp>
 #include <components/camera2D.hpp>
-#include <components/screenInfo.hpp>
+#include <components/systemInfo.hpp>
 #include <components/animatedTexture.hpp>
 #include <components/deferredAction.hpp>
 #include <components/sound.hpp>
 #include <components/audioListener.hpp>
+#include <components/texture.hpp>
 
 #include <commonTypes/componentMappers.hpp>
 
@@ -234,7 +235,18 @@ namespace Tools
 				&particlesShaders](ShadersUtils::ProgramId program) mutable
 				{
 					particlesShaders.vp(Globals::Components().mvp2D().getVP());
-					particlesShaders.texture1(params.explosionTexture_);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, std::visit([](const auto& texture) {
+						if constexpr (std::is_same_v<std::remove_cvref_t<decltype(texture)>, std::monostate>)
+						{
+							assert(!"no texture provided for explosion");
+							throw std::runtime_error("No texture provided for explosion.");
+							return 0u;
+						}
+						else
+							return texture.component->loaded.textureObject;
+					}, params.explosionTexture_));
+					particlesShaders.texture0(0);
 
 					const float elapsed = Globals::Components().physics().simulationDuration - startTime;
 					particlesShaders.color(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (params.explosionDuration_ * 2.0f), 10.0f)), 1.0f));
@@ -311,7 +323,7 @@ namespace Tools
 		auto& background = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
 		background.customShadersProgram = juliaShaders.getProgramId();
 
-		background.renderingSetupF = [=, &juliaShaders, &screenInfo = Globals::Components().screenInfo()](auto) {
+		background.renderingSetupF = [=, &juliaShaders, &screenInfo = Globals::Components().systemInfo().screen](auto) {
 			juliaShaders.vp(glm::translate(glm::scale(glm::mat4(1.0f),
 				glm::vec3(1.0f / screenInfo.getAspectRatio(), 1.0f, 1.0f) * 1.5f),
 				glm::vec3(-Globals::Components().camera2D().details.prevPosition * 0.005f, 0.0f)));

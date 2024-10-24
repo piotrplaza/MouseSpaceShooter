@@ -2,6 +2,7 @@
 
 #include <components/texture.hpp>
 #include <components/framebuffers.hpp>
+#include <components/systemInfo.hpp>
 
 #include <globals/components.hpp>
 
@@ -327,13 +328,16 @@ namespace Systems
 			Components::Texture& texture;
 		};
 
-		if (texture.loaded.textureUnit == 0)
+		if (texture.loaded.textureObject == 0)
 		{
-			texture.loaded.textureUnit = textureUnits.acquire();
+			const auto& limits = Globals::Components().systemInfo().limits;
 			glGenTextures(1, &texture.loaded.textureObject);
+			assert(texture.loaded.textureObject);
+			if (!texture.loaded.textureObject)
+				throw std::runtime_error("Unable to create texture unit.");
 		}
 
-		glActiveTexture(texture.loaded.textureUnit);
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture.loaded.textureObject);
 
 		std::visit(DataSourceVisitor{ *this, texture }, texture.source);
@@ -359,14 +363,13 @@ namespace Systems
 		assert(Globals::Components().staticTextures().empty());
 
 		auto createTextureFramebuffer = [this](Components::Framebuffers::SubBuffers& subBuffers, GLint textureMagFilter) {
-			const unsigned textureUnit = textureUnits.acquire();
-			glActiveTexture(textureUnit);
+			glActiveTexture(GL_TEXTURE0);
 			unsigned textureObject;
 			glGenTextures(1, &textureObject);
 			glBindTexture(GL_TEXTURE_2D, textureObject);
 
-			const auto& texture = Globals::Components().staticTextures().emplace(textureUnit, textureObject, GL_CLAMP_TO_EDGE, GL_NEAREST, textureMagFilter);
-			subBuffers.textureUnit = texture.loaded.textureUnit;
+			const auto& texture = Globals::Components().staticTextures().emplace(textureObject, GL_CLAMP_TO_EDGE, GL_NEAREST, textureMagFilter);
+			subBuffers.textureId = texture.getComponentId();
 			subBuffers.textureObject = texture.loaded.textureObject;
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture.wrapMode);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture.wrapMode);
@@ -411,10 +414,7 @@ namespace Systems
 				continue;
 			else if (texture.state == ComponentState::Changed)
 			{
-				if (texture.loaded.textureUnit == 0)
-					loadAndConfigureTexture(texture);
-				else
-					loadAndConfigureTexture(texture);
+				loadAndConfigureTexture(texture);
 				texture.state = ComponentState::Ongoing;
 			}
 			else if (texture.state == ComponentState::Outdated)
@@ -426,8 +426,6 @@ namespace Systems
 
 	void Textures::deleteTexture(Components::Texture& texture)
 	{
-		textureUnits.release(texture.loaded.textureUnit);
-		texture.loaded.textureUnit = 0;
 		glDeleteTextures(1, &texture.loaded.textureObject);
 		texture.loaded.textureObject = 0;
 	}

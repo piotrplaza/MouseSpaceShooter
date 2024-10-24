@@ -3,7 +3,7 @@
 #include <components/mouse.hpp>
 #include <components/wall.hpp>
 #include <components/texture.hpp>
-#include <components/screenInfo.hpp>
+#include <components/systemInfo.hpp>
 #include <components/physics.hpp>
 
 #include <globals/components.hpp>
@@ -34,9 +34,9 @@ namespace Levels
 
 		void createWalls()
 		{
+			const auto& mouse = Globals::Components().mouse();
+			const auto& screenInfo = Globals::Components().systemInfo().screen;
 			auto& staticWalls = Globals::Components().staticWalls();
-			auto& mouse = Globals::Components().mouse();
-			auto& screenInfo = Globals::Components().screenInfo();
 
 			staticWalls.emplace(Tools::CreateBoxBody({ 1.0f, 10.0f }, Tools::BodyParams().position({ -10.0f * screenInfo.getAspectRatio() - 1.0f, 0.0f })));
 			staticWalls.emplace(Tools::CreateBoxBody({ 1.0f, 10.0f }, Tools::BodyParams().position({ 10.0f * screenInfo.getAspectRatio() + 1.0f, 0.0f })));

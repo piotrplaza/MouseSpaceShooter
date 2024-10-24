@@ -73,9 +73,9 @@ namespace Tools
 		this->playersHandler = &playersHandler;
 	}
 
-	void MissilesHandler::setExplosionTexture(ComponentId explosionTexture)
+	void MissilesHandler::setExplosionTexture(TextureComponentVariant explosionTexture)
 	{
-		this->explosionTexture = explosionTexture;
+		this->explosionTexture = std::move(explosionTexture);
 	}
 
 	void MissilesHandler::setMissileTexture(ComponentId missileTexture)

@@ -1,7 +1,7 @@
 #include "dzidzia.hpp"
 
 #include <components/graphicsSettings.hpp>
-#include <components/screenInfo.hpp>
+#include <components/systemInfo.hpp>
 #include <components/physics.hpp>
 #include <components/texture.hpp>
 #include <components/decoration.hpp>
@@ -91,7 +91,7 @@ namespace Levels
 			staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.0f, 5.0f }),
 				CM::StaticTexture(dzidziaITata1Texture), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderigSetupF));
 			staticDecorations.last().modelMatrixF = [pos, step = glm::vec2(5.0f)]() mutable {
-				const auto& screenInfo = Globals::Components().screenInfo();
+				const auto& screenInfo = Globals::Components().systemInfo().screen;
 				const glm::vec2 absClamp = { screenInfo.getAspectRatio() * 10.0f, 10.0f };
 
 				*pos += step * Globals::Components().physics().frameDuration;
@@ -114,7 +114,7 @@ namespace Levels
 		{
 			const auto& keyboard = Globals::Components().keyboard();
 			const auto& mouse = Globals::Components().mouse();
-			const auto& screenInfo = Globals::Components().screenInfo();
+			const auto& screenInfo = Globals::Components().systemInfo().screen;
 			const auto& physics = Globals::Components().physics();
 			auto& staticDecorations = Globals::Components().staticDecorations();
 

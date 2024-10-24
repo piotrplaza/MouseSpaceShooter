@@ -6,9 +6,9 @@ in vec2 gTexCoord;
 out vec4 fColor;
 
 uniform vec4 color;
-uniform sampler2D texture1;
+uniform sampler2D texture0;
 
 void main()
 {
-	fColor = texture(texture1, gTexCoord) * gColor * color;
+	fColor = texture(texture0, gTexCoord) * gColor * color;
 }

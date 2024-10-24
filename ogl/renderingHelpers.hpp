@@ -4,7 +4,7 @@
 #include <components/blendingTexture.hpp>
 #include <components/animatedTexture.hpp>
 #include <components/mvp.hpp>
-#include <components/screenInfo.hpp>
+#include <components/systemInfo.hpp>
 #include <components/physics.hpp>
 #include <components/mouse.hpp>
 #include <components/shockwave.hpp>
@@ -16,6 +16,7 @@
 #include <globals/components.hpp>
 
 #include <ogl/oglProxy.hpp>
+#include <ogl/oglHelpers.hpp>
 
 #include <tools/utility.hpp>
 
@@ -33,10 +34,13 @@ namespace
 	inline void TexturedRenderInitialization(auto& shadersProgram, const Components::Texture& textureComponent,
 		glm::vec2 translate, float rotate, glm::vec2 scale, const glm::mat4& additionalTransform, unsigned textureId)
 	{
+		glActiveTexture(GL_TEXTURE0 + textureId);
+		glBindTexture(GL_TEXTURE_2D, textureComponent.loaded.textureObject);
+
 		if (textureId == 0)
 			shadersProgram.numOfTextures(1);
 
-		shadersProgram.textures(textureId, textureComponent.loaded.textureUnit - GL_TEXTURE0);
+		shadersProgram.textures(textureId, textureId);
 		shadersProgram.texturesBaseTransform(textureId, Tools::TextureTransform(textureComponent)
 			* Tools::TextureTransform(translate, rotate, scale) * additionalTransform);
 	}
@@ -62,11 +66,15 @@ namespace
 			}
 		};
 
+		const auto& [textureComponent, textureAdditionalTransform] = std::visit(TextureComponentSelectorVisitor{}, animatedTextureComponent.getTexture());
+
+		glActiveTexture(GL_TEXTURE0 + textureId);
+		glBindTexture(GL_TEXTURE_2D, textureComponent.loaded.textureObject);
+
 		if (textureId == 0)
 			shadersProgram.numOfTextures(1);
 
-		const auto& [textureComponent, textureAdditionalTransform] = std::visit(TextureComponentSelectorVisitor{}, animatedTextureComponent.getTexture());
-		shadersProgram.textures(textureId, textureComponent.loaded.textureUnit - GL_TEXTURE0);
+		shadersProgram.textures(textureId, textureId);
 		shadersProgram.texturesBaseTransform(textureId, animatedTextureComponent.getFrameTransformation() * Tools::TextureTransform(textureComponent)
 			* textureAdditionalTransform * Tools::TextureTransform(translate, rotate, scale) * additionalTransform);
 	}
@@ -173,7 +181,7 @@ namespace Tools
 			shadersProgram.normalMatrix(Globals::Components().mvp2D().getNormalMatrix());
 	}
 
-	inline void TexturedScreenRender(auto& shadersProgram, unsigned texture, std::function<void()> customSetup = nullptr,
+	inline void TexturedScreenRender(auto& shadersProgram, unsigned textureObject, std::function<void()> customSetup = nullptr,
 		std::function<std::array<glm::vec3, 6>()> positionsGenerator = nullptr)
 	{
 		const int numOfVertices = 6;
@@ -218,30 +226,32 @@ namespace Tools
 		glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, &defaultTexCoords);
 		glEnableVertexAttribArray(2);
 
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureObject);
 		glProxyUseProgram(shadersProgram.getProgramId());
-
+		
 		shadersProgram.model(glm::mat4(1.0f));
 		shadersProgram.vp(glm::mat4(1.0f));
 		shadersProgram.color(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 		shadersProgram.numOfTextures(1);
-		shadersProgram.textures(0, texture);
+		shadersProgram.textures(0, 0);
 		shadersProgram.texturesBaseTransform(0, glm::mat4(1.0f));
-
+		
 		if (customSetup)
 			customSetup();
-
+		
 		glDrawArrays(GL_TRIANGLES, 0, numOfVertices);
 	}
 
 	inline auto StandardFullscreenRenderer(auto& shadersProgram)
 	{
-		const auto& screenInfo = Globals::Components().screenInfo();
+		const auto& screenInfo = Globals::Components().systemInfo().screen;
 
-		return[&](unsigned textureId)
+		return[&](unsigned textureObject)
 		{
 			const bool prevBlend = glProxyIsBlendEnabled();
 			glProxySetBlend(false);
-			TexturedScreenRender(shadersProgram, textureId, nullptr, [&]()
+			TexturedScreenRender(shadersProgram, textureObject, nullptr, [&]()
 				{
 					const float quakeIntensity = 0.001f * Globals::Components().shockwaves().size();
 					const glm::vec2 quakeIntensityXY = screenInfo.windowSize.x > screenInfo.windowSize.y
@@ -261,9 +271,9 @@ namespace Tools
 
 	inline auto Demo3DRotatedFullscreenRenderer(auto& shadersProgram)
 	{
-		const auto& screenInfo = Globals::Components().screenInfo();
+		const auto& screenInfo = Globals::Components().systemInfo().screen;
 
-		return[&, angle = 0.0f](unsigned textureId) mutable
+		return[&, angle = 0.0f](unsigned textureObject) mutable
 		{
 			glm::mat4 vp = glm::perspective(glm::radians(28.0f), screenInfo.getAspectRatio(), 1.0f, 10.0f);
 			glm::mat4 model = glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -4.0f });
@@ -291,7 +301,7 @@ namespace Tools
 			glProxySetBlend(false);
 			glProxySetCullFace(false);
 
-			Tools::TexturedScreenRender(shadersProgram, textureId, [&]()
+			Tools::TexturedScreenRender(shadersProgram, textureObject, [&]()
 				{
 					shadersProgram.vp(vp);
 					shadersProgram.model(model);

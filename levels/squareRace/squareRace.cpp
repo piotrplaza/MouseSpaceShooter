@@ -164,7 +164,7 @@ namespace Levels
 		void destroyPlane(Components::Plane& plane)
 		{
 			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getOrigin2D()).sourceVelocity(plane.getVelocity()).
-				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(explosionTexture));
+				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(CM::StaticTexture(explosionTexture)));
 			Tools::CreateAndPlaySound(playerExplosionSoundBuffer, [pos = plane.getOrigin2D()]() { return pos; });
 			plane.setEnabled(false);
 			playersToCircuits.erase(plane.getComponentId());

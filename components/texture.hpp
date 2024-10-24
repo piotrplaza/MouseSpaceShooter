@@ -31,12 +31,11 @@ namespace Components
 		{
 		}
 
-		Texture(unsigned textureUnit, unsigned textureObject, GLint wrapMode, GLint minFilter, GLint magFilter) :
+		Texture(unsigned textureObject, GLint wrapMode, GLint minFilter, GLint magFilter) :
 			wrapMode(wrapMode),
 			minFilter(minFilter),
 			magFilter(magFilter)
 		{
-			loaded.textureUnit = textureUnit;
 			loaded.textureObject = textureObject;
 
 			state = ComponentState::Ongoing;
@@ -58,7 +57,6 @@ namespace Components
 
 		struct
 		{
-			unsigned textureUnit = 0;
 			unsigned textureObject = 0;
 
 			glm::ivec2 size = { 0, 0 };

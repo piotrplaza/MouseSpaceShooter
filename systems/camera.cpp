@@ -3,7 +3,7 @@
 #include <components/camera2D.hpp>
 #include <components/camera3D.hpp>
 #include <components/mvp.hpp>
-#include <components/screenInfo.hpp>
+#include <components/systemInfo.hpp>
 #include <components/physics.hpp>
 
 #include <globals/components.hpp>
@@ -22,7 +22,7 @@ namespace Systems
 
 	void Camera::postInit() const
 	{
-		const auto& screenInfo = Globals::Components().screenInfo();
+		const auto& screenInfo = Globals::Components().systemInfo().screen;
 
 		const float windowWidthRatio = screenInfo.windowSize.x > screenInfo.windowSize.y
 			? screenInfo.getAspectRatio()
@@ -55,7 +55,7 @@ namespace Systems
 		if (!camera.isEnabled())
 			return;
 
-		const auto& screenInfo = Globals::Components().screenInfo();
+		const auto& screenInfo = Globals::Components().systemInfo().screen;
 		auto& mvp = Globals::Components().mvp2D();
 		auto& physics = Globals::Components().physics();
 
@@ -95,7 +95,7 @@ namespace Systems
 		if (!camera.isEnabled())
 			return;
 
-		const auto& screenInfo = Globals::Components().screenInfo();
+		const auto& screenInfo = Globals::Components().systemInfo().screen;
 		auto& mvp = Globals::Components().mvp3D();
 
 		if (!paused)

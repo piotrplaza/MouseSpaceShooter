@@ -1,6 +1,6 @@
 #include "renderingController.hpp"
 
-#include <components/screenInfo.hpp>
+#include <components/systemInfo.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/framebuffers.hpp>
 #include <components/mainFramebufferRenderer.hpp>
@@ -268,7 +268,7 @@ namespace Systems
 	{
 		const auto& graphicsSettings = Globals::Components().graphicsSettings();
 		const auto clearColor = graphicsSettings.backgroundColorF();
-		const auto& screenInfo = Globals::Components().screenInfo();
+		const auto& screenInfo = Globals::Components().systemInfo().screen;
 		const auto& framebuffers = Globals::Components().framebuffers();
 
 		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
@@ -314,13 +314,13 @@ namespace Systems
 			TexturedRender(layer, texturesFramebuffersRenderer);
 			CustomShadersRender(layer, texturesFramebuffersRenderer);
 		}
-
+		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, screenInfo.windowSize.x, screenInfo.windowSize.y);
 		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		
 		assert(Globals::Components().mainFramebufferRenderer().renderer);
-		Globals::Components().mainFramebufferRenderer().renderer(framebuffers.getMainSubBuffers().textureUnit - GL_TEXTURE0);
+		Globals::Components().mainFramebufferRenderer().renderer(framebuffers.getMainSubBuffers().textureObject);
 	}
 }

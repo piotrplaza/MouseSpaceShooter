@@ -1,6 +1,6 @@
 #include "gravity.hpp"
 
-#include <components/screenInfo.hpp>
+#include <components/systemInfo.hpp>
 #include <components/physics.hpp>
 #include <components/plane.hpp>
 #include <components/wall.hpp>
@@ -218,7 +218,7 @@ namespace Levels
 						const auto& targetFixture = fixture == &fixtureA ? fixtureB : fixtureA;
 						const auto& missileBody = *fixture->GetBody();
 						missilesToHandlers.erase(std::get<CM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).componentId);
-						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(explosionTexture));
+						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(CM::StaticTexture(explosionTexture)));
 
 						explosionFrame = true;
 					}

@@ -17,7 +17,7 @@ namespace Tools
 	public:
 		void initCollisions();
 		void setPlayersHandler(Tools::PlayersHandler& playersHandler);
-		void setExplosionTexture(ComponentId explosionTexture);
+		void setExplosionTexture(TextureComponentVariant explosionTexture);
 		void setMissileTexture(ComponentId missileTexture);
 		void setFlameAnimatedTexture(ComponentId flameAnimatedTexture);
 
@@ -38,7 +38,7 @@ namespace Tools
 
 		Tools::PlayersHandler* playersHandler = nullptr;
 
-		ComponentId explosionTexture = 0;
+		TextureComponentVariant explosionTexture;
 		ComponentId missileTexture = 0;
 		ComponentId flameAnimatedTexture = 0;
 

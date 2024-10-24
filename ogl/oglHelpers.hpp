@@ -19,6 +19,7 @@ namespace Tools
 	};
 
 	void VSync(bool enabled);
-	void PrintCurrentGLErrors(const std::string& prefix);
+	void PrintGLErrors(const std::string& prefix = "glError");
+	void PrintGLErrorsOnce(const std::string& prefix = "glError");
 	int GetPixelFormat(int numOfChannels);
 }
