@@ -43,6 +43,7 @@ namespace Systems
 		void createTextureFramebuffers();
 		void updateStaticTextures();
 		void updateDynamicTextures();
+		void updateTexture(Components::Texture& texture);
 		void deleteTexture(Components::Texture& texture);
 
 		unsigned staticTexturesOffset = 0;

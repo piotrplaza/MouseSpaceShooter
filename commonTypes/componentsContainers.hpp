@@ -392,8 +392,8 @@ public:
 		{
 			if (it->second.state == ::ComponentState::Outdated || it->second.state == ::ComponentState::LastShot)
 			{
-				if (it->second.teardownF)
-					it->second.teardownF();
+				if (it->second.deferredTeardownF)
+					it->second.deferredTeardownF();
 
 				Globals::ComponentIdGenerator().release(it->first);
 				it = components.erase(it);
@@ -418,8 +418,8 @@ public:
 	void clear() override
 	{
 		for (auto& [id, component] : components)
-			if (component.teardownF)
-				component.teardownF();
+			if (component.deferredTeardownF)
+				component.deferredTeardownF();
 
 		components.clear();
 		last_ = nullptr;
@@ -553,8 +553,8 @@ public:
 		{
 			if (it->state == ::ComponentState::Outdated || it->state == ::ComponentState::LastShot)
 			{
-				if (it->teardownF)
-					it->teardownF();
+				if (it->deferredTeardownF)
+					it->deferredTeardownF();
 
 				Globals::ComponentIdGenerator().release(it->getComponentId());
 				it = components.erase(it);
@@ -579,8 +579,8 @@ public:
 	void clear() override
 	{
 		for (auto& component : components)
-			if (component.teardownF)
-				component.teardownF();
+			if (component.deferredTeardownF)
+				component.deferredTeardownF();
 
 		components.clear();
 		last_ = nullptr;

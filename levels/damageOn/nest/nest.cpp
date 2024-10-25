@@ -34,6 +34,7 @@
 #include <fstream>
 #include <iostream>
 #include <format>
+#include <algorithm>
 
 namespace Levels::DamageOn
 {
@@ -165,8 +166,8 @@ namespace Levels::DamageOn
 			bool fire = false;
 			bool autoFire = false;
 
-			float manaOverheating = 0.0f;
-			bool manaOverheated = false;
+			float manaOvercharging = 0.0f;
+			bool manaOvercharged = false;
 
 			glm::vec4 baseColor{};
 			float sideFactor = 1.0f;
@@ -304,7 +305,7 @@ namespace Levels::DamageOn
 	{
 		float distance;
 		float damageFactor;
-		float overheatingRate;
+		float overchargingRate;
 		float coolingRate;
 	};
 
@@ -312,7 +313,7 @@ namespace Levels::DamageOn
 	{
 		constexpr const char* paramsPath = "levels/damageOn/nest/params.txt";
 
-		constexpr int debrisCount = 20;
+		constexpr int debrisCount = 5;
 		constexpr float debrisDensity = 20.0f;
 	}
 
@@ -433,14 +434,14 @@ namespace Levels::DamageOn
 
 			const float mapScaleFactor = gameParams.mapHSize / 20.0f;
 			const glm::vec2 nestCenter = glm::vec2(1.8f, 2.6f) * mapScaleFactor;
-			dynamicWalls.emplace(Tools::CreateCircleBody(6.0f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter))).renderF = [&]() { return debug.levelBodiesRendering; };
+			dynamicWalls.emplace(Tools::CreateCircleBody(6.0f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter))).renderF = [&]() { return debug.hitboxesRendering; };
 			dynamicWalls.last().colorF = glm::vec4(0.2f);
 			dynamicWalls.last().stepF = [&, &wall = dynamicWalls.last()]() { 
 				wall.setEnabled(!bonusBackground); };
-			dynamicWalls.emplace(Tools::CreateCircleBody(5.5f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter + glm::vec2(-2.5f) * mapScaleFactor))).renderF = [&]() { return debug.levelBodiesRendering; };
+			dynamicWalls.emplace(Tools::CreateCircleBody(5.5f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter + glm::vec2(-2.5f) * mapScaleFactor))).renderF = [&]() { return debug.hitboxesRendering; };
 			dynamicWalls.last().colorF = glm::vec4(0.2f);
 			dynamicWalls.last().stepF = [&, &wall = dynamicWalls.last()]() { wall.setEnabled(!bonusBackground); };
-			dynamicWalls.emplace(Tools::CreateCircleBody(3.0f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter + glm::vec2(-6.0f) * mapScaleFactor))).renderF = [&]() { return debug.levelBodiesRendering; };
+			dynamicWalls.emplace(Tools::CreateCircleBody(3.0f * mapScaleFactor, Tools::BodyParams{}.position(nestCenter + glm::vec2(-6.0f) * mapScaleFactor))).renderF = [&]() { return debug.hitboxesRendering; };
 			dynamicWalls.last().colorF = glm::vec4(0.2f);
 			dynamicWalls.last().stepF = [&, &wall = dynamicWalls.last()]() { wall.setEnabled(!bonusBackground); };
 
@@ -455,9 +456,16 @@ namespace Levels::DamageOn
 			{
 				const float debrisWidth = glm::linearRand(0.3f, 1.0f);
 				const float debrisHeight = debrisWidth * glm::linearRand(1.6f, 2.0f);
-				dynamicWalls.emplace(Tools::CreateBoxBody({ debrisWidth, debrisHeight }, Tools::BodyParams{}.position(glm::linearRand(-levelHSize, levelHSize)).angle(glm::linearRand(0.0f, glm::two_pi<float>()))
-					.bodyType(b2_dynamicBody).linearDamping(10.0f).angularDamping(10.0f).density(debrisDensity)), CM::DynamicTexture(coffinTextureId));
-				dynamicWalls.last().texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
+				auto& debris = dynamicWalls.emplace(Tools::CreateBoxBody({ debrisWidth, debrisHeight }, Tools::BodyParams{}.position(glm::linearRand(-levelHSize, levelHSize)).angle(glm::linearRand(0.0f, glm::two_pi<float>()))
+					.bodyType(b2_dynamicBody).linearDamping(10.0f).angularDamping(10.0f).density(debrisDensity)), CM::DummyTexture());
+				debris.renderF = [&]() { return debug.hitboxesRendering; };
+				debris.colorF = glm::vec4(0.2f);
+				debris.posInSubsequence = 1;
+				auto& debrisPresentation = debris.subsequence.emplace_back();
+				debrisPresentation.texture = CM::DynamicTexture(coffinTextureId);
+				debrisPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { debrisWidth, debrisHeight });
+				debrisPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
+				debrisPresentation.modelMatrixF = debris.modelMatrixF;
 			}
 
 			dynamicDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, levelHSize), CM::DynamicTexture(backgroundTextureId), Tools::Shapes2D::CreateTexCoordOfRectangle()).renderLayer = RenderLayer::FarBackground;
@@ -465,17 +473,15 @@ namespace Levels::DamageOn
 
 		void step()
 		{
-			auto& keyboard = Globals::Components().keyboard();
-			auto& physics = Globals::Components().physics();
+			const auto& keyboard = Globals::Components().keyboard();
+			const auto& physics = Globals::Components().physics();
+			const auto& gamepads = Globals::Components().gamepads();
 
-			const bool anyGamepadStartPressed = []() {
-				for (const auto& gamepad : Globals::Components().gamepads())
-					if (gamepad.pressed.start)
-						return true;
-				return false;
+			const bool anyGamepadBackPressed = [&]() {
+				return std::any_of(gamepads.begin(), gamepads.end(), [](const auto& gamepad) { return gamepad.pressed.back; });
 			}();
 
-			if (keyboard.pressed['P'] || anyGamepadStartPressed)
+			if (keyboard.pressed['R'] || anyGamepadBackPressed)
 				reload();
 
 			std::unordered_map<int, float> minDistances;
@@ -484,7 +490,7 @@ namespace Levels::DamageOn
 			for (auto& [playerId, playerData] : playerFrankenstein.idsToData)
 			{
 				const bool keyboardEnabled = gameParams.gamepad.firstPlayer ? true : playerId == 0;
-				bool gamepadEnabled = gameParams.gamepad.firstPlayer ? true : playerId > 0;
+				bool gamepadEnabled = playerId > 3 ? false : gameParams.gamepad.firstPlayer ? true : playerId > 0;
 				int gamepadId = gamepadEnabled ? (playerId - !gameParams.gamepad.firstPlayer) : 0;
 				auto& gamepad = Globals::Components().gamepads()[gamepadId];
 
@@ -592,11 +598,9 @@ namespace Levels::DamageOn
 			}
 
 			if (keyboard.pressed['H'] || anyGamepadPressedX)
-				debug.bodyRendering = !debug.bodyRendering;
+				debug.hitboxesRendering = !debug.hitboxesRendering;
 			if (keyboard.pressed['T'] || anyGamepadPressedY)
 				debug.presentationTransparency = !debug.presentationTransparency;
-			if (keyboard.pressed['L'])
-				debug.levelBodiesRendering = !debug.levelBodiesRendering;
 			if (keyboard.pressed['B'])
 			{
 				bonusBackground = !bonusBackground;
@@ -651,7 +655,7 @@ namespace Levels::DamageOn
 
 			auto& playerData = player.idsToData.emplace(playerId, Player::Data{ playerActor, playerAnimatedTexture, sparkingSound, overchargingSound, dashSoundBuffer }).first->second;
 
-			playerActor.renderF = [&]() { return debug.bodyRendering; };
+			playerActor.renderF = [&]() { return debug.hitboxesRendering; };
 			playerActor.colorF = glm::vec4(0.4f);
 			playerActor.posInSubsequence = 2;
 
@@ -679,7 +683,7 @@ namespace Levels::DamageOn
 
 				playerData.baseColor = glm::vec4(1.0f);
 				playerPresentation.colorF = [&, sideFactor]() {
-					return glm::mix(playerData.baseColor, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), playerData.manaOverheating) * (playerData.manaOverheated ? (glm::sin(physics.simulationDuration * 20.0f) + 1.0f) / 2.0f : 1.0f)
+					return glm::mix(playerData.baseColor, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), playerData.manaOvercharging) * (playerData.manaOvercharged ? (glm::sin(physics.simulationDuration * 20.0f) + 1.0f) / 2.0f : 1.0f)
 						* (sideFactor > 0.0f ? playerData.sideTransition : 1.0f - playerData.sideTransition);
 				};
 			}
@@ -700,7 +704,7 @@ namespace Levels::DamageOn
 				.bodyType(b2_dynamicBody)
 				.density(enemy.params.density)
 				.position(position)), CM::DummyTexture());
-			enemyActor.renderF = [&]() { return debug.bodyRendering; };
+			enemyActor.renderF = [&]() { return debug.hitboxesRendering; };
 			enemyActor.colorF = glm::vec4(0.4f);
 			enemyActor.posInSubsequence = 2;
 
@@ -813,7 +817,7 @@ namespace Levels::DamageOn
 
 		bool sparkHandler(const auto& sourceData, const auto& target, auto& targetData, auto& spark, glm::vec2 direction, float distance, glm::vec4& damageColorFactor, bool fire)
 		{
-			if (distance <= sparkingParams.distance && fire && !sourceData.manaOverheated)
+			if (distance <= sparkingParams.distance && fire && !sourceData.manaOvercharged)
 			{
 				const glm::vec2 sourceScalingFactor = playerFrankenstein.params.radius * playerFrankenstein.params.presentation.radiusProportions * glm::vec2(sourceData.sideFactor, 1.0f);
 				const glm::vec2 weaponOffset =
@@ -832,7 +836,7 @@ namespace Levels::DamageOn
 				
 				spark.bufferDataUsage = GL_DYNAMIC_DRAW;
 				spark.drawMode = GL_LINES;
-				auto sparkColor = glm::mix(glm::vec4(0.0f, glm::linearRand(0.2f, 0.6f), glm::linearRand(0.4f, 0.8f), 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), sourceData.manaOverheating);
+				auto sparkColor = glm::mix(glm::vec4(0.0f, glm::linearRand(0.2f, 0.6f), glm::linearRand(0.4f, 0.8f), 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), sourceData.manaOvercharging);
 				spark.colorF = sparkColor * 0.2f;
 				damageColorFactor = sparkColor * glm::linearRand(0.0f, 1.0f);
 				spark.renderF = true;
@@ -855,29 +859,29 @@ namespace Levels::DamageOn
 				if (!sourceData.sparkingSound.isPlaying())
 					sourceData.sparkingSound.play();
 				sourceData.sparkingSound.setPosition(sourceData.actor.getOrigin2D());
-				sourceData.manaOverheating += physics.frameDuration * sparkingParams.overheatingRate;
-				if (sourceData.manaOverheating >= 1.0f)
+				sourceData.manaOvercharging += physics.frameDuration * sparkingParams.overchargingRate;
+				if (sourceData.manaOvercharging >= 1.0f)
 				{
 					sourceData.sparkingSound.pause();
 					if (!sourceData.overchargeSound.isPlaying())
 						sourceData.overchargeSound.play();
-					sourceData.manaOverheating = 1.0f;
-					sourceData.manaOverheated = true;
+					sourceData.manaOvercharging = 1.0f;
+					sourceData.manaOvercharged = true;
 				}
 			}
 			else
 			{
 				sourceData.sparkingSound.pause();
-				sourceData.manaOverheating -= physics.frameDuration * sparkingParams.coolingRate;
-				if (sourceData.manaOverheating <= 0.0f)
+				sourceData.manaOvercharging -= physics.frameDuration * sparkingParams.coolingRate;
+				if (sourceData.manaOvercharging <= 0.0f)
 				{
 					sourceData.overchargeSound.stop();
-					sourceData.manaOverheating = 0.0f;
-					sourceData.manaOverheated = false;
+					sourceData.manaOvercharging = 0.0f;
+					sourceData.manaOvercharged = false;
 				}
 			}
 
-			sourceData.overchargeSound.setVolume(sourceData.manaOverheating);
+			sourceData.overchargeSound.setVolume(sourceData.manaOvercharging);
 			sourceData.overchargeSound.setPosition(sourceData.actor.getOrigin2D());
 
 			sourceData.activeSparks = 0;
@@ -1084,6 +1088,11 @@ namespace Levels::DamageOn
 							auto& texture = dynamicTextures.emplace("textures/damageOn/enemy 3.png");
 							enemyTypeParams.loaded.emplace(texture);
 						}
+						else if (enemyTypeParams.type == "hive")
+						{
+							auto& texture = dynamicTextures.emplace("textures/damageOn/enemy 4.png");
+							enemyTypeParams.loaded.emplace(texture);
+						}
 						else
 							assert(!"Unsupported enemy id");
 
@@ -1126,7 +1135,7 @@ namespace Levels::DamageOn
 
 			loadParam(sparkingParams.distance, "sparking.distance");
 			loadParam(sparkingParams.damageFactor, "sparking.damageFactor");
-			loadParam(sparkingParams.overheatingRate, "sparking.overheatingRate");
+			loadParam(sparkingParams.overchargingRate, "sparking.overchargingRate");
 			loadParam(sparkingParams.coolingRate, "sparking.coolingRate");
 		}
 
@@ -1250,9 +1259,8 @@ namespace Levels::DamageOn
 
 		struct
 		{
-			bool levelBodiesRendering = false;
 			bool presentationTransparency = true;
-			bool bodyRendering = false;
+			bool hitboxesRendering = false;
 		} debug;
 
 		bool bonusBackground = false;

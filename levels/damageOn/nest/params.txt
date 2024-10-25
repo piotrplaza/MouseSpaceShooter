@@ -2,7 +2,7 @@ startup.pixelArt false
 
 game.numOfPlayers 2
 game.globalVolume 1.0
-game.musicVolume 0.7
+game.musicVolume 1.0
 game.mapHSize 20.0
 game.camera.minProjectionHSize 8.0
 game.camera.trackingMargin 5.0
@@ -12,7 +12,7 @@ game.gamepad.firstPlayer true
 game.gamepad.deadZone 0.2
 game.gamepad.triggerDeadZone 0.1
 
-player.frankenstein.startPosition -25.0 0.0
+player.frankenstein.startPosition -30.0 0.0
 player.frankenstein.radius 1.0
 player.frankenstein.maxVelocity 8.0
 player.frankenstein.density 10.0
@@ -42,18 +42,18 @@ player.frankenstein.animation.frameRotation 0.0
 player.frankenstein.animation.frameScale 1.5 1.5
 player.frankenstein.animation.neutralFrame 35
 
-enemy.ghost.initCount 100
-enemy.ghost.startPosition 20.0 10.0
+enemy.ghost.initCount 40
+enemy.ghost.startPosition -10.0 0.0
 enemy.ghost.initHP 10.0
-enemy.ghost.initRadiusRange 0.3 0.7
+enemy.ghost.initRadiusRange 0.4 0.6
 enemy.ghost.density 0.5
 enemy.ghost.baseVelocity 2.0
 enemy.ghost.boostDistance 15.0
 enemy.ghost.boostFactor 4.0
 enemy.ghost.slowFactor 0.2
 enemy.ghost.radiusReductionFactor 0.5
-enemy.ghost.minimalRadius 0.25
-enemy.ghost.killSpawns 2
+enemy.ghost.minimalRadius 0.1
+enemy.ghost.killSpawns 4
 enemy.ghost.presentation.radiusProportions 1.0 1.0
 enemy.ghost.presentation.translation 0.0 0.0
 enemy.ghost.presentation.rotation 0.0
@@ -78,10 +78,10 @@ enemy.ghost.animation.frameRotation 0.0
 enemy.ghost.animation.frameScale 1.0 1.0
 enemy.ghost.animation.neutralFrame 0
 
-enemy.chicken.initCount 50
-enemy.chicken.startPosition 40.0 0.0
+enemy.chicken.initCount 20
+enemy.chicken.startPosition 10.0 0.0
 enemy.chicken.initHP 50.0
-enemy.chicken.initRadiusRange 1.0 2.0
+enemy.chicken.initRadiusRange 1.5 2.5
 enemy.chicken.density 0.2
 enemy.chicken.baseVelocity 4.0
 enemy.chicken.boostDistance 15.0
@@ -115,9 +115,9 @@ enemy.chicken.animation.frameScale 1.275 1.275
 enemy.chicken.animation.neutralFrame 0
 
 enemy.zombie.initCount 50
-enemy.zombie.startPosition 20.0 -10.0
+enemy.zombie.startPosition 0.0 -10.0
 enemy.zombie.initHP 20.0
-enemy.zombie.initRadiusRange 1.0 1.5
+enemy.zombie.initRadiusRange 0.8 1.2
 enemy.zombie.density 0.2
 enemy.zombie.baseVelocity 1.5
 enemy.zombie.boostDistance 15.0
@@ -150,7 +150,43 @@ enemy.zombie.animation.frameRotation 0.0
 enemy.zombie.animation.frameScale 0.88 0.88
 enemy.zombie.animation.neutralFrame 0
 
+enemy.hive.initCount 50
+enemy.hive.startPosition 0.0 10.0
+enemy.hive.initHP 20.0
+enemy.hive.initRadiusRange 1.0 1.5
+enemy.hive.density 0.2
+enemy.hive.baseVelocity 1.5
+enemy.hive.boostDistance 15.0
+enemy.hive.boostFactor 1.5
+enemy.hive.slowFactor 0.5
+enemy.hive.radiusReductionFactor 0.0
+enemy.hive.minimalRadius 0.5
+enemy.hive.killSpawns 0
+enemy.hive.presentation.radiusProportions 1.0 1.0
+enemy.hive.presentation.translation 0.0 0.0
+enemy.hive.presentation.rotation 0.0
+enemy.hive.presentation.scale 1.0 1.0
+enemy.hive.presentation.velocityRotationFactor 0.0005
+enemy.hive.presentation.velocityScalingFactor 1.2
+enemy.hive.presentation.weaponOffset 0.0 0.0
+enemy.hive.animation.textureSize 2048 2048
+enemy.hive.animation.framesGrid 8 5
+enemy.hive.animation.leftTopFrameLeftTopCorner 0 0
+enemy.hive.animation.rightTopFrameLeftEdge 1790
+enemy.hive.animation.leftBottomFrameTopEdge 1025
+enemy.hive.animation.frameSize 225 225
+enemy.hive.animation.frameDuration 0.05
+enemy.hive.animation.numOfFrames 40
+enemy.hive.animation.startFrame -1
+enemy.hive.animation.direction forward
+enemy.hive.animation.mode repeat
+enemy.hive.animation.textureLayout horizontal
+enemy.hive.animation.frameTranslation 0.0 0.075
+enemy.hive.animation.frameRotation 0.0
+enemy.hive.animation.frameScale 0.88 0.88
+enemy.hive.animation.neutralFrame 0
+
 sparking.distance 10.0
 sparking.damageFactor 10.0
-sparking.overheatingRate 0.25
-sparking.coolingRate 0.5
+sparking.overchargingRate 0.1
+sparking.coolingRate 0.2

@@ -43,7 +43,7 @@ struct ComponentBase
 	}
 
 	std::function<void()> stepF;
-	std::function<void()> teardownF;
+	std::function<void()> deferredTeardownF;
 	ComponentState state = ComponentState::Changed;
 
 private:

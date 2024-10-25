@@ -44,8 +44,9 @@ namespace Levels
 			staticWalls.emplace(Tools::CreateBoxBody({ 10.0f * screenInfo.getAspectRatio(), 1.0f }, Tools::BodyParams().position({ 0.0f, 11.0f })));
 
 			staticWalls.emplace(Tools::CreateCircleBody(2.0f, Tools::BodyParams().bodyType(b2_kinematicBody).position({0.0f, 7.0f}).restitution(0.2f)), CM::StaticTexture(dzidziaTexture));
-			staticWalls.last().stepF = [&wall = staticWalls.last(), &mouse]() {
+			staticWalls.last().stepF = [&, &wall = staticWalls.last()]() {
 				wall.setVelocity(mouse.getCartesianDelta() * 0.8f);
+				wall.setOrigin(glm::clamp(wall.getOrigin2D(), glm::vec2(-10.0f * screenInfo.getAspectRatio(), -10.0f) , glm::vec2(10.0f * screenInfo.getAspectRatio(), 10.0f)));
 			};
 
 #if 1
@@ -66,7 +67,7 @@ namespace Levels
 					const float centerY = -9.5f + hSize.y * 2.0f * (height - i - 1);
 					staticWalls.emplace(Tools::CreateBoxBody(hSize, Tools::BodyParams().bodyType(b2_dynamicBody)
 						.position({ startX + j * hSize.x, centerY }).restitution(0.0f).friction(0.5f).autoSleeping(true).sleeping(true)));
-					staticWalls.last().colorF = [color = glm::vec4(Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f), Tools::Random(0.0f, 1.0f), 1.0f)]() { return color; };
+					staticWalls.last().colorF = [color = glm::vec4(Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f), 1.0f)]() { return color; };
 				}
 			}
 #endif

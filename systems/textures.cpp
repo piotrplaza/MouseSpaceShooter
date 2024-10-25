@@ -396,32 +396,38 @@ namespace Systems
 	void Textures::updateStaticTextures()
 	{
 		for (auto& texture : Globals::Components().staticTextures().underlyingContainer() | std::views::drop(staticTexturesOffset))
-		{
-			if (texture.state == ComponentState::Changed)
-			{
-				loadAndConfigureTexture(texture);
-				texture.state = ComponentState::Ongoing;
-			}
-		}
+			updateTexture(texture);
 		staticTexturesOffset = Globals::Components().staticTextures().size();
 	}
 
 	void Textures::updateDynamicTextures()
 	{
 		for (auto& texture: Globals::Components().dynamicTextures())
+			updateTexture(texture);
+	}
+
+	void Textures::updateTexture(Components::Texture& texture)
+	{
+		if (texture.state == ComponentState::Ongoing)
+			return;
+		if (texture.state == ComponentState::Changed)
 		{
-			if (texture.state == ComponentState::Ongoing)
-				continue;
-			else if (texture.state == ComponentState::Changed)
-			{
-				loadAndConfigureTexture(texture);
-				texture.state = ComponentState::Ongoing;
-			}
-			else if (texture.state == ComponentState::Outdated)
-				deleteTexture(texture);
-			else
-				assert(!"unsupported texture state");
+			loadAndConfigureTexture(texture);
+			texture.state = ComponentState::Ongoing;
+			return;
 		}
+		if (texture.state == ComponentState::Outdated)
+		{
+			deleteTexture(texture);
+			return;
+		}
+		if (texture.state == ComponentState::LastShot)
+		{
+			loadAndConfigureTexture(texture);
+			texture.deferredTeardownF = [&]() { deleteTexture(texture); };
+			return;
+		}
+		assert(!"unsupported texture state");
 	}
 
 	void Textures::deleteTexture(Components::Texture& texture)

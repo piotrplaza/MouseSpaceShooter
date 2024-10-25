@@ -82,14 +82,14 @@ namespace Tests
 	{
 		void setup() override
 		{
-			Globals::Components().dynamicTextures().emplace("textures/rose.png");
-			Globals::Components().dynamicDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }), CM::DynamicTexture(&Globals::Components().dynamicTextures().last()));
+			//Globals::Components().dynamicTextures().emplace("textures/rose.png");
+			Globals::Components().dynamicDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }), CM::DummyTexture()/*CM::DynamicTexture(&Globals::Components().dynamicTextures().last())*/);
 		}
 
 		void step() override
 		{
-			Globals::Components().dynamicTextures().last().state = ComponentState::Outdated;
 			Globals::Components().dynamicTextures().emplace("textures/rose.png");
+			Globals::Components().dynamicTextures().last().state = ComponentState::LastShot;
 			Globals::Components().dynamicDecorations().last().texture = CM::DynamicTexture(&Globals::Components().dynamicTextures().last());
 			//std::cout << "Textures count: " << Globals::Components().dynamicTextures().size() << std::endl;
 		}
