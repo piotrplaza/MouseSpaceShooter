@@ -25,7 +25,7 @@ player.frankenstein.presentation.scale 1.0 1.0
 player.frankenstein.presentation.velocityRotationFactor 0.0005
 player.frankenstein.presentation.velocityScalingFactor 1.0
 player.frankenstein.presentation.weaponOffset 0.0 0.2
-player.frankenstein.animation.textureSize 1280 1280
+player.frankenstein.animation.textureFile "player 1.png"
 player.frankenstein.animation.framesGrid 8 5
 player.frankenstein.animation.leftTopFrameLeftTopCorner 0 0
 player.frankenstein.animation.rightTopFrameLeftEdge 1122
@@ -53,7 +53,7 @@ enemy.ghost.boostFactor 4.0
 enemy.ghost.slowFactor 0.2
 enemy.ghost.radiusReductionFactor 0.5
 enemy.ghost.minimalRadius 0.1
-enemy.ghost.killSpawns 4
+enemy.ghost.killSpawns 2
 enemy.ghost.presentation.radiusProportions 1.0 1.0
 enemy.ghost.presentation.translation 0.0 0.0
 enemy.ghost.presentation.rotation 0.0
@@ -61,7 +61,7 @@ enemy.ghost.presentation.scale 1.0 1.0
 enemy.ghost.presentation.velocityRotationFactor 0.0005
 enemy.ghost.presentation.velocityScalingFactor 0.0
 enemy.ghost.presentation.weaponOffset 0.0 0.0
-enemy.ghost.animation.textureSize 263 525
+enemy.ghost.animation.textureFile "enemy 1.jpg" darkToTransparent
 enemy.ghost.animation.framesGrid 5 10
 enemy.ghost.animation.leftTopFrameLeftTopCorner 0 0
 enemy.ghost.animation.rightTopFrameLeftEdge 210
@@ -97,7 +97,7 @@ enemy.chicken.presentation.scale 1.0 1.0
 enemy.chicken.presentation.velocityRotationFactor 0.0005
 enemy.chicken.presentation.velocityScalingFactor 1.0
 enemy.chicken.presentation.weaponOffset 0.0 0.0
-enemy.chicken.animation.textureSize 2048 2048
+enemy.chicken.animation.textureFile "enemy 2.png"
 enemy.chicken.animation.framesGrid 8 5
 enemy.chicken.animation.leftTopFrameLeftTopCorner 0 0
 enemy.chicken.animation.rightTopFrameLeftEdge 1790
@@ -133,7 +133,7 @@ enemy.zombie.presentation.scale 1.0 1.0
 enemy.zombie.presentation.velocityRotationFactor 0.0005
 enemy.zombie.presentation.velocityScalingFactor 1.2
 enemy.zombie.presentation.weaponOffset 0.0 0.0
-enemy.zombie.animation.textureSize 2048 2048
+enemy.zombie.animation.textureFile "enemy 3.png"
 enemy.zombie.animation.framesGrid 8 5
 enemy.zombie.animation.leftTopFrameLeftTopCorner 0 0
 enemy.zombie.animation.rightTopFrameLeftEdge 1790
@@ -169,7 +169,7 @@ enemy.hive.presentation.scale 1.0 1.0
 enemy.hive.presentation.velocityRotationFactor 0.0005
 enemy.hive.presentation.velocityScalingFactor 1.2
 enemy.hive.presentation.weaponOffset 0.0 0.0
-enemy.hive.animation.textureSize 2048 2048
+enemy.hive.animation.textureFile "enemy 4.png"
 enemy.hive.animation.framesGrid 8 5
 enemy.hive.animation.leftTopFrameLeftTopCorner 0 0
 enemy.hive.animation.rightTopFrameLeftEdge 1790

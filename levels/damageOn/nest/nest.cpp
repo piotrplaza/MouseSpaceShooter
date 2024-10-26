@@ -19,6 +19,9 @@
 #include <components/pauseHandler.hpp>
 #include <globals/components.hpp>
 
+#include <systems/textures.hpp>
+#include <globals/systems.hpp>
+
 #include <tools/Shapes2D.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
@@ -68,7 +71,7 @@ namespace Levels::DamageOn
 
 	struct Animation
 	{
-		glm::ivec2 textureSize{};
+		std::string textureFile{};
 		glm::ivec2 framesGrid{};
 		glm::ivec2 leftTopFrameLeftTopCorner{};
 		int rightTopFrameLeftEdge{};
@@ -84,6 +87,39 @@ namespace Levels::DamageOn
 		float frameRotation{};
 		glm::vec2 frameScale{};
 		int neutralFrame{};
+
+		struct LoadedBase
+		{
+			LoadedBase(Components::Texture& animationTexture) :
+				animationTexture(animationTexture)
+			{
+			}
+
+			Components::Texture& animationTexture;
+			glm::ivec2 textureSize{};
+		};
+
+		struct Loaded : LoadedBase
+		{
+			using LoadedBase::LoadedBase;
+
+			Loaded(Loaded&& loaded) noexcept :
+				LoadedBase(std::move(loaded))
+			{
+				loaded.outdated = true;
+			}
+
+			~Loaded()
+			{
+				if (outdated)
+					return;
+
+				animationTexture.state = ComponentState::Outdated;
+			}
+
+			bool outdated{};
+		};
+		std::optional<Loaded> loaded;
 	};
 
 	struct ActorPresentation
@@ -112,38 +148,6 @@ namespace Levels::DamageOn
 
 			ActorPresentation presentation{};
 			Animation animation{};
-
-			struct LoadedBase
-			{
-				LoadedBase(Components::Texture& animationTexture) :
-					animationTexture(animationTexture)
-				{
-				}
-
-				Components::Texture& animationTexture;
-			};
-
-			struct Loaded : LoadedBase
-			{
-				using LoadedBase::LoadedBase;
-
-				Loaded(Loaded&& loaded) noexcept :
-					LoadedBase(std::move(loaded))
-				{
-					loaded.outdated = true;
-				}
-
-				~Loaded()
-				{
-					if (outdated)
-						return;
-
-					animationTexture.state = ComponentState::Outdated;
-				}
-
-				bool outdated{};
-			};
-			std::optional<Loaded> loaded;
 		} params;
 
 		struct DataBase
@@ -225,38 +229,6 @@ namespace Levels::DamageOn
 
 			ActorPresentation presentation{};
 			Animation animation{};
-
-			struct LoadedBase
-			{
-				LoadedBase(Components::Texture& animationTexture) :
-					animationTexture(animationTexture)
-				{
-				}
-
-				Components::Texture& animationTexture;
-			};
-
-			struct Loaded : LoadedBase
-			{
-				using LoadedBase::LoadedBase;
-
-				Loaded(Loaded&& loaded) noexcept :
-					LoadedBase(std::move(loaded))
-				{
-					loaded.outdated = true;
-				}
-
-				~Loaded()
-				{
-					if (outdated)
-						return;
-
-					animationTexture.state = ComponentState::Outdated;
-				}
-
-				bool outdated{};
-			};
-			std::optional<Loaded> loaded;
 		} params;
 
 		struct DataBase
@@ -640,7 +612,7 @@ namespace Levels::DamageOn
 				.linearDamping(player.params.linearDamping).fixedRotation(true).bodyType(b2_dynamicBody).density(player.params.density).position(position)), CM::DummyTexture{});
 
 			auto& playerAnimatedTexture = Globals::Components().dynamicAnimatedTextures().emplace();
-			playerAnimatedTexture.setAnimationData({ CM::DynamicTexture(player.params.loaded->animationTexture.getComponentId()), player.params.animation.textureSize, player.params.animation.framesGrid, player.params.animation.leftTopFrameLeftTopCorner,
+			playerAnimatedTexture.setAnimationData({ CM::DynamicTexture(player.params.animation.loaded->animationTexture.getComponentId()), player.params.animation.loaded->textureSize, player.params.animation.framesGrid, player.params.animation.leftTopFrameLeftTopCorner,
 				player.params.animation.rightTopFrameLeftEdge, player.params.animation.leftBottomFrameTopEdge, player.params.animation.frameSize, player.params.animation.frameDuration, player.params.animation.numOfFrames,
 				player.params.animation.startFrame == -1 ? glm::linearRand(0, player.params.animation.numOfFrames - 1) : player.params.animation.startFrame,
 				player.params.animation.direction, player.params.animation.mode, player.params.animation.textureLayout });
@@ -693,7 +665,7 @@ namespace Levels::DamageOn
 		{
 			const auto& physics = Globals::Components().physics();
 
-			auto& enemyAnimatedTexture = Globals::Components().dynamicAnimatedTextures().add({ CM::DynamicTexture(enemy.params.loaded->animationTexture.getComponentId()), enemy.params.animation.textureSize,
+			auto& enemyAnimatedTexture = Globals::Components().dynamicAnimatedTextures().add({ CM::DynamicTexture(enemy.params.animation.loaded->animationTexture.getComponentId()), enemy.params.animation.loaded->textureSize,
 				enemy.params.animation.framesGrid, enemy.params.animation.leftTopFrameLeftTopCorner, enemy.params.animation.rightTopFrameLeftEdge, enemy.params.animation.leftBottomFrameTopEdge,
 				enemy.params.animation.frameSize, enemy.params.animation.frameDuration, enemy.params.animation.numOfFrames,
 				enemy.params.animation.startFrame == -1 ? glm::linearRand(0, enemy.params.animation.numOfFrames - 1) : enemy.params.animation.startFrame,
@@ -991,6 +963,8 @@ namespace Levels::DamageOn
 				}
 			};
 
+			auto& dynamicTextures = Globals::Components().dynamicTextures();
+
 			loadParam(startupParams.pixelArt, "startup.pixelArt");
 
 			auto loadPresentationParams = [&](auto& presentationParams, std::string actorName) {
@@ -1004,7 +978,7 @@ namespace Levels::DamageOn
 			};
 
 			auto loadAnimationParams = [&](auto& animationParams, std::string actorName) {
-				loadParam(animationParams.textureSize, std::format("{}.animation.textureSize", actorName));
+				loadParam(animationParams.textureFile, std::format("{}.animation.textureFile", actorName));
 				loadParam(animationParams.framesGrid, std::format("{}.animation.framesGrid", actorName));
 				loadParam(animationParams.leftTopFrameLeftTopCorner, std::format("{}.animation.leftTopFrameLeftTopCorner", actorName));
 				loadParam(animationParams.rightTopFrameLeftEdge, std::format("{}.animation.rightTopFrameLeftEdge", actorName));
@@ -1020,6 +994,33 @@ namespace Levels::DamageOn
 				loadParam(animationParams.frameRotation, std::format("{}.animation.frameRotation", actorName));
 				loadParam(animationParams.frameScale, std::format("{}.animation.frameScale", actorName));
 				loadParam(animationParams.neutralFrame, std::format("{}.animation.neutralFrame", actorName));
+
+				const auto [texturePath, additionalConversion] = [](const std::string& text) -> std::pair<std::string, std::string> {
+					size_t start = text.find('"');
+					if (start == std::string::npos)
+						return {};
+					size_t end = text.find('"', start + 1);
+					if (end == std::string::npos)
+						return {};
+					const std::string remains = text.substr(end + 1);
+					return { "textures/damageOn/" + text.substr(start + 1, end - start - 1), remains.empty() ? "" : remains.substr(1) };
+				}(animationParams.textureFile);
+
+				if (additionalConversion == "darkToTransparent")
+					dynamicTextures.emplace(TextureFile(texturePath, 4, true, TextureFile::AdditionalConversion::DarkToTransparent, [](float* data, glm::ivec2 size, int numOfChannels) {
+						for (int i = 0; i < size.x * size.y; ++i)
+						{
+							glm::vec4& pixel = reinterpret_cast<glm::vec4*>(data)[i];
+							if (pixel.r + pixel.g + pixel.b < 0.2f)
+								pixel = {};
+						}
+					}));
+				else
+					dynamicTextures.emplace(texturePath);
+
+				dynamicTextures.last().magFilter = GL_LINEAR;
+				animationParams.loaded.emplace(dynamicTextures.last());
+				animationParams.loaded->textureSize = Globals::Systems().textures().loadFile(TextureFile(texturePath)).size;
 			};
 
 			auto extractName = [](const std::string& line, const std::string& prefix) -> std::string {
@@ -1035,8 +1036,6 @@ namespace Levels::DamageOn
 				return "";
 			};
 
-			auto& dynamicTextures = Globals::Components().dynamicTextures();
-
 			auto loadPlayerParams = [&](auto& playerParams, std::string playerName) {
 				loadParam(playerParams.startPosition, std::format("player.{}.startPosition", playerName));
 				loadParam(playerParams.radius, std::format("player.{}.radius", playerName));
@@ -1046,15 +1045,6 @@ namespace Levels::DamageOn
 				loadParam(playerParams.dash, std::format("player.{}.dash", playerName));
 				loadPresentationParams(playerParams.presentation, std::format("player.{}", playerName));
 				loadAnimationParams(playerParams.animation, std::format("player.{}", playerName));
-
-				if (playerName == "frankenstein")
-				{
-					auto& texture = dynamicTextures.emplace("textures/damageOn/player 1.png");
-					playerParams.loaded.emplace(texture);
-					playerParams.loaded->animationTexture.magFilter = GL_LINEAR;
-				}
-				else
-					assert(!"Unsupported player id");
 			};
 
 			auto loadEnemyParams = [&]() {
@@ -1065,38 +1055,6 @@ namespace Levels::DamageOn
 					{
 						auto& enemyTypeParams = enemyTypes.emplace_back().params;
 						enemyTypeParams.type = std::move(enemyName);
-
-						if (enemyTypeParams.type == "ghost")
-						{
-							auto& texture = dynamicTextures.emplace(TextureFile("textures/damageOn/enemy 1.jpg", 4, true, TextureFile::AdditionalConversion::DarkToTransparent, [](float* data, glm::ivec2 size, int numOfChannels) {
-								for (int i = 0; i < size.x * size.y; ++i)
-								{
-									glm::vec4& pixel = reinterpret_cast<glm::vec4*>(data)[i];
-									if (pixel.r + pixel.g + pixel.b < 0.2f)
-										pixel = {};
-								}
-								}));
-							enemyTypeParams.loaded.emplace(texture);
-						}
-						else if (enemyTypeParams.type == "chicken")
-						{
-							auto& texture = dynamicTextures.emplace("textures/damageOn/enemy 2.png");
-							enemyTypeParams.loaded.emplace(texture);
-						}
-						else if (enemyTypeParams.type == "zombie")
-						{
-							auto& texture = dynamicTextures.emplace("textures/damageOn/enemy 3.png");
-							enemyTypeParams.loaded.emplace(texture);
-						}
-						else if (enemyTypeParams.type == "hive")
-						{
-							auto& texture = dynamicTextures.emplace("textures/damageOn/enemy 4.png");
-							enemyTypeParams.loaded.emplace(texture);
-						}
-						else
-							assert(!"Unsupported enemy id");
-
-						dynamicTextures.last().magFilter = GL_LINEAR;
 
 						loadParam(enemyTypeParams.initCount, std::format("enemy.{}.initCount", enemyTypeParams.type));
 						loadParam(enemyTypeParams.startPosition, std::format("enemy.{}.startPosition", enemyTypeParams.type));
