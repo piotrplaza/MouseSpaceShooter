@@ -150,9 +150,9 @@ namespace Levels::DamageOn
 			Animation animation{};
 		} params;
 
-		struct DataBase
+		struct InstBase
 		{
-			DataBase(Components::Actor& actor, Components::AnimatedTexture& animatedTexture, Components::Sound& sparkingSound, Components::Sound& overchargeSound, Components::Sound& dashSound) :
+			InstBase(Components::Actor& actor, Components::AnimatedTexture& animatedTexture, Components::Sound& sparkingSound, Components::Sound& overchargeSound, Components::Sound& dashSound) :
 				actor(actor),
 				animatedTexture(animatedTexture),
 				sparkingSound(sparkingSound),
@@ -180,17 +180,17 @@ namespace Levels::DamageOn
 			float angle{};
 		};
 
-		struct Data: DataBase
+		struct Inst: InstBase
 		{
-			using DataBase::DataBase;
+			using InstBase::InstBase;
 
-			Data(Data&& data) noexcept :
-				DataBase(std::move(data))
+			Inst(Inst&& inst) noexcept :
+				InstBase(std::move(inst))
 			{
-				data.outdated = true;
+				inst.outdated = true;
 			}
 
-			~Data()
+			~Inst()
 			{
 				if (outdated)
 					return;
@@ -205,7 +205,7 @@ namespace Levels::DamageOn
 			bool outdated{};
 		};
 
-		std::unordered_map<int, Data> idsToData;
+		std::unordered_map<int, Inst> idsToInst;
 	};
 
 	struct EnemyType
@@ -231,9 +231,9 @@ namespace Levels::DamageOn
 			Animation animation{};
 		} params;
 
-		struct DataBase
+		struct InstBase
 		{
-			DataBase(Components::Actor& actor, Components::AnimatedTexture& animatedTexture) :
+			InstBase(Components::Actor& actor, Components::AnimatedTexture& animatedTexture) :
 				actor(actor),
 				animatedTexture(animatedTexture)
 			{
@@ -249,17 +249,17 @@ namespace Levels::DamageOn
 			float angle{};
 		};
 
-		struct Data: DataBase
+		struct Inst: InstBase
 		{
-			using DataBase::DataBase;
+			using InstBase::InstBase;
 
-			Data(Data&& data) noexcept :
-				DataBase(std::move(data))
+			Inst(Inst&& inst) noexcept :
+				InstBase(std::move(inst))
 			{
-				data.outdated = true;
+				inst.outdated = true;
 			}
 
-			~Data()
+			~Inst()
 			{
 				if (outdated)
 					return;
@@ -270,15 +270,47 @@ namespace Levels::DamageOn
 
 			bool outdated{};
 		};
-		std::unordered_map<int, Data> idsToData;
+		std::unordered_map<int, Inst> idsToInst;
 	};
 
-	struct SparkingParams
+	struct WeaponType
 	{
-		float distance;
-		float damageFactor;
-		float overchargingRate;
-		float coolingRate;
+		struct Params
+		{
+			std::string type{};
+
+			float distance;
+			float damageFactor;
+			float overchargingRate;
+			float coolingRate;
+		} params;
+
+		struct InstBase
+		{
+			InstBase()
+			{
+			}
+		};
+
+		struct Inst : InstBase
+		{
+			using InstBase::InstBase;
+
+			Inst(Inst&& inst) noexcept :
+				InstBase(std::move(inst))
+			{
+				inst.outdated = true;
+			}
+
+			~Inst()
+			{
+				if (outdated)
+					return;
+			}
+
+			bool outdated{};
+		};
+		std::unordered_map<int, Inst> idsToInst;
 	};
 
 	namespace
@@ -370,9 +402,9 @@ namespace Levels::DamageOn
 				glm::vec2 minPos(std::numeric_limits<float>::max());
 				glm::vec2 maxPos(std::numeric_limits<float>::lowest());
 
-				for (const auto& [playerId, playerData] : playerFrankenstein.idsToData)
+				for (const auto& [playerId, playerInst] : playerFrankenstein.idsToInst)
 				{
-					const auto pos = playerData.actor.getOrigin2D();
+					const auto pos = playerInst.actor.getOrigin2D();
 					minPos.x = glm::min(minPos.x, pos.x);
 					minPos.y = glm::min(minPos.y, pos.y);
 					maxPos.x = glm::max(maxPos.x, pos.x);
@@ -459,7 +491,7 @@ namespace Levels::DamageOn
 			std::unordered_map<int, float> minDistances;
 			bool anyGamepadPressedX = false;
 			bool anyGamepadPressedY = false;
-			for (auto& [playerId, playerData] : playerFrankenstein.idsToData)
+			for (auto& [playerId, playerInst] : playerFrankenstein.idsToInst)
 			{
 				const bool keyboardEnabled = gameParams.gamepad.firstPlayer ? true : playerId == 0;
 				bool gamepadEnabled = playerId > 3 ? false : gameParams.gamepad.firstPlayer ? true : playerId > 0;
@@ -473,15 +505,15 @@ namespace Levels::DamageOn
 				}
 
 				auto enemyTypePlayerInteractionsF = [&](auto& enemy) {
-					for (auto& [enemyId, enemyData] : enemy.idsToData)
+					for (auto& [enemyId, enemyInst] : enemy.idsToInst)
 					{
-						const auto direction = playerData.actor.getOrigin2D() - enemyData.actor.getOrigin2D();
+						const auto direction = playerInst.actor.getOrigin2D() - enemyInst.actor.getOrigin2D();
 						const auto distance = glm::length(direction);
 						if (auto it = minDistances.find(enemyId); it == minDistances.end() || (distance > 0.0f && distance < it->second))
 						{
-							enemyData.actor.setVelocity(direction / distance * enemy.params.baseVelocity);
-							enemyBoost(enemy, enemyData.actor, direction, distance);
-							enemyData.sideFactor = direction.x < 0.0f ? -1.0f : 1.0f;
+							enemyInst.actor.setVelocity(direction / distance * enemy.params.baseVelocity);
+							enemyBoost(enemy, enemyInst.actor, direction, distance);
+							enemyInst.sideFactor = direction.x < 0.0f ? -1.0f : 1.0f;
 							minDistances[enemyId] = distance;
 						}
 					}
@@ -519,46 +551,46 @@ namespace Levels::DamageOn
 					return direction;
 				}();
 
-				const float vLength = glm::length(playerData.actor.getVelocity());
+				const float vLength = glm::length(playerInst.actor.getVelocity());
 
-				playerData.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * playerFrankenstein.params.presentation.velocityRotationFactor));
+				playerInst.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * playerFrankenstein.params.presentation.velocityRotationFactor));
 
-				playerData.animatedTexture.setSpeedScaling(playerFrankenstein.params.presentation.velocityScalingFactor == 0.0f ? 1.0f : vLength * playerFrankenstein.params.presentation.velocityScalingFactor);
-				if (playerData.animatedTexture.isForcingFrame())
+				playerInst.animatedTexture.setSpeedScaling(playerFrankenstein.params.presentation.velocityScalingFactor == 0.0f ? 1.0f : vLength * playerFrankenstein.params.presentation.velocityScalingFactor);
+				if (playerInst.animatedTexture.isForcingFrame())
 				{
-					playerData.animatedTexture.forceFrame(std::nullopt);
-					playerData.animatedTexture.start(true);
+					playerInst.animatedTexture.forceFrame(std::nullopt);
+					playerInst.animatedTexture.start(true);
 				}
 
 				if (direction.x < 0.0f)
-					playerData.sideFactor = -1.0f;
+					playerInst.sideFactor = -1.0f;
 				else if (direction.x > 0.0f)
-					playerData.sideFactor = 1.0f;
+					playerInst.sideFactor = 1.0f;
 				else if (vLength < 1.0f)
-					playerData.animatedTexture.forceFrame(playerFrankenstein.params.animation.neutralFrame);
+					playerInst.animatedTexture.forceFrame(playerFrankenstein.params.animation.neutralFrame);
 
-				playerData.sideTransition += playerData.sideFactor * physics.frameDuration * 7.0f;
-				playerData.sideTransition = glm::clamp(playerData.sideTransition, 0.0f, 1.0f);
+				playerInst.sideTransition += playerInst.sideFactor * physics.frameDuration * 7.0f;
+				playerInst.sideTransition = glm::clamp(playerInst.sideTransition, 0.0f, 1.0f);
 
 				const glm::vec2 newVelocity = direction * playerFrankenstein.params.maxVelocity;
-				if (glm::length(newVelocity) > glm::length(playerData.actor.getVelocity()))
-					playerData.actor.setVelocity(newVelocity);
+				if (glm::length(newVelocity) > glm::length(playerInst.actor.getVelocity()))
+					playerInst.actor.setVelocity(newVelocity);
 
 				if (keyboard.pressing[/*VK_CONTROL*/0x11] * keyboardEnabled || gamepad.rTrigger * gamepadEnabled > gameParams.gamepad.triggerDeadZone || gamepad.lTrigger * gamepadEnabled > gameParams.gamepad.triggerDeadZone)
 				{
-					playerData.fire = true;
-					playerData.autoFire = false;
+					playerInst.fire = true;
+					playerInst.autoFire = false;
 				}
 				else
-					playerData.fire = false;
+					playerInst.fire = false;
 
 				if (keyboard.pressed[/*VK_SHIFT*/0x10] * keyboardEnabled || gamepad.pressed.rShoulder * gamepadEnabled || gamepad.pressed.lShoulder * gamepadEnabled)
-					playerData.autoFire = !playerData.autoFire;
+					playerInst.autoFire = !playerInst.autoFire;
 
 				if ((keyboard.pressed[/*VK_SPACE*/0x20] * keyboardEnabled || gamepad.pressed.a * gamepadEnabled) && glm::length(direction) > 0.0f)
 				{
-					playerData.dashSound.stop().setPlayingOffset(0.35f).setPosition(playerData.actor.getOrigin2D()).play();
-					playerData.actor.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerFrankenstein.params.dash * playerData.actor.body->GetMass()), true);
+					playerInst.dashSound.stop().setPlayingOffset(0.35f).setPosition(playerInst.actor.getOrigin2D()).play();
+					playerInst.actor.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerFrankenstein.params.dash * playerInst.actor.body->GetMass()), true);
 				}
 
 				if (gamepad.pressed.x * gamepadEnabled)
@@ -566,7 +598,7 @@ namespace Levels::DamageOn
 				if (gamepad.pressed.y * gamepadEnabled)
 					anyGamepadPressedY = true;
 
-				sparkingHandler(playerData, playerData.fire || playerData.autoFire);
+				sparkingHandler(playerInst, playerInst.fire || playerInst.autoFire);
 			}
 
 			if (keyboard.pressed['H'] || anyGamepadPressedX)
@@ -586,13 +618,13 @@ namespace Levels::DamageOn
 				std::swap(Globals::Components().camera2D().targetPositionAndProjectionHSizeF, alternativeTargetPositionAndProjectionHSizeF);
 
 			auto enemyTypeActionsF = [&](auto& enemy) {
-				for (auto& [enemyId, enemyData] : enemy.idsToData)
+				for (auto& [enemyId, enemyInst] : enemy.idsToInst)
 				{
-					const float vLength = glm::length(enemyData.actor.getVelocity());
-					enemyData.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * enemy.params.presentation.velocityRotationFactor));
-					enemyData.animatedTexture.setSpeedScaling(enemy.params.presentation.velocityScalingFactor == 0.0f ? 1.0f : glm::length(enemyData.actor.getVelocity() * enemy.params.presentation.velocityScalingFactor));
-					enemyData.sideTransition += enemyData.sideFactor * physics.frameDuration * 7.0f;
-					enemyData.sideTransition = glm::clamp(enemyData.sideTransition, 0.0f, 1.0f);
+					const float vLength = glm::length(enemyInst.actor.getVelocity());
+					enemyInst.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * enemy.params.presentation.velocityRotationFactor));
+					enemyInst.animatedTexture.setSpeedScaling(enemy.params.presentation.velocityScalingFactor == 0.0f ? 1.0f : glm::length(enemyInst.actor.getVelocity() * enemy.params.presentation.velocityScalingFactor));
+					enemyInst.sideTransition += enemyInst.sideFactor * physics.frameDuration * 7.0f;
+					enemyInst.sideTransition = glm::clamp(enemyInst.sideTransition, 0.0f, 1.0f);
 				}
 			};
 
@@ -625,7 +657,7 @@ namespace Levels::DamageOn
 			auto& dashSoundBuffer = sounds.emplace(dashSoundBufferId);
 			dashSoundBuffer.setVolume(0.15f);
 
-			auto& playerData = player.idsToData.emplace(playerId, Player::Data{ playerActor, playerAnimatedTexture, sparkingSound, overchargingSound, dashSoundBuffer }).first->second;
+			auto& playerInst = player.idsToInst.emplace(playerId, Player::Inst{ playerActor, playerAnimatedTexture, sparkingSound, overchargingSound, dashSoundBuffer }).first->second;
 
 			playerActor.renderF = [&]() { return debug.hitboxesRendering; };
 			playerActor.colorF = glm::vec4(0.4f);
@@ -641,22 +673,22 @@ namespace Levels::DamageOn
 						glProxySetBlend(false);
 					return [prevBlend]() mutable { glProxySetBlend(prevBlend); };
 				};
-				playerPresentation.renderF = [&, sideFactor]() { return debug.presentationTransparency || sideFactor == playerData.sideFactor; };
+				playerPresentation.renderF = [&, sideFactor]() { return debug.presentationTransparency || sideFactor == playerInst.sideFactor; };
 				playerPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, playerPresentationSize);
 				playerPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
-				playerPresentation.texture = CM::DynamicAnimatedTexture(playerData.animatedTexture.getComponentId());
+				playerPresentation.texture = CM::DynamicAnimatedTexture(playerInst.animatedTexture.getComponentId());
 				playerPresentation.modelMatrixF = [&, sideFactor]() {
-					playerData.animatedTexture.setAdditionalTransformation(player.params.animation.frameTranslation * glm::vec2(sideFactor, 1.0f),
+					playerInst.animatedTexture.setAdditionalTransformation(player.params.animation.frameTranslation * glm::vec2(sideFactor, 1.0f),
 						player.params.animation.frameRotation * sideFactor, player.params.animation.frameScale * glm::vec2(sideFactor, 1.0f));
-					return playerActor.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(player.params.presentation.translation, 0.0f) * glm::vec3(playerData.sideFactor, 1.0f, 1.0f))
-						* glm::rotate(glm::mat4(1.0f), (player.params.presentation.rotation + playerData.angle) * playerData.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
+					return playerActor.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(player.params.presentation.translation, 0.0f) * glm::vec3(playerInst.sideFactor, 1.0f, 1.0f))
+						* glm::rotate(glm::mat4(1.0f), (player.params.presentation.rotation + playerInst.angle) * playerInst.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
 						* glm::scale(glm::mat4(1.0f), glm::vec3(player.params.presentation.scale, 1.0f));
 					};
 
-				playerData.baseColor = glm::vec4(1.0f);
+				playerInst.baseColor = glm::vec4(1.0f);
 				playerPresentation.colorF = [&, sideFactor]() {
-					return glm::mix(playerData.baseColor, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), playerData.manaOvercharging) * (playerData.manaOvercharged ? (glm::sin(physics.simulationDuration * 20.0f) + 1.0f) / 2.0f : 1.0f)
-						* (sideFactor > 0.0f ? playerData.sideTransition : 1.0f - playerData.sideTransition);
+					return glm::mix(playerInst.baseColor, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), playerInst.manaOvercharging) * (playerInst.manaOvercharged ? (glm::sin(physics.simulationDuration * 20.0f) + 1.0f) / 2.0f : 1.0f)
+						* (sideFactor > 0.0f ? playerInst.sideTransition : 1.0f - playerInst.sideTransition);
 				};
 			}
 		}
@@ -681,8 +713,8 @@ namespace Levels::DamageOn
 			enemyActor.posInSubsequence = 2;
 
 			const auto enemyId = enemyIdGenerator.acquire();
-			auto& enemyData = enemy.idsToData.emplace(enemyId, EnemyType::Data{ enemyActor, enemyAnimatedTexture }).first->second;
-			enemyData.radius = radius;
+			auto& enemyInst = enemy.idsToInst.emplace(enemyId, EnemyType::Inst{ enemyActor, enemyAnimatedTexture }).first->second;
+			enemyInst.radius = radius;
 
 			auto damageColorFactor = std::make_shared<glm::vec4>(1.0f);
 
@@ -692,36 +724,36 @@ namespace Levels::DamageOn
 				const auto enemyPresentationSize = enemy.params.presentation.radiusProportions * radius;
 				enemyPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, enemyPresentationSize);
 				enemyPresentation.modelMatrixF = [&, sideFactor]() {
-					enemyData.animatedTexture.setAdditionalTransformation(enemy.params.animation.frameTranslation * glm::vec2(sideFactor, 1.0f),
+					enemyInst.animatedTexture.setAdditionalTransformation(enemy.params.animation.frameTranslation * glm::vec2(sideFactor, 1.0f),
 						enemy.params.animation.frameRotation * sideFactor, enemy.params.animation.frameScale * glm::vec2(sideFactor, 1.0f));
 					return enemyActor.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(enemy.params.presentation.translation, 0.0f) * glm::vec3(sideFactor, 1.0f, 1.0f))
-						* glm::rotate(glm::mat4(1.0f), (enemy.params.presentation.rotation + enemyData.angle) * sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
+						* glm::rotate(glm::mat4(1.0f), (enemy.params.presentation.rotation + enemyInst.angle) * sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
 						* glm::scale(glm::mat4(1.0f), glm::vec3(enemy.params.presentation.scale, 1.0f));
 				};
 
-				enemyPresentation.renderF = [&, sideFactor]() { return debug.presentationTransparency || sideFactor == enemyData.sideFactor; };
+				enemyPresentation.renderF = [&, sideFactor]() { return debug.presentationTransparency || sideFactor == enemyInst.sideFactor; };
 
 				if (enemy.params.type == "ghost")
 				{
-					enemyPresentation.texture = CM::DynamicAnimatedTexture(enemyData.animatedTexture.getComponentId(), {}, {}, glm::vec2(2.6f * radius));
+					enemyPresentation.texture = CM::DynamicAnimatedTexture(enemyInst.animatedTexture.getComponentId(), {}, {}, glm::vec2(2.6f * radius));
 					enemyPresentation.renderingSetupF = [&](auto program) {
 						bool prevBlend = glProxyIsBlendEnabled();
 						if (!debug.presentationTransparency)
 							glProxySetBlend(false);
-						return [&, prevBlend, tearDown = createRecursiveFaceRS({ enemyData.radius * 0.6f, enemyData.radius })(program)]() {
+						return [&, prevBlend, tearDown = createRecursiveFaceRS({ enemyInst.radius * 0.6f, enemyInst.radius })(program)]() {
 							tearDown();
 							glProxySetBlend(prevBlend);
 						};
 					};
 
-					enemyData.baseColor = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f;
+					enemyInst.baseColor = glm::vec4(glm::vec3(glm::linearRand(0.0f, 1.0f)), 1.0f) * 0.8f;
 					enemyPresentation.colorF = [&, damageColorFactor, sideFactor]() {
-						return glm::mix(enemyData.baseColor, *damageColorFactor, 0.5f) * (sideFactor > 0.0f ? enemyData.sideTransition : 1.0f - enemyData.sideTransition);
+						return glm::mix(enemyInst.baseColor, *damageColorFactor, 0.5f) * (sideFactor > 0.0f ? enemyInst.sideTransition : 1.0f - enemyInst.sideTransition);
 					};
 				}
 				else
 				{
-					enemyPresentation.texture = CM::DynamicAnimatedTexture(enemyData.animatedTexture.getComponentId());
+					enemyPresentation.texture = CM::DynamicAnimatedTexture(enemyInst.animatedTexture.getComponentId());
 					enemyPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 					enemyPresentation.renderingSetupF = [&](auto) {
 						bool prevBlend = glProxyIsBlendEnabled();
@@ -730,14 +762,20 @@ namespace Levels::DamageOn
 						return [prevBlend]() mutable { glProxySetBlend(prevBlend); };
 					};
 
-					enemyData.baseColor = glm::vec4(glm::vec3(glm::linearRand(0.5f, 1.0f), glm::linearRand(0.5f, 1.0f), glm::linearRand(0.5f, 1.0f)), 1.0f);
+					enemyInst.baseColor = glm::vec4(glm::vec3(glm::linearRand(0.5f, 1.0f), glm::linearRand(0.5f, 1.0f), glm::linearRand(0.5f, 1.0f)), 1.0f);
 					enemyPresentation.colorF = [&, damageColorFactor, sideFactor]() {
-						return glm::mix(enemyData.baseColor, *damageColorFactor, 0.5f) * (sideFactor > 0.0f ? enemyData.sideTransition : 1.0f - enemyData.sideTransition);
+						return glm::mix(enemyInst.baseColor, *damageColorFactor, 0.5f) * (sideFactor > 0.0f ? enemyInst.sideTransition : 1.0f - enemyInst.sideTransition);
 					};
 				}
 			}
 
 			enemyActor.stepF = [&, enemyId, radius, sparks = std::vector<Components::Decoration*>{}, damageColorFactor, hp = enemy.params.initHP]() mutable {
+				if (enemyActor.state == ComponentState::Outdated)
+				{
+					for (auto& spark : sparks)
+						spark->state = ComponentState::Outdated;
+					return;
+				}
 				if (sparks.size() != gameParams.numOfPlayers)
 				{
 					for (auto& spark: sparks)
@@ -749,15 +787,15 @@ namespace Levels::DamageOn
 				}
 
 				bool kill = false;
-				for (auto& [playerId, playerData] : playerFrankenstein.idsToData)
+				for (auto& [playerId, playerInst] : playerFrankenstein.idsToInst)
 				{
-					const auto direction = playerData.actor.getOrigin2D() - enemyActor.getOrigin2D();
+					const auto direction = playerInst.actor.getOrigin2D() - enemyActor.getOrigin2D();
 					const auto distance = glm::length(direction);
 
-					if (sparkHandler(playerData, enemy, enemyData, *sparks[playerId], direction, distance, *damageColorFactor, playerData.fire || playerData.autoFire))
+					if (sparkHandler(playerInst, enemy, enemyInst, *sparks[playerId], direction, distance, *damageColorFactor, playerInst.fire || playerInst.autoFire))
 					{
-						++playerData.activeSparks;
-						hp -= physics.frameDuration * sparkingParams.damageFactor;
+						++playerInst.activeSparks;
+						hp -= physics.frameDuration * sparking.params.damageFactor;
 						if (hp <= 0.0f)
 							kill = true;
 					}
@@ -765,13 +803,13 @@ namespace Levels::DamageOn
 				if (kill)
 				{
 					Tools::CreateAndPlaySound(killSoundBufferId, enemyActor.getOrigin2D(), [&](auto& sound) {
-						const float basePitch = 0.5f * enemyData.radius / radius;
+						const float basePitch = 0.5f * enemyInst.radius / radius;
 						sound.setPitch(glm::linearRand(basePitch, basePitch * 20));
 						sound.setVolume(0.7f);
 						});
 					for (auto& spark: sparks)
 						spark->state = ComponentState::Outdated;
-					enemy.idsToData.erase(enemyId);
+					enemy.idsToInst.erase(enemyId);
 
 					const float newRadius = radius * enemy.params.radiusReductionFactor;
 					if (enemy.params.killSpawns > 0 && newRadius >= enemy.params.minimalRadius)
@@ -787,28 +825,28 @@ namespace Levels::DamageOn
 				enemyBody.setVelocity(direction / distance * enemy.params.baseVelocity * enemy.params.boostFactor);
 		}
 
-		bool sparkHandler(const auto& sourceData, const auto& target, auto& targetData, auto& spark, glm::vec2 direction, float distance, glm::vec4& damageColorFactor, bool fire)
+		bool sparkHandler(const auto& sourceInst, const auto& target, auto& targetInst, auto& spark, glm::vec2 direction, float distance, glm::vec4& damageColorFactor, bool fire)
 		{
-			if (distance <= sparkingParams.distance && fire && !sourceData.manaOvercharged)
+			if (distance <= sparking.params.distance && fire && !sourceInst.manaOvercharged)
 			{
-				const glm::vec2 sourceScalingFactor = playerFrankenstein.params.radius * playerFrankenstein.params.presentation.radiusProportions * glm::vec2(sourceData.sideFactor, 1.0f);
+				const glm::vec2 sourceScalingFactor = playerFrankenstein.params.radius * playerFrankenstein.params.presentation.radiusProportions * glm::vec2(sourceInst.sideFactor, 1.0f);
 				const glm::vec2 weaponOffset =
-					glm::translate(glm::mat4(1.0f), glm::vec3(playerFrankenstein.params.presentation.translation, 0.0f) * glm::vec3(sourceData.sideFactor, 1.0f, 1.0f))
-					* glm::rotate(glm::mat4(1.0f), playerFrankenstein.params.presentation.rotation * sourceData.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
-					* glm::scale(glm::mat4(1.0f), glm::vec3(playerFrankenstein.params.presentation.scale * glm::vec2(sourceData.sideFactor, 1.0f), 1.0f))
+					glm::translate(glm::mat4(1.0f), glm::vec3(playerFrankenstein.params.presentation.translation, 0.0f) * glm::vec3(sourceInst.sideFactor, 1.0f, 1.0f))
+					* glm::rotate(glm::mat4(1.0f), playerFrankenstein.params.presentation.rotation * sourceInst.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
+					* glm::scale(glm::mat4(1.0f), glm::vec3(playerFrankenstein.params.presentation.scale * glm::vec2(sourceInst.sideFactor, 1.0f), 1.0f))
 					* glm::vec4(playerFrankenstein.params.presentation.weaponOffset, 0.0f, 1.0f);
 
-				targetData.actor.setVelocity(direction / distance * target.params.baseVelocity * target.params.slowFactor);
-				targetData.animatedTexture.setSpeedScaling(target.params.presentation.velocityScalingFactor == 0.0f ? 1.0f : glm::length(targetData.actor.getVelocity() * target.params.presentation.velocityScalingFactor));
+				targetInst.actor.setVelocity(direction / distance * target.params.baseVelocity * target.params.slowFactor);
+				targetInst.animatedTexture.setSpeedScaling(target.params.presentation.velocityScalingFactor == 0.0f ? 1.0f : glm::length(targetInst.actor.getVelocity() * target.params.presentation.velocityScalingFactor));
 
 				spark.vertices.clear();
 				for (int i = 0; i < 10; ++i)
-					Tools::Shapes2D::AppendVerticesOfLightning(spark.vertices, sourceData.actor.getOrigin2D() + weaponOffset + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
-						targetData.actor.getOrigin2D() + glm::diskRand(targetData.radius * 0.1f), int(20 * distance), 3.0f / glm::sqrt(distance));
+					Tools::Shapes2D::AppendVerticesOfLightning(spark.vertices, sourceInst.actor.getOrigin2D() + weaponOffset + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
+						targetInst.actor.getOrigin2D() + glm::diskRand(targetInst.radius * 0.1f), int(20 * distance), 3.0f / glm::sqrt(distance));
 				
 				spark.bufferDataUsage = GL_DYNAMIC_DRAW;
 				spark.drawMode = GL_LINES;
-				auto sparkColor = glm::mix(glm::vec4(0.0f, glm::linearRand(0.2f, 0.6f), glm::linearRand(0.4f, 0.8f), 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), sourceData.manaOvercharging);
+				auto sparkColor = glm::mix(glm::vec4(0.0f, glm::linearRand(0.2f, 0.6f), glm::linearRand(0.4f, 0.8f), 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), sourceInst.manaOvercharging);
 				spark.colorF = sparkColor * 0.2f;
 				damageColorFactor = sparkColor * glm::linearRand(0.0f, 1.0f);
 				spark.renderF = true;
@@ -822,41 +860,41 @@ namespace Levels::DamageOn
 			return false;
 		}
 
-		void sparkingHandler(auto& sourceData, bool fire)
+		void sparkingHandler(auto& sourceInst, bool fire)
 		{
 			const auto& physics = Globals::Components().physics();
 
-			if (fire && sourceData.activeSparks)
+			if (fire && sourceInst.activeSparks)
 			{
-				if (!sourceData.sparkingSound.isPlaying())
-					sourceData.sparkingSound.play();
-				sourceData.sparkingSound.setPosition(sourceData.actor.getOrigin2D());
-				sourceData.manaOvercharging += physics.frameDuration * sparkingParams.overchargingRate;
-				if (sourceData.manaOvercharging >= 1.0f)
+				if (!sourceInst.sparkingSound.isPlaying())
+					sourceInst.sparkingSound.play();
+				sourceInst.sparkingSound.setPosition(sourceInst.actor.getOrigin2D());
+				sourceInst.manaOvercharging += physics.frameDuration * sparking.params.overchargingRate;
+				if (sourceInst.manaOvercharging >= 1.0f)
 				{
-					sourceData.sparkingSound.pause();
-					if (!sourceData.overchargeSound.isPlaying())
-						sourceData.overchargeSound.play();
-					sourceData.manaOvercharging = 1.0f;
-					sourceData.manaOvercharged = true;
+					sourceInst.sparkingSound.pause();
+					if (!sourceInst.overchargeSound.isPlaying())
+						sourceInst.overchargeSound.play();
+					sourceInst.manaOvercharging = 1.0f;
+					sourceInst.manaOvercharged = true;
 				}
 			}
 			else
 			{
-				sourceData.sparkingSound.pause();
-				sourceData.manaOvercharging -= physics.frameDuration * sparkingParams.coolingRate;
-				if (sourceData.manaOvercharging <= 0.0f)
+				sourceInst.sparkingSound.pause();
+				sourceInst.manaOvercharging -= physics.frameDuration * sparking.params.coolingRate;
+				if (sourceInst.manaOvercharging <= 0.0f)
 				{
-					sourceData.overchargeSound.stop();
-					sourceData.manaOvercharging = 0.0f;
-					sourceData.manaOvercharged = false;
+					sourceInst.overchargeSound.stop();
+					sourceInst.manaOvercharging = 0.0f;
+					sourceInst.manaOvercharged = false;
 				}
 			}
 
-			sourceData.overchargeSound.setVolume(sourceData.manaOvercharging);
-			sourceData.overchargeSound.setPosition(sourceData.actor.getOrigin2D());
+			sourceInst.overchargeSound.setVolume(sourceInst.manaOvercharging);
+			sourceInst.overchargeSound.setPosition(sourceInst.actor.getOrigin2D());
 
-			sourceData.activeSparks = 0;
+			sourceInst.activeSparks = 0;
 		}
 
 		void loadParams()
@@ -1091,10 +1129,10 @@ namespace Levels::DamageOn
 			loadPlayerParams(playerFrankenstein.params, "frankenstein");
 			loadEnemyParams();
 
-			loadParam(sparkingParams.distance, "sparking.distance");
-			loadParam(sparkingParams.damageFactor, "sparking.damageFactor");
-			loadParam(sparkingParams.overchargingRate, "sparking.overchargingRate");
-			loadParam(sparkingParams.coolingRate, "sparking.coolingRate");
+			loadParam(sparking.params.distance, "sparking.distance");
+			loadParam(sparking.params.damageFactor, "sparking.damageFactor");
+			loadParam(sparking.params.overchargingRate, "sparking.overchargingRate");
+			loadParam(sparking.params.coolingRate, "sparking.coolingRate");
 		}
 
 		void reload(bool loadParams = true)
@@ -1104,9 +1142,9 @@ namespace Levels::DamageOn
 				for (const auto& enemyType : enemyTypes)
 				{
 					std::vector<glm::vec3> positionsAndRadiuses;
-					positionsAndRadiuses.reserve(enemyType.idsToData.size());
-					for (const auto& [enemyId, enemyData] : enemyType.idsToData)
-						positionsAndRadiuses.emplace_back(enemyData.actor.getOrigin2D(), enemyData.radius);
+					positionsAndRadiuses.reserve(enemyType.idsToInst.size());
+					for (const auto& [enemyId, enemyInst] : enemyType.idsToInst)
+						positionsAndRadiuses.emplace_back(enemyInst.actor.getOrigin2D(), enemyInst.radius);
 					result.emplace(enemyType.params.type, std::move(positionsAndRadiuses));
 				}
 				return result;
@@ -1120,12 +1158,12 @@ namespace Levels::DamageOn
 
 			auto clearPlayers = [&](auto& playerType) {
 				std::vector<glm::vec2> playerPositions;
-				if (!playerType.idsToData.empty())
+				if (!playerType.idsToInst.empty())
 				{
-					playerPositions.reserve(playerType.idsToData.size());
-					for (const auto& [playerId, playerData] : playerType.idsToData)
-						playerPositions.push_back(playerData.actor.getOrigin2D());
-					playerType.idsToData.clear();
+					playerPositions.reserve(playerType.idsToInst.size());
+					for (const auto& [playerId, playerInst] : playerType.idsToInst)
+						playerPositions.push_back(playerInst.actor.getOrigin2D());
+					playerType.idsToInst.clear();
 				}
 				return playerPositions;
 			};
@@ -1210,7 +1248,7 @@ namespace Levels::DamageOn
 		GameParams gameParams{};
 		Player playerFrankenstein{};
 		std::vector<EnemyType> enemyTypes{};
-		SparkingParams sparkingParams{};
+		WeaponType sparking{};
 
 		IdGenerator<int> playerIdGenerator{};
 		IdGenerator<int> enemyIdGenerator{};
