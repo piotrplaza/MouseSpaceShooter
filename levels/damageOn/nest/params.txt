@@ -1,9 +1,11 @@
 startup.pixelArt false
 
-game.numOfPlayers 2
 game.globalVolume 1.0
 game.musicVolume 1.0
 game.mapHSize 20.0
+game.players.count 2
+game.players.assignment frankenstein frankenstein frankenstein frankenstein
+game.players.startPos -30.0 0.0
 game.camera.minProjectionHSize 8.0
 game.camera.trackingMargin 5.0
 game.camera.positionTransitionFactor 5.0
@@ -12,7 +14,6 @@ game.gamepad.firstPlayer true
 game.gamepad.deadZone 0.2
 game.gamepad.triggerDeadZone 0.1
 
-player.frankenstein.startPosition -30.0 0.0
 player.frankenstein.radius 1.0
 player.frankenstein.maxVelocity 8.0
 player.frankenstein.density 10.0
