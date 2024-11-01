@@ -35,7 +35,7 @@ namespace Levels
 
 		void loadTextures()
 		{
-			auto& textures = Globals::Components().dynamicTextures();
+			auto& textures = Globals::Components().textures();
 
 			crossesTexture = textures.emplace(TextureData(TextureFile("textures/green marble.jpg"))).getComponentId();
 			textures.last().wrapMode = GL_MIRRORED_REPEAT;
@@ -69,7 +69,7 @@ namespace Levels
 						Tools::Shapes3D::AddCross(staticDecorations.last(), { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); }, glm::translate(glm::mat4(1.0f),
 							glm::vec3(x * distanceBetweenCrosses.x, 0.0f, z * distanceBetweenCrosses.y) - offset));
 				staticDecorations.last().params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true);
-				staticDecorations.last().texture = CM::DynamicTexture(crossesTexture);
+				staticDecorations.last().texture = CM::Texture(crossesTexture, false);
 				//staticDecorations.last().instancing = Renderable::Instancing{}.addTransforms({ glm::mat4(1.0f), glm::scale(glm::mat4(1.0f), {1.0f, -1.0f, 1.0f}) });
 			}
 		}
@@ -112,7 +112,7 @@ namespace Levels
 		void controlStep()
 		{
 			auto& keyboard = Globals::Components().keyboard();
-			auto& texture = Globals::Components().dynamicTextures()[crossesTexture];
+			auto& texture = Globals::Components().textures()[crossesTexture];
 
 			if (keyboard.pressed['T'])
 			{

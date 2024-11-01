@@ -27,7 +27,7 @@ namespace Levels
 		void setup()
 		{
 			auto& staticDecoration = Globals::Components().staticDecorations();
-			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+			auto& dynamicDecorations = Globals::Components().decorations();
 			auto& camera = Globals::Components().camera2D();
 
 			staticDecoration.emplace(Tools::Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, 0.05f, 20));
@@ -55,7 +55,7 @@ namespace Levels
 			const float screenRatio = screenInfo.getAspectRatio();
 			const glm::vec2 oldMousePos = mousePos;
 
-			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+			auto& dynamicDecorations = Globals::Components().decorations();
 
 			mousePos += mouse.getCartesianDelta() * projectionHSize * 0.001f;
 			mousePos.x = std::clamp(mousePos.x, -projectionHSize * screenRatio + cameraPos.x, projectionHSize * screenRatio + cameraPos.x);
@@ -130,7 +130,7 @@ namespace Levels
 			};
 
 			auto updateSpline = [&]() {
-				auto& splineDecoration = Globals::Components().dynamicDecorations()[splineDecorationId];
+				auto& splineDecoration = Globals::Components().decorations()[splineDecorationId];
 
 				if (controlPoints.size() < 2)
 				{

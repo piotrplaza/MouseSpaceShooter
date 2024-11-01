@@ -17,7 +17,7 @@
 
 namespace
 {
-	ComponentId CreatePresettedPlane(unsigned id, ComponentId planeTexture, ComponentId flameAnimatedTexture, glm::vec3 initLoc)
+	ComponentId CreatePresettedPlane(unsigned id, CM::Texture planeTexture, CM::AnimatedTexture flameAnimatedTexture, glm::vec3 initLoc)
 	{
 		switch (id)
 		{
@@ -40,17 +40,17 @@ namespace
 		return 0;
 	}
 
-	std::optional<ComponentId> CreateAndPlayPlaneSound(std::optional<ComponentId> soundBuffer, ComponentId planeId)
+	std::optional<ComponentId> CreateAndPlayPlaneSound(std::optional<CM::SoundBuffer> soundBuffer, CM::Plane plane)
 	{
 		if (!soundBuffer)
 			return std::nullopt;
 
-		const auto& plane = Globals::Components().planes()[planeId];
+		const auto& planeComponent = *plane.component;
 		auto& sound = Globals::Components().sounds().emplace(*soundBuffer);
 		sound.setLoop(true);
 		sound.setVolume(0.0f);
 		sound.stepF = [&]() {
-			sound.setPosition(plane.getOrigin2D());
+			sound.setPosition(planeComponent.getOrigin2D());
 		};
 
 		sound.play();
@@ -78,8 +78,8 @@ namespace Tools
 		}
 	}
 
-	void PlayersHandler::initPlayers(const std::array<ComponentId, 4>& planeTexturesForPlayers, const std::array<ComponentId, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
-		std::function<glm::vec3(unsigned playerId, unsigned numOfPlayers)> initLocF, bool centerToFront, std::optional<ComponentId> thrustSoundBuffer, std::optional<ComponentId> grappleSoundBuffer)
+	void PlayersHandler::initPlayers(const std::array<CM::Texture, 4>& planeTexturesForPlayers, const std::array<CM::AnimatedTexture, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
+		std::function<glm::vec3(unsigned playerId, unsigned numOfPlayers)> initLocF, bool centerToFront, std::optional<CM::SoundBuffer> thrustSoundBuffer, std::optional<CM::SoundBuffer> grappleSoundBuffer)
 	{
 		const auto& gamepads = Globals::Components().gamepads();
 		auto& planes = Globals::Components().planes();

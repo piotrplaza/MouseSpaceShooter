@@ -15,8 +15,14 @@ namespace Components
 		sf::Music sfMusic;
 	};
 
+	unsigned Music::getNumOfInstances()
+	{
+		return numOfInstances;
+	}
+
 	Music::Music(std::string path, float maxVolume) :
 		details(Sound::getNumOfInstances() + Music::getNumOfInstances() < 256 ? std::make_unique<MusicDetails>() : nullptr),
+		path(std::move(path)),
 		maxVolume(maxVolume)
 	{
 		if (!details)
@@ -25,7 +31,7 @@ namespace Components
 			return;
 		}
 
-		details->sfMusic.openFromFile(path);
+		details->sfMusic.openFromFile(this->path);
 		setVolume(1.0f);
 		setLoop(true);
 		state = ComponentState::Ongoing;
@@ -66,38 +72,6 @@ namespace Components
 		details->sfMusic.pause();
 
 		return *this;
-	}
-
-	bool Music::isRelativeToAudioListener() const
-	{
-		if (!details)
-			return false;
-
-		return details->sfMusic.isRelativeToListener();
-	}
-
-	bool Music::isStopped() const
-	{
-		if (!details)
-			return true;
-
-		return details->sfMusic.getStatus() == sf::Music::Status::Stopped;
-	}
-
-	bool Music::isPaused() const
-	{
-		if (!details)
-			return true;
-
-		return details->sfMusic.getStatus() == sf::Music::Status::Paused;
-	}
-
-	bool Music::isPlaying() const
-	{
-		if (!details)
-			return false;
-
-		return details->sfMusic.getStatus() == sf::Music::Status::Playing;
 	}
 
 	Music& Music::setRelativeToAudioListener(bool value)
@@ -195,8 +169,40 @@ namespace Components
 		return *this;
 	}
 
-	unsigned Music::getNumOfInstances()
+	bool Music::isRelativeToAudioListener() const
 	{
-		return numOfInstances;
+		if (!details)
+			return false;
+
+		return details->sfMusic.isRelativeToListener();
+	}
+
+	bool Music::isStopped() const
+	{
+		if (!details)
+			return true;
+
+		return details->sfMusic.getStatus() == sf::Music::Status::Stopped;
+	}
+
+	bool Music::isPaused() const
+	{
+		if (!details)
+			return true;
+
+		return details->sfMusic.getStatus() == sf::Music::Status::Paused;
+	}
+
+	bool Music::isPlaying() const
+	{
+		if (!details)
+			return false;
+
+		return details->sfMusic.getStatus() == sf::Music::Status::Playing;
+	}
+
+	const std::string& Music::getPath() const
+	{
+		return path;
 	}
 }

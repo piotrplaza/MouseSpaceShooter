@@ -95,7 +95,7 @@ namespace Tools
 			return *this;
 		}
 
-		ExplosionParams& explosionTexture(TextureComponentVariant value)
+		ExplosionParams& explosionTexture(CM::Texture value)
 		{
 			explosionTexture_ = std::move(value);
 			return *this;
@@ -123,7 +123,7 @@ namespace Tools
 		float particlesLinearDamping_ = 3.0f;
 		bool particlesAsBullets_ = false;
 		float explosionDuration_ = 1.0f;
-		TextureComponentVariant explosionTexture_;
+		CM::Texture explosionTexture_;
 		int particlesPerDecoration_ = 4;
 		ResolutionMode resolutionMode_{};
 	};
@@ -216,19 +216,19 @@ namespace Tools
 	struct MissileHandler
 	{
 		MissileHandler();
-		MissileHandler(ComponentId missileId, ComponentId backThrustId, glm::vec2 referenceVelocity, std::optional<ComponentId> planeId = std::nullopt,
-			std::optional<ComponentId> soundId = std::nullopt);
+		MissileHandler(CM::Missile missile, CM::Decoration backThrust, glm::vec2 referenceVelocity, std::optional<CM::Plane> plane = std::nullopt,
+			std::optional<CM::Sound> sound = std::nullopt);
 		MissileHandler(MissileHandler&& other) noexcept;
 
 		~MissileHandler();
 
 		MissileHandler& operator=(MissileHandler&& other) noexcept;
 
-		ComponentId missileId = 0;
-		ComponentId backThrustId = 0;
+		CM::Missile missile;
+		CM::Decoration backThrust;
 		glm::vec2 referenceVelocity{};
-		std::optional<ComponentId> planeId;
-		std::optional<ComponentId> soundId;
+		std::optional<CM::Plane> plane;
+		std::optional<CM::Sound> sound;
 
 	private:
 		bool valid = true;
@@ -249,14 +249,14 @@ namespace Tools
 	};
 
 	const Tools::BodyParams& GetDefaultParamsForPlaneBody();
-	ComponentId CreatePlane(Body body, ComponentId planeTexture, ComponentId thrustAnimatedTexture, PlaneParams params = PlaneParams());
+	ComponentId CreatePlane(Body body, CM::Texture planeTexture, CM::AnimatedTexture thrustAnimatedTexture, PlaneParams params = PlaneParams());
 	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 referenceVelocity,
-		glm::vec2 initialVelocity, ComponentId missileTexture, ComponentId thrustAnimatedTexture, std::optional<ComponentId> planeId = std::nullopt,
-		std::optional<ComponentId> missileSoundBuffer = std::nullopt);
+		glm::vec2 initialVelocity, CM::Texture missileTexture, CM::AnimatedTexture thrustAnimatedTexture, std::optional<CM::Plane> planeId = std::nullopt,
+		std::optional<CM::SoundBuffer> missileSoundBuffer = std::nullopt);
 	void CreateExplosion(ExplosionParams params);
-	void CreateFogForeground(int numOfLayers, float alphaPerLayer, ComponentId fogTexture, FVec4 fColor = glm::vec4(1.0f), std::function<glm::vec2(int layer)> textureTranslation = nullptr);
+	void CreateFogForeground(int numOfLayers, float alphaPerLayer, CM::Texture fogTexture, FVec4 fColor = glm::vec4(1.0f), std::function<glm::vec2(int layer)> textureTranslation = nullptr);
 	void CreateJuliaBackground(JuliaParams params);
-	Components::Sound& CreateAndPlaySound(ComponentId soundBuffer, FVec2 posF = nullptr,
+	Components::Sound& CreateAndPlaySound(CM::SoundBuffer soundBuffer, FVec2 posF = nullptr,
 		std::function<void(Components::Sound&)> config = nullptr, std::function<void(Components::Sound&)> stepF = nullptr);
 	std::function<void(b2Fixture&, b2Fixture&)> SkipDuplicatedBodiesCollisions(std::function<void(b2Fixture&, b2Fixture&)> handler);
 }

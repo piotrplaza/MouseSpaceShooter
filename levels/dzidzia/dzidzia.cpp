@@ -89,7 +89,7 @@ namespace Levels
 			};
 
 			staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.0f, 5.0f }),
-				CM::StaticTexture(dzidziaITata1Texture), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderigSetupF));
+				CM::Texture(dzidziaITata1Texture, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderigSetupF));
 			staticDecorations.last().modelMatrixF = [pos, step = glm::vec2(5.0f)]() mutable {
 				const auto& screenInfo = Globals::Components().systemInfo().screen;
 				const glm::vec2 absClamp = { screenInfo.getAspectRatio() * 10.0f, 10.0f };
@@ -104,7 +104,7 @@ namespace Levels
 
 			dzidziaDecoration = staticDecorations.size();
 			staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
-				CM::StaticTexture(dzidzia1Texture), Tools::Shapes2D::CreateTexCoordOfRectangle());
+				CM::Texture(dzidzia1Texture, true), Tools::Shapes2D::CreateTexCoordOfRectangle());
 			staticDecorations.last().modelMatrixF = [this]() mutable {
 				return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(mousePos, 0.0f)), rotateAngle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
 			};
@@ -135,7 +135,7 @@ namespace Levels
 
 					dzidziaDecoration = staticDecorations.size();
 					staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 4.0f, 4.0f }),
-						CM::StaticTexture(dzidzia1Texture), Tools::Shapes2D::CreateTexCoordOfRectangle());
+						CM::Texture(dzidzia1Texture, true), Tools::Shapes2D::CreateTexCoordOfRectangle());
 					staticDecorations.last().modelMatrixF = [this]() mutable {
 						return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(mousePos, 0.0f)), rotateAngle, { 0, 0, -1 }), glm::vec3((glm::sin(scaleSin) + 1.0f) / 2.0f));
 					};

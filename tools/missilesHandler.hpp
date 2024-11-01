@@ -17,30 +17,30 @@ namespace Tools
 	public:
 		void initCollisions();
 		void setPlayersHandler(Tools::PlayersHandler& playersHandler);
-		void setExplosionTexture(TextureComponentVariant explosionTexture);
-		void setMissileTexture(ComponentId missileTexture);
-		void setFlameAnimatedTexture(ComponentId flameAnimatedTexture);
+		void setExplosionTexture(CM::Texture explosionTexture);
+		void setMissileTexture(CM::Texture missileTexture);
+		void setFlameAnimatedTexture(CM::AnimatedTexture flameAnimatedTexture);
 
 		void setExplosionParams(Tools::ExplosionParams explosionParams);
 
 		void setResolutionModeF(std::function<ResolutionMode(const b2Body&)> resolutionModeF);
 		void setExplosionF(std::function<void(glm::vec2)> explosionF);
 
-		const MissileHandler* launchingMissile(unsigned playerHandlerId, bool tryToLaunch, std::optional<ComponentId> soundBufferId = std::nullopt,
+		const MissileHandler* launchingMissile(unsigned playerHandlerId, bool tryToLaunch, std::optional<CM::SoundBuffer> soundBuffer = std::nullopt,
 			float maxLifetime = 5.0f);
 
 		void removeActiveMissiles();
 
 	private:
-		const MissileHandler& launchMissile(ComponentId playerId, std::optional<ComponentId> soundBufferId = std::nullopt, float maxLifetime = 5.0f);
+		const MissileHandler& launchMissile(ComponentId playerId, std::optional<CM::SoundBuffer> soundBuffer = std::nullopt, float maxLifetime = 5.0f);
 
-		std::unordered_map<ComponentId, Tools::MissileHandler> missilesToHandlers;
+		std::unordered_map<CM::Missile, Tools::MissileHandler> missilesToHandlers;
 
 		Tools::PlayersHandler* playersHandler = nullptr;
 
-		TextureComponentVariant explosionTexture;
-		ComponentId missileTexture = 0;
-		ComponentId flameAnimatedTexture = 0;
+		CM::Texture explosionTexture;
+		CM::Texture missileTexture;
+		CM::AnimatedTexture flameAnimatedTexture;
 
 		Tools::ExplosionParams explosionParams;
 

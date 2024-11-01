@@ -150,7 +150,7 @@ namespace Levels
 		void setAnimations()
 		{
 			flame1AnimatedTexture = Globals::Components().staticAnimatedTextures().size();
-			Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(flame1AnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, Tools::RandomFloat(0.01f, 0.03f), 32, 0,
+			Globals::Components().staticAnimatedTextures().add({ CM::Texture(flame1AnimationTexture, true), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, Tools::RandomFloat(0.01f, 0.03f), 32, 0,
 				AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 			Globals::Components().staticAnimatedTextures().last().start(true);
 
@@ -158,7 +158,7 @@ namespace Levels
 
 			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
 			{
-				Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(recursiveFaceAnimationTexture), { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, rand() % 50,
+				Globals::Components().staticAnimatedTextures().add({ CM::Texture(recursiveFaceAnimationTexture, true), { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, rand() % 50,
 					(i % 2 == 0) ? AnimationData::Direction::Forward : AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
@@ -183,7 +183,7 @@ namespace Levels
 				const glm::vec2 pos1(glm::cos(i * rimStep) * rimRadius, glm::sin(i * rimStep) * rimRadius);
 				const glm::vec2 pos2(glm::cos((i + 1) * rimStep) * rimRadius, glm::sin((i + 1) * rimStep) * rimRadius);
 				staticWalls.emplace(Tools::CreateBoxBody({ rimHThickness, rimSegmentHLength + rimSegmentMariginsHLength },
-					Tools::BodyParams().position((pos1 + pos2) / 2.0f).angle(rimStep * (2 * i + 1) / 2).bodyType(b2_dynamicBody).density(0.01f)), CM::StaticTexture(mosaicTexture), sceneCoordTexturesRSF);
+					Tools::BodyParams().position((pos1 + pos2) / 2.0f).angle(rimStep * (2 * i + 1) / 2).bodyType(b2_dynamicBody).density(0.01f)), CM::Texture(mosaicTexture, true), sceneCoordTexturesRSF);
 				staticWalls.last().texCoord = staticWalls.last().getTexCoords(true);
 
 				if (i > 0)
@@ -201,10 +201,10 @@ namespace Levels
 			for (int sign : {-1, 1})
 			{
 				staticWalls.emplace(Tools::CreateBoxBody({ borderHThickness, borderHSize.y + borderHThickness * 2.0f },
-					Tools::BodyParams().position({ (borderHSize.x + borderHThickness) * sign, 0.0f })), CM::StaticTexture(spaceRockTexture),
+					Tools::BodyParams().position({ (borderHSize.x + borderHThickness) * sign, 0.0f })), CM::Texture(spaceRockTexture, true),
 					sceneCoordTexturesRSF).colorF = []() { return glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); };
 				staticWalls.emplace(Tools::CreateBoxBody({ borderHSize.x + borderHThickness * 2.0f, borderHThickness },
-					Tools::BodyParams().position({ 0.0f, (borderHSize.y + borderHThickness) * sign })), CM::StaticTexture(spaceRockTexture),
+					Tools::BodyParams().position({ 0.0f, (borderHSize.y + borderHThickness) * sign })), CM::Texture(spaceRockTexture, true),
 					sceneCoordTexturesRSF).colorF = []() { return glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); };
 			}
 		}
@@ -216,14 +216,14 @@ namespace Levels
 			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
 			{
 				staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }),
-					CM::StaticAnimatedTexture(recursiveFaceAnimatedTextureBegin + i), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(recursiveFaceRSsF[i]), RenderLayer::NearBackground);
+					CM::AnimatedTexture(recursiveFaceAnimatedTextureBegin + i, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(recursiveFaceRSsF[i]), RenderLayer::NearBackground);
 			}
 		}
 
 		void createPlayers()
 		{
 			player1Id = Tools::CreatePlane(Tools::CreateTrianglesBody({ { glm::vec2{2.0f, 0.0f}, glm::vec2{-1.0f, 1.0f}, glm::vec2{-1.0f, -1.0f} } }, Tools::GetDefaultParamsForPlaneBody()),
-				plane1Texture, flame1AnimatedTexture, Tools::PlaneParams().angle(glm::half_pi<float>()));
+				CM::Texture(plane1Texture, true), CM::AnimatedTexture(flame1AnimatedTexture, true), Tools::PlaneParams().angle(glm::half_pi<float>()));
 		}
 
 		void setCamera() const
@@ -248,7 +248,7 @@ namespace Levels
 						const auto& targetFixture = fixture == &fixtureA ? fixtureB : fixtureA;
 						const auto& missileBody = *fixture->GetBody();
 						missilesToHandlers.erase(std::get<CM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).componentId);
-						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(CM::StaticTexture(explosionTexture))
+						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(CM::Texture(explosionTexture, true))
 							.particlesRadius(0.5f).particlesDensity(0.02f));
 					}
 				});
@@ -258,8 +258,8 @@ namespace Levels
 		{
 			auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[player1Id].getOrigin2D(),
 				Globals::Components().planes()[player1Id].getAngle(), 5.0f, { 0.0f, 0.0f }, Globals::Components().planes()[player1Id].getVelocity(),
-				missileTexture, flame1AnimatedTexture);
-			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
+				CM::Texture(missileTexture, true), CM::AnimatedTexture(flame1AnimatedTexture, true));
+			missilesToHandlers.emplace(missileHandler.missile.componentId, std::move(missileHandler));
 		}
 
 		void step()
@@ -325,7 +325,7 @@ namespace Levels
 		unsigned rimWallEnd = 0;
 
 		unsigned player1Id{};
-		std::unordered_map<ComponentId, Tools::MissileHandler> missilesToHandlers;
+		std::unordered_map<CM::Missile, Tools::MissileHandler> missilesToHandlers;
 
 		float durationToLaunchMissile = 0.0f;
 		float projectionHSizeBase = 20.0f;

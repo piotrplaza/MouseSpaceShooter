@@ -69,9 +69,9 @@ namespace Tools
 
 		~PlayersHandler();
 
-		void initPlayers(const std::array<ComponentId, 4>& planeTexturesForPlayers, const std::array<ComponentId, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
-			std::function<glm::vec3(unsigned playerId, unsigned numOfPlayers)> initLocF, bool centerToFront = false, std::optional<ComponentId> thrustSoundBuffer = std::nullopt,
-			std::optional<ComponentId> grappleSoundBuffer = std::nullopt);
+		void initPlayers(const std::array<CM::Texture, 4>& planeTexturesForPlayers, const std::array<CM::AnimatedTexture, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
+			std::function<glm::vec3(unsigned playerId, unsigned numOfPlayers)> initLocF, bool centerToFront = false, std::optional<CM::SoundBuffer> thrustSoundBuffer = std::nullopt,
+			std::optional<CM::SoundBuffer> grappleSoundBuffer = std::nullopt);
 		void setCamera(CameraParams cameraParams) const;
 
 		void gamepadsAutodetectionStep(std::function<glm::vec3(unsigned player)> initLocF);
@@ -85,10 +85,10 @@ namespace Tools
 
 	private:
 		std::vector<Tools::PlayerHandler> playersHandlers;
-		std::array<ComponentId, 4> planeTextures{ 0 };
-		std::array<ComponentId, 4> flameAnimatedTexturesForPlayers{ 0 };
+		std::array<CM::Texture, 4> planeTextures;
+		std::array<CM::AnimatedTexture, 4> flameAnimatedTexturesForPlayers;
 		bool gamepadForPlayer1 = false;
-		std::optional<ComponentId> thrustSoundBuffer;
-		std::optional<ComponentId> grappleSoundBuffer;
+		std::optional<CM::SoundBuffer> thrustSoundBuffer;
+		std::optional<CM::SoundBuffer> grappleSoundBuffer;
 	};
 }

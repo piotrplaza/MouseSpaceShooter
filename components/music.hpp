@@ -15,6 +15,8 @@ namespace Components
 
 	struct Music : ComponentBase
 	{
+		static unsigned getNumOfInstances();
+
 		Music(std::string path, float maxVolume = 1.0f);
 		~Music();
 
@@ -39,11 +41,13 @@ namespace Components
 		bool isPaused() const;
 		bool isPlaying() const;
 
-		static unsigned getNumOfInstances();
+		const std::string& getPath() const;
 
 	private:
 		static inline unsigned numOfInstances = 0;
+
 		std::unique_ptr<MusicDetails> details;
+		const std::string path;
 		const float maxVolume;
 	};
 }

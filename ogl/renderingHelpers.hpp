@@ -48,35 +48,18 @@ namespace
 	inline void AnimatedTexturedRenderInitialization(auto& shadersProgram, const Components::AnimatedTexture& animatedTextureComponent,
 		glm::vec2 translate, float rotate, glm::vec2 scale, const glm::mat4& additionalTransform, unsigned textureId)
 	{
-		struct TextureComponentSelectorVisitor
-		{
-			const std::pair<const Components::Texture&, glm::mat4> operator ()(const CM::StaticTexture& texture) const
-			{
-				return { *texture.component, Tools::TextureTransform(texture.translate, texture.rotate, texture.scale) };
-			}
-
-			const std::pair<const Components::Texture&, glm::mat4> operator ()(const CM::DynamicTexture& texture) const
-			{
-				return { *texture.component, Tools::TextureTransform(texture.translate, texture.rotate, texture.scale) };
-			}
-
-			const std::pair<const Components::Texture&, glm::mat4> operator ()(std::monostate) const
-			{
-				throw std::runtime_error("TextureComponentSelectorVisitor: std::monostate not allowed.");
-			}
-		};
-
-		const auto& [textureComponent, textureAdditionalTransform] = std::visit(TextureComponentSelectorVisitor{}, animatedTextureComponent.getTexture());
+		const auto& texture = animatedTextureComponent.getTexture();
+		const auto additionalTransformation = Tools::TextureTransform(texture.translate, texture.rotate, texture.scale);
 
 		glActiveTexture(GL_TEXTURE0 + textureId);
-		glBindTexture(GL_TEXTURE_2D, textureComponent.loaded.textureObject);
+		glBindTexture(GL_TEXTURE_2D, texture.component->loaded.textureObject);
 
 		if (textureId == 0)
 			shadersProgram.numOfTextures(1);
 
 		shadersProgram.textures(textureId, textureId);
-		shadersProgram.texturesBaseTransform(textureId, animatedTextureComponent.getFrameTransformation() * Tools::TextureTransform(textureComponent)
-			* textureAdditionalTransform * Tools::TextureTransform(translate, rotate, scale) * additionalTransform);
+		shadersProgram.texturesBaseTransform(textureId, animatedTextureComponent.getFrameTransformation() * Tools::TextureTransform(*texture.component)
+			* additionalTransformation * Tools::TextureTransform(translate, rotate, scale) * additionalTransform);
 	}
 
 	inline void BlendingTexturedRenderInitialization(auto& shadersProgram, const Components::BlendingTexture& blendingTextureComponent,
@@ -103,36 +86,19 @@ namespace
 			{
 			}
 
-			void operator ()(const CM::StaticTexture& texture) const
+			void operator ()(const CM::Texture& texture) const
 			{
 				TexturedRenderInitialization(shadersProgram, *texture.component, texture.translate, texture.rotate, texture.scale,
 					additionalTransform, textureId);
 			}
 
-			void operator ()(const CM::DynamicTexture& texture) const
-			{
-				TexturedRenderInitialization(shadersProgram, *texture.component, texture.translate, texture.rotate, texture.scale,
-					additionalTransform, textureId);
-			}
-
-			void operator ()(const CM::StaticAnimatedTexture& animatedTexture) const
+			void operator ()(const CM::AnimatedTexture& animatedTexture) const
 			{
 				AnimatedTexturedRenderInitialization(shadersProgram, *animatedTexture.component, animatedTexture.translate, animatedTexture.rotate, animatedTexture.scale,
 					additionalTransform, textureId);
 			}
 
-			void operator ()(const CM::DynamicAnimatedTexture& animatedTexture) const
-			{
-				AnimatedTexturedRenderInitialization(shadersProgram, *animatedTexture.component, animatedTexture.translate, animatedTexture.rotate, animatedTexture.scale,
-					additionalTransform, textureId);
-			}
-
-			void operator ()(const CM::StaticBlendingTexture& blendingTexture) const
-			{
-				BlendingTexturedRenderInitialization(shadersProgram, *blendingTexture.component, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
-			}
-
-			void operator ()(const CM::DynamicBlendingTexture& blendingTexture) const
+			void operator ()(const CM::BlendingTexture& blendingTexture) const
 			{
 				BlendingTexturedRenderInitialization(shadersProgram, *blendingTexture.component, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
 			}

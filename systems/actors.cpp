@@ -264,7 +264,7 @@ namespace Systems
 
 	Actors::Connections::Connections()
 	{
-		auto& decoration = Globals::Components().dynamicDecorations().emplace();
+		auto& decoration = Globals::Components().decorations().emplace();
 		decoration.drawMode = GL_LINES;
 		decoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 		decoration.renderLayer = RenderLayer::FarMidground;
@@ -273,13 +273,13 @@ namespace Systems
 
 	Actors::Connections::~Connections()
 	{
-		auto& decoration = Globals::Components().dynamicDecorations()[decorationId];
+		auto& decoration = Globals::Components().decorations()[decorationId];
 		decoration.state = ComponentState::Outdated;
 	}
 
 	void Actors::Connections::updateBuffers()
 	{
-		auto& decoration = Globals::Components().dynamicDecorations()[decorationId];
+		auto& decoration = Globals::Components().decorations()[decorationId];
 
 		decoration.vertices.clear();
 		decoration.colors.clear();

@@ -402,7 +402,7 @@ namespace Systems
 
 	void Textures::updateDynamicTextures()
 	{
-		for (auto& texture: Globals::Components().dynamicTextures())
+		for (auto& texture: Globals::Components().textures())
 			updateTexture(texture);
 	}
 

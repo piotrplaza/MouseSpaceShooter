@@ -64,7 +64,7 @@ namespace Levels
 		void setAnimations()
 		{
 			flame1AnimatedTexture = Globals::Components().staticAnimatedTextures().size();
-			Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(flame1AnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+			Globals::Components().staticAnimatedTextures().add({ CM::Texture(flame1AnimationTexture, true), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
 				AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 			Globals::Components().staticAnimatedTextures().last().start(true);
 		}
@@ -72,13 +72,13 @@ namespace Levels
 		void createBackground() const
 		{
 			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 100.0f, 60.0f }),
-				CM::StaticTexture(playFieldTexture), Tools::Shapes2D::CreateTexCoordOfRectangle(), nullptr, RenderLayer::Background);
+				CM::Texture(playFieldTexture, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), nullptr, RenderLayer::Background);
 		}
 
 		void createPlayers()
 		{
 			player1Id = Tools::CreatePlane(Tools::CreateTrianglesBody({ { glm::vec2{2.0f, 0.0f}, glm::vec2{-1.0f, 1.0f}, glm::vec2{-1.0f, -1.0f} } }, Tools::GetDefaultParamsForPlaneBody()),
-				plane1Texture, flame1AnimatedTexture, Tools::PlaneParams().position({ -10.0f, 0.0f }));
+				CM::Texture(plane1Texture, true), CM::AnimatedTexture(flame1AnimatedTexture, true), Tools::PlaneParams().position({ -10.0f, 0.0f }));
 			Globals::Components().planes()[player1Id].connectIfApproaching = true;
 		}
 
@@ -88,22 +88,22 @@ namespace Levels
 			const float bordersHGauge = 50.0f;
 
 			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHSize.y + bordersHGauge * 2 },
-				Tools::BodyParams().position({ -levelHSize.x - bordersHGauge, 0.0f })), CM::StaticTexture(woodTexture));
+				Tools::BodyParams().position({ -levelHSize.x - bordersHGauge, 0.0f })), CM::Texture(woodTexture, true));
 
 			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHSize.y + bordersHGauge * 2 },
-				Tools::BodyParams().position({ levelHSize.x + bordersHGauge, 0.0f })), CM::StaticTexture(woodTexture));
+				Tools::BodyParams().position({ levelHSize.x + bordersHGauge, 0.0f })), CM::Texture(woodTexture, true));
 
 			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge * 2, bordersHGauge },
-				Tools::BodyParams().position({ 0.0f, -levelHSize.y - bordersHGauge })), CM::StaticTexture(woodTexture));
+				Tools::BodyParams().position({ 0.0f, -levelHSize.y - bordersHGauge })), CM::Texture(woodTexture, true));
 
 			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHSize.x + bordersHGauge * 2, bordersHGauge },
-				Tools::BodyParams().position({ 0.0f, levelHSize.y + bordersHGauge })), CM::StaticTexture(woodTexture));
+				Tools::BodyParams().position({ 0.0f, levelHSize.y + bordersHGauge })), CM::Texture(woodTexture, true));
 		}
 
 		void createGrapples()
 		{
 			ball = &Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f,
-				Tools::BodyParams().bodyType(b2_dynamicBody).density(0.02f).restitution(0.5f)), CM::StaticTexture(orbTexture));
+				Tools::BodyParams().bodyType(b2_dynamicBody).density(0.02f).restitution(0.5f)), CM::Texture(orbTexture, true));
 			ball->influenceRadius = 15.0f;
 		}
 

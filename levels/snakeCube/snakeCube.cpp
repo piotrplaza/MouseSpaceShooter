@@ -95,7 +95,7 @@ namespace Levels
 				staticTextures.last().wrapMode = GL_MIRRORED_REPEAT;
 			}
 #ifdef TEST
-			std::array<CM::StaticTexture, 6> testCubeTextures;
+			std::array<CM::Texture, 6> testCubeTextures;
 #endif
 			for (size_t i = 0; i < 6; ++i)
 			{
@@ -103,22 +103,22 @@ namespace Levels
 				auto& staticTextures = Globals::Components().staticTextures();
 				testCubeTextures[i] = &staticTextures.emplace(TextureData(TextureFile("textures/test/" + std::to_string(i) + ".png", 4)));
 #endif
-				auto& dynamicTextures = Globals::Components().dynamicTextures();
+				auto& dynamicTextures = Globals::Components().textures();
 				auto& cubeTexture = cubeTextures[i];
 
-				cubeTexture = &dynamicTextures.emplace(TextureData(std::vector<glm::vec4>(boardSize * boardSize, glm::vec4(0.0f)), glm::ivec2(boardSize)));
+				cubeTexture = dynamicTextures.emplace(TextureData(std::vector<glm::vec4>(boardSize * boardSize, glm::vec4(0.0f)), glm::ivec2(boardSize)));
 				cubeTexture.component->magFilter = GL_NEAREST;
 				cubeTexture.component->wrapMode = GL_CLAMP_TO_EDGE;
 			}
 
 			{
-				auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+				auto& dynamicDecorations = Globals::Components().decorations();
 				auto& instancedCrosses = dynamicDecorations.emplace();
 
 				Tools::Shapes3D::AddCross(instancedCrosses, { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); }, glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)));
 				instancedCrosses.modelMatrixF = [&]() { return glm::scale(glm::mat4(1.0f), glm::vec3(0.5f)); };
 				instancedCrosses.params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true).gpuSideInstancedNormalTransforms(true).fogAmplification(0.2f);
-				instancedCrosses.texture = CM::StaticTexture(marbleTexture);
+				instancedCrosses.texture = CM::Texture(marbleTexture, true);
 				instancedCrosses.bufferDataUsage = GL_DYNAMIC_DRAW;
 				instancedCrosses.instancing.emplace().init(numOfCrosses, glm::mat4(1.0f));
 				instancedCrosses.renderLayer = RenderLayer::NearBackground;
@@ -180,20 +180,20 @@ namespace Levels
 			auto& musics = Globals::Components().musics();
 			musics.emplace("audio/Ghosthack-Ambient Beds_Granular Dreams_Fm 65Bpm (WET).ogg", 1.0f).play();
 
-			auto& soundsBuffers = Globals::Components().soundsBuffers();
+			auto& soundsBuffers = Globals::Components().staticSoundsBuffers();
 			eatingSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Pluck_C.wav").getComponentId();
 			growingSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
 			deadSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav").getComponentId();
 
 			auto& sounds = Globals::Components().sounds();
-			growingSound = sounds.emplace(growingSoundBuffer).setVolume(0.0f).setLoop(true).play().getComponentId();
-			deadSound = sounds.emplace(deadSoundBuffer).setVolume(0.0f).setLoop(true).play().getComponentId();
+			growingSound = sounds.emplace(CM::SoundBuffer(growingSoundBuffer, true)).setVolume(0.0f).setLoop(true).play().getComponentId();
+			deadSound = sounds.emplace(CM::SoundBuffer(deadSoundBuffer, true)).setVolume(0.0f).setLoop(true).play().getComponentId();
 		}
 
 		void step()
 		{
 			{
-				auto& crosses = Globals::Components().dynamicDecorations()[crossesId];
+				auto& crosses = Globals::Components().decorations()[crossesId];
 				const auto& keyboard = Globals::Components().keyboard();
 
 				if (keyboard.pressed['C'])
@@ -416,7 +416,7 @@ namespace Levels
 				{
 					foodPos = std::nullopt;
 					lastEatingTime = Globals::Components().physics().simulationDuration;
-					Tools::CreateAndPlaySound(eatingSoundBuffer).setVolume(0.6f);
+					Tools::CreateAndPlaySound(CM::SoundBuffer(eatingSoundBuffer, true)).setVolume(0.6f);
 					++score;
 
 					juliaIterations += juliaIterationsStep;
@@ -765,7 +765,7 @@ namespace Levels
 			{ 0x28/*VK_DOWN*/, SnakeDirection::Down },
 			{ 0x25/*VK_LEFT*/, SnakeDirection::Left },
 			{ 0x27/*VK_RIGHT*/, SnakeDirection::Right } };
-		std::array<CM::StaticTexture, 6> cubeTextures;
+		std::array<CM::Texture, 6> cubeTextures;
 		std::array<std::unique_ptr<Tools::ColorBufferEditor<glm::vec4>>, 6> cubeEditors;
 		float moveTime{};
 

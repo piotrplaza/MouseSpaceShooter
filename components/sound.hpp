@@ -2,6 +2,8 @@
 
 #include "_componentBase.hpp"
 
+#include <commonTypes/componentMappers.hpp>
+
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
@@ -10,14 +12,13 @@
 
 namespace Components
 {
+	struct SoundBuffer;
 	struct SoundDetails;
 
 	struct Sound : ComponentBase
 	{
-		Sound(ComponentId soundBufferId);
+		Sound(CM::SoundBuffer soundBuffer);
 		~Sound();
-
-		ComponentId soundBufferId = 0;
 
 		std::function<void()> tearDownF;
 
@@ -50,8 +51,9 @@ namespace Components
 
 	private:
 		static inline unsigned numOfInstances = 0;
-		std::unique_ptr<SoundDetails> details;
+
 		const float maxVolume;
+		std::unique_ptr<SoundDetails> details;
 		bool removeOnStop = false;
 		bool loop = false;
 	};

@@ -9,7 +9,7 @@ namespace Components
 	{
 		AnimatedTexture() = default;
 
-		AnimatedTexture(TextureComponentVariant texture, glm::ivec2 textureSize, glm::ivec2 framesGrid, glm::ivec2 leftTopFrameLeftTopCorner, int rightTopFrameLeftEdge, int leftBottomFrameTopEdge,
+		AnimatedTexture(CM::Texture texture, glm::ivec2 textureSize, glm::ivec2 framesGrid, glm::ivec2 leftTopFrameLeftTopCorner, int rightTopFrameLeftEdge, int leftBottomFrameTopEdge,
 			glm::ivec2 frameSize, float frameDuration, int numOfFrames = 0, int startFrame = 0, Direction animationDirection = AnimationData::Direction::Forward,
 			Mode animationMode = AnimationData::Mode::Repeat, TextureLayout textureLayout = AnimationData::TextureLayout::Horizontal) :
 			AnimationData(texture, textureSize, framesGrid, leftTopFrameLeftTopCorner, rightTopFrameLeftEdge, leftBottomFrameTopEdge, frameSize, frameDuration, numOfFrames, startFrame, animationDirection, animationMode, textureLayout)

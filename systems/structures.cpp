@@ -22,7 +22,7 @@ namespace Systems
 		for (auto& wall : Globals::Components().staticWalls())
 			wall.step();
 
-		for (auto& wall : Globals::Components().dynamicWalls())
+		for (auto& wall : Globals::Components().walls())
 			wall.step();
 
 		for (auto& grapple : Globals::Components().grapples())
@@ -31,7 +31,7 @@ namespace Systems
 		for (auto& polyline : Globals::Components().staticPolylines())
 			polyline.step();
 
-		for (auto& polyline : Globals::Components().dynamicPolylines())
+		for (auto& polyline : Globals::Components().polylines())
 			polyline.step();
 
 		updateDynamicBuffers();
@@ -48,8 +48,8 @@ namespace Systems
 
 	void Structures::updateDynamicBuffers()
 	{
-		Tools::UpdateDynamicBuffers(Globals::Components().dynamicWalls());
+		Tools::UpdateDynamicBuffers(Globals::Components().walls());
 		Tools::UpdateDynamicBuffers(Globals::Components().grapples());
-		Tools::UpdateDynamicBuffers(Globals::Components().dynamicPolylines());
+		Tools::UpdateDynamicBuffers(Globals::Components().polylines());
 	}
 }

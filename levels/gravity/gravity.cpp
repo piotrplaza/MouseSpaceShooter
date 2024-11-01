@@ -106,7 +106,7 @@ namespace Levels
 		void setAnimations()
 		{
 			flame1AnimatedTexture = Globals::Components().staticAnimatedTextures().size();
-			Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(flame1AnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+			Globals::Components().staticAnimatedTextures().add({ CM::Texture(flame1AnimationTexture, true), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
 				AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 			Globals::Components().staticAnimatedTextures().last().start(true);
 
@@ -126,7 +126,7 @@ namespace Levels
 
 		void createForeground()
 		{
-			Tools::CreateFogForeground(2, 0.02f, fogTexture, [&, fogTargetAlphaFactor = 1.0f]() mutable {
+			Tools::CreateFogForeground(2, 0.02f, CM::Texture(fogTexture, true), [&, fogTargetAlphaFactor = 1.0f]() mutable {
 				if (explosionFrame)
 				{
 					const float maxAlphaFactor = 2.0f;
@@ -152,7 +152,7 @@ namespace Levels
 		void createPlayers()
 		{
 			player1Id = Tools::CreatePlane(Tools::CreateTrianglesBody({ { glm::vec2{2.0f, 0.0f}, glm::vec2{-1.0f, 1.0f}, glm::vec2{-1.0f, -1.0f} } }, Tools::GetDefaultParamsForPlaneBody()),
-				plane1Texture, flame1AnimatedTexture, Tools::PlaneParams().position({ 0.0f, -50.0f }).angle(glm::half_pi<float>()));
+				CM::Texture(plane1Texture, true), CM::AnimatedTexture(flame1AnimatedTexture, true), Tools::PlaneParams().position({ 0.0f, -50.0f }).angle(glm::half_pi<float>()));
 		}
 
 		void launchMissile()
@@ -161,9 +161,9 @@ namespace Levels
 			auto& plane = Globals::Components().planes()[player1Id];
 
 			auto missileHandler = Tools::CreateMissile(plane.originF(), plane.getAngle(), 5.0f, plane.getVelocity(),
-				glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * initExplosionVelocity, missile2Texture, flame1AnimatedTexture);
+				glm::vec2(glm::cos(plane.getAngle()), glm::sin(plane.getAngle())) * initExplosionVelocity, CM::Texture(missile2Texture, true), CM::AnimatedTexture(flame1AnimatedTexture, true));
 
-			missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler));
+			missilesToHandlers.emplace(missileHandler.missile.componentId, std::move(missileHandler));
 		}
 
 		void createMovableWalls()
@@ -177,7 +177,7 @@ namespace Levels
 				Globals::Components().staticWalls().emplace(
 					Tools::CreateBoxBody({ Tools::RandomFloat(0.1f, 1.0f), Tools::RandomFloat(0.1f, 1.0f) },
 						Tools::BodyParams().position(pos).angle(angle).bodyType(b2_dynamicBody).density(0.02f)),
-					CM::StaticTexture(spaceRockTexture));
+					CM::Texture(spaceRockTexture, true));
 			}
 
 			debrisEnd = Globals::Components().staticWalls().size();
@@ -190,7 +190,7 @@ namespace Levels
 		void createGrapples()
 		{
 			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(20.0f,
-				Tools::BodyParams()), CM::StaticTexture(orbTexture));
+				Tools::BodyParams()), CM::Texture(orbTexture, true));
 			grapple.influenceRadius = 100.0f;
 			planetId = grapple.getComponentId();
 		}
@@ -218,7 +218,7 @@ namespace Levels
 						const auto& targetFixture = fixture == &fixtureA ? fixtureB : fixtureA;
 						const auto& missileBody = *fixture->GetBody();
 						missilesToHandlers.erase(std::get<CM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).componentId);
-						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(CM::StaticTexture(explosionTexture)));
+						Tools::CreateExplosion(Tools::ExplosionParams().center(ToVec2<glm::vec2>(missileBody.GetWorldCenter())).explosionTexture(CM::Texture(explosionTexture, true)));
 
 						explosionFrame = true;
 					}
@@ -317,7 +317,7 @@ namespace Levels
 		size_t debrisEnd = 0;
 		size_t planetId = 0;
 
-		std::unordered_map<ComponentId, Tools::MissileHandler> missilesToHandlers;
+		std::unordered_map<CM::Missile, Tools::MissileHandler> missilesToHandlers;
 	};
 
 	Gravity::Gravity():

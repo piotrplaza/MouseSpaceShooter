@@ -34,7 +34,7 @@ namespace Tests
 		{
 			const auto& screenInfo = Globals::Components().systemInfo().screen;
 			const auto pos = glm::linearRand(-screenInfo.getNormalizedWindowSize(), screenInfo.getNormalizedWindowSize()) * 9.0f;
-			auto& decoration = Globals::Components().dynamicDecorations().emplace(Tools::Shapes2D::CreateVerticesOfCircle(pos, 1.0f, 20));
+			auto& decoration = Globals::Components().decorations().emplace(Tools::Shapes2D::CreateVerticesOfCircle(pos, 1.0f, 20));
 			decoration.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfCircle(pos, 0.2f, 20));
 			decoration.subsequence.back().colorF = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 			decoration.state = ComponentState::LastShot;
@@ -45,12 +45,12 @@ namespace Tests
 	{
 		void setup() override
 		{
-			Globals::Components().dynamicDecorations().emplace();
+			Globals::Components().decorations().emplace();
 		}
 
 		void step() override
 		{
-			auto& decoration = Globals::Components().dynamicDecorations().last();
+			auto& decoration = Globals::Components().decorations().last();
 			decoration.vertices = Tools::Shapes2D::CreateVerticesOfLightning({ -5.0f, 0.0f }, { 5.0f, 0.0f }, 10);
 			decoration.renderF = []() { return Globals::Components().keyboard().pressing[' ']; };
 			decoration.state = ComponentState::Changed;
@@ -62,12 +62,12 @@ namespace Tests
 	{
 		void setup() override
 		{
-			auto& decoration = Globals::Components().dynamicDecorations().emplace();
-			auto& texture = Globals::Components().dynamicTextures().emplace();
+			auto& decoration = Globals::Components().decorations().emplace();
+			auto& texture = Globals::Components().textures().emplace();
 			texture.source = "textures/rose.png";
 			decoration.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }, glm::quarter_pi<float>());
 			decoration.resolutionMode = { ResolutionMode::Resolution::H405, ResolutionMode::Scaling::Nearest };
-			decoration.texture = CM::DynamicTexture(&texture);
+			decoration.texture = CM::Texture(texture);
 			decoration.renderingSetupF = [&](auto) {
 				bool prevBlend = glProxyIsBlendEnabled();
 				glProxySetBlend(false);
@@ -82,16 +82,16 @@ namespace Tests
 	{
 		void setup() override
 		{
-			//Globals::Components().dynamicTextures().emplace("textures/rose.png");
-			Globals::Components().dynamicDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }), CM::DummyTexture()/*CM::DynamicTexture(&Globals::Components().dynamicTextures().last())*/);
+			//Globals::Components().textures().emplace("textures/rose.png");
+			Globals::Components().decorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }), CM::DummyTexture()/*CM::Texture(&Globals::Components().textures().last())*/);
 		}
 
 		void step() override
 		{
-			Globals::Components().dynamicTextures().emplace("textures/rose.png");
-			Globals::Components().dynamicTextures().last().state = ComponentState::LastShot;
-			Globals::Components().dynamicDecorations().last().texture = CM::DynamicTexture(&Globals::Components().dynamicTextures().last());
-			//std::cout << "Textures count: " << Globals::Components().dynamicTextures().size() << std::endl;
+			Globals::Components().textures().emplace("textures/rose.png");
+			Globals::Components().textures().last().state = ComponentState::LastShot;
+			Globals::Components().decorations().last().texture = CM::Texture(Globals::Components().textures().last());
+			//std::cout << "Textures count: " << Globals::Components().textures().size() << std::endl;
 		}
 	};
 

@@ -729,7 +729,6 @@
     <ClInclude Include="components\details\animationData.hpp">
       <Filter>src\components\details</Filter>
     </ClInclude>
-    <ClInclude Include="components\details\textureData.hpp" />
     <ClInclude Include="components\pauseHandler.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -744,6 +743,9 @@
     </ClInclude>
     <ClInclude Include="components\systemInfo.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\details\textureData.hpp">
+      <Filter>src\components\details</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

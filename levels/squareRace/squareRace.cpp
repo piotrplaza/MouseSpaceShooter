@@ -49,29 +49,25 @@ namespace Levels
 		{
 			auto& textures = Globals::Components().staticTextures();
 
-			planeTextures[0] = textures.size();
-			textures.emplace("textures/plane 1.png");
+			planeTextures[0] = textures.emplace("textures/plane 1.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().preserveAspectRatio = true;
 
-			planeTextures[1] = textures.size();
-			textures.emplace("textures/alien ship 1.png");
+			planeTextures[1] = textures.emplace("textures/alien ship 1.png");
 			textures.last().translate = glm::vec2(-0.2f, 0.0f);
 			textures.last().scale = glm::vec2(1.9f);
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().preserveAspectRatio = true;
 
-			planeTextures[2] = textures.size();
-			textures.emplace("textures/plane 2.png");
+			planeTextures[2] = textures.emplace("textures/plane 2.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.8f, 1.8f);
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().preserveAspectRatio = true;
 
-			planeTextures[3] = textures.size();
-			textures.emplace("textures/alien ship 2.png");
+			planeTextures[3] = textures.emplace("textures/alien ship 2.png");
 			textures.last().translate = glm::vec2(0.0f, 0.0f);
 			textures.last().scale = glm::vec2(1.45f, 1.4f);
 			textures.last().minFilter = GL_LINEAR;
@@ -94,10 +90,10 @@ namespace Levels
 
 		void loadAudio()
 		{
-			auto& musics = Globals::Components().musics();
+			auto& musics = Globals::Components().staticMusics();
 			musics.emplace("audio/Ghosthack-Ambient Beds_Daylight_Am 75Bpm (WET).ogg", 1.0f).play();
 
-			auto& soundsBuffers = Globals::Components().soundsBuffers();
+			auto& soundsBuffers = Globals::Components().staticSoundsBuffers();
 			thrustSoundBuffer = soundsBuffers.emplace("audio/thrust.wav", 0.2f).getComponentId();
 			grappleSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
 			collisionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
@@ -108,8 +104,7 @@ namespace Levels
 		{
 			for (auto& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
 			{
-				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().size();
-				Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(flameAnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().add({ CM::Texture(flameAnimationTexture, true), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
 					AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
@@ -125,11 +120,11 @@ namespace Levels
 			{
 				auto& staticWalls = Globals::Components().staticWalls();
 
-				staticWalls.emplace(Tools::CreateBoxBody({ 100.0f, 100.0f }), CM::StaticTexture(cityTexture));
+				staticWalls.emplace(Tools::CreateBoxBody({ 100.0f, 100.0f }), CM::Texture(cityTexture, true));
 				staticWalls.last().texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 
-				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 160.0f, 0.0f })), CM::StaticTexture(orbTexture));
-				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 100.0f, 0.0f })), CM::StaticTexture(orbTexture));
+				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 160.0f, 0.0f })), CM::Texture(orbTexture, true));
+				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 100.0f, 0.0f })), CM::Texture(orbTexture, true));
 			}
 
 			{
@@ -164,8 +159,8 @@ namespace Levels
 		void destroyPlane(Components::Plane& plane)
 		{
 			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getOrigin2D()).sourceVelocity(plane.getVelocity()).
-				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(CM::StaticTexture(explosionTexture)));
-			Tools::CreateAndPlaySound(playerExplosionSoundBuffer, [pos = plane.getOrigin2D()]() { return pos; });
+				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(CM::Texture(explosionTexture, true)));
+			Tools::CreateAndPlaySound(CM::SoundBuffer(playerExplosionSoundBuffer, true), [pos = plane.getOrigin2D()]() { return pos; });
 			plane.setEnabled(false);
 			playersToCircuits.erase(plane.getComponentId());
 		}
@@ -175,7 +170,7 @@ namespace Levels
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline, [this](const auto& plane, const auto& polyline) {
 				Globals::Components().deferredActions().emplace([&](auto) {
 					auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
-					const auto& polylineComponent = Tools::AccessComponent<CM::StaticPolyline>(polyline);
+					const auto& polylineComponent = Tools::AccessComponent<CM::Polyline>(polyline);
 
 					if (polylineComponent.getComponentId() == finishStaticPolyline)
 						return false;
@@ -196,7 +191,7 @@ namespace Levels
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline, [this, collisionsStarted, collisionsBlocked](const auto& plane, const auto& polyline) {
 				Globals::Components().deferredActions().emplace([&, collisionsStarted, collisionsBlocked](auto) {
 					auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
-					const auto& polylineComponent = Tools::AccessComponent<CM::StaticPolyline>(polyline);
+					const auto& polylineComponent = Tools::AccessComponent<CM::Polyline>(polyline);
 
 					if (polylineComponent.getComponentId() != finishStaticPolyline)
 						return false;
@@ -254,7 +249,7 @@ namespace Levels
 			Globals::Components().endCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline, [this, collisionsStarted, collisionsBlocked](const auto& plane, auto& polyline) {
 				Globals::Components().deferredActions().emplace([&, collisionsStarted, collisionsBlocked](auto) {
 					const auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
-					const auto& polylineComponent = Tools::AccessComponent<CM::StaticPolyline>(polyline);
+					const auto& polylineComponent = Tools::AccessComponent<CM::Polyline>(polyline);
 
 					if (polylineComponent.getComponentId() != finishStaticPolyline)
 						return false;
@@ -276,7 +271,7 @@ namespace Levels
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::plane | Globals::CollisionBits::wall,
 			Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
-				Tools::CreateAndPlaySound(collisionSoundBuffer,
+				Tools::CreateAndPlaySound(CM::SoundBuffer(collisionSoundBuffer, true),
 					[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {
 							return pos;
 						},
@@ -303,7 +298,7 @@ namespace Levels
 			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
 				[this](unsigned playerId, auto) {
 					return glm::vec3(110.0f + playerId * 5.0f, -0.1f, glm::half_pi<float>());
-				}, true, thrustSoundBuffer, grappleSoundBuffer);
+				}, true, CM::SoundBuffer(thrustSoundBuffer, true), CM::SoundBuffer(grappleSoundBuffer, true));
 
 			collisionHandlers();
 
@@ -315,13 +310,13 @@ namespace Levels
 		}
 
 	private:
-		std::array<ComponentId, 4> planeTextures{ 0 };
+		std::array<CM::Texture, 4> planeTextures;
 		ComponentId flameAnimationTexture = 0;
 		ComponentId explosionTexture = 0;
 		ComponentId cityTexture = 0;
 		ComponentId orbTexture = 0;
 
-		std::array<ComponentId, 4> flameAnimatedTextureForPlayers{ 0 };
+		std::array<CM::AnimatedTexture, 4> flameAnimatedTextureForPlayers;
 
 		ComponentId playerExplosionSoundBuffer = 0;
 		ComponentId thrustSoundBuffer = 0;

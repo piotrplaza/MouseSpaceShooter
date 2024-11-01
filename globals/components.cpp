@@ -127,9 +127,9 @@ namespace Globals
 		return *staticTextures_;
 	}
 
-	DynamicComponents<Components::Texture>& ComponentsHolder::dynamicTextures()
+	DynamicComponents<Components::Texture>& ComponentsHolder::textures()
 	{
-		return *dynamicTextures_;
+		return *textures_;
 	}
 
 	StaticComponents<Components::AnimatedTexture>& ComponentsHolder::staticAnimatedTextures()
@@ -137,9 +137,9 @@ namespace Globals
 		return *staticAnimatedTextures_;
 	}
 
-	DynamicComponents<Components::AnimatedTexture>& ComponentsHolder::dynamicAnimatedTextures()
+	DynamicComponents<Components::AnimatedTexture>& ComponentsHolder::animatedTextures()
 	{
-		return *dynamicAnimatedTextures_;
+		return *animatedTextures_;
 	}
 
 	StaticComponents<Components::BlendingTexture>& ComponentsHolder::staticBlendingTextures()
@@ -147,19 +147,34 @@ namespace Globals
 		return *staticBlendingTextures_;
 	}
 
-	DynamicComponents<Components::BlendingTexture>& ComponentsHolder::dynamicBlendingTextures()
+	DynamicComponents<Components::BlendingTexture>& ComponentsHolder::blendingTextures()
 	{
-		return *dynamicBlendingTextures_;
+		return *blendingTextures_;
 	}
 
-	StaticComponents<Components::Music>& ComponentsHolder::musics()
+	StaticComponents<Components::Music>& ComponentsHolder::staticMusics()
+	{
+		return *staticMusics_;
+	}
+
+	DynamicComponents<Components::Music>& ComponentsHolder::musics()
 	{
 		return *musics_;
 	}
 
-	StaticComponents<Components::SoundBuffer>& ComponentsHolder::soundsBuffers()
+	StaticComponents<Components::SoundBuffer>& ComponentsHolder::staticSoundsBuffers()
+	{
+		return *staticSoundsBuffers_;
+	}
+
+	DynamicComponents<Components::SoundBuffer>& ComponentsHolder::soundsBuffers()
 	{
 		return *soundsBuffers_;
+	}
+
+	StaticComponents<Components::Sound>& ComponentsHolder::staticSounds()
+	{
+		return *staticSounds_;
 	}
 
 	DynamicComponents<Components::Sound>& ComponentsHolder::sounds()
@@ -182,9 +197,9 @@ namespace Globals
 		return *staticWalls_;
 	}
 
-	DynamicComponents<Components::Wall>& ComponentsHolder::dynamicWalls()
+	DynamicComponents<Components::Wall>& ComponentsHolder::walls()
 	{
-		return *dynamicWalls_;
+		return *walls_;
 	}
 
 	DynamicComponents<Components::Grapple>& ComponentsHolder::grapples()
@@ -197,9 +212,9 @@ namespace Globals
 		return *staticPolylines_;
 	}
 	
-	DynamicComponents<Components::Polyline>& ComponentsHolder::dynamicPolylines()
+	DynamicComponents<Components::Polyline>& ComponentsHolder::polylines()
 	{
-		return *dynamicPolylines_;
+		return *polylines_;
 	}
 
 	StaticComponents<Components::Decoration>& ComponentsHolder::staticDecorations()
@@ -207,9 +222,9 @@ namespace Globals
 		return *staticDecorations_;
 	}
 
-	DynamicComponents<Components::Decoration>& ComponentsHolder::dynamicDecorations()
+	DynamicComponents<Components::Decoration>& ComponentsHolder::decorations()
 	{
-		return *dynamicDecorations_;
+		return *decorations_;
 	}
 
 	StaticComponents<Components::Particles>& ComponentsHolder::staticParticles()
@@ -217,9 +232,9 @@ namespace Globals
 		return *staticParticles_;
 	}
 
-	DynamicComponents<Components::Particles>& ComponentsHolder::dynamicParticles()
+	DynamicComponents<Components::Particles>& ComponentsHolder::particles()
 	{
-		return *dynamicParticles_;
+		return *particles_;
 	}
 
 	DynamicComponents<Components::Missile>& ComponentsHolder::missiles()

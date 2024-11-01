@@ -34,44 +34,45 @@ namespace Tools
 {
 	MissileHandler::MissileHandler() = default;
 
-	MissileHandler::MissileHandler(ComponentId missileId, ComponentId backThrustId, glm::vec2 referenceVelocity, std::optional<ComponentId> planeId,
-		std::optional<ComponentId> soundId):
-		missileId(missileId),
-		backThrustId(backThrustId),
+	MissileHandler::MissileHandler(CM::Missile missile, CM::Decoration backThrust, glm::vec2 referenceVelocity, std::optional<CM::Plane> plane,
+		std::optional<CM::Sound> sound):
+		missile(missile),
+		backThrust(backThrust),
 		referenceVelocity(referenceVelocity),
-		planeId(planeId),
-		soundId(soundId)
+		plane(plane),
+		sound(sound)
 	{
 	}
 
 	MissileHandler::~MissileHandler()
 	{
-		if (!valid) return;
+		if (!valid)
+			return;
 
-		Globals::Components().missiles()[missileId].state = ComponentState::Outdated;
-		Globals::Components().dynamicDecorations()[backThrustId].state = ComponentState::Outdated;
+		missile.component->state = ComponentState::Outdated;
+		backThrust.component->state = ComponentState::Outdated;
 
-		if (soundId)
-			Globals::Components().sounds()[*soundId].state = ComponentState::Outdated;
+		if (sound)
+			sound->component->state = ComponentState::Outdated;
 	}
 
 	MissileHandler::MissileHandler(MissileHandler&& other) noexcept:
-		missileId(other.missileId),
-		backThrustId(other.backThrustId),
+		missile(other.missile),
+		backThrust(other.backThrust),
 		referenceVelocity(other.referenceVelocity),
-		planeId(other.planeId),
-		soundId(other.soundId)
+		plane(other.plane),
+		sound(other.sound)
 	{
 		other.valid = false;
 	}
 
 	MissileHandler& MissileHandler::operator=(MissileHandler&& other) noexcept
 	{
-		missileId = other.missileId;
-		backThrustId = other.backThrustId;
+		missile = other.missile;
+		backThrust = other.backThrust;
 		referenceVelocity = other.referenceVelocity;
-		planeId = other.planeId;
-		soundId = other.soundId;
+		plane = other.plane;
+		sound = other.sound;
 		other.valid = false;
 		return *this;
 	}
@@ -103,9 +104,9 @@ namespace Tools
 		return planeBodyDefaultParams;
 	}
 
-	ComponentId CreatePlane(Body body, ComponentId planeTexture, ComponentId thrustAnimatedTexture, PlaneParams params)
+	ComponentId CreatePlane(Body body, CM::Texture planeTexture, CM::AnimatedTexture thrustAnimatedTexture, PlaneParams params)
 	{
-		auto& plane = Globals::Components().planes().emplace(std::move(body), CM::StaticTexture(planeTexture));
+		auto& plane = Globals::Components().planes().emplace(std::move(body), planeTexture);
 
 		plane.setOrigin(params.position_);
 		plane.setAngle(params.angle_);
@@ -119,8 +120,7 @@ namespace Tools
 
 		for (int i = 0; i < params.numOfThrusts_; ++i)
 		{
-			auto& planeDecoration = plane.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }), std::vector<glm::vec2>{},
-				CM::StaticAnimatedTexture(thrustAnimatedTexture));
+			auto& planeDecoration = plane.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }), std::vector<glm::vec2>{}, thrustAnimatedTexture);
 
 			planeDecoration.renderingSetupF = [&, i,
 				modelUniform = UniformsUtils::UniformMat4f(),
@@ -146,7 +146,7 @@ namespace Tools
 					else
 						thrust = std::max(thrust - changeStep, targetThrust);
 
-					Globals::Components().staticAnimatedTextures()[thrustAnimatedTexture].setSpeedScaling(1.0f + (thrust - 1) * 0.2f);
+					thrustAnimatedTexture.component->setSpeedScaling(1.0f + (thrust - 1) * 0.2f);
 
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -158,8 +158,8 @@ namespace Tools
 	}
 
 	MissileHandler CreateMissile(glm::vec2 startPosition, float startAngle, float force, glm::vec2 referenceVelocity,
-		glm::vec2 initialVelocity, ComponentId missileTexture, ComponentId thrustAnimatedTexture, std::optional<ComponentId> planeId,
-		std::optional<ComponentId> missileSoundBuffer)
+		glm::vec2 initialVelocity, CM::Texture missileTexture, CM::AnimatedTexture thrustAnimatedTexture, std::optional<CM::Plane> plane,
+		std::optional<CM::SoundBuffer> missileSoundBuffer)
 	{
 		auto& missile = Globals::Components().missiles().emplace(Tools::CreateBoxBody({ 0.5f, 0.2f },
 			Tools::BodyParams().position(startPosition).angle(startAngle).bodyType(b2_dynamicBody).density(0.2f)), force);
@@ -169,7 +169,7 @@ namespace Tools
 		body.SetLinearVelocity(ToVec2<b2Vec2>(referenceVelocity + initialVelocity));
 		body.SetBullet(true);
 
-		missile.texture = CM::StaticTexture(missileTexture);
+		missile.texture = missileTexture;
 
 		missile.renderingSetupF = [
 			modelUniform = UniformsUtils::UniformMat4f(), &body](ShadersUtils::ProgramId program) mutable
@@ -181,8 +181,8 @@ namespace Tools
 
 		missile.renderLayer = RenderLayer::FarMidground;
 
-		auto& decoration = Globals::Components().dynamicDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
-			CM::StaticAnimatedTexture(thrustAnimatedTexture), Tools::Shapes2D::CreateTexCoordOfRectangle());
+		auto& decoration = Globals::Components().decorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
+			thrustAnimatedTexture, Tools::Shapes2D::CreateTexCoordOfRectangle());
 
 		decoration.renderingSetupF = [&, modelUniform = UniformsUtils::UniformMat4f(),
 			thrustScale = 0.1f
@@ -203,19 +203,19 @@ namespace Tools
 
 		decoration.renderLayer = RenderLayer::FarMidground;
 
-		std::optional<ComponentId> soundId;
+		std::optional<CM::Sound> sound;
 		if (missileSoundBuffer)
 		{
-			soundId = Tools::CreateAndPlaySound(*missileSoundBuffer,
+			sound = Tools::CreateAndPlaySound(*missileSoundBuffer,
 				[&]() {
 					return missile.getOrigin2D();
 				},
 				[](auto& sound) {
 					sound.setRemoveOnStop(false);
-				}).getComponentId();
+				});
 		}
 
-		return { missile.getComponentId(), decoration.getComponentId(), referenceVelocity, planeId, soundId };
+		return { missile.getComponentId(), decoration, referenceVelocity, plane, sound };
 	}
 
 	void CreateExplosion(ExplosionParams params)
@@ -225,7 +225,7 @@ namespace Tools
 		Globals::Components().deferredActions().emplace([=, &particlesShaders](float) {
 			auto& shockwave = Globals::Components().shockwaves().emplace(params.center_, params.sourceVelocity_, params.numOfParticles_, params.initExplosionVelocity_,
 				params.initExplosionVelocityRandomMinFactor_, params.particlesRadius_, params.particlesDensity_, params.particlesLinearDamping_, params.particlesAsBullets_);
-			auto& explosionDecoration = Globals::Components().dynamicDecorations().emplace();
+			auto& explosionDecoration = Globals::Components().decorations().emplace();
 			explosionDecoration.customShadersProgram = particlesShaders.getProgramId();
 			explosionDecoration.resolutionMode = params.resolutionMode_;
 			explosionDecoration.drawMode = GL_POINTS;
@@ -236,16 +236,7 @@ namespace Tools
 				{
 					particlesShaders.vp(Globals::Components().mvp2D().getVP());
 					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, std::visit([](const auto& texture) {
-						if constexpr (std::is_same_v<std::remove_cvref_t<decltype(texture)>, std::monostate>)
-						{
-							assert(!"no texture provided for explosion");
-							throw std::runtime_error("No texture provided for explosion.");
-							return 0u;
-						}
-						else
-							return texture.component->loaded.textureObject;
-					}, params.explosionTexture_));
+					glBindTexture(GL_TEXTURE_2D, params.explosionTexture_.component->loaded.textureObject);
 					particlesShaders.texture0(0);
 
 					const float elapsed = Globals::Components().physics().simulationDuration - startTime;
@@ -286,7 +277,7 @@ namespace Tools
 			});
 	}
 
-	void CreateFogForeground(int numOfLayers, float alphaPerLayer, ComponentId fogTexture, FVec4 fColor, std::function<glm::vec2(int layer)> textureTranslation)
+	void CreateFogForeground(int numOfLayers, float alphaPerLayer, CM::Texture fogTexture, FVec4 fColor, std::function<glm::vec2(int layer)> textureTranslation)
 	{
 		for (int layer = 0; layer < numOfLayers; ++layer)
 		for (int posYI = -1; posYI <= 1; ++posYI)
@@ -310,8 +301,9 @@ namespace Tools
 			auto& fogLayer = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
 				CM::DummyTexture(), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
 			fogLayer.renderLayer = RenderLayer::Foreground;
-			fogLayer.stepF = [=, &fogLayer]() {
-				fogLayer.texture = CM::StaticTexture(fogTexture, textureTranslation ? textureTranslation(layer) : glm::vec2(0.0f));
+			fogLayer.stepF = [=, &fogLayer]() mutable {
+				fogTexture.translate = textureTranslation ? textureTranslation(layer) : glm::vec2(0.0f);
+				fogLayer.texture = fogTexture;
 			};
 			fogLayer.resolutionMode = { ResolutionMode::Resolution::H540, ResolutionMode::Scaling::Linear };
 		}
@@ -339,7 +331,7 @@ namespace Tools
 		background.resolutionMode = { ResolutionMode::Resolution::Native, ResolutionMode::Scaling::Linear, ResolutionMode::Blending::Additive };
 	}
 
-	Components::Sound& CreateAndPlaySound(ComponentId soundBuffer, FVec2 posF, std::function<void(Components::Sound&)> config, std::function<void(Components::Sound&)> stepF)
+	Components::Sound& CreateAndPlaySound(CM::SoundBuffer soundBuffer, FVec2 posF, std::function<void(Components::Sound&)> config, std::function<void(Components::Sound&)> stepF)
 	{
 		auto& sound = Globals::Components().sounds().emplace(soundBuffer);
 

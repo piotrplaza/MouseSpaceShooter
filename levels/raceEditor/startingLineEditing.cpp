@@ -36,7 +36,7 @@ namespace Levels
 		zoomScale(zoomScale),
 		ongoing(std::move(ongoing))
 	{
-		auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+		auto& dynamicDecorations = Globals::Components().decorations();
 
 		auto& startingLine = dynamicDecorations.emplace();
 		startingLine.renderF = [&]() { return controlPoints.size() == 2; };
@@ -74,7 +74,7 @@ namespace Levels
 
 		auto& startingLineDecoration = dynamicDecorations.emplace();
 
-		auto& dynamicWalls = Globals::Components().dynamicWalls();
+		auto& dynamicWalls = Globals::Components().walls();
 
 		for (int i = 0; i < 2; ++i)
 		{
@@ -98,7 +98,7 @@ namespace Levels
 	{
 		const auto& mouse = Globals::Components().mouse();
 		const auto& keyboard = Globals::Components().keyboard();
-		auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+		auto& dynamicDecorations = Globals::Components().decorations();
 
 		auto addControlPoint = [&]() {
 			dynamicDecorations.emplace(Tools::Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointRadius, 20));
@@ -179,7 +179,7 @@ namespace Levels
 
 		auto changeStartingLineEndsRadius = [&]() {
 			startingLineEndsRadius = std::clamp(startingLineEndsRadius + mouse.pressed.wheel * 0.2f, 0.2f, 5.0f);
-			auto& dynamicWalls = Globals::Components().dynamicWalls();
+			auto& dynamicWalls = Globals::Components().walls();
 			for (auto wallId : startingLineEnds)
 				dynamicWalls[wallId].changeBody(Tools::CreateCircleBody(startingLineEndsRadius));
 		};
@@ -233,14 +233,14 @@ namespace Levels
 
 	void StartingLineEditing::update() const
 	{
-		auto& startingLine = Globals::Components().dynamicDecorations()[startingLineId];
+		auto& startingLine = Globals::Components().decorations()[startingLineId];
 
 		startingLine.vertices.clear();
 		for (auto& controlPoint : controlPoints)
 			startingLine.vertices.emplace_back(controlPoint.pos, 0.0f);
 		startingLine.state = ComponentState::Changed;
 
-		auto& startingPositionLine = Globals::Components().dynamicDecorations()[startingPositionLineId];
+		auto& startingPositionLine = Globals::Components().decorations()[startingPositionLineId];
 		startingPositionLine.vertices = startingLine.vertices;
 		startingPositionLine.state = ComponentState::Changed;
 	}

@@ -42,7 +42,7 @@ namespace Levels
 	{
 		const auto& mouse = Globals::Components().mouse();
 		const auto& keyboard = Globals::Components().keyboard();
-		auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+		auto& dynamicDecorations = Globals::Components().decorations();
 
 		auto addControlPoint = [&](std::optional<std::list<ControlPoint>::iterator> it = std::nullopt) {
 			if (!it)
@@ -167,13 +167,13 @@ namespace Levels
 		};
 
 		auto deactivate = [&]() {
-			auto& splineDecoration = Globals::Components().dynamicDecorations()[*activeSplineDecorationId];
+			auto& splineDecoration = Globals::Components().decorations()[*activeSplineDecorationId];
 			activeSplineDecorationId = std::nullopt;
 		};
 
 		auto copy = [&]() {
-			auto& sourceSplineDecoration = Globals::Components().dynamicDecorations()[*activeSplineDecorationId];
-			auto& targetSplineDecoration = Globals::Components().dynamicDecorations().emplace();
+			auto& sourceSplineDecoration = Globals::Components().decorations()[*activeSplineDecorationId];
+			auto& targetSplineDecoration = Globals::Components().decorations().emplace();
 			targetSplineDecoration.colorF = [&, id = targetSplineDecoration.getComponentId()]() {
 				return (activeSplineDecorationId && id == *activeSplineDecorationId) || !ongoing()
 					? activeSplineColor
@@ -203,7 +203,7 @@ namespace Levels
 		};
 
 		auto delete_ = [&]() {
-			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+			auto& dynamicDecorations = Globals::Components().decorations();
 
 			for (const auto& controlPoint : splineDecorationIdToSplineDef[*activeSplineDecorationId].controlPoints)
 				dynamicDecorations[controlPoint.decorationId].state = ComponentState::Outdated;
@@ -274,7 +274,7 @@ namespace Levels
 		for (auto& [splineDecorationId, SplineDef] : splineDecorationIdToSplineDef)
 		{
 			const auto& splineDef = splineDecorationIdToSplineDef.at(splineDecorationId);
-			auto& splineDecoration = Globals::Components().dynamicDecorations()[splineDecorationId];
+			auto& splineDecoration = Globals::Components().decorations()[splineDecorationId];
 
 			if (splineDef.controlPoints.size() < 2)
 			{

@@ -42,9 +42,16 @@ namespace Systems
 				break;
 		}
 
+		for (auto& music : Globals::Components().staticMusics())
+			if (music.step)
+				music.step(music);
+
 		for (auto& music : Globals::Components().musics())
 			if (music.step)
 				music.step(music);
+
+		for (auto& sound : Globals::Components().staticSounds())
+			sound.step();
 
 		for (auto& sound : Globals::Components().sounds())
 			sound.step();

@@ -35,7 +35,7 @@ namespace Levels
 		{
 			Globals::Components().graphicsSettings().backgroundColorF = glm::vec4{ 0.0f, 0.1f, 0.1f, 1.0f };
 			Globals::Components().camera2D().targetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, 0.5f);
-			auto& texture = Globals::Components().dynamicTextures().emplace(TextureData(TextureFile(mainTexturePath, 3)));
+			auto& texture = Globals::Components().textures().emplace(TextureData(TextureFile(mainTexturePath, 3)));
 			//texture.magFilter = GL_NEAREST;
 			texture.wrapMode = GL_CLAMP_TO_EDGE;
 			//texture.sourceFragmentCornerAndSizeF = [marigin = 5](glm::ivec2 origSize) { return std::make_pair(glm::ivec2(marigin, marigin), origSize - glm::ivec2(marigin * 2)); };
@@ -47,9 +47,9 @@ namespace Levels
 
 		void postSetup()
 		{
-			auto& texture = Globals::Components().dynamicTextures()[mainTextureId];
+			auto& texture = Globals::Components().textures()[mainTextureId];
 			auto& staticDecorations = Globals::Components().staticDecorations();
-			staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f * texture.loaded.getAspectRatio(), 0.5f }), CM::DynamicTexture(mainTextureId), Tools::Shapes2D::CreateTexCoordOfRectangle());
+			staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f * texture.loaded.getAspectRatio(), 0.5f }), CM::Texture(mainTextureId, false), Tools::Shapes2D::CreateTexCoordOfRectangle());
 			auto& cursor = staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, 1.0f, 100));
 			cursor.colorF = [&]() { return glm::vec4(cursorColor, 1.0f); };
 			cursor.modelMatrixF = [&]() {
@@ -62,7 +62,7 @@ namespace Levels
 		{
 			const auto& keyboard = Globals::Components().keyboard();
 			const auto& mouse = Globals::Components().mouse();
-			auto& texture = Globals::Components().dynamicTextures()[mainTextureId];
+			auto& texture = Globals::Components().textures()[mainTextureId];
 			auto& loadedTextureData = std::get<TextureData>(texture.source).loaded;
 			auto& buffer = std::get<std::vector<glm::vec3>>(loadedTextureData.data);
 			const auto& textureSize = loadedTextureData.size;
@@ -166,7 +166,7 @@ namespace Levels
 
 			if (keyboard.pressing[0x20/*VK_SPACE*/])
 			{
-				auto& texture = Globals::Components().dynamicTextures()[mainTextureId];
+				auto& texture = Globals::Components().textures()[mainTextureId];
 				texture.source = TextureData(TextureFile(mainTexturePath, 3));
 				editor.reset();
 			}

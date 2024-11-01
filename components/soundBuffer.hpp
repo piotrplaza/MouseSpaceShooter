@@ -26,6 +26,7 @@ namespace Components
 
 	private:
 		sf::SoundBuffer& getBuffer();
+		const sf::SoundBuffer& getBuffer() const;
 		std::unique_ptr<SoundBufferDetails> details;
 		const float maxVolume;
 	};

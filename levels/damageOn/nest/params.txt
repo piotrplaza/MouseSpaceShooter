@@ -2,6 +2,7 @@ startup.pixelArt false
 
 game.globalVolume 1.0
 game.musicVolume 1.0
+game.musicFile "DamageOn 4.ogg"
 game.mapHSize 20.0
 game.players.count 2
 game.players.assignment frankenstein frankenstein frankenstein frankenstein
@@ -24,7 +25,7 @@ player.frankenstein.presentation.translation 0.0 0.0
 player.frankenstein.presentation.rotation 0.0
 player.frankenstein.presentation.scale 1.0 1.0
 player.frankenstein.presentation.velocityRotationFactor 0.0005
-player.frankenstein.presentation.velocityScalingFactor 1.0
+player.frankenstein.presentation.velocityAnimationSpeedFactor 1.0
 player.frankenstein.presentation.weaponOffset 0.0 0.2
 player.frankenstein.animation.textureFile "player 1.png"
 player.frankenstein.animation.framesGrid 8 5
@@ -43,7 +44,7 @@ player.frankenstein.animation.frameRotation 0.0
 player.frankenstein.animation.frameScale 1.5 1.5
 player.frankenstein.animation.neutralFrame 35
 
-enemy.ghost.initCount 100
+enemy.ghost.initCount 20
 enemy.ghost.startPosition -10.0 0.0
 enemy.ghost.initHP 10.0
 enemy.ghost.initRadiusRange 0.4 0.8
@@ -60,7 +61,7 @@ enemy.ghost.presentation.translation 0.0 0.0
 enemy.ghost.presentation.rotation 0.0
 enemy.ghost.presentation.scale 1.0 1.0
 enemy.ghost.presentation.velocityRotationFactor 0.0005
-enemy.ghost.presentation.velocityScalingFactor 0.0
+enemy.ghost.presentation.velocityAnimationSpeedFactor 0.0
 enemy.ghost.presentation.weaponOffset 0.0 0.0
 enemy.ghost.animation.textureFile "enemy 1.jpg" darkToTransparent
 enemy.ghost.animation.framesGrid 5 10
@@ -79,7 +80,7 @@ enemy.ghost.animation.frameRotation 0.0
 enemy.ghost.animation.frameScale 1.0 1.0
 enemy.ghost.animation.neutralFrame 0
 
-enemy.chicken.initCount 20
+enemy.chicken.initCount 50
 enemy.chicken.startPosition 10.0 0.0
 enemy.chicken.initHP 50.0
 enemy.chicken.initRadiusRange 1.5 2.5
@@ -96,7 +97,7 @@ enemy.chicken.presentation.translation 0.0 0.0
 enemy.chicken.presentation.rotation 0.0
 enemy.chicken.presentation.scale 1.0 1.0
 enemy.chicken.presentation.velocityRotationFactor 0.0005
-enemy.chicken.presentation.velocityScalingFactor 1.0
+enemy.chicken.presentation.velocityAnimationSpeedFactor 1.0
 enemy.chicken.presentation.weaponOffset 0.0 0.0
 enemy.chicken.animation.textureFile "enemy 2.png"
 enemy.chicken.animation.framesGrid 8 5
@@ -132,7 +133,7 @@ enemy.zombie.presentation.translation 0.0 0.0
 enemy.zombie.presentation.rotation 0.0
 enemy.zombie.presentation.scale 1.0 1.0
 enemy.zombie.presentation.velocityRotationFactor 0.0005
-enemy.zombie.presentation.velocityScalingFactor 1.2
+enemy.zombie.presentation.velocityAnimationSpeedFactor 1.2
 enemy.zombie.presentation.weaponOffset 0.0 0.0
 enemy.zombie.animation.textureFile "enemy 3.png"
 enemy.zombie.animation.framesGrid 8 5
@@ -168,7 +169,7 @@ enemy.hive.presentation.translation 0.0 0.0
 enemy.hive.presentation.rotation 0.0
 enemy.hive.presentation.scale 1.0 1.0
 enemy.hive.presentation.velocityRotationFactor 0.0005
-enemy.hive.presentation.velocityScalingFactor 1.2
+enemy.hive.presentation.velocityAnimationSpeedFactor 1.2
 enemy.hive.presentation.weaponOffset 0.0 0.0
 enemy.hive.animation.textureFile "enemy 4.png"
 enemy.hive.animation.framesGrid 8 5
@@ -187,7 +188,44 @@ enemy.hive.animation.frameRotation 0.0
 enemy.hive.animation.frameScale 0.88 0.88
 enemy.hive.animation.neutralFrame 0
 
-sparking.distance 10.0
-sparking.damageFactor 10.0
-sparking.overchargingRate 0.1
-sparking.coolingRate 0.2
+enemy.gargoyle.initCount 10
+enemy.gargoyle.startPosition -10.0 -10.0
+enemy.gargoyle.initHP 50.0
+enemy.gargoyle.initRadiusRange 1.0 1.5
+enemy.gargoyle.density 0.2
+enemy.gargoyle.baseVelocity 1.8
+enemy.gargoyle.boostDistance 15.0
+enemy.gargoyle.boostFactor 1.5
+enemy.gargoyle.slowFactor 0.5
+enemy.gargoyle.radiusReductionFactor 0.0
+enemy.gargoyle.minimalRadius 0.5
+enemy.gargoyle.killSpawns 2
+enemy.gargoyle.presentation.radiusProportions 1.0 1.0
+enemy.gargoyle.presentation.translation 0.0 0.0
+enemy.gargoyle.presentation.rotation 0.0
+enemy.gargoyle.presentation.scale 1.0 1.0
+enemy.gargoyle.presentation.velocityRotationFactor 0.0005
+enemy.gargoyle.presentation.velocityAnimationSpeedFactor 1.2
+enemy.gargoyle.presentation.weaponOffset 0.0 0.0
+enemy.gargoyle.animation.textureFile "enemy 5.png"
+enemy.gargoyle.animation.textureSize 2048 2048
+enemy.gargoyle.animation.framesGrid 8 5
+enemy.gargoyle.animation.leftTopFrameLeftTopCorner 0 0
+enemy.gargoyle.animation.rightTopFrameLeftEdge 1790
+enemy.gargoyle.animation.leftBottomFrameTopEdge 1025
+enemy.gargoyle.animation.frameSize 225 225
+enemy.gargoyle.animation.frameDuration 0.05
+enemy.gargoyle.animation.numOfFrames 40
+enemy.gargoyle.animation.startFrame -1
+enemy.gargoyle.animation.direction forward
+enemy.gargoyle.animation.mode repeat
+enemy.gargoyle.animation.textureLayout horizontal
+enemy.gargoyle.animation.frameTranslation 0.0 0.075
+enemy.gargoyle.animation.frameRotation 0.0
+enemy.gargoyle.animation.frameScale 0.88 0.88
+enemy.gargoyle.animation.neutralFrame 0
+
+weapon.sparking.distance 10.0
+weapon.sparking.damageFactor 10.0
+weapon.sparking.overchargingRate 0.1
+weapon.sparking.coolingRate 0.2

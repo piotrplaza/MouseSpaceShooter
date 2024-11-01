@@ -58,29 +58,25 @@ namespace Levels
 
 			setEditorCamera();
 
-			planeTextures[0] = textures.size();
-			textures.emplace("textures/plane 1.png");
+			planeTextures[0] = textures.emplace("textures/plane 1.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().preserveAspectRatio = true;
 
-			planeTextures[1] = textures.size();
-			textures.emplace("textures/alien ship 1.png");
+			planeTextures[1] = textures.emplace("textures/alien ship 1.png");
 			textures.last().translate = glm::vec2(-0.2f, 0.0f);
 			textures.last().scale = glm::vec2(1.9f);
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().preserveAspectRatio = true;
 
-			planeTextures[2] = textures.size();
-			textures.emplace("textures/plane 2.png");
+			planeTextures[2] = textures.emplace("textures/plane 2.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.8f, 1.8f);
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().preserveAspectRatio = true;
 
-			planeTextures[3] = textures.size();
-			textures.emplace("textures/alien ship 2.png");
+			planeTextures[3] = textures.emplace("textures/alien ship 2.png");
 			textures.last().translate = glm::vec2(0.0f, 0.0f);
 			textures.last().scale = glm::vec2(1.45f, 1.4f);
 			textures.last().minFilter = GL_LINEAR;
@@ -92,8 +88,7 @@ namespace Levels
 
 			for (auto& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
 			{
-				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().size();
-				Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(flameAnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().add({ CM::Texture(flameAnimationTexture, true), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
 					AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
@@ -137,7 +132,7 @@ namespace Levels
 
 			oldMousePos = mousePos;
 
-			auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+			auto& dynamicDecorations = Globals::Components().decorations();
 
 			if (playersHandler)
 				playersHandler->controlStep();
@@ -232,10 +227,10 @@ namespace Levels
 		float projectionHSize = 50.0f;
 		float zoomScale = 1.0f;
 
-		std::array<ComponentId, 4> planeTextures{ 0 };
+		std::array<CM::Texture, 4> planeTextures;
 		ComponentId flameAnimationTexture = 0;
 
-		std::array<ComponentId, 4> flameAnimatedTextureForPlayers{ 0 };
+		std::array<CM::AnimatedTexture, 4> flameAnimatedTextureForPlayers;
 
 		std::optional<Tools::PlayersHandler> playersHandler;
 

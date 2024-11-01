@@ -20,7 +20,7 @@ namespace Systems
 		for (auto& decoration: Globals::Components().staticDecorations())
 			decoration.step();
 
-		for (auto& decoration: Globals::Components().dynamicDecorations())
+		for (auto& decoration: Globals::Components().decorations())
 			decoration.step();
 
 		updateDynamicBuffers();
@@ -34,6 +34,6 @@ namespace Systems
 
 	void Decorations::updateDynamicBuffers()
 	{
-		Tools::UpdateDynamicBuffers(Globals::Components().dynamicDecorations());
+		Tools::UpdateDynamicBuffers(Globals::Components().decorations());
 	}
 }

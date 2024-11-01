@@ -24,6 +24,11 @@ namespace Components
 		return details->sfSoundBuffer;
 	}
 
+	const sf::SoundBuffer& SoundBuffer::getBuffer() const
+	{
+		return details->sfSoundBuffer;
+	}
+
 	float SoundBuffer::getMaxVolume() const
 	{
 		return maxVolume;

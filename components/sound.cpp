@@ -11,6 +11,7 @@
 #include <SFML/Audio/Sound.hpp>
 
 #include <algorithm>
+#include <stdexcept>
 
 namespace Components
 {
@@ -19,9 +20,9 @@ namespace Components
 		sf::Sound sfSound;
 	};
 
-	Sound::Sound(ComponentId soundBufferId):
-		details(Sound::getNumOfInstances() + Music::getNumOfInstances() < 256 ? std::make_unique<SoundDetails>() : nullptr),
-		maxVolume(Globals::Components().soundsBuffers()[soundBufferId].getMaxVolume())
+	Sound::Sound(CM::SoundBuffer soundBuffer):
+		maxVolume(soundBuffer.component->getMaxVolume()),
+		details(Sound::getNumOfInstances() + Music::getNumOfInstances() < 256 ? std::make_unique<SoundDetails>() : nullptr)
 	{
 		if (!details)
 		{
@@ -29,8 +30,7 @@ namespace Components
 			return;
 		}
 
-		auto& soundBuffer = Globals::Components().soundsBuffers()[soundBufferId];
-		details->sfSound.setBuffer(soundBuffer.getBuffer());
+		details->sfSound.setBuffer(soundBuffer.component->getBuffer());
 
 		setVolume(1.0f);
 		setMinDistance(4.0f);

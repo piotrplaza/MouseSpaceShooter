@@ -15,11 +15,11 @@ struct AnimationData
 
 	AnimationData() = default;
 
-	AnimationData(TextureComponentVariant texture, glm::ivec2 textureSize, glm::ivec2 framesGrid, glm::ivec2 leftTopFrameLeftTopCorner, int rightTopFrameLeftEdge, int leftBottomFrameTopEdge,
+	AnimationData(CM::Texture texture, glm::ivec2 textureSize, glm::ivec2 framesGrid, glm::ivec2 leftTopFrameLeftTopCorner, int rightTopFrameLeftEdge, int leftBottomFrameTopEdge,
 		glm::ivec2 frameSize, float frameDuration, int numOfFrames = 0, int startFrame = 0, Direction animationDirection = Direction::Forward,
 		Mode animationMode = Mode::Repeat, TextureLayout textureLayout = TextureLayout::Horizontal);
 
-	const TextureComponentVariant& getTexture() const;
+	const CM::Texture& getTexture() const;
 
 	glm::mat4 getFrameTransformation() const;
 
@@ -42,7 +42,7 @@ private:
 	int getCurrentFrame() const;
 	glm::ivec2 getFrameLocation() const;
 
-	TextureComponentVariant texture{};
+	CM::Texture texture{};
 	glm::ivec2 framesGrid{};
 	glm::vec2 leftTopFrameLeftTopCorner{};
 	float rightTopFrameLeftEdge{};

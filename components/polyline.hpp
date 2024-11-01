@@ -40,10 +40,7 @@ namespace Components
 		{
 			ComponentBase::init(id, static_);
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::polyline, Globals::CollisionBits::all);
-			if (isStatic())
-				setBodyComponentVariant(CM::StaticPolyline(this));
-			else
-				setBodyComponentVariant(CM::DynamicPolyline(this));
+			setBodyComponentVariant(CM::Polyline(*this));
 		}
 
 		std::vector<glm::vec3> getVertices(bool transformed = false) const override

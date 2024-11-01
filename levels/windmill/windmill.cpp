@@ -85,29 +85,25 @@ namespace Levels
 		{
 			auto& textures = Globals::Components().staticTextures();
 
-			planeTextures[0] = textures.size();
-			textures.emplace("textures/plane 1.png");
+			planeTextures[0] = textures.emplace("textures/plane 1.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().preserveAspectRatio = true;
 
-			planeTextures[1] = textures.size();
-			textures.emplace("textures/alien ship 1.png");
+			planeTextures[1] = textures.emplace("textures/alien ship 1.png");
 			textures.last().translate = glm::vec2(-0.2f, 0.0f);
 			textures.last().scale = glm::vec2(1.9f);
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().preserveAspectRatio = true;
 
-			planeTextures[2] = textures.size();
-			textures.emplace("textures/plane 2.png");
+			planeTextures[2] = textures.emplace("textures/plane 2.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.8f, 1.8f);
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().preserveAspectRatio = true;
 
-			planeTextures[3] = textures.size();
-			textures.emplace("textures/alien ship 2.png");
+			planeTextures[3] = textures.emplace("textures/alien ship 2.png");
 			textures.last().translate = glm::vec2(0.0f, 0.0f);
 			textures.last().scale = glm::vec2(1.45f, 1.4f);
 			textures.last().minFilter = GL_LINEAR;
@@ -145,10 +141,10 @@ namespace Levels
 
 		void loadAudio()
 		{
-			auto& musics = Globals::Components().musics();
+			auto& musics = Globals::Components().staticMusics();
 			musics.emplace("audio/Ghosthack-Ambient Beds_Darkest Hour_Am 70Bpm (WET).ogg", 0.8f).play();
 
-			auto& soundsBuffers = Globals::Components().soundsBuffers();
+			auto& soundsBuffers = Globals::Components().staticSoundsBuffers();
 			missileExplosionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Detonate.wav").getComponentId();
 			playerExplosionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack-AC21_Impact_Cracked.wav").getComponentId();
 			missileLaunchingSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav", 0.2f).getComponentId();
@@ -163,8 +159,7 @@ namespace Levels
 		{
 			for (auto& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
 			{
-				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().size();
-				Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(flameAnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().add({ CM::Texture(flameAnimationTexture, true), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
 					AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
@@ -173,7 +168,7 @@ namespace Levels
 			Globals::Components().staticAnimatedTextures().add(Globals::Components().staticAnimatedTextures().last());
 
 			recursiveFaceAnimatedTexture = Globals::Components().staticAnimatedTextures().size();
-			Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(recursiveFaceAnimationTexture), { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
+			Globals::Components().staticAnimatedTextures().add({ CM::Texture(recursiveFaceAnimationTexture, true), { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
 				AnimationData::Direction::Forward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 			Globals::Components().staticAnimatedTextures().last().start(true);
 		}
@@ -193,7 +188,7 @@ namespace Levels
 			auto& staticDecorations = Globals::Components().staticDecorations();
 
 			staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 15.0f, 15.0f }),
-				CM::StaticAnimatedTexture(recursiveFaceAnimatedTexture), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(recursiveFaceRSF), RenderLayer::NearForeground);
+				CM::AnimatedTexture(recursiveFaceAnimatedTexture, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(recursiveFaceRSF), RenderLayer::NearForeground);
 			staticDecorations.last().modelMatrixF = [&, angle = 0.0f]() mutable {
 				return glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(innerForceScale)), angle += 2.0f * physics.frameDuration, { 0.0f, 0.0f, 1.0f });
 			};
@@ -213,7 +208,7 @@ namespace Levels
 				{ glm::vec2{-armOverlap, 0.0f}, glm::vec2{armLength, armHWidth}, glm::vec2{armLength, -armHWidth} },
 				{ glm::vec2{armOverlap, 0.0f}, glm::vec2{-armLength, -armHWidth}, glm::vec2{-armLength, armHWidth} } },
 				Tools::BodyParams().bodyType(b2_kinematicBody)));
-			staticWalls.last().texture = CM::StaticTexture(woodTexture);
+			staticWalls.last().texture = CM::Texture(woodTexture, true);
 		}
 
 		void createOuterRing()
@@ -255,7 +250,7 @@ namespace Levels
 				const float startAngle = glm::half_pi<float>() * i;
 
 				auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleRDist).bodyType(b2_kinematicBody)),
-					TCM::StaticTexture(orbTexture));
+					TCM::Texture(orbTexture));
 				grapple.influenceRadius = 15.0f;
 				grapple.stepF = [&, grappleRDist, startAngle, angle = 0.0f, rotationSpeed = 0.2f]() mutable {
 					const b2Vec2 pos = grapple.body->GetTransform().p;
@@ -270,7 +265,7 @@ namespace Levels
 				const float startAngle = glm::half_pi<float>() * i;
 
 				auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleRDist)
-					.bodyType(b2_dynamicBody).density(10.0f)), TCM::StaticTexture(orbTexture));
+					.bodyType(b2_dynamicBody).density(10.0f)), TCM::Texture(orbTexture));
 				grapple.influenceRadius = 15.0f;
 				grapplesDebris.push_back(grapple.getComponentId());
 			}*/
@@ -279,7 +274,7 @@ namespace Levels
 		void createDebris()
 		{
 			constexpr int numOfDebris = 8;
-			auto& dynamicWalls = Globals::Components().dynamicWalls();
+			auto& dynamicWalls = Globals::Components().walls();
 
 			for (const auto debrisId : dynamicWallsDebris)
 			{
@@ -296,7 +291,7 @@ namespace Levels
 				center *= (outerRingInitR + armLength) / 2.0f;
 				dynamicWalls.emplace(Tools::CreateRandomPolygonBody(12, 5.0f,
 					Tools::BodyParams().bodyType(b2_dynamicBody).position(center).density(2.0f).linearDamping(0.1f).angularDamping(0.1f)));
-				dynamicWalls.last().texture = CM::StaticTexture(spaceRockTexture);
+				dynamicWalls.last().texture = CM::Texture(spaceRockTexture, true);
 
 				dynamicWallsDebris.push_back(dynamicWalls.last().getComponentId());
 			}
@@ -307,12 +302,12 @@ namespace Levels
 			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 30.0f; }).scalingFactor(0.7f).additionalActors([]() { return glm::vec2(0.0f); }));
 
 			missilesHandler.setPlayersHandler(playersHandler);
-			missilesHandler.setExplosionTexture(CM::StaticTexture(explosionTexture));
-			missilesHandler.setMissileTexture(missileTexture);
-			missilesHandler.setFlameAnimatedTexture(flameAnimatedTexture);
+			missilesHandler.setExplosionTexture(CM::Texture(explosionTexture, true));
+			missilesHandler.setMissileTexture(CM::Texture(missileTexture, true));
+			missilesHandler.setFlameAnimatedTexture(CM::AnimatedTexture(flameAnimatedTexture, true));
 			missilesHandler.setExplosionParams(Tools::ExplosionParams().particlesDensity(0.2f).particlesRadius(2.0f).initExplosionVelocity(100.0f));
 			missilesHandler.setExplosionF([this](auto pos) {
-				Tools::CreateAndPlaySound(missileExplosionSoundBuffer, [pos](){ return pos; });
+				Tools::CreateAndPlaySound(CM::SoundBuffer(missileExplosionSoundBuffer, true), [pos](){ return pos; });
 			});
 		}
 
@@ -326,8 +321,8 @@ namespace Levels
 					Globals::Components().deferredActions().emplace([&](auto) {
 						auto& planeComponent = *std::get<CM::Plane>(Tools::AccessUserData(*plane.GetBody()).bodyComponentVariant).component;
 						Tools::CreateExplosion(Tools::ExplosionParams().center(planeComponent.getOrigin2D()).sourceVelocity(planeComponent.getVelocity()).
-							initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(CM::StaticTexture(explosionTexture)));
-						Tools::CreateAndPlaySound(playerExplosionSoundBuffer, [pos = planeComponent.getOrigin2D()]() { return pos; });
+							initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(CM::Texture(explosionTexture, true)));
+						Tools::CreateAndPlaySound(CM::SoundBuffer(playerExplosionSoundBuffer, true), [pos = planeComponent.getOrigin2D()]() { return pos; });
 						planeComponent.setEnabled(false);
 						return false;
 						});
@@ -335,7 +330,7 @@ namespace Levels
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::plane | Globals::CollisionBits::wall,
 				Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
-					Tools::CreateAndPlaySound(collisionSoundBuffer,
+					Tools::CreateAndPlaySound(CM::SoundBuffer(collisionSoundBuffer, true),
 						[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {
 							return pos;
 						},
@@ -346,7 +341,7 @@ namespace Levels
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::wall, Globals::CollisionBits::wall,
 				[this, soundsLimitter = Tools::SoundsLimitter::create(8)](const auto& wall1, const auto& wall2) mutable {
-					soundsLimitter->newSound(Tools::CreateAndPlaySound(collisionSoundBuffer,
+					soundsLimitter->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(collisionSoundBuffer, true),
 						[pos = *Tools::GetCollisionPoint(*wall1.GetBody(), *wall2.GetBody())]() {
 							return pos;
 						},
@@ -367,7 +362,7 @@ namespace Levels
 				});
 
 			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
-				missilesHandler.launchingMissile(playerHandlerId, fire, missileLaunchingSoundBuffer);
+				missilesHandler.launchingMissile(playerHandlerId, fire, CM::SoundBuffer(missileLaunchingSoundBuffer, true));
 				if (playersHandler.getActivePlayersHandlers().size() == 1 && Globals::Components().planes()[playersHandler.getActivePlayersHandlers().front()->playerId].controls.startPressed)
 					reset();
 				});
@@ -385,7 +380,7 @@ namespace Levels
 			missilesHandler.removeActiveMissiles();
 			Globals::MarkDynamicComponentsAsDirty();
 
-			innerForceSound = Tools::CreateAndPlaySound(innerForceSoundBuffer, []() { return glm::vec2(0.0f); },
+			innerForceSound = Tools::CreateAndPlaySound(CM::SoundBuffer(innerForceSoundBuffer, true), []() { return glm::vec2(0.0f); },
 				[](auto& sound) {
 					sound.setLoop(true);
 					sound.setVolume(0.0f);
@@ -397,7 +392,7 @@ namespace Levels
 			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
 				[this](unsigned playerId, auto) {
 					return initLoc(playerId);
-				}, false, thrustSoundBuffer, grappleSoundBuffer);
+				}, false, CM::SoundBuffer(thrustSoundBuffer, true), CM::SoundBuffer(grappleSoundBuffer, true));
 
 			missilesHandler.initCollisions();
 
@@ -442,7 +437,7 @@ namespace Levels
 			for (auto id : grapplesDebris)
 				applyForceForDebris(Globals::Components().grapples()[id], 100.0f);
 			for (auto id : dynamicWallsDebris)
-				applyForceForDebris(Globals::Components().dynamicWalls()[id], 10.0f);
+				applyForceForDebris(Globals::Components().walls()[id], 10.0f);
 
 			innerForceScale += physics.frameDuration * 0.05f;
 
@@ -451,7 +446,7 @@ namespace Levels
 
 		void emissions()
 		{
-			auto& polylines = Globals::Components().dynamicPolylines();
+			auto& polylines = Globals::Components().polylines();
 
 			if (physics.simulationDuration >= nextEmissionTime)
 			{
@@ -489,7 +484,7 @@ namespace Levels
 						: glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)) * 0.4f;
 				};
 
-				Tools::CreateAndPlaySound(emissionSoundBuffer, []() { return glm::vec2(0.0f); }, nullptr,
+				Tools::CreateAndPlaySound(CM::SoundBuffer(emissionSoundBuffer, true), []() { return glm::vec2(0.0f); }, nullptr,
 					[this, stop, volume = 1.0f](auto& sound) mutable {
 						if (*stop)
 						{
@@ -510,7 +505,7 @@ namespace Levels
 
 		RenderableDef::RenderingSetupF recursiveFaceRSF;
 
-		std::array<ComponentId, 4> planeTextures{ 0 };
+		std::array<CM::Texture, 4> planeTextures;
 		ComponentId spaceRockTexture = 0;
 		ComponentId woodTexture = 0;
 		ComponentId orbTexture = 0;
@@ -530,7 +525,7 @@ namespace Levels
 
 		ComponentId innerForceSound = 0;
 
-		std::array<ComponentId, 4> flameAnimatedTextureForPlayers{ 0 };
+		std::array<CM::AnimatedTexture, 4> flameAnimatedTextureForPlayers;
 		ComponentId flameAnimatedTexture = 0;
 		ComponentId recursiveFaceAnimatedTexture = 0;
 

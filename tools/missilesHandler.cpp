@@ -18,23 +18,23 @@ namespace Tools
 		Globals::Components().collisionFilters().emplace(Globals::CollisionBits::missile, Globals::CollisionBits::missile |
 			Globals::CollisionBits::plane | Globals::CollisionBits::polyline,
 			[this](const auto& missileFixture, const auto& targetFixture) {
-				const auto missileId = std::get<CM::Missile>(Tools::AccessUserData(*missileFixture.GetBody()).bodyComponentVariant).componentId;
+				const auto missile = std::get<CM::Missile>(Tools::AccessUserData(*missileFixture.GetBody()).bodyComponentVariant);
 				const auto& targetBodyComponentVariant = Tools::AccessUserData(*targetFixture.GetBody()).bodyComponentVariant;
-				const auto missilePlaneId = missilesToHandlers.at(missileId).planeId;
+				const auto missilePlane = missilesToHandlers.at(missile).plane;
 
-				if (!missilePlaneId)
+				if (!missilePlane)
 					return true;
 
-				if (std::holds_alternative<CM::StaticPolyline>(targetBodyComponentVariant) || std::holds_alternative<CM::DynamicPolyline>(targetBodyComponentVariant))
+				if (std::holds_alternative<CM::Polyline>(targetBodyComponentVariant))
 					return false;
 
 				if (const CM::Missile* targetMissile = std::get_if<CM::Missile>(&targetBodyComponentVariant))
 				{
-					const auto targetMissilePlaneId = missilesToHandlers.at(targetMissile->componentId).planeId;
-					return !targetMissilePlaneId || *missilePlaneId != *targetMissilePlaneId;
+					const auto targetMissilePlane = missilesToHandlers.at(targetMissile->componentId).plane;
+					return !targetMissilePlane || *missilePlane != *targetMissilePlane;
 				}
 
-				return *missilePlaneId != std::get<CM::Plane>(targetBodyComponentVariant).componentId;
+				return *missilePlane != std::get<CM::Plane>(targetBodyComponentVariant);
 			});
 
 		Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::missile, Globals::CollisionBits::all,
@@ -73,17 +73,17 @@ namespace Tools
 		this->playersHandler = &playersHandler;
 	}
 
-	void MissilesHandler::setExplosionTexture(TextureComponentVariant explosionTexture)
+	void MissilesHandler::setExplosionTexture(CM::Texture explosionTexture)
 	{
-		this->explosionTexture = std::move(explosionTexture);
+		this->explosionTexture = explosionTexture;
 	}
 
-	void MissilesHandler::setMissileTexture(ComponentId missileTexture)
+	void MissilesHandler::setMissileTexture(CM::Texture missileTexture)
 	{
 		this->missileTexture = missileTexture;
 	}
 
-	void MissilesHandler::setFlameAnimatedTexture(ComponentId flameAnimatedTexture)
+	void MissilesHandler::setFlameAnimatedTexture(CM::AnimatedTexture flameAnimatedTexture)
 	{
 		this->flameAnimatedTexture = flameAnimatedTexture;
 	}
@@ -103,7 +103,7 @@ namespace Tools
 		this->explosionF = explosionF;
 	}
 
-	const MissileHandler* MissilesHandler::launchingMissile(unsigned playerHandlerId, bool tryToLaunch, std::optional<ComponentId> soundBufferId, float maxLifetime)
+	const MissileHandler* MissilesHandler::launchingMissile(unsigned playerHandlerId, bool tryToLaunch, std::optional<CM::SoundBuffer> soundBuffer, float maxLifetime)
 	{
 		auto& playerHandler = playersHandler->accessPlayersHandlers()[playerHandlerId];
 
@@ -112,7 +112,7 @@ namespace Tools
 			if (playerHandler.durationToLaunchMissile <= 0.0f)
 			{
 				playerHandler.durationToLaunchMissile = 0.1f;
-				return &launchMissile(playerHandler.playerId, soundBufferId, maxLifetime);
+				return &launchMissile(playerHandler.playerId, soundBuffer, maxLifetime);
 			}
 			else playerHandler.durationToLaunchMissile -= Globals::Components().physics().frameDuration;
 		}
@@ -126,22 +126,22 @@ namespace Tools
 		missilesToHandlers.clear();
 	}
 
-	const MissileHandler& MissilesHandler::launchMissile(ComponentId playerId, std::optional<ComponentId> soundBufferId, float maxLifetime)
+	const MissileHandler& MissilesHandler::launchMissile(ComponentId playerId, std::optional<CM::SoundBuffer> soundBuffer, float maxLifetime)
 	{
 		auto missileHandler = Tools::CreateMissile(Globals::Components().planes()[playerId].getOrigin2D(),
 			Globals::Components().planes()[playerId].getAngle(), 5.0f, { 0.0f, 0.0f },
 			Globals::Components().planes()[playerId].getVelocity(),
-			missileTexture, flameAnimatedTexture, playerId, soundBufferId);
+			missileTexture, flameAnimatedTexture, playerId, soundBuffer);
 
 		auto& deferredActions = Globals::Components().deferredActions();
 		deferredActions.emplace(
-			[this, missileId = missileHandler.missileId, maxLifetime](float duration) {
+			[this, missile = missileHandler.missile, maxLifetime](float duration) {
 				if (duration < maxLifetime)
 					return true;
-				missilesToHandlers.erase(missileId);
+				missilesToHandlers.erase(missile);
 				return false;
 			});
 
-		return missilesToHandlers.emplace(missileHandler.missileId, std::move(missileHandler)).first->second;
+		return missilesToHandlers.emplace(missileHandler.missile, std::move(missileHandler)).first->second;
 	}
 }

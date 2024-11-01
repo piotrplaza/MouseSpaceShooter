@@ -8,7 +8,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-AnimationData::AnimationData(TextureComponentVariant texture, glm::ivec2 textureSize, glm::ivec2 framesGrid, glm::ivec2 leftTopFrameLeftTopCorner, int rightTopFrameLeftEdge, int leftBottomFrameTopEdge,
+AnimationData::AnimationData(CM::Texture texture, glm::ivec2 textureSize, glm::ivec2 framesGrid, glm::ivec2 leftTopFrameLeftTopCorner, int rightTopFrameLeftEdge, int leftBottomFrameTopEdge,
 	glm::ivec2 frameSize, float frameDuration, int numOfFrames, int startFrame, Direction animationDirection, Mode animationMode, TextureLayout textureLayout) :
 	texture(std::move(texture)),
 	framesGrid(framesGrid),
@@ -27,7 +27,7 @@ AnimationData::AnimationData(TextureComponentVariant texture, glm::ivec2 texture
 	assert(startFrame >= 0 && startFrame < numOfFrames);
 }
 
-const TextureComponentVariant& AnimationData::getTexture() const
+const CM::Texture& AnimationData::getTexture() const
 {
 	return texture;
 }

@@ -71,29 +71,25 @@ namespace Levels
 		{
 			auto& textures = Globals::Components().staticTextures();
 
-			planeTextures[0] = textures.size();
-			textures.emplace("textures/plane 1.png");
+			planeTextures[0] = textures.emplace("textures/plane 1.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().preserveAspectRatio = true;
 
-			planeTextures[1] = textures.size();
-			textures.emplace("textures/alien ship 1.png");
+			planeTextures[1] = textures.emplace("textures/alien ship 1.png");
 			textures.last().translate = glm::vec2(-0.2f, 0.0f);
 			textures.last().scale = glm::vec2(1.9f);
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().preserveAspectRatio = true;
 
-			planeTextures[2] = textures.size();
-			textures.emplace("textures/plane 2.png");
+			planeTextures[2] = textures.emplace("textures/plane 2.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.8f, 1.8f);
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().preserveAspectRatio = true;
 
-			planeTextures[3] = textures.size();
-			textures.emplace("textures/alien ship 2.png");
+			planeTextures[3] = textures.emplace("textures/alien ship 2.png");
 			textures.last().translate = glm::vec2(0.0f, 0.0f);
 			textures.last().scale = glm::vec2(1.45f, 1.4f);
 			textures.last().minFilter = GL_LINEAR;
@@ -185,10 +181,10 @@ namespace Levels
 
 		void loadAudio()
 		{
-			auto& musics = Globals::Components().musics();
+			auto& musics = Globals::Components().staticMusics();
 			musics.emplace("audio/Ghosthack-Ambient Beds_Darkest Hour_Am 70Bpm (WET).ogg", 0.8f).play();
 
-			auto& soundsBuffers = Globals::Components().soundsBuffers();
+			auto& soundsBuffers = Globals::Components().staticSoundsBuffers();
 			missileExplosionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Detonate.wav").getComponentId();
 			playerExplosionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack-AC21_Impact_Cracked.wav").getComponentId();
 			missileLaunchingSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav", 0.2f).getComponentId();
@@ -198,7 +194,7 @@ namespace Levels
 			avatarSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav", 0.4f).getComponentId();
 
 			for (float x : {-40.0f, 40.0f})
-				Tools::CreateAndPlaySound(avatarSoundBuffer, [x]() { return glm::vec2(x, -40.0f); },
+				Tools::CreateAndPlaySound(CM::SoundBuffer(avatarSoundBuffer, true), [x]() { return glm::vec2(x, -40.0f); },
 					[](auto& sound) {
 						sound.setLoop(true);
 					});
@@ -208,8 +204,7 @@ namespace Levels
 		{
 			for (auto& flameAnimatedTextureForPlayer: flameAnimatedTextureForPlayers)
 			{
-				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().size();
-				Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(flameAnimationTexture), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().add({ CM::Texture(flameAnimationTexture, true), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
 					AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
@@ -222,7 +217,7 @@ namespace Levels
 			Globals::Components().staticAnimatedTextures().last().setAdditionalTransformation({ 0.0f, 0.0f }, glm::pi<float>());
 
 			recursiveFaceAnimatedTexture = Globals::Components().staticAnimatedTextures().size();
-			Globals::Components().staticAnimatedTextures().add({ CM::StaticTexture(recursiveFaceAnimationTexture), { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
+			Globals::Components().staticAnimatedTextures().add({ CM::Texture(recursiveFaceAnimationTexture, true), { 263, 525 }, { 5, 10 }, { 0, 0 }, 210, 473, { 52, 52 }, 0.02f, 50, 0,
 				AnimationData::Direction::Forward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 			Globals::Components().staticAnimatedTextures().last().start(true);
 		}
@@ -242,12 +237,12 @@ namespace Levels
 
 				const auto& physics = Globals::Components().physics();
 				auto& staticDecorations = Globals::Components().staticDecorations();
-				auto& dynamicDecorations = Globals::Components().dynamicDecorations();
+				auto& dynamicDecorations = Globals::Components().decorations();
 
 				{
 					Tools::Shapes3D::AddCross(dynamicDecorations.emplace(), { 0.1f, 0.5f, 0.1f }, { 0.35f, 0.1f, 0.1f }, 0.15f, [](auto, glm::vec3 p) { return glm::vec2(p.x + p.z, p.y + p.z); });
 					dynamicDecorations.last().params3D->ambient(0.4f).diffuse(0.8f).specular(0.8f).specularMaterialColorFactor(0.2f).lightModelEnabled(true).gpuSideInstancedNormalTransforms(true);
-					dynamicDecorations.last().texture = CM::StaticTexture(marbleTexture);
+					dynamicDecorations.last().texture = CM::Texture(marbleTexture, true);
 					dynamicDecorations.last().bufferDataUsage = GL_DYNAMIC_DRAW;
 					dynamicDecorations.last().instancing.emplace().init(numOfCrosses, glm::mat4(1.0f));
 					dynamicDecorations.last().renderLayer = RenderLayer::NearBackground;
@@ -275,7 +270,7 @@ namespace Levels
 
 		void createForeground()
 		{
-			Tools::CreateFogForeground(2, 0.02f, fogTexture, [&]() mutable {
+			Tools::CreateFogForeground(2, 0.02f, CM::Texture(fogTexture, true), [&]() mutable {
 				return glm::vec4(1.0f, 1.0f, 1.0f, smokeIntensity + 1.0f);
 				});
 		}
@@ -313,7 +308,7 @@ namespace Levels
 		void createAdditionalDecorations() const
 		{
 			const auto blendingTexture = Globals::Components().staticBlendingTextures().size();
-			Globals::Components().staticBlendingTextures().add({ CM::StaticAnimatedTexture(invertedFlameAnimatedTexture), CM::StaticTexture(ppTexture), CM::StaticTexture(skullTexture), CM::StaticTexture(avatarTexture) });
+			Globals::Components().staticBlendingTextures().add({ CM::AnimatedTexture(invertedFlameAnimatedTexture, true), CM::Texture(ppTexture, true), CM::Texture(skullTexture, true), CM::Texture(avatarTexture, true) });
 
 			for (int i = 0; i < 2; ++i)
 			{
@@ -339,7 +334,7 @@ namespace Levels
 				};
 
 				Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle(portraitCenter, { 10.0f, 10.0f }),
-					CM::StaticBlendingTexture(blendingTexture), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF),
+					CM::BlendingTexture(blendingTexture, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF),
 					RenderLayer::NearMidground);
 			}
 
@@ -372,20 +367,20 @@ namespace Levels
 					Globals::Components().staticWalls().last().subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfLineOfRectangles({ 0.4f, 0.4f },
 						{ { -0.5f, -5.0f }, { 0.5f, -5.0f }, { 0.5f, 5.0f }, { -0.5f, 5.0f }, { -0.5f, -5.0f } },
 						{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }), Tools::Shapes2D::CreateTexCoordOfRectangle(),
-						CM::StaticTexture(roseTexture));
+						CM::Texture(roseTexture, true));
 					Globals::Components().staticWalls().last().subsequence.back().modelMatrixF =
 						Globals::Components().staticWalls()[Globals::Components().staticWalls().size() - 1].modelMatrixF;
 				};
 
 				auto& wall1Body = *Globals::Components().staticWalls().emplace(
 					Tools::CreateBoxBody({ 0.5f, 5.0f }, Tools::BodyParams().position({ 5.0f, -5.0f }).bodyType(b2_dynamicBody).density(0.2f)),
-					CM::StaticTexture(woodTexture), std::move(renderingSetupF), RenderLayer::NearMidground).body;
+					CM::Texture(woodTexture, true), std::move(renderingSetupF), RenderLayer::NearMidground).body;
 				wall1Body.GetFixtureList()->SetRestitution(0.5f);
 				setRenderingSetupAndSubsequence();
 
 				auto& wall2Body = *Globals::Components().staticWalls().emplace(
 					Tools::CreateBoxBody({ 0.5f, 5.0f }, Tools::BodyParams().position({ 5.0f, 5.0f }).bodyType(b2_dynamicBody).density(0.2f)),
-					CM::StaticTexture(woodTexture), nullptr, RenderLayer::NearMidground).body;
+					CM::Texture(woodTexture, true), nullptr, RenderLayer::NearMidground).body;
 				wall2Body.GetFixtureList()->SetRestitution(0.5f);
 				setRenderingSetupAndSubsequence();
 
@@ -393,7 +388,7 @@ namespace Levels
 			}
 
 			const auto blendingTexture = Globals::Components().staticBlendingTextures().size();
-			Globals::Components().staticBlendingTextures().add({ CM::StaticTexture(fractalTexture), CM::StaticTexture(woodTexture), CM::StaticTexture(spaceRockTexture), CM::StaticTexture(foiledEggsTexture) });
+			Globals::Components().staticBlendingTextures().add({ CM::Texture(fractalTexture, true), CM::Texture(woodTexture, true), CM::Texture(spaceRockTexture, true), CM::Texture(foiledEggsTexture, true) });
 
 			for (const float pos : {-30.0f, 30.0f})
 			{
@@ -403,12 +398,12 @@ namespace Levels
 
 						if (pos < 0.0f)
 						{
-							Tools::PrepareTexturedRender(Globals::Shaders().texturedColorThreshold(), CM::StaticTexture(orbTexture));
+							Tools::PrepareTexturedRender(Globals::Shaders().texturedColorThreshold(), CM::Texture(orbTexture, true));
 							Globals::Shaders().texturedColorThreshold().texturesCustomTransform(Tools::TextureTransform({ 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }));
 						}
 						else
 						{
-							Tools::PrepareTexturedRender(Globals::Shaders().texturedColorThreshold(), CM::StaticBlendingTexture(blendingTexture));
+							Tools::PrepareTexturedRender(Globals::Shaders().texturedColorThreshold(), CM::BlendingTexture(blendingTexture, true));
 						}
 
 						const float simulationDuration = Globals::Components().physics().simulationDuration;
@@ -446,7 +441,7 @@ namespace Levels
 						float result = value;
 						value += 0.002f;
 						return result;
-					}), Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::StaticTexture(roseTexture), std::move(renderingSetupF));
+					}), Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::Texture(roseTexture, true), std::move(renderingSetupF));
 			}
 
 			Globals::Components().staticWalls().last().resolutionMode = { ResolutionMode::Resolution::H68 };
@@ -498,16 +493,16 @@ namespace Levels
 					};
 
 					const auto blendingTexture = Globals::Components().staticBlendingTextures().size();
-					Globals::Components().staticBlendingTextures().add({ CM::StaticTexture(fractalTexture), CM::StaticTexture(woodTexture), CM::StaticTexture(spaceRockTexture), CM::StaticTexture(foiledEggsTexture) });
+					Globals::Components().staticBlendingTextures().add({ CM::Texture(fractalTexture, true), CM::Texture(woodTexture, true), CM::Texture(spaceRockTexture, true), CM::Texture(foiledEggsTexture, true) });
 
 					Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHeightHSize + bordersHGauge * 2 },
-						Tools::BodyParams().position({ -levelWidthHSize - bordersHGauge, 0.0f })), CM::StaticBlendingTexture(blendingTexture), renderingSetupF, RenderLayer::NearMidground);
+						Tools::BodyParams().position({ -levelWidthHSize - bordersHGauge, 0.0f })), CM::BlendingTexture(blendingTexture, true), renderingSetupF, RenderLayer::NearMidground);
 					Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHeightHSize + bordersHGauge * 2 },
-						Tools::BodyParams().position({ levelWidthHSize + bordersHGauge, 0.0f })), CM::StaticBlendingTexture(blendingTexture), renderingSetupF, RenderLayer::NearMidground);
+						Tools::BodyParams().position({ levelWidthHSize + bordersHGauge, 0.0f })), CM::BlendingTexture(blendingTexture, true), renderingSetupF, RenderLayer::NearMidground);
 					Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHeightHSize + bordersHGauge * 2, bordersHGauge },
-						Tools::BodyParams().position({ 0.0f, -levelHeightHSize - bordersHGauge })), CM::StaticBlendingTexture(blendingTexture), renderingSetupF, RenderLayer::NearMidground);
+						Tools::BodyParams().position({ 0.0f, -levelHeightHSize - bordersHGauge })), CM::BlendingTexture(blendingTexture, true), renderingSetupF, RenderLayer::NearMidground);
 					Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHeightHSize + bordersHGauge * 2, bordersHGauge },
-						Tools::BodyParams().position({ 0.0f, levelHeightHSize + bordersHGauge })), CM::StaticBlendingTexture(blendingTexture), std::move(renderingSetupF), RenderLayer::NearMidground);
+						Tools::BodyParams().position({ 0.0f, levelHeightHSize + bordersHGauge })), CM::BlendingTexture(blendingTexture, true), std::move(renderingSetupF), RenderLayer::NearMidground);
 			}
 
 			auto renderingSetupF = [
@@ -528,7 +523,7 @@ namespace Levels
 			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfLineOfRectangles({ 1.5f, 1.5f },
 				{ { -levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, levelHeightHSize },
 				{ -levelWidthHSize, levelHeightHSize }, { -levelWidthHSize, -levelHeightHSize } },
-				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), CM::StaticTexture(weedTexture), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
+				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), CM::Texture(weedTexture, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
 			Globals::Components().staticDecorations().last().renderLayer = RenderLayer::FarForeground;
 			//Globals::Components().decorations().back().resolutionMode = ResolutionMode::PixelArtBlend0;
 		}
@@ -536,7 +531,7 @@ namespace Levels
 		void createGrapples() const
 		{
 			Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 0.0f, 10.0f })),
-				CM::StaticTexture(orbTexture)).influenceRadius = 15.0f;
+				CM::Texture(orbTexture, true)).influenceRadius = 15.0f;
 
 			{
 				auto renderingSetupF = [colorUniform = UniformsUtils::Uniform4f()](ShadersUtils::ProgramId program) mutable {
@@ -546,7 +541,7 @@ namespace Levels
 				};
 
 				Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 0.0f, -10.0f })),
-					CM::StaticTexture(orbTexture), std::move(renderingSetupF)).influenceRadius = 15.0f;
+					CM::Texture(orbTexture, true), std::move(renderingSetupF)).influenceRadius = 15.0f;
 			}
 
 			{
@@ -560,7 +555,7 @@ namespace Levels
 
 					Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f,
 						Tools::BodyParams().position({ -10.0f, -30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)),
-						CM::StaticTexture(orbTexture), std::move(renderingSetupF)).influenceRadius = 30.0f;
+						CM::Texture(orbTexture, true), std::move(renderingSetupF)).influenceRadius = 30.0f;
 			}
 
 			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(4.0f,
@@ -568,7 +563,7 @@ namespace Levels
 			grapple.influenceRadius = 30.0f;
 			grapple.renderF = []() { return false; };
 			grapple.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.2f, 5.2f }),
-				Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::StaticAnimatedTexture(recursiveFaceAnimatedTexture));
+				Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::AnimatedTexture(recursiveFaceAnimatedTexture, true));
 			grapple.subsequence.back().modelMatrixF = grapple.modelMatrixF;
 			grapple.subsequence.back().renderingSetupF = createRecursiveFaceRS([]() { return glm::vec4(1.0f); }, { 3.0f, 4.0f });
 		}
@@ -608,19 +603,19 @@ namespace Levels
 				if (first)
 				{
 					first = false;
-					auto& wall = Globals::Components().dynamicWalls().emplace(Tools::CreateBoxBody({ 5.0f, 5.0f },
-						Tools::BodyParams().position({ -50.0f, 30.0f })), CM::StaticTexture(woodTexture, { 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }), standardRSF);
+					auto& wall = Globals::Components().walls().emplace(Tools::CreateBoxBody({ 5.0f, 5.0f },
+						Tools::BodyParams().position({ -50.0f, 30.0f })), CM::Texture(woodTexture, true, { 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }), standardRSF);
 					dynamicWallId = wall.getComponentId();
 
 					auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f, Tools::BodyParams().position({ 50.0f, 30.0f })),
-						CM::StaticAnimatedTexture(recursiveFaceAnimatedTexture, { 0.0f, 0.0f }, 0.0f, { 6.0f, 6.0f }), recursiveFaceRSF);
+						CM::AnimatedTexture(recursiveFaceAnimatedTexture, true, { 0.0f, 0.0f }, 0.0f, { 6.0f, 6.0f }), recursiveFaceRSF);
 					grapple.influenceRadius = 20.0f;
 					dynamicGrappleId = grapple.getComponentId();
 				}
 				else if (duration >= existenceDuration)
 				{
 					first = true;
-					Globals::Components().dynamicWalls()[dynamicWallId].state = ComponentState::Outdated;
+					Globals::Components().walls()[dynamicWallId].state = ComponentState::Outdated;
 					Globals::Components().grapples()[dynamicGrappleId].state = ComponentState::Outdated;
 					Globals::Components().deferredActions().emplace([spawner](float duration) mutable { return spawner(duration, spawner); }, existenceDuration);
 
@@ -639,20 +634,20 @@ namespace Levels
 					const float gap = 5.0f;
 					const float farPlayersDistance = gap * (numOfPlayers - 1);
 					return glm::vec3(-10.0f, -farPlayersDistance / 2.0f + gap * playerId, 0.0f);
-				}, false, thrustSoundBuffer, grappleSoundBuffer);
+				}, false, CM::SoundBuffer(thrustSoundBuffer, true), CM::SoundBuffer(grappleSoundBuffer, true));
 
 			missilesHandler.initCollisions();
 			missilesHandler.setPlayersHandler(playersHandler);
-			missilesHandler.setExplosionTexture(CM::StaticTexture(explosionTexture));
-			missilesHandler.setMissileTexture(missile2Texture);
-			missilesHandler.setFlameAnimatedTexture(flameAnimatedTexture);
+			missilesHandler.setExplosionTexture(CM::Texture(explosionTexture, true));
+			missilesHandler.setMissileTexture(CM::Texture(missile2Texture, true));
+			missilesHandler.setFlameAnimatedTexture(CM::AnimatedTexture(flameAnimatedTexture, true));
 			missilesHandler.setResolutionModeF([this](const auto& targetBody) {
 				return lowResBodies.contains(&targetBody)
 					? ResolutionMode{ ResolutionMode::Resolution::H135, ResolutionMode::Scaling::Nearest, ResolutionMode::Blending::Additive }
 					: ResolutionMode{ ResolutionMode::Resolution::QuarterNative, ResolutionMode::Scaling::Linear, ResolutionMode::Blending::Additive};
 				});
 			missilesHandler.setExplosionF([this](auto pos) {
-				Tools::CreateAndPlaySound(missileExplosionSoundBuffer, [pos]() { return pos; });
+				Tools::CreateAndPlaySound(CM::SoundBuffer(missileExplosionSoundBuffer, true), [pos]() { return pos; });
 				explosionFrame = true;
 				});
 		}
@@ -660,7 +655,7 @@ namespace Levels
 		void collisionHandlers()
 		{
 			auto collisionSound = Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
-				Tools::CreateAndPlaySound(collisionSoundBuffer,
+				Tools::CreateAndPlaySound(CM::SoundBuffer(collisionSoundBuffer, true),
 					[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {
 						return pos;
 					},
@@ -680,7 +675,7 @@ namespace Levels
 		{
 			playersHandler.gamepadsAutodetectionStep([](auto) { return glm::vec3(0.0f); });
 			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
-				missilesHandler.launchingMissile(playerHandlerId, fire, missileLaunchingSoundBuffer);
+				missilesHandler.launchingMissile(playerHandlerId, fire, CM::SoundBuffer(missileLaunchingSoundBuffer, true));
 				});
 		
 			const auto& mouse = Globals::Components().mouse();
@@ -726,7 +721,7 @@ namespace Levels
 			}
 
 			const auto& keyboard = Globals::Components().keyboard();
-			auto& crosses = Globals::Components().dynamicDecorations()[crossesId];
+			auto& crosses = Globals::Components().decorations()[crossesId];
 
 			if (keyboard.pressed['C'])
 			{
@@ -783,7 +778,7 @@ namespace Levels
 		}
 
 	private:
-		std::array<ComponentId, 4> planeTextures{ 0 };
+		std::array<CM::Texture, 4> planeTextures;
 		ComponentId spaceRockTexture = 0;
 		ComponentId woodTexture = 0;
 		ComponentId orbTexture = 0;
@@ -803,7 +798,7 @@ namespace Levels
 		ComponentId recursiveFaceAnimationTexture = 0;
 		ComponentId marbleTexture = 0;
 
-		std::array<ComponentId, 4> flameAnimatedTextureForPlayers{ 0 };
+		std::array<CM::AnimatedTexture, 4> flameAnimatedTextureForPlayers;
 		ComponentId flameAnimatedTexture = 0;
 		ComponentId invertedFlameAnimatedTexture = 0;
 		ComponentId recursiveFaceAnimatedTexture = 0;
