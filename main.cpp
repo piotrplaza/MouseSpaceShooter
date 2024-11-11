@@ -75,6 +75,7 @@ const bool console = true;
 const bool glDebug = false;
 const GLenum glDebugMinSeverity = GL_DEBUG_SEVERITY_LOW;
 const glm::ivec2 windowRes = { 1920, 1080 };
+const bool forcedScreenModeEnabled = false;
 
 const bool fullScreen =
 #ifdef _DEBUG
@@ -82,6 +83,13 @@ debugFullscreen;
 #else 
 releaseFullscreen;
 #endif
+
+struct 
+{
+	glm::ivec2 resolution;
+	int bitsPerPixel;
+	int refreshRate;
+} forcedScreenMode = { { 1920, 1080 }, 32, 60 };
 
 std::unique_ptr<Levels::Level> activeLevel;
 
@@ -365,6 +373,24 @@ int APIENTRY WinMain(
 {
 	if (console)
 		Tools::RedirectIOToConsole({ 3850, 10 });
+
+	if (forcedScreenModeEnabled)
+	{
+		DEVMODE dmScreenSettings;
+		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
+		dmScreenSettings.dmSize = sizeof(dmScreenSettings);
+		dmScreenSettings.dmPelsWidth = forcedScreenMode.resolution.x;
+		dmScreenSettings.dmPelsHeight = forcedScreenMode.resolution.y;
+		dmScreenSettings.dmBitsPerPel = forcedScreenMode.bitsPerPixel;
+		dmScreenSettings.dmDisplayFrequency = forcedScreenMode.refreshRate;
+		dmScreenSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
+
+		if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
+		{
+			MessageBox(NULL, "Unable to change to selected full screen mode.", "Error", MB_OK);
+			return 1;
+		}
+	}
 
 	const LPCTSTR lpszAppName = "OpenGL window";
 	const int winPosX = 10, winPosY = 10;
