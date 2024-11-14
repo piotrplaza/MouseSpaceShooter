@@ -281,7 +281,7 @@ enemy.monk.presentation.scale 1.0 1.0
 enemy.monk.presentation.velocityRotationFactor 0.0005
 enemy.monk.presentation.velocityAnimationSpeedFactor 1.2
 enemy.monk.presentation.weaponOffset 0.0 0.0
-enemy.monk.animation.textureFile "enemy_6.png"
+enemy.monk.animation.textureFile "enemy 6.png"
 enemy.monk.animation.framesGrid 8 5
 enemy.monk.animation.leftTopFrameLeftTopCorner 0 0
 enemy.monk.animation.rightTopFrameLeftEdge 1790
