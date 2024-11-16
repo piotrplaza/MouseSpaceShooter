@@ -1,11 +1,10 @@
-startup.pixelArt false
-
+game.pixelArt false
 game.globalVolume 1.0
-game.musicVolume 1.0
-game.musicFile "DamageOn 7.ogg"
-game.mapHSize 20.0
+game.musicVolume 0.8
+game.musicFile "DamageOn 5.ogg"
 game.players.count 2
-game.players.assignment frankenstein frankenstein frankenstein frankenstein
+game.players.typeAssignment frankenstein frankenstein frankenstein frankenstein
+game.players.weaponAssignment sparkingNearest sparkingRandom sparkingNearest sparkingNearest
 game.players.startPos -30.0 0.0
 game.camera.minProjectionHSize 8.0
 game.camera.trackingMargin 5.0
@@ -14,6 +13,30 @@ game.camera.projectionTransitionFactor 5.0
 game.gamepad.firstPlayer true
 game.gamepad.deadZone 0.2
 game.gamepad.triggerDeadZone 0.1
+
+level.mapHSize 20.0
+
+level.walls.circle 0.09 0.13 0.3
+level.walls.circle -0.035 0.005 0.275
+level.walls.circle -0.21 -0.17 0.15
+
+level.debris.count 5
+level.debris.widthRange 0.3, 1.0
+level.debris.heightRatioRange 1.6, 2.0
+level.debris.angleRange 0.0, 360.0
+level.debris.density 20.0
+
+weapon.sparkingNearest.distance 20.0
+weapon.sparkingNearest.damageFactor 10.0
+weapon.sparkingNearest.overchargingRate 0.3
+weapon.sparkingNearest.coolingRate 0.3
+weapon.sparkingNearest.initPower 20
+
+weapon.sparkingRandom.distance 20.0
+weapon.sparkingRandom.damageFactor 10.0
+weapon.sparkingRandom.overchargingRate 0.3
+weapon.sparkingRandom.coolingRate 0.3
+weapon.sparkingRandom.initPower 20
 
 player.frankenstein.radius 1.0
 player.frankenstein.maxVelocity 8.0
@@ -83,7 +106,7 @@ enemy.ghost.animation.neutralFrame 0
 enemy.chicken.initCount 50
 enemy.chicken.startPosition 10.0 0.0
 enemy.chicken.initHP 50.0
-enemy.chicken.initRadiusRange 1.5 2.5
+enemy.chicken.initRadiusRange 0.5 1.0
 enemy.chicken.density 0.2
 enemy.chicken.baseVelocity 4.0
 enemy.chicken.boostDistance 15.0
@@ -116,8 +139,8 @@ enemy.chicken.animation.frameRotation 0.0
 enemy.chicken.animation.frameScale 1.275 1.275
 enemy.chicken.animation.neutralFrame 0
 
-enemy.zombie.initCount 50
-enemy.zombie.startPosition 0.0 -10.0
+enemy.zombie.initCount 20
+enemy.zombie.startPosition 5.0 -10.0
 enemy.zombie.initHP 20.0
 enemy.zombie.initRadiusRange 0.8 1.2
 enemy.zombie.density 0.2
@@ -265,7 +288,7 @@ enemy.gargoyleFourLegs.animation.neutralFrame 0
 enemy.monk.initCount 5
 enemy.monk.startPosition -5.0 0.0
 enemy.monk.initHP 20.0
-enemy.monk.initRadiusRange 1.5 2.5
+enemy.monk.initRadiusRange 1.5 2.0
 enemy.monk.density 0.2
 enemy.monk.baseVelocity 1.5
 enemy.monk.boostDistance 15.0
@@ -274,8 +297,8 @@ enemy.monk.slowFactor 0.5
 enemy.monk.radiusReductionFactor 0.0
 enemy.monk.minimalRadius 0.5
 enemy.monk.killSpawns 0
-enemy.monk.presentation.radiusProportions 1.0 1.0
-enemy.monk.presentation.translation 0.0 0.0
+enemy.monk.presentation.radiusProportions 1.3 1.3
+enemy.monk.presentation.translation -0.3 0.1
 enemy.monk.presentation.rotation 0.0
 enemy.monk.presentation.scale 1.0 1.0
 enemy.monk.presentation.velocityRotationFactor 0.0005
@@ -298,7 +321,38 @@ enemy.monk.animation.frameRotation 0.0
 enemy.monk.animation.frameScale 0.88 0.88
 enemy.monk.animation.neutralFrame 0
 
-weapon.sparking.distance 10.0
-weapon.sparking.damageFactor 10.0
-weapon.sparking.overchargingRate 0.1
-weapon.sparking.coolingRate 0.2
+enemy.bird.initCount 20
+enemy.bird.startPosition -5.0 -10.0
+enemy.bird.initHP 20.0
+enemy.bird.initRadiusRange 1.0 1.5
+enemy.bird.density 0.2
+enemy.bird.baseVelocity 1.5
+enemy.bird.boostDistance 15.0
+enemy.bird.boostFactor 4.0
+enemy.bird.slowFactor 0.5
+enemy.bird.radiusReductionFactor 0.0
+enemy.bird.minimalRadius 0.5
+enemy.bird.killSpawns 0
+enemy.bird.presentation.radiusProportions 1.0 1.0
+enemy.bird.presentation.translation 0.0 0.0
+enemy.bird.presentation.rotation 0.0
+enemy.bird.presentation.scale 1.0 1.0
+enemy.bird.presentation.velocityRotationFactor 0.0005
+enemy.bird.presentation.velocityAnimationSpeedFactor 1.2
+enemy.bird.presentation.weaponOffset 0.0 0.0
+enemy.bird.animation.textureFile "enemy 7.png"
+enemy.bird.animation.framesGrid 8 5
+enemy.bird.animation.leftTopFrameLeftTopCorner 0 0
+enemy.bird.animation.rightTopFrameLeftEdge 1790
+enemy.bird.animation.leftBottomFrameTopEdge 1025
+enemy.bird.animation.frameSize 225 225
+enemy.bird.animation.frameDuration 0.1
+enemy.bird.animation.numOfFrames 40
+enemy.bird.animation.startFrame -1
+enemy.bird.animation.direction forward
+enemy.bird.animation.mode repeat
+enemy.bird.animation.textureLayout horizontal
+enemy.bird.animation.frameTranslation 0.0 0.075
+enemy.bird.animation.frameRotation 0.0
+enemy.bird.animation.frameScale 0.88 0.88
+enemy.bird.animation.neutralFrame 0

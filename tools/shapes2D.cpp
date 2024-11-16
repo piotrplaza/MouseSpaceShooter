@@ -94,9 +94,11 @@ namespace Tools::Shapes2D
 		return vertices;
 	}
 
-	void AppendVerticesOfCircle(std::vector<glm::vec3>& vertices, const glm::vec2& position, float radius, int complexity,
+	size_t AppendVerticesOfCircle(std::vector<glm::vec3>& vertices, const glm::vec2& position, float radius, int complexity,
 		const glm::mat4& modelMatrix, float z)
 	{
+		const size_t initialSize = vertices.size();
+
 		vertices.reserve(vertices.size() + complexity * 3);
 
 		const float radialStep = glm::two_pi<float>() / complexity;
@@ -112,6 +114,8 @@ namespace Tools::Shapes2D
 			vertices.push_back(modelMatrix * glm::vec4(position + glm::vec2(glm::cos(nextRadialPosition),
 				glm::sin(nextRadialPosition)) * radius, z, 1.0f));
 		}
+
+		return vertices.size() - initialSize;
 	}
 
 	std::vector<glm::vec3> CreateVerticesOfCircle(const glm::vec2& position, float radius, int complexity,
@@ -122,7 +126,7 @@ namespace Tools::Shapes2D
 		return vertices;
 	}
 
-	void AppendVerticesOfLightning(std::vector<glm::vec3>& vertices, const glm::vec2& p1, const glm::vec2& p2,
+	size_t AppendVerticesOfLightning(std::vector<glm::vec3>& vertices, const glm::vec2& p1, const glm::vec2& p2,
 		int segmentsNum, float frayFactor, float z)
 	{
 		// TODO: Investigate why this reserve is slowing down the program.
@@ -155,6 +159,8 @@ namespace Tools::Shapes2D
 			vertices[initialSize + i * 2] += glm::vec3(stepCorrection * (float)i, 0.0f);
 			vertices[initialSize + i * 2 + 1] += glm::vec3(stepCorrection * (float)(i + 1), 0.0f);
 		}
+
+		return vertices.size() - initialSize;
 	}
 
 	std::vector<glm::vec3> CreateVerticesOfLightning(const glm::vec2& p1, const glm::vec2& p2,

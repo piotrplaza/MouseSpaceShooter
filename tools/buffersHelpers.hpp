@@ -38,6 +38,9 @@ namespace Tools
 			}();
 
 			selectedBuffers.applyComponent(component, true);
+
+			if (component.state == ComponentState::Changed)
+				component.state = ComponentState::Ongoing;
 		}
 	}
 
@@ -80,6 +83,9 @@ namespace Tools
 
 			auto& selectedBuffers = mapOfSelectedBuffers[component.getComponentId()];
 			selectedBuffers.applyComponent(component, false);
+
+			if (component.state == ComponentState::Changed)
+				component.state = ComponentState::Ongoing;
 		}
 	}
 
