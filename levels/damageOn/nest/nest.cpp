@@ -723,8 +723,6 @@ namespace Levels::DamageOn
 			{
 				std::string typeName{};
 
-				int initCount{};
-				glm::vec2 startPosition{};
 				float initHP{};
 				glm::vec2 initRadiusRange{};
 				float density{};
@@ -797,6 +795,18 @@ namespace Levels::DamageOn
 
 				bool outdated{};
 			};
+		};
+
+		struct Actions
+		{
+			struct HordeSpawner
+			{
+				EnemyType& enemyType;
+				glm::vec2 position;
+				int count;
+			};
+
+			std::vector<HordeSpawner> initHordeSpawners;
 		};
 
 		void playerSpawn(PlayerType& playerType, WeaponType& weaponType, glm::vec2 position)
@@ -1235,8 +1245,11 @@ namespace Levels::DamageOn
 							const auto spacePos2 = value.find(' ', spacePos1 + 1);
 							const auto spacePos3 = value.find(' ', spacePos2 + 1);
 							const auto spacePos4 = value.find(' ', spacePos3 + 1);
-							param.push_back({ Tools::Stof(value.substr(0, spacePos1)), Tools::Stof(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)),
-								Tools::Stof(value.substr(spacePos2 + 1, spacePos3 - spacePos2 - 1)), Tools::Stof(value.substr(spacePos3 + 1, spacePos4 - spacePos3 - 1)),
+							param.push_back({
+								Tools::Stof(value.substr(0, spacePos1)),
+								Tools::Stof(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)),
+								Tools::Stof(value.substr(spacePos2 + 1, spacePos3 - spacePos2 - 1)),
+								Tools::Stof(value.substr(spacePos3 + 1, spacePos4 - spacePos3 - 1)),
 								Tools::Stof(value.substr(spacePos4 + 1)) });
 						}
 					}
@@ -1248,7 +1261,25 @@ namespace Levels::DamageOn
 						{
 							const auto spacePos1 = value.find(' ');
 							const auto spacePos2 = value.find(' ', spacePos1 + 1);
-							param.push_back({ Tools::Stof(value.substr(0, spacePos1)), Tools::Stof(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)), Tools::Stof(value.substr(spacePos2 + 1)) });
+							param.push_back({
+								Tools::Stof(value.substr(0, spacePos1)),
+								Tools::Stof(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)),
+								Tools::Stof(value.substr(spacePos2 + 1)) });
+						}
+					}
+					else if constexpr (std::is_same_v<ParamType, std::vector<Actions::HordeSpawner>>)
+					{
+						const auto values = getValues(key);
+						param.reserve(values.size());
+						for (const auto& value : values)
+						{
+							const auto spacePos1 = value.find(' ');
+							const auto spacePos2 = value.find(' ', spacePos1 + 1);
+							const auto spacePos3 = value.find(' ', spacePos2 + 1);
+							auto& enemyType = enemyGameComponents.typeNamesToTypes.at(value.substr(0, spacePos1));
+							param.push_back({ enemyType,
+								glm::vec2(Tools::Stof(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)), Tools::Stof(value.substr(spacePos2 + 1, spacePos3 - spacePos2 - 1))),
+								Tools::Stoi(value.substr(spacePos3 + 1)) });
 						}
 					}
 					else if constexpr (std::is_same_v<ParamType, AnimationData::Direction>)
@@ -1346,6 +1377,7 @@ namespace Levels::DamageOn
 			};
 
 			auto loadWeaponParams = [&]() {
+				weaponGameComponents.reset();
 				std::string prevWeaponName;
 				for (const auto& [key, value] : keysToValues)
 				{
@@ -1366,6 +1398,7 @@ namespace Levels::DamageOn
 			};
 
 			auto loadPlayerParams = [&]() {
+				playerGameComponents.reset();
 				std::string prevPlayerName;
 				for (const auto& [key, value] : keysToValues)
 				{
@@ -1388,6 +1421,7 @@ namespace Levels::DamageOn
 			};
 
 			auto loadEnemyParams = [&]() {
+				enemyGameComponents.reset();
 				std::string prevEnemyName;
 				for (const auto& [key, value] : keysToValues)
 				{
@@ -1396,8 +1430,6 @@ namespace Levels::DamageOn
 						auto& enemyTypeParams = enemyGameComponents.typeNamesToTypes.emplace(enemyName, EnemyType{}).first->second.params;
 						enemyTypeParams.typeName = std::move(enemyName);
 
-						loadParam(enemyTypeParams.initCount, std::format("enemy.{}.initCount", enemyTypeParams.typeName));
-						loadParam(enemyTypeParams.startPosition, std::format("enemy.{}.startPosition", enemyTypeParams.typeName));
 						loadParam(enemyTypeParams.initHP, std::format("enemy.{}.initHP", enemyTypeParams.typeName));
 						loadParam(enemyTypeParams.initRadiusRange, std::format("enemy.{}.initRadiusRange", enemyTypeParams.typeName));
 						loadParam(enemyTypeParams.density, std::format("enemy.{}.density", enemyTypeParams.typeName));
@@ -1416,6 +1448,7 @@ namespace Levels::DamageOn
 				}
 			};
 
+			gameParams = {};
 			loadParam(gameParams.pixelArt, "game.pixelArt", false);
 			loadParam(gameParams.globalVolume, "game.globalVolume");
 			loadParam(gameParams.musicVolume, "game.musicVolume");
@@ -1432,6 +1465,7 @@ namespace Levels::DamageOn
 			loadParam(gameParams.gamepad.deadZone, "game.gamepad.deadZone");
 			loadParam(gameParams.gamepad.triggerDeadZone, "game.gamepad.triggerDeadZone");
 
+			levelParams = {};
 			loadParam(levelParams.backgroundTexture, "level.backgroundTexture");
 			loadParam(levelParams.mapHHeight, "level.mapHHeight");
 			loadParam(levelParams.walls.boxes, "level.walls.box", false);
@@ -1445,6 +1479,9 @@ namespace Levels::DamageOn
 			loadWeaponParams();
 			loadPlayerParams();
 			loadEnemyParams();
+
+			actions = {};
+			loadParam(actions.initHordeSpawners, "action.spawnHorde", false);
 		}
 
 		void reload(bool loadParams = true)
@@ -1479,9 +1516,10 @@ namespace Levels::DamageOn
 				playerSpawn(playerType, weaponType, gameParams.players.startPosition + glm::circularRand(0.1f));
 			}
 
-			for (auto& [enemyTypeName, enemyType] : enemyGameComponents.typeNamesToTypes)
-				for (int i = 0; i < enemyType.params.initCount; ++i)
-					enemySpawn(enemyType, enemyType.params.startPosition + glm::circularRand(0.1f), glm::linearRand(enemyType.params.initRadiusRange.x, enemyType.params.initRadiusRange.y));
+			for (auto& hordeSpawner : actions.initHordeSpawners)
+				for (int i = 0; i < hordeSpawner.count; ++i)
+					enemySpawn(hordeSpawner.enemyType, hordeSpawner.position + glm::circularRand(0.1f),
+						glm::linearRand(hordeSpawner.enemyType.params.initRadiusRange.x, hordeSpawner.enemyType.params.initRadiusRange.y));
 		}
 
 		const Tools::BodyParams defaultBodyParams = Tools::BodyParams{}
@@ -1501,6 +1539,7 @@ namespace Levels::DamageOn
 
 		GameParams gameParams{};
 		LevelParams levelParams{};
+		Actions actions{};
 
 		GameComponents<WeaponType> weaponGameComponents;
 		GameComponents<PlayerType> playerGameComponents;

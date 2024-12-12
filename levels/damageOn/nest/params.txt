@@ -69,8 +69,6 @@ player.frankenstein.animation.frameRotation 0.0
 player.frankenstein.animation.frameScale 1.5 1.5
 player.frankenstein.animation.neutralFrame 35
 
-enemy.ghost.initCount 20
-enemy.ghost.startPosition -10.0 0.0
 enemy.ghost.initHP 10.0
 enemy.ghost.initRadiusRange 0.4 0.8
 enemy.ghost.density 0.5
@@ -105,8 +103,6 @@ enemy.ghost.animation.frameRotation 0.0
 enemy.ghost.animation.frameScale 1.0 1.0
 enemy.ghost.animation.neutralFrame 0
 
-enemy.chicken.initCount 50
-enemy.chicken.startPosition 10.0 0.0
 enemy.chicken.initHP 50.0
 enemy.chicken.initRadiusRange 0.5 1.0
 enemy.chicken.density 0.2
@@ -141,8 +137,6 @@ enemy.chicken.animation.frameRotation 0.0
 enemy.chicken.animation.frameScale 1.275 1.275
 enemy.chicken.animation.neutralFrame 0
 
-enemy.zombie.initCount 20
-enemy.zombie.startPosition 5.0 -10.0
 enemy.zombie.initHP 20.0
 enemy.zombie.initRadiusRange 0.8 1.2
 enemy.zombie.density 0.2
@@ -177,8 +171,6 @@ enemy.zombie.animation.frameRotation 0.0
 enemy.zombie.animation.frameScale 0.88 0.88
 enemy.zombie.animation.neutralFrame 0
 
-enemy.hive.initCount 50
-enemy.hive.startPosition 0.0 10.0
 enemy.hive.initHP 20.0
 enemy.hive.initRadiusRange 1.0 1.5
 enemy.hive.density 0.2
@@ -213,8 +205,6 @@ enemy.hive.animation.frameRotation 0.0
 enemy.hive.animation.frameScale 0.88 0.88
 enemy.hive.animation.neutralFrame 0
 
-enemy.gargoyleTwoLegs.initCount 10
-enemy.gargoyleTwoLegs.startPosition -10.0 -10.0
 enemy.gargoyleTwoLegs.initHP 50.0
 enemy.gargoyleTwoLegs.initRadiusRange 1.0 1.5
 enemy.gargoyleTwoLegs.density 0.2
@@ -250,8 +240,6 @@ enemy.gargoyleTwoLegs.animation.frameRotation 0.0
 enemy.gargoyleTwoLegs.animation.frameScale 0.88 0.88
 enemy.gargoyleTwoLegs.animation.neutralFrame 0
 
-enemy.gargoyleFourLegs.initCount 10
-enemy.gargoyleFourLegs.startPosition -10.0 -10.0
 enemy.gargoyleFourLegs.initHP 50.0
 enemy.gargoyleFourLegs.initRadiusRange 1.0 1.5
 enemy.gargoyleFourLegs.density 0.2
@@ -287,8 +275,6 @@ enemy.gargoyleFourLegs.animation.frameRotation 0.0
 enemy.gargoyleFourLegs.animation.frameScale 0.88 0.88
 enemy.gargoyleFourLegs.animation.neutralFrame 0
 
-enemy.monk.initCount 5
-enemy.monk.startPosition -5.0 0.0
 enemy.monk.initHP 20.0
 enemy.monk.initRadiusRange 1.5 2.0
 enemy.monk.density 0.2
@@ -323,8 +309,6 @@ enemy.monk.animation.frameRotation 0.0
 enemy.monk.animation.frameScale 0.88 0.88
 enemy.monk.animation.neutralFrame 0
 
-enemy.bird.initCount 20
-enemy.bird.startPosition -5.0 -10.0
 enemy.bird.initHP 20.0
 enemy.bird.initRadiusRange 1.0 1.5
 enemy.bird.density 0.2
@@ -358,3 +342,12 @@ enemy.bird.animation.frameTranslation 0.0 0.075
 enemy.bird.animation.frameRotation 0.0
 enemy.bird.animation.frameScale 0.88 0.88
 enemy.bird.animation.neutralFrame 0
+
+action.spawnHorde ghost -10.0 0.0 20 
+action.spawnHorde chicken 10.0 0.0 50
+action.spawnHorde zombie 5.0 -10.0 20
+action.spawnHorde hive 0.0 10.0 50
+action.spawnHorde gargoyleTwoLegs -10.0 -10.0 10
+action.spawnHorde gargoyleFourLegs -10.0 -10.0 10
+action.spawnHorde monk -5.0 0.0 5
+action.spawnHorde bird -5.0 -10.0 20
