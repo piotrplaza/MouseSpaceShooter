@@ -39,6 +39,8 @@
 #include <format>
 #include <algorithm>
 
+using namespace std::string_literals;
+
 namespace Levels::DamageOn
 {
 	namespace
@@ -90,7 +92,7 @@ namespace Levels::DamageOn
 			auto& dynamicTextures = Globals::Components().textures();
 			auto& animatedTextures = Globals::Components().animatedTextures();
 
-			backgroundTextureId = dynamicTextures.emplace("textures/damageOn/nest.jpg", GL_CLAMP_TO_BORDER).getComponentId();
+			backgroundTextureId = dynamicTextures.emplace("textures/damageOn/" + levelParams.backgroundTexture.substr(1, levelParams.backgroundTexture.length() - 2), GL_CLAMP_TO_BORDER).getComponentId();
 			//textures.last().magFilter = GL_NEAREST;
 			dynamicTextures.last().scale = glm::vec2(1.0f);
 			//textures.last().preserveAspectRatio = true;
@@ -142,7 +144,7 @@ namespace Levels::DamageOn
 			auto& dynamicTextures = Globals::Components().textures();
 			auto& physics = Globals::Components().physics();
 
-			const glm::vec2 levelHSize(dynamicTextures[backgroundTextureId].loaded.getAspectRatio() * levelParams.mapHSize, levelParams.mapHSize);
+			const glm::vec2 levelHSize(dynamicTextures[backgroundTextureId].loaded.getAspectRatio() * levelParams.mapHHeight, levelParams.mapHHeight);
 
 			camera.positionTransitionFactor = gameParams.camera.positionTransitionFactor;
 			camera.projectionTransitionFactor = gameParams.camera.projectionTransitionFactor;
@@ -177,7 +179,7 @@ namespace Levels::DamageOn
 				return glm::vec3(centerPos, projectionHSize);
 			};
 
-			alternativeTargetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, levelParams.mapHSize);
+			alternativeTargetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, levelParams.mapHHeight);
 
 			const float borderHThickness = 10.0f;
 			dynamicWalls.emplace(Tools::CreateBoxBody({ levelHSize.x + borderHThickness, borderHThickness }, Tools::BodyParams{}.position({ 0.0f, -levelHSize.y - borderHThickness }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -185,9 +187,17 @@ namespace Levels::DamageOn
 			dynamicWalls.emplace(Tools::CreateBoxBody({ borderHThickness, levelHSize.y + borderHThickness }, Tools::BodyParams{}.position({ -levelHSize.x - borderHThickness, 0.0f }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 			dynamicWalls.emplace(Tools::CreateBoxBody({ borderHThickness, levelHSize.y + borderHThickness }, Tools::BodyParams{}.position({ levelHSize.x + borderHThickness, 0.0f }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
+			for (const auto& boxWall : levelParams.walls.boxes)
+			{
+				dynamicWalls.emplace(Tools::CreateBoxBody(glm::vec2(boxWall[2], boxWall[3]) * levelParams.mapHHeight, Tools::BodyParams{}.position(glm::vec2(boxWall[0], boxWall[1]) * levelParams.mapHHeight)
+					.angle(boxWall[4]))).renderF = [&]() { return debug.hitboxesRendering; };
+				dynamicWalls.last().colorF = glm::vec4(0.2f);
+				dynamicWalls.last().stepF = [&, &wall = dynamicWalls.last()]() { wall.setEnabled(!bonusBackground); };
+			}
+
 			for (const auto& circleWall : levelParams.walls.circles)
 			{
-				dynamicWalls.emplace(Tools::CreateCircleBody(circleWall.z * levelParams.mapHSize, Tools::BodyParams{}.position(glm::vec2(circleWall) * levelParams.mapHSize))).renderF = [&]() { return debug.hitboxesRendering; };
+				dynamicWalls.emplace(Tools::CreateCircleBody(circleWall.z * levelParams.mapHHeight, Tools::BodyParams{}.position(glm::vec2(circleWall) * levelParams.mapHHeight))).renderF = [&]() { return debug.hitboxesRendering; };
 				dynamicWalls.last().colorF = glm::vec4(0.2f);
 				dynamicWalls.last().stepF = [&, &wall = dynamicWalls.last()]() { wall.setEnabled(!bonusBackground); };
 			}
@@ -204,7 +214,7 @@ namespace Levels::DamageOn
 				const float debrisWidth = glm::linearRand(levelParams.debris.widthRange.x, levelParams.debris.widthRange.y);
 				const float debrisHeight = debrisWidth * glm::linearRand(levelParams.debris.heightRatioRange.x, levelParams.debris.heightRatioRange.y);
 				auto& debris = dynamicWalls.emplace(Tools::CreateBoxBody({ debrisWidth, debrisHeight }, Tools::BodyParams{}.position(glm::linearRand(-levelHSize, levelHSize))
-					.angle(glm::linearRand(levelParams.debris.angleRange.x / 360.0f * glm::two_pi<float>(), levelParams.debris.angleRange.y / 360.0f * glm::two_pi<float>()))
+					.angle(glm::linearRand(levelParams.debris.angleRange.x, levelParams.debris.angleRange.y))
 					.bodyType(b2_dynamicBody).linearDamping(10.0f).angularDamping(10.0f).density(levelParams.debris.density)), CM::DummyTexture());
 				debris.renderF = [&]() { return debug.hitboxesRendering; };
 				debris.colorF = glm::vec4(0.2f);
@@ -371,8 +381,8 @@ namespace Levels::DamageOn
 				bonusBackground = !bonusBackground;
 				auto& backgroundTexture = Globals::Components().textures()[backgroundTextureId];
 				backgroundTexture.source = bonusBackground
-					? "textures/damageOn/sanfranfromairship.jpg"
-					: "textures/damageOn/nest.jpg";
+					? "textures/damageOn/sanfranfromairship.jpg"s
+					: "textures/damageOn/" + levelParams.backgroundTexture.substr(1, levelParams.backgroundTexture.length() - 2);
 				backgroundTexture.state = ComponentState::Changed;
 			}
 			if (keyboard.pressed['C'])
@@ -460,10 +470,12 @@ namespace Levels::DamageOn
 
 		struct LevelParams
 		{
-			float mapHSize{};
+			std::string backgroundTexture{};
+			float mapHHeight{};
 
 			struct Walls
 			{
+				std::vector<std::array<float, 5>> boxes;
 				std::vector<glm::vec3> circles;
 			} walls;
 
@@ -1130,25 +1142,16 @@ namespace Levels::DamageOn
 			auto getValue = [&](const std::string& key) {
 				auto range = keysToValues.equal_range(key);
 				if (range.first == range.second)
-				{
-					assert(!"loadParams(): key not found");
 					throw std::runtime_error("loadParams(): Key " + key + " not found");
-				}
 				if (std::distance(range.first, range.second) > 1)
-				{
-					assert(!"loadParams(): multiple values for key");
 					throw std::runtime_error("loadParams(): Multiple values for key " + key);
-				}
 				return range.first->second;
 			};
 
 			auto getValues = [&](const std::string& key) {
 				auto range = keysToValues.equal_range(key);
 				if (range.first == range.second)
-				{
-					assert(!"loadParams(): key not found");
 					throw std::runtime_error("loadParams(): Key " + key + " not found");
-				}
 				std::vector<std::string> values;
 				values.reserve(std::distance(range.first, range.second));
 				for (auto it = range.first; it != range.second; ++it)
@@ -1156,91 +1159,118 @@ namespace Levels::DamageOn
 				return values;
 			};
 
-			auto loadParam = [&](auto& param, const std::string& key) {
+			auto loadParam = [&](auto& param, const std::string& key, bool mandatory = true) {
 				using ParamType = std::remove_reference_t<decltype(param)>;
 
-				if constexpr (std::is_same_v<ParamType, int>)
-					param = Tools::Stoi(getValue(key));
-				else if constexpr (std::is_same_v<ParamType, float>)
-					param = Tools::Stof(getValue(key));
-				else if constexpr (std::is_same_v<ParamType, bool>)
-					param = getValue(key) == "true";
-				else if constexpr (std::is_same_v<ParamType, std::string>)
-					param = getValue(key);
-				else if constexpr (std::is_same_v<ParamType, glm::vec2>)
+				try
 				{
-					const auto value = getValue(key);
-					const auto spacePos = value.find(' ');
-					param = { Tools::Stof(value.substr(0, spacePos)), Tools::Stof(value.substr(spacePos + 1)) };
-				}
-				else if constexpr (std::is_same_v<ParamType, glm::ivec2>)
-				{
-					const auto value = getValue(key);
-					const auto spacePos = value.find(' ');
-					param = { Tools::Stoi(value.substr(0, spacePos)), Tools::Stoi(value.substr(spacePos + 1)) };
-				}
-				else if constexpr (std::is_same_v<ParamType, glm::vec3>)
-				{
-					const auto value = getValue(key);
-					const auto spacePos1 = value.find(' ');
-					const auto spacePos2 = value.find(' ', spacePos1 + 1);
-					param = { Tools::Stof(value.substr(0, spacePos1)), Tools::Stof(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)), Tools::Stof(value.substr(spacePos2 + 1)) };
-				}
-				else if constexpr (std::is_same_v<ParamType, glm::ivec3>)
-				{
-					const auto value = getValue(key);
-					const auto spacePos1 = value.find(' ');
-					const auto spacePos2 = value.find(' ', spacePos1 + 1);
-					param = { Tools::Stoi(value.substr(0, spacePos1)), Tools::Stoi(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)), Tools::Stoi(value.substr(spacePos2 + 1)) };
-				}
-				else if constexpr (std::is_same_v<ParamType, glm::vec4>)
-				{
-					const auto value = getValue(key);
-					const auto spacePos1 = value.find(' ');
-					const auto spacePos2 = value.find(' ', spacePos1 + 1);
-					const auto spacePos3 = value.find(' ', spacePos2 + 1);
-					param = { Tools::Stof(value.substr(0, spacePos1)), Tools::Stof(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)),
-						Tools::Stof(value.substr(spacePos2 + 1, spacePos3 - spacePos2 - 1)), Tools::Stof(value.substr(spacePos3 + 1)) };
-				}
-				else if constexpr (std::is_same_v<ParamType, glm::ivec4>)
-				{
-					const auto value = getValue(key);
-					const auto spacePos1 = value.find(' ');
-					const auto spacePos2 = value.find(' ', spacePos1 + 1);
-					const auto spacePos3 = value.find(' ', spacePos2 + 1);
-					param = { Tools::Stoi(value.substr(0, spacePos1)), Tools::Stoi(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)),
-						Tools::Stoi(value.substr(spacePos2 + 1, spacePos3 - spacePos2 - 1)), Tools::Stoi(value.substr(spacePos3 + 1)) };
-				}
-				else if constexpr (std::is_same_v<ParamType, std::array<std::string, 4>>)
-				{
-					const auto value = getValue(key);
-					const auto spacePos1 = value.find(' ');
-					const auto spacePos2 = value.find(' ', spacePos1 + 1);
-					const auto spacePos3 = value.find(' ', spacePos2 + 1);
-					param = { value.substr(0, spacePos1), value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1),
-						value.substr(spacePos2 + 1, spacePos3 - spacePos2 - 1), value.substr(spacePos3 + 1) };
-				}
-				else if constexpr (std::is_same_v<ParamType, std::vector<glm::vec3>>)
-				{
-					const auto values = getValues(key);
-					param.reserve(values.size());
-					for (const auto& value : values)
+					if constexpr (std::is_same_v<ParamType, int>)
+						param = Tools::Stoi(getValue(key));
+					else if constexpr (std::is_same_v<ParamType, float>)
+						param = Tools::Stof(getValue(key));
+					else if constexpr (std::is_same_v<ParamType, bool>)
+						param = getValue(key) == "true";
+					else if constexpr (std::is_same_v<ParamType, std::string>)
+						param = getValue(key);
+					else if constexpr (std::is_same_v<ParamType, glm::vec2>)
 					{
+						const auto value = getValue(key);
+						const auto spacePos = value.find(' ');
+						param = { Tools::Stof(value.substr(0, spacePos)), Tools::Stof(value.substr(spacePos + 1)) };
+					}
+					else if constexpr (std::is_same_v<ParamType, glm::ivec2>)
+					{
+						const auto value = getValue(key);
+						const auto spacePos = value.find(' ');
+						param = { Tools::Stoi(value.substr(0, spacePos)), Tools::Stoi(value.substr(spacePos + 1)) };
+					}
+					else if constexpr (std::is_same_v<ParamType, glm::vec3>)
+					{
+						const auto value = getValue(key);
 						const auto spacePos1 = value.find(' ');
 						const auto spacePos2 = value.find(' ', spacePos1 + 1);
-						param.push_back({ Tools::Stof(value.substr(0, spacePos1)), Tools::Stof(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)), Tools::Stof(value.substr(spacePos2 + 1)) });
+						param = { Tools::Stof(value.substr(0, spacePos1)), Tools::Stof(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)), Tools::Stof(value.substr(spacePos2 + 1)) };
+					}
+					else if constexpr (std::is_same_v<ParamType, glm::ivec3>)
+					{
+						const auto value = getValue(key);
+						const auto spacePos1 = value.find(' ');
+						const auto spacePos2 = value.find(' ', spacePos1 + 1);
+						param = { Tools::Stoi(value.substr(0, spacePos1)), Tools::Stoi(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)), Tools::Stoi(value.substr(spacePos2 + 1)) };
+					}
+					else if constexpr (std::is_same_v<ParamType, glm::vec4>)
+					{
+						const auto value = getValue(key);
+						const auto spacePos1 = value.find(' ');
+						const auto spacePos2 = value.find(' ', spacePos1 + 1);
+						const auto spacePos3 = value.find(' ', spacePos2 + 1);
+						param = { Tools::Stof(value.substr(0, spacePos1)), Tools::Stof(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)),
+							Tools::Stof(value.substr(spacePos2 + 1, spacePos3 - spacePos2 - 1)), Tools::Stof(value.substr(spacePos3 + 1)) };
+					}
+					else if constexpr (std::is_same_v<ParamType, glm::ivec4>)
+					{
+						const auto value = getValue(key);
+						const auto spacePos1 = value.find(' ');
+						const auto spacePos2 = value.find(' ', spacePos1 + 1);
+						const auto spacePos3 = value.find(' ', spacePos2 + 1);
+						param = { Tools::Stoi(value.substr(0, spacePos1)), Tools::Stoi(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)),
+							Tools::Stoi(value.substr(spacePos2 + 1, spacePos3 - spacePos2 - 1)), Tools::Stoi(value.substr(spacePos3 + 1)) };
+					}
+					else if constexpr (std::is_same_v<ParamType, std::array<std::string, 4>>)
+					{
+						const auto value = getValue(key);
+						const auto spacePos1 = value.find(' ');
+						const auto spacePos2 = value.find(' ', spacePos1 + 1);
+						const auto spacePos3 = value.find(' ', spacePos2 + 1);
+						param = { value.substr(0, spacePos1), value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1),
+							value.substr(spacePos2 + 1, spacePos3 - spacePos2 - 1), value.substr(spacePos3 + 1) };
+					}
+					else if constexpr (std::is_same_v<ParamType, std::vector<std::array<float, 5>>>)
+					{
+						const auto values = getValues(key);
+						param.reserve(values.size());
+						for (const auto& value : values)
+						{
+							const auto spacePos1 = value.find(' ');
+							const auto spacePos2 = value.find(' ', spacePos1 + 1);
+							const auto spacePos3 = value.find(' ', spacePos2 + 1);
+							const auto spacePos4 = value.find(' ', spacePos3 + 1);
+							param.push_back({ Tools::Stof(value.substr(0, spacePos1)), Tools::Stof(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)),
+								Tools::Stof(value.substr(spacePos2 + 1, spacePos3 - spacePos2 - 1)), Tools::Stof(value.substr(spacePos3 + 1, spacePos4 - spacePos3 - 1)),
+								Tools::Stof(value.substr(spacePos4 + 1)) });
+						}
+					}
+					else if constexpr (std::is_same_v<ParamType, std::vector<glm::vec3>>)
+					{
+						const auto values = getValues(key);
+						param.reserve(values.size());
+						for (const auto& value : values)
+						{
+							const auto spacePos1 = value.find(' ');
+							const auto spacePos2 = value.find(' ', spacePos1 + 1);
+							param.push_back({ Tools::Stof(value.substr(0, spacePos1)), Tools::Stof(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)), Tools::Stof(value.substr(spacePos2 + 1)) });
+						}
+					}
+					else if constexpr (std::is_same_v<ParamType, AnimationData::Direction>)
+						param = getValue(key) == "forward" ? AnimationData::Direction::Forward : AnimationData::Direction::Backward;
+					else if constexpr (std::is_same_v<ParamType, AnimationData::Mode>)
+						param = getValue(key) == "repeat" ? AnimationData::Mode::Repeat : getValue(key) == "pingpong" ? AnimationData::Mode::Pingpong : AnimationData::Mode::StopOnLastFrame;
+					else if constexpr (std::is_same_v<ParamType, AnimationData::TextureLayout>)
+						param = getValue(key) == "horizontal" ? AnimationData::TextureLayout::Horizontal : AnimationData::TextureLayout::Vertical;
+					else
+					{
+						assert(!"loadParams(): unsupported type for key for key");
+						throw std::runtime_error("Unsupported type for key " + key);
 					}
 				}
-				else if constexpr (std::is_same_v<ParamType, AnimationData::Direction>)
-					param = getValue(key) == "forward" ? AnimationData::Direction::Forward : AnimationData::Direction::Backward;
-				else if constexpr (std::is_same_v<ParamType, AnimationData::Mode>)
-					param = getValue(key) == "repeat" ? AnimationData::Mode::Repeat : getValue(key) == "pingpong" ? AnimationData::Mode::Pingpong : AnimationData::Mode::StopOnLastFrame;
-				else if constexpr (std::is_same_v<ParamType, AnimationData::TextureLayout>)
-					param = getValue(key) == "horizontal" ? AnimationData::TextureLayout::Horizontal : AnimationData::TextureLayout::Vertical;
-				else
+				catch (const std::runtime_error& e)
 				{
-					assert(!"loadParams(): unsupported type for key for key");
-					throw std::runtime_error("Unsupported type for key " + key);
+					if (mandatory || e.what() != "loadParams(): Key " + key + " not found")
+						throw e;
+				}
+				catch (...)
+				{
+					throw;
 				}
 			};
 
@@ -1386,7 +1416,7 @@ namespace Levels::DamageOn
 				}
 			};
 
-			loadParam(gameParams.pixelArt, "game.pixelArt");
+			loadParam(gameParams.pixelArt, "game.pixelArt", false);
 			loadParam(gameParams.globalVolume, "game.globalVolume");
 			loadParam(gameParams.musicVolume, "game.musicVolume");
 			loadParam(gameParams.musicFile, "game.musicFile");
@@ -1402,13 +1432,15 @@ namespace Levels::DamageOn
 			loadParam(gameParams.gamepad.deadZone, "game.gamepad.deadZone");
 			loadParam(gameParams.gamepad.triggerDeadZone, "game.gamepad.triggerDeadZone");
 
-			loadParam(levelParams.mapHSize, "level.mapHSize");
-			loadParam(levelParams.walls.circles, "level.walls.circle");
-			loadParam(levelParams.debris.count, "level.debris.count");
-			loadParam(levelParams.debris.widthRange, "level.debris.widthRange");
-			loadParam(levelParams.debris.heightRatioRange, "level.debris.heightRatioRange");
-			loadParam(levelParams.debris.angleRange, "level.debris.angleRange");
-			loadParam(levelParams.debris.density, "level.debris.density");
+			loadParam(levelParams.backgroundTexture, "level.backgroundTexture");
+			loadParam(levelParams.mapHHeight, "level.mapHHeight");
+			loadParam(levelParams.walls.boxes, "level.walls.box", false);
+			loadParam(levelParams.walls.circles, "level.walls.circle", false);
+			loadParam(levelParams.debris.count, "level.debris.count", false);
+			loadParam(levelParams.debris.widthRange, "level.debris.widthRange", false);
+			loadParam(levelParams.debris.heightRatioRange, "level.debris.heightRatioRange", false);
+			loadParam(levelParams.debris.angleRange, "level.debris.angleRange", false);
+			loadParam(levelParams.debris.density, "level.debris.density", false);
 
 			loadWeaponParams();
 			loadPlayerParams();

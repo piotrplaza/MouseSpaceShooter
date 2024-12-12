@@ -14,16 +14,18 @@ game.gamepad.firstPlayer true
 game.gamepad.deadZone 0.2
 game.gamepad.triggerDeadZone 0.1
 
-level.mapHSize 20.0
+level.backgroundTexture "nest.jpg"
+level.mapHHeight 20.0
 
 level.walls.circle 0.09 0.13 0.3
 level.walls.circle -0.035 0.005 0.275
 level.walls.circle -0.21 -0.17 0.15
+#level.walls.box 0.0 0.0 0.5 0.5 0.0
 
 level.debris.count 5
 level.debris.widthRange 0.3, 1.0
 level.debris.heightRatioRange 1.6, 2.0
-level.debris.angleRange 0.0, 360.0
+level.debris.angleRange 0.0, 3.14159
 level.debris.density 20.0
 
 weapon.sparkingNearest.distance 20.0
