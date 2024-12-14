@@ -1,6 +1,6 @@
 game.pixelArt false
 game.globalVolume 1.0
-game.musicVolume 0.8
+game.musicVolume 0.0
 game.musicFile "DamageOn 5.ogg"
 game.players.count 2
 game.players.typeAssignment frankenstein frankenstein frankenstein frankenstein
@@ -28,20 +28,10 @@ level.debris.heightRatioRange 1.6, 2.0
 level.debris.angleRange 0.0, 3.14159
 level.debris.density 20.0
 
-weapon.sparkingNearest.distance 20.0
-weapon.sparkingNearest.damageFactor 10.0
-weapon.sparkingNearest.overchargingRate 0.3
-weapon.sparkingNearest.coolingRate 0.3
-weapon.sparkingNearest.initPower 20
-
-weapon.sparkingRandom.distance 20.0
-weapon.sparkingRandom.damageFactor 10.0
-weapon.sparkingRandom.overchargingRate 0.3
-weapon.sparkingRandom.coolingRate 0.3
-weapon.sparkingRandom.initPower 20
-
+player.frankenstein.initHP 10.0
 player.frankenstein.radius 1.0
-player.frankenstein.maxVelocity 8.0
+player.frankenstein.baseVelocity 8.0
+player.frankenstein.slowFactor 0.95
 player.frankenstein.density 10.0
 player.frankenstein.linearDamping 6.0
 player.frankenstein.dash 30.0
@@ -51,7 +41,7 @@ player.frankenstein.presentation.rotation 0.0
 player.frankenstein.presentation.scale 1.0 1.0
 player.frankenstein.presentation.velocityRotationFactor 0.0005
 player.frankenstein.presentation.velocityAnimationSpeedFactor 1.0
-player.frankenstein.presentation.weaponOffset 0.0 0.2
+player.frankenstein.presentation.weaponOffset 0.1 0.2
 player.frankenstein.animation.textureFile "player 1.png"
 player.frankenstein.animation.framesGrid 8 5
 player.frankenstein.animation.leftTopFrameLeftTopCorner 0 0
@@ -75,7 +65,7 @@ enemy.ghost.density 0.5
 enemy.ghost.baseVelocity 2.0
 enemy.ghost.boostDistance 15.0
 enemy.ghost.boostFactor 4.0
-enemy.ghost.slowFactor 0.2
+enemy.ghost.slowFactor 0.5
 enemy.ghost.radiusReductionFactor 0.5
 enemy.ghost.minimalRadius 0.2
 enemy.ghost.killSpawns 2
@@ -343,11 +333,29 @@ enemy.bird.animation.frameRotation 0.0
 enemy.bird.animation.frameScale 0.88 0.88
 enemy.bird.animation.neutralFrame 0
 
-action.spawnHorde ghost -10.0 0.0 20 
-action.spawnHorde chicken 10.0 0.0 50
-action.spawnHorde zombie 5.0 -10.0 20
-action.spawnHorde hive 0.0 10.0 50
-action.spawnHorde gargoyleTwoLegs -10.0 -10.0 10
-action.spawnHorde gargoyleFourLegs -10.0 -10.0 10
-action.spawnHorde monk -5.0 0.0 5
-action.spawnHorde bird -5.0 -10.0 20
+weapon.sparkingNearest.distance 20.0
+weapon.sparkingNearest.damageFactor 10.0
+weapon.sparkingNearest.overchargingRate 0.3
+weapon.sparkingNearest.coolingRate 0.3
+weapon.sparkingNearest.initPower 20
+
+weapon.sparkingRandom.distance 20.0
+weapon.sparkingRandom.damageFactor 10.0
+weapon.sparkingRandom.overchargingRate 0.3
+weapon.sparkingRandom.coolingRate 0.3
+weapon.sparkingRandom.initPower 20
+
+weapon.sparkingRandomShort.distance 4.0
+weapon.sparkingRandomShort.damageFactor 10.0
+weapon.sparkingRandomShort.overchargingRate 0.3
+weapon.sparkingRandomShort.coolingRate 0.3
+weapon.sparkingRandomShort.initPower 20
+
+action.spawnHorde ghost -10.0 0.0 20 sparkingRandomShort
+action.spawnHorde chicken 10.0 0.0 50 sparkingRandomShort
+action.spawnHorde zombie 5.0 -10.0 20 sparkingRandomShort
+action.spawnHorde hive 0.0 10.0 50 sparkingRandomShort
+action.spawnHorde gargoyleTwoLegs -10.0 -10.0 10 sparkingRandomShort
+action.spawnHorde gargoyleFourLegs -10.0 -10.0 10 sparkingRandomShort
+action.spawnHorde monk -5.0 0.0 5 sparkingRandomShort
+action.spawnHorde bird -5.0 -10.0 20 sparkingRandomShort

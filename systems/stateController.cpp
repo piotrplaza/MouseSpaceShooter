@@ -138,14 +138,17 @@ namespace Systems
 
 	void StateController::setWindowFocus(bool focus)
 	{
+		auto& physics = Globals::Components().physics();
+		auto& pauseHandler = Globals::Components().pauseHandler();
 		if (!focus)
 		{
 			if (Globals::Components().physics().paused)
 				return;
-			Globals::Components().physics().paused = true;
+			pauseHandler.handler(physics.paused);
+			physics.paused = true;
 		}
 
-		if (!Globals::Components().physics().paused)
+		if (!physics.paused)
 		{
 			Tools::SetMouseCursorVisibility(false);
 			resetMousePosition();
