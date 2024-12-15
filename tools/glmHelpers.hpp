@@ -44,6 +44,22 @@ inline glm::vec2 operator /(const glm::ivec2& lhs, float rhs)
 	return { lhs.x / rhs, lhs.y / rhs };
 }
 
+
+inline glm::vec2 operator /(const glm::ivec2& lhs, const glm::vec2& rhs)
+{
+	return { lhs.x / rhs.x, lhs.y / rhs.y };
+}
+
+inline glm::vec3 operator /(const glm::ivec3& lhs, const glm::vec3& rhs)
+{
+	return { lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z };
+}
+
+inline glm::vec4 operator /(const glm::ivec4& lhs, const glm::vec4& rhs)
+{
+	return { lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z, lhs.w / rhs.w };
+}
+
 inline std::vector<glm::vec3> ConvertToVec3Vector(const std::vector<glm::vec2>& sourceVec)
 {
 	std::vector<glm::vec3> result;

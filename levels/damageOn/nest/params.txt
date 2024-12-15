@@ -1,5 +1,5 @@
 game.pixelArt false
-game.globalVolume 1.0
+game.globalVolume 0.2
 game.musicVolume 0.0
 game.musicFile "DamageOn 5.ogg"
 game.players.count 2
@@ -28,7 +28,7 @@ level.debris.heightRatioRange 1.6, 2.0
 level.debris.angleRange 0.0, 3.14159
 level.debris.density 20.0
 
-player.frankenstein.initHP 10.0
+player.frankenstein.initHP 500.0
 player.frankenstein.radius 1.0
 player.frankenstein.baseVelocity 8.0
 player.frankenstein.slowFactor 0.95

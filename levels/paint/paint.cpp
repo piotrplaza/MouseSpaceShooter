@@ -127,7 +127,7 @@ namespace Levels
 			auto innerLoop = [&](const auto y) {
 				for (int x = 0; x < colorBuffer.getRes().x; ++x)
 				{
-					const glm::ivec2 d = Tools::StableRandom::Std3Random::HashRange({ range.x, range.x }, { range.y, range.y }, glm::ivec3(x, y, physics.frameCount));
+					const glm::ivec2 d = Tools::StableRandom::Std3Random::HashRange(glm::ivec2(range.x, range.x), glm::ivec2(range.y, range.y), glm::ivec3(x, y, physics.frameCount));
 					const glm::vec3 newColor = colorBuffer.getColor({ x, y }) * centerColorFactor +
 						(colorBuffer.getColor({ x - d.x, y - d.y }) + colorBuffer.getColor({ x, y - d.y }) + colorBuffer.getColor({ x + d.x, y - d.y }) + colorBuffer.getColor({ x - d.x, y }) + colorBuffer.getColor({ x + d.x, y }) +
 							colorBuffer.getColor({ x - d.x, y + d.y }) + colorBuffer.getColor({ x, y + d.y }) + colorBuffer.getColor({ x + d.x, y + d.y })) / 8.0f * neighborsColorFactor;

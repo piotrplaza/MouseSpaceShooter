@@ -264,6 +264,13 @@ namespace Levels::DamageOn
 				auto& playerInst = playerGameComponents.idsToInst.at(playerId);
 				auto& playerType = playerInst.type;
 
+				if (playerInst.hp <= 0)
+					continue;
+
+				deferredWeaponsPostSteps.push_back([&]() {
+					weaponsPostStep(playerInst);
+				});
+
 				const bool keyboardEnabled = gameParams.gamepad.firstPlayer ? true : playerId == 0;
 				bool gamepadEnabled = playerId > 3 ? false : gameParams.gamepad.firstPlayer ? true : playerId > 0;
 				int gamepadId = gamepadEnabled ? (playerId - !gameParams.gamepad.firstPlayer) : 0;
@@ -363,19 +370,39 @@ namespace Levels::DamageOn
 					});
 					++enemySeq;
 				}
-
-				deferredWeaponsPostSteps.push_back([&]() {
-					weaponsPostStep(playerInst);
-				});
 			}
 
 			for (auto& [enemyId, enemyInst] : enemyGameComponents.idsToInst)
 			{
+				if (enemyInst.hp <= 0)
+					continue;
+
+				deferredWeaponsPostSteps.push_back([&]() {
+					weaponsPostStep(enemyInst);
+				});
+
+				const float vLength = glm::length(enemyInst.actor.getVelocity());
+				enemyInst.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * enemyInst.type.params.presentation.velocityRotationFactor));
+				enemyInst.animatedTexture.setSpeedScaling(enemyInst.type.params.presentation.velocityAnimationSpeedFactor == 0.0f
+					? 1.0f
+					: glm::length(enemyInst.actor.getVelocity() * enemyInst.type.params.presentation.velocityAnimationSpeedFactor));
+				enemyInst.sideTransition += enemyInst.sideFactor * physics.frameDuration * 7.0f;
+				enemyInst.sideTransition = glm::clamp(enemyInst.sideTransition, 0.0f, 1.0f);
+
 				std::map<float, PlayerType::Inst*> playersByDistance;
 				for (int playerId = 0; playerId < gameParams.players.count; ++playerId)
 				{
 					auto& playerInst = playerGameComponents.idsToInst.at(playerId);
+					if (playerInst.hp <= 0)
+						continue;
 					playersByDistance[glm::distance(enemyInst.actor.getOrigin2D(), playerInst.actor.getOrigin2D())] = &playerInst;
+				}
+
+				if (playersByDistance.empty())
+				{
+					enemyInst.actor.setVelocity(Tools::StableRandom::Std1Random::HashRange(glm::ivec2(-100), glm::ivec2(100), enemyId) / 100.0f * enemyInst.type.params.baseVelocity);
+					enemyInst.sideFactor = enemyInst.actor.getVelocity().x < 0.0f ? -1.0f : 1.0f;
+					continue;
 				}
 
 				const auto direction = playersByDistance.begin()->second->actor.getOrigin2D() - enemyInst.actor.getOrigin2D();
@@ -390,13 +417,9 @@ namespace Levels::DamageOn
 				{
 					deferredWeaponsSteps.push_back([&, &playerInst = *playerInst, playerSeq]() {
 						weaponsStep(enemyInst, playerInst, playerSeq);
-					});
+						});
 					++playerSeq;
 				}
-
-				deferredWeaponsPostSteps.push_back([&]() {
-					weaponsPostStep(enemyInst);
-				});
 			}
 
 			for (auto& deferredWeaponsStep : deferredWeaponsSteps)
@@ -419,17 +442,6 @@ namespace Levels::DamageOn
 			}
 			if (keyboard.pressed['C'])
 				std::swap(Globals::Components().camera2D().targetPositionAndProjectionHSizeF, alternativeTargetPositionAndProjectionHSizeF);
-
-			for (auto& [enemyId, enemyInst] : enemyGameComponents.idsToInst)
-			{
-				const float vLength = glm::length(enemyInst.actor.getVelocity());
-				enemyInst.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * enemyInst.type.params.presentation.velocityRotationFactor));
-				enemyInst.animatedTexture.setSpeedScaling(enemyInst.type.params.presentation.velocityAnimationSpeedFactor == 0.0f
-					? 1.0f
-					: glm::length(enemyInst.actor.getVelocity() * enemyInst.type.params.presentation.velocityAnimationSpeedFactor));
-				enemyInst.sideTransition += enemyInst.sideFactor * physics.frameDuration * 7.0f;
-				enemyInst.sideTransition = glm::clamp(enemyInst.sideTransition, 0.0f, 1.0f);
-			}
 
 			for (auto& postStep : postSteps)
 				postStep();
@@ -669,8 +681,6 @@ namespace Levels::DamageOn
 
 					actor.state = ComponentState::Outdated;
 					animatedTexture.state = ComponentState::Outdated;
-					overchargeSound.state = ComponentState::Outdated;
-					dashSound.state = ComponentState::Outdated;
 				}
 
 				bool outdated{};
@@ -758,7 +768,6 @@ namespace Levels::DamageOn
 
 					actor.state = ComponentState::Outdated;
 					animatedTexture.state = ComponentState::Outdated;
-					overchargeSound.state = ComponentState::Outdated;
 				}
 
 				bool outdated{};
@@ -878,12 +887,19 @@ namespace Levels::DamageOn
 				playerType.params.animation.direction, playerType.params.animation.mode, playerType.params.animation.textureLayout });
 			playerAnimatedTexture.start(true);
 
-			auto& overchargingSound = sounds.emplace(CM::SoundBuffer(overchargeSoundBufferId, false));
-			overchargingSound.setLoop(true).play().pause();
-			auto& dashSoundBuffer = sounds.emplace(CM::SoundBuffer(dashSoundBufferId, false));
-			dashSoundBuffer.setVolume(0.15f);
+			auto& overchargeSound = overchargeSounds[overchargeSoundIndex++];
+			overchargeSoundIndex %= overchargeSounds.size();
+			if (!overchargeSound)
+				overchargeSound = &sounds.emplace(CM::SoundBuffer(overchargeSoundBufferId, false));
+			overchargeSound->setLoop(true).play().pause();
 
-			auto& playerInst = playerGameComponents.emplaceInstance(playerType, playerActor, playerAnimatedTexture, overchargingSound, dashSoundBuffer, weaponGameComponents);
+			auto& dashSound = dashSounds[dashSoundIndex++];
+			dashSoundIndex %= dashSounds.size();
+			if (!dashSound)
+				dashSound = &sounds.emplace(CM::SoundBuffer(dashSoundBufferId, false));
+			dashSound->setVolume(0.15f);
+
+			auto& playerInst = playerGameComponents.emplaceInstance(playerType, playerActor, playerAnimatedTexture, *overchargeSound, *dashSound, weaponGameComponents);
 			const auto playerPresentationSize = playerType.params.presentation.radiusProportions * playerType.params.radius;
 
 			for (float sideFactor : { -1.0f, 1.0f })
@@ -937,10 +953,13 @@ namespace Levels::DamageOn
 			enemyActor.colorF = glm::vec4(0.4f);
 			enemyActor.posInSubsequence = 2;
 
-			auto& overchargingSound = sounds.emplace(CM::SoundBuffer(overchargeSoundBufferId, false));
-			overchargingSound.setLoop(true).play().pause();
+			auto& overchargeSound = overchargeSounds[overchargeSoundIndex++];
+			overchargeSoundIndex %= overchargeSounds.size();
+			if (!overchargeSound)
+				overchargeSound = &sounds.emplace(CM::SoundBuffer(overchargeSoundBufferId, false));
+			overchargeSound->setLoop(true).play().pause();
 
-			auto& enemyInst = enemyGameComponents.emplaceInstance(enemyType, enemyActor, enemyAnimatedTexture, overchargingSound, weaponGameComponents);
+			auto& enemyInst = enemyGameComponents.emplaceInstance(enemyType, enemyActor, enemyAnimatedTexture, *overchargeSound, weaponGameComponents);
 			enemyInst.radius = radius;
 
 			for (float sideFactor : { -1.0f, 1.0f })
@@ -1017,13 +1036,13 @@ namespace Levels::DamageOn
 		{
 			auto& physics = Globals::Components().physics();
 			auto& targetType = targetInst.type;
-			auto& enemyActor = targetInst.actor;
+			auto& targetActor = targetInst.actor;
 
 			for (auto weaponId : sourceInst.weaponIds)
 			{
 				auto& weaponInst = weaponGameComponents.idsToInst.at(weaponId);
 				const auto& weaponTypeName = weaponInst.type.params.typeName;
-				const auto direction = sourceInst.actor.getOrigin2D() - enemyActor.getOrigin2D();
+				const auto direction = sourceInst.actor.getOrigin2D() - targetActor.getOrigin2D();
 				const auto distance = glm::length(direction);
 				bool kill = false;
 
@@ -1045,26 +1064,37 @@ namespace Levels::DamageOn
 				else
 					targetInst.color = targetInst.baseColor;
 
-				if constexpr (std::is_same_v<std::remove_cvref_t<decltype(targetInst)>, EnemyType::Inst>)
+				if (kill)
 				{
-					if (kill)
-					{
-						Tools::CreateAndPlaySound(CM::SoundBuffer(killSoundBufferId, false), enemyActor.getOrigin2D(), [&](auto& sound) {
-							const float basePitch = (targetType.params.initRadiusRange.x + targetType.params.initRadiusRange.y) / targetInst.radius;
-							sound.setPitch(glm::linearRand(basePitch * 2.0f, basePitch * 4.0f));
-							sound.setVolume(0.7f);
-							});
+					constexpr bool enemyType = std::is_same_v<std::remove_cvref_t<decltype(targetInst)>, EnemyType::Inst>;
 
+					const float basePitch = [&]() {
+						if constexpr (enemyType)
+							return ((targetType.params.initRadiusRange.x + targetType.params.initRadiusRange.y) / 2.0f) / targetInst.radius;
+						else
+							return 1.0f;
+					}() * 2.0f;
+
+					soundsLimitter->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(killSoundBufferId, false), targetActor.getOrigin2D(), [&](auto& sound) {
+						sound.setPitch(glm::linearRand(basePitch, basePitch * 2.0f));
+						sound.setVolume(0.7f);
+					}));
+
+					if constexpr (enemyType)
+					{
 						auto& firstWeaponType = weaponGameComponents.idsToInst.at(*targetInst.weaponIds.begin()).type;
-						
-						postSteps.push_back([&]() {
-							enemyGameComponents.removeInstance(targetInst.instanceId);
-						});
+						postSteps.push_back([&]() { enemyGameComponents.removeInstance(targetInst.instanceId); });
 
 						const float newRadius = targetInst.radius * targetType.params.radiusReductionFactor;
 						if (targetType.params.killSpawns > 0 && newRadius >= targetType.params.minimalRadius)
 							for (int i = 0; i < targetType.params.killSpawns; ++i)
-								enemySpawn(targetType, firstWeaponType, enemyActor.getOrigin2D() + glm::circularRand(0.1f), newRadius);
+								enemySpawn(targetType, firstWeaponType, targetActor.getOrigin2D() + glm::circularRand(0.1f), newRadius);
+					}
+					else
+					{
+						targetActor.setEnabled(false);
+						targetInst.overchargeSound.stop();
+						targetInst.dashSound.stop();
 					}
 				}
 			}
@@ -1114,7 +1144,7 @@ namespace Levels::DamageOn
 					if constexpr (std::is_same_v<std::remove_cvref_t<decltype(sourceInst)>, PlayerType::Inst>)
 						return glm::vec3(0.0f, glm::linearRand(0.2f, 0.6f), glm::linearRand(0.4f, 0.8f));
 					else
-						return glm::vec3(0.2f, glm::linearRand(0.1f, 0.3f), glm::linearRand(0.2f, 0.4f));
+						return glm::vec3(0.8f, glm::linearRand(0.1f, 0.3f), glm::linearRand(0.2f, 0.4f));
 				}();
 
 				int numOfVertices = Tools::Shapes2D::AppendVerticesOfLightning(weaponType.cache.decoration.vertices, sourceInst.actor.getOrigin2D() + weaponOffset + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
@@ -1173,7 +1203,7 @@ namespace Levels::DamageOn
 					if constexpr (std::is_same_v<std::remove_cvref_t<decltype(sourceInst)>, PlayerType::Inst>)
 						return glm::vec3(0.0f, glm::linearRand(0.4f, 0.8f), glm::linearRand(0.2f, 0.6f));
 					else
-						return glm::vec3(0.2f, glm::linearRand(0.2f, 0.4f), glm::linearRand(0.1f, 0.3f));
+						return glm::vec3(0.8f, glm::linearRand(0.2f, 0.4f), glm::linearRand(0.1f, 0.3f));
 				}();
 
 				int numOfVertices = Tools::Shapes2D::AppendVerticesOfLightning(weaponType.cache.decoration.vertices, sourceInst.actor.getOrigin2D() + weaponOffset + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
@@ -1648,6 +1678,13 @@ namespace Levels::DamageOn
 		ComponentId dashSoundBufferId{};
 		ComponentId killSoundBufferId{};
 
+		std::array<Components::Sound*, 8> sparkingSounds{};
+		size_t sparkingSoundIndex = 0;
+		std::array<Components::Sound*, 8> overchargeSounds{};
+		size_t overchargeSoundIndex = 0;
+		std::array<Components::Sound*, 8> dashSounds{};
+		size_t dashSoundIndex = 0;
+
 		GameParams gameParams{};
 		LevelParams levelParams{};
 		Actions actions{};
@@ -1659,6 +1696,8 @@ namespace Levels::DamageOn
 		std::vector<std::function<void()>> deferredWeaponsSteps;
 		std::vector<std::function<void()>> deferredWeaponsPostSteps;
 		std::vector<std::function<void()>> postSteps;
+
+		std::shared_ptr<Tools::SoundsLimitter> soundsLimitter = Tools::SoundsLimitter::create(8);
 
 		struct
 		{

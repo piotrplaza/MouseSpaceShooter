@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tools/glmHelpers.hpp>
+
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -113,7 +115,7 @@ namespace Tools
 	{
 		struct Std1HashPolicy
 		{
-			static int Hash(int x)
+			static unsigned Hash(unsigned x)
 			{
 				x += (x << 10u);
 				x ^= (x >> 6u);
@@ -126,9 +128,9 @@ namespace Tools
 
 		struct Std2HashPolicy
 		{
-			static int Hash(int x)
+			static unsigned Hash(unsigned x)
 			{
-				int i = (x ^ 12345391u) * 2654435769u;
+				unsigned i = (x ^ 12345391u) * 2654435769u;
 				i ^= (i << 6u) ^ (i >> 26u);
 				i *= 2654435769u;
 				i += (i << 5u) ^ (i >> 12u);
@@ -138,10 +140,10 @@ namespace Tools
 
 		struct Std3HashPolicy
 		{
-			static int Hash(int x)
+			static unsigned Hash(unsigned x)
 			{
-				constexpr int prime = 16777619;
-				constexpr int offset = (int)2166136261;
+				constexpr unsigned prime = 16777619;
+				constexpr unsigned offset = 2166136261;
 
 				return (offset ^ x) * prime;
 			}
@@ -152,37 +154,37 @@ namespace Tools
 		{
 			using HashPolicy::Hash;
 
-			static int Hash(glm::ivec2 v)
+			static unsigned Hash(glm::ivec2 v)
 			{
 				return Hash(v.x ^ Hash(v.y));
 			}
 
-			static int Hash(glm::ivec3 v)
+			static unsigned Hash(glm::ivec3 v)
 			{
 				return Hash(v.x ^ Hash(v.y) ^ Hash(v.z));
 			}
 
-			static int Hash(glm::ivec4 v)
+			static unsigned Hash(glm::ivec4 v)
 			{
 				return Hash(v.x ^ Hash(v.y) ^ Hash(v.z) ^ Hash(v.w));
 			}
 
-			static int Hash(int x, int seed)
+			static unsigned Hash(int x, unsigned seed)
 			{
 				return Hash(x ^ Hash(seed));
 			}
 
-			static int Hash(glm::ivec2 v, int seed)
+			static unsigned Hash(glm::ivec2 v, unsigned seed)
 			{
 				return Hash(v.x ^ Hash(v.y) ^ Hash(seed));
 			}
 
-			static int Hash(glm::ivec3 v, int seed)
+			static unsigned Hash(glm::ivec3 v, unsigned seed)
 			{
 				return Hash(v.x ^ Hash(v.y) ^ Hash(v.z) ^ Hash(seed));
 			}
 
-			static int Hash(glm::ivec4 v, int seed)
+			static unsigned Hash(glm::ivec4 v, unsigned seed)
 			{
 				return Hash(v.x ^ Hash(v.y) ^ Hash(v.z) ^ Hash(v.w) ^ Hash(seed));
 			}
@@ -190,21 +192,20 @@ namespace Tools
 			template <typename Seed>
 			static int HashRange(int min, int max, Seed seed)
 			{
-				return (int)Hash(seed) % (max - min + 1) + min;
+				return Hash(seed) % (max - min + 1) + min;
 			}
 
 			template <typename Seed>
 			static glm::ivec2 HashRange(glm::ivec2 min, glm::ivec2 max, Seed seed)
 			{
-				int x = Hash(seed);
-				int y = Hash(seed, x);
+				unsigned x = Hash(seed);
+				unsigned y = Hash(seed, x);
 
 				return {
 					x % (max.x - min.x + 1) + min.x,
 					y % (max.y - min.y + 1) + min.y
 				};
 			}
-
 
 			template <typename Seed>
 			static glm::ivec3 HashRange(glm::ivec3 min, glm::ivec3 max, Seed seed)
@@ -214,9 +215,9 @@ namespace Tools
 				unsigned z = Hash(seed, y);
 
 				return {
-					(int)(x % (max.x - min.x + 1) + min.x),
-					(int)(y % (max.y - min.y + 1) + min.y),
-					(int)(z % (max.z - min.z + 1) + min.z)
+					x % (max.x - min.x + 1) + min.x,
+					y % (max.y - min.y + 1) + min.y,
+					z % (max.z - min.z + 1) + min.z
 				};
 			}
 
@@ -229,10 +230,10 @@ namespace Tools
 				unsigned w = Hash(seed, z);
 
 				return {
-					(int)(x % (max.x - min.x + 1) + min.x),
-					(int)(y % (max.y - min.y + 1) + min.y),
-					(int)(z % (max.z - min.z + 1) + min.z),
-					(int)(w % (max.w - min.w + 1) + min.w)
+					x % (max.x - min.x + 1) + min.x,
+					y % (max.y - min.y + 1) + min.y,
+					z % (max.z - min.z + 1) + min.z,
+					w % (max.w - min.w + 1) + min.w
 				};
 			}
 		};

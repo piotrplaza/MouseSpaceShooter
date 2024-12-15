@@ -75,7 +75,14 @@ const bool console = true;
 const bool glDebug = false;
 const GLenum glDebugMinSeverity = GL_DEBUG_SEVERITY_LOW;
 const glm::ivec2 windowRes = { 1920, 1080 };
-const bool forcedScreenModeEnabled = false;
+
+const struct
+{
+	glm::ivec2 resolution;
+	int bitsPerPixel;
+	int refreshRate;
+	bool enabled;
+} forcedScreenMode = { { 1920, 1080 }, 32, 60, false };
 
 const bool fullScreen =
 #ifdef _DEBUG
@@ -83,13 +90,6 @@ debugFullscreen;
 #else 
 releaseFullscreen;
 #endif
-
-struct 
-{
-	glm::ivec2 resolution;
-	int bitsPerPixel;
-	int refreshRate;
-} forcedScreenMode = { { 1920, 1080 }, 32, 60 };
 
 std::unique_ptr<Levels::Level> activeLevel;
 
@@ -372,9 +372,9 @@ int APIENTRY WinMain(
 )
 {
 	if (console)
-		Tools::RedirectIOToConsole({ 3850, 10 });
+		Tools::RedirectIOToConsole({ 1930, 10 });
 
-	if (forcedScreenModeEnabled)
+	if (forcedScreenMode.enabled)
 	{
 		DEVMODE dmScreenSettings;
 		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
