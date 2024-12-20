@@ -196,7 +196,7 @@ namespace Levels
 			for (float x : {-40.0f, 40.0f})
 				Tools::CreateAndPlaySound(CM::SoundBuffer(avatarSoundBuffer, true), [x]() { return glm::vec2(x, -40.0f); },
 					[](auto& sound) {
-						sound.setLoop(true);
+						sound.setLooping(true);
 					});
 		}
 
@@ -661,7 +661,7 @@ namespace Levels
 					},
 					[&](auto& sound) {
 						sound.setVolume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
-						sound.setPitch(Tools::RandomFloat(0.9f, 1.5f));
+						sound.setPitch(Tools::RandomFloat(0.4f, 0.6f));
 					});
 			});
 

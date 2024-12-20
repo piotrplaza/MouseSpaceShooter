@@ -31,7 +31,14 @@ namespace Components
 			return;
 		}
 
-		details->sfMusic.openFromFile(this->path);
+		if (!details->sfMusic.openFromFile(this->path))
+		{
+			assert(!"unable to load music");
+			throw std::runtime_error("Unable to load music \"" + this->path + "\".");
+		}
+
+		details->sfMusic.setSpatializationEnabled(false);
+
 		setVolume(1.0f);
 		setLoop(true);
 		state = ComponentState::Ongoing;
@@ -94,7 +101,7 @@ namespace Components
 			return *this;
 		}
 
-		details->sfMusic.setLoop(value);
+		details->sfMusic.setLooping(value);
 
 		return *this;
 	}
@@ -124,7 +131,7 @@ namespace Components
 		if (!details)
 			return *this;
 
-		details->sfMusic.setPosition(pos.x, pos.y, pos.z);
+		details->sfMusic.setPosition({ pos.x, pos.y, pos.z });
 
 		return *this;
 	}
@@ -134,7 +141,7 @@ namespace Components
 		if (!details)
 			return *this;
 
-		details->sfMusic.setPosition(pos.x, pos.y, 0.0f);
+		details->sfMusic.setPosition({ pos.x, pos.y, 0.0f });
 
 		return *this;
 	}

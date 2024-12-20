@@ -28,7 +28,7 @@ struct ComponentBase
 
 	virtual void step()
 	{
-		if (stepF)
+		if (stepF && state != ComponentState::Outdated)
 			stepF();
 	}
 

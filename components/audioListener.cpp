@@ -42,7 +42,7 @@ namespace Components
 
 	void AudioListener::setPosition(glm::vec3 value)
 	{
-		sf::Listener::setPosition(value.x, value.y, value.z);
+		sf::Listener::setPosition({ value.x, value.y, value.z });
 	}
 
 	glm::vec3 AudioListener::getPosition() const
@@ -53,7 +53,7 @@ namespace Components
 
 	void AudioListener::setDirection(glm::vec3 value)
 	{
-		sf::Listener::setDirection(value.x, value.y, value.z);
+		sf::Listener::setDirection({ value.x, value.y, value.z });
 	}
 
 	glm::vec3 AudioListener::getDirection() const
@@ -64,7 +64,7 @@ namespace Components
 
 	void AudioListener::setUpVector(glm::vec3 value)
 	{
-		sf::Listener::setUpVector(value.x, value.y, value.z);
+		sf::Listener::setUpVector({ value.x, value.y, value.z });
 	}
 
 	glm::vec3 AudioListener::getUpVector() const

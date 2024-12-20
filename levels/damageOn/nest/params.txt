@@ -1,6 +1,6 @@
 game.pixelArt false
-game.globalVolume 0.2
-game.musicVolume 0.0
+game.globalVolume 1.0
+game.musicVolume 0.6
 game.musicFile "DamageOn 5.ogg"
 game.players.count 2
 game.players.typeAssignment frankenstein frankenstein frankenstein frankenstein

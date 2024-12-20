@@ -86,16 +86,30 @@ namespace Tools
 		return std::shared_ptr<SoundsLimitter>(new SoundsLimitter(limit));
 	}
 
-	void SoundsLimitter::newSound(Components::Sound& sound)
+	Components::Sound& SoundsLimitter::newSound(Components::Sound& sound, std::function<void()> tearDown)
 	{
+		if (limit == 0)
+		{
+			sound.immediateFreeResources();
+			sound.tearDownF = [tearDown]() {
+				if (tearDown)
+					tearDown();
+			};
+			return sound;
+		}
+
 		if (sounds.size() == limit)
 			sounds.front()->immediateFreeResources();
 
 		sounds.push_back(&sound);
 
-		sound.tearDownF = [this, soundsLimitter = shared_from_this(), it = std::prev(sounds.end())]() {
+		sound.tearDownF = [this, soundsLimitter = shared_from_this(), it = std::prev(sounds.end()), tearDown]() {
 			sounds.erase(it);
+			if (tearDown)
+				tearDown();
 		};
+
+		return sound;
 	}
 
 	const Tools::BodyParams& GetDefaultParamsForPlaneBody()
@@ -336,17 +350,20 @@ namespace Tools
 		auto& sound = Globals::Components().sounds().emplace(soundBuffer);
 
 		sound.setRemoveOnStop(true);
-		sound.stepF = [&, posF = std::move(posF), stepF = std::move(stepF)]()
-		{
+
+		if (posF.isLoaded())
+			sound.setPosition(posF());
+
+		if (config)
+			config(sound);
+
+		sound.stepF = [&, posF = std::move(posF), stepF = std::move(stepF)]() {
 			if (posF.isLoaded())
 				sound.setPosition(posF());
 
 			if (stepF)
 				stepF(sound);
 		};
-
-		if (config)
-			config(sound);
 
 		sound.play();
 

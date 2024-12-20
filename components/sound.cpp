@@ -9,7 +9,9 @@
 #include <tools/utility.hpp>
 
 #include <SFML/Audio/Sound.hpp>
+#include <SFML/System/Time.hpp>
 
+#include <memory>
 #include <algorithm>
 #include <stdexcept>
 
@@ -17,20 +19,23 @@ namespace Components
 {
 	struct SoundDetails
 	{
+		SoundDetails(const sf::SoundBuffer& buffer) :
+			sfSound(buffer)
+		{
+		}
+
 		sf::Sound sfSound;
 	};
 
 	Sound::Sound(CM::SoundBuffer soundBuffer):
 		maxVolume(soundBuffer.component->getMaxVolume()),
-		details(Sound::getNumOfInstances() + Music::getNumOfInstances() < 256 ? std::make_unique<SoundDetails>() : nullptr)
+		details(Sound::getNumOfInstances() + Music::getNumOfInstances() < 256 ? std::make_unique<SoundDetails>(soundBuffer.component->getBuffer()) : nullptr)
 	{
 		if (!details)
 		{
 			Tools::PrintWarning("Audio limit was exceeded. Dummy sound was allocated.");
 			return;
 		}
-
-		details->sfSound.setBuffer(soundBuffer.component->getBuffer());
 
 		setVolume(1.0f);
 		setMinDistance(4.0f);
@@ -102,7 +107,7 @@ namespace Components
 		return *this;
 	}
 
-	Sound& Sound::setLoop(bool value)
+	Sound& Sound::setLooping(bool value)
 	{
 		loop = value;
 
@@ -114,7 +119,7 @@ namespace Components
 			return *this;
 		}
 
-		details->sfSound.setLoop(value);
+		details->sfSound.setLooping(value);
 
 		return *this;
 	}
@@ -144,7 +149,7 @@ namespace Components
 		if (!details)
 			return *this;
 
-		details->sfSound.setPosition(pos.x, pos.y, pos.z);
+		details->sfSound.setPosition({ pos.x, pos.y, pos.z });
 
 		return *this;
 	}
@@ -154,7 +159,7 @@ namespace Components
 		if (!details)
 			return *this;
 
-		details->sfSound.setPosition(pos.x, pos.y, 0.0f);
+		details->sfSound.setPosition({ pos.x, pos.y, 0.0f });
 
 		return *this;
 	}
@@ -202,7 +207,7 @@ namespace Components
 		if (!details)
 			return true;
 
-		return details->sfSound.getStatus() == sf::SoundSource::Stopped;
+		return details->sfSound.getStatus() == sf::SoundSource::Status::Stopped;
 	}
 
 	bool Sound::isPaused() const
@@ -210,7 +215,7 @@ namespace Components
 		if (!details)
 			return false;
 
-		return details->sfSound.getStatus() == sf::SoundSource::Paused;
+		return details->sfSound.getStatus() == sf::SoundSource::Status::Paused;
 	}
 
 	bool Sound::isPlaying() const
@@ -218,7 +223,7 @@ namespace Components
 		if (!details)
 			return false;
 
-		return details->sfSound.getStatus() == sf::SoundSource::Playing;
+		return details->sfSound.getStatus() == sf::SoundSource::Status::Playing;
 	}
 
 	void Sound::step()
@@ -226,8 +231,7 @@ namespace Components
 		if (removeOnStop && !loop && isStopped())
 			state = ComponentState::Outdated;
 
-		if (stepF)
-			stepF();
+		ComponentBase::step();
 	}
 
 	void Sound::immediateFreeResources()
@@ -238,8 +242,12 @@ namespace Components
 			tearDownF = nullptr;
 		}
 
-		details.reset();
 		state = ComponentState::Outdated;
+
+		if (!details)
+			return;
+
+		details.reset();
 		--numOfInstances;
 	}
 

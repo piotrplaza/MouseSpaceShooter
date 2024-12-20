@@ -336,6 +336,7 @@ namespace Levels
 						},
 						[&](auto& sound) {
 							sound.setVolume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
+							sound.setPitch(Tools::RandomFloat(0.4f, 0.6f));
 						});
 				}));
 
@@ -382,7 +383,7 @@ namespace Levels
 
 			innerForceSound = Tools::CreateAndPlaySound(CM::SoundBuffer(innerForceSoundBuffer, true), []() { return glm::vec2(0.0f); },
 				[](auto& sound) {
-					sound.setLoop(true);
+					sound.setLooping(true);
 					sound.setVolume(0.0f);
 				}).getComponentId();
 

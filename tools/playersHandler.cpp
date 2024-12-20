@@ -47,7 +47,7 @@ namespace
 
 		const auto& planeComponent = *plane.component;
 		auto& sound = Globals::Components().sounds().emplace(*soundBuffer);
-		sound.setLoop(true);
+		sound.setLooping(true);
 		sound.setVolume(0.0f);
 		sound.stepF = [&]() {
 			sound.setPosition(planeComponent.getOrigin2D());

@@ -55,7 +55,7 @@ namespace
 	constexpr float cubeHSize = 0.5f;
 	constexpr float cameraDistance = 2.0f;
 
-	constexpr float growingSoundVolume = 0.8f;
+	constexpr float growingSoundVolume = 0.4f;
 
 	constexpr int numOfCrosses = 10000;
 	constexpr int numOfLights = 16;
@@ -178,7 +178,7 @@ namespace Levels
 			});
 
 			auto& musics = Globals::Components().musics();
-			musics.emplace("audio/Ghosthack-Ambient Beds_Granular Dreams_Fm 65Bpm (WET).ogg", 1.0f).play();
+			musics.emplace("audio/Ghosthack-Ambient Beds_Granular Dreams_Fm 65Bpm (WET).ogg", 0.6f).play();
 
 			auto& soundsBuffers = Globals::Components().staticSoundsBuffers();
 			eatingSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Pluck_C.wav").getComponentId();
@@ -186,8 +186,8 @@ namespace Levels
 			deadSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav").getComponentId();
 
 			auto& sounds = Globals::Components().sounds();
-			growingSound = sounds.emplace(CM::SoundBuffer(growingSoundBuffer, true)).setVolume(0.0f).setLoop(true).play().getComponentId();
-			deadSound = sounds.emplace(CM::SoundBuffer(deadSoundBuffer, true)).setVolume(0.0f).setLoop(true).play().getComponentId();
+			growingSound = sounds.emplace(CM::SoundBuffer(growingSoundBuffer, true)).setVolume(0.0f).setLooping(true).play().getComponentId();
+			deadSound = sounds.emplace(CM::SoundBuffer(deadSoundBuffer, true)).setVolume(0.0f).setLooping(true).play().getComponentId();
 		}
 
 		void step()
@@ -416,7 +416,7 @@ namespace Levels
 				{
 					foodPos = std::nullopt;
 					lastEatingTime = Globals::Components().physics().simulationDuration;
-					Tools::CreateAndPlaySound(CM::SoundBuffer(eatingSoundBuffer, true)).setVolume(0.6f);
+					Tools::CreateAndPlaySound(CM::SoundBuffer(eatingSoundBuffer, true)).setVolume(0.8f);
 					++score;
 
 					juliaIterations += juliaIterationsStep;
@@ -434,7 +434,7 @@ namespace Levels
 				snakeHead = it;
 				snakeHead->second.type = SnakeNode::Type::DeadHead;
 				Globals::Components().sounds()[growingSound].setVolume(0.0f);
-				Globals::Components().sounds()[deadSound].setVolume(0.3f);
+				Globals::Components().sounds()[deadSound].setVolume(0.5f);
 			}
 
 			if (!foodPos)

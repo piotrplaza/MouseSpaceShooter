@@ -6,6 +6,9 @@
 #include <components/systemInfo.hpp>
 #include <components/physics.hpp>
 #include <components/keyboard.hpp>
+#include <components/SoundBuffer.hpp>
+#include <components/sound.hpp>
+#include <components/music.hpp>
 #include <globals/components.hpp>
 
 #include <ogl/shaders/textured.hpp>
@@ -95,7 +98,52 @@ namespace Tests
 		}
 	};
 
-	auto activeTest = std::make_unique<RepeatedTextureLoading>();
+	struct StoppedSoundCracking : public TestBase
+	{
+		void setup() override
+		{
+			Globals::Components().soundsBuffers().emplace("audio/Ghosthack Synth - Choatic_C.wav");
+			Globals::Components().sounds().emplace(Globals::Components().soundsBuffers().last()).setLooping(true);
+		}
+
+		void step() override
+		{
+			if (Globals::Components().keyboard().pressed[' '])
+			{
+				//Globals::Components().sounds().last().setVolume(1.0f);
+				Globals::Components().sounds().last().play();
+			}
+			else if (Globals::Components().keyboard().released[' '])
+			{
+				//Globals::Components().sounds().last().setVolume(0.0f);
+				Globals::Components().sounds().last().pause();
+			}
+		}
+	};
+
+	struct Music : public TestBase
+	{
+		void setup() override
+		{
+			Globals::Components().musics().emplace("audio/DamageOn 5.ogg").play();
+		}
+
+		void step() override
+		{
+			if (Globals::Components().keyboard().pressed[' '])
+			{
+				Globals::Components().musics().last().setVolume(0.0f);
+			}
+			else if (Globals::Components().keyboard().released[' '])
+			{
+				Globals::Components().musics().last().setVolume(1.0f);
+			}
+		}
+
+		float volume = 1.0f;
+	};
+
+	auto activeTest = std::make_unique<Music>();
 }
 
 namespace Levels

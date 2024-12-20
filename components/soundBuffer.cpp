@@ -13,7 +13,11 @@ namespace Components
 		details(std::make_unique<SoundBufferDetails>()),
 		maxVolume(maxVolume)
 	{
-		details->sfSoundBuffer.loadFromFile(path);
+		if (!details->sfSoundBuffer.loadFromFile(path))
+		{
+			assert(!"unable to load sound");
+			throw std::runtime_error("Unable to load sound \"" + path + "\".");
+		}
 		state = ComponentState::Ongoing;
 	}
 

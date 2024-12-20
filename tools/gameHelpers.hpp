@@ -239,7 +239,7 @@ namespace Tools
 	public:
 		static std::shared_ptr<SoundsLimitter> create(unsigned limit);
 
-		void newSound(Components::Sound& sound);
+		Components::Sound& newSound(Components::Sound& sound, std::function<void()> tearDown = nullptr);
 
 	private:
 		SoundsLimitter(unsigned limit);

@@ -90,7 +90,7 @@ struct TextureData
 			return 4;
 
 		assert(!"unsupported variant type");
-		throw std::runtime_error("getNumOfChannelsFromVariant - unsupported variant type.");
+		throw std::runtime_error("getNumOfChannels - unsupported variant type.");
 	}
 
 	TextureFile file;

@@ -29,7 +29,7 @@ namespace Components
 		Sound& setRemoveOnStop(bool value);
 
 		Sound& setRelativeToAudioListener(bool value);
-		Sound& setLoop(bool value);
+		Sound& setLooping(bool value);
 		Sound& setVolume(float value);
 		Sound& setPitch(float value);
 		Sound& setPosition(glm::vec3 pos);
