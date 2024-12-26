@@ -9,6 +9,7 @@
 #include <tools/utility.hpp>
 
 #include <SFML/Audio/Sound.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/System/Time.hpp>
 
 #include <memory>
@@ -184,12 +185,12 @@ namespace Components
 		return *this;
 	}
 
-	Sound& Sound::setPlayingOffset(float seconds)
+	Sound& Sound::setPlayingOffset(float value)
 	{
 		if (!details)
 			return *this;
 
-		details->sfSound.setPlayingOffset(sf::seconds(seconds));
+		details->sfSound.setPlayingOffset(sf::seconds(details->sfSound.getBuffer().getDuration().asSeconds() * value));
 
 		return *this;
 	}

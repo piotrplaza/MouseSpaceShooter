@@ -36,7 +36,7 @@ namespace Components
 		Sound& setPosition(glm::vec2 pos);
 		Sound& setMinDistance(float value);
 		Sound& setAttenuation(float value);
-		Sound& setPlayingOffset(float seconds);
+		Sound& setPlayingOffset(float value);
 
 		bool isRelativeToAudioListener() const;
 		bool isStopped() const;

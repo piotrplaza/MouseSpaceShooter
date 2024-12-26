@@ -351,7 +351,7 @@ namespace Levels::DamageOn
 				if ((keyboard.pressed[/*VK_SPACE*/0x20] * keyboardEnabled || gamepad.pressed.a * gamepadEnabled) && glm::length(direction) > 0.0f)
 				{
 					playerSoundLimitters.dashes->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(dashSoundBufferId, false), playerInst.actor.getOrigin2D(), [&](auto& sound) {
-						sound.setPlayingOffset(0.35f);
+						sound.setPlayingOffset(0.3f);
 						sound.setVolume(0.2f);
 					}));
 					playerInst.actor.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerType.params.dash * playerInst.actor.body->GetMass()), true);
@@ -802,11 +802,12 @@ namespace Levels::DamageOn
 			{
 				std::string typeName{};
 
-				int initPower;
+				std::string archetype;
 				float distance;
 				float damageFactor;
 				float overchargingRate;
 				float coolingRate;
+				int initPower;
 			} params;
 
 			struct CacheBase
@@ -1045,17 +1046,17 @@ namespace Levels::DamageOn
 			for (auto weaponId : sourceInst.weaponIds)
 			{
 				auto& weaponInst = weaponGameComponents.idsToInst.at(weaponId);
-				const auto& weaponTypeName = weaponInst.type.params.typeName;
+				auto& weaponType = weaponInst.type;
 				const auto direction = sourceInst.actor.getOrigin2D() - targetActor.getOrigin2D();
 				const auto distance = glm::length(direction);
 				bool kill = false;
 
 				const bool hit = [&]() {
-					if (weaponTypeName == "sparkingNearest")
+					if (weaponType.params.archetype == "sparkingNearest")
 						return sparkingNearestHandler(sourceInst, targetInst, weaponInst, direction, distance, sourceInst.fire || sourceInst.autoFire, targetSeq);
-					if (weaponTypeName == "sparkingRandom")
+					if (weaponType.params.archetype == "sparkingRandom")
 						return sparkingRandomHandler(sourceInst, targetInst, weaponInst, direction, distance, sourceInst.fire || sourceInst.autoFire);
-					return sparkingNearestHandler(sourceInst, targetInst, weaponInst, direction, distance, sourceInst.fire || sourceInst.autoFire, targetSeq);
+					throw std::runtime_error("Unknown weapon archetype: " + weaponType.params.archetype);
 				}();
 
 				if (hit)
@@ -1246,6 +1247,7 @@ namespace Levels::DamageOn
 						weaponInst.fireSound = &soundLimitters(playerType).weapons->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(sparkingSoundBufferId, false), sourcePosF, [&](auto& sound) {
 							sound.setVolume(0.8f);
 							sound.setLooping(true);
+							sound.setPlayingOffset(glm::linearRand(0.0f, 1.0f));
 							sound.setRemoveOnStop(true);
 						}), [&]() {
 							weaponInst.fireSound = nullptr;
@@ -1271,6 +1273,7 @@ namespace Levels::DamageOn
 							sourceInst.overchargedSound = &soundLimitters(playerType).overcharges->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(overchargedSoundBufferId, false), sourcePosF, [&](auto& sound) {
 								sound.setVolume(sourceInst.manaOvercharging);
 								sound.setLooping(true);
+								sound.setPlayingOffset(glm::linearRand(0.0f, 1.0f));
 								sound.setRemoveOnStop(true);
 							}), [&]() {
 								sourceInst.overchargedSound = nullptr;
@@ -1458,10 +1461,18 @@ namespace Levels::DamageOn
 							const auto spacePos2 = value.find(' ', spacePos1 + 1);
 							const auto spacePos3 = value.find(' ', spacePos2 + 1);
 							const auto spacePos4 = value.find(' ', spacePos3 + 1);
-							auto& enemyType = enemyGameComponents.typeNamesToTypes.at(value.substr(0, spacePos1));
+							auto& enemyType = [&]() -> auto& {
+								const auto key = value.substr(0, spacePos1);
+								try { return enemyGameComponents.typeNamesToTypes.at(key); }
+								catch (...) { throw std::runtime_error("loadParams(): Enemy type " + key + " not found"); }
+							}();
 							auto* weaponType = spacePos4 == std::string::npos
 								? nullptr
-								: &weaponGameComponents.typeNamesToTypes.at(value.substr(spacePos4 + 1));
+								: &[&]() -> auto& {
+									const auto key = value.substr(spacePos4 + 1);
+									try { return weaponGameComponents.typeNamesToTypes.at(key); }
+									catch (...) { throw std::runtime_error("loadParams(): Weapon type " + key + " not found"); }
+								}();
 							param.push_back({ enemyType, weaponType,
 								glm::vec2(Tools::Stof(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)), Tools::Stof(value.substr(spacePos2 + 1, spacePos3 - spacePos2 - 1))),
 								Tools::Stoi(value.substr(spacePos3 + 1, spacePos2 - spacePos3 - 1)) });
@@ -1568,20 +1579,20 @@ namespace Levels::DamageOn
 				{
 					if (auto playerName = extractName(key, "player."); !playerName.empty() && playerName != prevPlayerName)
 					{
-						auto& playerTypeParams = playerGameComponents.typeNamesToTypes.emplace(playerName, PlayerType{}).first->second.params;
-						playerTypeParams.typeName = std::move(playerName);
+						auto& typeParams = playerGameComponents.typeNamesToTypes.emplace(playerName, PlayerType{}).first->second.params;
+						typeParams.typeName = std::move(playerName);
 
-						loadParam(playerTypeParams.initHP, std::format("player.{}.initHP", playerTypeParams.typeName));
-						loadParam(playerTypeParams.radius, std::format("player.{}.radius", playerTypeParams.typeName));
-						loadParam(playerTypeParams.baseVelocity, std::format("player.{}.baseVelocity", playerTypeParams.typeName));
-						loadParam(playerTypeParams.slowFactor, std::format("player.{}.slowFactor", playerTypeParams.typeName));
-						loadParam(playerTypeParams.density, std::format("player.{}.density", playerTypeParams.typeName));
-						loadParam(playerTypeParams.linearDamping, std::format("player.{}.linearDamping", playerTypeParams.typeName));
-						loadParam(playerTypeParams.dash, std::format("player.{}.dash", playerTypeParams.typeName));
-						loadPresentationParams(playerTypeParams.presentation, std::format("player.{}", playerTypeParams.typeName));
-						loadAnimationParams(playerTypeParams.animation, std::format("player.{}", playerTypeParams.typeName));
+						loadParam(typeParams.initHP, std::format("player.{}.initHP", typeParams.typeName));
+						loadParam(typeParams.radius, std::format("player.{}.radius", typeParams.typeName));
+						loadParam(typeParams.baseVelocity, std::format("player.{}.baseVelocity", typeParams.typeName));
+						loadParam(typeParams.slowFactor, std::format("player.{}.slowFactor", typeParams.typeName));
+						loadParam(typeParams.density, std::format("player.{}.density", typeParams.typeName));
+						loadParam(typeParams.linearDamping, std::format("player.{}.linearDamping", typeParams.typeName));
+						loadParam(typeParams.dash, std::format("player.{}.dash", typeParams.typeName));
+						loadPresentationParams(typeParams.presentation, std::format("player.{}", typeParams.typeName));
+						loadAnimationParams(typeParams.animation, std::format("player.{}", typeParams.typeName));
 
-						prevPlayerName = playerTypeParams.typeName;
+						prevPlayerName = typeParams.typeName;
 					}
 				}
 			};
@@ -1593,23 +1604,23 @@ namespace Levels::DamageOn
 				{
 					if (auto enemyName = extractName(key, "enemy."); !enemyName.empty() && enemyName != prevEnemyName)
 					{
-						auto& enemyTypeParams = enemyGameComponents.typeNamesToTypes.emplace(enemyName, EnemyType{}).first->second.params;
-						enemyTypeParams.typeName = std::move(enemyName);
+						auto& typeParams = enemyGameComponents.typeNamesToTypes.emplace(enemyName, EnemyType{}).first->second.params;
+						typeParams.typeName = std::move(enemyName);
 
-						loadParam(enemyTypeParams.initHP, std::format("enemy.{}.initHP", enemyTypeParams.typeName));
-						loadParam(enemyTypeParams.initRadiusRange, std::format("enemy.{}.initRadiusRange", enemyTypeParams.typeName));
-						loadParam(enemyTypeParams.density, std::format("enemy.{}.density", enemyTypeParams.typeName));
-						loadParam(enemyTypeParams.baseVelocity, std::format("enemy.{}.baseVelocity", enemyTypeParams.typeName));
-						loadParam(enemyTypeParams.boostDistance, std::format("enemy.{}.boostDistance", enemyTypeParams.typeName));
-						loadParam(enemyTypeParams.boostFactor, std::format("enemy.{}.boostFactor", enemyTypeParams.typeName));
-						loadParam(enemyTypeParams.slowFactor, std::format("enemy.{}.slowFactor", enemyTypeParams.typeName));
-						loadParam(enemyTypeParams.radiusReductionFactor, std::format("enemy.{}.radiusReductionFactor", enemyTypeParams.typeName));
-						loadParam(enemyTypeParams.minimalRadius, std::format("enemy.{}.minimalRadius", enemyTypeParams.typeName));
-						loadParam(enemyTypeParams.killSpawns, std::format("enemy.{}.killSpawns", enemyTypeParams.typeName));
-						loadPresentationParams(enemyTypeParams.presentation, std::format("enemy.{}", enemyTypeParams.typeName));
-						loadAnimationParams(enemyTypeParams.animation, std::format("enemy.{}", enemyTypeParams.typeName));
+						loadParam(typeParams.initHP, std::format("enemy.{}.initHP", typeParams.typeName));
+						loadParam(typeParams.initRadiusRange, std::format("enemy.{}.initRadiusRange", typeParams.typeName));
+						loadParam(typeParams.density, std::format("enemy.{}.density", typeParams.typeName));
+						loadParam(typeParams.baseVelocity, std::format("enemy.{}.baseVelocity", typeParams.typeName));
+						loadParam(typeParams.boostDistance, std::format("enemy.{}.boostDistance", typeParams.typeName));
+						loadParam(typeParams.boostFactor, std::format("enemy.{}.boostFactor", typeParams.typeName));
+						loadParam(typeParams.slowFactor, std::format("enemy.{}.slowFactor", typeParams.typeName));
+						loadParam(typeParams.radiusReductionFactor, std::format("enemy.{}.radiusReductionFactor", typeParams.typeName));
+						loadParam(typeParams.minimalRadius, std::format("enemy.{}.minimalRadius", typeParams.typeName));
+						loadParam(typeParams.killSpawns, std::format("enemy.{}.killSpawns", typeParams.typeName));
+						loadPresentationParams(typeParams.presentation, std::format("enemy.{}", typeParams.typeName));
+						loadAnimationParams(typeParams.animation, std::format("enemy.{}", typeParams.typeName));
 
-						prevEnemyName = enemyTypeParams.typeName;
+						prevEnemyName = typeParams.typeName;
 					}
 				}
 			};
@@ -1621,16 +1632,17 @@ namespace Levels::DamageOn
 				{
 					if (auto weaponName = extractName(key, "weapon."); !weaponName.empty() && weaponName != prevWeaponName)
 					{
-						auto& weaponTypeParams = weaponGameComponents.typeNamesToTypes.emplace(weaponName, WeaponType{}).first->second.params;
-						weaponTypeParams.typeName = std::move(weaponName);
+						auto& typeParams = weaponGameComponents.typeNamesToTypes.emplace(weaponName, WeaponType{}).first->second.params;
+						typeParams.typeName = std::move(weaponName);
 
-						loadParam(weaponTypeParams.distance, std::format("weapon.{}.distance", weaponTypeParams.typeName));
-						loadParam(weaponTypeParams.damageFactor, std::format("weapon.{}.damageFactor", weaponTypeParams.typeName));
-						loadParam(weaponTypeParams.overchargingRate, std::format("weapon.{}.overchargingRate", weaponTypeParams.typeName));
-						loadParam(weaponTypeParams.coolingRate, std::format("weapon.{}.coolingRate", weaponTypeParams.typeName));
-						loadParam(weaponTypeParams.initPower, std::format("weapon.{}.initPower", weaponTypeParams.typeName));
+						loadParam(typeParams.archetype, std::format("weapon.{}.archetype", typeParams.typeName));
+						loadParam(typeParams.distance, std::format("weapon.{}.distance", typeParams.typeName));
+						loadParam(typeParams.damageFactor, std::format("weapon.{}.damageFactor", typeParams.typeName));
+						loadParam(typeParams.overchargingRate, std::format("weapon.{}.overchargingRate", typeParams.typeName));
+						loadParam(typeParams.coolingRate, std::format("weapon.{}.coolingRate", typeParams.typeName));
+						loadParam(typeParams.initPower, std::format("weapon.{}.initPower", typeParams.typeName));
 
-						prevWeaponName = weaponTypeParams.typeName;
+						prevWeaponName = typeParams.typeName;
 					}
 				}
 			};

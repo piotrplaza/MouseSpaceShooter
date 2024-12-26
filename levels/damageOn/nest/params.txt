@@ -333,29 +333,32 @@ enemy.bird.animation.frameRotation 0.0
 enemy.bird.animation.frameScale 0.88 0.88
 enemy.bird.animation.neutralFrame 0
 
+weapon.sparkingNearest.archetype sparkingNearest
 weapon.sparkingNearest.distance 20.0
 weapon.sparkingNearest.damageFactor 10.0
 weapon.sparkingNearest.overchargingRate 0.3
 weapon.sparkingNearest.coolingRate 0.3
 weapon.sparkingNearest.initPower 20
 
+weapon.sparkingRandom.archetype sparkingRandom
 weapon.sparkingRandom.distance 20.0
 weapon.sparkingRandom.damageFactor 10.0
 weapon.sparkingRandom.overchargingRate 0.3
 weapon.sparkingRandom.coolingRate 0.3
 weapon.sparkingRandom.initPower 20
 
-weapon.sparkingRandomShort.distance 4.0
-weapon.sparkingRandomShort.damageFactor 10.0
-weapon.sparkingRandomShort.overchargingRate 0.3
-weapon.sparkingRandomShort.coolingRate 0.3
-weapon.sparkingRandomShort.initPower 20
+weapon.sparkingNearestShort.archetype sparkingNearest
+weapon.sparkingNearestShort.distance 4.0
+weapon.sparkingNearestShort.damageFactor 10.0
+weapon.sparkingNearestShort.overchargingRate 1.0
+weapon.sparkingNearestShort.coolingRate 0.3
+weapon.sparkingNearestShort.initPower 20
 
-action.spawnHorde ghost -10.0 0.0 20 sparkingRandomShort
-action.spawnHorde chicken 10.0 0.0 50 sparkingRandomShort
-action.spawnHorde zombie 5.0 -10.0 20 sparkingRandomShort
-action.spawnHorde hive 0.0 10.0 50 sparkingRandomShort
-action.spawnHorde gargoyleTwoLegs -10.0 -10.0 10 sparkingRandomShort
-action.spawnHorde gargoyleFourLegs -10.0 -10.0 10 sparkingRandomShort
-action.spawnHorde monk -5.0 0.0 5 sparkingRandomShort
-action.spawnHorde bird -5.0 -10.0 20 sparkingRandomShort
+action.spawnHorde ghost -10.0 0.0 20 sparkingNearestShort
+action.spawnHorde chicken 10.0 0.0 50 sparkingNearestShort
+action.spawnHorde zombie 5.0 -10.0 20 sparkingNearestShort
+action.spawnHorde hive 0.0 10.0 50 sparkingNearestShort
+action.spawnHorde gargoyleTwoLegs -10.0 -10.0 10 sparkingNearestShort
+action.spawnHorde gargoyleFourLegs -10.0 -10.0 10 sparkingNearestShort
+action.spawnHorde monk -5.0 0.0 5 sparkingNearestShort
+action.spawnHorde bird -5.0 -10.0 20 sparkingNearestShort
