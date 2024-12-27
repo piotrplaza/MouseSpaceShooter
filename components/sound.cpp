@@ -8,6 +8,8 @@
 
 #include <tools/utility.hpp>
 
+#include <levels/level.hpp>
+
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/System/Time.hpp>
@@ -49,7 +51,7 @@ namespace Components
 
 	Sound::~Sound()
 	{
-		if (tearDownF)
+		if (tearDownF && Levels::Level::ongoing)
 			tearDownF();
 
 		if (!details)

@@ -480,9 +480,6 @@
     <ClInclude Include="components\blendingTexture.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
-    <ClInclude Include="components\renderingSetup.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="globals\components.hpp">
       <Filter>src\globals</Filter>
     </ClInclude>

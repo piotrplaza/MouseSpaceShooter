@@ -124,7 +124,6 @@
     <ClInclude Include="components\plane.hpp" />
     <ClInclude Include="components\polyline.hpp" />
     <ClInclude Include="components\renderingBuffers.hpp" />
-    <ClInclude Include="components\renderingSetup.hpp" />
     <ClInclude Include="components\shockwave.hpp" />
     <ClInclude Include="components\sound.hpp" />
     <ClInclude Include="components\soundBuffer.hpp" />

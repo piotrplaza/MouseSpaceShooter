@@ -209,17 +209,18 @@ namespace Tools
 		glDrawArrays(GL_TRIANGLES, 0, numOfVertices);
 	}
 
-	inline auto StandardFullscreenRenderer(auto& shadersProgram)
+	inline auto StandardFullscreenRenderer(auto& shadersProgram, std::function<float()> quakeIntensityF = []() {
+		return 0.001f * Globals::Components().shockwaves().size(); })
 	{
 		const auto& screenInfo = Globals::Components().systemInfo().screen;
 
-		return[&](unsigned textureObject)
+		return [&, quakeIntensityF = std::move(quakeIntensityF)](unsigned textureObject)
 		{
 			const bool prevBlend = glProxyIsBlendEnabled();
 			glProxySetBlend(false);
-			TexturedScreenRender(shadersProgram, textureObject, nullptr, [&]()
+			TexturedScreenRender(shadersProgram, textureObject, nullptr, [&, quakeIntensityF = std::move(quakeIntensityF)]()
 				{
-					const float quakeIntensity = 0.001f * Globals::Components().shockwaves().size();
+					const float quakeIntensity = quakeIntensityF();
 					const glm::vec2 quakeIntensityXY = screenInfo.windowSize.x > screenInfo.windowSize.y
 						? glm::vec2(quakeIntensity, quakeIntensity * screenInfo.getAspectRatio())
 						: glm::vec2(quakeIntensity / screenInfo.getAspectRatio(), quakeIntensity);

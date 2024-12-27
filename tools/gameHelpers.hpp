@@ -107,6 +107,12 @@ namespace Tools
 			return *this;
 		}
 
+		ExplosionParams& alpha(float value)
+		{
+			alpha_ = value;
+			return *this;
+		}
+
 		ExplosionParams& resolutionMode(ResolutionMode value)
 		{
 			resolutionMode_ = value;
@@ -125,6 +131,7 @@ namespace Tools
 		float explosionDuration_ = 1.0f;
 		CM::Texture explosionTexture_;
 		int particlesPerDecoration_ = 4;
+		float alpha_ = 1.0f;
 		ResolutionMode resolutionMode_{};
 	};
 

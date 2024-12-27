@@ -17,10 +17,14 @@
 #include <components/audioListener.hpp>
 #include <components/physics.hpp>
 #include <components/pauseHandler.hpp>
+#include <components/mainFramebufferRenderer.hpp>
 #include <globals/components.hpp>
 
 #include <systems/textures.hpp>
 #include <globals/systems.hpp>
+
+#include <ogl/shaders/textured.hpp>
+#include <globals/shaders.hpp>
 
 #include <tools/Shapes2D.hpp>
 #include <tools/utility.hpp>
@@ -28,6 +32,7 @@
 #include <tools/glmHelpers.hpp>
 
 #include <ogl/uniformsUtils.hpp>
+#include <ogl/renderingHelpers.hpp>
 
 #include <glm/gtc/random.hpp>
 
@@ -85,6 +90,10 @@ namespace Levels::DamageOn
 			if (gameParams.pixelArt)
 				defaults.forcedResolutionMode = { ResolutionMode::Resolution::H405, ResolutionMode::Scaling::Nearest };
 
+			auto& mainFramebufferRenderer = Globals::Components().mainFramebufferRenderer();
+			mainFramebufferRenderer.renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured(), []() {
+				return 0.005f * Globals::Components().shockwaves().size(); });
+
 			auto& graphicsSettings = Globals::Components().graphicsSettings();
 			graphicsSettings.lineWidth = 10.0f;
 
@@ -104,12 +113,15 @@ namespace Levels::DamageOn
 			fogTextureId = staticTextures.emplace("textures/damageOn/fog.png", GL_REPEAT).getComponentId();
 			staticTextures.last().scale = glm::vec2(0.15f);
 
+			explosionTextureId = staticTextures.emplace("textures/damageOn/explosion.png").getComponentId();
+
 			auto& soundsBuffers = Globals::Components().soundsBuffers();
 
 			sparkingSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
 			overchargedSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav").getComponentId();
 			dashSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav").getComponentId();
-			killSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
+			enemyKillSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
+			playerKillSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Detonate.wav").getComponentId();
 
 			Tools::CreateFogForeground(5, 0.05f, CM::Texture(fogTextureId, true), glm::vec4(1.0f), [x = 0.0f](int layer) mutable {
 				(void)layer;
@@ -900,7 +912,7 @@ namespace Levels::DamageOn
 			auto& playerActor = Globals::Components().actors().emplace(Tools::CreateCircleBody(playerType.params.radius, Tools::BodyParams{}
 				.linearDamping(playerType.params.linearDamping).fixedRotation(true).bodyType(b2_dynamicBody).density(playerType.params.density).position(position)), CM::DummyTexture{});
 			playerActor.renderF = [&]() { return debug.hitboxesRendering; };
-			playerActor.colorF = glm::vec4(0.4f);
+			playerActor.colorF = glm::vec4(0.2f);
 			playerActor.posInSubsequence = 2;
 
 			auto& playerAnimatedTexture = Globals::Components().animatedTextures().emplace();
@@ -961,7 +973,7 @@ namespace Levels::DamageOn
 				.density(enemyType.params.density)
 				.position(position)), CM::DummyTexture());
 			enemyActor.renderF = [&]() { return debug.hitboxesRendering; };
-			enemyActor.colorF = glm::vec4(0.4f);
+			enemyActor.colorF = glm::vec4(0.2f);
 			enemyActor.posInSubsequence = 2;
 
 			auto& enemyInst = enemyGameComponents.emplaceInstance(enemyType, enemyActor, enemyAnimatedTexture, weaponGameComponents);
@@ -1045,17 +1057,27 @@ namespace Levels::DamageOn
 
 			for (auto weaponId : sourceInst.weaponIds)
 			{
+				if (targetInst.hp <= 0.0f)
+					return;
+
 				auto& weaponInst = weaponGameComponents.idsToInst.at(weaponId);
 				auto& weaponType = weaponInst.type;
 				const auto direction = sourceInst.actor.getOrigin2D() - targetActor.getOrigin2D();
 				const auto distance = glm::length(direction);
+				const auto fire = sourceInst.fire || sourceInst.autoFire;
 				bool kill = false;
 
 				const bool hit = [&]() {
+					if (distance > weaponType.params.distance || !fire || sourceInst.manaOvercharged)
+						return false;
+
 					if (weaponType.params.archetype == "sparkingNearest")
-						return sparkingNearestHandler(sourceInst, targetInst, weaponInst, direction, distance, sourceInst.fire || sourceInst.autoFire, targetSeq);
+						return sparkingNearestHandler(sourceInst, targetInst, weaponInst, direction, distance, fire, targetSeq);
 					if (weaponType.params.archetype == "sparkingRandom")
-						return sparkingRandomHandler(sourceInst, targetInst, weaponInst, direction, distance, sourceInst.fire || sourceInst.autoFire);
+						return sparkingRandomHandler(sourceInst, targetInst, weaponInst, direction, distance, fire);
+					if (weaponType.params.archetype == "fireballs")
+						return fireballsHandler(sourceInst, targetInst, weaponInst, direction, distance, fire);
+
 					throw std::runtime_error("Unknown weapon archetype: " + weaponType.params.archetype);
 				}();
 
@@ -1078,15 +1100,18 @@ namespace Levels::DamageOn
 							return ((targetType.params.initRadiusRange.x + targetType.params.initRadiusRange.y) / 2.0f) / targetInst.radius;
 					}() * 2.0f;
 
-					soundLimitters(playerType).kills->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(killSoundBufferId, false), targetActor.getOrigin2D(), [&](auto& sound) {
-						sound.setPitch(glm::linearRand(basePitch, basePitch * 2.0f));
-						sound.setVolume(0.7f);
-						sound.setRemoveOnStop(true);
-					}));
-
 					if constexpr (playerType)
 					{
+						soundLimitters(playerType).kills->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(playerKillSoundBufferId, false), targetActor.getOrigin2D(), [&](auto& sound) {
+							sound.setPitch(glm::linearRand(basePitch, basePitch * 1.5f));
+							sound.setVolume(1.0f);
+							sound.setRemoveOnStop(true);
+						}));
+
 						targetActor.setEnabled(false);
+						Tools::CreateExplosion(Tools::ExplosionParams{}.center(targetActor.getMassCenter()).explosionTexture(CM::Texture(explosionTextureId, true))
+							.numOfParticles(32).particlesRadius(1.0f).particlesDensity(1.0f).initExplosionVelocity(500.0f).explosionDuration(1.5f)
+							.particlesPerDecoration(1).alpha(0.5f));
 						if (targetInst.overchargedSound)
 							targetInst.overchargedSound->stop();
 						if (targetInst.dashSound)
@@ -1094,6 +1119,12 @@ namespace Levels::DamageOn
 					}
 					else
 					{
+						soundLimitters(playerType).kills->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(enemyKillSoundBufferId, false), targetActor.getOrigin2D(), [&](auto& sound) {
+							sound.setPitch(glm::linearRand(basePitch, basePitch * 2.0f));
+							sound.setVolume(0.7f);
+							sound.setRemoveOnStop(true);
+						}));
+
 						auto* firstWeaponType = targetInst.weaponIds.empty()
 							? nullptr
 							: &weaponGameComponents.idsToInst.at(*targetInst.weaponIds.begin()).type;
@@ -1114,9 +1145,6 @@ namespace Levels::DamageOn
 			const auto& sourceType = sourceInst.type;
 			const auto& targetType = targetInst.type;
 			auto& weaponType = weaponInst.type;
-
-			if (distance > weaponType.params.distance || !fire || sourceInst.manaOvercharged)
-				return false;
 
 			if (targetSeq > (int)weaponInst.power - 1)
 				return false;
@@ -1174,9 +1202,6 @@ namespace Levels::DamageOn
 			const auto& targetType = targetInst.type;
 			auto& weaponType = weaponInst.type;
 
-			if (distance > weaponType.params.distance || !fire || sourceInst.manaOvercharged)
-				return false;
-
 			if (glm::linearRand(1, 100) > (int)weaponInst.power)
 				return false;
 
@@ -1214,6 +1239,62 @@ namespace Levels::DamageOn
 					else
 						return glm::vec3(0.8f, glm::linearRand(0.2f, 0.4f), glm::linearRand(0.1f, 0.3f));
 				}();
+
+				int numOfVertices = Tools::Shapes2D::AppendVerticesOfLightning(weaponType.cache.decoration.vertices, sourceInst.actor.getOrigin2D() + weaponOffset + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
+					targetInst.actor.getOrigin2D() + glm::diskRand(targetRadius * 0.1f), int(20 * distance), 4.0f / glm::sqrt(distance));
+				const auto sparkColor = glm::mix(glm::vec4(sparkBaseColor, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), sourceInst.manaOvercharging) * glm::linearRand(0.1f, 0.6f);
+				weaponType.cache.decoration.colors.insert(weaponType.cache.decoration.colors.end(), numOfVertices, sparkColor);
+				avgColor += sparkColor;
+			}
+			avgColor /= (float)iterations;
+			targetInst.color = glm::mix(targetInst.baseColor, avgColor, glm::linearRand(0.5f, 1.0f));
+
+			return true;
+		}
+
+		bool fireballsHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, glm::vec2 direction, float distance, bool fire)
+		{
+			const auto& sourceType = sourceInst.type;
+			const auto& targetType = targetInst.type;
+			auto& weaponType = weaponInst.type;
+
+			if (glm::linearRand(1, 100) > (int)weaponInst.power)
+				return false;
+
+			const auto sourceRadius = [&] {
+				if constexpr (requires { sourceInst.radius; })
+					return sourceInst.radius;
+				else
+					return sourceType.params.radius;
+				}();
+
+			const auto targetRadius = [&] {
+				if constexpr (requires { targetInst.radius; })
+					return targetInst.radius;
+				else
+					return targetType.params.radius;
+				}();
+
+			const glm::vec2 sourceScalingFactor = sourceRadius * sourceType.params.presentation.radiusProportions * glm::vec2(sourceInst.sideFactor, 1.0f);
+			const glm::vec2 weaponOffset =
+				glm::translate(glm::mat4(1.0f), glm::vec3(sourceType.params.presentation.translation, 0.0f) * glm::vec3(sourceInst.sideFactor, 1.0f, 1.0f))
+				* glm::rotate(glm::mat4(1.0f), sourceType.params.presentation.rotation * sourceInst.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
+				* glm::scale(glm::mat4(1.0f), glm::vec3(sourceType.params.presentation.scale * glm::vec2(sourceInst.sideFactor, 1.0f), 1.0f))
+				* glm::vec4(sourceType.params.presentation.weaponOffset, 0.0f, 1.0f);
+
+			targetInst.actor.setVelocity(targetInst.actor.getVelocity() * targetType.params.slowFactor);
+			targetInst.animatedTexture.setSpeedScaling(targetType.params.presentation.velocityAnimationSpeedFactor == 0.0f ? 1.0f : glm::length(targetInst.actor.getVelocity() * targetType.params.presentation.velocityAnimationSpeedFactor));
+
+			glm::vec4 avgColor{};
+			const int iterations = 5;
+			for (int i = 0; i < iterations; ++i)
+			{
+				const glm::vec3 sparkBaseColor = []() {
+					if constexpr (std::is_same_v<std::remove_cvref_t<decltype(sourceInst)>, PlayerType::Inst>)
+						return glm::vec3(0.0f, glm::linearRand(0.4f, 0.8f), glm::linearRand(0.2f, 0.6f));
+					else
+						return glm::vec3(0.8f, glm::linearRand(0.2f, 0.4f), glm::linearRand(0.1f, 0.3f));
+					}();
 
 				int numOfVertices = Tools::Shapes2D::AppendVerticesOfLightning(weaponType.cache.decoration.vertices, sourceInst.actor.getOrigin2D() + weaponOffset + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
 					targetInst.actor.getOrigin2D() + glm::diskRand(targetRadius * 0.1f), int(20 * distance), 4.0f / glm::sqrt(distance));
@@ -1737,13 +1818,15 @@ namespace Levels::DamageOn
 		ComponentId backgroundTextureId{};
 		ComponentId coffinTextureId{};
 		ComponentId fogTextureId{};
+		ComponentId explosionTextureId{};
 
 		ComponentId musicId{};
 
 		ComponentId sparkingSoundBufferId{};
 		ComponentId overchargedSoundBufferId{};
 		ComponentId dashSoundBufferId{};
-		ComponentId killSoundBufferId{};
+		ComponentId enemyKillSoundBufferId{};
+		ComponentId playerKillSoundBufferId{};
 
 		GameParams gameParams{};
 		LevelParams levelParams{};

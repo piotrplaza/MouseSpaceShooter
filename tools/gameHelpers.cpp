@@ -254,7 +254,7 @@ namespace Tools
 					particlesShaders.texture0(0);
 
 					const float elapsed = Globals::Components().physics().simulationDuration - startTime;
-					particlesShaders.color(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (params.explosionDuration_ * 2.0f), 10.0f)), 1.0f));
+					particlesShaders.color(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (params.explosionDuration_ * 2.0f), 10.0f)), 1.0f) * params.alpha_);
 
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 

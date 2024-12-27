@@ -4,7 +4,7 @@ game.musicVolume 0.6
 game.musicFile "DamageOn 5.ogg"
 game.players.count 2
 game.players.typeAssignment frankenstein frankenstein frankenstein frankenstein
-game.players.weaponAssignment sparkingNearest sparkingRandom sparkingNearest sparkingNearest
+game.players.weaponAssignment sparkingNearest fireballs sparkingNearest sparkingNearest
 game.players.startPos -30.0 0.0
 game.camera.minProjectionHSize 8.0
 game.camera.trackingMargin 5.0
@@ -171,8 +171,8 @@ enemy.hive.slowFactor 0.5
 enemy.hive.radiusReductionFactor 0.0
 enemy.hive.minimalRadius 0.5
 enemy.hive.killSpawns 0
-enemy.hive.presentation.radiusProportions 1.0 1.0
-enemy.hive.presentation.translation 0.0 0.0
+enemy.hive.presentation.radiusProportions 1.2 1.2
+enemy.hive.presentation.translation -0.2 -0.15
 enemy.hive.presentation.rotation 0.0
 enemy.hive.presentation.scale 1.0 1.0
 enemy.hive.presentation.velocityRotationFactor 0.0005
@@ -309,8 +309,8 @@ enemy.bird.slowFactor 0.5
 enemy.bird.radiusReductionFactor 0.0
 enemy.bird.minimalRadius 0.5
 enemy.bird.killSpawns 0
-enemy.bird.presentation.radiusProportions 1.0 1.0
-enemy.bird.presentation.translation 0.0 0.0
+enemy.bird.presentation.radiusProportions 1.1 1.1
+enemy.bird.presentation.translation -0.2 -0.1
 enemy.bird.presentation.rotation 0.0
 enemy.bird.presentation.scale 1.0 1.0
 enemy.bird.presentation.velocityRotationFactor 0.0005
@@ -353,6 +353,13 @@ weapon.sparkingNearestShort.damageFactor 10.0
 weapon.sparkingNearestShort.overchargingRate 1.0
 weapon.sparkingNearestShort.coolingRate 0.3
 weapon.sparkingNearestShort.initPower 20
+
+weapon.fireballs.archetype fireballs
+weapon.fireballs.distance 20.0
+weapon.fireballs.damageFactor 10.0
+weapon.fireballs.overchargingRate 0.3
+weapon.fireballs.coolingRate 0.3
+weapon.fireballs.initPower 20
 
 action.spawnHorde ghost -10.0 0.0 20 sparkingNearestShort
 action.spawnHorde chicken 10.0 0.0 50 sparkingNearestShort
