@@ -1,7 +1,7 @@
 game.pixelArt false
 game.globalVolume 1.0
 game.musicVolume 0.6
-game.musicFile "DamageOn 5.ogg"
+game.musicFile "DamageOn 11.ogg"
 game.players.count 2
 game.players.typeAssignment frankenstein frankenstein frankenstein frankenstein
 game.players.weaponAssignment sparkingNearest fireballs sparkingNearest sparkingNearest
