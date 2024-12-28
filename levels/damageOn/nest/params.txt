@@ -3,9 +3,6 @@ game.globalVolume 1.0
 game.musicVolume 0.6
 game.musicFile "DamageOn 11.ogg"
 game.players.count 2
-game.players.typeAssignment frankenstein frankenstein frankenstein frankenstein
-game.players.weaponAssignment sparkingNearest fireballs sparkingNearest sparkingNearest
-game.players.startPos -30.0 0.0
 game.camera.minProjectionHSize 8.0
 game.camera.trackingMargin 5.0
 game.camera.positionTransitionFactor 5.0
@@ -361,11 +358,14 @@ weapon.fireballs.overchargingRate 0.3
 weapon.fireballs.coolingRate 0.3
 weapon.fireballs.initPower 20
 
-action.spawnHorde ghost -10.0 0.0 20 sparkingNearestShort
-action.spawnHorde chicken 10.0 0.0 50 sparkingNearestShort
-action.spawnHorde zombie 5.0 -10.0 20 sparkingNearestShort
-action.spawnHorde hive 0.0 10.0 50 sparkingNearestShort
-action.spawnHorde gargoyleTwoLegs -10.0 -10.0 10 sparkingNearestShort
-action.spawnHorde gargoyleFourLegs -10.0 -10.0 10 sparkingNearestShort
-action.spawnHorde monk -5.0 0.0 5 sparkingNearestShort
-action.spawnHorde bird -5.0 -10.0 20 sparkingNearestShort
+action.spawn player.frankenstein 0 -30.0 0.0 5 weapon.sparkingNearest
+action.spawn player.frankenstein 1 -30.0 0.0 5 weapon.sparkingRandom
+
+action.spawn enemy.ghost -10.0 0.0 20 weapon.sparkingNearestShort
+action.spawn enemy.chicken 10.0 0.0 50 weapon.sparkingNearestShort
+action.spawn enemy.zombie 5.0 -10.0 20 weapon.sparkingNearestShort
+action.spawn enemy.hive 0.0 10.0 50 weapon.sparkingNearestShort
+action.spawn enemy.gargoyleTwoLegs -10.0 -10.0 10 weapon.sparkingNearestShort
+action.spawn enemy.gargoyleFourLegs -10.0 -10.0 10 weapon.sparkingNearestShort
+action.spawn enemy.monk -5.0 0.0 5 weapon.sparkingNearestShort
+action.spawn enemy.bird -5.0 -10.0 20 weapon.sparkingNearestShort

@@ -164,9 +164,8 @@ namespace Levels::DamageOn
 				glm::vec2 minPos(std::numeric_limits<float>::max());
 				glm::vec2 maxPos(std::numeric_limits<float>::lowest());
 
-				for (int playerId = 0; playerId < gameParams.players.count; ++playerId)
+				for (const auto& [playerId, playerInst]: playerGameComponents.idsToInst)
 				{
-					const auto& playerInst = playerGameComponents.idsToInst.at(playerId);
 					const auto pos = playerInst.actor.getOrigin2D();
 					minPos.x = glm::min(minPos.x, pos.x);
 					minPos.y = glm::min(minPos.y, pos.y);
@@ -270,9 +269,8 @@ namespace Levels::DamageOn
 				type.cache.decoration.state = ComponentState::Changed;
 			}
 
-			for (int playerId = 0; playerId < gameParams.players.count; ++playerId)
+			for (auto& [playerId, playerInst]: playerGameComponents.idsToInst)
 			{
-				auto& playerInst = playerGameComponents.idsToInst.at(playerId);
 				auto& playerType = playerInst.type;
 
 				playerInst.color = playerInst.baseColor;
@@ -284,9 +282,9 @@ namespace Levels::DamageOn
 				if (playerInst.hp <= 0)
 					continue;
 
-				const bool keyboardEnabled = gameParams.gamepad.firstPlayer ? true : playerId == 0;
-				bool gamepadEnabled = playerId > 3 ? false : gameParams.gamepad.firstPlayer ? true : playerId > 0;
-				int gamepadId = gamepadEnabled ? (playerId - !gameParams.gamepad.firstPlayer) : 0;
+				const bool keyboardEnabled = gameParams.gamepad.firstPlayer ? true : playerInst.playerNum == 0;
+				bool gamepadEnabled = playerInst.playerNum > 3 ? false : gameParams.gamepad.firstPlayer ? true : playerInst.playerNum > 0;
+				int gamepadId = gamepadEnabled ? (playerInst.playerNum - !gameParams.gamepad.firstPlayer) : 0;
 				auto& gamepad = Globals::Components().gamepads()[gamepadId];
 
 				if (gamepadId >= (int)Globals::Components().gamepads().size())
@@ -413,10 +411,8 @@ namespace Levels::DamageOn
 				enemyInst.sideTransition = glm::clamp(enemyInst.sideTransition, 0.0f, 1.0f);
 
 				std::map<float, PlayerType::Inst*> playersByDistance;
-				for (int playerId = 0; playerId < gameParams.players.count; ++playerId)
+				for (auto& [playerId, playerInst]: playerGameComponents.idsToInst)
 				{
-					auto& playerInst = playerGameComponents.idsToInst.at(playerId);
-
 					if (playerInst.hp <= 0)
 						continue;
 
@@ -518,9 +514,6 @@ namespace Levels::DamageOn
 			struct Players
 			{
 				int count{};
-				std::array<std::string, 4> typeAssignment{};
-				std::array<std::string, 4> weaponAssignment{};
-				glm::vec2 startPosition{};
 			} players;
 
 			struct Camera
@@ -646,8 +639,9 @@ namespace Levels::DamageOn
 
 			struct InstBase
 			{
-				InstBase(int instanceId, PlayerType& type, Components::Actor& actor, Components::AnimatedTexture& animatedTexture, GameComponents<WeaponType>& weaponGameComponents) :
+				InstBase(int instanceId, int playerNum, PlayerType& type, Components::Actor& actor, Components::AnimatedTexture& animatedTexture, GameComponents<WeaponType>& weaponGameComponents) :
 					instanceId(instanceId),
+					playerNum(playerNum),
 					type(type),
 					actor(actor),
 					animatedTexture(animatedTexture),
@@ -663,6 +657,7 @@ namespace Levels::DamageOn
 				}
 
 				const int instanceId;
+				const int playerNum;
 				PlayerType& type;
 				Components::Actor& actor;
 				Components::AnimatedTexture& animatedTexture;
@@ -892,20 +887,22 @@ namespace Levels::DamageOn
 			};
 		};
 
+		using ActorTypeVariant = std::variant<std::pair<PlayerType*, int>, EnemyType*>;
+
 		struct Actions
 		{
-			struct HordeSpawner
+			struct Spawner
 			{
-				EnemyType& enemyType;
+				ActorTypeVariant actorTypeVariant;
 				WeaponType* weaponType;
 				glm::vec2 position;
 				int count;
 			};
 
-			std::vector<HordeSpawner> initHordeSpawners;
+			std::vector<Spawner> initSpawners;
 		};
 
-		void playerSpawn(PlayerType& playerType, WeaponType& weaponType, glm::vec2 position)
+		void playerSpawn(PlayerType& playerType, int playerNum, WeaponType* weaponType, glm::vec2 position)
 		{
 			const auto& physics = Globals::Components().physics();
 
@@ -923,7 +920,7 @@ namespace Levels::DamageOn
 				playerType.params.animation.direction, playerType.params.animation.mode, playerType.params.animation.textureLayout });
 			playerAnimatedTexture.start(true);
 
-			auto& playerInst = playerGameComponents.emplaceInstance(playerType, playerActor, playerAnimatedTexture, weaponGameComponents);
+			auto& playerInst = playerGameComponents.emplaceInstance(playerNum, playerType, playerActor, playerAnimatedTexture, weaponGameComponents);
 			const auto playerPresentationSize = playerType.params.presentation.radiusProportions * playerType.params.radius;
 
 			for (float sideFactor : { -1.0f, 1.0f })
@@ -954,7 +951,8 @@ namespace Levels::DamageOn
 				};
 			}
 
-			addWeapon(playerInst, weaponType);
+			if (weaponType)
+				addWeapon(playerInst, *weaponType);
 		}
 
 		void enemySpawn(EnemyType& enemyType, WeaponType* weaponType, glm::vec2 position, float radius)
@@ -1110,8 +1108,8 @@ namespace Levels::DamageOn
 
 						targetActor.setEnabled(false);
 						Tools::CreateExplosion(Tools::ExplosionParams{}.center(targetActor.getMassCenter()).explosionTexture(CM::Texture(explosionTextureId, true))
-							.numOfParticles(32).particlesRadius(1.0f).particlesDensity(1.0f).initExplosionVelocity(500.0f).explosionDuration(1.5f)
-							.particlesPerDecoration(1).alpha(0.5f));
+							.numOfParticles(32).particlesRadius(1.0f).particlesDensity(8.0f).initExplosionVelocity(200.0f).explosionDuration(2.0f)
+							.particlesPerDecoration(1).alpha(0.4f));
 						if (targetInst.overchargedSound)
 							targetInst.overchargedSound->stop();
 						if (targetInst.dashSound)
@@ -1532,31 +1530,71 @@ namespace Levels::DamageOn
 								Tools::Stof(value.substr(spacePos2 + 1)) });
 						}
 					}
-					else if constexpr (std::is_same_v<ParamType, std::vector<Actions::HordeSpawner>>)
+					else if constexpr (std::is_same_v<ParamType, std::vector<Actions::Spawner>>)
 					{
 						const auto values = getValues(key);
 						param.reserve(values.size());
 						for (const auto& value : values)
 						{
-							const auto spacePos1 = value.find(' ');
-							const auto spacePos2 = value.find(' ', spacePos1 + 1);
-							const auto spacePos3 = value.find(' ', spacePos2 + 1);
-							const auto spacePos4 = value.find(' ', spacePos3 + 1);
-							auto& enemyType = [&]() -> auto& {
-								const auto key = value.substr(0, spacePos1);
-								try { return enemyGameComponents.typeNamesToTypes.at(key); }
-								catch (...) { throw std::runtime_error("loadParams(): Enemy type " + key + " not found"); }
+							std::deque<std::string> params = [&]() {
+								std::deque<std::string> result;
+								std::istringstream iss(value);
+								std::string param;
+								while (getline(iss, param, ' '))
+									result.push_back(std::move(param));
+								return result;
 							}();
-							auto* weaponType = spacePos4 == std::string::npos
+
+							const auto dotPos = params.front().find('.');
+							const auto generalType = params.front().substr(0, dotPos);
+							const auto specificType = params.front().substr(dotPos + 1);
+
+							params.pop_front();
+
+							const auto playerNum = [&]() {
+								if (generalType != "player")
+									return -1;
+
+								const auto result = Tools::Stoi(params.front());
+								if (result < 0 || result >= gameParams.players.count)
+									throw std::runtime_error("loadParams(): Player number " + std::to_string(result) + " out of range");
+								params.pop_front();
+								return result;
+							}();
+
+							auto actorTypeVariant = [&]() {
+								try {
+									if (generalType == "player")
+										return ActorTypeVariant(std::make_pair(&playerGameComponents.typeNamesToTypes.at(specificType), playerNum));
+									if (generalType == "enemy")
+										return ActorTypeVariant(&enemyGameComponents.typeNamesToTypes.at(specificType));
+
+									throw std::runtime_error("loadParams(): Actor general type " + generalType + " unsupported");
+								}
+								catch (...) { throw std::runtime_error("loadParams(): Actor type " + generalType + "." + specificType + " not found"); }
+							}();
+
+							const auto pos = [&]() {
+								const auto x = Tools::Stof(params.front());
+								params.pop_front();
+								const auto y = Tools::Stof(params.front());
+								params.pop_front();
+								return glm::vec2(x, y);
+							}();
+
+							const auto count = Tools::Stoi(params.front());
+							params.pop_front();
+
+							auto* weaponType = params.empty()
 								? nullptr
 								: &[&]() -> auto& {
-									const auto key = value.substr(spacePos4 + 1);
-									try { return weaponGameComponents.typeNamesToTypes.at(key); }
-									catch (...) { throw std::runtime_error("loadParams(): Weapon type " + key + " not found"); }
+									const auto dotPos = params.front().find('.');
+									const auto weaponType = params.front().substr(dotPos + 1);
+									try { return weaponGameComponents.typeNamesToTypes.at(weaponType); }
+									catch (...) { throw std::runtime_error("loadParams(): Weapon type " + weaponType + " not found"); }
 								}();
-							param.push_back({ enemyType, weaponType,
-								glm::vec2(Tools::Stof(value.substr(spacePos1 + 1, spacePos2 - spacePos1 - 1)), Tools::Stof(value.substr(spacePos2 + 1, spacePos3 - spacePos2 - 1))),
-								Tools::Stoi(value.substr(spacePos3 + 1, spacePos2 - spacePos3 - 1)) });
+
+							param.emplace_back(actorTypeVariant, weaponType, pos, count);
 						}
 					}
 					else if constexpr (std::is_same_v<ParamType, AnimationData::Direction>)
@@ -1734,9 +1772,6 @@ namespace Levels::DamageOn
 			loadParam(gameParams.musicVolume, "game.musicVolume");
 			loadParam(gameParams.musicFile, "game.musicFile");
 			loadParam(gameParams.players.count, "game.players.count");
-			loadParam(gameParams.players.typeAssignment, "game.players.typeAssignment");
-			loadParam(gameParams.players.weaponAssignment, "game.players.weaponAssignment");
-			loadParam(gameParams.players.startPosition, std::format("game.players.startPos"));
 			loadParam(gameParams.camera.minProjectionHSize, "game.camera.minProjectionHSize");
 			loadParam(gameParams.camera.trackingMargin, "game.camera.trackingMargin");
 			loadParam(gameParams.camera.positionTransitionFactor, "game.camera.positionTransitionFactor");
@@ -1761,7 +1796,7 @@ namespace Levels::DamageOn
 			loadWeaponParams();
 
 			actions = {};
-			loadParam(actions.initHordeSpawners, "action.spawnHorde", false);
+			loadParam(actions.initSpawners, "action.spawn", false);
 		}
 
 		void reload(bool loadParams = true)
@@ -1789,17 +1824,24 @@ namespace Levels::DamageOn
 			enemyGameComponents.resetInstances();
 			weaponGameComponents.resetInstances();
 
-			for (int playerId = 0; playerId < gameParams.players.count; ++playerId)
-			{
-				auto& playerType = playerGameComponents.typeNamesToTypes.at(gameParams.players.typeAssignment.at(playerId));
-				auto& weaponType = weaponGameComponents.typeNamesToTypes.at(gameParams.players.weaponAssignment.at(playerId));
-				playerSpawn(playerType, weaponType, gameParams.players.startPosition + glm::circularRand(0.1f));
-			}
+			//for (int playerId = 0; playerId < gameParams.players.count; ++playerId)
+			//{
+			//	auto& playerType = playerGameComponents.typeNamesToTypes.at(gameParams.players.typeAssignment.at(playerId));
+			//	auto& weaponType = weaponGameComponents.typeNamesToTypes.at(gameParams.players.weaponAssignment.at(playerId));
+			//	playerSpawn(playerType, &weaponType, gameParams.players.startPosition + glm::circularRand(0.1f));
+			//}
 
-			for (auto& hordeSpawner : actions.initHordeSpawners)
+			for (auto& hordeSpawner : actions.initSpawners)
 				for (int i = 0; i < hordeSpawner.count; ++i)
-					enemySpawn(hordeSpawner.enemyType, hordeSpawner.weaponType, hordeSpawner.position + glm::circularRand(0.1f),
-						glm::linearRand(hordeSpawner.enemyType.params.initRadiusRange.x, hordeSpawner.enemyType.params.initRadiusRange.y));
+					std::visit([&](auto& actorType) {
+						constexpr bool playerType = std::is_same_v<std::remove_cvref_t<decltype(actorType)>, std::pair<PlayerType*, int>>;
+
+						if constexpr (playerType)
+							playerSpawn(*actorType.first, actorType.second, hordeSpawner.weaponType, hordeSpawner.position + glm::circularRand(0.1f));
+						else
+							enemySpawn(*actorType, hordeSpawner.weaponType, hordeSpawner.position + glm::circularRand(0.1f),
+								glm::linearRand(actorType->params.initRadiusRange.x, actorType->params.initRadiusRange.y));
+					}, hordeSpawner.actorTypeVariant);
 		}
 
 		struct SoundsLimitters;
