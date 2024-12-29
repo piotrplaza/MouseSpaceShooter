@@ -113,7 +113,7 @@ namespace Levels
 
 		void collisions()
 		{
-			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline,
+			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::actor, Globals::CollisionBits::polyline,
 			[this](const auto& plane, const auto& polyline) {
 				Globals::Components().deferredActions().emplace([&](auto) {
 					auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
@@ -136,7 +136,7 @@ namespace Levels
 			auto collisionsStarted = std::make_shared<std::unordered_map<ComponentId, int>>();
 			auto collisionsBlocked = std::make_shared<std::unordered_set<ComponentId>>();
 
-			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline, [this, collisionsStarted, collisionsBlocked](const auto& plane, const auto& polyline) {
+			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::actor, Globals::CollisionBits::polyline, [this, collisionsStarted, collisionsBlocked](const auto& plane, const auto& polyline) {
 				Globals::Components().deferredActions().emplace([&, collisionsStarted, collisionsBlocked](auto) {
 					auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
 					const auto& polylineComponent = Tools::AccessComponent<CM::Polyline>(polyline);
@@ -196,7 +196,7 @@ namespace Levels
 					});
 				});
 
-			Globals::Components().endCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline, [this, collisionsStarted, collisionsBlocked](const auto& plane, auto& polyline) {
+			Globals::Components().endCollisionHandlers().emplace(Globals::CollisionBits::actor, Globals::CollisionBits::polyline, [this, collisionsStarted, collisionsBlocked](const auto& plane, auto& polyline) {
 				Globals::Components().deferredActions().emplace([&, collisionsStarted, collisionsBlocked](auto) {
 					const auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
 					const auto& polylineComponent = Tools::AccessComponent<CM::Polyline>(polyline);
@@ -219,7 +219,7 @@ namespace Levels
 					});
 				});
 
-			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::plane | Globals::CollisionBits::wall,
+			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::actor, Globals::CollisionBits::actor | Globals::CollisionBits::wall,
 				Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
 					Tools::CreateAndPlaySound(CM::SoundBuffer(collisionSoundBuffer, false),
 					[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {

@@ -54,6 +54,18 @@ namespace Tools
 			return *this;
 		}
 
+		BodyParams& velocity(glm::vec2 value)
+		{
+			velocity_ = value;
+			return *this;
+		}
+
+		BodyParams& angularVelocity(float value)
+		{
+			angularVelocity_ = value;
+			return *this;
+		}
+
 		BodyParams& angle(float value)
 		{
 			angle_ = value;
@@ -133,6 +145,8 @@ namespace Tools
 		}
 
 		glm::vec2 position_ = { 0.0f, 0.0f };
+		glm::vec2 velocity_ = { 0.0f, 0.0f };
+		float angularVelocity_ = 0.0f;
 		float angle_ = 0.0f;
 		b2BodyType bodyType_ = b2_staticBody;
 		float density_ = 1.0f;
@@ -163,7 +177,7 @@ namespace Tools
 	b2Joint* CreateRevoluteJoint(b2Body& body1, b2Body& body2, glm::vec2 pinPoint, bool collideConnected = false);
 	b2Joint* CreateDistanceJoint(b2Body& body1, b2Body& body2, glm::vec2 body1Anchor, glm::vec2 body2Anchor, bool collideConnected = false, float length = 0.0f);
 
-	glm::mat4 GetModelMatrix(const b2Body& body);
+	glm::mat4 GetModelMatrix(const b2Body& body, glm::mat4 init = glm::mat4(1.0f));
 	std::vector<glm::vec3> GetVertices(const b2Body& body, int circleGraphicsComplexity = 60);
 
 	void SetCollisionFilteringBits(b2Body& body, unsigned short categoryBits, unsigned short maskBits);

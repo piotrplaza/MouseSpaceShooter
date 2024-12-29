@@ -240,10 +240,10 @@ namespace Levels
 
 		void setCollisionCallbacks()
 		{
-			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::missile, Globals::CollisionBits::all,
+			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::projectile, Globals::CollisionBits::all,
 				[this](const auto& fixtureA, const auto& fixtureB) {
 					for (const auto* fixture : { &fixtureA, &fixtureB })
-					if (fixture->GetFilterData().categoryBits == Globals::CollisionBits::missile)
+					if (fixture->GetFilterData().categoryBits == Globals::CollisionBits::projectile)
 					{
 						const auto& targetFixture = fixture == &fixtureA ? fixtureB : fixtureA;
 						const auto& missileBody = *fixture->GetBody();

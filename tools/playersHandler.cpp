@@ -35,7 +35,7 @@ namespace
 				planeTexture, flameAnimatedTexture, Tools::PlaneParams().position(initLoc).angle(initLoc.z).thrustOffset({ -0.7f, 0.1f }).thrustAngle(0.0f));
 		}
 
-		assert(!"wrong plane id");
+		assert(!"wrong actor id");
 
 		return 0;
 	}

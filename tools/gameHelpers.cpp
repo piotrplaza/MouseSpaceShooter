@@ -179,7 +179,7 @@ namespace Tools
 			Tools::BodyParams().position(startPosition).angle(startAngle).bodyType(b2_dynamicBody).density(0.2f)), force);
 
 		auto& body = *missile.body;
-		SetCollisionFilteringBits(body, Globals::CollisionBits::missile, Globals::CollisionBits::all - Globals::CollisionBits::missile - Globals::CollisionBits::plane);
+		SetCollisionFilteringBits(body, Globals::CollisionBits::projectile, Globals::CollisionBits::all - Globals::CollisionBits::projectile - Globals::CollisionBits::actor);
 		body.SetLinearVelocity(ToVec2<b2Vec2>(referenceVelocity + initialVelocity));
 		body.SetBullet(true);
 

@@ -54,6 +54,8 @@ namespace Tools
 		b2BodyDef bodyDef;
 		bodyDef.type = bodyParams.bodyType_;
 		bodyDef.position.Set(bodyParams.position_.x, bodyParams.position_.y);
+		bodyDef.linearVelocity.Set(bodyParams.velocity_.x, bodyParams.velocity_.y);
+		bodyDef.angularVelocity = bodyParams.angularVelocity_;
 		bodyDef.angle = bodyParams.angle_;
 		bodyDef.linearDamping = bodyParams.linearDamping_;
 		bodyDef.angularDamping = bodyParams.angularDamping_;
@@ -228,10 +230,10 @@ namespace Tools
 		return Globals::Components().physics().world->CreateJoint(&distanceJointDef);
 	}
 
-	glm::mat4 GetModelMatrix(const b2Body& body)
+	glm::mat4 GetModelMatrix(const b2Body& body, glm::mat4 init)
 	{
 		const auto& bodyTransform = body.GetTransform();
-		return glm::rotate(glm::translate(glm::mat4(1.0f), { bodyTransform.p.x, bodyTransform.p.y, 0.0f }),
+		return glm::rotate(glm::translate(init, { bodyTransform.p.x, bodyTransform.p.y, 0.0f }),
 			bodyTransform.q.GetAngle(), { 0.0f, 0.0f, 1.0f });
 	}
 

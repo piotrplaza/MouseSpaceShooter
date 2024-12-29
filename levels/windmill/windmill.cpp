@@ -313,7 +313,7 @@ namespace Levels
 
 		void collisionHandlers()
 		{
-			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::polyline,
+			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::actor, Globals::CollisionBits::polyline,
 				[this](const auto& plane, auto) {
 					if (playersHandler.getActivePlayersHandlers().size() == 1)
 						return;
@@ -328,7 +328,7 @@ namespace Levels
 						});
 				});
 
-			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::plane, Globals::CollisionBits::plane | Globals::CollisionBits::wall,
+			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::actor, Globals::CollisionBits::actor | Globals::CollisionBits::wall,
 				Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
 					Tools::CreateAndPlaySound(CM::SoundBuffer(collisionSoundBuffer, true),
 						[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {

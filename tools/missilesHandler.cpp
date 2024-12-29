@@ -15,8 +15,8 @@ namespace Tools
 {
 	void MissilesHandler::initCollisions()
 	{
-		Globals::Components().collisionFilters().emplace(Globals::CollisionBits::missile, Globals::CollisionBits::missile |
-			Globals::CollisionBits::plane | Globals::CollisionBits::polyline,
+		Globals::Components().collisionFilters().emplace(Globals::CollisionBits::projectile, Globals::CollisionBits::projectile |
+			Globals::CollisionBits::actor | Globals::CollisionBits::polyline,
 			[this](const auto& missileFixture, const auto& targetFixture) {
 				const auto missile = std::get<CM::Missile>(Tools::AccessUserData(*missileFixture.GetBody()).bodyComponentVariant);
 				const auto& targetBodyComponentVariant = Tools::AccessUserData(*targetFixture.GetBody()).bodyComponentVariant;
@@ -37,7 +37,7 @@ namespace Tools
 				return *missilePlane != std::get<CM::Plane>(targetBodyComponentVariant);
 			});
 
-		Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::missile, Globals::CollisionBits::all,
+		Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::projectile, Globals::CollisionBits::all,
 			[this](const auto& missileFixture, const auto& targetFixture) {
 				auto& deferredActions = Globals::Components().deferredActions();
 				const auto& missileBody = *missileFixture.GetBody();

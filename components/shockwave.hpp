@@ -34,7 +34,7 @@ namespace Components
 					Tools::RandomFloat(initExplosionVelocityRandomMinFactor, 1.0f)));
 				particles.back()->SetLinearDamping(particlesLinearDamping);
 				Tools::SetCollisionFilteringBits(*particles.back(), Globals::CollisionBits::shockwaveParticle,
-					Globals::CollisionBits::all - Globals::CollisionBits::shockwaveParticle - Globals::CollisionBits::missile);
+					Globals::CollisionBits::all - Globals::CollisionBits::shockwaveParticle - Globals::CollisionBits::projectile);
 				angle += angleStep;
 			}
 		}

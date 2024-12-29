@@ -351,15 +351,15 @@ weapon.sparkingNearestShort.overchargingRate 1.0
 weapon.sparkingNearestShort.coolingRate 0.3
 weapon.sparkingNearestShort.initPower 20
 
-weapon.fireballs.archetype fireballs
-weapon.fireballs.distance 20.0
-weapon.fireballs.damageFactor 10.0
-weapon.fireballs.overchargingRate 0.3
-weapon.fireballs.coolingRate 0.3
-weapon.fireballs.initPower 20
+weapon.fireballsNearest.archetype fireballsNearest
+weapon.fireballsNearest.distance 20.0
+weapon.fireballsNearest.damageFactor 10.0
+weapon.fireballsNearest.overchargingRate 0.3
+weapon.fireballsNearest.coolingRate 0.3
+weapon.fireballsNearest.initPower 20
 
 action.spawn player.frankenstein 0 -30.0 0.0 5 weapon.sparkingNearest
-action.spawn player.frankenstein 1 -30.0 0.0 5 weapon.sparkingRandom
+action.spawn player.frankenstein 1 -30.0 0.0 5 weapon.fireballsNearest
 
 action.spawn enemy.ghost -10.0 0.0 20 weapon.sparkingNearestShort
 action.spawn enemy.chicken 10.0 0.0 50 weapon.sparkingNearestShort

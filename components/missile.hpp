@@ -25,7 +25,7 @@ namespace Components
 		void init(ComponentId id, bool static_) override
 		{
 			ComponentBase::init(id, static_);
-			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::missile, Globals::CollisionBits::all);
+			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::projectile, Globals::CollisionBits::all);
 			setBodyComponentVariant(CM::Missile(*this));
 		}
 

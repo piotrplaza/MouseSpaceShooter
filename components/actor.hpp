@@ -26,7 +26,7 @@ namespace Components
 			if (!body)
 				return;
 
-			Tools::SetCollisionFilteringBits(*body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
+			Tools::SetCollisionFilteringBits(*body, Globals::CollisionBits::actor, Globals::CollisionBits::all);
 			setBodyComponentVariant(CM::Actor(*this));
 		}
 	};
