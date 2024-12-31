@@ -67,11 +67,12 @@
 #include <vector>
 #include <array>
 #include <type_traits>
+#include <thread>
 
 const bool debugFullscreen = false;
 const bool releaseFullscreen = true;
 const bool devFullScreen = true;
-const bool console = false;
+const bool console = true;
 const bool glDebug = false;
 const GLenum glDebugMinSeverity = GL_DEBUG_SEVERITY_LOW;
 const glm::ivec2 windowRes = { 1920, 1080 }; 
@@ -211,6 +212,8 @@ static void PrepareFrame()
 
 	if (!Globals::Components().physics().paused)
 		Globals::Systems().cleaner().step();
+
+	//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 static void TearDown()
@@ -372,6 +375,8 @@ int APIENTRY WinMain(
 	_In_ int nShowCmd
 )
 {
+	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+
 	if (console)
 		Tools::RedirectIOToConsole(consolePos);
 
@@ -395,8 +400,6 @@ int APIENTRY WinMain(
 
 	const LPCTSTR lpszAppName = "OpenGL window";
 	const int winPosX = 10, winPosY = 10;
-
-	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 
 	WNDCLASS wc{};
 	wc.style = CS_HREDRAW | CS_VREDRAW;

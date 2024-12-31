@@ -2,13 +2,5 @@
 
 namespace Levels
 {
-	Level::Level()
-	{
-		ongoing = true;
-	}
-
-	Level::~Level()
-	{
-		ongoing = false;
-	}
+	Level::~Level() = default;
 }

@@ -17,6 +17,7 @@
 #include <components/audioListener.hpp>
 #include <components/physics.hpp>
 #include <components/pauseHandler.hpp>
+#include <components/CollisionHandler.hpp>
 #include <components/mainFramebufferRenderer.hpp>
 #include <globals/components.hpp>
 
@@ -111,7 +112,7 @@ namespace Levels::DamageOn
 			dynamicTextures.last().scale = glm::vec2(1.0f);
 			//textures.last().preserveAspectRatio = true;
 
-			coffinTextureId = dynamicTextures.emplace("textures/damageOn/coffin.png", GL_MIRRORED_REPEAT).getComponentId();
+			coffinTextureId = staticTextures.emplace("textures/damageOn/coffin.png", GL_MIRRORED_REPEAT).getComponentId();
 			//textures.last().magFilter = GL_NEAREST;
 			//textures.last().scale = glm::vec2(30.0f);
  
@@ -126,7 +127,7 @@ namespace Levels::DamageOn
 			jetfireAnimationTextureId = staticTextures.emplace("textures/damageOn/jetfire.png").getComponentId();
 			staticTextures.last().minFilter = GL_LINEAR;
 
-			jetfireAnimatedTextureId = staticAnimatedTextures.add({ CM::Texture(jetfireAnimationTextureId, true), { 992, 1019 }, { 8, 8 }, { 0, 0 }, 897, 895, { 88, 125 }, 0.01f, 64, 0,
+			jetfireAnimatedTextureId = staticAnimatedTextures.add({ CM::Texture(jetfireAnimationTextureId, true), { 992, 1019 }, { 8, 8 }, { 0, 0 }, 897, 895, { 88, 125 }, 0.005f, 64, 0,
 					AnimationData::Direction::Forward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal }).getComponentId();
 			staticAnimatedTextures.last().start(true);
 
@@ -158,6 +159,13 @@ namespace Levels::DamageOn
 
 				return !prevPauseState;
 			};
+
+			//Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::shockwaveParticle, Globals::CollisionBits::actor,
+			//	Tools::SkipDuplicatedBodiesCollisions([](b2Fixture, b2Fixture& actorFixture) {
+			//		auto& planeComponent = Tools::AccessComponent<CM::Actor>(actorFixture);
+			//		static int i = 0;
+			//		std::cout << i++ << std::endl;
+			//	}));
 
 			reload(false);
 		}
@@ -246,7 +254,7 @@ namespace Levels::DamageOn
 				debris.colorF = glm::vec4(0.2f);
 				debris.posInSubsequence = 1;
 				auto& debrisPresentation = debris.subsequence.emplace_back();
-				debrisPresentation.texture = CM::Texture(coffinTextureId, false);
+				debrisPresentation.texture = CM::Texture(coffinTextureId, true);
 				debrisPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { debrisWidth, debrisHeight });
 				debrisPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 				debrisPresentation.modelMatrixF = debris.modelMatrixF;
@@ -396,11 +404,12 @@ namespace Levels::DamageOn
 					enemiesByDistance[glm::distance(playerInst.actor.getOrigin2D(), enemyInst.actor.getOrigin2D())] = &enemyInst;
 				}
 
+				const int randomEnemySeq = enemiesByDistance.empty() ? -1 : glm::linearRand(0, (int)enemiesByDistance.size() - 1);
 				int enemySeq = 0;
 				for (auto& [distance, enemyInst] : enemiesByDistance)
 				{
-					deferredWeaponsSteps.push_back([&, &enemyInst = *enemyInst, enemySeq]() {
-						weaponsStep(playerInst, enemyInst, enemySeq);
+					deferredWeaponsSteps.push_back([&, &enemyInst = *enemyInst, enemySeq, randomEnemySeq]() {
+						weaponsStep(playerInst, enemyInst, enemySeq, randomEnemySeq);
 					});
 					++enemySeq;
 				}
@@ -448,11 +457,12 @@ namespace Levels::DamageOn
 					enemyInst.actor.setVelocity(direction / distance * enemyInst.type.params.baseVelocity);
 				enemyInst.sideFactor = direction.x < 0.0f ? -1.0f : 1.0f;
 
+				const int randomPlayerSeq = playersByDistance.empty() ? -1 : glm::linearRand(0, (int)playersByDistance.size() - 1);
 				int playerSeq = 0;
 				for (auto& [distance, playerInst] : playersByDistance)
 				{
-					deferredWeaponsSteps.push_back([&, &playerInst = *playerInst, playerSeq]() {
-						weaponsStep(enemyInst, playerInst, playerSeq);
+					deferredWeaponsSteps.push_back([&, &playerInst = *playerInst, playerSeq, randomPlayerSeq]() {
+						weaponsStep(enemyInst, playerInst, playerSeq, randomPlayerSeq);
 					});
 					++playerSeq;
 				}
@@ -525,11 +535,6 @@ namespace Levels::DamageOn
 			float globalVolume{};
 			float musicVolume{};
 			std::string musicFile{};
-
-			struct Players
-			{
-				int count{};
-			} players;
 
 			struct Camera
 			{
@@ -1063,7 +1068,7 @@ namespace Levels::DamageOn
 			actorInst.weaponIds.insert(weaponInst.instanceId);
 		}
 
-		void weaponsStep(auto& sourceInst, auto& targetInst, int targetSeq)
+		void weaponsStep(auto& sourceInst, auto& targetInst, int targetSeq, int randomTargetSeq)
 		{
 			auto& physics = Globals::Components().physics();
 			auto& targetType = targetInst.type;
@@ -1089,8 +1094,8 @@ namespace Levels::DamageOn
 						return sparkingNearestHandler(sourceInst, targetInst, weaponInst, distance, targetSeq);
 					if (weaponType.params.archetype == "sparkingRandom")
 						return sparkingRandomHandler(sourceInst, targetInst, weaponInst, distance);
-					if (weaponType.params.archetype == "fireballsNearest")
-						return fireballsNearestHandler(sourceInst, targetInst, weaponInst, direction, targetSeq);
+					if (weaponType.params.archetype == "fireballsRandom")
+						return fireballsHandler(sourceInst, targetInst, weaponInst, direction, targetSeq, randomTargetSeq);
 
 					throw std::runtime_error("Unknown weapon archetype: " + weaponType.params.archetype);
 				}();
@@ -1118,11 +1123,11 @@ namespace Levels::DamageOn
 					if constexpr (playerType)
 					{
 						targetActor.setEnabled(false);
-						detonate(targetActor, true, 1.0f);
+						detonate(targetActor, true, 1.0f, {0.15f, 0.6f, 0.15f, 0.5f});
 						if (targetInst.overchargedSound)
-							targetInst.overchargedSound->stop();
+							targetInst.overchargedSound->state = ComponentState::Outdated;
 						if (targetInst.dashSound)
-							targetInst.dashSound->stop();
+							targetInst.dashSound->state = ComponentState::Outdated;
 					}
 					else
 					{
@@ -1259,20 +1264,20 @@ namespace Levels::DamageOn
 			return true;
 		}
 
-		bool fireballsNearestHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, glm::vec2 direction, int targetSeq)
+		bool fireballsHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, glm::vec2 direction, int targetSeq, int randomTarget)
 		{
 			constexpr bool playerSource = std::is_same_v<std::remove_cvref_t<decltype(targetInst)>, PlayerType::Inst>;
 			const auto& physics = Globals::Components().physics();
 
-			if (targetSeq > 0 || physics.simulationDuration < weaponInst.lastShotTime + 0.5f)
+			if (targetSeq != randomTarget || physics.simulationDuration < weaponInst.lastShotTime + 0.5f)
 				return false;
 
-			fireballSpawn(sourceInst.actor.getOrigin2D(), glm::normalize(direction) * 20.0f, 0.3f, playerSource);
+			fireballSpawn(sourceInst.actor.getOrigin2D(), targetInst.actor.getOrigin2D(), glm::normalize(direction) * 20.0f, 0.3f, weaponInst.power / 100.0f, playerSource);
 
 			return true;
 		}
 
-		void fireballSpawn(glm::vec2 startPos, glm::vec2 velocity, float radius, bool playerSource)
+		void fireballSpawn(glm::vec2 startPos, glm::vec2 endPos, glm::vec2 velocity, float radius, float power, bool playerSource)
 		{
 			const auto& physics = Globals::Components().physics();
 			auto& dynamicActors = Globals::Components().actors();
@@ -1287,11 +1292,11 @@ namespace Levels::DamageOn
 			fireball.renderLayer = RenderLayer::FarForeground;
 			fireball.renderF = [&]() { return debug.hitboxesRendering; };
 			fireball.colorF = glm::vec4(0.2f);
-			fireball.stepF = [&, startTime = physics.simulationDuration, playerSource]() {
-				if (physics.simulationDuration >= startTime + 1.0f)
+			fireball.stepF = [&, startTime = physics.simulationDuration, playerSource, endPos, power]() {
+				if (glm::distance(fireball.getOrigin2D(), endPos) < 0.1f || physics.simulationDuration >= startTime + 10.0f)
 				{
 					fireball.state = ComponentState::Outdated;
-					detonate(fireball, playerSource, 0.4f);
+					detonate(fireball, playerSource, power);
 				}
 			};
 			fireball.posInSubsequence = 2;
@@ -1300,7 +1305,7 @@ namespace Levels::DamageOn
 			fireballPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle(glm::vec2(0.0f), glm::vec2(radius));
 			fireballPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 			fireballPresentation.modelMatrixF = fireball.modelMatrixF;
-			fireballPresentation.colorF = glm::vec4(1.0f, 0.6f, 0.6f, 1.0f);
+			fireballPresentation.colorF = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);
 			auto& jetfire = fireball.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfRectangle(glm::vec2(0.0f), glm::vec2(radius, radius * 4.0f) * 2.0f),
 				Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::AnimatedTexture(jetfireAnimatedTextureId, true));
 			jetfire.modelMatrixF = [radius, modelMatrixF = fireball.modelMatrixF]() { return glm::translate(modelMatrixF(), glm::vec3(0.0f, radius * 4.0f, 0.0f) * 2.0f); };
@@ -1346,7 +1351,7 @@ namespace Levels::DamageOn
 					else
 					{
 						if (weaponInst.fireSound)
-							weaponInst.fireSound->stop();
+							weaponInst.fireSound->state = ComponentState::Outdated;
 						sourceInst.manaOvercharging = 1.0f;
 						sourceInst.manaOvercharged = true;
 						if (!sourceInst.overchargedSound)
@@ -1364,7 +1369,7 @@ namespace Levels::DamageOn
 				else
 				{
 					if (weaponInst.fireSound)
-						weaponInst.fireSound->stop();
+						weaponInst.fireSound->state = ComponentState::Outdated;
 					sourceInst.manaOvercharging -= physics.frameDuration * weaponInst.type.params.coolingRate;
 					if (sourceInst.manaOvercharging <= 0.0f)
 					{
@@ -1382,18 +1387,18 @@ namespace Levels::DamageOn
 						sourceInst.overchargedSound->setPosition(sourcePosF());
 					}
 					else
-						sourceInst.overchargedSound->stop();
+						sourceInst.overchargedSound->state = ComponentState::Outdated;
 				}
 
 				weaponInst.activeShots = 0;
 			}
 		}
 
-		void detonate(auto& actor, bool playerSource, float power)
+		void detonate(auto& actor, bool playerSource, float power, glm::vec4 color = glm::vec4(0.5f))
 		{
 			Tools::CreateExplosion(Tools::ExplosionParams{}.center(actor.getMassCenter()).explosionTexture(CM::Texture(explosionTextureId, true))
-				.numOfParticles(int(32 * power)).particlesRadius(1.0f).particlesDensity(8.0f * power).initExplosionVelocity(200.0f * power).explosionDuration(2.0f * power)
-				.particlesPerDecoration(1).alpha(0.4f));
+				.numOfParticles(int(std::max(32 * power, 3.0f))).particlesRadius(1.0f).particlesDensity(10.0f * power).initExplosionVelocity(200.0f * power).explosionDuration(std::max(2.0f * power, 0.5f))
+				.particlesPerDecoration(1).color(color));
 
 			soundLimitters(playerSource).kills->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(explosionSoundBufferId, false), actor.getOrigin2D(), [power](auto& sound) {
 				sound.setPitch(glm::linearRand(1.0f, 2.0f) / sqrt(power));
@@ -1570,7 +1575,7 @@ namespace Levels::DamageOn
 									return -1;
 
 								const auto result = Tools::Stoi(params.front());
-								if (result < 0 || result >= gameParams.players.count)
+								if (result < 0 || result > 3)
 									throw std::runtime_error("loadParams(): Player number " + std::to_string(result) + " out of range");
 								params.pop_front();
 								return result;
@@ -1706,7 +1711,6 @@ namespace Levels::DamageOn
 			};
 
 			auto loadPlayerParams = [&]() {
-				playerGameComponents.reset();
 				std::string prevPlayerName;
 				for (const auto& [key, value] : keysToValues)
 				{
@@ -1731,7 +1735,6 @@ namespace Levels::DamageOn
 			};
 
 			auto loadEnemyParams = [&]() {
-				enemyGameComponents.reset();
 				std::string prevEnemyName;
 				for (const auto& [key, value] : keysToValues)
 				{
@@ -1759,7 +1762,6 @@ namespace Levels::DamageOn
 			};
 
 			auto loadWeaponParams = [&]() {
-				weaponGameComponents.reset();
 				std::string prevWeaponName;
 				for (const auto& [key, value] : keysToValues)
 				{
@@ -1785,7 +1787,6 @@ namespace Levels::DamageOn
 			loadParam(gameParams.globalVolume, "game.globalVolume");
 			loadParam(gameParams.musicVolume, "game.musicVolume");
 			loadParam(gameParams.musicFile, "game.musicFile");
-			loadParam(gameParams.players.count, "game.players.count");
 			loadParam(gameParams.camera.minProjectionHSize, "game.camera.minProjectionHSize");
 			loadParam(gameParams.camera.trackingMargin, "game.camera.trackingMargin");
 			loadParam(gameParams.camera.positionTransitionFactor, "game.camera.positionTransitionFactor");
@@ -1804,6 +1805,10 @@ namespace Levels::DamageOn
 			loadParam(levelParams.debris.heightRatioRange, "level.debris.heightRatioRange", false);
 			loadParam(levelParams.debris.angleRange, "level.debris.angleRange", false);
 			loadParam(levelParams.debris.density, "level.debris.density", false);
+
+			playerGameComponents.reset();
+			enemyGameComponents.reset();
+			weaponGameComponents.reset();
 
 			loadPlayerParams();
 			loadEnemyParams();
@@ -1837,13 +1842,6 @@ namespace Levels::DamageOn
 			playerGameComponents.resetInstances();
 			enemyGameComponents.resetInstances();
 			weaponGameComponents.resetInstances();
-
-			//for (int playerId = 0; playerId < gameParams.players.count; ++playerId)
-			//{
-			//	auto& playerType = playerGameComponents.typeNamesToTypes.at(gameParams.players.typeAssignment.at(playerId));
-			//	auto& weaponType = weaponGameComponents.typeNamesToTypes.at(gameParams.players.weaponAssignment.at(playerId));
-			//	playerSpawn(playerType, &weaponType, gameParams.players.startPosition + glm::circularRand(0.1f));
-			//}
 
 			for (auto& hordeSpawner : actions.initSpawners)
 				for (int i = 0; i < hordeSpawner.count; ++i)

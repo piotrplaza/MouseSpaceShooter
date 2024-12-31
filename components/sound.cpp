@@ -51,7 +51,7 @@ namespace Components
 
 	Sound::~Sound()
 	{
-		if (tearDownF && Levels::Level::ongoing)
+		if (tearDownF)
 			tearDownF();
 
 		if (!details)

@@ -107,9 +107,9 @@ namespace Tools
 			return *this;
 		}
 
-		ExplosionParams& alpha(float value)
+		ExplosionParams& color(glm::vec4 value)
 		{
-			alpha_ = value;
+			color_ = value;
 			return *this;
 		}
 
@@ -131,7 +131,7 @@ namespace Tools
 		float explosionDuration_ = 1.0f;
 		CM::Texture explosionTexture_;
 		int particlesPerDecoration_ = 4;
-		float alpha_ = 1.0f;
+		glm::vec4 color_ = glm::vec4(1.0f);
 		ResolutionMode resolutionMode_{};
 	};
 
