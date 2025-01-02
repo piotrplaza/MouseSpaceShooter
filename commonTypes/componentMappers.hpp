@@ -18,6 +18,7 @@ namespace Components
 	struct Plane;
 	struct Wall;
 	struct Polyline;
+	struct Shockwave;
 	struct SoundBuffer;
 	struct Sound;
 }
@@ -218,6 +219,24 @@ namespace ComponentMappers
 		bool isStatic() const;
 	};
 
+	struct ShockwaveParticle
+	{
+		ShockwaveParticle() = default;
+		ShockwaveParticle(Components::Shockwave& component);
+		ShockwaveParticle(ComponentId id);
+
+		Components::Shockwave* component = nullptr;
+		ComponentId componentId = 0;
+
+		bool operator==(const ShockwaveParticle&) const;
+		bool operator!=(const ShockwaveParticle&) const;
+		bool operator<(const ShockwaveParticle&) const;
+		ShockwaveParticle& operator=(Components::Shockwave& component);
+
+		bool isValid() const;
+		bool isStatic() const;
+	};
+
 	struct SoundBuffer
 	{
 		SoundBuffer() = default;
@@ -357,4 +376,5 @@ using BodyComponentVariant = std::variant<
 	CM::Actor,
 	CM::Plane,
 	CM::Wall,
-	CM::Polyline>;
+	CM::Polyline,
+	CM::ShockwaveParticle>;

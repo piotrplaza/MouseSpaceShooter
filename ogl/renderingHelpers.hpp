@@ -218,7 +218,7 @@ namespace Tools
 		{
 			const bool prevBlend = glProxyIsBlendEnabled();
 			glProxySetBlend(false);
-			TexturedScreenRender(shadersProgram, textureObject, nullptr, [&, quakeIntensityF = std::move(quakeIntensityF)]()
+			TexturedScreenRender(shadersProgram, textureObject, nullptr, [&, quakeIntensityF = quakeIntensityF]()
 				{
 					const float quakeIntensity = quakeIntensityF();
 					const glm::vec2 quakeIntensityXY = screenInfo.windowSize.x > screenInfo.windowSize.y

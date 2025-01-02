@@ -21,7 +21,7 @@ namespace Components
 		{
 			ComponentBase::init(id, static_);
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
-			setBodyComponentVariant(BodyComponentVariant(CM::Wall(*this)));
+			setBodyComponentVariant(CM::Wall(*this));
 		}
 	};
 }

@@ -31,6 +31,7 @@ player.frankenstein.slowFactor 0.95
 player.frankenstein.density 10.0
 player.frankenstein.linearDamping 6.0
 player.frankenstein.dash 30.0
+player.frankenstein.coolingRate 0.3
 player.frankenstein.presentation.radiusProportions 1.0 1.0
 player.frankenstein.presentation.translation 0.0 0.0
 player.frankenstein.presentation.rotation 0.0
@@ -65,6 +66,7 @@ enemy.ghost.slowFactor 0.5
 enemy.ghost.radiusReductionFactor 0.5
 enemy.ghost.minimalRadius 0.2
 enemy.ghost.killSpawns 2
+enemy.ghost.coolingRate 0.3
 enemy.ghost.presentation.radiusProportions 1.0 1.0
 enemy.ghost.presentation.translation 0.0 0.0
 enemy.ghost.presentation.rotation 0.0
@@ -90,7 +92,7 @@ enemy.ghost.animation.frameScale 1.0 1.0
 enemy.ghost.animation.neutralFrame 0
 
 enemy.chicken.initHP 50.0
-enemy.chicken.initRadiusRange 0.5 1.0
+enemy.chicken.initRadiusRange 1.5 2.0
 enemy.chicken.density 0.2
 enemy.chicken.baseVelocity 4.0
 enemy.chicken.boostDistance 15.0
@@ -99,6 +101,7 @@ enemy.chicken.slowFactor 0.5
 enemy.chicken.radiusReductionFactor 0.0
 enemy.chicken.minimalRadius 0.5
 enemy.chicken.killSpawns 0
+enemy.chicken.coolingRate 0.3
 enemy.chicken.presentation.radiusProportions 1.0 1.0
 enemy.chicken.presentation.translation 0.0 0.0
 enemy.chicken.presentation.rotation 0.0
@@ -133,6 +136,7 @@ enemy.zombie.slowFactor 0.5
 enemy.zombie.radiusReductionFactor 0.0
 enemy.zombie.minimalRadius 0.5
 enemy.zombie.killSpawns 0
+enemy.zombie.coolingRate 0.3
 enemy.zombie.presentation.radiusProportions 1.0 1.0
 enemy.zombie.presentation.translation 0.0 0.0
 enemy.zombie.presentation.rotation 0.0
@@ -167,6 +171,7 @@ enemy.hive.slowFactor 0.5
 enemy.hive.radiusReductionFactor 0.0
 enemy.hive.minimalRadius 0.5
 enemy.hive.killSpawns 0
+enemy.hive.coolingRate 0.3
 enemy.hive.presentation.radiusProportions 1.2 1.2
 enemy.hive.presentation.translation -0.2 -0.15
 enemy.hive.presentation.rotation 0.0
@@ -201,6 +206,7 @@ enemy.gargoyleTwoLegs.slowFactor 0.5
 enemy.gargoyleTwoLegs.radiusReductionFactor 0.0
 enemy.gargoyleTwoLegs.minimalRadius 0.5
 enemy.gargoyleTwoLegs.killSpawns 2
+enemy.gargoyleTwoLegs.coolingRate 0.3
 enemy.gargoyleTwoLegs.presentation.radiusProportions 1.0 1.0
 enemy.gargoyleTwoLegs.presentation.translation 0.0 0.0
 enemy.gargoyleTwoLegs.presentation.rotation 0.0
@@ -236,6 +242,7 @@ enemy.gargoyleFourLegs.slowFactor 0.5
 enemy.gargoyleFourLegs.radiusReductionFactor 0.0
 enemy.gargoyleFourLegs.minimalRadius 0.5
 enemy.gargoyleFourLegs.killSpawns 2
+enemy.gargoyleFourLegs.coolingRate 0.3
 enemy.gargoyleFourLegs.presentation.radiusProportions 1.0 1.0
 enemy.gargoyleFourLegs.presentation.translation 0.0 0.0
 enemy.gargoyleFourLegs.presentation.rotation 0.0
@@ -271,6 +278,7 @@ enemy.monk.slowFactor 0.5
 enemy.monk.radiusReductionFactor 0.0
 enemy.monk.minimalRadius 0.5
 enemy.monk.killSpawns 0
+enemy.monk.coolingRate 0.3
 enemy.monk.presentation.radiusProportions 1.3 1.3
 enemy.monk.presentation.translation -0.3 0.1
 enemy.monk.presentation.rotation 0.0
@@ -305,6 +313,7 @@ enemy.bird.slowFactor 0.5
 enemy.bird.radiusReductionFactor 0.0
 enemy.bird.minimalRadius 0.5
 enemy.bird.killSpawns 0
+enemy.bird.coolingRate 0.3
 enemy.bird.presentation.radiusProportions 1.1 1.1
 enemy.bird.presentation.translation -0.2 -0.1
 enemy.bird.presentation.rotation 0.0
@@ -333,35 +342,35 @@ weapon.sparkingNearest.archetype sparkingNearest
 weapon.sparkingNearest.distance 20.0
 weapon.sparkingNearest.damageFactor 10.0
 weapon.sparkingNearest.overchargingRate 0.3
-weapon.sparkingNearest.coolingRate 0.3
+weapon.sparkingNearest.reloadTime 0.0
 weapon.sparkingNearest.initPower 20
 
 weapon.sparkingRandom.archetype sparkingRandom
 weapon.sparkingRandom.distance 20.0
 weapon.sparkingRandom.damageFactor 10.0
 weapon.sparkingRandom.overchargingRate 0.3
-weapon.sparkingRandom.coolingRate 0.3
+weapon.sparkingRandom.reloadTime 0.0
 weapon.sparkingRandom.initPower 20
 
 weapon.sparkingNearestShort.archetype sparkingNearest
 weapon.sparkingNearestShort.distance 4.0
 weapon.sparkingNearestShort.damageFactor 10.0
 weapon.sparkingNearestShort.overchargingRate 1.0
-weapon.sparkingNearestShort.coolingRate 0.3
+weapon.sparkingNearestShort.reloadTime 0.0
 weapon.sparkingNearestShort.initPower 20
 
 weapon.fireballsRandom.archetype fireballsRandom
 weapon.fireballsRandom.distance 20.0
-weapon.fireballsRandom.damageFactor 10.0
+weapon.fireballsRandom.damageFactor 5.0
 weapon.fireballsRandom.overchargingRate 0.3
-weapon.fireballsRandom.coolingRate 0.3
+weapon.fireballsRandom.reloadTime 0.5
 weapon.fireballsRandom.initPower 40
 
-action.spawn player.frankenstein 0 -30.0 0.0 5 weapon.sparkingNearest
-action.spawn player.frankenstein 1 -30.0 0.0 5 weapon.fireballsRandom
+action.spawn player.frankenstein 0 -30.0 0.0 5 weapon.fireballsRandom
+action.spawn player.frankenstein 1 -30.0 0.0 5 weapon.sparkingNearest
 
 action.spawn enemy.ghost -10.0 0.0 20 weapon.sparkingNearestShort
-action.spawn enemy.chicken 10.0 0.0 50 weapon.sparkingNearestShort
+action.spawn enemy.chicken 10.0 0.0 5 weapon.fireballsRandom
 action.spawn enemy.zombie 5.0 -10.0 20 weapon.sparkingNearestShort
 action.spawn enemy.hive 0.0 10.0 50 weapon.sparkingNearestShort
 action.spawn enemy.gargoyleTwoLegs -10.0 -10.0 10 weapon.sparkingNearestShort

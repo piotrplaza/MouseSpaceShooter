@@ -33,14 +33,23 @@ namespace Components
 				particles.back()->SetLinearVelocity(ToVec2<b2Vec2>(sourceVelocity + glm::vec2(glm::cos(angle), glm::sin(angle)) * initExplosionVelocity *
 					Tools::RandomFloat(initExplosionVelocityRandomMinFactor, 1.0f)));
 				particles.back()->SetLinearDamping(particlesLinearDamping);
-				Tools::SetCollisionFilteringBits(*particles.back(), Globals::CollisionBits::shockwaveParticle,
-					Globals::CollisionBits::all - Globals::CollisionBits::shockwaveParticle - Globals::CollisionBits::projectile);
 				angle += angleStep;
 			}
 		}
 
 		const glm::vec2 center;
 		std::vector<Body> particles;
+
+		void init(ComponentId id, bool static_) override
+		{
+			ComponentBase::init(id, static_);
+			for (auto& particle : particles)
+			{
+				Tools::SetCollisionFilteringBits(*particle, Globals::CollisionBits::shockwaveParticle,
+					Globals::CollisionBits::all - Globals::CollisionBits::shockwaveParticle - Globals::CollisionBits::projectile);
+				Tools::AccessUserData(*particle).bodyComponentVariant = CM::ShockwaveParticle(*this);
+			}
+		}
 
 		void setEnabled(bool value) override
 		{

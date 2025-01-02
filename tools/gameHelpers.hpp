@@ -29,6 +29,7 @@ namespace ShadersUtils
 namespace Components
 {
 	struct Sound;
+	struct Shockwave;
 }
 
 namespace Tools
@@ -119,6 +120,18 @@ namespace Tools
 			return *this;
 		}
 
+		ExplosionParams& beginCallback(std::function<void(Components::Shockwave&)> value)
+		{
+			beginCallback_ = std::move(value);
+			return *this;
+		}
+
+		ExplosionParams& endCallback(std::function<void(Components::Shockwave&)> value)
+		{
+			endCallback_ = std::move(value);
+			return *this;
+		}
+
 		glm::vec2 center_ = { 0.0f, 0.0f };
 		glm::vec2 sourceVelocity_ = { 0.0f, 0.0f };
 		int numOfParticles_ = 64;
@@ -133,6 +146,8 @@ namespace Tools
 		int particlesPerDecoration_ = 4;
 		glm::vec4 color_ = glm::vec4(1.0f);
 		ResolutionMode resolutionMode_{};
+		std::function<void(Components::Shockwave&)> beginCallback_;
+		std::function<void(Components::Shockwave&)> endCallback_;
 	};
 
 	struct PlaneParams

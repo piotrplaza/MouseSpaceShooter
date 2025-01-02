@@ -271,6 +271,10 @@ namespace Tools
 				{
 					shockwave.state = ComponentState::Outdated;
 					explosionDecoration.state = ComponentState::Outdated;
+
+					if (params.endCallback_)
+						params.endCallback_(shockwave);
+
 					return false;
 				}
 
@@ -287,8 +291,11 @@ namespace Tools
 				return true;
 			});
 
+			if (params.beginCallback_)
+				params.beginCallback_(shockwave);
+
 			return false;
-			});
+		});
 	}
 
 	void CreateFogForeground(int numOfLayers, float alphaPerLayer, CM::Texture fogTexture, FVec4 fColor, std::function<glm::vec2(int layer)> textureTranslation)

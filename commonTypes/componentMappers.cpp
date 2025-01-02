@@ -12,6 +12,7 @@
 #include <components/Plane.hpp>
 #include <components/Wall.hpp>
 #include <components/Polyline.hpp>
+#include <components/Shockwave.hpp>
 #include <components/SoundBuffer.hpp>
 #include <components/Sound.hpp>
 
@@ -480,6 +481,51 @@ namespace ComponentMappers
 	}
 
 	bool Polyline::isStatic() const
+	{
+		assert(component);
+		return component->isStatic();
+	}
+
+	ShockwaveParticle::ShockwaveParticle(Components::Shockwave& component) :
+		component(&component),
+		componentId(component.getComponentId())
+	{
+	}
+
+	ShockwaveParticle::ShockwaveParticle(ComponentId id) :
+		component(&Globals::Components().shockwaves()[id]),
+		componentId(id)
+	{
+	}
+
+	bool ShockwaveParticle::operator==(const ShockwaveParticle& other) const
+	{
+		return component == other.component;
+	}
+
+	bool ShockwaveParticle::operator!=(const ShockwaveParticle& other) const
+	{
+		return component != other.component;
+	}
+
+	bool ShockwaveParticle::operator<(const ShockwaveParticle& other) const
+	{
+		return component < other.component;
+	}
+
+	ShockwaveParticle& ShockwaveParticle::operator=(Components::Shockwave& component)
+	{
+		this->component = &component;
+		componentId = component.getComponentId();
+		return *this;
+	}
+
+	bool ShockwaveParticle::isValid() const
+	{
+		return component;
+	}
+
+	bool ShockwaveParticle::isStatic() const
 	{
 		assert(component);
 		return component->isStatic();
