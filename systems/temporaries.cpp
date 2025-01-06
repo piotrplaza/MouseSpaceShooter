@@ -1,6 +1,7 @@
 #include "temporaries.hpp"
 
 #include <components/missile.hpp>
+#include <components/shockwave.hpp>
 
 #include <globals/components.hpp>
 
@@ -14,6 +15,8 @@ namespace Systems
 	{
 		for (auto& missile: Globals::Components().missiles())
 			missile.step();
+		for (auto& shockwave : Globals::Components().shockwaves())
+			shockwave.step();
 
 		updateDynamicBuffers();
 	}

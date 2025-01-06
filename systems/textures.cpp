@@ -424,7 +424,11 @@ namespace Systems
 		if (texture.state == ComponentState::LastShot)
 		{
 			loadAndConfigureTexture(texture);
-			texture.deferredTeardownF = [&]() { deleteTexture(texture); };
+			texture.deferredTeardownF = [&, prevDeferredTeardownF = std::move(texture.deferredTeardownF)]() {
+				if (prevDeferredTeardownF)
+					prevDeferredTeardownF();
+				deleteTexture(texture);
+			};
 			return;
 		}
 		assert(!"unsupported texture state");

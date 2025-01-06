@@ -308,14 +308,6 @@ namespace Levels::DamageOn
 
 			for (auto& [playerId, playerInst]: playerGameComponents.idsToInst)
 			{
-				auto& playerType = playerInst.type;
-
-				playerInst.color = playerInst.baseColor;
-
-				deferredWeaponsPostSteps.push_back([&]() {
-					weaponsPostStep(playerInst);
-				});
-
 				const bool keyboardEnabled = gameParams.gamepad.firstPlayer ? true : playerInst.playerNum == 0;
 				bool gamepadEnabled = playerInst.playerNum > 3 ? false : gameParams.gamepad.firstPlayer ? true : playerInst.playerNum > 0;
 				int gamepadId = gamepadEnabled ? (playerInst.playerNum - !gameParams.gamepad.firstPlayer) : 0;
@@ -326,6 +318,11 @@ namespace Levels::DamageOn
 					gamepadId = 0;
 					gamepadEnabled = false;
 				}
+
+				if (gamepad.pressed.x * gamepadEnabled)
+					anyGamepadPressedX = true;
+				if (gamepad.pressed.y * gamepadEnabled)
+					anyGamepadPressedY = true;
 
 				const glm::vec2 gamepadDirection = gamepadEnabled
 					? [&]() {
@@ -356,56 +353,60 @@ namespace Levels::DamageOn
 					return direction;
 				}();
 
-				const float vLength = glm::length(playerInst.actor.getVelocity());
-
-				playerInst.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * playerType.params.presentation.velocityRotationFactor));
-
-				playerInst.animatedTexture.setSpeedScaling(playerType.params.presentation.velocityAnimationSpeedFactor == 0.0f ? 1.0f : vLength * playerType.params.presentation.velocityAnimationSpeedFactor);
-				if (playerInst.animatedTexture.isForcingFrame())
+				if (playerInst.actor.isEnabled())
 				{
-					playerInst.animatedTexture.forceFrame(std::nullopt);
-					playerInst.animatedTexture.start(true);
+					auto& playerType = playerInst.type;
+					const float vLength = glm::length(playerInst.actor.getVelocity());
+
+					playerInst.color = playerInst.baseColor;
+					playerInst.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * playerType.params.presentation.velocityRotationFactor));
+
+					playerInst.animatedTexture.setSpeedScaling(playerType.params.presentation.velocityAnimationSpeedFactor == 0.0f ? 1.0f : vLength * playerType.params.presentation.velocityAnimationSpeedFactor);
+					if (playerInst.animatedTexture.isForcingFrame())
+					{
+						playerInst.animatedTexture.forceFrame(std::nullopt);
+						playerInst.animatedTexture.start(true);
+					}
+
+					if (direction.x < 0.0f)
+						playerInst.sideFactor = -1.0f;
+					else if (direction.x > 0.0f)
+						playerInst.sideFactor = 1.0f;
+					else if (direction.y == 0.0f)
+						playerInst.animatedTexture.forceFrame(playerType.params.animation.neutralFrame);
+
+					playerInst.sideTransition += playerInst.sideFactor * physics.frameDuration * 7.0f;
+					playerInst.sideTransition = glm::clamp(playerInst.sideTransition, 0.0f, 1.0f);
+
+					const glm::vec2 newVelocity = direction * playerType.params.baseVelocity;
+					if (glm::length(newVelocity) > glm::length(playerInst.actor.getVelocity()))
+						playerInst.actor.setVelocity(newVelocity);
+
+					if (keyboard.pressing[/*VK_CONTROL*/0x11] * keyboardEnabled || gamepad.rTrigger * gamepadEnabled > gameParams.gamepad.triggerDeadZone || gamepad.lTrigger * gamepadEnabled > gameParams.gamepad.triggerDeadZone)
+					{
+						playerInst.fire = true;
+						playerInst.autoFire = false;
+					}
+					else
+						playerInst.fire = false;
+
+					if (keyboard.pressed[/*VK_SHIFT*/0x10] * keyboardEnabled || gamepad.pressed.rShoulder * gamepadEnabled || gamepad.pressed.lShoulder * gamepadEnabled)
+						playerInst.autoFire = !playerInst.autoFire;
+
+					if ((keyboard.pressed[/*VK_SPACE*/0x20] * keyboardEnabled || gamepad.pressed.a * gamepadEnabled) && glm::length(direction) > 0.0f && !playerInst.manaOvercharged)
+					{
+						playerSoundLimitters.dashes->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(dashSoundBufferId, false), playerInst.actor.getOrigin2D(), [&](auto& sound) {
+							sound.setPitch(glm::linearRand(0.8f, 1.2f));
+							sound.setPlayingOffset(0.3f);
+							sound.setVolume(0.4f);
+							}));
+						playerInst.actor.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerType.params.dash * playerInst.actor.body->GetMass()), true);
+					}
 				}
 
-				if (direction.x < 0.0f)
-					playerInst.sideFactor = -1.0f;
-				else if (direction.x > 0.0f)
-					playerInst.sideFactor = 1.0f;
-				else if (direction.y == 0.0f)
-					playerInst.animatedTexture.forceFrame(playerType.params.animation.neutralFrame);
-
-				playerInst.sideTransition += playerInst.sideFactor * physics.frameDuration * 7.0f;
-				playerInst.sideTransition = glm::clamp(playerInst.sideTransition, 0.0f, 1.0f);
-
-				const glm::vec2 newVelocity = direction * playerType.params.baseVelocity;
-				if (glm::length(newVelocity) > glm::length(playerInst.actor.getVelocity()))
-					playerInst.actor.setVelocity(newVelocity);
-
-				if (keyboard.pressing[/*VK_CONTROL*/0x11] * keyboardEnabled || gamepad.rTrigger * gamepadEnabled > gameParams.gamepad.triggerDeadZone || gamepad.lTrigger * gamepadEnabled > gameParams.gamepad.triggerDeadZone)
-				{
-					playerInst.fire = true;
-					playerInst.autoFire = false;
-				}
-				else
-					playerInst.fire = false;
-
-				if (keyboard.pressed[/*VK_SHIFT*/0x10] * keyboardEnabled || gamepad.pressed.rShoulder * gamepadEnabled || gamepad.pressed.lShoulder * gamepadEnabled)
-					playerInst.autoFire = !playerInst.autoFire;
-
-				if ((keyboard.pressed[/*VK_SPACE*/0x20] * keyboardEnabled || gamepad.pressed.a * gamepadEnabled) && glm::length(direction) > 0.0f && !playerInst.manaOvercharged)
-				{
-					playerSoundLimitters.dashes->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(dashSoundBufferId, false), playerInst.actor.getOrigin2D(), [&](auto& sound) {
-						sound.setPitch(glm::linearRand(0.8f, 1.2f));
-						sound.setPlayingOffset(0.3f);
-						sound.setVolume(0.4f);
-					}));
-					playerInst.actor.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerType.params.dash * playerInst.actor.body->GetMass()), true);
-				}
-
-				if (gamepad.pressed.x * gamepadEnabled)
-					anyGamepadPressedX = true;
-				if (gamepad.pressed.y * gamepadEnabled)
-					anyGamepadPressedY = true;
+				deferredWeaponsPostSteps.push_back([&]() {
+					weaponsPostStep(playerInst);
+				});
 
 				std::map<float, EnemyType::Inst*> enemiesByDistance;
 				for (auto& [enemyId, enemyInst] : enemyGameComponents.idsToInst)
@@ -424,19 +425,18 @@ namespace Levels::DamageOn
 
 			for (auto& [enemyId, enemyInst] : enemyGameComponents.idsToInst)
 			{
-				enemyInst.color = enemyInst.baseColor;
-
-				deferredWeaponsPostSteps.push_back([&]() {
-					weaponsPostStep(enemyInst);
-				});
-
 				const float vLength = glm::length(enemyInst.actor.getVelocity());
+				enemyInst.color = enemyInst.baseColor;
 				enemyInst.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * enemyInst.type.params.presentation.velocityRotationFactor));
 				enemyInst.animatedTexture.setSpeedScaling(enemyInst.type.params.presentation.velocityAnimationSpeedFactor == 0.0f
 					? 1.0f
 					: glm::length(enemyInst.actor.getVelocity() * enemyInst.type.params.presentation.velocityAnimationSpeedFactor));
 				enemyInst.sideTransition += enemyInst.sideFactor * physics.frameDuration * 7.0f;
 				enemyInst.sideTransition = glm::clamp(enemyInst.sideTransition, 0.0f, 1.0f);
+
+				deferredWeaponsPostSteps.push_back([&]() {
+					weaponsPostStep(enemyInst);
+				});
 
 				std::map<float, PlayerType::Inst*> playersByDistance;
 				for (auto& [playerId, playerInst]: playerGameComponents.idsToInst)
@@ -1308,7 +1308,7 @@ namespace Levels::DamageOn
 			auto& thrustSound = Tools::CreateAndPlaySound(CM::SoundBuffer(thrustSoundBufferId, false), [&]() {
 				return fireball.getOrigin2D();
 			}, [&](auto& sound) {
-				sound.setVolume(0.2f * (1.0f - !playerSource * 0.5f));
+				sound.setVolume(0.2f);
 				sound.setPitch(glm::linearRand(0.8f, 1.0f));
 				sound.setLooping(true);
 				sound.setPlayingOffset(glm::linearRand(0.0f, 1.0f));
@@ -1321,14 +1321,19 @@ namespace Levels::DamageOn
 					physics.simulationDuration >= startTime + 5.0f)
 				{
 					fireball.state = ComponentState::Outdated;
-					thrustSound.state = ComponentState::Outdated;
 					detonate(fireball, playerSource, power, damageFactor / 10.0f);
 					--weaponInst.activeShots;
+					fireballs.erase(fireball.getComponentId());
 				}
+			};
+			fireball.deferredTeardownF = [&, prevDeferredTeardownF = std::move(fireball.deferredTeardownF)] {
+				if (prevDeferredTeardownF)
+					prevDeferredTeardownF();
+				thrustSound.state = ComponentState::Outdated;
 			};
 			fireball.posInSubsequence = 2;
 			auto& fireballPresentation = fireball.subsequence.emplace_back();
-			fireballPresentation.texture = CM::Texture(fireballTextureId, true);
+			fireballPresentation.texture = CM::Texture(fireballTextureId, true, {}, glm::linearRand(0.0f, glm::two_pi<float>()));
 			fireballPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle(glm::vec2(0.0f), glm::vec2(radius));
 			fireballPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 			fireballPresentation.modelMatrixF = fireball.modelMatrixF;
@@ -1337,6 +1342,7 @@ namespace Levels::DamageOn
 				Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::AnimatedTexture(jetfireAnimatedTextureId, true));
 			jetfire.modelMatrixF = [radius, modelMatrixF = fireball.modelMatrixF]() { return glm::translate(modelMatrixF(), glm::vec3(0.0f, radius * 4.0f, 0.0f) * 2.0f); };
 			jetfire.colorF = glm::vec4(1.0f, 0.6f, 0.6f, 1.0f);
+			fireballs.insert(fireball.getComponentId());
 		}
 
 		void weaponsPostStep(auto& sourceInst)
@@ -1437,8 +1443,10 @@ namespace Levels::DamageOn
 				});
 			else
 				explosionParams.beginCallback([&, damage](auto& shockwave) {
+					enemySourceExplosions.insert(shockwave.getComponentId());
 					shockwavesToDamage[shockwave.getComponentId()] = damage;
 				}).endCallback([&](auto& shockwave) {
+					enemySourceExplosions.erase(shockwave.getComponentId());
 					shockwavesToDamage.erase(shockwave.getComponentId());
 				});
 
@@ -1893,6 +1901,20 @@ namespace Levels::DamageOn
 			enemyGameComponents.resetInstances();
 			weaponGameComponents.resetInstances();
 
+			shockwavesToDamage.clear();
+
+			for (auto explosionId : playerSourceExplosions)
+				Globals::Components().shockwaves()[explosionId].state = ComponentState::Outdated;
+			playerSourceExplosions.clear();
+
+			for (auto explosionId : enemySourceExplosions)
+				Globals::Components().shockwaves()[explosionId].state = ComponentState::Outdated;
+			enemySourceExplosions.clear();
+
+			for (auto fireballId : fireballs)
+				Globals::Components().actors()[fireballId].state = ComponentState::Outdated;
+			fireballs.clear();
+
 			for (auto& hordeSpawner : actions.initSpawners)
 				for (int i = 0; i < hordeSpawner.count; ++i)
 					std::visit([&](auto& actorType) {
@@ -1950,7 +1972,9 @@ namespace Levels::DamageOn
 		std::vector<std::function<void()>> postSteps;
 
 		std::unordered_set<ComponentId> playerSourceExplosions;
+		std::unordered_set<ComponentId> enemySourceExplosions;
 		std::unordered_map<ComponentId, float> shockwavesToDamage;
+		std::unordered_set<ComponentId> fireballs;
 
 		struct SoundsLimitters
 		{

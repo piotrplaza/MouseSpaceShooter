@@ -263,19 +263,16 @@ namespace Tools
 
 			explosionDecoration.renderLayer = RenderLayer::FarForeground;
 
-			Globals::Components().deferredActions().emplace([=, startTime = Globals::Components().physics().simulationDuration, &shockwave, &explosionDecoration](float) {
+			shockwave.stepF = [=, startTime = Globals::Components().physics().simulationDuration, &shockwave, &explosionDecoration]() {
 				const float elapsed = Globals::Components().physics().simulationDuration - startTime;
 				const float scale = 1.0f + elapsed * 20.0f;
 
 				if (elapsed > params.explosionDuration_)
 				{
 					shockwave.state = ComponentState::Outdated;
-					explosionDecoration.state = ComponentState::Outdated;
 
 					if (params.endCallback_)
 						params.endCallback_(shockwave);
-
-					return false;
 				}
 
 				explosionDecoration.vertices.clear();
@@ -287,9 +284,13 @@ namespace Tools
 					explosionDecoration.vertices.emplace_back(position, scale);
 				}
 				explosionDecoration.state = ComponentState::Changed;
+			};
 
-				return true;
-			});
+			shockwave.deferredTeardownF = [&, prevDeferredTeardownF = std::move(shockwave.deferredTeardownF)]() {
+				if (prevDeferredTeardownF)
+					prevDeferredTeardownF();
+				explosionDecoration.state = ComponentState::Outdated;
+			};
 
 			if (params.beginCallback_)
 				params.beginCallback_(shockwave);

@@ -75,11 +75,19 @@ namespace Tools
 
 			if (component.state == ComponentState::Outdated)
 			{
-				component.deferredTeardownF = [&]() { mapOfSelectedBuffers.erase(component.getComponentId()); };
+				component.deferredTeardownF = [&, prevDeferredTeardownF = std::move(component.deferredTeardownF)]() {
+					if (prevDeferredTeardownF)
+						prevDeferredTeardownF();
+					mapOfSelectedBuffers.erase(component.getComponentId());
+				};
 				continue;
 			}
 			if (component.state == ComponentState::LastShot)
-				component.deferredTeardownF = [&]() { mapOfSelectedBuffers.erase(component.getComponentId()); };
+				component.deferredTeardownF = [&, prevDeferredTeardownF = std::move(component.deferredTeardownF)]() {
+					if (prevDeferredTeardownF)
+						prevDeferredTeardownF();
+					mapOfSelectedBuffers.erase(component.getComponentId());
+				};
 
 			auto& selectedBuffers = mapOfSelectedBuffers[component.getComponentId()];
 			selectedBuffers.applyComponent(component, false);
