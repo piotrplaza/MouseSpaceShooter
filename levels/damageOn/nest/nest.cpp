@@ -138,7 +138,7 @@ namespace Levels::DamageOn
 			dashSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav", 1.0f).getComponentId();
 			enemyKillSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
 			explosionSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Detonate.wav", 2.0f).getComponentId();
-			missileLaunchingSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav", 0.2f).getComponentId();
+			thrustSoundBufferId = soundsBuffers.emplace("audio/thrust.wav", 1.0f).getComponentId();
 
 			Tools::CreateFogForeground(5, 0.05f, CM::Texture(fogTextureId, true), glm::vec4(1.0f), [x = 0.0f](int layer) mutable {
 				(void)layer;
@@ -429,9 +429,6 @@ namespace Levels::DamageOn
 				deferredWeaponsPostSteps.push_back([&]() {
 					weaponsPostStep(enemyInst);
 				});
-
-				if (enemyInst.hp <= 0)
-					continue;
 
 				const float vLength = glm::length(enemyInst.actor.getVelocity());
 				enemyInst.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * enemyInst.type.params.presentation.velocityRotationFactor));
@@ -1308,6 +1305,15 @@ namespace Levels::DamageOn
 			fireball.renderLayer = RenderLayer::FarForeground;
 			fireball.renderF = [&]() { return debug.hitboxesRendering; };
 			fireball.colorF = glm::vec4(0.2f);
+			auto& thrustSound = Tools::CreateAndPlaySound(CM::SoundBuffer(thrustSoundBufferId, false), [&]() {
+				return fireball.getOrigin2D();
+			}, [&](auto& sound) {
+				sound.setVolume(0.2f * (1.0f - !playerSource * 0.5f));
+				sound.setPitch(glm::linearRand(0.8f, 1.0f));
+				sound.setLooping(true);
+				sound.setPlayingOffset(glm::linearRand(0.0f, 1.0f));
+				sound.setRemoveOnStop(true);
+			});
 			fireball.stepF = [&, startTime = physics.simulationDuration, playerSource, endPos,
 				nV = glm::normalize(velocity), power = weaponInst.power, damageFactor = weaponInst.type.params.damageFactor]() {
 				if (glm::distance(fireball.getOrigin2D(), endPos) < 0.5f ||
@@ -1315,6 +1321,7 @@ namespace Levels::DamageOn
 					physics.simulationDuration >= startTime + 5.0f)
 				{
 					fireball.state = ComponentState::Outdated;
+					thrustSound.state = ComponentState::Outdated;
 					detonate(fireball, playerSource, power, damageFactor / 10.0f);
 					--weaponInst.activeShots;
 				}
@@ -1344,9 +1351,10 @@ namespace Levels::DamageOn
 			for (auto weaponId : sourceInst.weaponIds)
 			{
 				auto& weaponInst = weaponGameComponents.idsToInst.at(weaponId);
+				auto& weaponType = weaponInst.type;
 				auto sourcePosF = [&]() { return sourceInst.actor.getOrigin2D(); };
 
-				auto playWeaponSound = [&]() {
+				auto playFireSound = [&]() {
 					if (!weaponInst.fireSound && !weaponInst.firing)
 					{
 						weaponInst.fireSound = &soundLimitters(playerSource).weapons->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(sparkingSoundBufferId, false), sourcePosF, [&](auto& sound) {
@@ -1365,7 +1373,8 @@ namespace Levels::DamageOn
 					sourceInst.manaOvercharging += physics.frameDuration * weaponInst.type.params.overchargingRate;
 					if (sourceInst.manaOvercharging < 1.0f)
 					{
-						playWeaponSound();
+						if (weaponType.params.archetype == "sparkingNearest" || weaponType.params.archetype == "sparkingRandom")
+							playFireSound();
 						weaponInst.firing = true;
 					}
 					else
@@ -1926,7 +1935,7 @@ namespace Levels::DamageOn
 		ComponentId dashSoundBufferId{};
 		ComponentId enemyKillSoundBufferId{};
 		ComponentId explosionSoundBufferId{};
-		ComponentId missileLaunchingSoundBufferId{};
+		ComponentId thrustSoundBufferId{};
 
 		GameParams gameParams{};
 		LevelParams levelParams{};
