@@ -89,16 +89,13 @@ namespace Levels::DamageOn
 		{
 			loadParams();
 
+			const auto& physics = Globals::Components().physics();
 			auto& defaults = Globals::Components().defaults();
 			if (gameParams.pixelArt)
 				defaults.forcedResolutionMode = { ResolutionMode::Resolution::H405, ResolutionMode::Scaling::Nearest };
 
 			auto& mainFramebufferRenderer = Globals::Components().mainFramebufferRenderer();
-			mainFramebufferRenderer.renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured(), []() {
-				return 0.0002f * std::min(std::accumulate(Globals::Components().shockwaves().begin(), Globals::Components().shockwaves().end(), 0.0f, [](float sum, const auto& e) {
-					return sum + e.particles.size();
-				}), 100.0f);
-			});
+			mainFramebufferRenderer.renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured(), Tools::DefaultQuakeIntensity(0.0002f));
 
 			auto& graphicsSettings = Globals::Components().graphicsSettings();
 			graphicsSettings.lineWidth = 10.0f;
@@ -726,9 +723,9 @@ namespace Levels::DamageOn
 					animatedTexture.state = ComponentState::Outdated;
 
 					if (dashSound)
-						dashSound->state = ComponentState::Outdated;
+						dashSound->immediateFreeResources();
 					if (overchargedSound)
-						overchargedSound->state = ComponentState::Outdated;
+						dashSound->immediateFreeResources();
 
 					for (const auto weaponId : weaponIds)
 						weaponGameComponents.removeInstance(weaponId);
@@ -826,9 +823,9 @@ namespace Levels::DamageOn
 					animatedTexture.state = ComponentState::Outdated;
 
 					if (dashSound)
-						dashSound->state = ComponentState::Outdated;
+						dashSound->immediateFreeResources();
 					if (overchargedSound)
-						overchargedSound->state = ComponentState::Outdated;
+						overchargedSound->immediateFreeResources();
 
 					for (const auto weaponId : weaponIds)
 						weaponGameComponents.removeInstance(weaponId);
@@ -920,7 +917,7 @@ namespace Levels::DamageOn
 						return;
 
 					if (fireSound)
-						fireSound->state = ComponentState::Outdated;
+						fireSound->immediateFreeResources();
 				}
 
 				bool outdated{};
@@ -1149,6 +1146,7 @@ namespace Levels::DamageOn
 						? nullptr
 						: &weaponGameComponents.idsToInst.at(*targetInst.weaponIds.begin()).type;
 
+					targetActor.setEnabled(false);
 					postSteps.push_back([&]() { enemyGameComponents.removeInstance(targetInst.instanceId); });
 
 					const float newRadius = targetInst.radius * targetType.params.radiusReductionFactor;

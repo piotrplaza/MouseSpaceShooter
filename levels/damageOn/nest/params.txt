@@ -361,7 +361,7 @@ weapon.sparkingNearestShort.initPower 20
 
 weapon.fireballsRandom.archetype fireballsRandom
 weapon.fireballsRandom.distance 20.0
-weapon.fireballsRandom.damageFactor 10.0
+weapon.fireballsRandom.damageFactor 5.0
 weapon.fireballsRandom.overchargingRate 0.3
 weapon.fireballsRandom.reloadTime 0.5
 weapon.fireballsRandom.initPower 40

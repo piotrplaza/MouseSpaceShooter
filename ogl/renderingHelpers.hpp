@@ -24,6 +24,7 @@
 #include <optional>
 #include <array>
 #include <variant>
+#include <numeric>
 
 namespace
 {
@@ -209,8 +210,16 @@ namespace Tools
 		glDrawArrays(GL_TRIANGLES, 0, numOfVertices);
 	}
 
-	inline auto StandardFullscreenRenderer(auto& shadersProgram, std::function<float()> quakeIntensityF = []() {
-		return 0.001f * Globals::Components().shockwaves().size(); })
+	inline auto DefaultQuakeIntensity(float intensityFactor = 0.0001f, float maxIntensity = 400.0f)
+	{
+		return [=]() { return intensityFactor * std::min(std::accumulate(Globals::Components().shockwaves().begin(), Globals::Components().shockwaves().end(), 0.0f,
+			[](float sum, const auto& e) {
+				return sum + e.particles.size() * !Globals::Components().physics().paused;
+			}), maxIntensity);
+			};
+	}
+
+	inline auto StandardFullscreenRenderer(auto& shadersProgram, std::function<float()> quakeIntensityF = DefaultQuakeIntensity())
 	{
 		const auto& screenInfo = Globals::Components().systemInfo().screen;
 
@@ -236,11 +245,11 @@ namespace Tools
 		};
 	}
 
-	inline auto Demo3DRotatedFullscreenRenderer(auto& shadersProgram)
+	inline auto Demo3DRotatedFullscreenRenderer(auto& shadersProgram, std::function<float()> quakeIntensityF = DefaultQuakeIntensity())
 	{
 		const auto& screenInfo = Globals::Components().systemInfo().screen;
 
-		return[&, angle = 0.0f](unsigned textureObject) mutable
+		return[&, angle = 0.0f, quakeIntensityF = std::move(quakeIntensityF)](unsigned textureObject) mutable
 		{
 			glm::mat4 vp = glm::perspective(glm::radians(28.0f), screenInfo.getAspectRatio(), 1.0f, 10.0f);
 			glm::mat4 model = glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -4.0f });
@@ -274,7 +283,7 @@ namespace Tools
 					shadersProgram.model(model);
 				}, [&]()
 				{
-					const float quakeIntensity = 0.001f * Globals::Components().shockwaves().size();
+					const float quakeIntensity = quakeIntensityF();
 					const glm::vec2 quakeIntensityXY = screenInfo.windowSize.x > screenInfo.windowSize.y
 						? glm::vec2(quakeIntensity, quakeIntensity * screenInfo.getAspectRatio())
 						: glm::vec2(quakeIntensity / screenInfo.getAspectRatio(), quakeIntensity);
