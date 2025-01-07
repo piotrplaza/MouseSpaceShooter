@@ -22,6 +22,7 @@ namespace Systems
 		Actors();
 
 		void postInit();
+		void teardown();
 		void step();
 
 	private:

@@ -219,8 +219,10 @@ static void PrepareFrame()
 static void TearDown()
 {
 	activeLevel.reset();
-	Globals::DestroySystems();
+
+	Globals::TeardownSystems();
 	Globals::DestroyComponents();
+	Globals::DestroySystems();
 	Globals::DestroyShaders();
 }
 

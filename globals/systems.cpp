@@ -82,6 +82,12 @@ namespace Globals
 		systemsHolder = std::make_unique<SystemsHolder>();
 	}
 
+	void TeardownSystems()
+	{
+		systemsHolder->actors().teardown();
+		systemsHolder->physics().teardown();
+	}
+
 	void DestroySystems()
 	{
 		systemsHolder.reset();

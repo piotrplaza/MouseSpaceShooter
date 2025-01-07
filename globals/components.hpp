@@ -83,10 +83,10 @@ namespace Globals
 		StaticComponents<Components::Sound>& staticSounds();
 		DynamicComponents<Components::Sound>& sounds();
 		DynamicComponents<Components::Actor>& actors();
-		DynamicComponents<Components::Plane>& planes();
 		StaticComponents<Components::Wall>& staticWalls();
 		DynamicComponents<Components::Wall>& walls();
 		DynamicComponents<Components::Grapple>& grapples();
+		DynamicComponents<Components::Plane>& planes();
 		StaticComponents<Components::Polyline>& staticPolylines();
 		DynamicComponents<Components::Polyline>& polylines();
 		StaticComponents<Components::Decoration>& staticDecorations();
@@ -138,10 +138,10 @@ namespace Globals
 		std::unique_ptr<StaticComponents<Components::Sound>> staticSounds_ = std::make_unique<StaticComponents<Components::Sound>>();
 		std::unique_ptr<DynamicComponents<Components::Sound>> sounds_ = std::make_unique<DynamicComponents<Components::Sound>>();
 		std::unique_ptr<DynamicComponents<Components::Actor>> actors_ = std::make_unique<DynamicComponents<Components::Actor>>();
-		std::unique_ptr<DynamicComponents<Components::Plane>> planes_ = std::make_unique<DynamicComponents<Components::Plane>>();
 		std::unique_ptr<StaticComponents<Components::Wall>> staticWalls_ = std::make_unique<StaticComponents<Components::Wall>>();
 		std::unique_ptr<DynamicComponents<Components::Wall>> walls_ = std::make_unique<DynamicComponents<Components::Wall>>();
 		std::unique_ptr<DynamicComponents<Components::Grapple>> grapples_ = std::make_unique<DynamicComponents<Components::Grapple>>();
+		std::unique_ptr<DynamicComponents<Components::Plane>> planes_ = std::make_unique<DynamicComponents<Components::Plane>>();
 		std::unique_ptr<StaticComponents<Components::Polyline>> staticPolylines_ = std::make_unique<StaticComponents<Components::Polyline>>();
 		std::unique_ptr<DynamicComponents<Components::Polyline>> polylines_ = std::make_unique<DynamicComponents<Components::Polyline>>();
 		std::unique_ptr<StaticComponents<Components::Decoration>> staticDecorations_ = std::make_unique<StaticComponents<Components::Decoration>>();

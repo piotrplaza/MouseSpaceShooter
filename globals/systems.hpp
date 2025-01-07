@@ -52,6 +52,7 @@ namespace Globals
 	};
 
 	void InitializeSystems();
+	void TeardownSystems();
 	void DestroySystems();
 
 	SystemsHolder& Systems();

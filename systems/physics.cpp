@@ -51,20 +51,22 @@ namespace Systems
 {
 	Physics::Physics() = default;
 
-	Physics::~Physics()
-	{
-		extern b2ContactListener b2_defaultListener;
-		extern b2ContactFilter b2_defaultFilter;
-
-		Globals::Components().physics().world->SetContactListener(&b2_defaultListener);
-		Globals::Components().physics().world->SetContactFilter(&b2_defaultFilter);
-	}
+	Physics::~Physics() = default;
 
 	void Physics::postInit()
 	{
 		Globals::Components().physics().world->SetContactListener(&contactListener);
 		Globals::Components().physics().world->SetContactFilter(&contactFilter);
 		Globals::Components().physics().prevFrameTime = std::chrono::high_resolution_clock::now();
+	}
+
+	void Physics::teardown()
+	{
+		extern b2ContactListener b2_defaultListener;
+		extern b2ContactFilter b2_defaultFilter;
+
+		Globals::Components().physics().world->SetContactListener(&b2_defaultListener);
+		Globals::Components().physics().world->SetContactFilter(&b2_defaultFilter);
 	}
 
 	void Physics::step(bool paused)

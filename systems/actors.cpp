@@ -54,6 +54,11 @@ namespace Systems
 		});
 	}
 
+	void Actors::teardown()
+	{
+		allConnections.clear();
+	}
+
 	void Actors::step()
 	{
 		{
