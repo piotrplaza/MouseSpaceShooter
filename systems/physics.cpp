@@ -49,7 +49,10 @@ namespace
 
 namespace Systems
 {
-	Physics::Physics() = default;
+	Physics::Physics()
+	{
+		Globals::Components().physics().world = std::make_unique<b2World>(b2Vec2(0.0f, 0.0f));
+	}
 
 	Physics::~Physics() = default;
 

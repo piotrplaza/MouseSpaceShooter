@@ -1320,7 +1320,6 @@ namespace Levels::DamageOn
 				{
 					fireball.state = ComponentState::Outdated;
 					detonate(fireball, playerSource, power, damageFactor / 10.0f);
-					--weaponInst.activeShots;
 					fireballs.erase(fireball.getComponentId());
 				}
 			};

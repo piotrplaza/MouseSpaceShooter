@@ -224,6 +224,8 @@ static void TearDown()
 	Globals::DestroyComponents();
 	Globals::DestroySystems();
 	Globals::DestroyShaders();
+
+	SDL_Quit();
 }
 
 void SetDCPixelFormat(HDC hDC);
