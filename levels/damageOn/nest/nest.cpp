@@ -725,7 +725,7 @@ namespace Levels::DamageOn
 					if (dashSound)
 						dashSound->immediateFreeResources();
 					if (overchargedSound)
-						dashSound->immediateFreeResources();
+						overchargedSound->immediateFreeResources();
 
 					for (const auto weaponId : weaponIds)
 						weaponGameComponents.removeInstance(weaponId);
@@ -894,9 +894,9 @@ namespace Levels::DamageOn
 				WeaponType& type;
 
 				float power{};
-				int activeShots{};
+				bool justShot{};
 				float lastShotTime{ -std::numeric_limits<float>::infinity() };
-				bool firing{};
+				bool shoting{};
 
 				Components::Sound* fireSound{};
 			};
@@ -931,7 +931,7 @@ namespace Levels::DamageOn
 			struct Spawner
 			{
 				ActorTypeVariant actorTypeVariant;
-				WeaponType* weaponType;
+				std::vector<WeaponType*> weaponTypes;
 				glm::vec2 position;
 				int count;
 			};
@@ -939,7 +939,7 @@ namespace Levels::DamageOn
 			std::vector<Spawner> initSpawners;
 		};
 
-		void playerSpawn(PlayerType& playerType, int playerNum, WeaponType* weaponType, glm::vec2 position)
+		void playerSpawn(PlayerType& playerType, int playerNum, std::vector<WeaponType*>& weaponTypes, glm::vec2 position)
 		{
 			const auto& physics = Globals::Components().physics();
 
@@ -988,11 +988,11 @@ namespace Levels::DamageOn
 				};
 			}
 
-			if (weaponType)
+			for (auto weaponType : weaponTypes)
 				addWeapon(playerInst, *weaponType);
 		}
 
-		void enemySpawn(EnemyType& enemyType, WeaponType* weaponType, glm::vec2 position, float radius)
+		void enemySpawn(EnemyType& enemyType, std::vector<WeaponType*>& weaponTypes, glm::vec2 position, float radius)
 		{
 			const auto& physics = Globals::Components().physics();
 
@@ -1064,7 +1064,7 @@ namespace Levels::DamageOn
 				};
 			}
 
-			if (weaponType)
+			for (auto weaponType : weaponTypes)
 				addWeapon(enemyInst, *weaponType);
 		}
 
@@ -1142,9 +1142,10 @@ namespace Levels::DamageOn
 						sound.setRemoveOnStop(true);
 					}));
 
-					auto* firstWeaponType = targetInst.weaponIds.empty()
-						? nullptr
-						: &weaponGameComponents.idsToInst.at(*targetInst.weaponIds.begin()).type;
+					std::vector<WeaponType*> weaponTypes;
+					weaponTypes.reserve(targetInst.weaponIds.size());
+					for (auto weaponId : targetInst.weaponIds)
+						weaponTypes.push_back(&weaponGameComponents.idsToInst.at(weaponId).type);
 
 					targetActor.setEnabled(false);
 					postSteps.push_back([&]() { enemyGameComponents.removeInstance(targetInst.instanceId); });
@@ -1152,7 +1153,7 @@ namespace Levels::DamageOn
 					const float newRadius = targetInst.radius * targetType.params.radiusReductionFactor;
 					if (targetType.params.killSpawns > 0 && newRadius >= targetType.params.minimalRadius)
 						for (int i = 0; i < targetType.params.killSpawns; ++i)
-							enemySpawn(targetType, firstWeaponType, targetActor.getOrigin2D() + glm::circularRand(0.1f), newRadius);
+							enemySpawn(targetType, weaponTypes, targetActor.getOrigin2D() + glm::circularRand(0.1f), newRadius);
 				}
 			}
 		}
@@ -1212,7 +1213,7 @@ namespace Levels::DamageOn
 			targetInst.color = glm::mix(targetInst.baseColor, avgColor, glm::linearRand(0.5f, 1.0f));
 
 			weaponInst.lastShotTime = physics.simulationDuration;
-			++weaponInst.activeShots;
+			weaponInst.justShot = true;
 			targetInst.hp -= physics.frameDuration * weaponInst.type.params.damageFactor;
 		}
 
@@ -1271,7 +1272,7 @@ namespace Levels::DamageOn
 			targetInst.color = glm::mix(targetInst.baseColor, avgColor, glm::linearRand(0.5f, 1.0f));
 
 			weaponInst.lastShotTime = physics.simulationDuration;
-			++weaponInst.activeShots;
+			weaponInst.justShot = true;
 			targetInst.hp -= physics.frameDuration * weaponInst.type.params.damageFactor;
 		}
 
@@ -1285,7 +1286,7 @@ namespace Levels::DamageOn
 
 			fireballSpawn(sourceInst.actor.getOrigin2D(), targetInst.actor.getOrigin2D(), glm::normalize(direction) * 20.0f, 0.3f, weaponInst, playerSource);
 			weaponInst.lastShotTime = physics.simulationDuration;
-			++weaponInst.activeShots;
+			weaponInst.justShot = true;
 		}
 
 		void fireballSpawn(glm::vec2 startPos, glm::vec2 endPos, glm::vec2 velocity, float radius, auto& weaponInst, bool playerSource)
@@ -1348,8 +1349,8 @@ namespace Levels::DamageOn
 
 			const auto& physics = Globals::Components().physics();
 			auto& sounds = Globals::Components().sounds();
-
 			const auto fire = sourceInst.fire || sourceInst.autoFire;
+			bool shoting = false;
 
 			for (auto weaponId : sourceInst.weaponIds)
 			{
@@ -1358,7 +1359,7 @@ namespace Levels::DamageOn
 				auto sourcePosF = [&]() { return sourceInst.actor.getOrigin2D(); };
 
 				auto playFireSound = [&]() {
-					if (!weaponInst.fireSound && !weaponInst.firing)
+					if (!weaponInst.fireSound && !weaponInst.shoting)
 					{
 						weaponInst.fireSound = &soundLimitters(playerSource).weapons->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(sparkingSoundBufferId, false), sourcePosF, [&](auto& sound) {
 							sound.setVolume(0.8f * (1.0f - !playerSource * 0.5f));
@@ -1371,14 +1372,15 @@ namespace Levels::DamageOn
 					}
 				};
 
-				if (fire && weaponInst.activeShots)
+				if (fire && weaponInst.justShot)
 				{
 					sourceInst.manaOvercharging += physics.frameDuration * weaponInst.type.params.overchargingRate;
 					if (sourceInst.manaOvercharging < 1.0f)
 					{
 						if (weaponType.params.archetype == "sparkingNearest" || weaponType.params.archetype == "sparkingRandom")
 							playFireSound();
-						weaponInst.firing = true;
+						weaponInst.shoting = true;
+						shoting = true;
 					}
 					else
 					{
@@ -1396,20 +1398,14 @@ namespace Levels::DamageOn
 							}), [&]() {
 								sourceInst.overchargedSound = nullptr;
 							});
-						weaponInst.firing = false;
+						weaponInst.shoting = false;
 					}
 				}
 				else
 				{
 					if (weaponInst.fireSound)
 						weaponInst.fireSound->state = ComponentState::Outdated;
-					sourceInst.manaOvercharging -= physics.frameDuration * sourceInst.type.params.coolingRate;
-					if (sourceInst.manaOvercharging <= 0.0f)
-					{
-						sourceInst.manaOvercharging = 0.0f;
-						sourceInst.manaOvercharged = false;
-					}
-					weaponInst.firing = false;
+					weaponInst.shoting = false;
 				}
 
 				if (sourceInst.overchargedSound)
@@ -1423,7 +1419,17 @@ namespace Levels::DamageOn
 						sourceInst.overchargedSound->state = ComponentState::Outdated;
 				}
 
-				weaponInst.activeShots = 0;
+				weaponInst.justShot = false;
+			}
+
+			if (!shoting)
+			{
+				sourceInst.manaOvercharging -= physics.frameDuration * sourceInst.type.params.coolingRate;
+				if (sourceInst.manaOvercharging <= 0.0f)
+				{
+					sourceInst.manaOvercharging = 0.0f;
+					sourceInst.manaOvercharged = false;
+				}
 			}
 		}
 
@@ -1657,16 +1663,23 @@ namespace Levels::DamageOn
 							const auto count = Tools::Stoi(params.front());
 							params.pop_front();
 
-							auto* weaponType = params.empty() || params.front().substr(0, 7) != "weapon."
-								? nullptr
-								: &[&]() -> auto& {
-									const auto dotPos = params.front().find('.');
-									const auto weaponType = params.front().substr(dotPos + 1);
-									try { return weaponGameComponents.typeNamesToTypes.at(weaponType); }
-									catch (...) { throw std::runtime_error("loadParams(): Weapon type " + weaponType + " not found"); }
-								}();
+							std::vector<WeaponType*> weaponTypes;
+							while (!params.empty())
+							{
+								if (params.front().substr(0, 7) != "weapon.")
+								{
+									params.pop_front();
+									continue;
+								}
 
-							param.emplace_back(actorTypeVariant, weaponType, pos, count);
+								const auto dotPos = params.front().find('.');
+								const auto weaponType = params.front().substr(dotPos + 1);
+								try { weaponTypes.push_back(&weaponGameComponents.typeNamesToTypes.at(weaponType)); }
+								catch (...) { throw std::runtime_error("loadParams(): Weapon type " + weaponType + " not found"); }
+								params.pop_front();
+							}
+
+							param.emplace_back(actorTypeVariant, weaponTypes, pos, count);
 						}
 					}
 					else if constexpr (std::is_same_v<ParamType, AnimationData::Direction>)
@@ -1918,9 +1931,9 @@ namespace Levels::DamageOn
 						static constexpr bool playerType = std::is_same_v<std::remove_cvref_t<decltype(actorType)>, std::pair<PlayerType*, int>>;
 
 						if constexpr (playerType)
-							playerSpawn(*actorType.first, actorType.second, hordeSpawner.weaponType, hordeSpawner.position + glm::circularRand(0.1f));
+							playerSpawn(*actorType.first, actorType.second, hordeSpawner.weaponTypes, hordeSpawner.position + glm::circularRand(0.1f));
 						else
-							enemySpawn(*actorType, hordeSpawner.weaponType, hordeSpawner.position + glm::circularRand(0.1f),
+							enemySpawn(*actorType, hordeSpawner.weaponTypes, hordeSpawner.position + glm::circularRand(0.1f),
 								glm::linearRand(actorType->params.initRadiusRange.x, actorType->params.initRadiusRange.y));
 					}, hordeSpawner.actorTypeVariant);
 		}

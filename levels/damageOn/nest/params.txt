@@ -350,7 +350,7 @@ weapon.sparkingRandom.distance 20.0
 weapon.sparkingRandom.damageFactor 10.0
 weapon.sparkingRandom.overchargingRate 0.3
 weapon.sparkingRandom.reloadTime 0.0
-weapon.sparkingRandom.initPower 20
+weapon.sparkingRandom.initPower 1
 
 weapon.sparkingNearestShort.archetype sparkingNearest
 weapon.sparkingNearestShort.distance 4.0
@@ -362,15 +362,22 @@ weapon.sparkingNearestShort.initPower 20
 weapon.fireballsRandom.archetype fireballsRandom
 weapon.fireballsRandom.distance 20.0
 weapon.fireballsRandom.damageFactor 5.0
-weapon.fireballsRandom.overchargingRate 0.3
+weapon.fireballsRandom.overchargingRate 20.0
 weapon.fireballsRandom.reloadTime 0.5
 weapon.fireballsRandom.initPower 40
 
-action.spawn player.frankenstein 0 -30.0 0.0 5 weapon.fireballsRandom
-action.spawn player.frankenstein 1 -30.0 0.0 5 weapon.sparkingNearest
+weapon.fireballsRandomStrong.archetype fireballsRandom
+weapon.fireballsRandomStrong.distance 20.0
+weapon.fireballsRandomStrong.damageFactor 100.0
+weapon.fireballsRandomStrong.overchargingRate 20.0
+weapon.fireballsRandomStrong.reloadTime 0.5
+weapon.fireballsRandomStrong.initPower 60
+
+action.spawn player.frankenstein 0 -30.0 0.0 4 weapon.fireballsRandom
+action.spawn player.frankenstein 1 -30.0 0.0 4 weapon.sparkingNearest
 
 action.spawn enemy.ghost -10.0 0.0 20 weapon.sparkingNearestShort
-action.spawn enemy.chicken 10.0 0.0 5 weapon.fireballsRandom
+action.spawn enemy.chicken 10.0 0.0 5 weapon.fireballsRandomStrong weapon.sparkingNearest
 action.spawn enemy.zombie 5.0 -10.0 20 weapon.sparkingNearestShort
 action.spawn enemy.hive 0.0 10.0 50 weapon.sparkingNearestShort
 action.spawn enemy.gargoyleTwoLegs -10.0 -10.0 10 weapon.sparkingNearestShort
