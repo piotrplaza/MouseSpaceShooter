@@ -1136,11 +1136,13 @@ namespace Levels::DamageOn
 				}
 				else
 				{
-					soundLimitters(playerTarget).kills->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(enemyKillSoundBufferId, false), targetActor.getOrigin2D(), [&](auto& sound) {
-						sound.setPitch(glm::linearRand(basePitch, basePitch * 2.0f));
-						sound.setVolume(0.7f);
-						sound.setRemoveOnStop(true);
-					}));
+					detonate(targetActor, false, 1.0f, 0.0f, { 1.0f, 0.0f, 0.0f, 1.0f }, 5.0f * targetInst.radius, [&]() -> auto& {
+						return Tools::CreateAndPlaySound(CM::SoundBuffer(enemyKillSoundBufferId, false), targetActor.getOrigin2D(), [basePitch](auto& sound) {
+							sound.setPitch(glm::linearRand(basePitch, basePitch * 2.0f));
+							sound.setVolume(0.7f);
+							sound.setRemoveOnStop(true);
+						});
+					});
 
 					std::vector<WeaponType*> weaponTypes;
 					weaponTypes.reserve(targetInst.weaponIds.size());
@@ -1433,7 +1435,7 @@ namespace Levels::DamageOn
 			}
 		}
 
-		void detonate(auto& actor, bool playerSource, float power, float damage, glm::vec4 color = glm::vec4(0.5f))
+		void detonate(auto& actor, bool playerSource, float power, float damage, glm::vec4 color = glm::vec4(0.5f), float presentationScaleFactor = 20.0f, std::function<Components::Sound&()> customCreateAndPlaySoundF = nullptr)
 		{
 			Tools::ExplosionParams explosionParams;
 			if (playerSource)
@@ -1456,13 +1458,15 @@ namespace Levels::DamageOn
 			const float explosionPower = power / 100.0f;
 			Tools::CreateExplosion(explosionParams.center(actor.getMassCenter()).explosionTexture(CM::Texture(explosionTextureId, true))
 				.numOfParticles(int(std::max(32 * explosionPower, 3.0f))).particlesRadius(1.0f).particlesDensity(10.0f * explosionPower).particlesAsBullets(false)
-				.initExplosionVelocity(200.0f * explosionPower).explosionDuration(std::max(2.0f * explosionPower, 0.5f)).particlesPerDecoration(1).color(color));
+				.initExplosionVelocity(200.0f * explosionPower).explosionDuration(std::max(2.0f * explosionPower, 0.5f)).particlesPerDecoration(1).color(color).presentationScaleFactor(presentationScaleFactor));
 
-			soundLimitters(playerSource).kills->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(explosionSoundBufferId, false), actor.getOrigin2D(), [explosionPower](auto& sound) {
-				sound.setPitch(glm::linearRand(1.0f, 2.0f) / sqrt(explosionPower));
-				sound.setVolume(sqrt(explosionPower));
-				sound.setRemoveOnStop(true);
-			}));
+			soundLimitters(playerSource).kills->newSound(customCreateAndPlaySoundF
+				? customCreateAndPlaySoundF()
+				: Tools::CreateAndPlaySound(CM::SoundBuffer(explosionSoundBufferId, false), actor.getOrigin2D(), [explosionPower](auto& sound) {
+					sound.setPitch(glm::linearRand(1.0f, 2.0f) / sqrt(explosionPower));
+					sound.setVolume(sqrt(explosionPower));
+					sound.setRemoveOnStop(true);
+				}));
 		}
 
 		void loadParams()

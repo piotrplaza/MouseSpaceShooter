@@ -185,35 +185,31 @@ namespace Tools
 
 		missile.texture = missileTexture;
 
-		missile.renderingSetupF = [
-			modelUniform = UniformsUtils::UniformMat4f(), &body](ShadersUtils::ProgramId program) mutable
-			{
-				if (!modelUniform.isValid()) modelUniform = UniformsUtils::UniformMat4f(program, "model");
-				modelUniform(Tools::GetModelMatrix(body));
-				return nullptr;
-			};
+		missile.renderingSetupF = [modelUniform = UniformsUtils::UniformMat4f(), &body](ShadersUtils::ProgramId program) mutable {
+			if (!modelUniform.isValid()) modelUniform = UniformsUtils::UniformMat4f(program, "model");
+			modelUniform(Tools::GetModelMatrix(body));
+			return nullptr;
+		};
 
 		missile.renderLayer = RenderLayer::FarMidground;
 
 		auto& decoration = Globals::Components().decorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
 			thrustAnimatedTexture, Tools::Shapes2D::CreateTexCoordOfRectangle());
 
-		decoration.renderingSetupF = [&, modelUniform = UniformsUtils::UniformMat4f(),
-			thrustScale = 0.1f
-		](ShadersUtils::ProgramId program) mutable {
-				if (!modelUniform.isValid()) modelUniform = UniformsUtils::UniformMat4f(program, "model");
-				modelUniform(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*missile.body),
-					{ -0.5f, 0.0f, 0.0f }),
-					-glm::half_pi<float>(), { 0.0f, 0.0f, 1.0f }),
-					{ std::min(thrustScale * 0.2f, 0.3f), thrustScale, 1.0f }));
+		decoration.renderingSetupF = [&, modelUniform = UniformsUtils::UniformMat4f(), thrustScale = 0.1f](ShadersUtils::ProgramId program) mutable {
+			if (!modelUniform.isValid()) modelUniform = UniformsUtils::UniformMat4f(program, "model");
+			modelUniform(glm::scale(glm::rotate(glm::translate(Tools::GetModelMatrix(*missile.body),
+				{ -0.5f, 0.0f, 0.0f }),
+				-glm::half_pi<float>(), { 0.0f, 0.0f, 1.0f }),
+				{ std::min(thrustScale * 0.2f, 0.3f), thrustScale, 1.0f }));
 
-				const float targetFrameDurationFactor = Globals::Components().physics().frameDuration * 6.0f;
-				thrustScale = std::min(thrustScale * (1.0f + targetFrameDurationFactor), 3.0f);
+			const float targetFrameDurationFactor = Globals::Components().physics().frameDuration * 6.0f;
+			thrustScale = std::min(thrustScale * (1.0f + targetFrameDurationFactor), 3.0f);
 
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
-			};
+			return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+		};
 
 		decoration.renderLayer = RenderLayer::FarMidground;
 
@@ -236,7 +232,7 @@ namespace Tools
 	{
 		auto& particlesShaders = Globals::Shaders().particles();
 
-		Globals::Components().deferredActions().emplace([=, &particlesShaders](float) {
+		auto explosionF = [&, params]() {
 			auto& shockwave = Globals::Components().shockwaves().emplace(params.center_, params.sourceVelocity_, params.numOfParticles_, params.initExplosionVelocity_,
 				params.initExplosionVelocityRandomMinFactor_, params.particlesRadius_, params.particlesDensity_, params.particlesLinearDamping_, params.particlesAsBullets_);
 			auto& explosionDecoration = Globals::Components().decorations().emplace();
@@ -245,27 +241,25 @@ namespace Tools
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 
-			explosionDecoration.renderingSetupF = [=, startTime = Globals::Components().physics().simulationDuration,
-				&particlesShaders](ShadersUtils::ProgramId program) mutable
-				{
-					particlesShaders.vp(Globals::Components().mvp2D().getVP());
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, params.explosionTexture_.component->loaded.textureObject);
-					particlesShaders.texture0(0);
+			explosionDecoration.renderingSetupF = [params, startTime = Globals::Components().physics().simulationDuration, &particlesShaders](ShadersUtils::ProgramId program) mutable {
+				particlesShaders.vp(Globals::Components().mvp2D().getVP());
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, params.explosionTexture_.component->loaded.textureObject);
+				particlesShaders.texture0(0);
 
-					const float elapsed = Globals::Components().physics().simulationDuration - startTime;
-					particlesShaders.color(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (params.explosionDuration_ * 2.0f), 10.0f)), 1.0f) * params.color_);
+				const float elapsed = Globals::Components().physics().simulationDuration - startTime;
+				particlesShaders.color(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (params.explosionDuration_ * 2.0f), 10.0f)), 1.0f) * params.color_);
 
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-					return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
-				};
+				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+			};
 
 			explosionDecoration.renderLayer = RenderLayer::FarForeground;
 
-			shockwave.stepF = [=, startTime = Globals::Components().physics().simulationDuration, &shockwave, &explosionDecoration]() {
+			shockwave.stepF = [params, startTime = Globals::Components().physics().simulationDuration, &shockwave, &explosionDecoration]() {
 				const float elapsed = Globals::Components().physics().simulationDuration - startTime;
-				const float scale = 1.0f + elapsed * 20.0f;
+				const float scale = params.presentationInitScale_ + elapsed * params.presentationScaleFactor_;
 
 				if (elapsed > params.explosionDuration_)
 				{
@@ -286,7 +280,7 @@ namespace Tools
 				explosionDecoration.state = ComponentState::Changed;
 			};
 
-			shockwave.deferredTeardownF = [&, prevDeferredTeardownF = std::move(shockwave.deferredTeardownF)]() {
+			shockwave.deferredTeardownF = [prevDeferredTeardownF = std::move(shockwave.deferredTeardownF), &explosionDecoration]() {
 				if (prevDeferredTeardownF)
 					prevDeferredTeardownF();
 				explosionDecoration.state = ComponentState::Outdated;
@@ -294,9 +288,12 @@ namespace Tools
 
 			if (params.beginCallback_)
 				params.beginCallback_(shockwave);
+		};
 
-			return false;
-		});
+		if (params.deferredExectution_)
+			Globals::Components().deferredActions().emplace([explosionF = std::move(explosionF)](float) { explosionF(); return false; });
+		else
+			explosionF();
 	}
 
 	void CreateFogForeground(int numOfLayers, float alphaPerLayer, CM::Texture fogTexture, FVec4 fColor, std::function<glm::vec2(int layer)> textureTranslation)

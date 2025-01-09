@@ -72,11 +72,11 @@
 const bool debugFullscreen = false;
 const bool releaseFullscreen = true;
 const bool devFullScreen = true;
-const bool console = true;
+const bool console = false;
 const bool glDebug = false;
 const GLenum glDebugMinSeverity = GL_DEBUG_SEVERITY_LOW;
 const glm::ivec2 windowRes = { 1920, 1080 }; 
-const glm::ivec2 consolePos = { -1000, 10 };
+const glm::ivec2 consolePos = { 3850, 10 };
 
 const struct
 {

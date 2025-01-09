@@ -90,6 +90,12 @@ namespace Tools
 			return *this;
 		}
 
+		ExplosionParams& deferredExectution(bool value)
+		{
+			deferredExectution_ = value;
+			return *this;
+		}
+
 		ExplosionParams& explosionDuration(float value)
 		{
 			explosionDuration_ = value;
@@ -105,6 +111,18 @@ namespace Tools
 		ExplosionParams& particlesPerDecoration(int value)
 		{
 			particlesPerDecoration_ = value;
+			return *this;
+		}
+
+		ExplosionParams& presentationInitScale(float value)
+		{
+			presentationInitScale_ = value;
+			return *this;
+		}
+
+		ExplosionParams& presentationScaleFactor(float value)
+		{
+			presentationScaleFactor_ = value;
 			return *this;
 		}
 
@@ -141,9 +159,12 @@ namespace Tools
 		float particlesDensity_ = 0.01f;
 		float particlesLinearDamping_ = 3.0f;
 		bool particlesAsBullets_ = false;
+		bool deferredExectution_ = true;
 		float explosionDuration_ = 1.0f;
 		CM::Texture explosionTexture_;
 		int particlesPerDecoration_ = 4;
+		float presentationInitScale_ = 1.0f;
+		float presentationScaleFactor_ = 20.0f;
 		glm::vec4 color_ = glm::vec4(1.0f);
 		ResolutionMode resolutionMode_{};
 		std::function<void(Components::Shockwave&)> beginCallback_;

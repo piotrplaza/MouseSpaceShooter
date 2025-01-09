@@ -17,10 +17,9 @@ namespace Tools
 
 		for (auto& component : components.underlyingContainer() | std::views::drop(offset))
 		{
-			if (component.state == ComponentState::Ongoing)
+			if (component.state == ComponentState::Ongoing || component.state == ComponentState::Outdated)
 				continue;
-			if (component.state == ComponentState::Outdated)
-				continue;
+
 			assert(component.state != ComponentState::LastShot);
 
 			auto& selectedBuffers = [&, layer = (size_t)component.renderLayer]() -> auto& {
@@ -51,43 +50,35 @@ namespace Tools
 
 		for (auto& component : components)
 		{
-			if (component.state == ComponentState::Ongoing)
+			if (component.state == ComponentState::Ongoing || component.state == ComponentState::Outdated)
 				continue;
 
 			// TODO: What if the layer or shader type was changed? Prob leak.
 			const auto layer = (size_t)component.renderLayer;
-			auto& mapOfSelectedBuffers = [&]() -> auto&
+			auto& mapOfSelectedBuffers = [&]() -> auto& {
+				if (component.customShadersProgram)
+					return dynamicBuffers.customShaders[layer];
+				else if (component.params3D)
 				{
-					if (component.customShadersProgram)
-						return dynamicBuffers.customShaders[layer];
-					else if (component.params3D)
-					{
-						if (std::holds_alternative<std::monostate>(component.texture))
-							return dynamicBuffers.basicPhong[layer];
-						else
-							return dynamicBuffers.texturedPhong[layer];
-					}
-					else if (std::holds_alternative<std::monostate>(component.texture))
-						return dynamicBuffers.basic[layer];
+					if (std::holds_alternative<std::monostate>(component.texture))
+						return dynamicBuffers.basicPhong[layer];
 					else
-						return dynamicBuffers.textured[layer];
-				}();
-
-			if (component.state == ComponentState::Outdated)
+						return dynamicBuffers.texturedPhong[layer];
+				}
+				else if (std::holds_alternative<std::monostate>(component.texture))
+					return dynamicBuffers.basic[layer];
+				else
+					return dynamicBuffers.textured[layer];
+			}();
+			 
+			if (!component.loaded.buffers)
 			{
 				component.deferredTeardownF = [&, prevDeferredTeardownF = std::move(component.deferredTeardownF)]() {
 					if (prevDeferredTeardownF)
 						prevDeferredTeardownF();
 					mapOfSelectedBuffers.erase(component.getComponentId());
 				};
-				continue;
 			}
-			if (component.state == ComponentState::LastShot)
-				component.deferredTeardownF = [&, prevDeferredTeardownF = std::move(component.deferredTeardownF)]() {
-					if (prevDeferredTeardownF)
-						prevDeferredTeardownF();
-					mapOfSelectedBuffers.erase(component.getComponentId());
-				};
 
 			auto& selectedBuffers = mapOfSelectedBuffers[component.getComponentId()];
 			selectedBuffers.applyComponent(component, false);

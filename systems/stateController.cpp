@@ -80,6 +80,9 @@ namespace Systems
 
 	void StateController::changeWindowSize(glm::ivec2 size) const
 	{
+		if (size.x <= 0 || size.y <= 0)
+			return;
+
 		auto& screenInfo = Globals::Components().systemInfo().screen;
 		auto& framebuffers = Globals::Components().framebuffers();
 
