@@ -24,7 +24,7 @@ level.debris.heightRatioRange 1.6, 2.0
 level.debris.angleRange 0.0, 3.14159
 level.debris.density 20.0
 
-player.frankenstein.initHP 500.0
+player.frankenstein.hp 500.0
 player.frankenstein.radius 1.0
 player.frankenstein.baseVelocity 8.0
 player.frankenstein.slowFactor 0.95
@@ -56,8 +56,8 @@ player.frankenstein.animation.frameRotation 0.0
 player.frankenstein.animation.frameScale 1.5 1.5
 player.frankenstein.animation.neutralFrame 35
 
-enemy.ghost.initHP 10.0
-enemy.ghost.initRadiusRange 0.4 0.8
+enemy.ghost.hp 10.0
+enemy.ghost.radiusRange 0.4 0.8
 enemy.ghost.density 0.5
 enemy.ghost.baseVelocity 2.0
 enemy.ghost.boostDistance 15.0
@@ -91,8 +91,8 @@ enemy.ghost.animation.frameRotation 0.0
 enemy.ghost.animation.frameScale 1.0 1.0
 enemy.ghost.animation.neutralFrame 0
 
-enemy.chicken.initHP 50.0
-enemy.chicken.initRadiusRange 1.5 2.0
+enemy.chicken.hp 50.0
+enemy.chicken.radiusRange 1.5 2.0
 enemy.chicken.density 0.2
 enemy.chicken.baseVelocity 4.0
 enemy.chicken.boostDistance 15.0
@@ -126,8 +126,8 @@ enemy.chicken.animation.frameRotation 0.0
 enemy.chicken.animation.frameScale 1.275 1.275
 enemy.chicken.animation.neutralFrame 0
 
-enemy.zombie.initHP 20.0
-enemy.zombie.initRadiusRange 0.8 1.2
+enemy.zombie.hp 20.0
+enemy.zombie.radiusRange 0.8 1.2
 enemy.zombie.density 0.2
 enemy.zombie.baseVelocity 1.5
 enemy.zombie.boostDistance 15.0
@@ -161,8 +161,8 @@ enemy.zombie.animation.frameRotation 0.0
 enemy.zombie.animation.frameScale 0.88 0.88
 enemy.zombie.animation.neutralFrame 0
 
-enemy.hive.initHP 20.0
-enemy.hive.initRadiusRange 1.0 1.5
+enemy.hive.hp 20.0
+enemy.hive.radiusRange 1.0 1.5
 enemy.hive.density 0.2
 enemy.hive.baseVelocity 1.5
 enemy.hive.boostDistance 15.0
@@ -196,8 +196,8 @@ enemy.hive.animation.frameRotation 0.0
 enemy.hive.animation.frameScale 0.88 0.88
 enemy.hive.animation.neutralFrame 0
 
-enemy.gargoyleTwoLegs.initHP 50.0
-enemy.gargoyleTwoLegs.initRadiusRange 1.0 1.5
+enemy.gargoyleTwoLegs.hp 50.0
+enemy.gargoyleTwoLegs.radiusRange 1.0 1.5
 enemy.gargoyleTwoLegs.density 0.2
 enemy.gargoyleTwoLegs.baseVelocity 1.8
 enemy.gargoyleTwoLegs.boostDistance 15.0
@@ -232,8 +232,8 @@ enemy.gargoyleTwoLegs.animation.frameRotation 0.0
 enemy.gargoyleTwoLegs.animation.frameScale 0.88 0.88
 enemy.gargoyleTwoLegs.animation.neutralFrame 0
 
-enemy.gargoyleFourLegs.initHP 50.0
-enemy.gargoyleFourLegs.initRadiusRange 1.0 1.5
+enemy.gargoyleFourLegs.hp 50.0
+enemy.gargoyleFourLegs.radiusRange 1.0 1.5
 enemy.gargoyleFourLegs.density 0.2
 enemy.gargoyleFourLegs.baseVelocity 1.8
 enemy.gargoyleFourLegs.boostDistance 15.0
@@ -268,8 +268,8 @@ enemy.gargoyleFourLegs.animation.frameRotation 0.0
 enemy.gargoyleFourLegs.animation.frameScale 0.88 0.88
 enemy.gargoyleFourLegs.animation.neutralFrame 0
 
-enemy.monk.initHP 20.0
-enemy.monk.initRadiusRange 1.5 2.0
+enemy.monk.hp 20.0
+enemy.monk.radiusRange 1.5 2.0
 enemy.monk.density 0.2
 enemy.monk.baseVelocity 1.5
 enemy.monk.boostDistance 15.0
@@ -303,8 +303,8 @@ enemy.monk.animation.frameRotation 0.0
 enemy.monk.animation.frameScale 0.88 0.88
 enemy.monk.animation.neutralFrame 0
 
-enemy.bird.initHP 20.0
-enemy.bird.initRadiusRange 1.0 1.5
+enemy.bird.hp 20.0
+enemy.bird.radiusRange 1.0 1.5
 enemy.bird.density 0.2
 enemy.bird.baseVelocity 1.5
 enemy.bird.boostDistance 15.0
@@ -343,43 +343,51 @@ weapon.sparkingNearest.distance 20.0
 weapon.sparkingNearest.damageFactor 10.0
 weapon.sparkingNearest.overchargingRate 0.3
 weapon.sparkingNearest.reloadTime 0.0
-weapon.sparkingNearest.initPower 20
-
-weapon.sparkingRandom.archetype sparkingRandom
-weapon.sparkingRandom.distance 20.0
-weapon.sparkingRandom.damageFactor 10.0
-weapon.sparkingRandom.overchargingRate 0.3
-weapon.sparkingRandom.reloadTime 0.0
-weapon.sparkingRandom.initPower 1
+weapon.sparkingNearest.power 20.0
 
 weapon.sparkingNearestShort.archetype sparkingNearest
 weapon.sparkingNearestShort.distance 4.0
 weapon.sparkingNearestShort.damageFactor 10.0
 weapon.sparkingNearestShort.overchargingRate 1.0
 weapon.sparkingNearestShort.reloadTime 0.0
-weapon.sparkingNearestShort.initPower 20
+weapon.sparkingNearestShort.power 20.0
+
+weapon.lightning.archetype lightning
+weapon.lightning.distance 20.0
+weapon.lightning.damageFactor 500.0
+weapon.lightning.overchargingRate 0.3
+weapon.lightning.reloadTime 0.5
+weapon.lightning.power 10.0
+
+weapon.lightningShort.archetype lightning
+weapon.lightningShort.distance 10.0
+weapon.lightningShort.damageFactor 500.0
+weapon.lightningShort.overchargingRate 0.3
+weapon.lightningShort.reloadTime 0.5
+weapon.lightningShort.power 10.0
 
 weapon.fireballsRandom.archetype fireballsRandom
 weapon.fireballsRandom.distance 20.0
 weapon.fireballsRandom.damageFactor 5.0
 weapon.fireballsRandom.overchargingRate 20.0
 weapon.fireballsRandom.reloadTime 0.5
-weapon.fireballsRandom.initPower 40
+weapon.fireballsRandom.power 40.0
 
 weapon.fireballsRandomStrong.archetype fireballsRandom
 weapon.fireballsRandomStrong.distance 20.0
 weapon.fireballsRandomStrong.damageFactor 100.0
 weapon.fireballsRandomStrong.overchargingRate 20.0
 weapon.fireballsRandomStrong.reloadTime 0.5
-weapon.fireballsRandomStrong.initPower 60
+weapon.fireballsRandomStrong.power 60.0
 
-action.spawn player.frankenstein 0 -30.0 0.0 4 weapon.fireballsRandom
-action.spawn player.frankenstein 1 -30.0 0.0 4 weapon.sparkingNearest
+action.spawn player.frankenstein 0 -30.0 0.0 3 weapon.fireballsRandom
+action.spawn player.frankenstein 1 -30.0 0.0 3 weapon.sparkingNearest
+action.spawn player.frankenstein 2 -30.0 0.0 3 weapon.lightning
 
 action.spawn enemy.ghost -10.0 0.0 20 weapon.sparkingNearestShort
 action.spawn enemy.chicken 10.0 0.0 5 weapon.fireballsRandomStrong weapon.sparkingNearest
 action.spawn enemy.zombie 5.0 -10.0 20 weapon.sparkingNearestShort
-action.spawn enemy.hive 0.0 10.0 50 weapon.sparkingNearestShort
+action.spawn enemy.hive 0.0 10.0 50 weapon.sparkingNearestShort weapon.lightningShort
 action.spawn enemy.gargoyleTwoLegs -10.0 -10.0 10 weapon.sparkingNearestShort
 action.spawn enemy.gargoyleFourLegs -10.0 -10.0 10 weapon.sparkingNearestShort
 action.spawn enemy.monk -5.0 0.0 5 weapon.sparkingNearestShort

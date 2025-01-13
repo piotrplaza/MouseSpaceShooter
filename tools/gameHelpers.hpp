@@ -6,6 +6,7 @@
 #include <commonTypes/resolutionMode.hpp>
 #include <commonTypes/componentId.hpp>
 #include <commonTypes/fTypes.hpp>
+#include <commonTypes/renderLayer.hpp>
 
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
@@ -90,6 +91,12 @@ namespace Tools
 			return *this;
 		}
 
+		ExplosionParams& particlesAsSensors(bool value)
+		{
+			particlesAsSensors_ = value;
+			return *this;
+		}
+
 		ExplosionParams& deferredExectution(bool value)
 		{
 			deferredExectution_ = value;
@@ -138,6 +145,12 @@ namespace Tools
 			return *this;
 		}
 
+		ExplosionParams& renderLayer(RenderLayer value)
+		{
+			renderLayer_ = value;
+			return *this;
+		}
+
 		ExplosionParams& resolutionMode(ResolutionMode value)
 		{
 			resolutionMode_ = value;
@@ -165,6 +178,7 @@ namespace Tools
 		float particlesDensity_ = 0.01f;
 		float particlesLinearDamping_ = 3.0f;
 		bool particlesAsBullets_ = false;
+		bool particlesAsSensors_ = false;
 		bool deferredExectution_ = true;
 		float explosionDuration_ = 1.0f;
 		CM::Texture explosionTexture_;
@@ -173,6 +187,7 @@ namespace Tools
 		float presentationScaleFactor_ = 20.0f;
 		glm::vec4 color_ = glm::vec4(1.0f);
 		bool additiveBlending_ = true;
+		RenderLayer renderLayer_ = RenderLayer::FarForeground;
 		ResolutionMode resolutionMode_{};
 		std::function<void(Components::Shockwave&)> beginCallback_;
 		std::function<void(Components::Shockwave&)> endCallback_;

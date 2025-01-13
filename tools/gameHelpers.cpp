@@ -234,7 +234,7 @@ namespace Tools
 
 		auto explosionF = [&, params]() {
 			auto& shockwave = Globals::Components().shockwaves().emplace(params.center_, params.sourceVelocity_, params.numOfParticles_, params.initExplosionVelocity_,
-				params.initExplosionVelocityRandomMinFactor_, params.particlesRadius_, params.particlesDensity_, params.particlesLinearDamping_, params.particlesAsBullets_);
+				params.initExplosionVelocityRandomMinFactor_, params.particlesRadius_, params.particlesDensity_, params.particlesLinearDamping_, params.particlesAsBullets_, params.particlesAsSensors_);
 			auto& explosionDecoration = Globals::Components().decorations().emplace();
 			explosionDecoration.customShadersProgram = particlesShaders.getProgramId();
 			explosionDecoration.resolutionMode = params.resolutionMode_;
@@ -262,7 +262,7 @@ namespace Tools
 				}
 			};
 
-			explosionDecoration.renderLayer = RenderLayer::FarForeground;
+			explosionDecoration.renderLayer = params.renderLayer_;
 
 			shockwave.stepF = [params, startTime = Globals::Components().physics().simulationDuration, &shockwave, &explosionDecoration]() {
 				const float elapsed = Globals::Components().physics().simulationDuration - startTime;

@@ -46,6 +46,7 @@
 #include <format>
 #include <algorithm>
 #include <numeric>
+#include <random>
 
 using namespace std::string_literals;
 
@@ -136,6 +137,7 @@ namespace Levels::DamageOn
 			enemyKillSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav", 0.8f).getComponentId();
 			explosionSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Detonate.wav", 0.75f).getComponentId();
 			thrustSoundBufferId = soundsBuffers.emplace("audio/thrust.wav", 1.0f).getComponentId();
+			thunderSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Thunder.wav", 0.5f).getComponentId();
 
 			Tools::CreateFogForeground(5, 0.05f, CM::Texture(fogTextureId, true), glm::vec4(1.0f), [x = 0.0f](int layer) mutable {
 				(void)layer;
@@ -296,10 +298,14 @@ namespace Levels::DamageOn
 
 			for (auto& [typeName, type] : weaponGameComponents.typeNamesToTypes)
 			{
+				if (type.params.archetype == "sparkingNearest" || type.params.archetype == "lightning")
+					type.cache.decoration.drawMode = GL_LINES;
+				else
+					type.cache.decoration.drawMode = GL_TRIANGLES;
+
+				type.cache.decoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 				type.cache.decoration.vertices.clear();
 				type.cache.decoration.colors.clear();
-				type.cache.decoration.bufferDataUsage = GL_DYNAMIC_DRAW;
-				type.cache.decoration.drawMode = GL_LINES;
 				type.cache.decoration.state = ComponentState::Changed;
 			}
 
@@ -405,16 +411,18 @@ namespace Levels::DamageOn
 					weaponsPostStep(playerInst);
 				});
 
-				std::map<float, EnemyType::Inst*> enemiesByDistance;
+				std::multimap<float, EnemyType::Inst*> enemiesByDistance;
 				for (auto& [enemyId, enemyInst] : enemyGameComponents.idsToInst)
-					enemiesByDistance[glm::distance(playerInst.actor.getOrigin2D(), enemyInst.actor.getOrigin2D())] = &enemyInst;
+					enemiesByDistance.emplace(glm::distance(playerInst.actor.getOrigin2D(), enemyInst.actor.getOrigin2D()), &enemyInst);
 
-				const int randomEnemySeq = enemiesByDistance.empty() ? -1 : glm::linearRand(0, (int)enemiesByDistance.size() - 1);
+				const unsigned seed = std::random_device()();
+				auto enemySeqsByDistance = std::make_shared<std::multimap<float, int>>();
 				int enemySeq = 0;
 				for (auto& [distance, enemyInst] : enemiesByDistance)
 				{
-					deferredWeaponsSteps.push_back([&, &enemyInst = *enemyInst, enemySeq, randomEnemySeq]() {
-						weaponsStep(playerInst, enemyInst, enemySeq, randomEnemySeq);
+					enemySeqsByDistance->emplace(distance, enemySeq);
+					deferredWeaponsSteps.push_back([&, &enemyInst = *enemyInst, enemySeq, enemySeqsByDistance, seed]() {
+						weaponsStep(playerInst, enemyInst, enemySeq, *enemySeqsByDistance, seed);
 					});
 					++enemySeq;
 				}
@@ -435,9 +443,9 @@ namespace Levels::DamageOn
 					weaponsPostStep(enemyInst);
 				});
 
-				std::map<float, PlayerType::Inst*> playersByDistance;
+				std::multimap<float, PlayerType::Inst*> playersByDistance;
 				for (auto& [playerId, playerInst]: playerGameComponents.idsToInst)
-					playersByDistance[glm::distance(enemyInst.actor.getOrigin2D(), playerInst.actor.getOrigin2D())] = &playerInst;
+					playersByDistance.emplace(glm::distance(enemyInst.actor.getOrigin2D(), playerInst.actor.getOrigin2D()), &playerInst);
 
 				bool anyLivePlayer = false;
 				for (auto& [distance, playerInst] : playersByDistance)
@@ -458,13 +466,15 @@ namespace Levels::DamageOn
 					enemyInst.sideFactor = enemyInst.actor.getVelocity().x < 0.0f ? -1.0f : 1.0f;
 					continue;
 				}
-
-				const int randomPlayerSeq = playersByDistance.empty() ? -1 : glm::linearRand(0, (int)playersByDistance.size() - 1);
+				
+				const unsigned seed = std::random_device()();
+				auto playerSeqsByDistance = std::make_shared<std::multimap<float, int>>();
 				int playerSeq = 0;
 				for (auto& [distance, playerInst] : playersByDistance)
 				{
-					deferredWeaponsSteps.push_back([&, &playerInst = *playerInst, playerSeq, randomPlayerSeq]() {
-						weaponsStep(enemyInst, playerInst, playerSeq, randomPlayerSeq);
+					playerSeqsByDistance->emplace(distance, playerSeq);
+					deferredWeaponsSteps.push_back([&, &playerInst = *playerInst, playerSeq, playerSeqsByDistance, seed]() {
+						weaponsStep(enemyInst, playerInst, playerSeq, *playerSeqsByDistance, seed);
 					});
 					++playerSeq;
 				}
@@ -647,7 +657,7 @@ namespace Levels::DamageOn
 			{
 				std::string typeName;
 
-				float initHP{};
+				float hp{};
 				float radius{};
 				float baseVelocity{};
 				float density{};
@@ -669,7 +679,7 @@ namespace Levels::DamageOn
 					actor(actor),
 					animatedTexture(animatedTexture),
 					weaponGameComponents(weaponGameComponents),
-					hp(type.params.initHP)
+					hp(type.params.hp)
 				{
 				}
 
@@ -743,10 +753,10 @@ namespace Levels::DamageOn
 		{
 			struct Params
 			{
-				std::string typeName{};
+				std::string typeName;
 
-				float initHP{};
-				glm::vec2 initRadiusRange{};
+				float hp{};
+				glm::vec2 radiusRange{};
 				float density{};
 				float baseVelocity{};
 				float boostDistance{};
@@ -769,7 +779,7 @@ namespace Levels::DamageOn
 					actor(actor),
 					animatedTexture(animatedTexture),
 					weaponGameComponents(weaponGameComponents),
-					hp(type.params.initHP)
+					hp(type.params.hp)
 				{
 				}
 
@@ -843,14 +853,15 @@ namespace Levels::DamageOn
 		{
 			struct Params
 			{
-				std::string typeName{};
+				std::string typeName;
 
 				std::string archetype;
-				float distance;
-				float damageFactor;
-				float overchargingRate;
-				float reloadTime;
-				int initPower;
+				float distance{};
+				float damageFactor{};
+				float overchargingRate{};
+				float reloadTime{};
+				float shotDuration{};
+				float power{};
 			} params;
 
 			struct CacheBase
@@ -883,10 +894,10 @@ namespace Levels::DamageOn
 
 			struct InstBase
 			{
-				InstBase(int instanceId, WeaponType& type, int initPower) :
+				InstBase(int instanceId, WeaponType& type) :
 					instanceId(instanceId),
 					type(type),
-					power((float)initPower)
+					power(type.params.power)
 				{
 				}
 
@@ -894,7 +905,7 @@ namespace Levels::DamageOn
 				WeaponType& type;
 
 				float power{};
-				bool justShot{};
+				int shotCounter{};
 				float lastShotTime{ -std::numeric_limits<float>::infinity() };
 				bool shoting{};
 
@@ -1080,36 +1091,68 @@ namespace Levels::DamageOn
 
 		void addWeapon(auto& actorInst, WeaponType& weaponType)
 		{
-			auto& weaponInst = weaponGameComponents.emplaceInstance(weaponType, weaponType.params.initPower);
+			auto& weaponInst = weaponGameComponents.emplaceInstance(weaponType);
 			actorInst.weaponIds.insert(weaponInst.instanceId);
 		}
 
-		void weaponsStep(auto& sourceInst, auto& targetInst, int targetSeq, int randomTargetSeq)
+		enum class WeaponHandlerResult { Skip, Shot, FinalShot };
+
+		void weaponsStep(auto& sourceInst, auto& targetInst, int targetSeq, const auto& targetSeqsByDistance, unsigned seed)
 		{
+			const auto& physics = Globals::Components().physics();
 			const auto& sourceActor = sourceInst.actor;
 			auto& targetType = targetInst.type;
 			auto& targetActor = targetInst.actor; 
 
 			if (sourceActor.isEnabled() && targetActor.isEnabled())
 			{
+				const auto direction = targetActor.getOrigin2D() - sourceInst.actor.getOrigin2D();
+				const auto distance = glm::length(direction);
+				const auto fire = sourceInst.fire || sourceInst.autoFire;
+
 				for (auto weaponId : sourceInst.weaponIds)
 				{
 					auto& weaponInst = weaponGameComponents.idsToInst.at(weaponId);
 					auto& weaponType = weaponInst.type;
-					const auto direction = targetActor.getOrigin2D() - sourceInst.actor.getOrigin2D();
-					const auto distance = glm::length(direction);
-					const auto fire = sourceInst.fire || sourceInst.autoFire;
 
-					if (fire && distance <= weaponType.params.distance && !sourceInst.manaOvercharged)
+					if (fire && distance <= weaponType.params.distance && !sourceInst.manaOvercharged && physics.simulationDuration - weaponInst.lastShotTime >=  weaponInst.type.params.reloadTime)
 					{
+						std::mt19937 randomGenerator(seed);
+						std::vector<int> shuffledTargetSeqsInRange(std::distance(targetSeqsByDistance.begin(), targetSeqsByDistance.upper_bound(weaponType.params.distance)));
+						std::iota(shuffledTargetSeqsInRange.begin(), shuffledTargetSeqsInRange.end(), 0);
+						std::shuffle(shuffledTargetSeqsInRange.begin(), shuffledTargetSeqsInRange.end(), randomGenerator);
+						std::unordered_map<int, int> shuffledInRangeTargetSeqsMapping;
+						{
+							auto itVec = shuffledTargetSeqsInRange.begin();
+							auto itMap = targetSeqsByDistance.begin();
+							for (; itVec != shuffledTargetSeqsInRange.end(); ++itVec, ++itMap)
+								shuffledInRangeTargetSeqsMapping[itMap->second] = *itVec;
+						}
+
+						//for (const auto& [k, v] : shuffledInRangeTargetSeqsMapping)
+						//	std::cout << k << ":" << v << " ";
+						//std::cout << "; " << targetSeq;
+
+						WeaponHandlerResult handlerResult = WeaponHandlerResult::Skip;
 						if (weaponType.params.archetype == "sparkingNearest")
-							sparkingNearestHandler(sourceInst, targetInst, weaponInst, distance, targetSeq);
-						else if (weaponType.params.archetype == "sparkingRandom")
-							sparkingRandomHandler(sourceInst, targetInst, weaponInst, distance);
+							handlerResult = sparkingNearestHandler(sourceInst, targetInst, weaponInst, distance, targetSeq);
+						else if (weaponType.params.archetype == "lightning")
+							handlerResult = lightningHandler(sourceInst, targetInst, weaponInst, targetSeq, shuffledInRangeTargetSeqsMapping);
 						else if (weaponType.params.archetype == "fireballsRandom")
-							fireballsHandler(sourceInst, targetInst, weaponInst, direction, targetSeq, randomTargetSeq);
+							handlerResult = fireballsHandler(sourceInst, targetInst, weaponInst, direction, targetSeq, shuffledInRangeTargetSeqsMapping);
 						else
 							throw std::runtime_error("Unknown weapon archetype: " + weaponType.params.archetype);
+
+						if (handlerResult != WeaponHandlerResult::Skip)
+							++weaponInst.shotCounter;
+
+						//std::cout << "; " << weaponInst.shotCounter << "; " << (int)handlerResult << std::endl;
+
+						if (handlerResult == WeaponHandlerResult::FinalShot)
+						{
+							weaponInst.lastShotTime = physics.simulationDuration;
+							//std::cout << std::endl;
+						}
 					}
 				}
 			}
@@ -1122,7 +1165,7 @@ namespace Levels::DamageOn
 					if constexpr (playerTarget)
 						return 1.0f;
 					else
-						return ((targetType.params.initRadiusRange.x + targetType.params.initRadiusRange.y) / 2.0f) / targetInst.radius;
+						return ((targetType.params.radiusRange.x + targetType.params.radiusRange.y) / 2.0f) / targetInst.radius;
 				}() * 2.0f;
 
 				if constexpr (playerTarget)
@@ -1136,14 +1179,14 @@ namespace Levels::DamageOn
 				}
 				else
 				{
-					detonate(targetActor, false, 10.0f, 0.0f, Tools::ExplosionParams{}.color({0.4f, 0.0f, 0.0f, 1.0f }).presentationScaleFactor(2.0f * targetInst.radius).additiveBlending(false),
-						[&]() -> auto& {
+					detonate(targetActor, false, 10.0f, 0.0f, Tools::ExplosionParams{}.color({ 0.2f, 0.0f, 0.0f, 1.0f }).presentationScaleFactor(2.0f * targetInst.radius).additiveBlending(false).particlesAsSensors(true)
+						.renderLayer(RenderLayer::NearMidground), [&]() -> auto& {
 						return Tools::CreateAndPlaySound(CM::SoundBuffer(enemyKillSoundBufferId, false), targetActor.getOrigin2D(), [basePitch](auto& sound) {
 							sound.setPitch(glm::linearRand(basePitch, basePitch * 2.0f));
 							sound.setVolume(0.7f);
 							sound.setRemoveOnStop(true);
 						});
-					}, 50.0f, 20.0f);
+					}, 50.0f, 10.0f);
 
 					std::vector<WeaponType*> weaponTypes;
 					weaponTypes.reserve(targetInst.weaponIds.size());
@@ -1161,15 +1204,15 @@ namespace Levels::DamageOn
 			}
 		}
 
-		void sparkingNearestHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, float distance, int targetSeq)
+		WeaponHandlerResult sparkingNearestHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, float distance, int targetSeq)
 		{
+			if (targetSeq > (int)weaponInst.power - 1)
+				return WeaponHandlerResult::Skip;
+
 			const auto& physics = Globals::Components().physics();
 			const auto& sourceType = sourceInst.type;
 			const auto& targetType = targetInst.type;
 			auto& weaponType = weaponInst.type;
-
-			if (targetSeq > (int)weaponInst.power - 1 || physics.simulationDuration < weaponInst.lastShotTime + weaponInst.type.params.reloadTime)
-				return;
 
 			const auto sourceRadius = [&] {
 				if constexpr (requires { sourceInst.radius; })
@@ -1214,82 +1257,69 @@ namespace Levels::DamageOn
 			}
 			avgColor /= (float)iterations;
 			targetInst.color = glm::mix(targetInst.baseColor, avgColor, glm::linearRand(0.5f, 1.0f));
-
-			weaponInst.lastShotTime = physics.simulationDuration;
-			weaponInst.justShot = true;
 			targetInst.hp -= physics.frameDuration * weaponInst.type.params.damageFactor;
+
+			if (targetSeq == (int)weaponInst.power - 1)
+				return WeaponHandlerResult::FinalShot;
+			return WeaponHandlerResult::Shot;
 		}
 
-		void sparkingRandomHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, float distance)
+		WeaponHandlerResult lightningHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, int targetSeq, const std::unordered_map<int, int>& shuffledInRangeTargetSeqsMapping)
 		{
+			static constexpr bool playerTarget = std::is_same_v<std::remove_cvref_t<decltype(targetInst)>, PlayerType::Inst>;
+
+			if (shuffledInRangeTargetSeqsMapping.at(targetSeq) > (int)weaponInst.power)
+				return WeaponHandlerResult::Skip;
+
 			const auto& physics = Globals::Components().physics();
 			const auto& sourceType = sourceInst.type;
 			const auto& targetType = targetInst.type;
 			auto& weaponType = weaponInst.type;
-
-			if (glm::linearRand(1, 100) > (int)weaponInst.power || physics.simulationDuration < weaponInst.lastShotTime + weaponInst.type.params.reloadTime)
-				return;
-
-			const auto sourceRadius = [&] {
-				if constexpr (requires { sourceInst.radius; })
-					return sourceInst.radius;
-				else
-					return sourceType.params.radius;
-			}();
-
-			const auto targetRadius = [&] {
-				if constexpr (requires { targetInst.radius; })
-					return targetInst.radius;
-				else
-					return targetType.params.radius;
-			}();
-
-			const glm::vec2 sourceScalingFactor = sourceRadius * sourceType.params.presentation.radiusProportions * glm::vec2(sourceInst.sideFactor, 1.0f);
-			const glm::vec2 weaponOffset =
-				glm::translate(glm::mat4(1.0f), glm::vec3(sourceType.params.presentation.translation, 0.0f) * glm::vec3(sourceInst.sideFactor, 1.0f, 1.0f))
-				* glm::rotate(glm::mat4(1.0f), sourceType.params.presentation.rotation * sourceInst.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
-				* glm::scale(glm::mat4(1.0f), glm::vec3(sourceType.params.presentation.scale * glm::vec2(sourceInst.sideFactor, 1.0f), 1.0f))
-				* glm::vec4(sourceType.params.presentation.weaponOffset, 0.0f, 1.0f);
+			auto& lightningDecoration = Globals::Components().decorations().emplace();
+			lightningDecoration.drawMode = GL_LINES;
 
 			targetInst.actor.setVelocity(targetInst.actor.getVelocity() * targetType.params.slowFactor);
 			targetInst.animatedTexture.setSpeedScaling(targetType.params.presentation.velocityAnimationSpeedFactor == 0.0f ? 1.0f : glm::length(targetInst.actor.getVelocity() * targetType.params.presentation.velocityAnimationSpeedFactor));
 
-			glm::vec4 avgColor{};
-			const int iterations = 5;
-			for (int i = 0; i < iterations; ++i)
-			{
-				const glm::vec3 sparkBaseColor = []() {
-					if constexpr (std::is_same_v<std::remove_cvref_t<decltype(sourceInst)>, PlayerType::Inst>)
-						return glm::vec3(0.0f, glm::linearRand(0.4f, 0.8f), glm::linearRand(0.2f, 0.6f));
-					else
-						return glm::vec3(0.8f, glm::linearRand(0.2f, 0.4f), glm::linearRand(0.1f, 0.3f));
-				}();
+			const float distance = 50.0f;
+			const glm::vec2 targetPos = targetInst.actor.getOrigin2D();
+			const glm::vec2 sourcePos = targetPos + glm::vec2(glm::linearRand(-5.0f, 5.0f), distance);
 
-				int numOfVertices = Tools::Shapes2D::AppendVerticesOfLightning(weaponType.cache.decoration.vertices, sourceInst.actor.getOrigin2D() + weaponOffset + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
-					targetInst.actor.getOrigin2D() + glm::diskRand(targetRadius * 0.1f), int(20 * distance), 4.0f / glm::sqrt(distance));
-				const auto sparkColor = glm::mix(glm::vec4(sparkBaseColor, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), sourceInst.manaOvercharging) * glm::linearRand(0.1f, 0.6f);
-				weaponType.cache.decoration.colors.insert(weaponType.cache.decoration.colors.end(), numOfVertices, sparkColor);
-				avgColor += sparkColor;
-			}
-			avgColor /= (float)iterations;
-			targetInst.color = glm::mix(targetInst.baseColor, avgColor, glm::linearRand(0.5f, 1.0f));
+			Tools::Shapes2D::AppendVerticesOfLightning(lightningDecoration.vertices, sourcePos, targetPos, int(10 * distance), 10.0f / glm::sqrt(distance));
+			const auto lightningColor = glm::mix(glm::vec4(0.0f, 0.0f, glm::linearRand(0.5f, 0.7f), 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), sourceInst.manaOvercharging);
+			lightningDecoration.stepF = [&, startTime = physics.simulationDuration, lightningColor]() {
+				const float timeElapsed = physics.simulationDuration - startTime;
+				const float visibilityTime = 0.2f;
+				lightningDecoration.colorF = glm::mix(lightningColor, glm::vec4(0.0f), timeElapsed / visibilityTime);
+				if (timeElapsed > visibilityTime)
+					lightningDecoration.state = ComponentState::Outdated;
+			};
 
-			weaponInst.lastShotTime = physics.simulationDuration;
-			weaponInst.justShot = true;
+			soundLimitters(playerTarget).kills->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(thunderSoundBufferId, false), targetInst.actor.getOrigin2D(), [](auto& sound) {
+				sound.setPitch(glm::linearRand(0.9f, 1.1f));
+				sound.setVolume(1.0f);
+				sound.setRemoveOnStop(true);
+			}));
+
+			targetInst.color = glm::mix(targetInst.baseColor, lightningColor, glm::linearRand(0.5f, 1.0f));
 			targetInst.hp -= physics.frameDuration * weaponInst.type.params.damageFactor;
+
+			if (weaponInst.shotCounter == (int)weaponInst.power - 1 || weaponInst.shotCounter == (int)shuffledInRangeTargetSeqsMapping.size() - 1)
+				return WeaponHandlerResult::FinalShot;
+			return WeaponHandlerResult::Shot;
 		}
 
-		void fireballsHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, glm::vec2 direction, int targetSeq, int randomTarget)
+		WeaponHandlerResult fireballsHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, glm::vec2 direction, int targetSeq, const std::unordered_map<int, int>& shuffledInRangeTargetSeqsMapping)
 		{
+			if (shuffledInRangeTargetSeqsMapping.at(targetSeq) < 1)
+				return WeaponHandlerResult::Skip;
+
 			static constexpr bool playerSource = std::is_same_v<std::remove_cvref_t<decltype(sourceInst)>, PlayerType::Inst>;
 			const auto& physics = Globals::Components().physics();
 
-			if (targetSeq != randomTarget || physics.simulationDuration < weaponInst.lastShotTime + weaponInst.type.params.reloadTime)
-				return;
-
 			fireballSpawn(sourceInst.actor.getOrigin2D(), targetInst.actor.getOrigin2D(), glm::normalize(direction) * 20.0f, 0.3f, weaponInst, playerSource);
-			weaponInst.lastShotTime = physics.simulationDuration;
-			weaponInst.justShot = true;
+
+			return WeaponHandlerResult::FinalShot;
 		}
 
 		void fireballSpawn(glm::vec2 startPos, glm::vec2 endPos, glm::vec2 velocity, float radius, auto& weaponInst, bool playerSource)
@@ -1375,12 +1405,12 @@ namespace Levels::DamageOn
 					}
 				};
 
-				if (fire && weaponInst.justShot)
+				if (fire && weaponInst.shotCounter)
 				{
 					sourceInst.manaOvercharging += physics.frameDuration * weaponInst.type.params.overchargingRate;
 					if (sourceInst.manaOvercharging < 1.0f)
 					{
-						if (weaponType.params.archetype == "sparkingNearest" || weaponType.params.archetype == "sparkingRandom")
+						if (weaponType.params.archetype == "sparkingNearest")
 							playFireSound();
 						weaponInst.shoting = true;
 						shoting = true;
@@ -1422,7 +1452,7 @@ namespace Levels::DamageOn
 						sourceInst.overchargedSound->state = ComponentState::Outdated;
 				}
 
-				weaponInst.justShot = false;
+				weaponInst.shotCounter = 0;
 			}
 
 			if (!shoting)
@@ -1793,7 +1823,7 @@ namespace Levels::DamageOn
 						auto& typeParams = playerGameComponents.typeNamesToTypes.emplace(playerName, PlayerType{}).first->second.params;
 						typeParams.typeName = std::move(playerName);
 
-						loadParam(typeParams.initHP, std::format("player.{}.initHP", typeParams.typeName));
+						loadParam(typeParams.hp, std::format("player.{}.hp", typeParams.typeName));
 						loadParam(typeParams.radius, std::format("player.{}.radius", typeParams.typeName));
 						loadParam(typeParams.baseVelocity, std::format("player.{}.baseVelocity", typeParams.typeName));
 						loadParam(typeParams.slowFactor, std::format("player.{}.slowFactor", typeParams.typeName));
@@ -1818,8 +1848,8 @@ namespace Levels::DamageOn
 						auto& typeParams = enemyGameComponents.typeNamesToTypes.emplace(enemyName, EnemyType{}).first->second.params;
 						typeParams.typeName = std::move(enemyName);
 
-						loadParam(typeParams.initHP, std::format("enemy.{}.initHP", typeParams.typeName));
-						loadParam(typeParams.initRadiusRange, std::format("enemy.{}.initRadiusRange", typeParams.typeName));
+						loadParam(typeParams.hp, std::format("enemy.{}.hp", typeParams.typeName));
+						loadParam(typeParams.radiusRange, std::format("enemy.{}.radiusRange", typeParams.typeName));
 						loadParam(typeParams.density, std::format("enemy.{}.density", typeParams.typeName));
 						loadParam(typeParams.baseVelocity, std::format("enemy.{}.baseVelocity", typeParams.typeName));
 						loadParam(typeParams.boostDistance, std::format("enemy.{}.boostDistance", typeParams.typeName));
@@ -1851,7 +1881,8 @@ namespace Levels::DamageOn
 						loadParam(typeParams.damageFactor, std::format("weapon.{}.damageFactor", typeParams.typeName));
 						loadParam(typeParams.overchargingRate, std::format("weapon.{}.overchargingRate", typeParams.typeName));
 						loadParam(typeParams.reloadTime, std::format("weapon.{}.reloadTime", typeParams.typeName));
-						loadParam(typeParams.initPower, std::format("weapon.{}.initPower", typeParams.typeName));
+						loadParam(typeParams.shotDuration, std::format("weapon.{}.shotDuration", typeParams.typeName), false);
+						loadParam(typeParams.power, std::format("weapon.{}.power", typeParams.typeName));
 
 						prevWeaponName = typeParams.typeName;
 					}
@@ -1942,7 +1973,7 @@ namespace Levels::DamageOn
 							playerSpawn(*actorType.first, actorType.second, hordeSpawner.weaponTypes, hordeSpawner.position + glm::circularRand(0.1f));
 						else
 							enemySpawn(*actorType, hordeSpawner.weaponTypes, hordeSpawner.position + glm::circularRand(0.1f),
-								glm::linearRand(actorType->params.initRadiusRange.x, actorType->params.initRadiusRange.y));
+								glm::linearRand(actorType->params.radiusRange.x, actorType->params.radiusRange.y));
 					}, hordeSpawner.actorTypeVariant);
 		}
 
@@ -1976,6 +2007,7 @@ namespace Levels::DamageOn
 		ComponentId enemyKillSoundBufferId{};
 		ComponentId explosionSoundBufferId{};
 		ComponentId thrustSoundBufferId{};
+		ComponentId thunderSoundBufferId{};
 
 		GameParams gameParams{};
 		LevelParams levelParams{};

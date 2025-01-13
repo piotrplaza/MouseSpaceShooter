@@ -20,7 +20,7 @@ namespace Components
 	struct Shockwave : ComponentBase
 	{
 		Shockwave(glm::vec2 center, glm::vec2 sourceVelocity, int numOfParticles, float initExplosionVelocity, float initExplosionVelocityRandomMinFactor,
-			float particlesRadius, float particlesDensity, float particlesLinearDamping, bool particlesAsBullets):
+			float particlesRadius, float particlesDensity, float particlesLinearDamping, bool particlesAsBullets, bool particlesAsSensors):
 			center(center)
 		{
 			float angle = Tools::RandomFloat(0.0f, glm::two_pi<float>());
@@ -28,7 +28,7 @@ namespace Components
 			for (int i = 0; i < numOfParticles; ++i)
 			{
 				particles.push_back(Tools::CreateCircleBody(particlesRadius,
-					Tools::BodyParams().position(center).bodyType(b2_dynamicBody).density(particlesDensity)));
+					Tools::BodyParams().position(center).bodyType(b2_dynamicBody).density(particlesDensity).sensor(particlesAsSensors)));
 				particles.back()->SetBullet(particlesAsBullets);
 				particles.back()->SetLinearVelocity(ToVec2<b2Vec2>(sourceVelocity + glm::vec2(glm::cos(angle), glm::sin(angle)) * initExplosionVelocity *
 					Tools::RandomFloat(initExplosionVelocityRandomMinFactor, 1.0f)));
