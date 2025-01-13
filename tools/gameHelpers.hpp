@@ -132,6 +132,12 @@ namespace Tools
 			return *this;
 		}
 
+		ExplosionParams& additiveBlending(bool value)
+		{
+			additiveBlending_ = value;
+			return *this;
+		}
+
 		ExplosionParams& resolutionMode(ResolutionMode value)
 		{
 			resolutionMode_ = value;
@@ -166,6 +172,7 @@ namespace Tools
 		float presentationInitScale_ = 1.0f;
 		float presentationScaleFactor_ = 20.0f;
 		glm::vec4 color_ = glm::vec4(1.0f);
+		bool additiveBlending_ = true;
 		ResolutionMode resolutionMode_{};
 		std::function<void(Components::Shockwave&)> beginCallback_;
 		std::function<void(Components::Shockwave&)> endCallback_;

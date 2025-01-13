@@ -248,11 +248,18 @@ namespace Tools
 				particlesShaders.texture0(0);
 
 				const float elapsed = Globals::Components().physics().simulationDuration - startTime;
-				particlesShaders.color(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (params.explosionDuration_ * 2.0f), 10.0f)), 1.0f) * params.color_);
 
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+				if (params.additiveBlending_)
+				{
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+					particlesShaders.color(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (params.explosionDuration_ * 2.0f), 10.0f)), 1.0f) * params.color_);
+					return std::function<void()>([]() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); });
+				}
+				else
+				{
+					particlesShaders.color(glm::pow(1.0f - elapsed / (params.explosionDuration_ * 2.0f), 10.0f) * params.color_);
+					return std::function<void()>();
+				}
 			};
 
 			explosionDecoration.renderLayer = RenderLayer::FarForeground;

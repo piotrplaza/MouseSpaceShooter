@@ -130,11 +130,11 @@ namespace Levels::DamageOn
 
 			auto& soundsBuffers = Globals::Components().soundsBuffers();
 
-			sparkingSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav", 3.0f).getComponentId();
-			overchargedSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav", 2.0f).getComponentId();
-			dashSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav", 1.0f).getComponentId();
-			enemyKillSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
-			explosionSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Detonate.wav", 2.0f).getComponentId();
+			sparkingSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav", 2.0f).getComponentId();
+			overchargedSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav", 1.5f).getComponentId();
+			dashSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav", 0.075f).getComponentId();
+			enemyKillSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav", 0.8f).getComponentId();
+			explosionSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Detonate.wav", 0.75f).getComponentId();
 			thrustSoundBufferId = soundsBuffers.emplace("audio/thrust.wav", 1.0f).getComponentId();
 
 			Tools::CreateFogForeground(5, 0.05f, CM::Texture(fogTextureId, true), glm::vec4(1.0f), [x = 0.0f](int layer) mutable {
@@ -1128,7 +1128,7 @@ namespace Levels::DamageOn
 				if constexpr (playerTarget)
 				{
 					targetActor.setEnabled(false);
-					detonate(targetActor, true, 80.0f, 0.1f, { 0.15f, 0.6f, 0.15f, 0.5f });
+					detonate(targetActor, true, 80.0f, 0.1f, Tools::ExplosionParams{}.color({ 0.15f, 0.6f, 0.15f, 0.5f }).presentationScaleFactor(20));
 					if (targetInst.overchargedSound)
 						targetInst.overchargedSound->state = ComponentState::Outdated;
 					if (targetInst.dashSound)
@@ -1136,13 +1136,14 @@ namespace Levels::DamageOn
 				}
 				else
 				{
-					detonate(targetActor, false, 1.0f, 0.0f, { 1.0f, 0.0f, 0.0f, 1.0f }, 5.0f * targetInst.radius, [&]() -> auto& {
+					detonate(targetActor, false, 10.0f, 0.0f, Tools::ExplosionParams{}.color({0.4f, 0.0f, 0.0f, 1.0f }).presentationScaleFactor(2.0f * targetInst.radius).additiveBlending(false),
+						[&]() -> auto& {
 						return Tools::CreateAndPlaySound(CM::SoundBuffer(enemyKillSoundBufferId, false), targetActor.getOrigin2D(), [basePitch](auto& sound) {
 							sound.setPitch(glm::linearRand(basePitch, basePitch * 2.0f));
 							sound.setVolume(0.7f);
 							sound.setRemoveOnStop(true);
 						});
-					});
+					}, 50.0f, 20.0f);
 
 					std::vector<WeaponType*> weaponTypes;
 					weaponTypes.reserve(targetInst.weaponIds.size());
@@ -1435,9 +1436,9 @@ namespace Levels::DamageOn
 			}
 		}
 
-		void detonate(auto& actor, bool playerSource, float power, float damage, glm::vec4 color = glm::vec4(0.5f), float presentationScaleFactor = 20.0f, std::function<Components::Sound&()> customCreateAndPlaySoundF = nullptr)
+		void detonate(auto& actor, bool playerSource, float power, float damage, Tools::ExplosionParams explosionParams = Tools::ExplosionParams{}.color(glm::vec4(0.5f)).presentationScaleFactor(20.0f),
+			std::function<Components::Sound& ()> customCreateAndPlaySoundF = nullptr, float initExplosionVelocityFactor = 200.0f, float explosionDurationFactor = 2.0f)
 		{
-			Tools::ExplosionParams explosionParams;
 			if (playerSource)
 				explosionParams.beginCallback([&, damage](auto& shockwave) {
 					playerSourceExplosions.insert(shockwave.getComponentId());
@@ -1455,11 +1456,14 @@ namespace Levels::DamageOn
 					shockwavesToDamage.erase(shockwave.getComponentId());
 				});
 
+			
 			const float explosionPower = power / 100.0f;
-			Tools::CreateExplosion(explosionParams.center(actor.getMassCenter()).explosionTexture(CM::Texture(explosionTextureId, true))
-				.numOfParticles(int(std::max(32 * explosionPower, 3.0f))).particlesRadius(1.0f).particlesDensity(10.0f * explosionPower).particlesAsBullets(false)
-				.initExplosionVelocity(200.0f * explosionPower).explosionDuration(std::max(2.0f * explosionPower, 0.5f)).particlesPerDecoration(1).color(color).presentationScaleFactor(presentationScaleFactor));
 
+			explosionParams.center(actor.getMassCenter()).explosionTexture(CM::Texture(explosionTextureId, true))
+				.numOfParticles(int(std::max(32 * explosionPower, 3.0f))).particlesRadius(1.0f).particlesDensity(10.0f * explosionPower).particlesAsBullets(false).deferredExectution(false)
+				.initExplosionVelocity(initExplosionVelocityFactor * explosionPower).explosionDuration(std::max(explosionDurationFactor * explosionPower, 0.75f)).particlesPerDecoration(1);
+
+			Tools::CreateExplosion(explosionParams);
 			soundLimitters(playerSource).kills->newSound(customCreateAndPlaySoundF
 				? customCreateAndPlaySoundF()
 				: Tools::CreateAndPlaySound(CM::SoundBuffer(explosionSoundBufferId, false), actor.getOrigin2D(), [explosionPower](auto& sound) {
