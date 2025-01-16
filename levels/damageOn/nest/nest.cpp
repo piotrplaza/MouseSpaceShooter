@@ -298,7 +298,7 @@ namespace Levels::DamageOn
 
 			for (auto& [typeName, type] : weaponGameComponents.typeNamesToTypes)
 			{
-				if (type.params.archetype == "sparkingNearest" || type.params.archetype == "lightning")
+				if (type.params.archetype == "sparking" || type.params.archetype == "lightning")
 					type.cache.decoration.drawMode = GL_LINES;
 				else
 					type.cache.decoration.drawMode = GL_TRIANGLES;
@@ -856,12 +856,13 @@ namespace Levels::DamageOn
 				std::string typeName;
 
 				std::string archetype;
+				std::string aiming;
 				float distance{};
 				float damageFactor{};
 				float overchargingRate{};
 				float reloadTime{};
 				float shotDuration{};
-				float power{};
+				int multishot{};
 			} params;
 
 			struct CacheBase
@@ -897,14 +898,14 @@ namespace Levels::DamageOn
 				InstBase(int instanceId, WeaponType& type) :
 					instanceId(instanceId),
 					type(type),
-					power(type.params.power)
+					multishot(type.params.multishot)
 				{
 				}
 
 				const int instanceId;
 				WeaponType& type;
 
-				float power{};
+				int multishot{};
 				int shotCounter{};
 				float lastShotTime{ -std::numeric_limits<float>::infinity() };
 				bool shoting{};
@@ -1095,8 +1096,6 @@ namespace Levels::DamageOn
 			actorInst.weaponIds.insert(weaponInst.instanceId);
 		}
 
-		enum class WeaponHandlerResult { Skip, Shot, FinalShot };
-
 		void weaponsStep(auto& sourceInst, auto& targetInst, int targetSeq, const auto& targetSeqsByDistance, unsigned seed)
 		{
 			const auto& physics = Globals::Components().physics();
@@ -1133,22 +1132,44 @@ namespace Levels::DamageOn
 						//	std::cout << k << ":" << v << " ";
 						//std::cout << "; " << targetSeq;
 
-						WeaponHandlerResult handlerResult = WeaponHandlerResult::Skip;
-						if (weaponType.params.archetype == "sparkingNearest")
-							handlerResult = sparkingNearestHandler(sourceInst, targetInst, weaponInst, distance, targetSeq);
-						else if (weaponType.params.archetype == "lightning")
-							handlerResult = lightningHandler(sourceInst, targetInst, weaponInst, targetSeq, shuffledInRangeTargetSeqsMapping);
-						else if (weaponType.params.archetype == "fireballsRandom")
-							handlerResult = fireballsHandler(sourceInst, targetInst, weaponInst, direction, targetSeq, shuffledInRangeTargetSeqsMapping);
-						else
-							throw std::runtime_error("Unknown weapon archetype: " + weaponType.params.archetype);
+						enum class WeaponState { Skip, Shot, FinalShot } handlerResult = [&]() {
+							if (weaponInst.type.params.aiming == "nearest")
+							{
+								if (targetSeq > weaponInst.multishot - 1)
+									return WeaponState::Skip;
+								if (targetSeq == weaponInst.multishot - 1)
+									return WeaponState::FinalShot;
+							}
+							else if (weaponInst.type.params.aiming == "random")
+							{
+								if (shuffledInRangeTargetSeqsMapping.at(targetSeq) > weaponInst.multishot)
+									return WeaponState::Skip;
+								if (weaponInst.shotCounter == weaponInst.multishot - 1 || weaponInst.shotCounter == (int)shuffledInRangeTargetSeqsMapping.size() - 1)
+									return WeaponState::FinalShot;
+							}
+							else
+								throw std::runtime_error("Unknown aiming type: " + weaponInst.type.params.aiming);
 
-						if (handlerResult != WeaponHandlerResult::Skip)
+							return WeaponState::Shot;
+						}();
+
+						if (handlerResult != WeaponState::Skip)
+						{
+							if (weaponType.params.archetype == "sparking")
+								sparkingHandler(sourceInst, targetInst, weaponInst, distance);
+							else if (weaponType.params.archetype == "lightning")
+								lightningHandler(sourceInst, targetInst, weaponInst);
+							else if (weaponType.params.archetype == "fireballs")
+								fireballsHandler(sourceInst, targetInst, weaponInst, direction);
+							else
+								throw std::runtime_error("Unknown weapon archetype: " + weaponType.params.archetype);
+
 							++weaponInst.shotCounter;
+						}
 
 						//std::cout << "; " << weaponInst.shotCounter << "; " << (int)handlerResult << std::endl;
 
-						if (handlerResult == WeaponHandlerResult::FinalShot)
+						if (handlerResult == WeaponState::FinalShot)
 						{
 							weaponInst.lastShotTime = physics.simulationDuration;
 							//std::cout << std::endl;
@@ -1204,11 +1225,8 @@ namespace Levels::DamageOn
 			}
 		}
 
-		WeaponHandlerResult sparkingNearestHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, float distance, int targetSeq)
+		void sparkingHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, float distance)
 		{
-			if (targetSeq > (int)weaponInst.power - 1)
-				return WeaponHandlerResult::Skip;
-
 			const auto& physics = Globals::Components().physics();
 			const auto& sourceType = sourceInst.type;
 			const auto& targetType = targetInst.type;
@@ -1258,18 +1276,11 @@ namespace Levels::DamageOn
 			avgColor /= (float)iterations;
 			targetInst.color = glm::mix(targetInst.baseColor, avgColor, glm::linearRand(0.5f, 1.0f));
 			targetInst.hp -= physics.frameDuration * weaponInst.type.params.damageFactor;
-
-			if (targetSeq == (int)weaponInst.power - 1)
-				return WeaponHandlerResult::FinalShot;
-			return WeaponHandlerResult::Shot;
 		}
 
-		WeaponHandlerResult lightningHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, int targetSeq, const std::unordered_map<int, int>& shuffledInRangeTargetSeqsMapping)
+		void lightningHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst)
 		{
 			static constexpr bool playerTarget = std::is_same_v<std::remove_cvref_t<decltype(targetInst)>, PlayerType::Inst>;
-
-			if (shuffledInRangeTargetSeqsMapping.at(targetSeq) > (int)weaponInst.power)
-				return WeaponHandlerResult::Skip;
 
 			const auto& physics = Globals::Components().physics();
 			const auto& sourceType = sourceInst.type;
@@ -1283,7 +1294,7 @@ namespace Levels::DamageOn
 
 			const float distance = 50.0f;
 			const glm::vec2 targetPos = targetInst.actor.getOrigin2D();
-			const glm::vec2 sourcePos = targetPos + glm::vec2(glm::linearRand(-5.0f, 5.0f), distance);
+			const glm::vec2 sourcePos = targetPos + glm::vec2(glm::linearRand(-distance / 2, distance / 2), distance);
 
 			Tools::Shapes2D::AppendVerticesOfLightning(lightningDecoration.vertices, sourcePos, targetPos, int(10 * distance), 10.0f / glm::sqrt(distance));
 			const auto lightningColor = glm::mix(glm::vec4(0.0f, 0.0f, glm::linearRand(0.5f, 0.7f), 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), sourceInst.manaOvercharging);
@@ -1303,23 +1314,14 @@ namespace Levels::DamageOn
 
 			targetInst.color = glm::mix(targetInst.baseColor, lightningColor, glm::linearRand(0.5f, 1.0f));
 			targetInst.hp -= physics.frameDuration * weaponInst.type.params.damageFactor;
-
-			if (weaponInst.shotCounter == (int)weaponInst.power - 1 || weaponInst.shotCounter == (int)shuffledInRangeTargetSeqsMapping.size() - 1)
-				return WeaponHandlerResult::FinalShot;
-			return WeaponHandlerResult::Shot;
 		}
 
-		WeaponHandlerResult fireballsHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, glm::vec2 direction, int targetSeq, const std::unordered_map<int, int>& shuffledInRangeTargetSeqsMapping)
+		void fireballsHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, glm::vec2 direction)
 		{
-			if (shuffledInRangeTargetSeqsMapping.at(targetSeq) < 1)
-				return WeaponHandlerResult::Skip;
-
 			static constexpr bool playerSource = std::is_same_v<std::remove_cvref_t<decltype(sourceInst)>, PlayerType::Inst>;
 			const auto& physics = Globals::Components().physics();
 
 			fireballSpawn(sourceInst.actor.getOrigin2D(), targetInst.actor.getOrigin2D(), glm::normalize(direction) * 20.0f, 0.3f, weaponInst, playerSource);
-
-			return WeaponHandlerResult::FinalShot;
 		}
 
 		void fireballSpawn(glm::vec2 startPos, glm::vec2 endPos, glm::vec2 velocity, float radius, auto& weaponInst, bool playerSource)
@@ -1347,13 +1349,13 @@ namespace Levels::DamageOn
 				sound.setRemoveOnStop(true);
 			});
 			fireball.stepF = [&, startTime = physics.simulationDuration, playerSource, endPos,
-				nV = glm::normalize(velocity), power = weaponInst.power, damageFactor = weaponInst.type.params.damageFactor]() {
+				nV = glm::normalize(velocity), multishot = weaponInst.multishot, damageFactor = weaponInst.type.params.damageFactor]() {
 				if (glm::distance(fireball.getOrigin2D(), endPos) < 0.5f ||
 					glm::dot(nV, glm::normalize(endPos - fireball.getOrigin2D())) <= 0.0f ||
 					physics.simulationDuration >= startTime + 5.0f)
 				{
 					fireball.state = ComponentState::Outdated;
-					detonate(fireball, playerSource, power, damageFactor / 10.0f);
+					detonate(fireball, playerSource, damageFactor, damageFactor / 10.0f);
 					fireballs.erase(fireball.getComponentId());
 				}
 			};
@@ -1410,7 +1412,7 @@ namespace Levels::DamageOn
 					sourceInst.manaOvercharging += physics.frameDuration * weaponInst.type.params.overchargingRate;
 					if (sourceInst.manaOvercharging < 1.0f)
 					{
-						if (weaponType.params.archetype == "sparkingNearest")
+						if (weaponType.params.archetype == "sparking")
 							playFireSound();
 						weaponInst.shoting = true;
 						shoting = true;
@@ -1877,12 +1879,13 @@ namespace Levels::DamageOn
 						typeParams.typeName = std::move(weaponName);
 
 						loadParam(typeParams.archetype, std::format("weapon.{}.archetype", typeParams.typeName));
+						loadParam(typeParams.aiming, std::format("weapon.{}.aiming", typeParams.typeName));
 						loadParam(typeParams.distance, std::format("weapon.{}.distance", typeParams.typeName));
 						loadParam(typeParams.damageFactor, std::format("weapon.{}.damageFactor", typeParams.typeName));
 						loadParam(typeParams.overchargingRate, std::format("weapon.{}.overchargingRate", typeParams.typeName));
 						loadParam(typeParams.reloadTime, std::format("weapon.{}.reloadTime", typeParams.typeName));
 						loadParam(typeParams.shotDuration, std::format("weapon.{}.shotDuration", typeParams.typeName), false);
-						loadParam(typeParams.power, std::format("weapon.{}.power", typeParams.typeName));
+						loadParam(typeParams.multishot, std::format("weapon.{}.multishot", typeParams.typeName));
 
 						prevWeaponName = typeParams.typeName;
 					}

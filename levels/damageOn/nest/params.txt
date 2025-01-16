@@ -338,57 +338,63 @@ enemy.bird.animation.frameRotation 0.0
 enemy.bird.animation.frameScale 0.88 0.88
 enemy.bird.animation.neutralFrame 0
 
-weapon.sparkingNearest.archetype sparkingNearest
-weapon.sparkingNearest.distance 20.0
-weapon.sparkingNearest.damageFactor 10.0
-weapon.sparkingNearest.overchargingRate 0.3
-weapon.sparkingNearest.reloadTime 0.0
-weapon.sparkingNearest.power 20.0
+weapon.sparking.archetype sparking
+weapon.sparking.aiming nearest
+weapon.sparking.distance 20.0
+weapon.sparking.damageFactor 10.0
+weapon.sparking.overchargingRate 0.3
+weapon.sparking.reloadTime 0.0
+weapon.sparking.multishot 10
 
-weapon.sparkingNearestShort.archetype sparkingNearest
-weapon.sparkingNearestShort.distance 4.0
-weapon.sparkingNearestShort.damageFactor 10.0
-weapon.sparkingNearestShort.overchargingRate 1.0
-weapon.sparkingNearestShort.reloadTime 0.0
-weapon.sparkingNearestShort.power 20.0
+weapon.sparkingShort.archetype sparking
+weapon.sparkingShort.aiming nearest
+weapon.sparkingShort.distance 4.0
+weapon.sparkingShort.damageFactor 10.0
+weapon.sparkingShort.overchargingRate 1.0
+weapon.sparkingShort.reloadTime 0.0
+weapon.sparkingShort.multishot 10
 
 weapon.lightning.archetype lightning
+weapon.lightning.aiming random
 weapon.lightning.distance 20.0
-weapon.lightning.damageFactor 500.0
-weapon.lightning.overchargingRate 0.3
-weapon.lightning.reloadTime 0.5
-weapon.lightning.power 10.0
+weapon.lightning.damageFactor 2000.0
+weapon.lightning.overchargingRate 50.0
+weapon.lightning.reloadTime 1.0
+weapon.lightning.multishot 10
 
 weapon.lightningShort.archetype lightning
+weapon.lightningShort.aiming random
 weapon.lightningShort.distance 10.0
-weapon.lightningShort.damageFactor 500.0
-weapon.lightningShort.overchargingRate 0.3
-weapon.lightningShort.reloadTime 0.5
-weapon.lightningShort.power 10.0
+weapon.lightningShort.damageFactor 2000.0
+weapon.lightningShort.overchargingRate 50.0
+weapon.lightningShort.reloadTime 1.0
+weapon.lightningShort.multishot 10
 
-weapon.fireballsRandom.archetype fireballsRandom
-weapon.fireballsRandom.distance 20.0
-weapon.fireballsRandom.damageFactor 5.0
-weapon.fireballsRandom.overchargingRate 20.0
-weapon.fireballsRandom.reloadTime 0.5
-weapon.fireballsRandom.power 40.0
+weapon.fireballs.archetype fireballs
+weapon.fireballs.aiming random
+weapon.fireballs.distance 100.0
+weapon.fireballs.damageFactor 20.0
+weapon.fireballs.overchargingRate 50.0
+weapon.fireballs.reloadTime 1.0
+weapon.fireballs.multishot 2
 
-weapon.fireballsRandomStrong.archetype fireballsRandom
-weapon.fireballsRandomStrong.distance 20.0
-weapon.fireballsRandomStrong.damageFactor 100.0
-weapon.fireballsRandomStrong.overchargingRate 20.0
-weapon.fireballsRandomStrong.reloadTime 0.5
-weapon.fireballsRandomStrong.power 60.0
+weapon.fireballsStrong.archetype fireballs
+weapon.fireballsStrong.aiming random
+weapon.fireballsStrong.distance 20.0
+weapon.fireballsStrong.damageFactor 100.0
+weapon.fireballsStrong.overchargingRate 50.0
+weapon.fireballsStrong.reloadTime 1.0
+weapon.fireballsStrong.multishot 1
 
-action.spawn player.frankenstein 0 -30.0 0.0 3 weapon.fireballsRandom
-action.spawn player.frankenstein 1 -30.0 0.0 3 weapon.sparkingNearest
-action.spawn player.frankenstein 2 -30.0 0.0 3 weapon.lightning
+action.spawn player.frankenstein 0 -30.0 0.0 1 weapon.sparking
+action.spawn player.frankenstein 1 -30.0 0.0 1 weapon.lightning
+action.spawn player.frankenstein 2 -30.0 0.0 1 weapon.fireballs
 
-action.spawn enemy.ghost -10.0 0.0 20 weapon.sparkingNearestShort
-action.spawn enemy.chicken 10.0 0.0 5 weapon.fireballsRandomStrong weapon.sparkingNearest
-action.spawn enemy.zombie 5.0 -10.0 20 weapon.sparkingNearestShort
-action.spawn enemy.hive 0.0 10.0 50 weapon.sparkingNearestShort weapon.lightningShort
-action.spawn enemy.gargoyleTwoLegs -10.0 -10.0 10 weapon.sparkingNearestShort
-action.spawn enemy.gargoyleFourLegs -10.0 -10.0 10 weapon.sparkingNearestShort
-action.spawn enemy.monk -5.0 0.0 5 weapon.sparkingNearestShort
-action.spawn enemy.bird -5.0 -10.0 20 weapon.sparkingNearestShort
+action.spawn enemy.ghost -10.0 0.0 20 weapon.sparkingShort
+action.spawn enemy.chicken 10.0 0.0 5 weapon.fireballsStrong weapon.sparking
+action.spawn enemy.zombie 5.0 -10.0 20 weapon.sparkingShort
+action.spawn enemy.hive 0.0 10.0 50 weapon.sparkingShort weapon.lightningShort
+action.spawn enemy.gargoyleTwoLegs -10.0 -10.0 10 weapon.sparkingShort
+action.spawn enemy.gargoyleFourLegs -10.0 -10.0 10 weapon.sparkingShort
+action.spawn enemy.monk -5.0 0.0 5 weapon.sparkingShort
+action.spawn enemy.bird -5.0 -10.0 20 weapon.sparkingShort
