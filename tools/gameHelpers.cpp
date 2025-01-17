@@ -91,7 +91,7 @@ namespace Tools
 		if (limit == 0)
 		{
 			sound.immediateFreeResources();
-			sound.tearDownF = [tearDown]() {
+			sound.soundTeardownF = [tearDown]() {
 				if (tearDown)
 					tearDown();
 			};
@@ -103,7 +103,7 @@ namespace Tools
 
 		sounds.push_back(&sound);
 
-		sound.tearDownF = [this, soundsLimitter = shared_from_this(), it = std::prev(sounds.end()), tearDown]() {
+		sound.soundTeardownF = [this, soundsLimitter = shared_from_this(), it = std::prev(sounds.end()), tearDown]() {
 			sounds.erase(it);
 			if (tearDown)
 				tearDown();
@@ -279,7 +279,8 @@ namespace Tools
 				explosionDecoration.vertices.clear();
 				for (size_t i = 0; i < shockwave.particles.size(); ++i)
 				{
-					if (i % params.particlesPerDecoration_ != 0) continue;
+					if (i % params.particlesPerDecoration_ != 0)
+						continue;
 					const auto& particle = shockwave.particles[i];
 					const glm::vec2 position = shockwave.center + (ToVec2<glm::vec2>(particle->GetWorldCenter()) - shockwave.center) * 0.5f;
 					explosionDecoration.vertices.emplace_back(position, scale);
@@ -287,9 +288,9 @@ namespace Tools
 				explosionDecoration.state = ComponentState::Changed;
 			};
 
-			shockwave.deferredTeardownF = [prevDeferredTeardownF = std::move(shockwave.deferredTeardownF), &explosionDecoration]() {
-				if (prevDeferredTeardownF)
-					prevDeferredTeardownF();
+			shockwave.teardownF = [&, prevTeardownF = std::move(shockwave.teardownF)]() {
+				if (prevTeardownF)
+					prevTeardownF();
 				explosionDecoration.state = ComponentState::Outdated;
 			};
 

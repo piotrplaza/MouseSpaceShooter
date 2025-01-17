@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
     <ClCompile Include="commonTypes\componentMappers.cpp" />
+    <ClCompile Include="commonTypes\componentsContainers.cpp" />
     <ClCompile Include="commonTypes\resolutionMode.cpp" />
     <ClCompile Include="components\audioListener.cpp" />
     <ClCompile Include="components\details\animationData.cpp" />

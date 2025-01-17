@@ -29,29 +29,6 @@ namespace Systems
 
 	void Actors::postInit()
 	{
-		auto& planes = Globals::Components().planes();
-		auto& grapples = Globals::Components().grapples();
-
-		auto prevCenterUpdate = [&]() {
-			for (auto& plane : planes)
-				plane.details.previousCenter = plane.getOrigin2D();
-
-			for (auto& grapple : grapples)
-				grapple.details.previousCenter = grapple.getOrigin2D();
-
-			return true;
-		};
-
-		prevCenterUpdate();
-		Globals::Components().stepTeardowns().emplace(prevCenterUpdate);
-		Globals::Components().renderSetups().emplace([&]() {
-			Globals::Shaders().textured().numOfPlayers(planes.size());
-			unsigned playersCounter = 0;
-			for (const auto& plane : planes)
-				Globals::Shaders().textured().playersCenter(playersCounter++, plane.getOrigin2D());
-
-			return true;
-		});
 	}
 
 	void Actors::teardown()
@@ -70,13 +47,13 @@ namespace Systems
 		{
 			auto& planes = Globals::Components().planes();
 			auto& grapples = Globals::Components().grapples();
-
-			std::erase_if(allConnections, [&](const auto& element) {
-				return !planes.contains(element.first);
-				});
+			unsigned playersCounter = 0;
 
 			for (auto& plane : planes)
 			{
+				if (!plane.teardownF)
+					plane.teardownF = [&]() { allConnections.erase(plane.getComponentId()); };
+
 				auto& planeConnections = allConnections[plane.getComponentId()];
 
 				if (!plane.isEnabled())
@@ -86,13 +63,13 @@ namespace Systems
 					continue;
 				}
 
-				if (plane.details.connectedGrappleId && !Globals::Components().grapples().contains(*plane.details.connectedGrappleId))
+				if (plane.details.connectedGrappleId && !grapples.contains(*plane.details.connectedGrappleId))
 				{
 					plane.details.grappleJoint.release();
 					plane.details.connectedGrappleId = std::nullopt;
 				}
 
-				if (plane.details.weakConnectedGrappleId && !Globals::Components().grapples().contains(*plane.details.weakConnectedGrappleId))
+				if (plane.details.weakConnectedGrappleId && !grapples.contains(*plane.details.weakConnectedGrappleId))
 					plane.details.weakConnectedGrappleId = std::nullopt;
 
 				turn(plane);
@@ -102,6 +79,16 @@ namespace Systems
 				planeConnections.updateBuffers();
 
 				plane.step();
+				Globals::Shaders().textured().playersCenter(playersCounter++, plane.getOrigin2D());
+				plane.details.previousCenter = plane.getOrigin2D();
+			}
+
+			Globals::Shaders().textured().numOfPlayers(playersCounter);
+
+			for (auto& grapple : grapples)
+			{
+				grapple.step();
+				grapple.details.previousCenter = grapple.getOrigin2D();
 			}
 		}
 

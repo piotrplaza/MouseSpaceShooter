@@ -20,7 +20,7 @@ namespace Components
 		Sound(CM::SoundBuffer soundBuffer);
 		~Sound();
 
-		std::function<void()> tearDownF;
+		std::function<void()> soundTeardownF;
 
 		Sound& play();
 		Sound& stop();

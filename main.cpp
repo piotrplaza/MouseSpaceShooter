@@ -74,6 +74,7 @@ const bool releaseFullscreen = true;
 const bool devFullScreen = true;
 const bool console = true;
 const bool glDebug = false;
+const bool audio = true;
 const GLenum glDebugMinSeverity = GL_DEBUG_SEVERITY_LOW;
 const glm::ivec2 windowRes = { 1920, 1080 }; 
 const glm::ivec2 consolePos = { 3850, 10 };
@@ -128,10 +129,10 @@ static void InitEngine()
 
 static void InitLevel()
 {
-#if 1
-	//activeLevel = std::make_unique<Levels::RaceEditor>();
+#if 0
+	activeLevel = std::make_unique<Levels::RaceEditor>();
 #else
-	activeLevel = std::make_unique<Levels::Race>();
+	//activeLevel = std::make_unique<Levels::Race>();
 #endif
 
 	//activeLevel = std::make_unique<Levels::Windmill>();
@@ -178,7 +179,7 @@ static void PostInit()
 	Globals::Systems().renderingController().postInit();
 	Globals::Systems().audio().postInit();
 
-	//Globals::Components().audioListener().setEnabled(false);
+	Globals::Components().audioListener().setEnabled(audio);
 }
 
 static void PrepareFrame()

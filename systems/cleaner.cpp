@@ -8,6 +8,6 @@ namespace Systems
 
 	void Cleaner::step() const
 	{
-		DynamicComponentsBase::removeAllOutdated();
+		DynamicComponentsBase::CleanupAllEnding();
 	}
 }

@@ -12,6 +12,7 @@
 #include <components/polyline.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/deferredAction.hpp>
+#include <components/grapple.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -80,7 +81,7 @@ namespace Levels
 
 		void loadAudio()
 		{
-			auto& musics = Globals::Components().musics();
+			auto& musics = Globals::Components().staticMusics();
 			musics.emplace("audio/Ghosthack-Ambient Beds_Daylight_Am 75Bpm (WET).ogg", 1.0f).play();
 
 			auto& soundsBuffers = Globals::Components().staticSoundsBuffers();
@@ -109,6 +110,12 @@ namespace Levels
 		{
 			GeneratedCode::CreateStartingLine(startingStaticPolyline, startingLineP1, startingLineP2, startingPositionLineDistance);
 			GeneratedCode::CreateDeadlySplines(playersHandler, deadlySplines);
+		}
+
+		void customElements()
+		{
+			auto& grapples = Globals::Components().grapples();
+			grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 20.0f, 0.0f }))).influenceRadius = 20.0f;
 		}
 
 		void collisions()
@@ -221,7 +228,7 @@ namespace Levels
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::actor, Globals::CollisionBits::actor | Globals::CollisionBits::wall,
 				Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
-					Tools::CreateAndPlaySound(CM::SoundBuffer(collisionSoundBuffer, false),
+					Tools::CreateAndPlaySound(CM::SoundBuffer(collisionSoundBuffer, true),
 					[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {
 							return pos;
 						},
@@ -237,7 +244,7 @@ namespace Levels
 
 			const auto& planes = Globals::Components().planes();
 			const auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
-			if (activePlayersHandlers.size() == 1 && planes[activePlayersHandlers.front()->playerId].controls.startPressed)
+			if (activePlayersHandlers.size() == 1 && planes[activePlayersHandlers.front()->playerId].controls.backPressed)
 				reset();
 		}
 
@@ -245,14 +252,16 @@ namespace Levels
 		{
 			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getOrigin2D()).sourceVelocity(plane.getVelocity()).
 				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(CM::Texture(explosionTexture, true)));
-			Tools::CreateAndPlaySound(CM::SoundBuffer(playerExplosionSoundBuffer, false), [pos = plane.getOrigin2D()]() { return pos; });
+			Tools::CreateAndPlaySound(CM::SoundBuffer(playerExplosionSoundBuffer, true), [pos = plane.getOrigin2D()]() { return pos; });
 			plane.setEnabled(false);
 			playersToCircuits.erase(plane.getComponentId());
 		}
 
 		void reset()
 		{
-			Globals::MarkDynamicComponentsAsDirty();
+			Globals::CleanupDynamicComponents();
+
+			customElements();
 
 			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
 				[&](unsigned playerId, unsigned numOfPlayers) {

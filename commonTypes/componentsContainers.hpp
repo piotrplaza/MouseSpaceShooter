@@ -8,9 +8,23 @@
 #include <unordered_map>
 #include <unordered_set>
 
-class StaticComponentsBase
+class ComponentsBase
 {
 public:
+	static void CleanupAll();
+
+	virtual void teardown() = 0;
+	virtual void teardownReset() = 0;
+	virtual void clear() = 0;
+};
+
+class StaticComponentsBase: public ComponentsBase
+{
+	friend ComponentsBase;
+
+public:
+	static void CleanupAll();
+
 	StaticComponentsBase()
 	{
 		instances.insert(this);
@@ -21,21 +35,19 @@ public:
 		instances.erase(this);
 	}
 
-	virtual void clear() = 0;
-
-	static void clearAll()
-	{
-		for (auto instance : instances)
-			instance->clear();
-	}
-
 private:
 	static inline std::unordered_set<StaticComponentsBase*> instances;
 };
 
-class DynamicComponentsBase
+class DynamicComponentsBase: public ComponentsBase
 {
+	friend ComponentsBase;
+
 public:
+	static void CleanupAll();
+	static void CleanupAllEnding();
+	static void OutdateAll();
+
 	DynamicComponentsBase()
 	{
 		instances.insert(this);
@@ -46,27 +58,8 @@ public:
 		instances.erase(this);
 	}
 
-	virtual void removeOutdated() = 0;
-	virtual void markAsDirty() = 0;
-	virtual void clear() = 0;
-
-	static void removeAllOutdated()
-	{
-		for (auto instance : instances)
-			instance->removeOutdated();
-	}
-
-	static void markAllAsDirty()
-	{
-		for (auto instance : instances)
-			instance->markAsDirty();
-	}
-
-	static void clearAll()
-	{
-		for (auto instance : instances)
-			instance->clear();
-	}
+	virtual void cleanupEnding() = 0;
+	virtual void markOutdated() = 0;
 
 private:
 	static inline std::unordered_set<DynamicComponentsBase*> instances;
@@ -228,6 +221,23 @@ public:
 		return components;
 	}
 
+	void teardown() override
+	{
+		for (auto& component : components)
+			if (component.teardownF)
+				component.teardownF();
+	}
+
+	void teardownReset() override
+	{
+		for (auto& component : components)
+			if (component.teardownF)
+			{
+				component.teardownF();
+				component.teardownF = nullptr;
+			}
+	}
+
 	void clear() override
 	{
 		components.clear();
@@ -385,15 +395,38 @@ public:
 		return const_iterator(components.find(id));
 	}
 
-	void removeOutdated() override
+	void teardown() override
+	{
+		for (auto& [id, component] : components)
+			if (component.teardownF)
+				component.teardownF();
+	}
+
+	void teardownReset() override
+	{
+		for (auto& [id, component] : components)
+			if (component.teardownF)
+			{
+				component.teardownF();
+				component.teardownF = nullptr;
+			}
+	}
+
+	void clear() override
+	{
+		components.clear();
+		last_ = nullptr;
+	}
+
+	void cleanupEnding() override
 	{
 		auto it = components.begin();
 		while (it != components.end())
 		{
 			if (it->second.state == ::ComponentState::Outdated || it->second.state == ::ComponentState::LastShot)
 			{
-				if (it->second.deferredTeardownF)
-					it->second.deferredTeardownF();
+				if (it->second.teardownF)
+					it->second.teardownF();
 
 				Globals::ComponentIdGenerator().release(it->first);
 				it = components.erase(it);
@@ -406,23 +439,10 @@ public:
 			last_ = nullptr;
 	}
 
-	void markAsDirty() override
-	{
-		for (auto& component : components)
-		{
-			component.second.setEnabled(false);
-			component.second.state = ::ComponentState::Outdated;
-		}
-	}
-
-	void clear() override
+	void markOutdated() override
 	{
 		for (auto& [id, component] : components)
-			if (component.deferredTeardownF)
-				component.deferredTeardownF();
-
-		components.clear();
-		last_ = nullptr;
+			component.state = ::ComponentState::Outdated;
 	}
 
 private:
@@ -546,15 +566,38 @@ public:
 		return iterator(components.erase(it));
 	}
 
-	void removeOutdated() override
+	void teardown() override
+	{
+		for (auto& component : components)
+			if (component.teardownF)
+				component.teardownF();
+	}
+
+	void teardownReset() override
+	{
+		for (auto& component : components)
+			if (component.teardownF)
+			{
+				component.teardownF();
+				component.teardownF = nullptr;
+			}
+	}
+
+	void clear() override
+	{
+		components.clear();
+		last_ = nullptr;
+	}
+
+	void cleanupEnding() override
 	{
 		auto it = components.begin();
 		while (it != components.end())
 		{
 			if (it->state == ::ComponentState::Outdated || it->state == ::ComponentState::LastShot)
 			{
-				if (it->deferredTeardownF)
-					it->deferredTeardownF();
+				if (it->teardownF)
+					it->teardownF();
 
 				Globals::ComponentIdGenerator().release(it->getComponentId());
 				it = components.erase(it);
@@ -567,23 +610,10 @@ public:
 			last_ = nullptr;
 	}
 
-	void markAsDirty() override
+	void markOutdated() override
 	{
 		for (auto& component : components)
-		{
-			component.setEnabled(false);
 			component.state = ::ComponentState::Outdated;
-		}
-	}
-
-	void clear() override
-	{
-		for (auto& component : components)
-			if (component.deferredTeardownF)
-				component.deferredTeardownF();
-
-		components.clear();
-		last_ = nullptr;
 	}
 
 private:

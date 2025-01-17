@@ -3,7 +3,6 @@
 #include <tools/geometryHelpers.hpp>
 
 #include <commonTypes/componentMappers.hpp>
-#include <commonTypes/renderLayer.hpp>
 #include <commonTypes/fTypes.hpp>
 
 #include <ogl/shadersUtils.hpp>

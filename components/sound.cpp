@@ -51,8 +51,8 @@ namespace Components
 
 	Sound::~Sound()
 	{
-		if (tearDownF)
-			tearDownF();
+		if (soundTeardownF)
+			soundTeardownF();
 
 		if (!details)
 			return;
@@ -239,10 +239,10 @@ namespace Components
 
 	void Sound::immediateFreeResources()
 	{
-		if (tearDownF)
+		if (soundTeardownF)
 		{
-			tearDownF();
-			tearDownF = nullptr;
+			soundTeardownF();
+			soundTeardownF = nullptr;
 		}
 
 		state = ComponentState::Outdated;

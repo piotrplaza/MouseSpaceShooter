@@ -424,9 +424,9 @@ namespace Systems
 		if (texture.state == ComponentState::LastShot)
 		{
 			loadAndConfigureTexture(texture);
-			texture.deferredTeardownF = [&, prevDeferredTeardownF = std::move(texture.deferredTeardownF)]() {
-				if (prevDeferredTeardownF)
-					prevDeferredTeardownF();
+			texture.teardownF = [&, prevTeardownF = std::move(texture.teardownF)]() {
+				if (prevTeardownF)
+					prevTeardownF();
 				deleteTexture(texture);
 			};
 			return;

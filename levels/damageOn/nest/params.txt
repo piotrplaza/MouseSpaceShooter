@@ -21,8 +21,29 @@ level.walls.circle -0.21 -0.17 0.15
 level.debris.count 5
 level.debris.widthRange 0.3, 1.0
 level.debris.heightRatioRange 1.6, 2.0
-level.debris.angleRange 0.0, 3.14159
+level.debris.angleRange 0.0, 360.0f
 level.debris.density 20.0
+
+player.darkAngel.hp 500.0
+player.darkAngel.radius 3.0
+player.darkAngel.baseVelocity 8.0
+player.darkAngel.slowFactor 0.95
+player.darkAngel.density 10.0
+player.darkAngel.linearDamping 6.0
+player.darkAngel.dash 30.0
+player.darkAngel.coolingRate 0.3
+player.darkAngel.minAimingAngle 30.0
+player.darkAngel.presentation.radiusProportions 1.0 1.0
+player.darkAngel.presentation.translation 0.0 0.0
+player.darkAngel.presentation.rotation 0.0
+player.darkAngel.presentation.scale 1.0 1.0
+player.darkAngel.presentation.velocityRotationFactor 0.005
+player.darkAngel.presentation.velocityAnimationSpeedFactor 1.0
+player.darkAngel.presentation.weaponOffset 0.0 0.0
+player.darkAngel.image.textureFile "dark angel.png"
+player.darkAngel.image.frameTranslation 0.0 0.0
+player.darkAngel.image.frameRotation 0.0
+player.darkAngel.image.frameScale -1.0 1.0
 
 player.frankenstein.hp 500.0
 player.frankenstein.radius 1.0
@@ -32,11 +53,12 @@ player.frankenstein.density 10.0
 player.frankenstein.linearDamping 6.0
 player.frankenstein.dash 30.0
 player.frankenstein.coolingRate 0.3
+player.frankenstein.minAimingAngle 30.0
 player.frankenstein.presentation.radiusProportions 1.0 1.0
 player.frankenstein.presentation.translation 0.0 0.0
 player.frankenstein.presentation.rotation 0.0
 player.frankenstein.presentation.scale 1.0 1.0
-player.frankenstein.presentation.velocityRotationFactor 0.0005
+player.frankenstein.presentation.velocityRotationFactor 0.05
 player.frankenstein.presentation.velocityAnimationSpeedFactor 1.0
 player.frankenstein.presentation.weaponOffset 0.1 0.2
 player.frankenstein.animation.textureFile "player 1.png"
@@ -71,7 +93,7 @@ enemy.ghost.presentation.radiusProportions 1.0 1.0
 enemy.ghost.presentation.translation 0.0 0.0
 enemy.ghost.presentation.rotation 0.0
 enemy.ghost.presentation.scale 1.0 1.0
-enemy.ghost.presentation.velocityRotationFactor 0.0005
+enemy.ghost.presentation.velocityRotationFactor 0.05
 enemy.ghost.presentation.velocityAnimationSpeedFactor 0.0
 enemy.ghost.presentation.weaponOffset 0.0 0.0
 enemy.ghost.animation.textureFile "enemy 1.jpg" darkToTransparent
@@ -106,7 +128,7 @@ enemy.chicken.presentation.radiusProportions 1.0 1.0
 enemy.chicken.presentation.translation 0.0 0.0
 enemy.chicken.presentation.rotation 0.0
 enemy.chicken.presentation.scale 1.0 1.0
-enemy.chicken.presentation.velocityRotationFactor 0.0005
+enemy.chicken.presentation.velocityRotationFactor 0.05
 enemy.chicken.presentation.velocityAnimationSpeedFactor 1.0
 enemy.chicken.presentation.weaponOffset 0.0 0.0
 enemy.chicken.animation.textureFile "enemy 2.png"
@@ -141,7 +163,7 @@ enemy.zombie.presentation.radiusProportions 1.0 1.0
 enemy.zombie.presentation.translation 0.0 0.0
 enemy.zombie.presentation.rotation 0.0
 enemy.zombie.presentation.scale 1.0 1.0
-enemy.zombie.presentation.velocityRotationFactor 0.0005
+enemy.zombie.presentation.velocityRotationFactor 0.05
 enemy.zombie.presentation.velocityAnimationSpeedFactor 1.2
 enemy.zombie.presentation.weaponOffset 0.0 0.0
 enemy.zombie.animation.textureFile "enemy 3.png"
@@ -176,7 +198,7 @@ enemy.hive.presentation.radiusProportions 1.2 1.2
 enemy.hive.presentation.translation -0.2 -0.15
 enemy.hive.presentation.rotation 0.0
 enemy.hive.presentation.scale 1.0 1.0
-enemy.hive.presentation.velocityRotationFactor 0.0005
+enemy.hive.presentation.velocityRotationFactor 0.05
 enemy.hive.presentation.velocityAnimationSpeedFactor 1.2
 enemy.hive.presentation.weaponOffset 0.0 0.0
 enemy.hive.animation.textureFile "enemy 4.png"
@@ -211,7 +233,7 @@ enemy.gargoyleTwoLegs.presentation.radiusProportions 1.0 1.0
 enemy.gargoyleTwoLegs.presentation.translation 0.0 0.0
 enemy.gargoyleTwoLegs.presentation.rotation 0.0
 enemy.gargoyleTwoLegs.presentation.scale 1.0 1.0
-enemy.gargoyleTwoLegs.presentation.velocityRotationFactor 0.0005
+enemy.gargoyleTwoLegs.presentation.velocityRotationFactor 0.05
 enemy.gargoyleTwoLegs.presentation.velocityAnimationSpeedFactor 1.2
 enemy.gargoyleTwoLegs.presentation.weaponOffset 0.0 0.0
 enemy.gargoyleTwoLegs.animation.textureFile "enemy 5_1.png"
@@ -247,7 +269,7 @@ enemy.gargoyleFourLegs.presentation.radiusProportions 1.0 1.0
 enemy.gargoyleFourLegs.presentation.translation 0.0 0.0
 enemy.gargoyleFourLegs.presentation.rotation 0.0
 enemy.gargoyleFourLegs.presentation.scale 1.0 1.0
-enemy.gargoyleFourLegs.presentation.velocityRotationFactor 0.0005
+enemy.gargoyleFourLegs.presentation.velocityRotationFactor 0.05
 enemy.gargoyleFourLegs.presentation.velocityAnimationSpeedFactor 1.2
 enemy.gargoyleFourLegs.presentation.weaponOffset 0.0 0.0
 enemy.gargoyleFourLegs.animation.textureFile "enemy 5_2.png"
@@ -283,7 +305,7 @@ enemy.monk.presentation.radiusProportions 1.3 1.3
 enemy.monk.presentation.translation -0.3 0.1
 enemy.monk.presentation.rotation 0.0
 enemy.monk.presentation.scale 1.0 1.0
-enemy.monk.presentation.velocityRotationFactor 0.0005
+enemy.monk.presentation.velocityRotationFactor 0.05
 enemy.monk.presentation.velocityAnimationSpeedFactor 1.2
 enemy.monk.presentation.weaponOffset 0.0 0.0
 enemy.monk.animation.textureFile "enemy 6.png"
@@ -318,7 +340,7 @@ enemy.bird.presentation.radiusProportions 1.1 1.1
 enemy.bird.presentation.translation -0.2 -0.1
 enemy.bird.presentation.rotation 0.0
 enemy.bird.presentation.scale 1.0 1.0
-enemy.bird.presentation.velocityRotationFactor 0.0005
+enemy.bird.presentation.velocityRotationFactor 0.05
 enemy.bird.presentation.velocityAnimationSpeedFactor 1.2
 enemy.bird.presentation.weaponOffset 0.0 0.0
 enemy.bird.animation.textureFile "enemy 7.png"
@@ -339,7 +361,8 @@ enemy.bird.animation.frameScale 0.88 0.88
 enemy.bird.animation.neutralFrame 0
 
 weapon.sparking.archetype sparking
-weapon.sparking.aiming nearest
+weapon.sparking.aiming auto
+weapon.sparking.targeting nearest
 weapon.sparking.distance 20.0
 weapon.sparking.damageFactor 10.0
 weapon.sparking.overchargingRate 0.3
@@ -347,7 +370,8 @@ weapon.sparking.reloadTime 0.0
 weapon.sparking.multishot 10
 
 weapon.sparkingShort.archetype sparking
-weapon.sparkingShort.aiming nearest
+weapon.sparkingShort.aiming auto
+weapon.sparkingShort.targeting nearest
 weapon.sparkingShort.distance 4.0
 weapon.sparkingShort.damageFactor 10.0
 weapon.sparkingShort.overchargingRate 1.0
@@ -355,7 +379,8 @@ weapon.sparkingShort.reloadTime 0.0
 weapon.sparkingShort.multishot 10
 
 weapon.lightning.archetype lightning
-weapon.lightning.aiming random
+weapon.lightning.aiming auto
+weapon.lightning.targeting random
 weapon.lightning.distance 20.0
 weapon.lightning.damageFactor 2000.0
 weapon.lightning.overchargingRate 50.0
@@ -363,7 +388,8 @@ weapon.lightning.reloadTime 1.0
 weapon.lightning.multishot 10
 
 weapon.lightningShort.archetype lightning
-weapon.lightningShort.aiming random
+weapon.lightningShort.aiming auto
+weapon.lightningShort.targeting random
 weapon.lightningShort.distance 10.0
 weapon.lightningShort.damageFactor 2000.0
 weapon.lightningShort.overchargingRate 50.0
@@ -371,7 +397,8 @@ weapon.lightningShort.reloadTime 1.0
 weapon.lightningShort.multishot 10
 
 weapon.fireballs.archetype fireballs
-weapon.fireballs.aiming random
+weapon.fireballs.aiming auto
+weapon.fireballs.targeting random
 weapon.fireballs.distance 100.0
 weapon.fireballs.damageFactor 20.0
 weapon.fireballs.overchargingRate 50.0
@@ -379,16 +406,17 @@ weapon.fireballs.reloadTime 1.0
 weapon.fireballs.multishot 2
 
 weapon.fireballsStrong.archetype fireballs
-weapon.fireballsStrong.aiming random
+weapon.fireballsStrong.aiming auto
+weapon.fireballsStrong.targeting random
 weapon.fireballsStrong.distance 20.0
-weapon.fireballsStrong.damageFactor 100.0
+weapon.fireballsStrong.damageFactor 50.0
 weapon.fireballsStrong.overchargingRate 50.0
 weapon.fireballsStrong.reloadTime 1.0
 weapon.fireballsStrong.multishot 1
 
-action.spawn player.frankenstein 0 -30.0 0.0 1 weapon.sparking
-action.spawn player.frankenstein 1 -30.0 0.0 1 weapon.lightning
-action.spawn player.frankenstein 2 -30.0 0.0 1 weapon.fireballs
+action.spawn player.darkAngel 0 -30.0 0.0 1 weapon.fireballs
+action.spawn player.darkAngel 1 -30.0 0.0 1 weapon.lightning
+action.spawn player.frankenstein 2 -30.0 0.0 1 weapon.sparking
 
 action.spawn enemy.ghost -10.0 0.0 20 weapon.sparkingShort
 action.spawn enemy.chicken 10.0 0.0 5 weapon.fireballsStrong weapon.sparking

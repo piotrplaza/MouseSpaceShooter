@@ -85,15 +85,7 @@ namespace Tools
 		auto& planes = Globals::Components().planes();
 		auto& sounds = Globals::Components().sounds();
 
-		std::erase_if(playersHandlers, [&](const auto& playerHandler) mutable {
-			planes[playerHandler.playerId].setEnabled(false);
-			planes[playerHandler.playerId].state = ComponentState::Outdated;
-			if (playerHandler.thrustSound)
-				sounds[*playerHandler.thrustSound].state = ComponentState::Outdated;
-			if (playerHandler.grappleSound)
-				sounds[*playerHandler.grappleSound].state = ComponentState::Outdated;
-				return true;
-			});
+		playersHandlers.clear();
 
 		this->planeTextures = planeTexturesForPlayers;
 		this->flameAnimatedTexturesForPlayers = flameAnimatedTexturesForPlayers;
@@ -293,7 +285,7 @@ namespace Tools
 				playerControls.autoRotation = (bool)mouse.pressing.rmb;
 				playerControls.throttling = (float)mouse.pressing.rmb;
 				playerControls.magneticHook = mouse.pressing.xmb1;
-				playerControls.startPressed = mouse.pressed.mmb;
+				playerControls.backPressed = mouse.pressed.mmb;
 				fire = mouse.pressing.lmb;
 			}
 
@@ -305,7 +297,7 @@ namespace Tools
 				playerControls.autoRotation |= (bool)gamepad.rTrigger;
 				playerControls.throttling = std::max(gamepad.rTrigger, playerControls.throttling);
 				playerControls.magneticHook |= gamepad.pressing.lShoulder || gamepad.pressing.a || gamepad.lTrigger >= 0.5f;
-				playerControls.startPressed |= gamepad.pressed.start;
+				playerControls.backPressed |= gamepad.pressed.back;
 				fire |= gamepad.pressing.x;
 			}
 

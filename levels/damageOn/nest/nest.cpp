@@ -55,6 +55,7 @@ namespace Levels::DamageOn
 	namespace
 	{
 		static const char* paramsPath = "levels/damageOn/nest/params.txt";
+		static std::mt19937 randomGenerator;
 
 		RenderableDef::RenderingSetupF createRecursiveFaceRS(glm::vec2 fadingRange)
 		{
@@ -80,6 +81,23 @@ namespace Levels::DamageOn
 					visibilityReduction(false);
 				};
 			} };
+		}
+
+		glm::vec2 getWeaponSourcePoint(const auto& sourceInst)
+		{
+			return sourceInst.actor.getOrigin2D() + glm::translate(glm::mat4(1.0f), glm::vec3(sourceInst.type.init.presentation.translation, 0.0f) * glm::vec3(sourceInst.sideFactor, 1.0f, 1.0f))
+				* glm::rotate(glm::mat4(1.0f), sourceInst.type.init.presentation.rotation * sourceInst.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
+				* glm::scale(glm::mat4(1.0f), glm::vec3(sourceInst.type.init.presentation.scale * glm::vec2(sourceInst.sideFactor, 1.0f), 1.0f))
+				* glm::vec4(sourceInst.type.init.presentation.weaponOffset, 0.0f, 1.0f);
+		}
+
+		bool containsKeyWithPrefix(const auto& orderedMap, const std::string& prefix) {
+			auto it = orderedMap.lower_bound(prefix);
+
+			if (it != orderedMap.end() && it->first.rfind(prefix, 0) == 0) {
+				return true;
+			}
+			return false;
 		}
 	}
 
@@ -298,7 +316,7 @@ namespace Levels::DamageOn
 
 			for (auto& [typeName, type] : weaponGameComponents.typeNamesToTypes)
 			{
-				if (type.params.archetype == "sparking" || type.params.archetype == "lightning")
+				if (type.init.archetype == WeaponType::Archetype::Sparking || type.init.archetype == WeaponType::Archetype::Lightning)
 					type.cache.decoration.drawMode = GL_LINES;
 				else
 					type.cache.decoration.drawMode = GL_TRIANGLES;
@@ -311,36 +329,30 @@ namespace Levels::DamageOn
 
 			for (auto& [playerId, playerInst]: playerGameComponents.idsToInst)
 			{
-				const bool keyboardEnabled = gameParams.gamepad.firstPlayer ? true : playerInst.playerNum == 0;
-				bool gamepadEnabled = playerInst.playerNum > 3 ? false : gameParams.gamepad.firstPlayer ? true : playerInst.playerNum > 0;
-				int gamepadId = gamepadEnabled ? (playerInst.playerNum - !gameParams.gamepad.firstPlayer) : 0;
-				auto& gamepad = Globals::Components().gamepads()[gamepadId];
+				const bool keyboardApplying = gameParams.gamepad.firstPlayer ? true : playerInst.playerNum == 0;
+				const bool gamepadApplying = playerInst.playerNum > 3 ? false : gameParams.gamepad.firstPlayer ? true : playerInst.playerNum > 0;
+				const int gamepadId = gamepadApplying ? (playerInst.playerNum - !gameParams.gamepad.firstPlayer) : 0;
+				const auto& gamepad = Globals::Components().gamepads()[gamepadId];
 
-				if (gamepadId >= (int)Globals::Components().gamepads().size())
-				{
-					gamepadId = 0;
-					gamepadEnabled = false;
-				}
-
-				if (gamepad.pressed.x * gamepadEnabled)
+				if (gamepad.pressed.x * gamepadApplying)
 					anyGamepadPressedX = true;
-				if (gamepad.pressed.y * gamepadEnabled)
+				if (gamepad.pressed.y * gamepadApplying)
 					anyGamepadPressedY = true;
 
-				const glm::vec2 gamepadDirection = gamepadEnabled
-					? [&]() {
-						if (!gamepad.enabled)
-							return glm::vec2(0.0f);
-						const float directionLength = glm::length(gamepad.lStick);
-						if (directionLength < gameParams.gamepad.deadZone)
-							return glm::vec2(0.0f);
-						if (directionLength > 1.0f)
-							return gamepad.lStick / directionLength;
-						return gamepad.lStick;
-					}()
-					: glm::vec2(0.0f);
+				auto stickDirection = [&](const glm::vec2& stick) {
+					const float directionLength = glm::length(stick);
+					if (!gamepadApplying || !gamepad.enabled || directionLength <= gameParams.gamepad.deadZone)
+						return glm::vec2(0.0f);
+					if (directionLength > 1.0f)
+						return stick / directionLength;
+					const float normalizedLength = (directionLength - gameParams.gamepad.deadZone) / (1.0f - gameParams.gamepad.deadZone);
+					return stick / directionLength * normalizedLength;
+				};
 
-				const glm::vec2 keyboardDirection = keyboardEnabled
+				const glm::vec2 lStickDirection = stickDirection(gamepad.lStick);
+				const glm::vec2 rStickDirection = stickDirection(gamepad.rStick);
+
+				const glm::vec2 keyboardDirection = keyboardApplying
 					? [&]() {
 						const glm::vec2 direction(-(int)keyboard.pressing[/*VK_LEFT*/0x25] + (int)keyboard.pressing[/*VK_RIGHT*/0x27], -(int)keyboard.pressing[/*VK_DOWN*/0x28] + (int)keyboard.pressing[/*VK_UP*/0x26]);
 						if (direction == glm::vec2(0.0f))
@@ -350,7 +362,7 @@ namespace Levels::DamageOn
 					: glm::vec2(0.0f);
 
 				const glm::vec2 direction = [&]() {
-					const glm::vec2 direction = gamepadDirection + keyboardDirection;
+					const glm::vec2 direction = lStickDirection + keyboardDirection;
 					if (glm::length(direction) > 1.0f)
 						return direction / glm::length(direction);
 					return direction;
@@ -362,9 +374,9 @@ namespace Levels::DamageOn
 					const float vLength = glm::length(playerInst.actor.getVelocity());
 
 					playerInst.color = playerInst.baseColor;
-					playerInst.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * playerType.params.presentation.velocityRotationFactor));
+					playerInst.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * playerType.init.presentation.velocityRotationFactor));
 
-					playerInst.animatedTexture.setSpeedScaling(playerType.params.presentation.velocityAnimationSpeedFactor == 0.0f ? 1.0f : vLength * playerType.params.presentation.velocityAnimationSpeedFactor);
+					playerInst.animatedTexture.setSpeedScaling(playerType.init.presentation.velocityAnimationSpeedFactor == 0.0f ? 1.0f : vLength * playerType.init.presentation.velocityAnimationSpeedFactor);
 					if (playerInst.animatedTexture.isForcingFrame())
 					{
 						playerInst.animatedTexture.forceFrame(std::nullopt);
@@ -376,16 +388,16 @@ namespace Levels::DamageOn
 					else if (direction.x > 0.0f)
 						playerInst.sideFactor = 1.0f;
 					else if (direction.y == 0.0f)
-						playerInst.animatedTexture.forceFrame(playerType.params.animation.neutralFrame);
+						playerInst.animatedTexture.forceFrame(playerType.init.animation.neutralFrame);
 
 					playerInst.sideTransition += playerInst.sideFactor * physics.frameDuration * 7.0f;
 					playerInst.sideTransition = glm::clamp(playerInst.sideTransition, 0.0f, 1.0f);
 
-					const glm::vec2 newVelocity = direction * playerType.params.baseVelocity;
+					const glm::vec2 newVelocity = direction * playerType.init.baseVelocity;
 					if (glm::length(newVelocity) > glm::length(playerInst.actor.getVelocity()))
 						playerInst.actor.setVelocity(newVelocity);
 
-					if (keyboard.pressing[/*VK_CONTROL*/0x11] * keyboardEnabled || gamepad.rTrigger * gamepadEnabled > gameParams.gamepad.triggerDeadZone || gamepad.lTrigger * gamepadEnabled > gameParams.gamepad.triggerDeadZone)
+					if (keyboard.pressing[/*VK_CONTROL*/0x11] * keyboardApplying || gamepad.rTrigger * gamepadApplying > gameParams.gamepad.triggerDeadZone || gamepad.lTrigger * gamepadApplying > gameParams.gamepad.triggerDeadZone)
 					{
 						playerInst.fire = true;
 						playerInst.autoFire = false;
@@ -393,18 +405,40 @@ namespace Levels::DamageOn
 					else
 						playerInst.fire = false;
 
-					if (keyboard.pressed[/*VK_SHIFT*/0x10] * keyboardEnabled || gamepad.pressed.rShoulder * gamepadEnabled || gamepad.pressed.lShoulder * gamepadEnabled)
+					if (keyboard.pressed[/*VK_SHIFT*/0x10] * keyboardApplying || gamepad.pressed.rShoulder * gamepadApplying || gamepad.pressed.lShoulder * gamepadApplying)
 						playerInst.autoFire = !playerInst.autoFire;
 
-					if ((keyboard.pressed[/*VK_SPACE*/0x20] * keyboardEnabled || gamepad.pressed.a * gamepadEnabled) && glm::length(direction) > 0.0f && !playerInst.manaOvercharged)
+					if ((keyboard.pressed[/*VK_SPACE*/0x20] * keyboardApplying || gamepad.pressed.a * gamepadApplying) && glm::length(direction) > 0.0f && !playerInst.manaOvercharged)
 					{
 						playerSoundLimitters.dashes->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(dashSoundBufferId, false), playerInst.actor.getOrigin2D(), [&](auto& sound) {
 							sound.setPitch(glm::linearRand(0.8f, 1.2f));
 							sound.setPlayingOffset(0.3f);
 							sound.setVolume(0.4f);
-							}));
-						playerInst.actor.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerType.params.dash * playerInst.actor.body->GetMass()), true);
+						}));
+						playerInst.actor.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerType.init.dash * playerInst.actor.body->GetMass()), true);
 					}
+
+					if (rStickDirection != glm::vec2(0.0f))
+					{
+						auto& decorations = Globals::Components().decorations();
+						const float rStickLength = glm::length(rStickDirection);
+						const glm::vec2 nDirection = rStickDirection / rStickLength;
+						const float aimingLineDist = 100.0f;
+						playerInst.aimingAngle = glm::mix(glm::pi<float>(), playerType.init.minAimingAngle, rStickLength);
+						const float hAimingAngle = glm::max(playerInst.aimingAngle * 0.5f, 0.01f);
+						const glm::vec2 orig = getWeaponSourcePoint(playerInst);
+						const glm::vec2 d0 = nDirection * aimingLineDist;
+						const glm::vec2 d1 = glm::rotate(d0, hAimingAngle);
+						const glm::vec2 d2 = glm::rotate(d0, -hAimingAngle);
+						std::vector<glm::vec3> aimingArea{ glm::vec3(orig, 0.0f), glm::vec3(orig + d0, 0.0f), glm::vec3(orig + d1, 0.0f), glm::vec3(orig, 0.0f), glm::vec3(orig + d2, 0.0f), glm::vec3(orig + d0, 0.0f) };
+						decorations.emplace(std::move(aimingArea));
+						const glm::vec4 aimingColor = glm::vec4(0.0f, 0.0f, 0.0f, 0.2f);
+						decorations.last().colors = { aimingColor, glm::vec4(0.0f), aimingColor, aimingColor, aimingColor, glm::vec4(0.0f) };
+						decorations.last().renderLayer = RenderLayer::Foreground;
+						decorations.last().state = ComponentState::LastShot;
+					}
+					else
+						playerInst.aimingAngle = glm::two_pi<float>();
 				}
 
 				deferredWeaponsPostSteps.push_back([&]() {
@@ -432,10 +466,10 @@ namespace Levels::DamageOn
 			{
 				const float vLength = glm::length(enemyInst.actor.getVelocity());
 				enemyInst.color = enemyInst.baseColor;
-				enemyInst.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * enemyInst.type.params.presentation.velocityRotationFactor));
-				enemyInst.animatedTexture.setSpeedScaling(enemyInst.type.params.presentation.velocityAnimationSpeedFactor == 0.0f
+				enemyInst.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * enemyInst.type.init.presentation.velocityRotationFactor));
+				enemyInst.animatedTexture.setSpeedScaling(enemyInst.type.init.presentation.velocityAnimationSpeedFactor == 0.0f
 					? 1.0f
-					: glm::length(enemyInst.actor.getVelocity() * enemyInst.type.params.presentation.velocityAnimationSpeedFactor));
+					: glm::length(enemyInst.actor.getVelocity() * enemyInst.type.init.presentation.velocityAnimationSpeedFactor));
 				enemyInst.sideTransition += enemyInst.sideFactor * physics.frameDuration * 7.0f;
 				enemyInst.sideTransition = glm::clamp(enemyInst.sideTransition, 0.0f, 1.0f);
 
@@ -454,7 +488,7 @@ namespace Levels::DamageOn
 						continue;
 					const auto direction = playerInst->actor.getOrigin2D() - enemyInst.actor.getOrigin2D();
 					if (!enemyBoost(enemyInst.type, enemyInst.actor, direction, distance))
-						enemyInst.actor.setVelocity(direction / distance * enemyInst.type.params.baseVelocity);
+						enemyInst.actor.setVelocity(direction / distance * enemyInst.type.init.baseVelocity);
 					enemyInst.sideFactor = direction.x < 0.0f ? -1.0f : 1.0f;
 					anyLivePlayer = true;
 					break;
@@ -462,7 +496,9 @@ namespace Levels::DamageOn
 
 				if (!anyLivePlayer)
 				{
-					enemyInst.actor.setVelocity(Tools::StableRandom::Std1Random::HashRange(glm::ivec2(-100), glm::ivec2(100), enemyId) / 100.0f * enemyInst.type.params.baseVelocity);
+					const float angle = Tools::StableRandom::Std0Random::HashRange(0, 999, enemyId) / 1000.0f * glm::two_pi<float>();
+					const float velocityFactor = Tools::StableRandom::Std0Random::HashRange(500, 1000, enemyId) / 1000.0f;
+					enemyInst.actor.setVelocity(glm::vec2(glm::cos(angle), glm::sin(angle)) * velocityFactor * enemyInst.type.init.baseVelocity);
 					enemyInst.sideFactor = enemyInst.actor.getVelocity().x < 0.0f ? -1.0f : 1.0f;
 					continue;
 				}
@@ -653,7 +689,7 @@ namespace Levels::DamageOn
 
 		struct PlayerType
 		{
-			struct Params
+			struct Init
 			{
 				std::string typeName;
 
@@ -665,10 +701,11 @@ namespace Levels::DamageOn
 				float slowFactor{};
 				float dash{};
 				float coolingRate{};
+				float minAimingAngle = 360.0f;
 
 				ActorPresentation presentation{};
 				Animation animation{};
-			} params;
+			} init;
 
 			struct InstBase
 			{
@@ -679,7 +716,8 @@ namespace Levels::DamageOn
 					actor(actor),
 					animatedTexture(animatedTexture),
 					weaponGameComponents(weaponGameComponents),
-					hp(type.params.hp)
+					hp(type.init.hp),
+					aimingAngle(type.init.minAimingAngle)
 				{
 				}
 
@@ -702,6 +740,7 @@ namespace Levels::DamageOn
 				float sideFactor = 1.0f;
 				float sideTransition = 1.0f;
 				float angle{};
+				float aimingAngle{};
 
 				std::unordered_set<int> weaponIds;
 
@@ -751,7 +790,7 @@ namespace Levels::DamageOn
 
 		struct EnemyType
 		{
-			struct Params
+			struct Init
 			{
 				std::string typeName;
 
@@ -769,7 +808,7 @@ namespace Levels::DamageOn
 
 				ActorPresentation presentation{};
 				Animation animation{};
-			} params;
+			} init;
 
 			struct InstBase
 			{
@@ -779,7 +818,7 @@ namespace Levels::DamageOn
 					actor(actor),
 					animatedTexture(animatedTexture),
 					weaponGameComponents(weaponGameComponents),
-					hp(type.params.hp)
+					hp(type.init.hp)
 				{
 				}
 
@@ -851,19 +890,23 @@ namespace Levels::DamageOn
 
 		struct WeaponType
 		{
-			struct Params
+			enum class Archetype { Sparking, Lightning, Fireballs };
+			enum class Aiming { Auto, Manual };
+			enum class Targeting { Nearest, Random };
+			struct Init
 			{
 				std::string typeName;
 
-				std::string archetype;
-				std::string aiming;
+				Archetype archetype;
+				Aiming aiming;
+				Targeting targeting;
 				float distance{};
 				float damageFactor{};
 				float overchargingRate{};
 				float reloadTime{};
 				float shotDuration{};
 				int multishot{};
-			} params;
+			} init;
 
 			struct CacheBase
 			{
@@ -898,7 +941,7 @@ namespace Levels::DamageOn
 				InstBase(int instanceId, WeaponType& type) :
 					instanceId(instanceId),
 					type(type),
-					multishot(type.params.multishot)
+					multishot(type.init.multishot)
 				{
 				}
 
@@ -955,22 +998,22 @@ namespace Levels::DamageOn
 		{
 			const auto& physics = Globals::Components().physics();
 
-			auto& playerActor = Globals::Components().actors().emplace(Tools::CreateCircleBody(playerType.params.radius, Tools::BodyParams{}
-				.linearDamping(playerType.params.linearDamping).fixedRotation(true).bodyType(b2_dynamicBody).density(playerType.params.density).position(position)), CM::DummyTexture{});
+			auto& playerActor = Globals::Components().actors().emplace(Tools::CreateCircleBody(playerType.init.radius, Tools::BodyParams{}
+				.linearDamping(playerType.init.linearDamping).fixedRotation(true).bodyType(b2_dynamicBody).density(playerType.init.density).position(position)), CM::DummyTexture{});
 			playerActor.renderF = [&]() { return debug.hitboxesRendering; };
 			playerActor.colorF = glm::vec4(0.2f);
 			playerActor.posInSubsequence = 2;
 
 			auto& playerAnimatedTexture = Globals::Components().animatedTextures().emplace();
-			playerAnimatedTexture.setAnimationData({ CM::Texture(playerType.params.animation.loaded->animationTexture.getComponentId(), false), playerType.params.animation.loaded->textureSize,
-				playerType.params.animation.framesGrid, playerType.params.animation.leftTopFrameLeftTopCorner, playerType.params.animation.rightTopFrameLeftEdge, playerType.params.animation.leftBottomFrameTopEdge,
-				playerType.params.animation.frameSize, playerType.params.animation.frameDuration, playerType.params.animation.numOfFrames,
-				playerType.params.animation.startFrame == -1 ? glm::linearRand(0, playerType.params.animation.numOfFrames - 1) : playerType.params.animation.startFrame,
-				playerType.params.animation.direction, playerType.params.animation.mode, playerType.params.animation.textureLayout });
+			playerAnimatedTexture.setAnimationData({ CM::Texture(playerType.init.animation.loaded->animationTexture.getComponentId(), false), playerType.init.animation.loaded->textureSize,
+				playerType.init.animation.framesGrid, playerType.init.animation.leftTopFrameLeftTopCorner, playerType.init.animation.rightTopFrameLeftEdge, playerType.init.animation.leftBottomFrameTopEdge,
+				playerType.init.animation.frameSize, playerType.init.animation.frameDuration, playerType.init.animation.numOfFrames,
+				playerType.init.animation.startFrame == -1 ? glm::linearRand(0, playerType.init.animation.numOfFrames - 1) : playerType.init.animation.startFrame,
+				playerType.init.animation.direction, playerType.init.animation.mode, playerType.init.animation.textureLayout });
 			playerAnimatedTexture.start(true);
 
 			auto& playerInst = playerGameComponents.emplaceInstance(playerNum, playerType, playerActor, playerAnimatedTexture, weaponGameComponents);
-			const auto playerPresentationSize = playerType.params.presentation.radiusProportions * playerType.params.radius;
+			const auto playerPresentationSize = playerType.init.presentation.radiusProportions * playerType.init.radius;
 
 			for (float sideFactor : { -1.0f, 1.0f })
 			{
@@ -986,11 +1029,11 @@ namespace Levels::DamageOn
 				playerPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 				playerPresentation.texture = CM::AnimatedTexture(playerInst.animatedTexture.getComponentId(), false);
 				playerPresentation.modelMatrixF = [&, sideFactor]() {
-					playerInst.animatedTexture.setAdditionalTransformation(playerType.params.animation.frameTranslation * glm::vec2(sideFactor, 1.0f),
-						playerType.params.animation.frameRotation * sideFactor, playerType.params.animation.frameScale * glm::vec2(sideFactor, 1.0f));
-					return playerActor.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(playerType.params.presentation.translation, 0.0f) * glm::vec3(playerInst.sideFactor, 1.0f, 1.0f))
-						* glm::rotate(glm::mat4(1.0f), (playerType.params.presentation.rotation + playerInst.angle) * playerInst.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
-						* glm::scale(glm::mat4(1.0f), glm::vec3(playerType.params.presentation.scale, 1.0f));
+					playerInst.animatedTexture.setAdditionalTransformation(playerType.init.animation.frameTranslation * glm::vec2(sideFactor, 1.0f),
+						playerType.init.animation.frameRotation * sideFactor, playerType.init.animation.frameScale * glm::vec2(sideFactor, 1.0f));
+					return playerActor.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(playerType.init.presentation.translation, 0.0f) * glm::vec3(playerInst.sideFactor, 1.0f, 1.0f))
+						* glm::rotate(glm::mat4(1.0f), (playerType.init.presentation.rotation + playerInst.angle) * playerInst.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
+						* glm::scale(glm::mat4(1.0f), glm::vec3(playerType.init.presentation.scale, 1.0f));
 					};
 
 				playerInst.color = playerInst.baseColor = glm::vec4(1.0f);
@@ -1008,16 +1051,16 @@ namespace Levels::DamageOn
 		{
 			const auto& physics = Globals::Components().physics();
 
-			auto& enemyAnimatedTexture = Globals::Components().animatedTextures().add({ CM::Texture(enemyType.params.animation.loaded->animationTexture.getComponentId(), false), enemyType.params.animation.loaded->textureSize,
-				enemyType.params.animation.framesGrid, enemyType.params.animation.leftTopFrameLeftTopCorner, enemyType.params.animation.rightTopFrameLeftEdge, enemyType.params.animation.leftBottomFrameTopEdge,
-				enemyType.params.animation.frameSize, enemyType.params.animation.frameDuration, enemyType.params.animation.numOfFrames,
-				enemyType.params.animation.startFrame == -1 ? glm::linearRand(0, enemyType.params.animation.numOfFrames - 1) : enemyType.params.animation.startFrame,
-				enemyType.params.animation.direction, enemyType.params.animation.mode, enemyType.params.animation.textureLayout });
+			auto& enemyAnimatedTexture = Globals::Components().animatedTextures().add({ CM::Texture(enemyType.init.animation.loaded->animationTexture.getComponentId(), false), enemyType.init.animation.loaded->textureSize,
+				enemyType.init.animation.framesGrid, enemyType.init.animation.leftTopFrameLeftTopCorner, enemyType.init.animation.rightTopFrameLeftEdge, enemyType.init.animation.leftBottomFrameTopEdge,
+				enemyType.init.animation.frameSize, enemyType.init.animation.frameDuration, enemyType.init.animation.numOfFrames,
+				enemyType.init.animation.startFrame == -1 ? glm::linearRand(0, enemyType.init.animation.numOfFrames - 1) : enemyType.init.animation.startFrame,
+				enemyType.init.animation.direction, enemyType.init.animation.mode, enemyType.init.animation.textureLayout });
 			enemyAnimatedTexture.start(true);
 
 			auto& enemyActor = Globals::Components().actors().emplace(Tools::CreateCircleBody(radius, Tools::BodyParams{ defaultBodyParams }
 				.bodyType(b2_dynamicBody)
-				.density(enemyType.params.density)
+				.density(enemyType.init.density)
 				.position(position)), CM::DummyTexture());
 			enemyActor.renderF = [&]() { return debug.hitboxesRendering; };
 			enemyActor.colorF = glm::vec4(0.2f);
@@ -1029,19 +1072,19 @@ namespace Levels::DamageOn
 			for (float sideFactor : { -1.0f, 1.0f })
 			{
 				auto& enemyPresentation = enemyActor.subsequence.emplace_back();
-				const auto enemyPresentationSize = enemyType.params.presentation.radiusProportions * radius;
+				const auto enemyPresentationSize = enemyType.init.presentation.radiusProportions * radius;
 				enemyPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, enemyPresentationSize);
 				enemyPresentation.modelMatrixF = [&, sideFactor]() {
-					enemyInst.animatedTexture.setAdditionalTransformation(enemyType.params.animation.frameTranslation * glm::vec2(sideFactor, 1.0f),
-						enemyType.params.animation.frameRotation * sideFactor, enemyType.params.animation.frameScale * glm::vec2(sideFactor, 1.0f));
-					return enemyActor.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(enemyType.params.presentation.translation, 0.0f) * glm::vec3(sideFactor, 1.0f, 1.0f))
-						* glm::rotate(glm::mat4(1.0f), (enemyType.params.presentation.rotation + enemyInst.angle) * sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
-						* glm::scale(glm::mat4(1.0f), glm::vec3(enemyType.params.presentation.scale, 1.0f));
+					enemyInst.animatedTexture.setAdditionalTransformation(enemyType.init.animation.frameTranslation * glm::vec2(sideFactor, 1.0f),
+						enemyType.init.animation.frameRotation * sideFactor, enemyType.init.animation.frameScale * glm::vec2(sideFactor, 1.0f));
+					return enemyActor.modelMatrixF() * glm::translate(glm::mat4(1.0f), glm::vec3(enemyType.init.presentation.translation, 0.0f) * glm::vec3(sideFactor, 1.0f, 1.0f))
+						* glm::rotate(glm::mat4(1.0f), (enemyType.init.presentation.rotation + enemyInst.angle) * sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
+						* glm::scale(glm::mat4(1.0f), glm::vec3(enemyType.init.presentation.scale, 1.0f));
 				};
 
 				enemyPresentation.renderF = [&, sideFactor]() { return debug.presentationTransparency || sideFactor == enemyInst.sideFactor; };
 
-				if (enemyType.params.typeName == "ghost")
+				if (enemyType.init.typeName == "ghost")
 				{
 					enemyPresentation.texture = CM::AnimatedTexture(enemyInst.animatedTexture.getComponentId(), false, {}, {}, glm::vec2(2.6f * radius));
 					enemyPresentation.renderingSetupF = [&](auto program) {
@@ -1082,9 +1125,9 @@ namespace Levels::DamageOn
 
 		bool enemyBoost(const EnemyType& enemyType, auto& enemyActor, glm::vec2 direction, float distance)
 		{
-			if (distance > 0.0f && distance < enemyType.params.boostDistance)
+			if (distance > 0.0f && distance < enemyType.init.boostDistance)
 			{
-				enemyActor.setVelocity(direction / distance * enemyType.params.baseVelocity * enemyType.params.boostFactor);
+				enemyActor.setVelocity(direction / distance * enemyType.init.baseVelocity * enemyType.init.boostFactor);
 				return true;
 			}
 			return false;
@@ -1105,7 +1148,7 @@ namespace Levels::DamageOn
 
 			if (sourceActor.isEnabled() && targetActor.isEnabled())
 			{
-				const auto direction = targetActor.getOrigin2D() - sourceInst.actor.getOrigin2D();
+				const auto direction = targetActor.getOrigin2D() - getWeaponSourcePoint(sourceInst);
 				const auto distance = glm::length(direction);
 				const auto fire = sourceInst.fire || sourceInst.autoFire;
 
@@ -1114,13 +1157,13 @@ namespace Levels::DamageOn
 					auto& weaponInst = weaponGameComponents.idsToInst.at(weaponId);
 					auto& weaponType = weaponInst.type;
 
-					if (fire && distance <= weaponType.params.distance && !sourceInst.manaOvercharged && physics.simulationDuration - weaponInst.lastShotTime >=  weaponInst.type.params.reloadTime)
+					if (fire && distance <= weaponType.init.distance && !sourceInst.manaOvercharged && physics.simulationDuration - weaponInst.lastShotTime >=  weaponInst.type.init.reloadTime)
 					{
-						std::mt19937 randomGenerator(seed);
-						std::vector<int> shuffledTargetSeqsInRange(std::distance(targetSeqsByDistance.begin(), targetSeqsByDistance.upper_bound(weaponType.params.distance)));
+						randomGenerator.seed(seed);
+						shuffledTargetSeqsInRange.resize(std::distance(targetSeqsByDistance.begin(), targetSeqsByDistance.upper_bound(weaponType.init.distance)));
 						std::iota(shuffledTargetSeqsInRange.begin(), shuffledTargetSeqsInRange.end(), 0);
 						std::shuffle(shuffledTargetSeqsInRange.begin(), shuffledTargetSeqsInRange.end(), randomGenerator);
-						std::unordered_map<int, int> shuffledInRangeTargetSeqsMapping;
+						shuffledInRangeTargetSeqsMapping.clear();
 						{
 							auto itVec = shuffledTargetSeqsInRange.begin();
 							auto itMap = targetSeqsByDistance.begin();
@@ -1133,14 +1176,14 @@ namespace Levels::DamageOn
 						//std::cout << "; " << targetSeq;
 
 						enum class WeaponState { Skip, Shot, FinalShot } handlerResult = [&]() {
-							if (weaponInst.type.params.aiming == "nearest")
+							if (weaponInst.type.init.targeting == WeaponType::Targeting::Nearest)
 							{
 								if (targetSeq > weaponInst.multishot - 1)
 									return WeaponState::Skip;
 								if (targetSeq == weaponInst.multishot - 1)
 									return WeaponState::FinalShot;
 							}
-							else if (weaponInst.type.params.aiming == "random")
+							else if (weaponInst.type.init.targeting == WeaponType::Targeting::Random)
 							{
 								if (shuffledInRangeTargetSeqsMapping.at(targetSeq) > weaponInst.multishot)
 									return WeaponState::Skip;
@@ -1148,21 +1191,21 @@ namespace Levels::DamageOn
 									return WeaponState::FinalShot;
 							}
 							else
-								throw std::runtime_error("Unknown aiming type: " + weaponInst.type.params.aiming);
+								throw std::runtime_error("Unhandled targeting type: " + (unsigned)weaponInst.type.init.targeting);
 
 							return WeaponState::Shot;
 						}();
 
 						if (handlerResult != WeaponState::Skip)
 						{
-							if (weaponType.params.archetype == "sparking")
+							if (weaponType.init.archetype == WeaponType::Archetype::Sparking)
 								sparkingHandler(sourceInst, targetInst, weaponInst, distance);
-							else if (weaponType.params.archetype == "lightning")
+							else if (weaponType.init.archetype == WeaponType::Archetype::Lightning)
 								lightningHandler(sourceInst, targetInst, weaponInst);
-							else if (weaponType.params.archetype == "fireballs")
+							else if (weaponType.init.archetype == WeaponType::Archetype::Fireballs)
 								fireballsHandler(sourceInst, targetInst, weaponInst, direction);
 							else
-								throw std::runtime_error("Unknown weapon archetype: " + weaponType.params.archetype);
+								throw std::runtime_error("Unknown weapon archetype: " + (unsigned)weaponType.init.archetype);
 
 							++weaponInst.shotCounter;
 						}
@@ -1186,7 +1229,7 @@ namespace Levels::DamageOn
 					if constexpr (playerTarget)
 						return 1.0f;
 					else
-						return ((targetType.params.radiusRange.x + targetType.params.radiusRange.y) / 2.0f) / targetInst.radius;
+						return ((targetType.init.radiusRange.x + targetType.init.radiusRange.y) / 2.0f) / targetInst.radius;
 				}() * 2.0f;
 
 				if constexpr (playerTarget)
@@ -1217,9 +1260,9 @@ namespace Levels::DamageOn
 					targetActor.setEnabled(false);
 					postSteps.push_back([&]() { enemyGameComponents.removeInstance(targetInst.instanceId); });
 
-					const float newRadius = targetInst.radius * targetType.params.radiusReductionFactor;
-					if (targetType.params.killSpawns > 0 && newRadius >= targetType.params.minimalRadius)
-						for (int i = 0; i < targetType.params.killSpawns; ++i)
+					const float newRadius = targetInst.radius * targetType.init.radiusReductionFactor;
+					if (targetType.init.killSpawns > 0 && newRadius >= targetType.init.minimalRadius)
+						for (int i = 0; i < targetType.init.killSpawns; ++i)
 							enemySpawn(targetType, weaponTypes, targetActor.getOrigin2D() + glm::circularRand(0.1f), newRadius);
 				}
 			}
@@ -1236,25 +1279,20 @@ namespace Levels::DamageOn
 				if constexpr (requires { sourceInst.radius; })
 					return sourceInst.radius;
 				else
-					return sourceType.params.radius;
+					return sourceType.init.radius;
 			}();
 
 			const auto targetRadius = [&] {
 				if constexpr (requires { targetInst.radius; })
 					return targetInst.radius;
 				else
-					return targetType.params.radius;
+					return targetType.init.radius;
 			}();
 
-			const glm::vec2 sourceScalingFactor = sourceRadius * sourceType.params.presentation.radiusProportions * glm::vec2(sourceInst.sideFactor, 1.0f);
-			const glm::vec2 weaponOffset =
-				glm::translate(glm::mat4(1.0f), glm::vec3(sourceType.params.presentation.translation, 0.0f) * glm::vec3(sourceInst.sideFactor, 1.0f, 1.0f))
-				* glm::rotate(glm::mat4(1.0f), sourceType.params.presentation.rotation * sourceInst.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
-				* glm::scale(glm::mat4(1.0f), glm::vec3(sourceType.params.presentation.scale * glm::vec2(sourceInst.sideFactor, 1.0f), 1.0f))
-				* glm::vec4(sourceType.params.presentation.weaponOffset, 0.0f, 1.0f);
+			const glm::vec2 sourceScalingFactor = sourceRadius * sourceType.init.presentation.radiusProportions * glm::vec2(sourceInst.sideFactor, 1.0f);
 
-			targetInst.actor.setVelocity(targetInst.actor.getVelocity() * targetType.params.slowFactor);
-			targetInst.animatedTexture.setSpeedScaling(targetType.params.presentation.velocityAnimationSpeedFactor == 0.0f ? 1.0f : glm::length(targetInst.actor.getVelocity() * targetType.params.presentation.velocityAnimationSpeedFactor));
+			targetInst.actor.setVelocity(targetInst.actor.getVelocity() * targetType.init.slowFactor);
+			targetInst.animatedTexture.setSpeedScaling(targetType.init.presentation.velocityAnimationSpeedFactor == 0.0f ? 1.0f : glm::length(targetInst.actor.getVelocity() * targetType.init.presentation.velocityAnimationSpeedFactor));
 
 			glm::vec4 avgColor{};
 			const int iterations = 5;
@@ -1267,7 +1305,7 @@ namespace Levels::DamageOn
 						return glm::vec3(0.8f, glm::linearRand(0.1f, 0.3f), glm::linearRand(0.2f, 0.4f));
 				}();
 
-				int numOfVertices = Tools::Shapes2D::AppendVerticesOfLightning(weaponType.cache.decoration.vertices, sourceInst.actor.getOrigin2D() + weaponOffset + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
+				int numOfVertices = Tools::Shapes2D::AppendVerticesOfLightning(weaponType.cache.decoration.vertices, getWeaponSourcePoint(sourceInst) + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
 					targetInst.actor.getOrigin2D() + glm::diskRand(targetRadius * 0.1f), int(20 * distance), 4.0f / glm::sqrt(distance));
 				const auto sparkColor = glm::mix(glm::vec4(sparkBaseColor, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), sourceInst.manaOvercharging) * glm::linearRand(0.1f, 0.6f);
 				weaponType.cache.decoration.colors.insert(weaponType.cache.decoration.colors.end(), numOfVertices, sparkColor);
@@ -1275,7 +1313,7 @@ namespace Levels::DamageOn
 			}
 			avgColor /= (float)iterations;
 			targetInst.color = glm::mix(targetInst.baseColor, avgColor, glm::linearRand(0.5f, 1.0f));
-			targetInst.hp -= physics.frameDuration * weaponInst.type.params.damageFactor;
+			targetInst.hp -= physics.frameDuration * weaponInst.type.init.damageFactor;
 		}
 
 		void lightningHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst)
@@ -1289,8 +1327,8 @@ namespace Levels::DamageOn
 			auto& lightningDecoration = Globals::Components().decorations().emplace();
 			lightningDecoration.drawMode = GL_LINES;
 
-			targetInst.actor.setVelocity(targetInst.actor.getVelocity() * targetType.params.slowFactor);
-			targetInst.animatedTexture.setSpeedScaling(targetType.params.presentation.velocityAnimationSpeedFactor == 0.0f ? 1.0f : glm::length(targetInst.actor.getVelocity() * targetType.params.presentation.velocityAnimationSpeedFactor));
+			targetInst.actor.setVelocity(targetInst.actor.getVelocity() * targetType.init.slowFactor);
+			targetInst.animatedTexture.setSpeedScaling(targetType.init.presentation.velocityAnimationSpeedFactor == 0.0f ? 1.0f : glm::length(targetInst.actor.getVelocity() * targetType.init.presentation.velocityAnimationSpeedFactor));
 
 			const float distance = 50.0f;
 			const glm::vec2 targetPos = targetInst.actor.getOrigin2D();
@@ -1313,7 +1351,7 @@ namespace Levels::DamageOn
 			}));
 
 			targetInst.color = glm::mix(targetInst.baseColor, lightningColor, glm::linearRand(0.5f, 1.0f));
-			targetInst.hp -= physics.frameDuration * weaponInst.type.params.damageFactor;
+			targetInst.hp -= physics.frameDuration * weaponInst.type.init.damageFactor;
 		}
 
 		void fireballsHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, glm::vec2 direction)
@@ -1321,7 +1359,7 @@ namespace Levels::DamageOn
 			static constexpr bool playerSource = std::is_same_v<std::remove_cvref_t<decltype(sourceInst)>, PlayerType::Inst>;
 			const auto& physics = Globals::Components().physics();
 
-			fireballSpawn(sourceInst.actor.getOrigin2D(), targetInst.actor.getOrigin2D(), glm::normalize(direction) * 20.0f, 0.3f, weaponInst, playerSource);
+			fireballSpawn(getWeaponSourcePoint(sourceInst), targetInst.actor.getOrigin2D(), glm::normalize(direction) * 20.0f, 0.3f, weaponInst, playerSource);
 		}
 
 		void fireballSpawn(glm::vec2 startPos, glm::vec2 endPos, glm::vec2 velocity, float radius, auto& weaponInst, bool playerSource)
@@ -1349,7 +1387,7 @@ namespace Levels::DamageOn
 				sound.setRemoveOnStop(true);
 			});
 			fireball.stepF = [&, startTime = physics.simulationDuration, playerSource, endPos,
-				nV = glm::normalize(velocity), multishot = weaponInst.multishot, damageFactor = weaponInst.type.params.damageFactor]() {
+				nV = glm::normalize(velocity), multishot = weaponInst.multishot, damageFactor = weaponInst.type.init.damageFactor]() {
 				if (glm::distance(fireball.getOrigin2D(), endPos) < 0.5f ||
 					glm::dot(nV, glm::normalize(endPos - fireball.getOrigin2D())) <= 0.0f ||
 					physics.simulationDuration >= startTime + 5.0f)
@@ -1359,9 +1397,9 @@ namespace Levels::DamageOn
 					fireballs.erase(fireball.getComponentId());
 				}
 			};
-			fireball.deferredTeardownF = [&, prevDeferredTeardownF = std::move(fireball.deferredTeardownF)] {
-				if (prevDeferredTeardownF)
-					prevDeferredTeardownF();
+			fireball.teardownF = [&, prevTeardownF = std::move(fireball.teardownF)] {
+				if (prevTeardownF)
+					prevTeardownF();
 				thrustSound.state = ComponentState::Outdated;
 			};
 			fireball.posInSubsequence = 2;
@@ -1409,10 +1447,10 @@ namespace Levels::DamageOn
 
 				if (fire && weaponInst.shotCounter)
 				{
-					sourceInst.manaOvercharging += physics.frameDuration * weaponInst.type.params.overchargingRate;
+					sourceInst.manaOvercharging += physics.frameDuration * weaponInst.type.init.overchargingRate;
 					if (sourceInst.manaOvercharging < 1.0f)
 					{
-						if (weaponType.params.archetype == "sparking")
+						if (weaponType.init.archetype == WeaponType::Archetype::Sparking)
 							playFireSound();
 						weaponInst.shoting = true;
 						shoting = true;
@@ -1459,7 +1497,7 @@ namespace Levels::DamageOn
 
 			if (!shoting)
 			{
-				sourceInst.manaOvercharging -= physics.frameDuration * sourceInst.type.params.coolingRate;
+				sourceInst.manaOvercharging -= physics.frameDuration * sourceInst.type.init.coolingRate;
 				if (sourceInst.manaOvercharging <= 0.0f)
 				{
 					sourceInst.manaOvercharging = 0.0f;
@@ -1723,16 +1761,65 @@ namespace Levels::DamageOn
 						}
 					}
 					else if constexpr (std::is_same_v<ParamType, AnimationData::Direction>)
-						param = getValue(key) == "forward" ? AnimationData::Direction::Forward : AnimationData::Direction::Backward;
-					else if constexpr (std::is_same_v<ParamType, AnimationData::Mode>)
-						param = getValue(key) == "repeat" ? AnimationData::Mode::Repeat : getValue(key) == "pingpong" ? AnimationData::Mode::Pingpong : AnimationData::Mode::StopOnLastFrame;
-					else if constexpr (std::is_same_v<ParamType, AnimationData::TextureLayout>)
-						param = getValue(key) == "horizontal" ? AnimationData::TextureLayout::Horizontal : AnimationData::TextureLayout::Vertical;
-					else
 					{
-						assert(!"loadParams(): unsupported type for key for key");
-						throw std::runtime_error("Unsupported type for key " + key);
+						const std::string value = getValue(key);
+						param = value == "forward"
+							? AnimationData::Direction::Forward
+							: param = value == "backward"
+							? AnimationData::Direction::Backward
+							: throw std::runtime_error("loadParams(): Unsupported value " + value + " for key " + key);
 					}
+					else if constexpr (std::is_same_v<ParamType, AnimationData::Mode>)
+					{
+						const std::string value = getValue(key);
+						param = value == "repeat"
+							? AnimationData::Mode::Repeat
+							: value == "pingpong"
+							? AnimationData::Mode::Pingpong
+							: value == "stopOnLastFrame"
+							? AnimationData::Mode::StopOnLastFrame
+							: throw std::runtime_error("loadParams(): Unsupported value " + value + " for key " + key);
+					}
+					else if constexpr (std::is_same_v<ParamType, AnimationData::TextureLayout>)
+					{
+						const std::string value = getValue(key);
+						param = value == "horizontal"
+							? AnimationData::TextureLayout::Horizontal
+							: value == "vertical"
+							? AnimationData::TextureLayout::Vertical
+							: throw std::runtime_error("loadParams(): Unsupported value " + value + " for key " + key);
+					}
+					else if constexpr (std::is_same_v<ParamType, WeaponType::Archetype>)
+					{
+						const std::string value = getValue(key);
+						param = value == "sparking"
+							? WeaponType::Archetype::Sparking
+							: value == "lightning"
+							? WeaponType::Archetype::Lightning
+							: value == "fireballs"
+							? WeaponType::Archetype::Fireballs
+							: throw std::runtime_error("loadParams(): Unsupported value " + value + " for key " + key);
+					}
+					else if constexpr (std::is_same_v<ParamType, WeaponType::Aiming>)
+					{
+						const std::string value = getValue(key);
+						param = value == "auto"
+							? WeaponType::Aiming::Auto
+							: value == "manual"
+							? WeaponType::Aiming::Manual
+							: throw std::runtime_error("loadParams(): Unsupported value " + value + " for key " + key);
+					}
+					else if constexpr (std::is_same_v<ParamType, WeaponType::Targeting>)
+					{
+						const std::string value = getValue(key);
+						param = value == "nearest"
+							? WeaponType::Targeting::Nearest
+							: value == "random"
+							? WeaponType::Targeting::Random
+							: throw std::runtime_error("loadParams(): Unsupported value " + value + " for key " + key);
+					}
+					else
+						throw std::runtime_error("Unsupported value for key " + key);
 				}
 				catch (const std::runtime_error& e)
 				{
@@ -1753,27 +1840,54 @@ namespace Levels::DamageOn
 				loadParam(presentationParams.rotation, std::format("{}.presentation.rotation", actorName));
 				loadParam(presentationParams.scale, std::format("{}.presentation.scale", actorName));
 				loadParam(presentationParams.velocityRotationFactor, std::format("{}.presentation.velocityRotationFactor", actorName));
+				presentationParams.velocityRotationFactor = glm::radians(presentationParams.velocityRotationFactor);
 				loadParam(presentationParams.velocityAnimationSpeedFactor, std::format("{}.presentation.velocityAnimationSpeedFactor", actorName));
 				loadParam(presentationParams.weaponOffset, std::format("{}.presentation.weaponOffset", actorName));
 			};
 
 			auto loadAnimationParams = [&](auto& animationParams, std::string actorName) {
-				loadParam(animationParams.textureFile, std::format("{}.animation.textureFile", actorName));
-				loadParam(animationParams.framesGrid, std::format("{}.animation.framesGrid", actorName));
-				loadParam(animationParams.leftTopFrameLeftTopCorner, std::format("{}.animation.leftTopFrameLeftTopCorner", actorName));
-				loadParam(animationParams.rightTopFrameLeftEdge, std::format("{}.animation.rightTopFrameLeftEdge", actorName));
-				loadParam(animationParams.leftBottomFrameTopEdge, std::format("{}.animation.leftBottomFrameTopEdge", actorName));
-				loadParam(animationParams.frameSize, std::format("{}.animation.frameSize", actorName));
-				loadParam(animationParams.frameDuration, std::format("{}.animation.frameDuration", actorName));
-				loadParam(animationParams.numOfFrames, std::format("{}.animation.numOfFrames", actorName));
-				loadParam(animationParams.startFrame, std::format("{}.animation.startFrame", actorName));
-				loadParam(animationParams.direction, std::format("{}.animation.direction", actorName));
-				loadParam(animationParams.mode, std::format("{}.animation.mode", actorName));
-				loadParam(animationParams.textureLayout, std::format("{}.animation.textureLayout", actorName));
-				loadParam(animationParams.frameTranslation, std::format("{}.animation.frameTranslation", actorName));
-				loadParam(animationParams.frameRotation, std::format("{}.animation.frameRotation", actorName));
-				loadParam(animationParams.frameScale, std::format("{}.animation.frameScale", actorName));
-				loadParam(animationParams.neutralFrame, std::format("{}.animation.neutralFrame", actorName));
+				const bool containsAnimation = containsKeyWithPrefix(keysToValues, actorName + ".animation.");
+				const bool containsImage = containsKeyWithPrefix(keysToValues, actorName + ".image.");
+				if (containsAnimation && !containsImage)
+				{
+					loadParam(animationParams.textureFile, std::format("{}.animation.textureFile", actorName));
+					loadParam(animationParams.framesGrid, std::format("{}.animation.framesGrid", actorName));
+					loadParam(animationParams.leftTopFrameLeftTopCorner, std::format("{}.animation.leftTopFrameLeftTopCorner", actorName));
+					loadParam(animationParams.rightTopFrameLeftEdge, std::format("{}.animation.rightTopFrameLeftEdge", actorName));
+					loadParam(animationParams.leftBottomFrameTopEdge, std::format("{}.animation.leftBottomFrameTopEdge", actorName));
+					loadParam(animationParams.frameSize, std::format("{}.animation.frameSize", actorName));
+					loadParam(animationParams.frameDuration, std::format("{}.animation.frameDuration", actorName));
+					loadParam(animationParams.numOfFrames, std::format("{}.animation.numOfFrames", actorName));
+					loadParam(animationParams.startFrame, std::format("{}.animation.startFrame", actorName));
+					loadParam(animationParams.direction, std::format("{}.animation.direction", actorName));
+					loadParam(animationParams.mode, std::format("{}.animation.mode", actorName));
+					loadParam(animationParams.textureLayout, std::format("{}.animation.textureLayout", actorName));
+					loadParam(animationParams.frameTranslation, std::format("{}.animation.frameTranslation", actorName));
+					loadParam(animationParams.frameRotation, std::format("{}.animation.frameRotation", actorName));
+					loadParam(animationParams.frameScale, std::format("{}.animation.frameScale", actorName));
+					loadParam(animationParams.neutralFrame, std::format("{}.animation.neutralFrame", actorName));
+				}
+				else if (!containsAnimation && containsImage)
+				{
+					loadParam(animationParams.textureFile, std::format("{}.image.textureFile", actorName));
+					animationParams.framesGrid = { 1, 1 };
+					animationParams.leftTopFrameLeftTopCorner = { 0, 0 };
+					animationParams.rightTopFrameLeftEdge = 0;
+					animationParams.leftBottomFrameTopEdge = 0;
+					animationParams.frameSize = { 0, 0 };
+					animationParams.frameDuration = 0.0f;
+					animationParams.numOfFrames = 1;
+					animationParams.startFrame = 0;
+					animationParams.direction = AnimationData::Direction::Forward;
+					animationParams.mode = AnimationData::Mode::StopOnLastFrame;
+					animationParams.textureLayout = AnimationData::TextureLayout::Horizontal;
+					loadParam(animationParams.frameTranslation, std::format("{}.image.frameTranslation", actorName));
+					loadParam(animationParams.frameRotation, std::format("{}.image.frameRotation", actorName));
+					loadParam(animationParams.frameScale, std::format("{}.image.frameScale", actorName));
+					animationParams.neutralFrame = 0;
+				}
+				else
+					throw std::runtime_error("loadParams(): Actor " + actorName + " must have either animation or image parameters");
 
 				const auto [texturePath, additionalConversion] = [](const std::string& text) -> std::pair<std::string, std::string> {
 					size_t start = text.find('"');
@@ -1801,6 +1915,8 @@ namespace Levels::DamageOn
 				dynamicTextures.last().magFilter = GL_LINEAR;
 				animationParams.loaded.emplace(dynamicTextures.last());
 				animationParams.loaded->textureSize = Globals::Systems().textures().loadFile(TextureFile(texturePath)).size;
+				if (animationParams.frameSize == glm::ivec2(0))
+					animationParams.frameSize = animationParams.loaded->textureSize;
 			};
 
 			auto extractName = [](const std::string& line, const std::string& prefix) -> std::string {
@@ -1822,21 +1938,23 @@ namespace Levels::DamageOn
 				{
 					if (auto playerName = extractName(key, "player."); !playerName.empty() && playerName != prevPlayerName)
 					{
-						auto& typeParams = playerGameComponents.typeNamesToTypes.emplace(playerName, PlayerType{}).first->second.params;
-						typeParams.typeName = std::move(playerName);
+						auto& typeInit = playerGameComponents.typeNamesToTypes.emplace(playerName, PlayerType{}).first->second.init;
+						typeInit.typeName = std::move(playerName);
 
-						loadParam(typeParams.hp, std::format("player.{}.hp", typeParams.typeName));
-						loadParam(typeParams.radius, std::format("player.{}.radius", typeParams.typeName));
-						loadParam(typeParams.baseVelocity, std::format("player.{}.baseVelocity", typeParams.typeName));
-						loadParam(typeParams.slowFactor, std::format("player.{}.slowFactor", typeParams.typeName));
-						loadParam(typeParams.density, std::format("player.{}.density", typeParams.typeName));
-						loadParam(typeParams.linearDamping, std::format("player.{}.linearDamping", typeParams.typeName));
-						loadParam(typeParams.dash, std::format("player.{}.dash", typeParams.typeName));
-						loadParam(typeParams.coolingRate, std::format("player.{}.coolingRate", typeParams.typeName));
-						loadPresentationParams(typeParams.presentation, std::format("player.{}", typeParams.typeName));
-						loadAnimationParams(typeParams.animation, std::format("player.{}", typeParams.typeName));
+						loadParam(typeInit.hp, std::format("player.{}.hp", typeInit.typeName));
+						loadParam(typeInit.radius, std::format("player.{}.radius", typeInit.typeName));
+						loadParam(typeInit.baseVelocity, std::format("player.{}.baseVelocity", typeInit.typeName));
+						loadParam(typeInit.slowFactor, std::format("player.{}.slowFactor", typeInit.typeName));
+						loadParam(typeInit.density, std::format("player.{}.density", typeInit.typeName));
+						loadParam(typeInit.linearDamping, std::format("player.{}.linearDamping", typeInit.typeName));
+						loadParam(typeInit.dash, std::format("player.{}.dash", typeInit.typeName));
+						loadParam(typeInit.coolingRate, std::format("player.{}.coolingRate", typeInit.typeName));
+						loadParam(typeInit.minAimingAngle, std::format("player.{}.minAimingAngle", typeInit.typeName));
+						typeInit.minAimingAngle = glm::radians(typeInit.minAimingAngle);
+						loadPresentationParams(typeInit.presentation, std::format("player.{}", typeInit.typeName));
+						loadAnimationParams(typeInit.animation, std::format("player.{}", typeInit.typeName));
 
-						prevPlayerName = typeParams.typeName;
+						prevPlayerName = typeInit.typeName;
 					}
 				}
 			};
@@ -1847,24 +1965,24 @@ namespace Levels::DamageOn
 				{
 					if (auto enemyName = extractName(key, "enemy."); !enemyName.empty() && enemyName != prevEnemyName)
 					{
-						auto& typeParams = enemyGameComponents.typeNamesToTypes.emplace(enemyName, EnemyType{}).first->second.params;
-						typeParams.typeName = std::move(enemyName);
+						auto& typeInit = enemyGameComponents.typeNamesToTypes.emplace(enemyName, EnemyType{}).first->second.init;
+						typeInit.typeName = std::move(enemyName);
 
-						loadParam(typeParams.hp, std::format("enemy.{}.hp", typeParams.typeName));
-						loadParam(typeParams.radiusRange, std::format("enemy.{}.radiusRange", typeParams.typeName));
-						loadParam(typeParams.density, std::format("enemy.{}.density", typeParams.typeName));
-						loadParam(typeParams.baseVelocity, std::format("enemy.{}.baseVelocity", typeParams.typeName));
-						loadParam(typeParams.boostDistance, std::format("enemy.{}.boostDistance", typeParams.typeName));
-						loadParam(typeParams.boostFactor, std::format("enemy.{}.boostFactor", typeParams.typeName));
-						loadParam(typeParams.slowFactor, std::format("enemy.{}.slowFactor", typeParams.typeName));
-						loadParam(typeParams.radiusReductionFactor, std::format("enemy.{}.radiusReductionFactor", typeParams.typeName));
-						loadParam(typeParams.minimalRadius, std::format("enemy.{}.minimalRadius", typeParams.typeName));
-						loadParam(typeParams.killSpawns, std::format("enemy.{}.killSpawns", typeParams.typeName));
-						loadParam(typeParams.coolingRate, std::format("enemy.{}.coolingRate", typeParams.typeName));
-						loadPresentationParams(typeParams.presentation, std::format("enemy.{}", typeParams.typeName));
-						loadAnimationParams(typeParams.animation, std::format("enemy.{}", typeParams.typeName));
+						loadParam(typeInit.hp, std::format("enemy.{}.hp", typeInit.typeName));
+						loadParam(typeInit.radiusRange, std::format("enemy.{}.radiusRange", typeInit.typeName));
+						loadParam(typeInit.density, std::format("enemy.{}.density", typeInit.typeName));
+						loadParam(typeInit.baseVelocity, std::format("enemy.{}.baseVelocity", typeInit.typeName));
+						loadParam(typeInit.boostDistance, std::format("enemy.{}.boostDistance", typeInit.typeName));
+						loadParam(typeInit.boostFactor, std::format("enemy.{}.boostFactor", typeInit.typeName));
+						loadParam(typeInit.slowFactor, std::format("enemy.{}.slowFactor", typeInit.typeName));
+						loadParam(typeInit.radiusReductionFactor, std::format("enemy.{}.radiusReductionFactor", typeInit.typeName));
+						loadParam(typeInit.minimalRadius, std::format("enemy.{}.minimalRadius", typeInit.typeName));
+						loadParam(typeInit.killSpawns, std::format("enemy.{}.killSpawns", typeInit.typeName));
+						loadParam(typeInit.coolingRate, std::format("enemy.{}.coolingRate", typeInit.typeName));
+						loadPresentationParams(typeInit.presentation, std::format("enemy.{}", typeInit.typeName));
+						loadAnimationParams(typeInit.animation, std::format("enemy.{}", typeInit.typeName));
 
-						prevEnemyName = typeParams.typeName;
+						prevEnemyName = typeInit.typeName;
 					}
 				}
 			};
@@ -1875,19 +1993,19 @@ namespace Levels::DamageOn
 				{
 					if (auto weaponName = extractName(key, "weapon."); !weaponName.empty() && weaponName != prevWeaponName)
 					{
-						auto& typeParams = weaponGameComponents.typeNamesToTypes.emplace(weaponName, WeaponType{}).first->second.params;
-						typeParams.typeName = std::move(weaponName);
+						auto& typeInit = weaponGameComponents.typeNamesToTypes.emplace(weaponName, WeaponType{}).first->second.init;
+						typeInit.typeName = std::move(weaponName);
 
-						loadParam(typeParams.archetype, std::format("weapon.{}.archetype", typeParams.typeName));
-						loadParam(typeParams.aiming, std::format("weapon.{}.aiming", typeParams.typeName));
-						loadParam(typeParams.distance, std::format("weapon.{}.distance", typeParams.typeName));
-						loadParam(typeParams.damageFactor, std::format("weapon.{}.damageFactor", typeParams.typeName));
-						loadParam(typeParams.overchargingRate, std::format("weapon.{}.overchargingRate", typeParams.typeName));
-						loadParam(typeParams.reloadTime, std::format("weapon.{}.reloadTime", typeParams.typeName));
-						loadParam(typeParams.shotDuration, std::format("weapon.{}.shotDuration", typeParams.typeName), false);
-						loadParam(typeParams.multishot, std::format("weapon.{}.multishot", typeParams.typeName));
+						loadParam(typeInit.archetype, std::format("weapon.{}.archetype", typeInit.typeName));
+						loadParam(typeInit.targeting, std::format("weapon.{}.targeting", typeInit.typeName));
+						loadParam(typeInit.distance, std::format("weapon.{}.distance", typeInit.typeName));
+						loadParam(typeInit.damageFactor, std::format("weapon.{}.damageFactor", typeInit.typeName));
+						loadParam(typeInit.overchargingRate, std::format("weapon.{}.overchargingRate", typeInit.typeName));
+						loadParam(typeInit.reloadTime, std::format("weapon.{}.reloadTime", typeInit.typeName));
+						loadParam(typeInit.shotDuration, std::format("weapon.{}.shotDuration", typeInit.typeName), false);
+						loadParam(typeInit.multishot, std::format("weapon.{}.multishot", typeInit.typeName));
 
-						prevWeaponName = typeParams.typeName;
+						prevWeaponName = typeInit.typeName;
 					}
 				}
 			};
@@ -1914,6 +2032,7 @@ namespace Levels::DamageOn
 			loadParam(levelParams.debris.widthRange, "level.debris.widthRange", false);
 			loadParam(levelParams.debris.heightRatioRange, "level.debris.heightRatioRange", false);
 			loadParam(levelParams.debris.angleRange, "level.debris.angleRange", false);
+			levelParams.debris.angleRange = { glm::radians(levelParams.debris.angleRange.x), glm::radians(levelParams.debris.angleRange.y) };
 			loadParam(levelParams.debris.density, "level.debris.density", false);
 
 			playerGameComponents.reset();
@@ -1976,7 +2095,7 @@ namespace Levels::DamageOn
 							playerSpawn(*actorType.first, actorType.second, hordeSpawner.weaponTypes, hordeSpawner.position + glm::circularRand(0.1f));
 						else
 							enemySpawn(*actorType, hordeSpawner.weaponTypes, hordeSpawner.position + glm::circularRand(0.1f),
-								glm::linearRand(actorType->params.radiusRange.x, actorType->params.radiusRange.y));
+								glm::linearRand(actorType->init.radiusRange.x, actorType->init.radiusRange.y));
 					}, hordeSpawner.actorTypeVariant);
 		}
 
@@ -2036,6 +2155,9 @@ namespace Levels::DamageOn
 			std::shared_ptr<Tools::SoundsLimitter> dashes = Tools::SoundsLimitter::create(8);
 			std::shared_ptr<Tools::SoundsLimitter> kills = Tools::SoundsLimitter::create(8);
 		} playerSoundLimitters, enemieSoundLimitters;
+
+		std::vector<int> shuffledTargetSeqsInRange;
+		std::unordered_map<int, int> shuffledInRangeTargetSeqsMapping;
 
 		struct
 		{

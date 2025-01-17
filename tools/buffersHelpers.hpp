@@ -8,6 +8,9 @@
 
 #include <ranges>
 
+#include <iostream>
+using namespace std;
+
 namespace Tools
 {
 	template <typename Component>
@@ -70,12 +73,12 @@ namespace Tools
 				else
 					return dynamicBuffers.textured[layer];
 			}();
-			 
+
 			if (!component.loaded.buffers)
 			{
-				component.deferredTeardownF = [&, prevDeferredTeardownF = std::move(component.deferredTeardownF)]() {
-					if (prevDeferredTeardownF)
-						prevDeferredTeardownF();
+				component.teardownF = [&, prevTeardownF = std::move(component.teardownF)]() {
+					if (prevTeardownF)
+						prevTeardownF();
 					mapOfSelectedBuffers.erase(component.getComponentId());
 				};
 			}

@@ -165,7 +165,10 @@ namespace Globals
 
 	void InitializeComponents();
 	void DestroyComponents();
-	void MarkDynamicComponentsAsDirty();
+	void CleanupComponents();
+	void CleanupStaticComponents();
+	void CleanupDynamicComponents();
+	void OutdateDynamicComponents();
 
 	ComponentsHolder& Components();
 }

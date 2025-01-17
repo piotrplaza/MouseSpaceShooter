@@ -11,6 +11,9 @@
 #include <optional>
 #include <limits>
 
+#include <iostream>
+using namespace std;
+
 namespace Components
 {
 	struct Plane : Physical
@@ -23,6 +26,9 @@ namespace Components
 			std::optional<ShadersUtils::ProgramId> customShadersProgram = std::nullopt):
 			Physical(std::move(body), texture, std::move(renderingSetupF), renderLayer, customShadersProgram)
 		{
+			//stepF = [&]() {
+			//	cout << getComponentId() << ": " << !!details.grappleJoint << endl;
+			//};
 		}
 
 		bool connectIfApproaching = false;
@@ -36,7 +42,7 @@ namespace Components
 			float autoRotationFactor = 1.0f;
 			float throttling = 0.0f;
 			bool magneticHook = false;
-			bool startPressed = false;
+			bool backPressed = false;
 		} controls;
 
 		struct

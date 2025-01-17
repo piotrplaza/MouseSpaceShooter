@@ -276,13 +276,8 @@ namespace Levels
 			constexpr int numOfDebris = 8;
 			auto& dynamicWalls = Globals::Components().walls();
 
-			for (const auto debrisId : dynamicWallsDebris)
-			{
-				dynamicWalls[debrisId].setEnabled(false);
-				dynamicWalls[debrisId].state = ComponentState::Outdated;
-			}
-
 			dynamicWallsDebris.clear();
+			dynamicWallsDebris.reserve(numOfDebris);
 
 			for (int i = 0; i < numOfDebris; ++i)
 			{
@@ -364,7 +359,7 @@ namespace Levels
 
 			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
 				missilesHandler.launchingMissile(playerHandlerId, fire, CM::SoundBuffer(missileLaunchingSoundBuffer, true));
-				if (playersHandler.getActivePlayersHandlers().size() == 1 && Globals::Components().planes()[playersHandler.getActivePlayersHandlers().front()->playerId].controls.startPressed)
+				if (playersHandler.getActivePlayersHandlers().size() == 1 && Globals::Components().planes()[playersHandler.getActivePlayersHandlers().front()->playerId].controls.backPressed)
 					reset();
 				});
 
@@ -379,7 +374,7 @@ namespace Levels
 			nextEmissionTime = emissionInterval;
 			startTime = physics.simulationDuration;
 			missilesHandler.removeActiveMissiles();
-			Globals::MarkDynamicComponentsAsDirty();
+			Globals::OutdateDynamicComponents();
 
 			innerForceSound = Tools::CreateAndPlaySound(CM::SoundBuffer(innerForceSoundBuffer, true), []() { return glm::vec2(0.0f); },
 				[](auto& sound) {

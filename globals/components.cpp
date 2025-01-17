@@ -313,9 +313,24 @@ namespace Globals
 		componentsHolder.reset();
 	}
 
-	void MarkDynamicComponentsAsDirty()
+	void CleanupComponents()
 	{
-		DynamicComponentsBase::markAllAsDirty();
+		ComponentsBase::CleanupAll();
+	}
+
+	void CleanupStaticComponents()
+	{
+		StaticComponentsBase::CleanupAll();
+	}
+
+	void CleanupDynamicComponents()
+	{
+		DynamicComponentsBase::CleanupAll();
+	}
+
+	void OutdateDynamicComponents()
+	{
+		DynamicComponentsBase::OutdateAll();
 	}
 
 	ComponentsHolder& Components()

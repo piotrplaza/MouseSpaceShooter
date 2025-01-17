@@ -10,6 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <string>
+#include <random>
 
 namespace Tools
 {
@@ -113,6 +114,16 @@ namespace Tools
 
 	namespace StableRandom
 	{
+		struct Std0HashPolicy
+		{
+			static unsigned Hash(unsigned x)
+			{
+				static std::mt19937 rg;
+				rg.seed(x);
+				return rg();
+			}
+		};
+
 		struct Std1HashPolicy
 		{
 			static unsigned Hash(unsigned x)
@@ -238,6 +249,7 @@ namespace Tools
 			}
 		};
 
+		using Std0Random = Random<Std0HashPolicy>;
 		using Std1Random = Random<Std1HashPolicy>;
 		using Std2Random = Random<Std2HashPolicy>;
 		using Std3Random = Random<Std3HashPolicy>;

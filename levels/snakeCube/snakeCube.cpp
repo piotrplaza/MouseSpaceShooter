@@ -456,18 +456,18 @@ namespace Levels
 		void handleBorders(glm::ivec3& pos)
 		{
 			auto changeCoordinates90CW = [&]() {
-				up = Rotate90CW(up);
-				lastSnakeStep = Rotate90CW(lastSnakeStep);
+				up = Tools::Rotate90CW(up);
+				lastSnakeStep = Tools::Rotate90CW(lastSnakeStep);
 			};
 
 			auto changeCoordinates90CCW = [&]() {
-				up = Rotate90CCW(up);
-				lastSnakeStep = Rotate90CCW(lastSnakeStep);
+				up = Tools::Rotate90CCW(up);
+				lastSnakeStep = Tools::Rotate90CCW(lastSnakeStep);
 			};
 
 			auto changeCoordinates180 = [&]() {
-				up = Rotate180(up);
-				lastSnakeStep = Rotate180(lastSnakeStep);
+				up = Tools::Rotate180(up);
+				lastSnakeStep = Tools::Rotate180(lastSnakeStep);
 			};
 
 			const glm::ivec2 prevUp = up;
@@ -724,11 +724,11 @@ namespace Levels
 			case SnakeDirection::Up:
 				return up;
 			case SnakeDirection::Down:
-				return Rotate180(up);
+				return Tools::Rotate180(up);
 			case SnakeDirection::Left:
-				return Rotate90CCW(up);
+				return Tools::Rotate90CCW(up);
 			case SnakeDirection::Right:
-				return Rotate90CW(up);
+				return Tools::Rotate90CW(up);
 			}
 
 			return up;

@@ -358,6 +358,9 @@
     <ClCompile Include="levels\tests\tests.cpp">
       <Filter>src\levels\tests</Filter>
     </ClCompile>
+    <ClCompile Include="commonTypes\componentsContainers.cpp">
+      <Filter>src\commonTypes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mvp.hpp">

@@ -7,6 +7,7 @@
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
 #include <components/wall.hpp>
+#include <components/grapple.hpp>
 #include <components/polyline.hpp>
 #include <components/soundBuffer.hpp>
 #include <components/sound.hpp>
@@ -32,7 +33,10 @@
 
 namespace
 {
-	unsigned circuitsToEliminate = 1;
+	constexpr bool gamepadForPlayer1 = true;
+	constexpr unsigned circuitsToEliminate = 3;
+	constexpr float squareHSize = 100.0f;
+	constexpr float ringRadius = 200.0f;
 }
 
 namespace Levels
@@ -43,6 +47,7 @@ namespace Levels
 		void setGraphicsSettings() const
 		{
 			Globals::Components().graphicsSettings().backgroundColorF = glm::vec4{ 0.7f, 0.8f, 0.9f, 1.0f };
+			Globals::Components().graphicsSettings().lineWidth = 5.0f;
 		}
 
 		void loadTextures()
@@ -120,17 +125,16 @@ namespace Levels
 			{
 				auto& staticWalls = Globals::Components().staticWalls();
 
-				staticWalls.emplace(Tools::CreateBoxBody({ 100.0f, 100.0f }), CM::Texture(cityTexture, true));
+				staticWalls.emplace(Tools::CreateBoxBody({ squareHSize, squareHSize }, Tools::BodyParams{}.friction(10.0f)), CM::Texture(cityTexture, true));
 				staticWalls.last().texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 
-				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 160.0f, 0.0f })), CM::Texture(orbTexture, true));
-				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 100.0f, 0.0f })), CM::Texture(orbTexture, true));
+				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ ringRadius, 0.0f })), CM::Texture(orbTexture, true));
+				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ squareHSize, 0.0f })), CM::Texture(orbTexture, true));
 			}
 
 			{
 				auto& staticPolylines = Globals::Components().staticPolylines();
 
-				constexpr float outerRingR = 160.0f;
 				constexpr int numOfRingSegments = 200;
 				constexpr float ringStep = glm::two_pi<float>() / numOfRingSegments;
 
@@ -138,7 +142,7 @@ namespace Levels
 				ringSegments.reserve(numOfRingSegments);
 				for (int i = 0; i < numOfRingSegments; ++i)
 				{
-					ringSegments.emplace_back(glm::vec2(glm::cos(i * ringStep), glm::sin(i * ringStep)) * outerRingR);
+					ringSegments.emplace_back(glm::vec2(glm::cos(i * ringStep), glm::sin(i * ringStep)) * ringRadius);
 				}
 				ringSegments.push_back(ringSegments.front());
 				auto& outerRing = staticPolylines.emplace(ringSegments, Tools::BodyParams().sensor(true));
@@ -150,7 +154,7 @@ namespace Levels
 						: glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)) * 0.8f;
 				};
 
-				auto& finishLine = staticPolylines.emplace(std::vector<glm::vec2>{ {100.0f, 0.0f}, {160.0f, 0.0f} }, Tools::BodyParams().sensor(true));
+				auto& finishLine = staticPolylines.emplace(std::vector<glm::vec2>{ {squareHSize, 0.0f}, {ringRadius, 0.0f} }, Tools::BodyParams().sensor(true));
 				finishLine.colorF = []() { return glm::vec4(0.0f, 0.0f, 1.0f, 1.0f); };
 				finishStaticPolyline = finishLine.getComponentId();
 			}
@@ -288,17 +292,29 @@ namespace Levels
 
 			const auto& planes = Globals::Components().planes();
 			const auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
-			if (activePlayersHandlers.size() == 1 && planes[activePlayersHandlers.front()->playerId].controls.startPressed)
+			if (activePlayersHandlers.size() == 1 && planes[activePlayersHandlers.front()->playerId].controls.backPressed)
 				reset();
 		}
 
 		void reset()
 		{
-			Globals::MarkDynamicComponentsAsDirty();
+			Globals::CleanupDynamicComponents();
 
-			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
-				[this](unsigned playerId, auto) {
-					return glm::vec3(110.0f + playerId * 5.0f, -0.1f, glm::half_pi<float>());
+			{
+				auto& grapples = Globals::Components().grapples();
+
+				constexpr float influenceRadius = (ringRadius - squareHSize) * 0.6f;
+
+				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ -squareHSize, -squareHSize })), CM::Texture(orbTexture, true)).influenceRadius = influenceRadius;
+				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ squareHSize, -squareHSize })), CM::Texture(orbTexture, true)).influenceRadius = influenceRadius;
+				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ -squareHSize, squareHSize })), CM::Texture(orbTexture, true)).influenceRadius = influenceRadius;
+				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ squareHSize, squareHSize })), CM::Texture(orbTexture, true)).influenceRadius = influenceRadius;
+			}
+
+			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, gamepadForPlayer1,
+				[this](unsigned playerId, unsigned numOfPlayers) {
+					const float distance = 4.0f;
+					return glm::vec3((squareHSize + ringRadius) * 0.5f - ((numOfPlayers - 1) * distance) * 0.5f + playerId * distance, -0.1f, glm::half_pi<float>());
 				}, true, CM::SoundBuffer(thrustSoundBuffer, true), CM::SoundBuffer(grappleSoundBuffer, true));
 
 			collisionHandlers();

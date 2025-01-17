@@ -11,7 +11,7 @@
 AnimationData::AnimationData(CM::Texture texture, glm::ivec2 textureSize, glm::ivec2 framesGrid, glm::ivec2 leftTopFrameLeftTopCorner, int rightTopFrameLeftEdge, int leftBottomFrameTopEdge,
 	glm::ivec2 frameSize, float frameDuration, int numOfFrames, int startFrame, Direction animationDirection, Mode animationMode, TextureLayout textureLayout) :
 	texture(std::move(texture)),
-	framesGrid(framesGrid),
+	framesGrid(glm::max(framesGrid.x, 2), glm::max(framesGrid.y, 2)),
 	leftTopFrameLeftTopCorner(glm::vec2(leftTopFrameLeftTopCorner) / textureSize),
 	rightTopFrameLeftEdge((float)rightTopFrameLeftEdge / textureSize.x),
 	leftBottomFrameTopEdge((float)leftBottomFrameTopEdge / textureSize.y),
