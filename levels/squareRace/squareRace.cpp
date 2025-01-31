@@ -33,7 +33,7 @@
 
 namespace
 {
-	constexpr bool gamepadForPlayer1 = true;
+	constexpr bool gamepadForPlayer1 = false;
 	constexpr unsigned circuitsToEliminate = 3;
 	constexpr float squareHSize = 100.0f;
 	constexpr float ringRadius = 200.0f;

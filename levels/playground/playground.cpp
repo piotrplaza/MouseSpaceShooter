@@ -568,7 +568,7 @@ namespace Levels
 			grapple.subsequence.back().renderingSetupF = createRecursiveFaceRS([]() { return glm::vec4(1.0f); }, { 3.0f, 4.0f });
 		}
 
-		void setCamera() const
+		void setCamera()
 		{
 			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([this]() { return projectionHSizeBase; }));
 		}

@@ -83,7 +83,7 @@ namespace Levels
 			staticWalls.emplace(Tools::CreateBoxBody({ 1.0f, 1.0f }));
 		}
 
-		void setCamera() const
+		void setCamera()
 		{
 			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 10.0f; }).scalingFactor(0.7f));
 		}

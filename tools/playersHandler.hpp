@@ -23,6 +23,7 @@ namespace Tools
 		float thrustVolume = 0.0f;
 		std::optional<ComponentId> grappleSound;
 		float grappleVolume = 0.0f;
+		std::optional<float> disabledTime;
 	};
 
 	class PlayersHandler
@@ -54,6 +55,12 @@ namespace Tools
 				return *this;
 			}
 
+			CameraParams& trackingTimeAfterDisabled(float value)
+			{
+				trackingTimeAfterDisabled_ = value;
+				return *this;
+			}
+
 			CameraParams& additionalActors(FVec2 value)
 			{
 				additionalActors_.push_back(std::move(value));
@@ -62,8 +69,9 @@ namespace Tools
 
 			FFloat projectionHSizeMin_;
 			float scalingFactor_ = 0.6f;
-			float velocityFactor_ = 0.2f;
+			float velocityFactor_ = 0.1f;
 			float transitionFactor_ = 10.0f;
+			float trackingTimeAfterDisabled_ = 1.0f;
 			std::vector<FVec2> additionalActors_;
 		};
 
@@ -72,7 +80,7 @@ namespace Tools
 		void initPlayers(const std::array<CM::Texture, 4>& planeTexturesForPlayers, const std::array<CM::AnimatedTexture, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
 			std::function<glm::vec3(unsigned playerId, unsigned numOfPlayers)> initLocF, bool centerToFront = false, std::optional<CM::SoundBuffer> thrustSoundBuffer = std::nullopt,
 			std::optional<CM::SoundBuffer> grappleSoundBuffer = std::nullopt);
-		void setCamera(CameraParams cameraParams) const;
+		void setCamera(CameraParams cameraParams);
 
 		void gamepadsAutodetectionStep(std::function<glm::vec3(unsigned player)> initLocF);
 		void controlStep(std::function<void(unsigned playerHandlerId, bool fire)> fireF = nullptr);

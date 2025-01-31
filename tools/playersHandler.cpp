@@ -121,10 +121,11 @@ namespace Tools
 		}
 	}
 
-	void PlayersHandler::setCamera(CameraParams cameraParams) const
+	void PlayersHandler::setCamera(CameraParams cameraParams)
 	{
 		const auto& planes = Globals::Components().planes();
 		const auto& screenInfo = Globals::Components().systemInfo().screen;
+		const auto& physics = Globals::Components().physics();
 
 		auto velocityCorrection = [velocityFactor = cameraParams.velocityFactor_](const auto& plane) {
 			return plane.getVelocity() * velocityFactor;
@@ -135,24 +136,42 @@ namespace Tools
 		Globals::Components().camera2D().targetPositionAndProjectionHSizeF = [&, velocityCorrection,
 				projectionHSizeMin = std::move(cameraParams.projectionHSizeMin_),
 				scalingFactor = cameraParams.scalingFactor_,
-				additionalActors = cameraParams.additionalActors_]() {
+				additionalActors = cameraParams.additionalActors_,
+				trackingTimeAfterDisabled = cameraParams.trackingTimeAfterDisabled_]() {
+
+			glm::vec2 sumOfVelocityCorrections(0.0f);
+			auto& playersHandlers = accessPlayersHandlers();
+			std::vector<glm::vec2> allActorsPos;
+			allActorsPos.reserve(playersHandlers.size() + additionalActors.size());
+			std::vector<glm::vec2> allVCorrectedActorsPos;
+			allVCorrectedActorsPos.reserve(playersHandlers.size() + additionalActors.size());
+
+			for (auto& playerHandler : playersHandlers)
+			{
+				const auto& plane = planes[playerHandler.playerId];
+				if (!plane.isEnabled())
+				{
+					if (!playerHandler.disabledTime)
+						playerHandler.disabledTime = physics.simulationDuration;
+					if (physics.simulationDuration - *playerHandler.disabledTime > trackingTimeAfterDisabled)
+						continue;
+				}
+				else
+					playerHandler.disabledTime = std::nullopt;
+
+				allActorsPos.emplace_back(plane.getOrigin2D());
+				allVCorrectedActorsPos.emplace_back(plane.getOrigin2D() + velocityCorrection(plane));
+				sumOfVelocityCorrections += velocityCorrection(plane);
+			}
+			for (const auto& additionalActor : additionalActors)
+			{
+				allActorsPos.emplace_back(additionalActor());
+				allVCorrectedActorsPos.emplace_back(additionalActor());
+			}
 
 			auto targetPosition = [&]() {
 				glm::vec2 min(std::numeric_limits<float>::max());
 				glm::vec2 max(std::numeric_limits<float>::lowest());
-				glm::vec2 sumOfVelocityCorrections(0.0f);
-				auto activePlayersHandlers = getActivePlayersHandlers();
-				std::vector<glm::vec2> allActorsPos;
-				allActorsPos.reserve(activePlayersHandlers.size() + additionalActors.size());
-
-				for (const auto& playerHandler : activePlayersHandlers)
-				{
-					const auto& plane = planes[playerHandler->playerId];
-					allActorsPos.emplace_back(plane.getOrigin2D());
-					sumOfVelocityCorrections += velocityCorrection(plane);
-				}
-				for (const auto& additionalActor : additionalActors)
-					allActorsPos.emplace_back(additionalActor());
 
 				for (const auto& actorPos : allActorsPos)
 				{
@@ -160,33 +179,20 @@ namespace Tools
 					max = { std::max(max.x, actorPos.x), std::max(max.y, actorPos.y) };
 				}
 
-				return (min + max) / 2.0f + sumOfVelocityCorrections / (float)activePlayersHandlers.size();
+				return (min + max) / 2.0f + sumOfVelocityCorrections / (float)playersHandlers.size();
 			}();
 
 			auto targetProjection = [&]() {
 				const float maxDistance = [&]() {
-					const auto activePlayersHandlers = getActivePlayersHandlers();
-
-					if (activePlayersHandlers.size() == 1 && additionalActors.empty())
-						return glm::length(velocityCorrection(planes[activePlayersHandlers[0]->playerId])) + projectionHSizeMin();
-
-					std::vector<glm::vec2> allActorsPos;
-					allActorsPos.reserve(activePlayersHandlers.size() + additionalActors.size());
-
-					for (const auto& playerHandler : activePlayersHandlers)
-					{
-						const auto& plane = planes[playerHandler->playerId];
-						allActorsPos.emplace_back(plane.getOrigin2D() + velocityCorrection(plane));
-					}
-					for (const auto& additionalActor : additionalActors)
-						allActorsPos.emplace_back(additionalActor());
+					if (playersHandlers.size() == 1 && additionalActors.empty())
+						return glm::length(velocityCorrection(planes[playersHandlers[0].playerId])) + projectionHSizeMin();
 
 					float maxDistance = 0.0f;
-					for (unsigned i = 0; i < allActorsPos.size() - 1; ++i)
-						for (unsigned j = i + 1; j < allActorsPos.size(); ++j)
+					for (unsigned i = 0; i < allVCorrectedActorsPos.size() - 1; ++i)
+						for (unsigned j = i + 1; j < allVCorrectedActorsPos.size(); ++j)
 						{
-							const auto pos1 = allActorsPos[i];
-							const auto pos2 = allActorsPos[j];
+							const auto pos1 = allVCorrectedActorsPos[i];
+							const auto pos2 = allVCorrectedActorsPos[j];
 							/*maxDistance = std::max(maxDistance, glm::max(glm::abs(pos1.x - pos2.x) * systemInfo.windowSize.y / systemInfo.windowSize.x * scalingFactor,
 								glm::abs(pos1.y - pos2.y) * scalingFactor));*/
 							maxDistance = std::max(maxDistance, glm::distance(glm::vec2(pos1.x / screenInfo.getAspectRatio(), pos1.y),

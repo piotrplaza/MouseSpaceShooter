@@ -136,10 +136,10 @@ static void InitLevel()
 #endif
 
 	//activeLevel = std::make_unique<Levels::Windmill>();
-	//activeLevel = std::make_unique<Levels::SquareRace>();
+	activeLevel = std::make_unique<Levels::SquareRace>();
 	//activeLevel = std::make_unique<Levels::SnakeCube>();
 
-	activeLevel = std::make_unique<Levels::DamageOn::Nest>();
+	//activeLevel = std::make_unique<Levels::DamageOn::Nest>();
 
 	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
