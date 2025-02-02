@@ -37,6 +37,7 @@ namespace
 	constexpr unsigned circuitsToEliminate = 3;
 	constexpr float squareHSize = 100.0f;
 	constexpr float ringRadius = 200.0f;
+	constexpr float soundAttenuation = 0.02f;
 }
 
 namespace Levels
@@ -99,10 +100,10 @@ namespace Levels
 			musics.emplace("audio/Ghosthack-Ambient Beds_Daylight_Am 75Bpm (WET).ogg", 1.0f).play();
 
 			auto& soundsBuffers = Globals::Components().staticSoundsBuffers();
-			thrustSoundBuffer = soundsBuffers.emplace("audio/thrust.wav", 0.2f).getComponentId();
-			grappleSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
-			collisionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
-			playerExplosionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack-AC21_Impact_Cracked.wav").getComponentId();
+			thrustSoundBuffer = soundsBuffers.emplace("audio/thrust.wav", 0.4f).getComponentId();
+			grappleSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav", 1.5f).getComponentId();
+			collisionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav", 1.5f).getComponentId();
+			playerExplosionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack-AC21_Impact_Cracked.wav", 3.0f).getComponentId();
 		}
 
 		void setAnimations()
@@ -162,9 +163,9 @@ namespace Levels
 
 		void destroyPlane(Components::Plane& plane)
 		{
-			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getOrigin2D()).sourceVelocity(plane.getVelocity()).
+			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getOrigin2D()).sourceVelocity(plane.getVelocity()).numOfParticles(16).initExplosionVelocity(100.0f).particlesPerDecoration(1).
 				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(CM::Texture(explosionTexture, true)));
-			Tools::CreateAndPlaySound(CM::SoundBuffer(playerExplosionSoundBuffer, true), [pos = plane.getOrigin2D()]() { return pos; });
+			Tools::CreateAndPlaySound(CM::SoundBuffer(playerExplosionSoundBuffer, true), [pos = plane.getOrigin2D()]() { return pos; }).setAttenuation(soundAttenuation);
 			plane.setEnabled(false);
 			playersToCircuits.erase(plane.getComponentId());
 		}
@@ -282,6 +283,7 @@ namespace Levels
 						[&](auto& sound) {
 							sound.setVolume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
 							sound.setPitch(Tools::RandomFloat(0.4f, 0.6f));
+							sound.setAttenuation(soundAttenuation);
 					});
 				}));
 		}
@@ -303,19 +305,19 @@ namespace Levels
 			{
 				auto& grapples = Globals::Components().grapples();
 
-				constexpr float influenceRadius = (ringRadius - squareHSize) * 0.6f;
+				constexpr float range = (ringRadius - squareHSize) * 0.6f;
 
-				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ -squareHSize, -squareHSize })), CM::Texture(orbTexture, true)).influenceRadius = influenceRadius;
-				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ squareHSize, -squareHSize })), CM::Texture(orbTexture, true)).influenceRadius = influenceRadius;
-				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ -squareHSize, squareHSize })), CM::Texture(orbTexture, true)).influenceRadius = influenceRadius;
-				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ squareHSize, squareHSize })), CM::Texture(orbTexture, true)).influenceRadius = influenceRadius;
+				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ -squareHSize, -squareHSize })), CM::Texture(orbTexture, true)).range = range;
+				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ squareHSize, -squareHSize })), CM::Texture(orbTexture, true)).range = range;
+				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ -squareHSize, squareHSize })), CM::Texture(orbTexture, true)).range = range;
+				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ squareHSize, squareHSize })), CM::Texture(orbTexture, true)).range = range;
 			}
 
 			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, gamepadForPlayer1,
 				[this](unsigned playerId, unsigned numOfPlayers) {
 					const float distance = 4.0f;
 					return glm::vec3((squareHSize + ringRadius) * 0.5f - ((numOfPlayers - 1) * distance) * 0.5f + playerId * distance, -0.1f, glm::half_pi<float>());
-				}, true, CM::SoundBuffer(thrustSoundBuffer, true), CM::SoundBuffer(grappleSoundBuffer, true));
+				}, true, CM::SoundBuffer(thrustSoundBuffer, true), CM::SoundBuffer(grappleSoundBuffer, true), soundAttenuation);
 
 			collisionHandlers();
 

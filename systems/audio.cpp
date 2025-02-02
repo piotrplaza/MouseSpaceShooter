@@ -18,7 +18,7 @@ namespace Systems
 	{
 		auto& audioListener = Globals::Components().audioListener();
 		const auto& camera2D = Globals::Components().camera2D();
-		audioListener.camera2DZF = [camera2D](const Components::Camera2D& camera2D) { return camera2D.details.projectionHSize * 1.0f; };
+		audioListener.camera2DTo3DPosF = [camera2D](const Components::Camera2D& camera2D) { return glm::vec3(camera2D.details.position, camera2D.details.projectionHSize * 1.0f); };
 	}
 
 	void Audio::postInit() const
@@ -33,7 +33,7 @@ namespace Systems
 		switch(audioListener.getPositioning())
 		{
 			case Components::AudioListener::Positioning::Camera2D:
-				audioListener.setPosition(glm::vec3(camera2D.details.position, audioListener.camera2DZF(camera2D)));
+				audioListener.setPosition(audioListener.camera2DTo3DPosF(camera2D));
 				audioListener.setDirection(glm::vec3(0.0f, 0.0f, -1.0f));
 				audioListener.setUpVector(glm::vec3(0.0f, 1.0f, 0.0f));
 				break;

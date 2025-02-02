@@ -531,7 +531,7 @@ namespace Levels
 		void createGrapples() const
 		{
 			Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 0.0f, 10.0f })),
-				CM::Texture(orbTexture, true)).influenceRadius = 15.0f;
+				CM::Texture(orbTexture, true)).range = 15.0f;
 
 			{
 				auto renderingSetupF = [colorUniform = UniformsUtils::Uniform4f()](ShadersUtils::ProgramId program) mutable {
@@ -541,7 +541,7 @@ namespace Levels
 				};
 
 				Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 0.0f, -10.0f })),
-					CM::Texture(orbTexture, true), std::move(renderingSetupF)).influenceRadius = 15.0f;
+					CM::Texture(orbTexture, true), std::move(renderingSetupF)).range = 15.0f;
 			}
 
 			{
@@ -555,12 +555,12 @@ namespace Levels
 
 					Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f,
 						Tools::BodyParams().position({ -10.0f, -30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)),
-						CM::Texture(orbTexture, true), std::move(renderingSetupF)).influenceRadius = 30.0f;
+						CM::Texture(orbTexture, true), std::move(renderingSetupF)).range = 30.0f;
 			}
 
 			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(4.0f,
 				Tools::BodyParams().position({ -10.0f, 30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)), CM::DummyTexture());
-			grapple.influenceRadius = 30.0f;
+			grapple.range = 30.0f;
 			grapple.renderF = []() { return false; };
 			grapple.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.2f, 5.2f }),
 				Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::AnimatedTexture(recursiveFaceAnimatedTexture, true));
@@ -609,7 +609,7 @@ namespace Levels
 
 					auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f, Tools::BodyParams().position({ 50.0f, 30.0f })),
 						CM::AnimatedTexture(recursiveFaceAnimatedTexture, true, { 0.0f, 0.0f }, 0.0f, { 6.0f, 6.0f }), recursiveFaceRSF);
-					grapple.influenceRadius = 20.0f;
+					grapple.range = 20.0f;
 					dynamicGrappleId = grapple.getComponentId();
 				}
 				else if (duration >= existenceDuration)

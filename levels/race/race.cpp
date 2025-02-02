@@ -115,7 +115,7 @@ namespace Levels
 		void customElements()
 		{
 			auto& grapples = Globals::Components().grapples();
-			grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 20.0f, 0.0f }))).influenceRadius = 20.0f;
+			grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 20.0f, 0.0f }))).range = 20.0f;
 		}
 
 		void collisions()

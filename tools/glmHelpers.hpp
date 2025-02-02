@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtx/vector_angle.hpp>
 
 #include <vector>
 
@@ -97,27 +98,35 @@ namespace Tools
 		return { vec.x * cosA - vec.y * sinA, vec.x * sinA + vec.y * cosA };
 	}
 
-	inline bool IsPointBetweenVectors(const glm::vec2& p, const glm::vec2& o, const glm::vec2& v1, const glm::vec2& v2)
+	inline bool IsPointBetweenVectors(const glm::vec2& p, const glm::vec2& o,
+		const glm::vec2& nv1, const glm::vec2& nv2)
 	{
-		const glm::vec2 normOP = glm::normalize(p - o);
-		const glm::vec2 normV1 = glm::normalize(v1);
-		const glm::vec2 normV2 = glm::normalize(v2);
+		glm::vec2 d = p - o;
+		if (glm::length(d) < 1e-6f)
+			return true;
 
-		const float cross1 = glm::cross(glm::vec3(normV1, 0.0f), glm::vec3(normOP, 0.0f)).z;
-		const float cross2 = glm::cross(glm::vec3(normV1, 0.0f), glm::vec3(normV2, 0.0f)).z;
+		glm::vec2 nd = glm::normalize(d);
 
-		return cross1 * cross2 >= 0;
+		float angleP = glm::orientedAngle(nv1, nd);
+		float angleV2 = glm::orientedAngle(nv1, nv2);
+
+		return (angleP * angleV2 >= 0) && (std::abs(angleP) <= std::abs(angleV2));
 	}
 
-	inline bool DoesVectorIntersectCircle(const glm::vec2& o, const glm::vec2& v, const glm::vec2& c, float r)
+	inline bool DoesRayIntersectCircle(const glm::vec2& o, const glm::vec2& v,
+		const glm::vec2& c, float r)
 	{
 		const glm::vec2 oc = o - c;
+		const float oc2 = glm::dot(oc, oc);
+		if (oc2 <= r * r)
+			return true;
 		const float a = glm::dot(v, v);
-		const float b = 2.0f * glm::dot(oc, v);
-		const float c_ = glm::dot(oc, oc) - r * r;
-
-		const float delta = b * b - 4 * a * c_;
-
-		return delta >= 0;
+		if (a < 1e-6f)
+			return false;
+		const float t = -glm::dot(oc, v) / a;
+		if (t < 0.0f)
+			return false;
+		const float d2 = oc2 - (glm::dot(oc, v) * glm::dot(oc, v)) / a;
+		return d2 <= r * r;
 	}
 }

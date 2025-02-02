@@ -85,10 +85,10 @@ namespace Levels::DamageOn
 
 		glm::vec2 getWeaponSourcePoint(const auto& sourceInst)
 		{
-			return sourceInst.actor.getOrigin2D() + glm::translate(glm::mat4(1.0f), glm::vec3(sourceInst.type.init.presentation.translation, 0.0f) * glm::vec3(sourceInst.sideFactor, 1.0f, 1.0f))
+			return sourceInst.actor.getOrigin2D() + glm::vec2(glm::translate(glm::mat4(1.0f), glm::vec3(sourceInst.type.init.presentation.translation, 0.0f) * glm::vec3(sourceInst.sideFactor, 1.0f, 1.0f))
 				* glm::rotate(glm::mat4(1.0f), sourceInst.type.init.presentation.rotation * sourceInst.sideFactor, glm::vec3(0.0f, 0.0f, 1.0f))
 				* glm::scale(glm::mat4(1.0f), glm::vec3(sourceInst.type.init.presentation.scale * glm::vec2(sourceInst.sideFactor, 1.0f), 1.0f))
-				* glm::vec4(sourceInst.type.init.presentation.weaponOffset, 0.0f, 1.0f);
+				* glm::vec4(sourceInst.type.init.weaponOffset, 0.0f, 1.0f));
 		}
 
 		bool containsKeyWithPrefix(const auto& orderedMap, const std::string& prefix) {
@@ -128,9 +128,11 @@ namespace Levels::DamageOn
 			dynamicTextures.last().scale = glm::vec2(1.0f);
 			//textures.last().preserveAspectRatio = true;
 
-			coffinTextureId = staticTextures.emplace("textures/damageOn/coffin.png", GL_MIRRORED_REPEAT).getComponentId();
+			coffinTextureId = staticTextures.emplace("textures/damageOn/coffin.png").getComponentId();
 			//textures.last().magFilter = GL_NEAREST;
 			//textures.last().scale = glm::vec2(30.0f);
+
+			embryoTextureId = staticTextures.emplace("textures/damageOn/embryo.png").getComponentId();
  
 			fogTextureId = staticTextures.emplace("textures/damageOn/fog.png", GL_REPEAT).getComponentId();
 			staticTextures.last().scale = glm::vec2(0.15f);
@@ -247,32 +249,25 @@ namespace Levels::DamageOn
 			alternativeTargetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, levelParams.mapHHeight);
 
 			const float borderHThickness = 10.0f;
-			dynamicWalls.emplace(Tools::CreateBoxBody({ levelHSize.x + borderHThickness, borderHThickness }, Tools::BodyParams{}.position({ 0.0f, -levelHSize.y - borderHThickness }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-			dynamicWalls.emplace(Tools::CreateBoxBody({ levelHSize.x + borderHThickness, borderHThickness }, Tools::BodyParams{}.position({ 0.0f, levelHSize.y + borderHThickness }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-			dynamicWalls.emplace(Tools::CreateBoxBody({ borderHThickness, levelHSize.y + borderHThickness }, Tools::BodyParams{}.position({ -levelHSize.x - borderHThickness, 0.0f }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-			dynamicWalls.emplace(Tools::CreateBoxBody({ borderHThickness, levelHSize.y + borderHThickness }, Tools::BodyParams{}.position({ levelHSize.x + borderHThickness, 0.0f }))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			dynamicWalls.emplace(Tools::CreateBoxBody({ levelHSize.x + borderHThickness, borderHThickness }, Tools::BodyParams{}.position({ 0.0f, -levelHSize.y - borderHThickness }).friction(0.0f))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			dynamicWalls.emplace(Tools::CreateBoxBody({ levelHSize.x + borderHThickness, borderHThickness }, Tools::BodyParams{}.position({ 0.0f, levelHSize.y + borderHThickness }).friction(0.0f))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			dynamicWalls.emplace(Tools::CreateBoxBody({ borderHThickness, levelHSize.y + borderHThickness }, Tools::BodyParams{}.position({ -levelHSize.x - borderHThickness, 0.0f }).friction(0.0f))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			dynamicWalls.emplace(Tools::CreateBoxBody({ borderHThickness, levelHSize.y + borderHThickness }, Tools::BodyParams{}.position({ levelHSize.x + borderHThickness, 0.0f }).friction(0.0f))).colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 			for (const auto& boxWall : levelParams.walls.boxes)
 			{
 				dynamicWalls.emplace(Tools::CreateBoxBody(glm::vec2(boxWall[2], boxWall[3]) * levelParams.mapHHeight, Tools::BodyParams{}.position(glm::vec2(boxWall[0], boxWall[1]) * levelParams.mapHHeight)
 					.angle(boxWall[4]))).renderF = [&]() { return debug.hitboxesRendering; };
 				dynamicWalls.last().colorF = glm::vec4(0.2f);
-				dynamicWalls.last().stepF = [&, &wall = dynamicWalls.last()]() { wall.setEnabled(!bonusBackground); };
+				dynamicWalls.last().stepF = [&, &wall = dynamicWalls.last()]() { wall.setEnabled(!bonusLevel); };
 			}
 
 			for (const auto& circleWall : levelParams.walls.circles)
 			{
 				dynamicWalls.emplace(Tools::CreateCircleBody(circleWall.z * levelParams.mapHHeight, Tools::BodyParams{}.position(glm::vec2(circleWall) * levelParams.mapHHeight))).renderF = [&]() { return debug.hitboxesRendering; };
 				dynamicWalls.last().colorF = glm::vec4(0.2f);
-				dynamicWalls.last().stepF = [&, &wall = dynamicWalls.last()]() { wall.setEnabled(!bonusBackground); };
+				dynamicWalls.last().stepF = [&, &wall = dynamicWalls.last()]() { wall.setEnabled(!bonusLevel); };
 			}
-
-			auto screenCordTexturesF = [sceneCoordTextures = UniformsUtils::Uniform1b()](ShadersUtils::ProgramId program) mutable {
-				if (!sceneCoordTextures.isValid())
-					sceneCoordTextures = UniformsUtils::Uniform1b(program, "sceneCoordTextures");
-				sceneCoordTextures(true);
-				return [=]() mutable { sceneCoordTextures(false); };
-			};
 
 			for (int i = 0; i < levelParams.debris.count; ++i)
 			{
@@ -285,13 +280,16 @@ namespace Levels::DamageOn
 				debris.colorF = glm::vec4(0.2f);
 				debris.posInSubsequence = 1;
 				auto& debrisPresentation = debris.subsequence.emplace_back();
-				debrisPresentation.texture = CM::Texture(coffinTextureId, true);
+				debrisPresentation.texture = CM::Texture(embryoTextureId, true);
 				debrisPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { debrisWidth, debrisHeight });
 				debrisPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 				debrisPresentation.modelMatrixF = debris.modelMatrixF;
+				debrisPresentation.colorF = glm::vec4(0.4, 0.4, 0.4, 1.0f);
 			}
 			
 			dynamicDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle(glm::vec2(0.0f), levelHSize), CM::Texture(backgroundTextureId, false), Tools::Shapes2D::CreateTexCoordOfRectangle()).renderLayer = RenderLayer::FarBackground;
+
+			changeLevelMode();
 		}
 
 		void step()
@@ -405,10 +403,10 @@ namespace Levels::DamageOn
 					else
 						playerInst.fire = false;
 
-					if (keyboard.pressed[/*VK_SHIFT*/0x10] * keyboardApplying || gamepad.pressed.rShoulder * gamepadApplying || gamepad.pressed.lShoulder * gamepadApplying)
+					if (keyboard.pressed[/*VK_SHIFT*/0x10] * keyboardApplying || gamepad.pressed.rShoulder * gamepadApplying)
 						playerInst.autoFire = !playerInst.autoFire;
 
-					if ((keyboard.pressed[/*VK_SPACE*/0x20] * keyboardApplying || gamepad.pressed.a * gamepadApplying) && glm::length(direction) > 0.0f && !playerInst.manaOvercharged)
+					if ((keyboard.pressed[/*VK_SPACE*/0x20] * keyboardApplying || (gamepad.pressed.a || gamepad.pressed.lShoulder) * gamepadApplying) && glm::length(direction) > 0.0f && !playerInst.manaOvercharged)
 					{
 						playerSoundLimitters.dashes->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(dashSoundBufferId, false), playerInst.actor.getOrigin2D(), [&](auto& sound) {
 							sound.setPitch(glm::linearRand(0.8f, 1.2f));
@@ -420,16 +418,19 @@ namespace Levels::DamageOn
 
 					if (rStickDirection != glm::vec2(0.0f))
 					{
+						playerInst.aiming = true;
 						auto& decorations = Globals::Components().decorations();
 						const float rStickLength = glm::length(rStickDirection);
 						const glm::vec2 nDirection = rStickDirection / rStickLength;
 						const float aimingLineDist = 100.0f;
-						playerInst.aimingAngle = glm::mix(glm::pi<float>(), playerType.init.minAimingAngle, rStickLength);
-						const float hAimingAngle = glm::max(playerInst.aimingAngle * 0.5f, 0.01f);
+						const float aimingAngle = glm::mix(glm::pi<float>(), playerType.init.minAimingAngle, rStickLength);
+						const float hAimingAngle = glm::max(aimingAngle * 0.5f, 0.01f);
+						playerInst.aimingD1 = glm::rotate(nDirection, hAimingAngle);
+						playerInst.aimingD2 = glm::rotate(nDirection, -hAimingAngle);
 						const glm::vec2 orig = getWeaponSourcePoint(playerInst);
 						const glm::vec2 d0 = nDirection * aimingLineDist;
-						const glm::vec2 d1 = glm::rotate(d0, hAimingAngle);
-						const glm::vec2 d2 = glm::rotate(d0, -hAimingAngle);
+						const glm::vec2 d1 = playerInst.aimingD1 * aimingLineDist;
+						const glm::vec2 d2 = playerInst.aimingD2 * aimingLineDist;
 						std::vector<glm::vec3> aimingArea{ glm::vec3(orig, 0.0f), glm::vec3(orig + d0, 0.0f), glm::vec3(orig + d1, 0.0f), glm::vec3(orig, 0.0f), glm::vec3(orig + d2, 0.0f), glm::vec3(orig + d0, 0.0f) };
 						decorations.emplace(std::move(aimingArea));
 						const glm::vec4 aimingColor = glm::vec4(0.0f, 0.0f, 0.0f, 0.2f);
@@ -438,7 +439,7 @@ namespace Levels::DamageOn
 						decorations.last().state = ComponentState::LastShot;
 					}
 					else
-						playerInst.aimingAngle = glm::two_pi<float>();
+						playerInst.aiming = false;
 				}
 
 				deferredWeaponsPostSteps.push_back([&]() {
@@ -447,18 +448,36 @@ namespace Levels::DamageOn
 
 				std::multimap<float, EnemyType::Inst*> enemiesByDistance;
 				for (auto& [enemyId, enemyInst] : enemyGameComponents.idsToInst)
-					enemiesByDistance.emplace(glm::distance(playerInst.actor.getOrigin2D(), enemyInst.actor.getOrigin2D()), &enemyInst);
+					enemiesByDistance.emplace(glm::distance(getWeaponSourcePoint(playerInst), enemyInst.actor.getOrigin2D()), &enemyInst);
 
+				const auto weaponSourcePoint = getWeaponSourcePoint(playerInst);
 				const unsigned seed = std::random_device()();
 				auto enemySeqsByDistance = std::make_shared<std::multimap<float, int>>();
+				auto aimedEnemySeqsByDistance = std::make_shared<std::multimap<float, int>>();
 				int enemySeq = 0;
+				int aimedEnemySeq = 0;
 				for (auto& [distance, enemyInst] : enemiesByDistance)
 				{
 					enemySeqsByDistance->emplace(distance, enemySeq);
-					deferredWeaponsSteps.push_back([&, &enemyInst = *enemyInst, enemySeq, enemySeqsByDistance, seed]() {
-						weaponsStep(playerInst, enemyInst, enemySeq, *enemySeqsByDistance, seed);
+					deferredWeaponsSteps.push_back([&, &enemyInst = *enemyInst, enemySeq, enemySeqsByDistance, aimedEnemySeq, aimedEnemySeqsByDistance, seed]() {
+						weaponsStep(playerInst, enemyInst, enemySeq, *enemySeqsByDistance, seed, WeaponType::Aiming::Auto);
+						if (aimedEnemySeqsByDistance->empty())
+							weaponsStep(playerInst, enemyInst, enemySeq, *enemySeqsByDistance, seed, WeaponType::Aiming::Combined);
 					});
 					++enemySeq;
+
+					if (playerInst.aiming && (Tools::IsPointBetweenVectors(enemyInst->actor.getOrigin2D(), weaponSourcePoint, playerInst.aimingD1, playerInst.aimingD2) ||
+						Tools::DoesRayIntersectCircle(weaponSourcePoint, playerInst.aimingD1, enemyInst->actor.getOrigin2D(), enemyInst->radius) ||
+						Tools::DoesRayIntersectCircle(weaponSourcePoint, playerInst.aimingD2, enemyInst->actor.getOrigin2D(), enemyInst->radius)))
+					{
+						aimedEnemySeqsByDistance->emplace(distance, aimedEnemySeq);
+						deferredWeaponsSteps.push_back([&, &enemyInst = *enemyInst, aimedEnemySeq, aimedEnemySeqsByDistance, seed]() {
+							weaponsStep(playerInst, enemyInst, aimedEnemySeq, *aimedEnemySeqsByDistance, seed, WeaponType::Aiming::Manual);
+							if (!aimedEnemySeqsByDistance->empty())
+								weaponsStep(playerInst, enemyInst, aimedEnemySeq, *aimedEnemySeqsByDistance, seed, WeaponType::Aiming::Combined);
+						});
+						++aimedEnemySeq;
+					}
 				}
 			}
 
@@ -479,7 +498,7 @@ namespace Levels::DamageOn
 
 				std::multimap<float, PlayerType::Inst*> playersByDistance;
 				for (auto& [playerId, playerInst]: playerGameComponents.idsToInst)
-					playersByDistance.emplace(glm::distance(enemyInst.actor.getOrigin2D(), playerInst.actor.getOrigin2D()), &playerInst);
+					playersByDistance.emplace(glm::distance(getWeaponSourcePoint(enemyInst), playerInst.actor.getOrigin2D()), &playerInst);
 
 				bool anyLivePlayer = false;
 				for (auto& [distance, playerInst] : playersByDistance)
@@ -510,7 +529,7 @@ namespace Levels::DamageOn
 				{
 					playerSeqsByDistance->emplace(distance, playerSeq);
 					deferredWeaponsSteps.push_back([&, &playerInst = *playerInst, playerSeq, playerSeqsByDistance, seed]() {
-						weaponsStep(enemyInst, playerInst, playerSeq, *playerSeqsByDistance, seed);
+						weaponsStep(enemyInst, playerInst, playerSeq, *playerSeqsByDistance, seed, WeaponType::Aiming::Auto);
 					});
 					++playerSeq;
 				}
@@ -521,14 +540,7 @@ namespace Levels::DamageOn
 			if (keyboard.pressed['T'] || anyGamepadPressedY)
 				debug.presentationTransparency = !debug.presentationTransparency;
 			if (keyboard.pressed['B'])
-			{
-				bonusBackground = !bonusBackground;
-				auto& backgroundTexture = Globals::Components().textures()[backgroundTextureId];
-				backgroundTexture.source = bonusBackground
-					? "textures/damageOn/sanfranfromairship.jpg"s
-					: "textures/damageOn/" + levelParams.backgroundTexture.substr(1, levelParams.backgroundTexture.length() - 2);
-				backgroundTexture.state = ComponentState::Changed;
-			}
+				changeLevelMode();
 			if (keyboard.pressed['C'])
 				std::swap(Globals::Components().camera2D().targetPositionAndProjectionHSizeF, alternativeTargetPositionAndProjectionHSizeF);
 
@@ -682,7 +694,6 @@ namespace Levels::DamageOn
 			glm::vec2 scale{};
 			float velocityRotationFactor{};
 			float velocityAnimationSpeedFactor{};
-			glm::vec2 weaponOffset{};
 		};
 
 		struct WeaponType;
@@ -702,6 +713,7 @@ namespace Levels::DamageOn
 				float dash{};
 				float coolingRate{};
 				float minAimingAngle = 360.0f;
+				glm::vec2 weaponOffset{};
 
 				ActorPresentation presentation{};
 				Animation animation{};
@@ -716,8 +728,7 @@ namespace Levels::DamageOn
 					actor(actor),
 					animatedTexture(animatedTexture),
 					weaponGameComponents(weaponGameComponents),
-					hp(type.init.hp),
-					aimingAngle(type.init.minAimingAngle)
+					hp(type.init.hp)
 				{
 				}
 
@@ -740,7 +751,9 @@ namespace Levels::DamageOn
 				float sideFactor = 1.0f;
 				float sideTransition = 1.0f;
 				float angle{};
-				float aimingAngle{};
+				bool aiming = false;
+				glm::vec2 aimingD1{};
+				glm::vec2 aimingD2{};
 
 				std::unordered_set<int> weaponIds;
 
@@ -805,6 +818,7 @@ namespace Levels::DamageOn
 				float minimalRadius{};
 				int killSpawns{};
 				float coolingRate{};
+				glm::vec2 weaponOffset{};
 
 				ActorPresentation presentation{};
 				Animation animation{};
@@ -891,7 +905,7 @@ namespace Levels::DamageOn
 		struct WeaponType
 		{
 			enum class Archetype { Sparking, Lightning, Fireballs };
-			enum class Aiming { Auto, Manual };
+			enum class Aiming { Auto, Manual, Combined };
 			enum class Targeting { Nearest, Random };
 			struct Init
 			{
@@ -993,6 +1007,16 @@ namespace Levels::DamageOn
 
 			std::vector<Spawner> initSpawners;
 		};
+
+		void changeLevelMode()
+		{
+			bonusLevel = !bonusLevel;
+			auto& backgroundTexture = Globals::Components().textures()[backgroundTextureId];
+			backgroundTexture.source = bonusLevel
+				? "textures/damageOn/sanfranfromairship.jpg"s
+				: "textures/damageOn/" + levelParams.backgroundTexture.substr(1, levelParams.backgroundTexture.length() - 2);
+			backgroundTexture.state = ComponentState::Changed;
+		}
 
 		void playerSpawn(PlayerType& playerType, int playerNum, std::vector<WeaponType*>& weaponTypes, glm::vec2 position)
 		{
@@ -1139,8 +1163,10 @@ namespace Levels::DamageOn
 			actorInst.weaponIds.insert(weaponInst.instanceId);
 		}
 
-		void weaponsStep(auto& sourceInst, auto& targetInst, int targetSeq, const auto& targetSeqsByDistance, unsigned seed)
+		void weaponsStep(auto& sourceInst, auto& targetInst, int targetSeq, const auto& targetSeqsByDistance, unsigned seed, WeaponType::Aiming aiming)
 		{
+			static constexpr bool playerTarget = std::is_same_v<std::remove_cvref_t<decltype(targetInst)>, PlayerType::Inst>;
+
 			const auto& physics = Globals::Components().physics();
 			const auto& sourceActor = sourceInst.actor;
 			auto& targetType = targetInst.type;
@@ -1156,6 +1182,9 @@ namespace Levels::DamageOn
 				{
 					auto& weaponInst = weaponGameComponents.idsToInst.at(weaponId);
 					auto& weaponType = weaponInst.type;
+
+					if (weaponType.init.aiming != aiming)
+						continue;
 
 					if (fire && distance <= weaponType.init.distance && !sourceInst.manaOvercharged && physics.simulationDuration - weaponInst.lastShotTime >=  weaponInst.type.init.reloadTime)
 					{
@@ -1223,8 +1252,6 @@ namespace Levels::DamageOn
 
 			if (targetInst.hp <= 0.0f && targetActor.isEnabled())
 			{
-				static constexpr bool playerTarget = std::is_same_v<std::remove_cvref_t<decltype(targetInst)>, PlayerType::Inst>;
-
 				const float basePitch = [&]() {
 					if constexpr (playerTarget)
 						return 1.0f;
@@ -1807,6 +1834,8 @@ namespace Levels::DamageOn
 							? WeaponType::Aiming::Auto
 							: value == "manual"
 							? WeaponType::Aiming::Manual
+							: value == "combined"
+							? WeaponType::Aiming::Combined
 							: throw std::runtime_error("loadParams(): Unsupported value " + value + " for key " + key);
 					}
 					else if constexpr (std::is_same_v<ParamType, WeaponType::Targeting>)
@@ -1842,7 +1871,6 @@ namespace Levels::DamageOn
 				loadParam(presentationParams.velocityRotationFactor, std::format("{}.presentation.velocityRotationFactor", actorName));
 				presentationParams.velocityRotationFactor = glm::radians(presentationParams.velocityRotationFactor);
 				loadParam(presentationParams.velocityAnimationSpeedFactor, std::format("{}.presentation.velocityAnimationSpeedFactor", actorName));
-				loadParam(presentationParams.weaponOffset, std::format("{}.presentation.weaponOffset", actorName));
 			};
 
 			auto loadAnimationParams = [&](auto& animationParams, std::string actorName) {
@@ -1951,6 +1979,7 @@ namespace Levels::DamageOn
 						loadParam(typeInit.coolingRate, std::format("player.{}.coolingRate", typeInit.typeName));
 						loadParam(typeInit.minAimingAngle, std::format("player.{}.minAimingAngle", typeInit.typeName));
 						typeInit.minAimingAngle = glm::radians(typeInit.minAimingAngle);
+						loadParam(typeInit.weaponOffset, std::format("player.{}.weaponOffset", typeInit.typeName));
 						loadPresentationParams(typeInit.presentation, std::format("player.{}", typeInit.typeName));
 						loadAnimationParams(typeInit.animation, std::format("player.{}", typeInit.typeName));
 
@@ -1979,6 +2008,7 @@ namespace Levels::DamageOn
 						loadParam(typeInit.minimalRadius, std::format("enemy.{}.minimalRadius", typeInit.typeName));
 						loadParam(typeInit.killSpawns, std::format("enemy.{}.killSpawns", typeInit.typeName));
 						loadParam(typeInit.coolingRate, std::format("enemy.{}.coolingRate", typeInit.typeName));
+						loadParam(typeInit.weaponOffset, std::format("enemy.{}.weaponOffset", typeInit.typeName));
 						loadPresentationParams(typeInit.presentation, std::format("enemy.{}", typeInit.typeName));
 						loadAnimationParams(typeInit.animation, std::format("enemy.{}", typeInit.typeName));
 
@@ -1997,6 +2027,7 @@ namespace Levels::DamageOn
 						typeInit.typeName = std::move(weaponName);
 
 						loadParam(typeInit.archetype, std::format("weapon.{}.archetype", typeInit.typeName));
+						loadParam(typeInit.aiming, std::format("weapon.{}.aiming", typeInit.typeName));
 						loadParam(typeInit.targeting, std::format("weapon.{}.targeting", typeInit.typeName));
 						loadParam(typeInit.distance, std::format("weapon.{}.distance", typeInit.typeName));
 						loadParam(typeInit.damageFactor, std::format("weapon.{}.damageFactor", typeInit.typeName));
@@ -2114,6 +2145,7 @@ namespace Levels::DamageOn
 
 		ComponentId backgroundTextureId{};
 		ComponentId coffinTextureId{};
+		ComponentId embryoTextureId{};
 		ComponentId fogTextureId{};
 		ComponentId explosionTextureId{};
 		ComponentId fireballTextureId{};
@@ -2165,7 +2197,7 @@ namespace Levels::DamageOn
 			bool hitboxesRendering = false;
 		} debug;
 
-		bool bonusBackground = false;
+		bool bonusLevel = false;
 		FVec3 alternativeTargetPositionAndProjectionHSizeF;
 	};
 

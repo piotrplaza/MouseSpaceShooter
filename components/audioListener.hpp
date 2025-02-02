@@ -33,7 +33,7 @@ namespace Components
 		void setPositioning(Positioning value);
 		Positioning getPositioning() const;
 
-		std::function<float(const Camera2D&)> camera2DZF;
+		std::function<glm::vec3(const Camera2D&)> camera2DTo3DPosF;
 
 	private:
 		float savedVolume;

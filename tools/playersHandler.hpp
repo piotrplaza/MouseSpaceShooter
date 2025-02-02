@@ -79,7 +79,7 @@ namespace Tools
 
 		void initPlayers(const std::array<CM::Texture, 4>& planeTexturesForPlayers, const std::array<CM::AnimatedTexture, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
 			std::function<glm::vec3(unsigned playerId, unsigned numOfPlayers)> initLocF, bool centerToFront = false, std::optional<CM::SoundBuffer> thrustSoundBuffer = std::nullopt,
-			std::optional<CM::SoundBuffer> grappleSoundBuffer = std::nullopt);
+			std::optional<CM::SoundBuffer> grappleSoundBuffer = std::nullopt, float soundAttenuation = 1.0f);
 		void setCamera(CameraParams cameraParams);
 
 		void gamepadsAutodetectionStep(std::function<glm::vec3(unsigned player)> initLocF);
@@ -98,5 +98,6 @@ namespace Tools
 		bool gamepadForPlayer1 = false;
 		std::optional<CM::SoundBuffer> thrustSoundBuffer;
 		std::optional<CM::SoundBuffer> grappleSoundBuffer;
+		float soundAttenuation = 1.0f;
 	};
 }

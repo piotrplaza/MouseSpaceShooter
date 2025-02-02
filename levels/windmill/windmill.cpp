@@ -251,7 +251,7 @@ namespace Levels
 
 				auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleRDist).bodyType(b2_kinematicBody)),
 					TCM::Texture(orbTexture));
-				grapple.influenceRadius = 15.0f;
+				grapple.range = 15.0f;
 				grapple.stepF = [&, grappleRDist, startAngle, angle = 0.0f, rotationSpeed = 0.2f]() mutable {
 					const b2Vec2 pos = grapple.body->GetTransform().p;
 					const b2Vec2 newPos(b2Vec2(glm::cos(startAngle + angle), glm::sin(startAngle + angle)) * grappleRDist);
@@ -266,7 +266,7 @@ namespace Levels
 
 				auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleRDist)
 					.bodyType(b2_dynamicBody).density(10.0f)), TCM::Texture(orbTexture));
-				grapple.influenceRadius = 15.0f;
+				grapple.range = 15.0f;
 				grapplesDebris.push_back(grapple.getComponentId());
 			}*/
 		}

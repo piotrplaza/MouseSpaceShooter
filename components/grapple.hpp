@@ -8,7 +8,7 @@ namespace Components
 	{
 		using Wall::Wall;
 
-		float influenceRadius = 0.0f;
+		float range = 0.0f;
 
 		struct
 		{

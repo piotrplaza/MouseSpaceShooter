@@ -104,7 +104,7 @@ namespace Levels
 		{
 			ball = &Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f,
 				Tools::BodyParams().bodyType(b2_dynamicBody).density(0.02f).restitution(0.5f)), CM::Texture(orbTexture, true));
-			ball->influenceRadius = 15.0f;
+			ball->range = 15.0f;
 		}
 
 		void setCamera() const

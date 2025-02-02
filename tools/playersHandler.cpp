@@ -40,7 +40,7 @@ namespace
 		return 0;
 	}
 
-	std::optional<ComponentId> CreateAndPlayPlaneSound(std::optional<CM::SoundBuffer> soundBuffer, CM::Plane plane)
+	std::optional<ComponentId> CreateAndPlayPlaneSound(std::optional<CM::SoundBuffer> soundBuffer, CM::Plane plane, float soundAttenuation)
 	{
 		if (!soundBuffer)
 			return std::nullopt;
@@ -49,6 +49,7 @@ namespace
 		auto& sound = Globals::Components().sounds().emplace(*soundBuffer);
 		sound.setLooping(true);
 		sound.setVolume(0.0f);
+		sound.setAttenuation(soundAttenuation);
 		sound.stepF = [&]() {
 			sound.setPosition(planeComponent.getOrigin2D());
 		};
@@ -79,7 +80,7 @@ namespace Tools
 	}
 
 	void PlayersHandler::initPlayers(const std::array<CM::Texture, 4>& planeTexturesForPlayers, const std::array<CM::AnimatedTexture, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
-		std::function<glm::vec3(unsigned playerId, unsigned numOfPlayers)> initLocF, bool centerToFront, std::optional<CM::SoundBuffer> thrustSoundBuffer, std::optional<CM::SoundBuffer> grappleSoundBuffer)
+		std::function<glm::vec3(unsigned playerId, unsigned numOfPlayers)> initLocF, bool centerToFront, std::optional<CM::SoundBuffer> thrustSoundBuffer, std::optional<CM::SoundBuffer> grappleSoundBuffer, float soundAttenuation)
 	{
 		const auto& gamepads = Globals::Components().gamepads();
 		auto& planes = Globals::Components().planes();
@@ -92,6 +93,7 @@ namespace Tools
 		this->gamepadForPlayer1 = gamepadForPlayer1;
 		this->thrustSoundBuffer = thrustSoundBuffer;
 		this->grappleSoundBuffer = grappleSoundBuffer;
+		this->soundAttenuation = soundAttenuation;
 
 		std::vector<unsigned> activeGamepads;
 
@@ -111,7 +113,7 @@ namespace Tools
 			const glm::vec3 initLoc = initLocF(i, numOfPlayers);
 			ComponentId planeId = CreatePresettedPlane(i, planeTextures[i], flameAnimatedTexturesForPlayers[i], initLoc);
 			playersHandlers.emplace_back(planeId, i == 0 && !gamepadForPlayer1 || activeGamepads.empty() ? std::nullopt : std::optional(activeGamepads[activeGamepadId++]),
-				0.0f, CreateAndPlayPlaneSound(thrustSoundBuffer, planeId), 0.0f, CreateAndPlayPlaneSound(grappleSoundBuffer, planeId), 0.0f);
+				0.0f, CreateAndPlayPlaneSound(thrustSoundBuffer, planeId, soundAttenuation), 0.0f, CreateAndPlayPlaneSound(grappleSoundBuffer, planeId, soundAttenuation), 0.0f);
 
 			if (centerToFront)
 			{
@@ -251,7 +253,7 @@ namespace Tools
 					glm::vec3 initLoc = initLocF(playersHandlers.size());
 					ComponentId planeId = CreatePresettedPlane(playersHandlers.size(), planeTextures[playersHandlers.size()], flameAnimatedTexturesForPlayers[playersHandlers.size()], initLoc);
 					playersHandlers.emplace_back(planeId, activeGamepadId, 0.0f,
-						CreateAndPlayPlaneSound(thrustSoundBuffer, planeId), 0.0f, CreateAndPlayPlaneSound(grappleSoundBuffer, planeId), 0.0f);
+						CreateAndPlayPlaneSound(thrustSoundBuffer, planeId, soundAttenuation), 0.0f, CreateAndPlayPlaneSound(grappleSoundBuffer, planeId, soundAttenuation), 0.0f);
 				}
 		}
 	}

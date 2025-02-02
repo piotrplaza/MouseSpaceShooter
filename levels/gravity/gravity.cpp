@@ -191,7 +191,7 @@ namespace Levels
 		{
 			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(20.0f,
 				Tools::BodyParams()), CM::Texture(orbTexture, true));
-			grapple.influenceRadius = 100.0f;
+			grapple.range = 100.0f;
 			planetId = grapple.getComponentId();
 		}
 

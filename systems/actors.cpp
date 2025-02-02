@@ -163,7 +163,7 @@ namespace Systems
 		{
 			const float grappleDistance = glm::distance(plane.getOrigin2D(), grapple.getOrigin2D());
 
-			if (grappleDistance > grapple.influenceRadius) continue;
+			if (grappleDistance > grapple.range) continue;
 
 			grapplesInRange.push_back(grapple.getComponentId());
 
