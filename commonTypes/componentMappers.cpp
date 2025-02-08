@@ -69,21 +69,23 @@ namespace ComponentMappers
 		return component->isStatic();
 	}
 
-	AnimatedTexture::AnimatedTexture(Components::AnimatedTexture& component, glm::vec2 translate, float rotate, glm::vec2 scale):
+	AnimatedTexture::AnimatedTexture(Components::AnimatedTexture& component, glm::vec2 translate, float rotate, glm::vec2 scale, float speedScale):
 		component(&component),
 		componentId(component.getComponentId()),
 		translate(translate),
 		rotate(rotate),
-		scale(scale)
+		scale(scale),
+		speedScale(speedScale)
 	{
 	}
 
-	AnimatedTexture::AnimatedTexture(ComponentId id, bool static_, glm::vec2 translate, float rotate, glm::vec2 scale):
+	AnimatedTexture::AnimatedTexture(ComponentId id, bool static_, glm::vec2 translate, float rotate, glm::vec2 scale, float speedScale):
 		component(static_ ? &Globals::Components().staticAnimatedTextures()[id] : &Globals::Components().animatedTextures()[id]),
 		componentId(id),
 		translate(translate),
 		rotate(rotate),
-		scale(scale)
+		scale(scale),
+		speedScale(speedScale)
 	{
 	}
 

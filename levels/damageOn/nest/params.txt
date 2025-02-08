@@ -1,7 +1,7 @@
 game.pixelArt false
 game.globalVolume 1.0
-game.musicVolume 0.6
-game.musicFile "DamageOn 11.ogg"
+game.musicVolume 0.8
+game.musicFile "DamageOn 12.ogg"
 game.camera.minProjectionHSize 8.0
 game.camera.trackingMargin 5.0
 game.camera.positionTransitionFactor 5.0
@@ -18,10 +18,15 @@ level.walls.circle -0.035 0.005 0.275
 level.walls.circle -0.21 -0.17 0.15
 #level.walls.box 0.0 0.0 0.5 0.5 0.0
 
+#level.debris.count 5
+#level.debris.hWidthRange 2.0 3.0
+#level.debris.hHeightRatioRange 1.0 1.0
+#level.debris.angleRange 0.0 360.0f
+#level.debris.density 20.0
+
 level.debris.count 5
-level.debris.widthRange 2.0, 3.0
-level.debris.heightRatioRange 1.0, 1.0
-level.debris.angleRange 0.0, 360.0f
+level.debris.radiusRange 2.0 3.0
+level.debris.angleRange 0.0 360.0f
 level.debris.density 20.0
 
 player.darkAngel.hp 200.0
@@ -381,7 +386,7 @@ weapon.aimedSparking.multishot 10
 weapon.sparkingShort.archetype sparking
 weapon.sparkingShort.aiming auto
 weapon.sparkingShort.targeting nearest
-weapon.sparkingShort.distance 4.0
+weapon.sparkingShort.distance 5.0
 weapon.sparkingShort.damageFactor 10.0
 weapon.sparkingShort.overchargingRate 1.0
 weapon.sparkingShort.reloadTime 0.0
@@ -403,7 +408,7 @@ weapon.fastAimedLightning.distance 25.0
 weapon.fastAimedLightning.damageFactor 2000.0
 weapon.fastAimedLightning.overchargingRate 1.0
 weapon.fastAimedLightning.reloadTime 0.1
-weapon.fastAimedLightning.multishot 1
+weapon.fastAimedLightning.multishot 3
 
 weapon.lightningShort.archetype lightning
 weapon.lightningShort.aiming auto
@@ -431,15 +436,24 @@ weapon.fireballsStrong.damageFactor 50.0
 weapon.fireballsStrong.overchargingRate 200.0
 weapon.fireballsStrong.reloadTime 1.0
 weapon.fireballsStrong.multishot 1
-#weapon.fireballsStrong.velocity 50.0
+
+weapon.fireballsFast.archetype fireballs
+weapon.fireballsFast.aiming combined
+weapon.fireballsFast.targeting nearest
+weapon.fireballsFast.distance 100.0
+weapon.fireballsFast.damageFactor 15.0
+weapon.fireballsFast.overchargingRate 20.0
+weapon.fireballsFast.reloadTime 0.2
+weapon.fireballsFast.multishot 6
+weapon.fireballsFast.velocity 30.0
 
 action.spawn player.darkAngel 0 -30.0 0.0 1 weapon.lightning weapon.aimedSparking weapon.fastAimedLightning
-#action.spawn player.darkAngel 0 -30.0 0.0 1 weapon.fireballs
+#action.spawn player.darkAngel 0 -30.0 0.0 1 weapon.fireballsFast
 #action.spawn player.darkAngel 1 -30.0 0.0 1 weapon.lightning
 #action.spawn player.frankenstein 2 -30.0 0.0 1 weapon.sparking
 
-action.spawn enemy.ghost -10.0 0.0 20 weapon.sparkingShort
-action.spawn enemy.chicken 10.0 0.0 5 weapon.fireballsStrong weapon.sparking
+action.spawn enemy.ghost -10.0 0.0 40 weapon.sparkingShort
+action.spawn enemy.chicken 10.0 0.0 10 weapon.fireballsStrong weapon.sparking
 action.spawn enemy.zombie 5.0 -10.0 20 weapon.sparkingShort
 action.spawn enemy.hive 0.0 10.0 50 weapon.sparkingShort weapon.lightningShort
 action.spawn enemy.gargoyleTwoLegs -10.0 -10.0 10 weapon.sparkingShort

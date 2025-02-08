@@ -32,9 +32,9 @@ const CM::Texture& AnimationData::getTexture() const
 	return texture;
 }
 
-glm::mat4 AnimationData::getFrameTransformation() const
+glm::mat4 AnimationData::getFrameTransformation(float functionalSpeedScaling) const
 {
-	const auto frameLocation = getFrameLocation();
+	const auto frameLocation = getFrameLocation(functionalSpeedScaling);
 	const glm::vec2 delta((rightTopFrameLeftEdge - leftTopFrameLeftTopCorner.x) / (framesGrid.x - 1),
 		(leftBottomFrameTopEdge - leftTopFrameLeftTopCorner.y) / (framesGrid.y - 1));
 	const auto hFrameSize = 1.0f / frameScale * 0.5f;
@@ -92,23 +92,23 @@ bool AnimationData::isForcingFrame() const
 	return forcedFrame.has_value();
 }
 
-int AnimationData::getAbsoluteFrame() const
+int AnimationData::getAbsoluteFrame(float functionalSpeedScaling) const
 {
 	if (!started)
 		return 0;
 
-	animationTime += !paused * (Globals::Components().physics().simulationDuration - prevSimDuration) * speedScaling;
+	animationTime += !paused * (Globals::Components().physics().simulationDuration - prevSimDuration) * speedScaling * functionalSpeedScaling;
 	prevSimDuration = Globals::Components().physics().simulationDuration;
 
 	return int(animationTime / frameDuration);
 }
 
-int AnimationData::getCurrentFrame() const
+int AnimationData::getCurrentFrame(float functionalSpeedScaling) const
 {
 	if (forcedFrame)
 		return *forcedFrame;
 
-	const int absoluteFrame = getAbsoluteFrame();
+	const int absoluteFrame = getAbsoluteFrame(functionalSpeedScaling);
 	const int absoluteFrameWithMode = [&]()
 		{
 			auto pingpong = [&]()
@@ -140,8 +140,8 @@ int AnimationData::getCurrentFrame() const
 		+ (int)animationDirection * numOfFrames) % numOfFrames;
 }
 
-glm::ivec2 AnimationData::getFrameLocation() const
+glm::ivec2 AnimationData::getFrameLocation(float functionalSpeedScaling) const
 {
-	const int currentFrame = getCurrentFrame();
+	const int currentFrame = getCurrentFrame(functionalSpeedScaling);
 	return { currentFrame % framesGrid.x, currentFrame / framesGrid.x };
 }

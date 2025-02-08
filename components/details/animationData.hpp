@@ -21,7 +21,7 @@ struct AnimationData
 
 	const CM::Texture& getTexture() const;
 
-	glm::mat4 getFrameTransformation() const;
+	glm::mat4 getFrameTransformation(float functionalSpeedScaling = 1.0f) const;
 
 	void start(bool value);
 	bool isStarted() const;
@@ -38,9 +38,9 @@ struct AnimationData
 	bool isForcingFrame() const;
 
 private:
-	int getAbsoluteFrame() const;
-	int getCurrentFrame() const;
-	glm::ivec2 getFrameLocation() const;
+	int getAbsoluteFrame(float functionalSpeedScaling) const;
+	int getCurrentFrame(float functionalSpeedScaling) const;
+	glm::ivec2 getFrameLocation(float functionalSpeedScaling) const;
 
 	CM::Texture texture{};
 	glm::ivec2 framesGrid{};

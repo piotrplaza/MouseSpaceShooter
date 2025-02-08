@@ -50,8 +50,8 @@ namespace ComponentMappers
 	struct AnimatedTexture
 	{
 		AnimatedTexture() = default;
-		AnimatedTexture(Components::AnimatedTexture& component, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
-		AnimatedTexture(ComponentId id, bool static_, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
+		AnimatedTexture(Components::AnimatedTexture& component, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f }, float speedScale = 1.0f);
+		AnimatedTexture(ComponentId id, bool static_, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f }, float speedScale = 1.0f);
 
 		Components::AnimatedTexture* component = nullptr;
 		ComponentId componentId = 0;
@@ -59,6 +59,7 @@ namespace ComponentMappers
 		glm::vec2 translate{};
 		float rotate{};
 		glm::vec2 scale{ 1.0f, 1.0f };
+		float speedScale{ 1.0f };
 
 		bool operator==(const AnimatedTexture&) const;
 		bool operator!=(const AnimatedTexture&) const;

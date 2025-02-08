@@ -47,7 +47,7 @@ namespace
 	}
 
 	inline void AnimatedTexturedRenderInitialization(auto& shadersProgram, const Components::AnimatedTexture& animatedTextureComponent,
-		glm::vec2 translate, float rotate, glm::vec2 scale, const glm::mat4& additionalTransform, unsigned textureId)
+		glm::vec2 translate, float rotate, glm::vec2 scale, float speedScale, const glm::mat4& additionalTransform, unsigned textureId)
 	{
 		const auto& texture = animatedTextureComponent.getTexture();
 		const auto additionalTransformation = Tools::TextureTransform(texture.translate, texture.rotate, texture.scale);
@@ -59,7 +59,7 @@ namespace
 			shadersProgram.numOfTextures(1);
 
 		shadersProgram.textures(textureId, textureId);
-		shadersProgram.texturesBaseTransform(textureId, animatedTextureComponent.getFrameTransformation() * Tools::TextureTransform(*texture.component)
+		shadersProgram.texturesBaseTransform(textureId, animatedTextureComponent.getFrameTransformation(speedScale) * Tools::TextureTransform(*texture.component)
 			* additionalTransformation * Tools::TextureTransform(translate, rotate, scale) * additionalTransform);
 	}
 
@@ -95,7 +95,7 @@ namespace
 
 			void operator ()(const CM::AnimatedTexture& animatedTexture) const
 			{
-				AnimatedTexturedRenderInitialization(shadersProgram, *animatedTexture.component, animatedTexture.translate, animatedTexture.rotate, animatedTexture.scale,
+				AnimatedTexturedRenderInitialization(shadersProgram, *animatedTexture.component, animatedTexture.translate, animatedTexture.rotate, animatedTexture.scale, animatedTexture.speedScale,
 					additionalTransform, textureId);
 			}
 

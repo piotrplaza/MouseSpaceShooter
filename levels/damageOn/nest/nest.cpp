@@ -145,7 +145,7 @@ namespace Levels::DamageOn
 			jetfireAnimationTextureId = staticTextures.emplace("textures/damageOn/jetfire.png").getComponentId();
 			staticTextures.last().minFilter = GL_LINEAR;
 
-			jetfireAnimatedTextureId = staticAnimatedTextures.add({ CM::Texture(jetfireAnimationTextureId, true), { 992, 1019 }, { 8, 8 }, { 0, 0 }, 897, 895, { 88, 125 }, 0.005f, 64, 0,
+			jetfireAnimatedTextureId = staticAnimatedTextures.add({ CM::Texture(jetfireAnimationTextureId, true), { 992, 1019 }, { 8, 8 }, { 0, 0 }, 897, 895, { 88, 125 }, 0.1f, 64, 0,
 					AnimationData::Direction::Forward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal }).getComponentId();
 			staticAnimatedTextures.last().start(true);
 
@@ -271,17 +271,23 @@ namespace Levels::DamageOn
 
 			for (int i = 0; i < levelParams.debris.count; ++i)
 			{
-				const float debrisWidth = glm::linearRand(levelParams.debris.widthRange.x, levelParams.debris.widthRange.y);
-				const float debrisHeight = debrisWidth * glm::linearRand(levelParams.debris.heightRatioRange.x, levelParams.debris.heightRatioRange.y);
-				auto& debris = dynamicWalls.emplace(Tools::CreateBoxBody({ debrisWidth, debrisHeight }, Tools::BodyParams{}.position(glm::linearRand(-levelHSize, levelHSize))
+				const float debrisHWidth = glm::linearRand(levelParams.debris.hWidthRange.x, levelParams.debris.hWidthRange.y);
+				const glm::vec2 debrisHSize = levelParams.debris.radiusRange == glm::vec2(0.0f)
+					? glm::vec2(debrisHWidth, debrisHWidth * glm::linearRand(levelParams.debris.hHeightRatioRange.x, levelParams.debris.hHeightRatioRange.y))
+					: glm::vec2(glm::linearRand(levelParams.debris.radiusRange.x, levelParams.debris.radiusRange.y));
+				const auto bodyParams = Tools::BodyParams{}.position(glm::linearRand(-levelHSize, levelHSize))
 					.angle(glm::linearRand(levelParams.debris.angleRange.x, levelParams.debris.angleRange.y))
-					.bodyType(b2_dynamicBody).linearDamping(10.0f).angularDamping(10.0f).density(levelParams.debris.density)), CM::DummyTexture());
+					.bodyType(b2_dynamicBody).linearDamping(0.1f).angularDamping(1.0f).density(levelParams.debris.density);
+				auto& debris = dynamicWalls.emplace(levelParams.debris.radiusRange == glm::vec2(0.0f)
+					? Tools::CreateBoxBody(debrisHSize, bodyParams)
+					: Tools::CreateCircleBody(debrisHSize.x, bodyParams)
+					, CM::DummyTexture());
 				debris.renderF = [&]() { return debug.hitboxesRendering; };
 				debris.colorF = glm::vec4(0.2f);
 				debris.posInSubsequence = 1;
 				auto& debrisPresentation = debris.subsequence.emplace_back();
 				debrisPresentation.texture = CM::Texture(embryoTextureId, true);
-				debrisPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { debrisWidth, debrisHeight });
+				debrisPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, debrisHSize);
 				debrisPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 				debrisPresentation.modelMatrixF = debris.modelMatrixF;
 				debrisPresentation.colorF = glm::vec4(0.4, 0.4, 0.4, 1.0f);
@@ -626,8 +632,9 @@ namespace Levels::DamageOn
 			struct Debris
 			{
 				int count{};
-				glm::vec2 widthRange{};
-				glm::vec2 heightRatioRange{};
+				glm::vec2 hWidthRange{};
+				glm::vec2 hHeightRatioRange{};
+				glm::vec2 radiusRange{};
 				glm::vec2 angleRange{};
 				float density{};
 			} debris;
@@ -920,6 +927,7 @@ namespace Levels::DamageOn
 				float reloadTime{};
 				float shotDuration{};
 				int multishot{};
+				float velocity{10};
 			} init;
 
 			struct CacheBase
@@ -1262,7 +1270,7 @@ namespace Levels::DamageOn
 				if constexpr (playerTarget)
 				{
 					targetActor.setEnabled(false);
-					detonate(targetActor, true, 80.0f, 0.1f, Tools::ExplosionParams{}.color({ 0.15f, 0.6f, 0.15f, 0.5f }).presentationScaleFactor(20));
+					detonate(targetActor, true, 80.0f, 5.0f, Tools::ExplosionParams{}.color({ 0.15f, 0.6f, 0.15f, 0.5f }).presentationScaleFactor(20));
 					if (targetInst.overchargedSound)
 						targetInst.overchargedSound->state = ComponentState::Outdated;
 					if (targetInst.dashSound)
@@ -1357,11 +1365,16 @@ namespace Levels::DamageOn
 			targetInst.actor.setVelocity(targetInst.actor.getVelocity() * targetType.init.slowFactor);
 			targetInst.animatedTexture.setSpeedScaling(targetType.init.presentation.velocityAnimationSpeedFactor == 0.0f ? 1.0f : glm::length(targetInst.actor.getVelocity() * targetType.init.presentation.velocityAnimationSpeedFactor));
 
-			const float distance = 50.0f;
+			const float distance = 20.0f;
 			const glm::vec2 targetPos = targetInst.actor.getOrigin2D();
 			const glm::vec2 sourcePos = targetPos + glm::vec2(glm::linearRand(-distance / 2, distance / 2), distance);
+			const glm::vec4 targetColor(1.0f);
+			const glm::vec4 souceColor(0.0f);
 
-			Tools::Shapes2D::AppendVerticesOfLightning(lightningDecoration.vertices, sourcePos, targetPos, int(10 * distance), 10.0f / glm::sqrt(distance));
+			Tools::Shapes2D::AppendVerticesOfLightning(lightningDecoration.vertices, sourcePos, targetPos, int(10 * distance), 5.0f / glm::sqrt(distance));
+			
+			for (int i = 0; i < (int)lightningDecoration.vertices.size(); ++i)
+				lightningDecoration.colors.push_back(i != 0 && i % 2 == 0 ? lightningDecoration.colors.back() : glm::mix(souceColor, targetColor, i / (float)(lightningDecoration.vertices.size() - 1)));
 			const auto lightningColor = glm::mix(glm::vec4(0.0f, 0.0f, glm::linearRand(0.5f, 0.7f), 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), sourceInst.manaOvercharging);
 			lightningDecoration.stepF = [&, startTime = physics.simulationDuration, lightningColor]() {
 				const float timeElapsed = physics.simulationDuration - startTime;
@@ -1381,16 +1394,17 @@ namespace Levels::DamageOn
 			targetInst.hp -= physics.frameDuration * weaponInst.type.init.damageFactor;
 		}
 
-		void fireballsHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, glm::vec2 direction)
+		void fireballsHandler(const auto& sourceInst, auto& targetInst, auto& weaponInst, glm::vec2 deltaPos)
 		{
 			static constexpr bool playerSource = std::is_same_v<std::remove_cvref_t<decltype(sourceInst)>, PlayerType::Inst>;
 			const auto& physics = Globals::Components().physics();
 
-			fireballSpawn(getWeaponSourcePoint(sourceInst), targetInst.actor.getOrigin2D(), glm::normalize(direction) * 20.0f, 0.3f, weaponInst, playerSource);
+			fireballSpawn(getWeaponSourcePoint(sourceInst), targetInst.actor.getOrigin2D(), glm::normalize(deltaPos), 0.3f, weaponInst, playerSource);
 		}
 
-		void fireballSpawn(glm::vec2 startPos, glm::vec2 endPos, glm::vec2 velocity, float radius, auto& weaponInst, bool playerSource)
+		void fireballSpawn(glm::vec2 startPos, glm::vec2 endPos, glm::vec2 direction, float radius, auto& weaponInst, bool playerSource)
 		{
+			const auto velocity = direction * weaponInst.type.init.velocity;
 			const auto& physics = Globals::Components().physics();
 			auto& dynamicActors = Globals::Components().actors();
 			auto& fireball = dynamicActors.emplace(Tools::CreateCircleBody(radius,
@@ -1437,7 +1451,7 @@ namespace Levels::DamageOn
 			fireballPresentation.modelMatrixF = fireball.modelMatrixF;
 			fireballPresentation.colorF = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);
 			auto& jetfire = fireball.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfRectangle(glm::vec2(0.0f), glm::vec2(radius, radius * 4.0f) * 2.0f),
-				Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::AnimatedTexture(jetfireAnimatedTextureId, true));
+				Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::AnimatedTexture(jetfireAnimatedTextureId, true, {}, 0.0f, { 1.0f, 1.0f }, weaponInst.type.init.velocity));
 			jetfire.modelMatrixF = [radius, modelMatrixF = fireball.modelMatrixF]() { return glm::translate(modelMatrixF(), glm::vec3(0.0f, radius * 4.0f, 0.0f) * 2.0f); };
 			jetfire.colorF = glm::vec4(1.0f, 0.6f, 0.6f, 1.0f);
 			fireballs.insert(fireball.getComponentId());
@@ -2035,6 +2049,7 @@ namespace Levels::DamageOn
 						loadParam(typeInit.reloadTime, std::format("weapon.{}.reloadTime", typeInit.typeName));
 						loadParam(typeInit.shotDuration, std::format("weapon.{}.shotDuration", typeInit.typeName), false);
 						loadParam(typeInit.multishot, std::format("weapon.{}.multishot", typeInit.typeName));
+						loadParam(typeInit.velocity, std::format("weapon.{}.velocity", typeInit.typeName), false);
 
 						prevWeaponName = typeInit.typeName;
 					}
@@ -2060,8 +2075,9 @@ namespace Levels::DamageOn
 			loadParam(levelParams.walls.boxes, "level.walls.box", false);
 			loadParam(levelParams.walls.circles, "level.walls.circle", false);
 			loadParam(levelParams.debris.count, "level.debris.count", false);
-			loadParam(levelParams.debris.widthRange, "level.debris.widthRange", false);
-			loadParam(levelParams.debris.heightRatioRange, "level.debris.heightRatioRange", false);
+			loadParam(levelParams.debris.hWidthRange, "level.debris.hWidthRange", false);
+			loadParam(levelParams.debris.hHeightRatioRange, "level.debris.hHeightRatioRange", false);
+			loadParam(levelParams.debris.radiusRange, "level.debris.radiusRange", false);
 			loadParam(levelParams.debris.angleRange, "level.debris.angleRange", false);
 			levelParams.debris.angleRange = { glm::radians(levelParams.debris.angleRange.x), glm::radians(levelParams.debris.angleRange.y) };
 			loadParam(levelParams.debris.density, "level.debris.density", false);
