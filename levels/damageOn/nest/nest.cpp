@@ -153,7 +153,7 @@ namespace Levels::DamageOn
 
 			sparkingSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav", 2.0f).getComponentId();
 			overchargedSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav", 1.5f).getComponentId();
-			dashSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav", 0.075f).getComponentId();
+			dashSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Whoosh - 5.wav", 0.4f).getComponentId();
 			enemyKillSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav", 0.8f).getComponentId();
 			explosionSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Detonate.wav", 0.75f).getComponentId();
 			thrustSoundBufferId = soundsBuffers.emplace("audio/thrust.wav", 1.0f).getComponentId();
@@ -417,7 +417,7 @@ namespace Levels::DamageOn
 						playerSoundLimitters.dashes->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(dashSoundBufferId, false), playerInst.actor.getOrigin2D(), [&](auto& sound) {
 							sound.setPitch(glm::linearRand(0.8f, 1.2f));
 							sound.setPlayingOffset(0.3f);
-							sound.setVolume(0.4f);
+							sound.setVolume(0.9f);
 						}));
 						playerInst.actor.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerType.init.dash * playerInst.actor.body->GetMass()), true);
 					}
@@ -1184,7 +1184,7 @@ namespace Levels::DamageOn
 			{
 				const auto direction = targetActor.getOrigin2D() - getWeaponSourcePoint(sourceInst);
 				const auto distance = glm::length(direction);
-				const auto fire = sourceInst.fire || sourceInst.autoFire;
+				const bool fire = sourceInst.fire || sourceInst.autoFire;
 
 				for (auto weaponId : sourceInst.weaponIds)
 				{
@@ -1207,6 +1207,7 @@ namespace Levels::DamageOn
 							for (; itVec != shuffledTargetSeqsInRange.end(); ++itVec, ++itMap)
 								shuffledInRangeTargetSeqsMapping[itMap->second] = *itVec;
 						}
+						const int targetCount = (int)shuffledTargetSeqsInRange.size();
 
 						//for (const auto& [k, v] : shuffledInRangeTargetSeqsMapping)
 						//	std::cout << k << ":" << v << " ";
@@ -1217,14 +1218,14 @@ namespace Levels::DamageOn
 							{
 								if (targetSeq > weaponInst.multishot - 1)
 									return WeaponState::Skip;
-								if (targetSeq == weaponInst.multishot - 1)
+								if (targetSeq == weaponInst.multishot - 1 || weaponInst.shotCounter == targetCount - 1)
 									return WeaponState::FinalShot;
 							}
 							else if (weaponInst.type.init.targeting == WeaponType::Targeting::Random)
 							{
 								if (shuffledInRangeTargetSeqsMapping.at(targetSeq) > weaponInst.multishot)
 									return WeaponState::Skip;
-								if (weaponInst.shotCounter == weaponInst.multishot - 1 || weaponInst.shotCounter == (int)shuffledInRangeTargetSeqsMapping.size() - 1)
+								if (weaponInst.shotCounter == weaponInst.multishot - 1 || weaponInst.shotCounter == targetCount - 1)
 									return WeaponState::FinalShot;
 							}
 							else
