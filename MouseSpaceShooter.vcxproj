@@ -272,13 +272,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(ProjectDir)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.30.11\lib\x86;C:\libraries\SFML-3.0.0\lib</LibraryPath>
-    <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.1;C:\libraries\box2d-2.4.2\include;C:\libraries\SDL2-2.30.11\include;C:\libraries\SFML-3.0.0\include;$(ProjectDir)\3rdParty</ExternalIncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.30.12\lib\x86;C:\libraries\SFML-3.0.0\lib</LibraryPath>
+    <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.1;C:\libraries\box2d-2.4.2\include;C:\libraries\SDL2-2.30.12\include;C:\libraries\SFML-3.0.0\include;$(ProjectDir)\3rdParty</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(ProjectDir)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.30.11\lib\x86;C:\libraries\SFML-3.0.0\lib</LibraryPath>
-    <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.1;C:\libraries\box2d-2.4.2\include;C:\libraries\SDL2-2.30.11\include;C:\libraries\SFML-3.0.0\include;$(ProjectDir)\3rdParty</ExternalIncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)$(Configuration);C:\libraries\glew-2.2.0\lib\Release\Win32;C:\libraries\SDL2-2.30.12\lib\x86;C:\libraries\SFML-3.0.0\lib</LibraryPath>
+    <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\libraries\glew-2.2.0\include;C:\libraries\glm-1.0.1;C:\libraries\box2d-2.4.2\include;C:\libraries\SDL2-2.30.12\include;C:\libraries\SFML-3.0.0\include;$(ProjectDir)\3rdParty</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
