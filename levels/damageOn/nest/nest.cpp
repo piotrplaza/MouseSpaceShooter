@@ -55,6 +55,7 @@ namespace Levels::DamageOn
 	namespace
 	{
 		static const char* paramsPath = "levels/damageOn/nest/params.txt";
+		static std::random_device randomDevice;
 		static std::mt19937 randomGenerator;
 
 		RenderableDef::RenderingSetupF createRecursiveFaceRS(glm::vec2 fadingRange)
@@ -114,7 +115,7 @@ namespace Levels::DamageOn
 				defaults.forcedResolutionMode = { ResolutionMode::Resolution::H405, ResolutionMode::Scaling::Nearest };
 
 			auto& mainFramebufferRenderer = Globals::Components().mainFramebufferRenderer();
-			mainFramebufferRenderer.renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured(), Tools::DefaultQuakeIntensity(0.0002f));
+			mainFramebufferRenderer.renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured(), Tools::DefaultQuakeIntensity(0.0001f));
 
 			auto& graphicsSettings = Globals::Components().graphicsSettings();
 			graphicsSettings.lineWidth = 10.0f;
@@ -305,6 +306,7 @@ namespace Levels::DamageOn
 			deferredWeaponsPostSteps.clear();
 
 			const auto& keyboard = Globals::Components().keyboard();
+			const auto& mouse = Globals::Components().mouse();
 			const auto& physics = Globals::Components().physics();
 			const auto& gamepads = Globals::Components().gamepads();
 
@@ -358,7 +360,9 @@ namespace Levels::DamageOn
 
 				const glm::vec2 keyboardDirection = keyboardApplying
 					? [&]() {
-						const glm::vec2 direction(-(int)keyboard.pressing[/*VK_LEFT*/0x25] + (int)keyboard.pressing[/*VK_RIGHT*/0x27], -(int)keyboard.pressing[/*VK_DOWN*/0x28] + (int)keyboard.pressing[/*VK_UP*/0x26]);
+						const glm::vec2 direction(
+							-(int)(keyboard.pressing[/*VK_LEFT*/0x25] || keyboard.pressing['A']) + (int)(keyboard.pressing[/*VK_RIGHT*/0x27] || keyboard.pressing['D']),
+							-(int)(keyboard.pressing[/*VK_DOWN*/0x28] || keyboard.pressing['S']) + (int)(keyboard.pressing[/*VK_UP*/0x26] || keyboard.pressing['W']));
 						if (direction == glm::vec2(0.0f))
 							return glm::vec2(0.0f);
 						return direction / glm::length(direction);
@@ -401,7 +405,10 @@ namespace Levels::DamageOn
 					if (glm::length(newVelocity) > glm::length(playerInst.actor.getVelocity()))
 						playerInst.actor.setVelocity(newVelocity);
 
-					if (keyboard.pressing[/*VK_CONTROL*/0x11] * keyboardApplying || gamepad.rTrigger * gamepadApplying > gameParams.gamepad.triggerDeadZone || gamepad.lTrigger * gamepadApplying > gameParams.gamepad.triggerDeadZone)
+					if (keyboard.pressing[/*VK_CONTROL*/0x11] * keyboardApplying ||
+						mouse.pressing.lmb * keyboardApplying ||
+						gamepad.rTrigger * gamepadApplying > gameParams.gamepad.triggerDeadZone ||
+						gamepad.lTrigger * gamepadApplying > gameParams.gamepad.triggerDeadZone)
 					{
 						playerInst.fire = true;
 						playerInst.autoFire = false;
@@ -422,15 +429,36 @@ namespace Levels::DamageOn
 						playerInst.actor.body->ApplyLinearImpulseToCenter(ToVec2<b2Vec2>(direction * playerType.init.dash * playerInst.actor.body->GetMass()), true);
 					}
 
-					if (rStickDirection != glm::vec2(0.0f))
+					if (mouse.delta != glm::ivec2(0))
+					{
+						const float mouseSensitive = 0.002f;
+						mousePos += mouse.getCartesianDelta() * mouseSensitive;
+						const float mouseLength = glm::length(mousePos);
+						if (mouseLength > 1.0f)
+							mousePos /= mouseLength;
+					}
+
+					glm::vec2 aimingDirection = [&]() {
+						const float mouseTreshold = 0.2f;
+						const float mouseLength = glm::length(mousePos);
+						if (!keyboardApplying || mouseLength < mouseTreshold)
+							return rStickDirection;
+						return glm::normalize(mousePos) * (mouseLength - mouseTreshold) / (1.0f - mouseTreshold) + rStickDirection;
+					}();
+					if (glm::length(aimingDirection) > 1.0f)
+						aimingDirection = glm::normalize(aimingDirection);
+
+					std::cout << aimingDirection.x << " " << aimingDirection.y << std::endl;
+
+					if (aimingDirection != glm::vec2(0.0f))
 					{
 						playerInst.aiming = true;
 						auto& decorations = Globals::Components().decorations();
-						const float rStickLength = glm::length(rStickDirection);
-						const glm::vec2 nDirection = rStickDirection / rStickLength;
+						const float aimingLength = glm::length(aimingDirection);
+						const glm::vec2 nDirection = aimingDirection / aimingLength;
 						const float aimingLineDist = 100.0f;
-						const float aimingAngle = glm::mix(glm::pi<float>(), playerType.init.minAimingAngle, rStickLength);
-						const float hAimingAngle = glm::max(aimingAngle * 0.5f, 0.01f);
+						const float aimingAngle = glm::mix(glm::pi<float>(), playerType.init.minAimingAngle, aimingLength);
+						const float hAimingAngle = glm::max(aimingAngle * 0.5f, 0.005f);
 						playerInst.aimingD1 = glm::rotate(nDirection, hAimingAngle);
 						playerInst.aimingD2 = glm::rotate(nDirection, -hAimingAngle);
 						const glm::vec2 orig = getWeaponSourcePoint(playerInst);
@@ -457,7 +485,7 @@ namespace Levels::DamageOn
 					enemiesByDistance.emplace(glm::distance(getWeaponSourcePoint(playerInst), enemyInst.actor.getOrigin2D()), &enemyInst);
 
 				const auto weaponSourcePoint = getWeaponSourcePoint(playerInst);
-				const unsigned seed = std::random_device()();
+				const unsigned seed = randomDevice();
 				auto enemySeqsByDistance = std::make_shared<std::multimap<float, int>>();
 				auto aimedEnemySeqsByDistance = std::make_shared<std::multimap<float, int>>();
 				int enemySeq = 0;
@@ -528,7 +556,7 @@ namespace Levels::DamageOn
 					continue;
 				}
 				
-				const unsigned seed = std::random_device()();
+				const unsigned seed = randomDevice();
 				auto playerSeqsByDistance = std::make_shared<std::multimap<float, int>>();
 				int playerSeq = 0;
 				for (auto& [distance, playerInst] : playersByDistance)
@@ -2121,6 +2149,7 @@ namespace Levels::DamageOn
 			weaponGameComponents.resetInstances();
 
 			shockwavesToDamage.clear();
+			mousePos = {};
 
 			for (auto explosionId : playerSourceExplosions)
 				Globals::Components().shockwaves()[explosionId].state = ComponentState::Outdated;
@@ -2207,6 +2236,8 @@ namespace Levels::DamageOn
 
 		std::vector<int> shuffledTargetSeqsInRange;
 		std::unordered_map<int, int> shuffledInRangeTargetSeqsMapping;
+
+		glm::vec2 mousePos;
 
 		struct
 		{

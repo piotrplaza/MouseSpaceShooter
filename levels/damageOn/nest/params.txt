@@ -1,5 +1,5 @@
 game.pixelArt false
-game.globalVolume 1.0
+game.globalVolume 0.0
 game.musicVolume 0.8
 game.musicFile "DamageOn 11.ogg"
 game.camera.minProjectionHSize 8.0
@@ -37,7 +37,7 @@ player.darkAngel.density 10.0
 player.darkAngel.linearDamping 6.0
 player.darkAngel.dash 30.0
 player.darkAngel.coolingRate 0.3
-player.darkAngel.minAimingAngle 20.0
+player.darkAngel.minAimingAngle 10.0
 player.darkAngel.weaponOffset 0.0 0.0
 player.darkAngel.presentation.radiusProportions 1.0 1.0
 player.darkAngel.presentation.translation 0.0 0.0
@@ -447,8 +447,8 @@ weapon.fireballsFast.reloadTime 0.2
 weapon.fireballsFast.multishot 6
 weapon.fireballsFast.velocity 30.0
 
-#action.spawn player.darkAngel 0 -30.0 0.0 1 weapon.lightning weapon.aimedSparking weapon.fastAimedLightning
-action.spawn player.darkAngel 0 -30.0 0.0 1 weapon.fireballsFast
+action.spawn player.darkAngel 0 -30.0 0.0 1 weapon.lightning weapon.aimedSparking weapon.fastAimedLightning
+#action.spawn player.darkAngel 0 -30.0 0.0 1 weapon.fireballsFast
 #action.spawn player.darkAngel 1 -30.0 0.0 1 weapon.lightning
 #action.spawn player.frankenstein 2 -30.0 0.0 1 weapon.sparking
 
