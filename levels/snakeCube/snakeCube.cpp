@@ -55,7 +55,7 @@ namespace
 	constexpr float cubeHSize = 0.5f;
 	constexpr float cameraDistance = 2.0f;
 
-	constexpr float growingSoundVolume = 0.4f;
+	constexpr float growingSoundVolume = 0.3f;
 
 	constexpr int numOfCrosses = 10000;
 	constexpr int numOfLights = 16;
@@ -416,7 +416,7 @@ namespace Levels
 				{
 					foodPos = std::nullopt;
 					lastEatingTime = Globals::Components().physics().simulationDuration;
-					Tools::CreateAndPlaySound(CM::SoundBuffer(eatingSoundBuffer, true)).setVolume(0.8f);
+					Tools::CreateAndPlaySound(CM::SoundBuffer(eatingSoundBuffer, true)).setVolume(0.4f);
 					++score;
 
 					juliaIterations += juliaIterationsStep;

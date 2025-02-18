@@ -10,16 +10,16 @@ namespace Components
 	{
 		struct Screen
 		{
+			glm::ivec2 framebufferRes{ 0, 0 };
 			glm::ivec2 windowSize{ 0, 0 };
-			glm::ivec2 windowRes{ 0, 0 };
 			glm::ivec2 windowLocation{ 0, 0 };
 			glm::ivec2 windowCenterInScreenSpace{ 0, 0 };
 			int refreshRate{ 0 };
 
 			float getAspectRatio() const
 			{
-				assert(windowRes.y != 0);
-				return (float)windowRes.x / windowRes.y;
+				assert(framebufferRes.y != 0);
+				return (float)framebufferRes.x / framebufferRes.y;
 			}
 
 			float getRefreshDuration() const
@@ -28,11 +28,11 @@ namespace Components
 				return 1.0f / refreshRate;
 			}
 
-			glm::vec2 getNormalizedWindowSize() const
+			glm::vec2 getNormalizedFramebufferRes() const
 			{
-				const float shortestSide = (float)std::min(windowRes.x, windowRes.y);
+				const float shortestSide = (float)std::min(framebufferRes.x, framebufferRes.y);
 				assert(shortestSide != 0);
-				return glm::vec2(windowRes) / shortestSide;
+				return glm::vec2(framebufferRes) / shortestSide;
 			}
 		} screen;
 

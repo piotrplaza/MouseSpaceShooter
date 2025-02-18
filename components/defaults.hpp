@@ -11,7 +11,7 @@ namespace Components
 {
 	struct Defaults
 	{
-		ResolutionMode resolutionMode = { ResolutionMode::Resolution::Native, ResolutionMode::Scaling::Linear, ResolutionMode::Blending::Standard };
+		ResolutionMode resolutionMode = { ResolutionMode::defaultResolution, ResolutionMode::defaultScaling, ResolutionMode::defaultBlending };
 		RenderLayer renderLayer = RenderLayer::Midground;
 	};
 }

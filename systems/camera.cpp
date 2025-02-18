@@ -24,10 +24,10 @@ namespace Systems
 	{
 		const auto& screenInfo = Globals::Components().systemInfo().screen;
 
-		const float windowWidthRatio = screenInfo.windowRes.x > screenInfo.windowRes.y
+		const float framebufferWidthRatio = screenInfo.framebufferRes.x > screenInfo.framebufferRes.y
 			? screenInfo.getAspectRatio()
 			: 1.0f;
-		const float windowHeightRatio = screenInfo.windowRes.x < screenInfo.windowRes.y
+		const float framebufferHeightRatio = screenInfo.framebufferRes.x < screenInfo.framebufferRes.y
 			? 1.0f / screenInfo.getAspectRatio()
 			: 1.0f;
 
@@ -37,8 +37,8 @@ namespace Systems
 		camera.details.prevPosition = camera.details.prevPosition = camera.details.position;
 		camera.details.projectionHSize = camera.details.prevProjectionHSize = targetPositionAndProjectionHSize.z;
 
-		camera.details.completeProjectionHSize = glm::vec2(camera.details.projectionHSize * windowWidthRatio, camera.details.projectionHSize * windowHeightRatio);
-		camera.details.prevCompleteProjectionHSize = glm::vec2(camera.details.prevProjectionHSize * windowWidthRatio, camera.details.prevProjectionHSize * windowHeightRatio);
+		camera.details.completeProjectionHSize = glm::vec2(camera.details.projectionHSize * framebufferWidthRatio, camera.details.projectionHSize * framebufferHeightRatio);
+		camera.details.prevCompleteProjectionHSize = glm::vec2(camera.details.prevProjectionHSize * framebufferWidthRatio, camera.details.prevProjectionHSize * framebufferHeightRatio);
 	}
 
 	void Camera::step() const
@@ -58,10 +58,10 @@ namespace Systems
 		auto& mvp = Globals::Components().mvp2D();
 		auto& physics = Globals::Components().physics();
 
-		const float windowWidthRatio = screenInfo.windowRes.x > screenInfo.windowRes.y
+		const float framebufferWidthRatio = screenInfo.framebufferRes.x > screenInfo.framebufferRes.y
 			? screenInfo.getAspectRatio()
 			: 1.0f;
-		const float windowHeightRatio = screenInfo.windowRes.x < screenInfo.windowRes.y
+		const float framebufferHeightRatio = screenInfo.framebufferRes.x < screenInfo.framebufferRes.y
 			? 1.0f / screenInfo.getAspectRatio()
 			: 1.0f;
 
@@ -77,14 +77,14 @@ namespace Systems
 			camera.details.prevProjectionHSize = camera.details.projectionHSize;
 			camera.details.prevPosition = camera.details.position;
 
-			camera.details.completeProjectionHSize = glm::vec2(camera.details.projectionHSize * windowWidthRatio, camera.details.projectionHSize * windowHeightRatio);
-			camera.details.prevCompleteProjectionHSize = glm::vec2(camera.details.prevProjectionHSize * windowWidthRatio, camera.details.prevProjectionHSize * windowHeightRatio);
+			camera.details.completeProjectionHSize = glm::vec2(camera.details.projectionHSize * framebufferWidthRatio, camera.details.projectionHSize * framebufferHeightRatio);
+			camera.details.prevCompleteProjectionHSize = glm::vec2(camera.details.prevProjectionHSize * framebufferWidthRatio, camera.details.prevProjectionHSize * framebufferHeightRatio);
 
 			mvp.view = glm::translate(glm::mat4(1.0f), glm::vec3(-camera.details.position, 0.0f));
 		}
 
-		mvp.projection = glm::ortho(-camera.details.projectionHSize * windowWidthRatio, camera.details.projectionHSize * windowWidthRatio,
-			-camera.details.projectionHSize * windowHeightRatio, camera.details.projectionHSize * windowHeightRatio);
+		mvp.projection = glm::ortho(-camera.details.projectionHSize * framebufferWidthRatio, camera.details.projectionHSize * framebufferWidthRatio,
+			-camera.details.projectionHSize * framebufferHeightRatio, camera.details.projectionHSize * framebufferHeightRatio);
 	}
 
 	void Camera::step3D(bool paused) const

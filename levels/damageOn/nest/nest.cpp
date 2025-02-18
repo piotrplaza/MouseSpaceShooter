@@ -447,8 +447,6 @@ namespace Levels::DamageOn
 					if (glm::length(aimingDirection) > 1.0f)
 						aimingDirection = glm::normalize(aimingDirection);
 
-					std::cout << aimingDirection.x << " " << aimingDirection.y << std::endl;
-
 					if (aimingDirection != glm::vec2(0.0f))
 					{
 						playerInst.aiming = true;

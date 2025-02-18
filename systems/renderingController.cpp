@@ -45,8 +45,8 @@ namespace
 		auto render = [&](const auto& buffers) {
 			const auto& resolutionMode = buffers.renderable->resolutionMode;
 			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isMainMode(), subBuffers.fbo,
-				subBuffers.size, Globals::Components().framebuffers().getMainSubBuffers().fbo, Globals::Components().framebuffers().getMainSubBuffers().size);
+			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isDefaultMode(), subBuffers.fbo,
+				subBuffers.size, Globals::Components().framebuffers().getDefaultSubBuffers().fbo, Globals::Components().framebuffers().getDefaultSubBuffers().size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(resolutionMode);
 
@@ -99,8 +99,8 @@ namespace
 		auto render = [&](const auto& buffers) {
 			const auto& resolutionMode = buffers.renderable->resolutionMode;
 			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isMainMode(), subBuffers.fbo,
-				subBuffers.size, Globals::Components().framebuffers().getMainSubBuffers().fbo, Globals::Components().framebuffers().getMainSubBuffers().size);
+			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isDefaultMode(), subBuffers.fbo,
+				subBuffers.size, Globals::Components().framebuffers().getDefaultSubBuffers().fbo, Globals::Components().framebuffers().getDefaultSubBuffers().size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(resolutionMode);
 
@@ -153,8 +153,8 @@ namespace
 		auto render = [&](const auto& buffers) {
 			const auto& resolutionMode = buffers.renderable->resolutionMode;
 			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isMainMode(), subBuffers.fbo,
-				subBuffers.size, Globals::Components().framebuffers().getMainSubBuffers().fbo, Globals::Components().framebuffers().getMainSubBuffers().size);
+			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isDefaultMode(), subBuffers.fbo,
+				subBuffers.size, Globals::Components().framebuffers().getDefaultSubBuffers().fbo, Globals::Components().framebuffers().getDefaultSubBuffers().size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(resolutionMode);
 
@@ -192,8 +192,8 @@ namespace
 		auto render = [&](const auto& buffers) {
 			const auto& resolutionMode = buffers.renderable->resolutionMode;
 			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isMainMode(), subBuffers.fbo,
-				subBuffers.size, Globals::Components().framebuffers().getMainSubBuffers().fbo, Globals::Components().framebuffers().getMainSubBuffers().size);
+			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isDefaultMode(), subBuffers.fbo,
+				subBuffers.size, Globals::Components().framebuffers().getDefaultSubBuffers().fbo, Globals::Components().framebuffers().getDefaultSubBuffers().size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(resolutionMode);
 
@@ -227,8 +227,8 @@ namespace
 		auto render = [&](const auto& buffers) {
 			const auto& resolutionMode = buffers.renderable->resolutionMode;
 			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isMainMode(), subBuffers.fbo,
-				subBuffers.size, Globals::Components().framebuffers().getMainSubBuffers().fbo, Globals::Components().framebuffers().getMainSubBuffers().size);
+			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isDefaultMode(), subBuffers.fbo,
+				subBuffers.size, Globals::Components().framebuffers().getDefaultSubBuffers().fbo, Globals::Components().framebuffers().getDefaultSubBuffers().size);
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(resolutionMode);
 
@@ -267,20 +267,14 @@ namespace Systems
 		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 
 		if (graphicsSettings.forcedDepthTest)
-			if (*graphicsSettings.forcedDepthTest)
-				glProxySetDepthTest(true);
-			else
-				glProxySetDepthTest(false);
+			glProxySetDepthTest(*graphicsSettings.forcedDepthTest);
 
-		if (graphicsSettings.cullFace)
-			glProxySetCullFace(true);
-		else
-			glProxySetCullFace(false);
+		glProxySetCullFace(graphicsSettings.cullFace);
 
 		glLineWidth(graphicsSettings.lineWidth);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.getMainSubBuffers().fbo);
-		glViewport(0, 0, framebuffers.getMainSubBuffers().size.x, framebuffers.getMainSubBuffers().size.y);
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.getDefaultSubBuffers().fbo);
+		glViewport(0, 0, framebuffers.getDefaultSubBuffers().size.x, framebuffers.getDefaultSubBuffers().size.y);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		Tools::Lights3DSetup(Globals::Shaders().basicPhong());
@@ -314,6 +308,6 @@ namespace Systems
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		assert(Globals::Components().mainFramebufferRenderer().renderer);
-		Globals::Components().mainFramebufferRenderer().renderer(framebuffers.getMainSubBuffers().textureObject);
+		Globals::Components().mainFramebufferRenderer().renderer(framebuffers.getDefaultSubBuffers().textureObject);
 	}
 }

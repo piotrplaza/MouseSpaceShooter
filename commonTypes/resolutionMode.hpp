@@ -31,10 +31,14 @@ struct ResolutionMode
 		COUNT
 	} blending;
 
-	bool isMainMode() const
+	bool isDefaultMode() const
 	{
-		return resolution == Resolution::Native && scaling == Scaling::Nearest && blending == Blending::Standard;
+		return resolution == defaultResolution && scaling == defaultScaling && blending == defaultBlending;
 	}
+
+	static constexpr Resolution defaultResolution = Resolution::Native;
+	static constexpr Scaling defaultScaling = Scaling::Nearest;
+	static constexpr Blending defaultBlending = Blending::Standard;
 };
 
 namespace ShadersUtils::Programs

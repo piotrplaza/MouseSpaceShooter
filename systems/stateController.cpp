@@ -57,8 +57,8 @@ namespace Systems
 		const auto& graphicsSettings = Globals::Components().graphicsSettings();
 		const auto& screenInfo = Globals::Components().systemInfo().screen;
 
-		if (graphicsSettings.forcedResolution && *graphicsSettings.forcedResolution != screenInfo.windowRes)
-			changeWindowRes(*graphicsSettings.forcedResolution);
+		if (graphicsSettings.forcedResolution && *graphicsSettings.forcedResolution != screenInfo.framebufferRes)
+			changeFramebufferRes(*graphicsSettings.forcedResolution);
 
 		ProcessFunctors(Globals::Components().stepSetups());
 	}
@@ -82,10 +82,11 @@ namespace Systems
 	{
 		auto& screenInfo = Globals::Components().systemInfo().screen;
 		screenInfo.windowSize = size;
-		changeWindowRes(size);
+		screenInfo.windowCenterInScreenSpace = { screenInfo.windowLocation + screenInfo.windowSize / 2 };
+		changeFramebufferRes(size);
 	}
 
-	void StateController::changeWindowRes(glm::ivec2 size) const
+	void StateController::changeFramebufferRes(glm::ivec2 size) const
 	{
 		if (size.x <= 0 || size.y <= 0)
 			return;
@@ -93,8 +94,7 @@ namespace Systems
 		auto& screenInfo = Globals::Components().systemInfo().screen;
 		auto& framebuffers = Globals::Components().framebuffers();
 
-		screenInfo.windowRes = size;
-		screenInfo.windowCenterInScreenSpace = { screenInfo.windowLocation + screenInfo.windowRes / 2 };
+		screenInfo.framebufferRes = size;
 
 		auto setTextureFramebufferSize = [&](Components::Framebuffers::SubBuffers& subBuffers, glm::ivec2 size)
 		{
@@ -138,7 +138,7 @@ namespace Systems
 		auto& screenInfo = Globals::Components().systemInfo().screen;
 
 		screenInfo.windowLocation = location;
-		screenInfo.windowCenterInScreenSpace = { location + screenInfo.windowRes / 2 };
+		screenInfo.windowCenterInScreenSpace = { location + screenInfo.windowSize / 2 };
 	}
 
 	void StateController::changeRefreshRate(int refreshRate) const

@@ -142,30 +142,30 @@ namespace Tools
 				thrustAnimatedTexture,
 				params
 			](ShadersUtils::ProgramId program) mutable {
-					if (!modelUniform.isValid()) modelUniform = UniformsUtils::UniformMat4f(program, "model");
-					modelUniform(
-						glm::translate(
-							glm::scale(
-								glm::rotate(
-									glm::translate(Tools::GetModelMatrix(*plane.body), { params.thrustOffset_.x, (i == 0 ? -1 : 1) * params.thrustOffset_.y, 0.0f }),
-									-glm::half_pi<float>() + (i == 0 ? 1 : -1) * params.thrustAngle_, { 0.0f, 0.0f, 1.0f }),
-								{ 0.5f + thrust * 0.02f, thrust, 1.0f }),
-							{ 0.0f, -0.5f, 0.0f }));
+				if (!modelUniform.isValid()) modelUniform = UniformsUtils::UniformMat4f(program, "model");
+				modelUniform(
+					glm::translate(
+						glm::scale(
+							glm::rotate(
+								glm::translate(Tools::GetModelMatrix(*plane.body), { params.thrustOffset_.x, (i == 0 ? -1 : 1) * params.thrustOffset_.y, 0.0f }),
+								-glm::half_pi<float>() + (i == 0 ? 1 : -1) * params.thrustAngle_, { 0.0f, 0.0f, 1.0f }),
+							{ 0.5f + thrust * 0.02f, thrust, 1.0f }),
+						{ 0.0f, -0.5f, 0.0f }));
 
-					const float targetThrust = 1.0f + plane.details.throttleForce * 0.3f;
-					const float changeStep = Globals::Components().physics().frameDuration * 10.0f;
+				const float targetThrust = 1.0f + plane.details.throttleForce * 0.3f;
+				const float changeStep = Globals::Components().physics().frameDuration * 10.0f;
 
-					if (thrust < targetThrust)
-						thrust = std::min(thrust + changeStep, targetThrust);
-					else
-						thrust = std::max(thrust - changeStep, targetThrust);
+				if (thrust < targetThrust)
+					thrust = std::min(thrust + changeStep, targetThrust);
+				else
+					thrust = std::max(thrust - changeStep, targetThrust);
 
-					thrustAnimatedTexture.component->setSpeedScaling(1.0f + (thrust - 1) * 0.2f);
+				thrustAnimatedTexture.component->setSpeedScaling(1.0f + (thrust - 1) * 0.2f);
 
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-					return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
-				};
+				return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+			};
 		}
 
 		return plane.getComponentId();

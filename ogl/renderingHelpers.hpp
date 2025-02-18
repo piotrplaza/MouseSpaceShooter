@@ -230,7 +230,7 @@ namespace Tools
 			TexturedScreenRender(shadersProgram, textureObject, nullptr, [&, quakeIntensityF = quakeIntensityF]()
 				{
 					const float quakeIntensity = quakeIntensityF();
-					const glm::vec2 quakeIntensityXY = screenInfo.windowRes.x > screenInfo.windowRes.y
+					const glm::vec2 quakeIntensityXY = screenInfo.framebufferRes.x > screenInfo.framebufferRes.y
 						? glm::vec2(quakeIntensity, quakeIntensity * screenInfo.getAspectRatio())
 						: glm::vec2(quakeIntensity / screenInfo.getAspectRatio(), quakeIntensity);
 
@@ -251,7 +251,7 @@ namespace Tools
 
 		return[&, angle = 0.0f, quakeIntensityF = std::move(quakeIntensityF)](unsigned textureObject) mutable
 		{
-			glm::mat4 vp = glm::perspective(glm::radians(28.0f), screenInfo.getAspectRatio(), 1.0f, 10.0f);
+			glm::mat4 vp = glm::perspective(glm::radians(28.07948f), screenInfo.getAspectRatio(), 1.0f, 10.0f);
 			glm::mat4 model = glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, -4.0f });
 			model = glm::rotate(model, angle, { 1.0f, 1.0f, 1.0f });
 			model = glm::scale(model, { screenInfo.getAspectRatio(), 1.0f, 1.0f });
@@ -284,7 +284,7 @@ namespace Tools
 				}, [&]()
 				{
 					const float quakeIntensity = quakeIntensityF();
-					const glm::vec2 quakeIntensityXY = screenInfo.windowRes.x > screenInfo.windowRes.y
+					const glm::vec2 quakeIntensityXY = screenInfo.framebufferRes.x > screenInfo.framebufferRes.y
 						? glm::vec2(quakeIntensity, quakeIntensity * screenInfo.getAspectRatio())
 						: glm::vec2(quakeIntensity / screenInfo.getAspectRatio(), quakeIntensity);
 

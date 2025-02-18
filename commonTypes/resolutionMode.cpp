@@ -13,7 +13,7 @@ TexturesFramebuffersRenderer::TexturesFramebuffersRenderer(ShadersUtils::Program
 TexturesFramebuffersRenderer::~TexturesFramebuffersRenderer()
 {
 	auto optionalRender = [&](const ResolutionMode& mode) {
-		if (mode.isMainMode())
+		if (mode.isDefaultMode())
 			return;
 
 		if (!ongoingModes[(size_t)mode.resolution][(size_t)mode.scaling][(size_t)mode.blending])
@@ -38,7 +38,7 @@ TexturesFramebuffersRenderer::~TexturesFramebuffersRenderer()
 
 void TexturesFramebuffersRenderer::clearIfFirstOfMode(ResolutionMode mode)
 {
-	if (mode.isMainMode())
+	if (mode.isDefaultMode())
 		return;
 
 	if (auto& ongoing = ongoingModes[(size_t)mode.resolution][(size_t)mode.scaling][(size_t)mode.blending]; !ongoing)

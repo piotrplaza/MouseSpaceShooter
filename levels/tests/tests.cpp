@@ -36,7 +36,7 @@ namespace Tests
 		void step() override
 		{
 			const auto& screenInfo = Globals::Components().systemInfo().screen;
-			const auto pos = glm::linearRand(-screenInfo.getNormalizedWindowSize(), screenInfo.getNormalizedWindowSize()) * 9.0f;
+			const auto pos = glm::linearRand(-screenInfo.getNormalizedFramebufferRes(), screenInfo.getNormalizedFramebufferRes()) * 9.0f;
 			auto& decoration = Globals::Components().decorations().emplace(Tools::Shapes2D::CreateVerticesOfCircle(pos, 1.0f, 20));
 			decoration.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfCircle(pos, 0.2f, 20));
 			decoration.subsequence.back().colorF = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);

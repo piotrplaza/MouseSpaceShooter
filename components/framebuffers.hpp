@@ -24,18 +24,18 @@ namespace Components
 
 		const SubBuffers& getSubBuffers(ResolutionMode resolutionMode) const
 		{
-			if (resolutionMode.isMainMode())
-				return dummy;
+			//if (resolutionMode.isDefaultMode())
+			//	return dummy;
 
 			return subBuffers[(size_t)resolutionMode.resolution][(size_t)resolutionMode.scaling][(size_t)resolutionMode.blending];
 		}
 
-		const SubBuffers& getMainSubBuffers() const
+		const SubBuffers& getDefaultSubBuffers() const
 		{
-			return subBuffers[(size_t)ResolutionMode::Resolution::Native][(size_t)ResolutionMode::Scaling::Nearest][(size_t)ResolutionMode::Blending::Standard];
+			return subBuffers[(size_t)ResolutionMode::defaultResolution][(size_t)ResolutionMode::defaultScaling][(size_t)ResolutionMode::defaultBlending];
 		}
 
-		SubBuffers dummy;
+		//SubBuffers dummy;
 		SubBuffers subBuffers[(size_t)ResolutionMode::Resolution::COUNT][(size_t)ResolutionMode::Scaling::COUNT][(size_t)ResolutionMode::Blending::COUNT];
 	};
 }
