@@ -8,7 +8,7 @@ namespace Systems
 		Camera();
 
 		void postInit() const;
-		void step(bool paused = false) const;
+		void step() const;
 
 	private:
 		void step2D(bool paused) const;

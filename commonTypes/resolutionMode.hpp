@@ -20,8 +20,8 @@ struct ResolutionMode
 	} resolution;
 
 	enum class Scaling {
-		Linear,
 		Nearest,
+		Linear,
 		COUNT
 	} scaling;
 
@@ -33,7 +33,7 @@ struct ResolutionMode
 
 	bool isMainMode() const
 	{
-		return resolution == Resolution::Native && scaling == Scaling::Linear && blending == Blending::Standard;
+		return resolution == Resolution::Native && scaling == Scaling::Nearest && blending == Blending::Standard;
 	}
 };
 

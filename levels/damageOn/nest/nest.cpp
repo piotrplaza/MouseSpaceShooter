@@ -110,15 +110,14 @@ namespace Levels::DamageOn
 			loadParams();
 
 			const auto& physics = Globals::Components().physics();
-			auto& defaults = Globals::Components().defaults();
+			auto& graphicsSettings = Globals::Components().graphicsSettings();
+			graphicsSettings.lineWidth = gameParams.pixelArt ? 1.0f : 10.0f;
 			if (gameParams.pixelArt)
-				defaults.forcedResolutionMode = { ResolutionMode::Resolution::H405, ResolutionMode::Scaling::Nearest };
+				graphicsSettings.forcedResolution = { 640, 360 };
 
 			auto& mainFramebufferRenderer = Globals::Components().mainFramebufferRenderer();
 			mainFramebufferRenderer.renderer = Tools::StandardFullscreenRenderer(Globals::Shaders().textured(), Tools::DefaultQuakeIntensity(0.0001f));
 
-			auto& graphicsSettings = Globals::Components().graphicsSettings();
-			graphicsSettings.lineWidth = 10.0f;
 
 			auto& staticTextures = Globals::Components().staticTextures();
 			auto& dynamicTextures = Globals::Components().textures();

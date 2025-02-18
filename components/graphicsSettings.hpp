@@ -12,6 +12,7 @@ namespace Components
 {
 	struct GraphicsSettings : ComponentBase
 	{
+		std::optional<glm::ivec2> forcedResolution = {};
 		FVec4 backgroundColorF = glm::vec4{ 0.0f, 0.0f, 0.0f, 1.0f };
 		FVec4 defaultColorF = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
 		std::optional<bool> forcedDepthTest;

@@ -12,6 +12,6 @@ namespace Systems
 
 		void postInit();
 		void teardown();
-		void step(bool paused = false);
+		void step();
 	};
 }

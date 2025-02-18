@@ -1,5 +1,5 @@
 game.pixelArt false
-game.globalVolume 0.0
+game.globalVolume 1.0
 game.musicVolume 0.8
 game.musicFile "DamageOn 11.ogg"
 game.camera.minProjectionHSize 8.0

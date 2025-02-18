@@ -32,6 +32,8 @@ namespace Systems
 		void resetPrevKeys();
 
 	private:
+		void changeWindowRes(glm::ivec2 size) const;
+
 		std::array<bool, 256> prevKeyboardKeys{};
 		Components::Mouse::Buttons prevMouseKeys;
 		std::array<Components::Gamepad::Buttons, 4> prevGamepadsKeys;

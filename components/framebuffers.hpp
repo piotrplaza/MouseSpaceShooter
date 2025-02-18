@@ -32,7 +32,7 @@ namespace Components
 
 		const SubBuffers& getMainSubBuffers() const
 		{
-			return subBuffers[(size_t)ResolutionMode::Resolution::Native][(size_t)ResolutionMode::Scaling::Linear][(size_t)ResolutionMode::Blending::Standard];
+			return subBuffers[(size_t)ResolutionMode::Resolution::Native][(size_t)ResolutionMode::Scaling::Nearest][(size_t)ResolutionMode::Blending::Standard];
 		}
 
 		SubBuffers dummy;

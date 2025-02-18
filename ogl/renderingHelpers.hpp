@@ -230,7 +230,7 @@ namespace Tools
 			TexturedScreenRender(shadersProgram, textureObject, nullptr, [&, quakeIntensityF = quakeIntensityF]()
 				{
 					const float quakeIntensity = quakeIntensityF();
-					const glm::vec2 quakeIntensityXY = screenInfo.windowSize.x > screenInfo.windowSize.y
+					const glm::vec2 quakeIntensityXY = screenInfo.windowRes.x > screenInfo.windowRes.y
 						? glm::vec2(quakeIntensity, quakeIntensity * screenInfo.getAspectRatio())
 						: glm::vec2(quakeIntensity / screenInfo.getAspectRatio(), quakeIntensity);
 
@@ -284,7 +284,7 @@ namespace Tools
 				}, [&]()
 				{
 					const float quakeIntensity = quakeIntensityF();
-					const glm::vec2 quakeIntensityXY = screenInfo.windowSize.x > screenInfo.windowSize.y
+					const glm::vec2 quakeIntensityXY = screenInfo.windowRes.x > screenInfo.windowRes.y
 						? glm::vec2(quakeIntensity, quakeIntensity * screenInfo.getAspectRatio())
 						: glm::vec2(quakeIntensity / screenInfo.getAspectRatio(), quakeIntensity);
 

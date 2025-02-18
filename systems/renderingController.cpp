@@ -26,13 +26,6 @@
 
 namespace
 {
-	const ResolutionMode& getResolutionMode(const Renderable& renderable)
-	{
-		if (Globals::Components().defaults().forcedResolutionMode)
-			return *Globals::Components().defaults().forcedResolutionMode;
-		return renderable.resolutionMode;
-	}
-
 	void BasicPhongRender(size_t layer, TexturesFramebuffersRenderer& texturesFramebuffersRenderer)
 	{
 		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers.basicPhong;
@@ -50,7 +43,7 @@ namespace
 		Globals::Shaders().basicPhong().vp(Globals::Components().mvp3D().getVP());
 
 		auto render = [&](const auto& buffers) {
-			const auto& resolutionMode = getResolutionMode(*buffers.renderable);
+			const auto& resolutionMode = buffers.renderable->resolutionMode;
 			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(resolutionMode);
 			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isMainMode(), subBuffers.fbo,
 				subBuffers.size, Globals::Components().framebuffers().getMainSubBuffers().fbo, Globals::Components().framebuffers().getMainSubBuffers().size);
@@ -104,7 +97,7 @@ namespace
 		Globals::Shaders().texturedPhong().vp(Globals::Components().mvp3D().getVP());
 
 		auto render = [&](const auto& buffers) {
-			const auto& resolutionMode = getResolutionMode(*buffers.renderable);
+			const auto& resolutionMode = buffers.renderable->resolutionMode;
 			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(resolutionMode);
 			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isMainMode(), subBuffers.fbo,
 				subBuffers.size, Globals::Components().framebuffers().getMainSubBuffers().fbo, Globals::Components().framebuffers().getMainSubBuffers().size);
@@ -158,7 +151,7 @@ namespace
 		Globals::Shaders().basic().vp(Globals::Components().mvp2D().getVP());
 
 		auto render = [&](const auto& buffers) {
-			const auto& resolutionMode = getResolutionMode(*buffers.renderable);
+			const auto& resolutionMode = buffers.renderable->resolutionMode;
 			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(resolutionMode);
 			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isMainMode(), subBuffers.fbo,
 				subBuffers.size, Globals::Components().framebuffers().getMainSubBuffers().fbo, Globals::Components().framebuffers().getMainSubBuffers().size);
@@ -197,7 +190,7 @@ namespace
 		Globals::Shaders().textured().vp(Globals::Components().mvp2D().getVP());
 
 		auto render = [&](const auto& buffers) {
-			const auto& resolutionMode = getResolutionMode(*buffers.renderable);
+			const auto& resolutionMode = buffers.renderable->resolutionMode;
 			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(resolutionMode);
 			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isMainMode(), subBuffers.fbo,
 				subBuffers.size, Globals::Components().framebuffers().getMainSubBuffers().fbo, Globals::Components().framebuffers().getMainSubBuffers().size);
@@ -232,7 +225,7 @@ namespace
 			return;
 
 		auto render = [&](const auto& buffers) {
-			const auto& resolutionMode = getResolutionMode(*buffers.renderable);
+			const auto& resolutionMode = buffers.renderable->resolutionMode;
 			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(resolutionMode);
 			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isMainMode(), subBuffers.fbo,
 				subBuffers.size, Globals::Components().framebuffers().getMainSubBuffers().fbo, Globals::Components().framebuffers().getMainSubBuffers().size);

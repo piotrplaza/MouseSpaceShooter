@@ -72,11 +72,11 @@ namespace Systems
 		Globals::Components().physics().world->SetContactFilter(&b2_defaultFilter);
 	}
 
-	void Physics::step(bool paused)
+	void Physics::step()
 	{
 		auto& physics = Globals::Components().physics();
 
-		if (paused)
+		if (Globals::Components().physics().paused)
 		{
 			physics.frameDuration = 0.0f;
 			physics.prevFrameTime = std::chrono::high_resolution_clock::now();

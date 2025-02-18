@@ -24,10 +24,10 @@ namespace Systems
 	{
 		const auto& screenInfo = Globals::Components().systemInfo().screen;
 
-		const float windowWidthRatio = screenInfo.windowSize.x > screenInfo.windowSize.y
+		const float windowWidthRatio = screenInfo.windowRes.x > screenInfo.windowRes.y
 			? screenInfo.getAspectRatio()
 			: 1.0f;
-		const float windowHeightRatio = screenInfo.windowSize.x < screenInfo.windowSize.y
+		const float windowHeightRatio = screenInfo.windowRes.x < screenInfo.windowRes.y
 			? 1.0f / screenInfo.getAspectRatio()
 			: 1.0f;
 
@@ -41,12 +41,11 @@ namespace Systems
 		camera.details.prevCompleteProjectionHSize = glm::vec2(camera.details.prevProjectionHSize * windowWidthRatio, camera.details.prevProjectionHSize * windowHeightRatio);
 	}
 
-	void Camera::step(bool paused) const
+	void Camera::step() const
 	{
-		step2D(paused);
-		step3D(paused);
+		step2D(Globals::Components().physics().paused);
+		step3D(Globals::Components().physics().paused);
 	}
-
 
 	void Camera::step2D(bool paused) const
 	{
@@ -59,10 +58,10 @@ namespace Systems
 		auto& mvp = Globals::Components().mvp2D();
 		auto& physics = Globals::Components().physics();
 
-		const float windowWidthRatio = screenInfo.windowSize.x > screenInfo.windowSize.y
+		const float windowWidthRatio = screenInfo.windowRes.x > screenInfo.windowRes.y
 			? screenInfo.getAspectRatio()
 			: 1.0f;
-		const float windowHeightRatio = screenInfo.windowSize.x < screenInfo.windowSize.y
+		const float windowHeightRatio = screenInfo.windowRes.x < screenInfo.windowRes.y
 			? 1.0f / screenInfo.getAspectRatio()
 			: 1.0f;
 

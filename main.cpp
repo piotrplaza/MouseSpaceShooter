@@ -186,8 +186,9 @@ static void PrepareFrame()
 {
 	if (Globals::Components().physics().paused)
 	{
-		Globals::Systems().physics().step(true);
-		Globals::Systems().camera().step(true);
+		Globals::Systems().stateController().stepSetup();
+		Globals::Systems().physics().step();
+		Globals::Systems().camera().step();
 	}
 	else
 	{
@@ -463,17 +464,20 @@ int APIENTRY WinMain(
 			{
 				Globals::Systems().stateController().changeWindowLocation(*newPos);
 				Globals::Systems().stateController().changeRefreshRate(GetDeviceCaps(hDC, VREFRESH));
+				newPos = {};
 			}
 
 			if (newSize)
 			{
 				Globals::Systems().stateController().changeWindowSize(*newSize);
+				newSize = {};
 			}
 
 			if (prevFocus != focus)
 			{
 				keys = {};
 				Globals::Systems().stateController().setWindowFocus(focus);
+				prevFocus = focus;
 			}
 
 			if (first)
@@ -507,10 +511,6 @@ int APIENTRY WinMain(
 			}
 			else
 				Tools::SetMouseCursorVisibility(true);
-
-			prevFocus = focus;
-			newPos = {};
-			newSize = {};
 		}
 
 		TearDown();
