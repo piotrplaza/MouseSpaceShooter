@@ -150,7 +150,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Rim>();
 	//activeLevel = std::make_unique<Levels::SplineTest>();
 	//activeLevel = std::make_unique<Levels::Collisions>();
-	activeLevel = std::make_unique<Levels::Basic3D>();
+	//activeLevel = std::make_unique<Levels::Basic3D>();
 	//activeLevel = std::make_unique<Levels::FirstPersonCamera>();
 	//activeLevel = std::make_unique<Levels::Crosses3D>();
 	//activeLevel = std::make_unique<Levels::Crosses3DTexturing>();
@@ -158,7 +158,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Paint>();
 	//activeLevel = std::make_unique<Levels::Noise>();
 	//activeLevel = std::make_unique<Levels::Decals>();
-	//activeLevel = std::make_unique<Levels::Particles>();
+	activeLevel = std::make_unique<Levels::Particles>();
 	//activeLevel = std::make_unique<Levels::Tests>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();

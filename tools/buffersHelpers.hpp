@@ -17,6 +17,7 @@ namespace Tools
 	inline void UpdateStaticBuffers(StaticComponents<Component>& components, size_t offset = 0)
 	{
 		auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers;
+		auto& staticTFBuffers = Globals::Components().renderingBuffers().staticTFBuffers;
 
 		for (auto& component : components.underlyingContainer() | std::views::drop(offset))
 		{
@@ -41,6 +42,9 @@ namespace Tools
 
 			selectedBuffers.applyComponent(component, true);
 
+			if (component.tfShaderProgram)
+				staticTFBuffers.emplace_back(true).applyTFComponent(component, true);
+
 			if (component.state == ComponentState::Changed)
 				component.state = ComponentState::Ongoing;
 		}
@@ -50,6 +54,7 @@ namespace Tools
 	inline void UpdateDynamicBuffers(DynamicComponents<Component>& components)
 	{
 		auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers;
+		auto& dynamicTFBuffers = Globals::Components().renderingBuffers().dynamicTFBuffers;
 
 		for (auto& component : components)
 		{
@@ -79,12 +84,18 @@ namespace Tools
 				component.teardownF = [&, prevTeardownF = std::move(component.teardownF)]() {
 					if (prevTeardownF)
 						prevTeardownF();
+
+					if (component.tfShaderProgram)
+						dynamicTFBuffers.erase(component.getComponentId());
+
 					mapOfSelectedBuffers.erase(component.getComponentId());
 				};
 			}
 
-			auto& selectedBuffers = mapOfSelectedBuffers[component.getComponentId()];
-			selectedBuffers.applyComponent(component, false);
+			mapOfSelectedBuffers[component.getComponentId()].applyComponent(component, false);
+
+			if (component.tfShaderProgram)
+				dynamicTFBuffers.emplace(component.getComponentId(), true).first->second.applyTFComponent(component, false);
 
 			if (component.state == ComponentState::Changed)
 				component.state = ComponentState::Ongoing;

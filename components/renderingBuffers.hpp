@@ -15,5 +15,7 @@ namespace Components
 	{
 		BuffersColections<std::deque<Buffers::GenericBuffers>> staticBuffers;
 		BuffersColections<std::unordered_map<ComponentId, Buffers::GenericBuffers>> dynamicBuffers;
+		std::deque<Buffers::GenericBuffers> staticTFBuffers;
+		std::unordered_map<ComponentId, Buffers::GenericBuffers> dynamicTFBuffers;
 	};
 }

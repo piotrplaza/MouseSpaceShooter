@@ -27,7 +27,7 @@ struct Physical : Renderable
 
 	Body body;
 
-	std::vector<glm::vec3> getVertices(bool transformed = false) const override
+	std::vector<glm::vec3> getPositions(bool transformed = false) const override
 	{
 		return transformed
 			? Tools::TransformMat4(Tools::GetVertices(*body), modelMatrixF())

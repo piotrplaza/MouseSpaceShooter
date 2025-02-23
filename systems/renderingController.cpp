@@ -68,7 +68,7 @@ namespace
 				Globals::Shaders().basicPhong().lightModelColorNormalization(buffers.renderable->params3D->lightModelColorNormalization_);
 			}, [](auto&) {
 				Globals::Shaders().basicPhong().forcedAlpha(!glProxyIsBlendEnabled() * 2 - 1.0f);
-			});
+			}, [](auto&) {}, [](auto&) {});
 		};
 
 		for (const auto& buffers : staticBuffers[layer])
@@ -124,7 +124,7 @@ namespace
 				Tools::PrepareTexturedRender(Globals::Shaders().texturedPhong(), buffers.renderable->texture);
 			}, [](auto&) {
 				Globals::Shaders().texturedPhong().forcedAlpha(!glProxyIsBlendEnabled() * 2 - 1.0f);
-			});
+			}, [](auto&) {}, [](auto&) {});
 		};
 
 		for (const auto& buffers : staticBuffers[layer])
@@ -163,7 +163,7 @@ namespace
 				Globals::Shaders().basic().color(buffers.renderable->colorF.isLoaded() ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColorF());
 			}, [](auto&) {
 				Globals::Shaders().basic().forcedAlpha(!glProxyIsBlendEnabled() * 2 - 1.0f);
-			});
+			}, [](auto&) {}, [](auto&) {});
 		};
 
 		for (const auto& buffers : staticBuffers[layer])
@@ -204,7 +204,7 @@ namespace
 				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers.renderable->texture);
 			}, [](auto&) {
 				Globals::Shaders().textured().forcedAlpha(!glProxyIsBlendEnabled() * 2 - 1.0f);
-			});
+			}, [](auto&) {}, [](auto&) {});
 		};
 
 		for (const auto& buffers : staticBuffers[layer])
@@ -235,7 +235,7 @@ namespace
 			assert(buffers.renderable->customShadersProgram);
 			glProxyUseProgram(*buffers.renderable->customShadersProgram);
 
-			buffers.draw(*buffers.renderable->customShadersProgram, [](auto&) {}, [](auto&) {});
+			buffers.draw(*buffers.renderable->customShadersProgram, [](auto&) {}, [](auto&) {}, [](auto&) {}, [](auto&) {});
 		};
 
 		for (const auto& buffers : staticBuffers[layer])
@@ -243,6 +243,48 @@ namespace
 
 		for (const auto& [id, buffers] : dynamicBuffers[layer])
 			render(buffers);
+	}
+
+	void TransformFeedbackRender()
+	{
+		const auto& staticTFBuffers = Globals::Components().renderingBuffers().staticTFBuffers;
+		const auto& dynamicTFBuffers = Globals::Components().renderingBuffers().dynamicTFBuffers;
+
+		if (staticTFBuffers.empty() && dynamicTFBuffers.empty())
+			return;
+
+		auto render = [&](const auto& sourceBuffers, const auto& tfBuffers) {
+			assert(sourceBuffers.renderable == tfBuffers.renderable);
+			const auto& renderable = *sourceBuffers.renderable;
+			assert(renderable.tfShaderProgram);
+			assert(renderable.loaded.buffers == &sourceBuffers);
+			assert(renderable.loaded.tfBuffers == &tfBuffers);
+			glProxyUseProgram(*renderable.tfShaderProgram);
+			sourceBuffers.draw(*renderable.tfShaderProgram, [&](const auto& subBuffers) {
+				renderable.loaded.tfBuffers->bindActiveTFBuffers();
+				glBeginTransformFeedback(subBuffers.renderable->drawMode);
+			}, [](auto&) {}, [](auto&) {
+				glEndTransformFeedback();
+			}, [](auto&) {});
+			glFlush();
+			renderable.loaded.buffers->swapActiveBuffers(*renderable.loaded.tfBuffers);
+		};
+
+		glEnable(GL_RASTERIZER_DISCARD);
+
+		for (const auto& tfBuffers : staticTFBuffers)
+		{
+			const auto& sourceBuffers = *tfBuffers.renderable->loaded.buffers;
+			render(sourceBuffers, tfBuffers);
+		}
+
+		for (const auto& [id, tfBuffers] : dynamicTFBuffers)
+		{
+			const auto& sourceBuffers = *tfBuffers.renderable->loaded.buffers;
+			render(sourceBuffers, tfBuffers);
+		}
+
+		glDisable(GL_RASTERIZER_DISCARD);
 	}
 }
 
@@ -309,5 +351,7 @@ namespace Systems
 		
 		assert(Globals::Components().mainFramebufferRenderer().renderer);
 		Globals::Components().mainFramebufferRenderer().renderer(framebuffers.getDefaultSubBuffers().textureObject);
+
+		TransformFeedbackRender();
 	}
 }

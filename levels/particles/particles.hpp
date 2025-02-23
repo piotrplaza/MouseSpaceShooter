@@ -12,6 +12,7 @@ namespace Levels
 		Particles();
 		~Particles();
 
+		void postSetup() override;
 		void step() override;
 
 	private:

@@ -43,7 +43,7 @@ namespace Components
 			setBodyComponentVariant(CM::Polyline(*this));
 		}
 
-		std::vector<glm::vec3> getVertices(bool transformed = false) const override
+		std::vector<glm::vec3> getPositions(bool transformed = false) const override
 		{
 			auto vertices = transformed
 				? Tools::TransformMat4(Tools::GetVertices(*body), modelMatrixF())
@@ -78,7 +78,7 @@ namespace Components
 				stepF();
 
 			if (loaded.buffers)
-				loaded.buffers->setVerticesBuffer(getVertices());
+				loaded.buffers->setPositionsBuffer(getPositions());
 		}
 
 		void replaceFixtures(const std::vector<glm::vec2>& vertices, const Tools::BodyParams& bodyParams)

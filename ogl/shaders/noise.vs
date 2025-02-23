@@ -2,7 +2,7 @@
 
 in vec3 bPos;
 in vec4 bColor;
-layout(location = 4) in mat4 bInstancedTransform;
+layout(location = 6) in mat4 bInstancedTransform;
 
 out vec4 vColor;
 

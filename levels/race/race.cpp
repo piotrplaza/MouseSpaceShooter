@@ -156,7 +156,7 @@ namespace Levels
 					if (activePlayersHandlers.size() < 2)
 						return false;
 
-					const glm::vec2 polylineVec = glm::normalize(polylineComponent.getVertices()[1] - polylineComponent.getVertices()[0]);
+					const glm::vec2 polylineVec = glm::normalize(polylineComponent.getPositions()[1] - polylineComponent.getPositions()[0]);
 					const glm::vec2 planeVelocityVec = glm::normalize(planeComponent.getVelocity());
 
 					if (glm::orientedAngle(polylineVec, planeVelocityVec) > 0.0f)
@@ -168,7 +168,7 @@ namespace Levels
 					if ((*collisionsStarted)[planeComponent.getComponentId()]++ > 0)
 						return false;
 
-					const glm::vec2 planePrevVec = glm::normalize(planeComponent.details.previousCenter - glm::vec2(polylineComponent.getVertices()[0]));
+					const glm::vec2 planePrevVec = glm::normalize(planeComponent.details.previousCenter - glm::vec2(polylineComponent.getPositions()[0]));
 
 					if (glm::orientedAngle(polylineVec, planePrevVec) < 0.0f)
 						return false;
@@ -211,8 +211,8 @@ namespace Levels
 					if (polylineComponent.getComponentId() != startingStaticPolyline)
 						return false;
 
-					const glm::vec2 polylineVec = glm::normalize(polylineComponent.getVertices()[1] - polylineComponent.getVertices()[0]);
-					const glm::vec2 planeVec = glm::normalize(planeComponent.getOrigin2D() - glm::vec2(polylineComponent.getVertices()[0]));
+					const glm::vec2 polylineVec = glm::normalize(polylineComponent.getPositions()[1] - polylineComponent.getPositions()[0]);
+					const glm::vec2 planeVec = glm::normalize(planeComponent.getOrigin2D() - glm::vec2(polylineComponent.getPositions()[0]));
 
 					if (--(*collisionsStarted)[planeComponent.getComponentId()] > 0)
 						return false;

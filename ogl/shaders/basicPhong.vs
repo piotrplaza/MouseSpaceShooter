@@ -2,9 +2,9 @@
 
 in vec3 bPos;
 in vec4 bColor;
-layout(location = 3) in vec3 bNormal;
-layout(location = 4) in mat4 bInstancedTransform;
-layout(location = 8) in mat3 bInstancedNormalTransform;
+layout(location = 5) in vec3 bNormal;
+layout(location = 6) in mat4 bInstancedTransform;
+layout(location = 10) in mat3 bInstancedNormalTransform;
 
 out vec3 vPos;
 out vec4 vSmoothColor;

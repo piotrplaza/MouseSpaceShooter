@@ -132,6 +132,12 @@ struct RenderableDef
 	{
 	}
 
+	RenderableDef(std::vector<glm::vec3> vertices, std::vector<glm::vec4> colors) :
+		vertices(std::move(vertices)),
+		colors(std::move(colors))
+	{
+	}
+
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec4> colors;
 	std::vector<glm::vec2> texCoord;
@@ -154,11 +160,16 @@ struct RenderableDef
 		Buffers::GenericSubBuffers* subBuffers = nullptr;
 	} loaded;
 
-	virtual std::vector<glm::vec3> getVertices(bool transformed = false) const
+	virtual std::vector<glm::vec3> getPositions(bool transformed = false) const
 	{
 		return transformed
 			? Tools::TransformMat4(vertices, modelMatrixF())
 			: vertices;
+	}
+
+	virtual std::vector<glm::vec3>& accessPositions()
+	{
+		return vertices;
 	}
 
 	virtual const std::vector<glm::vec4>& getColors() const
@@ -166,9 +177,14 @@ struct RenderableDef
 		return colors;
 	}
 
+	virtual std::vector < glm::vec4>& accessColors()
+	{
+		return colors;
+	}
+
 	virtual const std::vector<glm::vec2> getTexCoords(bool transformed = false) const
 	{
-		const auto vertices = getVertices(transformed);
+		const auto vertices = getPositions(transformed);
 		if (texCoord.empty())
 		{
 			return std::vector<glm::vec2>(vertices.begin(), vertices.end());
@@ -188,7 +204,17 @@ struct RenderableDef
 		}
 	}
 
+	virtual std::vector<glm::vec2>& accessTexCoords()
+	{
+		return texCoord;
+	}
+
 	virtual const std::vector<unsigned>& getIndices() const
+	{
+		return indices;
+	}
+
+	virtual std::vector<unsigned>& accessIndices()
 	{
 		return indices;
 	}

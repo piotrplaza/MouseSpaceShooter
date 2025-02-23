@@ -243,7 +243,7 @@ namespace Systems
 			true, glm::distance(plane.getOrigin2D(), grapple.getOrigin2D())));
 	}
 
-	std::vector<glm::vec3> Actors::Connections::Params::getVertices() const
+	std::vector<glm::vec3> Actors::Connections::Params::getPositions() const
 	{
 		if (segmentsNum == 1) return { { p1, 0.0f }, { p2, 0.0f } };
 		else return Tools::Shapes2D::CreateVerticesOfLightning(p1, p2, segmentsNum, frayFactor);
@@ -281,7 +281,7 @@ namespace Systems
 			if (connectionParams.segmentsNum > 1)
 				connectionParams.segmentsNum = std::max((int)glm::distance(connectionParams.p1, connectionParams.p2) * 2, 2);
 
-			const auto vertices = connectionParams.getVertices();
+			const auto vertices = connectionParams.getPositions();
 			decoration.vertices.insert(decoration.vertices.end(), vertices.begin(), vertices.end());
 
 			const auto colors = connectionParams.getColors();

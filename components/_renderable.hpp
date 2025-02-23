@@ -72,6 +72,12 @@ struct Renderable : ComponentBase, RenderableDef
 	{
 	}
 
+	Renderable(std::vector<glm::vec3> vertices, std::vector<glm::vec4> colors) :
+		RenderableDef(std::move(vertices), std::move(colors))
+	{
+	}
+
+	std::optional<ShadersUtils::ProgramId> tfShaderProgram;
 	std::optional<ShadersUtils::ProgramId> customShadersProgram;
 	std::optional<Instancing> instancing;
 
@@ -85,5 +91,6 @@ struct Renderable : ComponentBase, RenderableDef
 	struct
 	{
 		Buffers::GenericBuffers* buffers = nullptr;
+		Buffers::GenericBuffers* tfBuffers = nullptr;
 	} loaded;
 };

@@ -21,13 +21,11 @@ namespace Levels
 		void setup()
 		{
 			auto& screen = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }));
-			auto& duration = Globals::Components().physics().simulationDuration;
 			screen.customShadersProgram = Globals::Shaders().noise().getProgramId();
 
 			Globals::Shaders().noise().frameSetupF = [&](auto& program) {
 				program.color(glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
 				program.separateNoises(true);
-				program.time(duration);
 			};
 		}
 	};

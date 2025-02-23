@@ -17,6 +17,7 @@
 
 #include <ogl/oglProxy.hpp>
 #include <ogl/oglHelpers.hpp>
+#include <ogl/buffers/genericBuffers.hpp>
 
 #include <tools/utility.hpp>
 
@@ -181,17 +182,17 @@ namespace Tools
 		if (positionsGenerator)
 		{
 			customPositions = positionsGenerator();
-			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, &customPositions);
+			glVertexAttribPointer(Buffers::GenericBuffers::positionAttribIdx, 3, GL_FLOAT, false, 0, &customPositions);
 		}
 		else
-			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, &defaultPositions);
-		glEnableVertexAttribArray(0);
+			glVertexAttribPointer(Buffers::GenericBuffers::positionAttribIdx, 3, GL_FLOAT, false, 0, &defaultPositions);
+		glEnableVertexAttribArray(Buffers::GenericBuffers::positionAttribIdx);
 
-		glVertexAttrib4f(1, 1.0f, 1.0f, 1.0f, 1.0f);
-		glDisableVertexAttribArray(1);
+		glVertexAttrib4f(Buffers::GenericBuffers::colorAttribIdx, 1.0f, 1.0f, 1.0f, 1.0f);
+		glDisableVertexAttribArray(Buffers::GenericBuffers::colorAttribIdx);
 
-		glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, &defaultTexCoords);
-		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(Buffers::GenericBuffers::texCoordAttribIdx, 2, GL_FLOAT, false, 0, &defaultTexCoords);
+		glEnableVertexAttribArray(Buffers::GenericBuffers::texCoordAttribIdx);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureObject);
@@ -210,7 +211,7 @@ namespace Tools
 		glDrawArrays(GL_TRIANGLES, 0, numOfVertices);
 	}
 
-	inline auto DefaultQuakeIntensity(float intensityFactor = 0.0001f, float maxIntensity = 400.0f)
+	inline auto DefaultQuakeIntensity(float intensityFactor = 0.00005f, float maxIntensity = 200.0f)
 	{
 		return [=]() { return intensityFactor * std::min(std::accumulate(Globals::Components().shockwaves().begin(), Globals::Components().shockwaves().end(), 0.0f,
 			[](float sum, const auto& e) {

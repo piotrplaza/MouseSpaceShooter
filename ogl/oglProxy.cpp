@@ -88,6 +88,7 @@ bool glProxyIsCullFaceEnabled()
 void glProxyEnableDebugOutput(GLenum minSeverity)
 {
 	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	debugOutputMinSeverity = minSeverity;
 	glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
 		if ((severity == GL_DEBUG_SEVERITY_MEDIUM && debugOutputMinSeverity == GL_DEBUG_SEVERITY_HIGH) ||
@@ -102,5 +103,6 @@ void glProxyEnableDebugOutput(GLenum minSeverity)
 void glProxyDisableDebugOutput()
 {
 	glDisable(GL_DEBUG_OUTPUT);
+	glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	debugOutputMinSeverity = 0;
 }

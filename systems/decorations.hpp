@@ -16,5 +16,6 @@ namespace Systems
 		void updateDynamicBuffers();
 
 		size_t loadedStaticDecorations = 0;
+		size_t loadedStaticParticles = 0;
 	};
 }

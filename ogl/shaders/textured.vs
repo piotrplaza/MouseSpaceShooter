@@ -2,8 +2,8 @@
 
 in vec3 bPos;
 in vec4 bColor;
-in vec2 bTexCoord;
-layout(location = 4) in mat4 bInstancedTransform;
+layout(location = 4) in vec2 bTexCoord;
+layout(location = 6) in mat4 bInstancedTransform;
 
 out vec2 vPos;
 out vec4 vColor;

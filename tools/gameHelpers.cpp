@@ -128,7 +128,7 @@ namespace Tools
 
 		if (params.collisionBoxRendering_)
 		{
-			plane.subsequence.emplace_back(plane.getVertices());
+			plane.subsequence.emplace_back(plane.getPositions());
 			plane.subsequence.back().modelMatrixF = plane.modelMatrixF;
 		}
 

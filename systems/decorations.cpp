@@ -1,6 +1,7 @@
 #include "decorations.hpp"
 
 #include <components/decoration.hpp>
+#include <components/particles.hpp>
 
 #include <globals/components.hpp>
 
@@ -23,6 +24,9 @@ namespace Systems
 		for (auto& decoration: Globals::Components().decorations())
 			decoration.step();
 
+		for (auto& particles : Globals::Components().particles())
+			particles.step();
+
 		updateDynamicBuffers();
 	}
 
@@ -30,10 +34,13 @@ namespace Systems
 	{
 		Tools::UpdateStaticBuffers(Globals::Components().staticDecorations(), loadedStaticDecorations);
 		loadedStaticDecorations = Globals::Components().staticDecorations().size();
+		Tools::UpdateStaticBuffers(Globals::Components().staticParticles(), loadedStaticParticles);
+		loadedStaticParticles = Globals::Components().staticParticles().size();
 	}
 
 	void Decorations::updateDynamicBuffers()
 	{
 		Tools::UpdateDynamicBuffers(Globals::Components().decorations());
+		Tools::UpdateDynamicBuffers(Globals::Components().particles());
 	}
 }
