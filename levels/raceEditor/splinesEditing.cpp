@@ -61,7 +61,7 @@ namespace Levels
 
 			auto& controlPoints = splineDecorationIdToSplineDef[*activeSplineDecorationId].controlPoints;
 
-			dynamicDecorations.emplace(Tools::Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointRadius, controlPointComplexity));
+			dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, controlPointRadius, controlPointComplexity));
 			dynamicDecorations.last().colorF = [&, id = *activeSplineDecorationId]() {
 				return (activeSplineDecorationId && id == *activeSplineDecorationId)
 					? activeControlPointColor
@@ -185,7 +185,7 @@ namespace Levels
 				splineDecorationIdToSplineDef[sourceSplineDecoration.getComponentId()];
 			for (auto& controlPoint : splineDecorationIdToSplineDef[targetSplineDecoration.getComponentId()].controlPoints)
 			{
-				auto& controlPointDecoration = dynamicDecorations.emplace(Tools::Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointRadius,
+				auto& controlPointDecoration = dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, controlPointRadius,
 					controlPointComplexity));
 				controlPoint.decorationId = controlPointDecoration.getComponentId();
 				controlPointDecoration.colorF = [&, id = targetSplineDecoration.getComponentId()]() {
@@ -278,7 +278,7 @@ namespace Levels
 
 			if (splineDef.controlPoints.size() < 2)
 			{
-				splineDecoration.vertices.clear();
+				splineDecoration.positions.clear();
 				splineDecoration.state = ComponentState::Changed;
 				continue;
 			}
@@ -288,7 +288,7 @@ namespace Levels
 			for (const auto& controlPoint : splineDef.controlPoints)
 				controlPoints.push_back(controlPoint.pos);
 
-			std::vector<glm::vec2> intermediateVeritces;
+			std::vector<glm::vec2> intermediatePositions;
 
 			const int numOfSplineVertices = splineDef.complexity * (controlPoints.size() - 1 + splineDef.loop) + 1;
 
@@ -296,23 +296,23 @@ namespace Levels
 				? Tools::CubicHermiteSpline(std::move(controlPoints), Tools::CubicHermiteSpline<>::loop)
 				: Tools::CubicHermiteSpline(std::move(controlPoints));
 
-			intermediateVeritces.reserve(numOfSplineVertices);
+			intermediatePositions.reserve(numOfSplineVertices);
 
 			for (int i = 0; i < numOfSplineVertices; ++i)
 			{
 				const float t = (float)i / (numOfSplineVertices - 1);
-				intermediateVeritces.push_back(glm::vec3(spline.getInterpolation(t), 0.0f));
+				intermediatePositions.push_back(glm::vec3(spline.getInterpolation(t), 0.0f));
 			}
 
-			std::vector<glm::vec3> finalVertices;
+			std::vector<glm::vec3> finalPositions;
 			if (splineDef.lightning)
 			{
-				for (size_t i = 0; i < intermediateVeritces.size(); ++i)
+				for (size_t i = 0; i < intermediatePositions.size(); ++i)
 				{
-					if (!splineDef.loop && (i == 0 || i == intermediateVeritces.size() - 1))
+					if (!splineDef.loop && (i == 0 || i == intermediatePositions.size() - 1))
 						continue;
 
-					auto& v = intermediateVeritces[i];
+					auto& v = intermediatePositions[i];
 
 					auto vTransform = [&](const auto& prevV, const auto& v, const auto& nextV) {
 						const float avgLength = (glm::distance(prevV, v) + glm::distance(v, nextV)) * 0.5f;
@@ -322,34 +322,34 @@ namespace Levels
 
 					if (splineDef.loop && i == 0)
 					{
-						const auto& prevV = intermediateVeritces[intermediateVeritces.size() - 2];
-						const auto& nextV = intermediateVeritces[1];
+						const auto& prevV = intermediatePositions[intermediatePositions.size() - 2];
+						const auto& nextV = intermediatePositions[1];
 						v += vTransform(prevV, v, nextV);
 						continue;
 					}
 
-					if (splineDef.loop && i == intermediateVeritces.size() - 1)
+					if (splineDef.loop && i == intermediatePositions.size() - 1)
 					{
-						v = intermediateVeritces.front();
+						v = intermediatePositions.front();
 						continue;
 					}
 
-					const auto& prevV = intermediateVeritces[i - 1];
-					const auto& nextV = intermediateVeritces[i + 1];
+					const auto& prevV = intermediatePositions[i - 1];
+					const auto& nextV = intermediatePositions[i + 1];
 					v += vTransform(prevV, v, nextV);
 				}
 
-				for (size_t i = 0; i < intermediateVeritces.size() - 1; ++i)
+				for (size_t i = 0; i < intermediatePositions.size() - 1; ++i)
 				{
-					const float d = glm::distance(intermediateVeritces[i], intermediateVeritces[i + 1]);
-					std::vector<glm::vec3> subVertices = Tools::Shapes2D::CreateVerticesOfLightning(intermediateVeritces[i], intermediateVeritces[i + 1], std::max(1, (int)d), 0.2f);
-					finalVertices.insert(finalVertices.end(), subVertices.begin(), subVertices.end());
+					const float d = glm::distance(intermediatePositions[i], intermediatePositions[i + 1]);
+					std::vector<glm::vec3> subPositions = Tools::Shapes2D::CreatePositionsOfLightning(intermediatePositions[i], intermediatePositions[i + 1], std::max(1, (int)d), 0.2f);
+					finalPositions.insert(finalPositions.end(), subPositions.begin(), subPositions.end());
 				}
 			}
 			else
-				finalVertices = Tools::ConvertToVec3Vector(intermediateVeritces);
+				finalPositions = Tools::ConvertToVec3Vector(intermediatePositions);
 
-			splineDecoration.vertices = std::move(finalVertices);
+			splineDecoration.positions = std::move(finalPositions);
 			splineDecoration.state = ComponentState::Changed;
 		}
 	}
@@ -387,7 +387,7 @@ namespace Levels
 			if (splineDef.lightning)
 			{
 				fs << "		polylines.last().segmentVerticesGenerator = [](const auto& v1, const auto& v2) { " <<
-					"return Tools::Shapes2D::CreateVerticesOfLightning(v1, v2, std::max(1, (int)glm::distance(v1, v2)), 0.2f); };\n";
+					"return Tools::Shapes2D::CreatePositionsOfLightning(v1, v2, std::max(1, (int)glm::distance(v1, v2)), 0.2f); };\n";
 				fs << "		polylines.last().keyVerticesTransformer = [](std::vector<glm::vec3>& vertices) {\n";
 				fs << "			Tools::VerticesDefaultRandomTranslate(vertices, " << splineDef.loop << ", (float)" << (splineDef.complexity * 0.005f) << ");\n";
 				fs << "		};\n";

@@ -333,7 +333,7 @@ namespace Levels
 					};
 				};
 
-				Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle(portraitCenter, { 10.0f, 10.0f }),
+				Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle(portraitCenter, { 10.0f, 10.0f }),
 					CM::BlendingTexture(blendingTexture, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF),
 					RenderLayer::NearMidground);
 			}
@@ -364,7 +364,7 @@ namespace Levels
 			{
 				auto setRenderingSetupAndSubsequence = [&]()
 				{
-					Globals::Components().staticWalls().last().subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfLineOfRectangles({ 0.4f, 0.4f },
+					Globals::Components().staticWalls().last().subsequence.emplace_back(Tools::Shapes2D::CreatePositionsOfLineOfRectangles({ 0.4f, 0.4f },
 						{ { -0.5f, -5.0f }, { 0.5f, -5.0f }, { 0.5f, 5.0f }, { -0.5f, 5.0f }, { -0.5f, -5.0f } },
 						{ 1.0f, 1.0f }, { 0.0f, glm::two_pi<float>() }, { 0.5f, 1.0f }), Tools::Shapes2D::CreateTexCoordOfRectangle(),
 						CM::Texture(roseTexture, true));
@@ -432,7 +432,7 @@ namespace Levels
 						return [=]() mutable { texturedProgram.color(Globals::Components().graphicsSettings().defaultColorF()); };
 					};
 
-				wall.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfFunctionalRectangles({ 1.0f, 1.0f },
+				wall.subsequence.emplace_back(Tools::Shapes2D::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
 					[](float input) { return glm::vec2(glm::cos(input * 100.0f) * input * 10.0f, glm::sin(input * 100.0f) * input * 10.0f); },
 					[](float input) { return glm::vec2(input + 0.3f, input + 0.3f); },
 					[](float input) { return input * 600.0f; },
@@ -520,7 +520,7 @@ namespace Levels
 					};
 				};
 
-			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfLineOfRectangles({ 1.5f, 1.5f },
+			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfLineOfRectangles({ 1.5f, 1.5f },
 				{ { -levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, -levelHeightHSize }, { levelWidthHSize, levelHeightHSize },
 				{ -levelWidthHSize, levelHeightHSize }, { -levelWidthHSize, -levelHeightHSize } },
 				{ 2.0f, 3.0f }, { 0.0f, glm::two_pi<float>() }, { 0.7f, 1.3f }), CM::Texture(weedTexture, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
@@ -562,7 +562,7 @@ namespace Levels
 				Tools::BodyParams().position({ -10.0f, 30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)), CM::DummyTexture());
 			grapple.range = 30.0f;
 			grapple.renderF = []() { return false; };
-			grapple.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 5.2f, 5.2f }),
+			grapple.subsequence.emplace_back(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 5.2f, 5.2f }),
 				Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::AnimatedTexture(recursiveFaceAnimatedTexture, true));
 			grapple.subsequence.back().modelMatrixF = grapple.modelMatrixF;
 			grapple.subsequence.back().renderingSetupF = createRecursiveFaceRS([]() { return glm::vec4(1.0f); }, { 3.0f, 4.0f });

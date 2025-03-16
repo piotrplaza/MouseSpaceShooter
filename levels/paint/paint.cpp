@@ -38,8 +38,8 @@ namespace Levels
 			textureId = texture.getComponentId();
 
 			auto& staticDecorations = Globals::Components().staticDecorations();
-			staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle(), CM::Texture(textureId, false), Tools::Shapes2D::CreateTexCoordOfRectangle());
-			auto& cursor = staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, 1.0f, 100));
+			staticDecorations.emplace(Tools::Shapes2D::CreatePositionsOfRectangle(), CM::Texture(textureId, false), Tools::Shapes2D::CreateTexCoordOfRectangle());
+			auto& cursor = staticDecorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, 1.0f, 100));
 			cursor.colorF = [&]() { return glm::vec4(cursorColor, 1.0f); };
 			cursor.modelMatrixF = [&]() {
 				cursorPos += Globals::Components().mouse().getCartesianDelta() * 0.0005f;

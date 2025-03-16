@@ -8,9 +8,9 @@
 
 namespace
 {
-	void AddVerticesAndTexCoordsOfRectangle(std::vector<glm::vec3>& vertices, std::vector<glm::vec2>& texCoords, const glm::vec2& hSize, std::function<glm::vec2(glm::vec2, glm::vec3)> defaultAndPosToTexCoordF, const glm::mat4& transform)
+	void AddPositionsAndTexCoordsOfRectangle(std::vector<glm::vec3>& positions, std::vector<glm::vec2>& texCoords, const glm::vec2& hSize, std::function<glm::vec2(glm::vec2, glm::vec3)> defaultAndPosToTexCoordF, const glm::mat4& transform)
 	{
-		std::vector<glm::vec3> rectangleVertices = {
+		std::vector<glm::vec3> rectanglePositions = {
 			{-hSize.x, -hSize.y, 0.0f},
 			{hSize.x, -hSize.y, 0.0f},
 			{-hSize.x, hSize.y, 0.0f},
@@ -24,14 +24,14 @@ namespace
 			{0.5f, 0.5f}
 		};
 
-		Tools::InPlaceTransformMat4(rectangleVertices, transform);
-		vertices.insert(vertices.end(), rectangleVertices.begin(), rectangleVertices.end());
+		Tools::InPlaceTransformMat4(rectanglePositions, transform);
+		positions.insert(positions.end(), rectanglePositions.begin(), rectanglePositions.end());
 
 		if (defaultAndPosToTexCoordF)
 		{
-			//texCoords.reserve(texCoords.size() + rectangleVertices.size()); // TODO: Investigate why extremely slowing down if multiple calls.
-			for (size_t i = 0; i < rectangleVertices.size(); ++i)
-				texCoords.push_back(defaultAndPosToTexCoordF(defaultRectangleTexCoords[i], rectangleVertices[i]));
+			//texCoords.reserve(texCoords.size() + rectanglePositions.size()); // TODO: Investigate why extremely slowing down if multiple calls.
+			for (size_t i = 0; i < rectanglePositions.size(); ++i)
+				texCoords.push_back(defaultAndPosToTexCoordF(defaultRectangleTexCoords[i], rectanglePositions[i]));
 		}
 	}
 
@@ -82,7 +82,7 @@ namespace Tools::Shapes3D
 		if (!renderableDef.params3D)
 			renderableDef.params3D = RenderableDef::Params3D{}.ambient(1.0f).diffuse(0.0f).specular(0.0f);
 
-		renderableDef.vertices.push_back(glm::vec3(transform * glm::vec4(pos, 1.0f)));
+		renderableDef.positions.push_back(glm::vec3(transform * glm::vec4(pos, 1.0f)));
 		renderableDef.colors.push_back(color);
 		renderableDef.params3D->addNormals({ {0.0f, 0.0f, 0.0f} });
 		renderableDef.drawMode = GL_POINTS;
@@ -95,8 +95,8 @@ namespace Tools::Shapes3D
 		if (!renderableDef.params3D)
 			renderableDef.params3D = RenderableDef::Params3D{}.ambient(1.0f).diffuse(0.0f).specular(0.0f);
 
-		renderableDef.vertices.push_back(glm::vec3(transform * glm::vec4(p1, 1.0f)));
-		renderableDef.vertices.push_back(glm::vec3(transform * glm::vec4(p2, 1.0f)));
+		renderableDef.positions.push_back(glm::vec3(transform * glm::vec4(p1, 1.0f)));
+		renderableDef.positions.push_back(glm::vec3(transform * glm::vec4(p2, 1.0f)));
 		renderableDef.colors.push_back(color1);
 		renderableDef.colors.push_back(color2);
 		renderableDef.params3D->addNormals({ {0.0f, 0.0f, 0.0f} });
@@ -108,12 +108,12 @@ namespace Tools::Shapes3D
 
 	RenderableDef& AddRectangle(RenderableDef& renderableDef, const glm::vec2& hSize, const std::vector<glm::vec4>& colors, std::function<glm::vec2(glm::vec2, glm::vec3)> defaultAndPosToTexCoordF, const glm::mat4& transform)
 	{
-		unsigned offset = renderableDef.vertices.size();
+		unsigned offset = renderableDef.positions.size();
 
 		if (!renderableDef.params3D)
 			renderableDef.params3D = RenderableDef::Params3D{};
 
-		AddVerticesAndTexCoordsOfRectangle(renderableDef.vertices, renderableDef.texCoord, hSize, defaultAndPosToTexCoordF, transform);
+		AddPositionsAndTexCoordsOfRectangle(renderableDef.positions, renderableDef.texCoord, hSize, defaultAndPosToTexCoordF, transform);
 		AddColorsOfRectangle(renderableDef.colors, colors);
 		AddNormalsOfRectangle(renderableDef.params3D->normals_, transform);
 
@@ -158,8 +158,8 @@ namespace Tools::Shapes3D
 		if (!renderableDef.params3D)
 			renderableDef.params3D = RenderableDef::Params3D{};
 
-		const size_t offset = renderableDef.vertices.size();
-		renderableDef.vertices.reserve(offset + rings * sectors);
+		const size_t offset = renderableDef.positions.size();
+		renderableDef.positions.reserve(offset + rings * sectors);
 		renderableDef.colors.reserve(offset + rings * sectors);
 		renderableDef.params3D->normals_.reserve(offset + rings * sectors);
 
@@ -182,7 +182,7 @@ namespace Tools::Shapes3D
 				if (texCoords)
 					renderableDef.texCoord.push_back(glm::vec2(s * S, r * R));
 
-				renderableDef.vertices.push_back(glm::vec3(transform * glm::vec4(vertex, 1.0f)));
+				renderableDef.positions.push_back(glm::vec3(transform * glm::vec4(vertex, 1.0f)));
 
 				const glm::vec3 finalNormal = glm::normalize(normalMatrix * normal);
 

@@ -20,7 +20,7 @@ namespace Levels
 	public:
 		void setup()
 		{
-			auto& screen = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }));
+			auto& screen = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }));
 			screen.customShadersProgram = Globals::Shaders().noise().getProgramId();
 
 			Globals::Shaders().noise().frameSetupF = [&](auto& program) {

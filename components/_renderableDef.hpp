@@ -121,24 +121,24 @@ struct RenderableDef
 
 	RenderableDef() = default;
 
-	RenderableDef(std::vector<glm::vec3> vertices,
+	RenderableDef(std::vector<glm::vec3> positions,
 		std::vector<glm::vec2> texCoord = {},
 		AbstractTextureComponentVariant texture = std::monostate{},
 		RenderingSetupF renderingSetupF = nullptr) :
-		vertices(std::move(vertices)),
+		positions(std::move(positions)),
 		texCoord(std::move(texCoord)),
 		texture(texture),
 		renderingSetupF(std::move(renderingSetupF))
 	{
 	}
 
-	RenderableDef(std::vector<glm::vec3> vertices, std::vector<glm::vec4> colors) :
-		vertices(std::move(vertices)),
+	RenderableDef(std::vector<glm::vec3> positions, std::vector<glm::vec4> colors) :
+		positions(std::move(positions)),
 		colors(std::move(colors))
 	{
 	}
 
-	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> positions;
 	std::vector<glm::vec4> colors;
 	std::vector<glm::vec2> texCoord;
 	std::vector<unsigned> indices;
@@ -163,13 +163,13 @@ struct RenderableDef
 	virtual std::vector<glm::vec3> getPositions(bool transformed = false) const
 	{
 		return transformed
-			? Tools::TransformMat4(vertices, modelMatrixF())
-			: vertices;
+			? Tools::TransformMat4(positions, modelMatrixF())
+			: positions;
 	}
 
 	virtual std::vector<glm::vec3>& accessPositions()
 	{
-		return vertices;
+		return positions;
 	}
 
 	virtual const std::vector<glm::vec4>& getColors() const
@@ -184,22 +184,22 @@ struct RenderableDef
 
 	virtual const std::vector<glm::vec2> getTexCoords(bool transformed = false) const
 	{
-		const auto vertices = getPositions(transformed);
+		const auto positions = getPositions(transformed);
 		if (texCoord.empty())
 		{
-			return std::vector<glm::vec2>(vertices.begin(), vertices.end());
+			return std::vector<glm::vec2>(positions.begin(), positions.end());
 		}
-		else if (texCoord.size() < vertices.size())
+		else if (texCoord.size() < positions.size())
 		{
 			std::vector<glm::vec2> cyclicTexCoord;
-			cyclicTexCoord.reserve(vertices.size());
-			for (size_t i = 0; i < vertices.size(); ++i)
+			cyclicTexCoord.reserve(positions.size());
+			for (size_t i = 0; i < positions.size(); ++i)
 				cyclicTexCoord.push_back(texCoord[i % texCoord.size()]);
 			return cyclicTexCoord;
 		}
 		else
 		{
-			assert(texCoord.size() == vertices.size());
+			assert(texCoord.size() == positions.size());
 			return texCoord;
 		}
 	}

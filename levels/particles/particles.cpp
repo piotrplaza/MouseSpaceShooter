@@ -28,7 +28,7 @@ namespace Levels
 			auto& camera = Globals::Components().camera2D();
 			auto& particles = Globals::Components().staticParticles();
 			auto& decorations = Globals::Components().staticDecorations();
-			auto& cursor = decorations.emplace(Tools::Shapes2D::CreateVerticesOfCircle(glm::vec2(0.0f), 1.0f, 20));
+			auto& cursor = decorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle(glm::vec2(0.0f), 1.0f, 20));
 
 			camera.targetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, camera.details.projectionHSize = camera.details.prevProjectionHSize = 100.0f);
 			cursor.modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), glm::vec3(cursorPosition, 0.0f)); };

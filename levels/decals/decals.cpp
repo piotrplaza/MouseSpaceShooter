@@ -49,8 +49,8 @@ namespace Levels
 		{
 			auto& texture = Globals::Components().textures()[mainTextureId];
 			auto& staticDecorations = Globals::Components().staticDecorations();
-			staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f * texture.loaded.getAspectRatio(), 0.5f }), CM::Texture(mainTextureId, false), Tools::Shapes2D::CreateTexCoordOfRectangle());
-			auto& cursor = staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, 1.0f, 100));
+			staticDecorations.emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 0.5f * texture.loaded.getAspectRatio(), 0.5f }), CM::Texture(mainTextureId, false), Tools::Shapes2D::CreateTexCoordOfRectangle());
+			auto& cursor = staticDecorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, 1.0f, 100));
 			cursor.colorF = [&]() { return glm::vec4(cursorColor, 1.0f); };
 			cursor.modelMatrixF = [&]() {
 				return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(cursorPos, 0.0f)), glm::vec3(glm::vec2(cursorHSize) * 0.1f, 1.0f));

@@ -134,7 +134,7 @@ namespace Tools
 
 		for (int i = 0; i < params.numOfThrusts_; ++i)
 		{
-			auto& planeDecoration = plane.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }), std::vector<glm::vec2>{}, thrustAnimatedTexture);
+			auto& planeDecoration = plane.subsequence.emplace_back(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 0.5f, 0.5f }), std::vector<glm::vec2>{}, thrustAnimatedTexture);
 
 			planeDecoration.renderingSetupF = [&, i,
 				modelUniform = UniformsUtils::UniformMat4f(),
@@ -193,7 +193,7 @@ namespace Tools
 
 		missile.renderLayer = RenderLayer::FarMidground;
 
-		auto& decoration = Globals::Components().decorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
+		auto& decoration = Globals::Components().decorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, -0.5f }, { 0.5f, 0.5f }),
 			thrustAnimatedTexture, Tools::Shapes2D::CreateTexCoordOfRectangle());
 
 		decoration.renderingSetupF = [&, modelUniform = UniformsUtils::UniformMat4f(), thrustScale = 0.1f](ShadersUtils::ProgramId program) mutable {
@@ -276,14 +276,14 @@ namespace Tools
 						params.endCallback_(shockwave);
 				}
 
-				explosionDecoration.vertices.clear();
+				explosionDecoration.positions.clear();
 				for (size_t i = 0; i < shockwave.particles.size(); ++i)
 				{
 					if (i % params.particlesPerDecoration_ != 0)
 						continue;
 					const auto& particle = shockwave.particles[i];
 					const glm::vec2 position = shockwave.center + (ToVec2<glm::vec2>(particle->GetWorldCenter()) - shockwave.center) * 0.5f;
-					explosionDecoration.vertices.emplace_back(position, scale);
+					explosionDecoration.positions.emplace_back(position, scale);
 				}
 				explosionDecoration.state = ComponentState::Changed;
 			};
@@ -325,7 +325,7 @@ namespace Tools
 				};
 			};
 
-			auto& fogLayer = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
+			auto& fogLayer = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
 				CM::DummyTexture(), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
 			fogLayer.renderLayer = RenderLayer::Foreground;
 			fogLayer.stepF = [=, &fogLayer]() mutable {
@@ -339,7 +339,7 @@ namespace Tools
 	void CreateJuliaBackground(JuliaParams params)
 	{
 		auto& juliaShaders = Globals::Shaders().julia();
-		auto& background = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
+		auto& background = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
 		background.customShadersProgram = juliaShaders.getProgramId();
 
 		background.renderingSetupF = [=, &juliaShaders, &screenInfo = Globals::Components().systemInfo().screen](auto) {

@@ -187,7 +187,7 @@ namespace Levels
 		{
 			auto& staticDecorations = Globals::Components().staticDecorations();
 
-			staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 15.0f, 15.0f }),
+			staticDecorations.emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 15.0f, 15.0f }),
 				CM::AnimatedTexture(recursiveFaceAnimatedTexture, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(recursiveFaceRSF), RenderLayer::NearForeground);
 			staticDecorations.last().modelMatrixF = [&, angle = 0.0f]() mutable {
 				return glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(innerForceScale)), angle += 2.0f * physics.frameDuration, { 0.0f, 0.0f, 1.0f });
@@ -232,7 +232,7 @@ namespace Levels
 				outerRing.replaceFixtures(ringSegments, Tools::BodyParams().sensor(true));
 			};
 
-			outerRing.segmentVerticesGenerator = [](const auto& v1, const auto& v2) { return Tools::Shapes2D::CreateVerticesOfLightning(v1, v2, 10, 0.2f); };
+			outerRing.segmentVerticesGenerator = [](const auto& v1, const auto& v2) { return Tools::Shapes2D::CreatePositionsOfLightning(v1, v2, 10, 0.2f); };
 			outerRing.keyVerticesTransformer = [](std::vector<glm::vec3>& vertices) { Tools::VerticesDefaultRandomTranslate(vertices, true, 0.04f); };
 			outerRing.colorF = [this]() {
 				return (playersHandler.getActivePlayersHandlers().size() == 1
@@ -472,7 +472,7 @@ namespace Levels
 					emission.replaceFixtures(ringSegments, Tools::BodyParams().sensor(true));
 				};
 
-				emission.segmentVerticesGenerator = [](const auto& v1, const auto& v2) { return Tools::Shapes2D::CreateVerticesOfLightning(v1, v2, 10, 0.2f); };
+				emission.segmentVerticesGenerator = [](const auto& v1, const auto& v2) { return Tools::Shapes2D::CreatePositionsOfLightning(v1, v2, 10, 0.2f); };
 				emission.keyVerticesTransformer = [](std::vector<glm::vec3>& vertices) { Tools::VerticesDefaultRandomTranslate(vertices, true, 0.04f); };
 				emission.colorF = [this]() {
 					return (playersHandler.getActivePlayersHandlers().size() == 1

@@ -101,7 +101,7 @@ namespace Levels
 		auto& dynamicDecorations = Globals::Components().decorations();
 
 		auto addControlPoint = [&]() {
-			dynamicDecorations.emplace(Tools::Shapes2D::CreateVerticesOfCircle({ 0.0f, 0.0f }, controlPointRadius, 20));
+			dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, controlPointRadius, 20));
 			dynamicDecorations.last().colorF = []() { return controlPointColor; };
 			const auto& controlPoint = controlPoints.emplace_back( dynamicDecorations.last().getComponentId(), mousePos );
 			dynamicDecorations.last().modelMatrixF = [&, &pos = controlPoint.pos]() {
@@ -235,13 +235,13 @@ namespace Levels
 	{
 		auto& startingLine = Globals::Components().decorations()[startingLineId];
 
-		startingLine.vertices.clear();
+		startingLine.positions.clear();
 		for (auto& controlPoint : controlPoints)
-			startingLine.vertices.emplace_back(controlPoint.pos, 0.0f);
+			startingLine.positions.emplace_back(controlPoint.pos, 0.0f);
 		startingLine.state = ComponentState::Changed;
 
 		auto& startingPositionLine = Globals::Components().decorations()[startingPositionLineId];
-		startingPositionLine.vertices = startingLine.vertices;
+		startingPositionLine.positions = startingLine.positions;
 		startingPositionLine.state = ComponentState::Changed;
 	}
 

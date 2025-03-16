@@ -246,7 +246,7 @@ namespace Systems
 	std::vector<glm::vec3> Actors::Connections::Params::getPositions() const
 	{
 		if (segmentsNum == 1) return { { p1, 0.0f }, { p2, 0.0f } };
-		else return Tools::Shapes2D::CreateVerticesOfLightning(p1, p2, segmentsNum, frayFactor);
+		else return Tools::Shapes2D::CreatePositionsOfLightning(p1, p2, segmentsNum, frayFactor);
 	}
 
 	std::vector<glm::vec4> Actors::Connections::Params::getColors() const
@@ -273,7 +273,7 @@ namespace Systems
 	{
 		auto& decoration = Globals::Components().decorations()[decorationId];
 
-		decoration.vertices.clear();
+		decoration.positions.clear();
 		decoration.colors.clear();
 
 		for (auto& connectionParams : params)
@@ -281,14 +281,14 @@ namespace Systems
 			if (connectionParams.segmentsNum > 1)
 				connectionParams.segmentsNum = std::max((int)glm::distance(connectionParams.p1, connectionParams.p2) * 2, 2);
 
-			const auto vertices = connectionParams.getPositions();
-			decoration.vertices.insert(decoration.vertices.end(), vertices.begin(), vertices.end());
+			const auto positions = connectionParams.getPositions();
+			decoration.positions.insert(decoration.positions.end(), positions.begin(), positions.end());
 
 			const auto colors = connectionParams.getColors();
 			decoration.colors.insert(decoration.colors.end(), colors.begin(), colors.end());
 		}
 
-		assert(decoration.vertices.size() == decoration.colors.size());
+		assert(decoration.positions.size() == decoration.colors.size());
 
 		decoration.state = ComponentState::Changed;
 	}

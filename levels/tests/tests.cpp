@@ -37,8 +37,8 @@ namespace Tests
 		{
 			const auto& screenInfo = Globals::Components().systemInfo().screen;
 			const auto pos = glm::linearRand(-screenInfo.getNormalizedFramebufferRes(), screenInfo.getNormalizedFramebufferRes()) * 9.0f;
-			auto& decoration = Globals::Components().decorations().emplace(Tools::Shapes2D::CreateVerticesOfCircle(pos, 1.0f, 20));
-			decoration.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfCircle(pos, 0.2f, 20));
+			auto& decoration = Globals::Components().decorations().emplace(Tools::Shapes2D::CreatePositionsOfCircle(pos, 1.0f, 20));
+			decoration.subsequence.emplace_back(Tools::Shapes2D::CreatePositionsOfCircle(pos, 0.2f, 20));
 			decoration.subsequence.back().colorF = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 			decoration.state = ComponentState::LastShot;
 		}
@@ -54,7 +54,7 @@ namespace Tests
 		void step() override
 		{
 			auto& decoration = Globals::Components().decorations().last();
-			decoration.vertices = Tools::Shapes2D::CreateVerticesOfLightning({ -5.0f, 0.0f }, { 5.0f, 0.0f }, 10);
+			decoration.positions = Tools::Shapes2D::CreatePositionsOfLightning({ -5.0f, 0.0f }, { 5.0f, 0.0f }, 10);
 			decoration.renderF = []() { return Globals::Components().keyboard().pressing[' ']; };
 			decoration.state = ComponentState::Changed;
 			decoration.drawMode = GL_LINE_STRIP;
@@ -68,7 +68,7 @@ namespace Tests
 			auto& decoration = Globals::Components().decorations().emplace();
 			auto& texture = Globals::Components().textures().emplace();
 			texture.source = "textures/rose.png";
-			decoration.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }, glm::quarter_pi<float>());
+			decoration.positions = Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }, glm::quarter_pi<float>());
 			decoration.resolutionMode = { ResolutionMode::Resolution::H405, ResolutionMode::Scaling::Nearest };
 			decoration.texture = CM::Texture(texture);
 			decoration.renderingSetupF = [&](auto) {
@@ -86,7 +86,7 @@ namespace Tests
 		void setup() override
 		{
 			//Globals::Components().textures().emplace("textures/rose.png");
-			Globals::Components().decorations().emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }), CM::DummyTexture()/*CM::Texture(&Globals::Components().textures().last())*/);
+			Globals::Components().decorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }), CM::DummyTexture()/*CM::Texture(&Globals::Components().textures().last())*/);
 		}
 
 		void step() override

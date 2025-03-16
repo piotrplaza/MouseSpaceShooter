@@ -215,7 +215,7 @@ namespace Levels
 
 			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
 			{
-				staticDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }),
+				staticDecorations.emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }),
 					CM::AnimatedTexture(recursiveFaceAnimatedTextureBegin + i, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(recursiveFaceRSsF[i]), RenderLayer::NearBackground);
 			}
 		}

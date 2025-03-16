@@ -64,16 +64,16 @@ struct Renderable : ComponentBase, RenderableDef
 		RenderingSetupF renderingSetupF,
 		RenderLayer renderLayer,
 		std::optional<ShadersUtils::ProgramId> customShadersProgram,
-		std::vector<glm::vec3> vertices = {},
+		std::vector<glm::vec3> positions = {},
 		std::vector<glm::vec2> texCoord = {}):
-		RenderableDef(std::move(vertices), std::move(texCoord), texture, std::move(renderingSetupF)),
+		RenderableDef(std::move(positions), std::move(texCoord), texture, std::move(renderingSetupF)),
 		renderLayer(renderLayer),
 		customShadersProgram(customShadersProgram)
 	{
 	}
 
-	Renderable(std::vector<glm::vec3> vertices, std::vector<glm::vec4> colors) :
-		RenderableDef(std::move(vertices), std::move(colors))
+	Renderable(std::vector<glm::vec3> positions, std::vector<glm::vec4> colors) :
+		RenderableDef(std::move(positions), std::move(colors))
 	{
 	}
 

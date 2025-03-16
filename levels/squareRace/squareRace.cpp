@@ -147,7 +147,7 @@ namespace Levels
 				}
 				ringSegments.push_back(ringSegments.front());
 				auto& outerRing = staticPolylines.emplace(ringSegments, Tools::BodyParams().sensor(true));
-				outerRing.segmentVerticesGenerator = [](const auto& v1, const auto& v2) { return Tools::Shapes2D::CreateVerticesOfLightning(v1, v2, 20, 0.2f); };
+				outerRing.segmentVerticesGenerator = [](const auto& v1, const auto& v2) { return Tools::Shapes2D::CreatePositionsOfLightning(v1, v2, 20, 0.2f); };
 				outerRing.keyVerticesTransformer = [](std::vector<glm::vec3>& vertices) { Tools::VerticesDefaultRandomTranslate(vertices, true, 0.04f); };
 				outerRing.colorF = [this]() {
 					return (playersHandler.getActivePlayersHandlers().size() == 1

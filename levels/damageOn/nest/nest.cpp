@@ -287,13 +287,13 @@ namespace Levels::DamageOn
 				debris.posInSubsequence = 1;
 				auto& debrisPresentation = debris.subsequence.emplace_back();
 				debrisPresentation.texture = CM::Texture(embryoTextureId, true);
-				debrisPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, debrisHSize);
+				debrisPresentation.positions = Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, debrisHSize);
 				debrisPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 				debrisPresentation.modelMatrixF = debris.modelMatrixF;
 				debrisPresentation.colorF = glm::vec4(0.4, 0.4, 0.4, 1.0f);
 			}
 			
-			dynamicDecorations.emplace(Tools::Shapes2D::CreateVerticesOfRectangle(glm::vec2(0.0f), levelHSize), CM::Texture(backgroundTextureId, false), Tools::Shapes2D::CreateTexCoordOfRectangle()).renderLayer = RenderLayer::FarBackground;
+			dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfRectangle(glm::vec2(0.0f), levelHSize), CM::Texture(backgroundTextureId, false), Tools::Shapes2D::CreateTexCoordOfRectangle()).renderLayer = RenderLayer::FarBackground;
 
 			changeLevelMode();
 		}
@@ -327,7 +327,7 @@ namespace Levels::DamageOn
 					type.cache.decoration.drawMode = GL_TRIANGLES;
 
 				type.cache.decoration.bufferDataUsage = GL_DYNAMIC_DRAW;
-				type.cache.decoration.vertices.clear();
+				type.cache.decoration.positions.clear();
 				type.cache.decoration.colors.clear();
 				type.cache.decoration.state = ComponentState::Changed;
 			}
@@ -1082,7 +1082,7 @@ namespace Levels::DamageOn
 					return [prevBlend]() mutable { glProxySetBlend(prevBlend); };
 				};
 				playerPresentation.renderF = [&, sideFactor]() { return debug.presentationTransparency || sideFactor == playerInst.sideFactor; };
-				playerPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, playerPresentationSize);
+				playerPresentation.positions = Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, playerPresentationSize);
 				playerPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 				playerPresentation.texture = CM::AnimatedTexture(playerInst.animatedTexture.getComponentId(), false);
 				playerPresentation.modelMatrixF = [&, sideFactor]() {
@@ -1130,7 +1130,7 @@ namespace Levels::DamageOn
 			{
 				auto& enemyPresentation = enemyActor.subsequence.emplace_back();
 				const auto enemyPresentationSize = enemyType.init.presentation.radiusProportions * radius;
-				enemyPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle({ 0.0f, 0.0f }, enemyPresentationSize);
+				enemyPresentation.positions = Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, enemyPresentationSize);
 				enemyPresentation.modelMatrixF = [&, sideFactor]() {
 					enemyInst.animatedTexture.setAdditionalTransformation(enemyType.init.animation.frameTranslation * glm::vec2(sideFactor, 1.0f),
 						enemyType.init.animation.frameRotation * sideFactor, enemyType.init.animation.frameScale * glm::vec2(sideFactor, 1.0f));
@@ -1366,7 +1366,7 @@ namespace Levels::DamageOn
 						return glm::vec3(0.8f, glm::linearRand(0.1f, 0.3f), glm::linearRand(0.2f, 0.4f));
 				}();
 
-				int numOfVertices = Tools::Shapes2D::AppendVerticesOfLightning(weaponType.cache.decoration.vertices, getWeaponSourcePoint(sourceInst) + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
+				int numOfVertices = Tools::Shapes2D::AppendPositionsOfLightning(weaponType.cache.decoration.positions, getWeaponSourcePoint(sourceInst) + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
 					targetInst.actor.getOrigin2D() + glm::diskRand(targetRadius * 0.1f), int(20 * distance), 4.0f / glm::sqrt(distance));
 				const auto sparkColor = glm::mix(glm::vec4(sparkBaseColor, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), sourceInst.manaOvercharging) * glm::linearRand(0.1f, 0.6f);
 				weaponType.cache.decoration.colors.insert(weaponType.cache.decoration.colors.end(), numOfVertices, sparkColor);
@@ -1397,10 +1397,10 @@ namespace Levels::DamageOn
 			const glm::vec4 targetColor(1.0f);
 			const glm::vec4 souceColor(0.0f);
 
-			Tools::Shapes2D::AppendVerticesOfLightning(lightningDecoration.vertices, sourcePos, targetPos, int(10 * distance), 5.0f / glm::sqrt(distance));
+			Tools::Shapes2D::AppendPositionsOfLightning(lightningDecoration.positions, sourcePos, targetPos, int(10 * distance), 5.0f / glm::sqrt(distance));
 			
-			for (int i = 0; i < (int)lightningDecoration.vertices.size(); ++i)
-				lightningDecoration.colors.push_back(i != 0 && i % 2 == 0 ? lightningDecoration.colors.back() : glm::mix(souceColor, targetColor, i / (float)(lightningDecoration.vertices.size() - 1)));
+			for (int i = 0; i < (int)lightningDecoration.positions.size(); ++i)
+				lightningDecoration.colors.push_back(i != 0 && i % 2 == 0 ? lightningDecoration.colors.back() : glm::mix(souceColor, targetColor, i / (float)(lightningDecoration.positions.size() - 1)));
 			const auto lightningColor = glm::mix(glm::vec4(0.0f, 0.0f, glm::linearRand(0.5f, 0.7f), 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), sourceInst.manaOvercharging);
 			lightningDecoration.stepF = [&, startTime = physics.simulationDuration, lightningColor]() {
 				const float timeElapsed = physics.simulationDuration - startTime;
@@ -1472,11 +1472,11 @@ namespace Levels::DamageOn
 			fireball.posInSubsequence = 2;
 			auto& fireballPresentation = fireball.subsequence.emplace_back();
 			fireballPresentation.texture = CM::Texture(fireballTextureId, true, {}, glm::linearRand(0.0f, glm::two_pi<float>()));
-			fireballPresentation.vertices = Tools::Shapes2D::CreateVerticesOfRectangle(glm::vec2(0.0f), glm::vec2(radius));
+			fireballPresentation.positions = Tools::Shapes2D::CreatePositionsOfRectangle(glm::vec2(0.0f), glm::vec2(radius));
 			fireballPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 			fireballPresentation.modelMatrixF = fireball.modelMatrixF;
 			fireballPresentation.colorF = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);
-			auto& jetfire = fireball.subsequence.emplace_back(Tools::Shapes2D::CreateVerticesOfRectangle(glm::vec2(0.0f), glm::vec2(radius, radius * 4.0f) * 2.0f),
+			auto& jetfire = fireball.subsequence.emplace_back(Tools::Shapes2D::CreatePositionsOfRectangle(glm::vec2(0.0f), glm::vec2(radius, radius * 4.0f) * 2.0f),
 				Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::AnimatedTexture(jetfireAnimatedTextureId, true, {}, 0.0f, { 1.0f, 1.0f }, weaponInst.type.init.velocity));
 			jetfire.modelMatrixF = [radius, modelMatrixF = fireball.modelMatrixF]() { return glm::translate(modelMatrixF(), glm::vec3(0.0f, radius * 4.0f, 0.0f) * 2.0f); };
 			jetfire.colorF = glm::vec4(1.0f, 0.6f, 0.6f, 1.0f);
