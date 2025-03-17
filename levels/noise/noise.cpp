@@ -21,7 +21,7 @@ namespace Levels
 		void setup()
 		{
 			auto& screen = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }));
-			screen.customShadersProgram = Globals::Shaders().noise().getProgramId();
+			screen.customShadersProgram = &Globals::Shaders().noise();
 
 			Globals::Shaders().noise().frameSetupF = [&](auto& program) {
 				program.color(glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));

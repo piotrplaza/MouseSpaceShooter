@@ -16,7 +16,7 @@ namespace Components
 			Tools::BodyParams bodyParams = Tools::BodyParams{},
 			RenderingSetupF renderingSetupF = nullptr,
 			RenderLayer renderLayer = RenderLayer::Midground,
-			std::optional<ShadersUtils::ProgramId> customShadersProgram = std::nullopt) :
+			ShadersUtils::ProgramBase* customShadersProgram = nullptr) :
 			Physical(Tools::CreatePolylineBody(vertices, bodyParams), std::monostate{}, std::move(renderingSetupF), renderLayer, customShadersProgram)
 		{
 			drawMode = GL_LINE_STRIP;
@@ -26,7 +26,7 @@ namespace Components
 		Polyline(Tools::BodyParams bodyParams = Tools::BodyParams{},
 			RenderingSetupF renderingSetupF = nullptr,
 			RenderLayer renderLayer = RenderLayer::Midground,
-			std::optional<ShadersUtils::ProgramId> customShadersProgram = std::nullopt) :
+			ShadersUtils::ProgramBase* customShadersProgram = nullptr) :
 			Physical(Tools::CreateEmptyBody(bodyParams), std::monostate{}, std::move(renderingSetupF), renderLayer, customShadersProgram)
 		{
 			drawMode = GL_LINE_STRIP;

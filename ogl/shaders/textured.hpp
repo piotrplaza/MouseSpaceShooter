@@ -6,12 +6,12 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct TexturedAccessor : ProgramBase<TexturedAccessor>
+		struct TexturedAccessor : ProgramBaseCRTP<TexturedAccessor>
 		{
-			using ProgramBase::ProgramBase;
+			using ProgramBaseCRTP::ProgramBaseCRTP;
 
 			TexturedAccessor(ProgramId program):
-				ProgramBase(program),
+				ProgramBaseCRTP(program),
 				model(program, "model"),
 				vp(program, "vp"),
 				color(program, "color"),

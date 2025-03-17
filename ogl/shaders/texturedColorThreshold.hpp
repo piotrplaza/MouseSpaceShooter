@@ -6,12 +6,12 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct TexturedColorThresholdAccessor : ProgramBase<TexturedColorThresholdAccessor>
+		struct TexturedColorThresholdAccessor : ProgramBaseCRTP<TexturedColorThresholdAccessor>
 		{
-			using ProgramBase::ProgramBase;
+			using ProgramBaseCRTP::ProgramBaseCRTP;
 
 			TexturedColorThresholdAccessor(ProgramId program):
-				ProgramBase(program),
+				ProgramBaseCRTP(program),
 				model(program, "model"),
 				vp(program, "vp"),
 				color(program, "color"),

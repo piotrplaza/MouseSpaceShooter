@@ -5,7 +5,7 @@
 #include <commonTypes/componentMappers.hpp>
 #include <commonTypes/fTypes.hpp>
 
-#include <ogl/shadersUtils.hpp>
+#include <ogl/shaders/programBase.hpp>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -22,7 +22,7 @@ namespace Buffers
 
 struct RenderableDef
 {
-	using RenderingSetupF = std::function<std::function<void()>(ShadersUtils::ProgramId)>;
+	using RenderingSetupF = std::function<std::function<void()>(ShadersUtils::ProgramBase&)>;
 
 	struct Params3D
 	{
@@ -144,6 +144,7 @@ struct RenderableDef
 	std::vector<unsigned> indices;
 
 	RenderingSetupF renderingSetupF;
+	RenderingSetupF tfRenderingSetupF;
 	FMat4 modelMatrixF = glm::mat4(1.0f);
 	FVec3 originF = [&]() { return modelMatrixF() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); };
 	FVec4 colorF;

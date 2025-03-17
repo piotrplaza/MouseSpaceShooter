@@ -2234,7 +2234,7 @@ namespace Levels::DamageOn
 		std::vector<int> shuffledTargetSeqsInRange;
 		std::unordered_map<int, int> shuffledInRangeTargetSeqsMapping;
 
-		glm::vec2 mousePos;
+		glm::vec2 mousePos{};
 
 		struct
 		{

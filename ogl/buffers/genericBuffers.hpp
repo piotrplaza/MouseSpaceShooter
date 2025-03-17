@@ -32,6 +32,7 @@ namespace Buffers
 		~GenericSubBuffers();
 
 		void setPositionsBuffer(const std::vector<glm::vec3>& positions);
+		void setPositionsBuffer(glm::vec3 position, unsigned count);
 		void allocateTFPositionsBuffer(unsigned count);
 		void setColorsBuffer(const std::vector<glm::vec4>& colors);
 		void allocateTFColorsBuffer(unsigned count);
@@ -192,7 +193,7 @@ namespace Buffers
 		}
 
 		template <typename GeneralSetup, typename PostSetup, typename GeneralTeardown, typename PostTeardown>
-		void draw(ShadersUtils::ProgramId programId, GeneralSetup generalSetup, PostSetup postSetup, GeneralTeardown generalTeardown, PostTeardown postTeardown) const
+		void draw(ShadersUtils::ProgramBase& program, GeneralSetup generalSetup, PostSetup postSetup, GeneralTeardown generalTeardown, PostTeardown postTeardown, bool transformFeedback = false) const
 		{
 			if (!renderable || renderable->state == ComponentState::Outdated || !renderable->isEnabled())
 				return;
@@ -208,8 +209,13 @@ namespace Buffers
 
 				std::function<void()> renderingTeardown;
 
-				if (buffers.renderable->renderingSetupF)
-					renderingTeardown = buffers.renderable->renderingSetupF(programId);
+				if (transformFeedback)
+				{
+					if (buffers.renderable->tfRenderingSetupF)
+						renderingTeardown = buffers.renderable->tfRenderingSetupF(program);
+				}
+				else if (buffers.renderable->renderingSetupF)
+					renderingTeardown = buffers.renderable->renderingSetupF(program);
 
 				postSetup(buffers);
 

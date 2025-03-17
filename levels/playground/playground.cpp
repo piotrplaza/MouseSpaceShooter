@@ -413,7 +413,7 @@ namespace Levels
 						};
 
 					Globals::Components().staticWalls().emplace(Tools::CreateCircleBody(5.0f, Tools::BodyParams().position({ 0.0f, pos }).bodyType(b2_dynamicBody).density(0.01f)),
-						CM::DummyTexture(), std::move(renderingSetupF), RenderLayer::Midground, Globals::Shaders().texturedColorThreshold().getProgramId());
+						CM::DummyTexture(), std::move(renderingSetupF), RenderLayer::Midground, &Globals::Shaders().texturedColorThreshold());
 				}
 
 				auto& wall = Globals::Components().staticWalls().emplace(Tools::CreateCircleBody(10.0f, Tools::BodyParams().position({ pos, 0.0f }).bodyType(b2_dynamicBody).density(0.01f)),

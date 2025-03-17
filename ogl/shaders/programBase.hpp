@@ -7,7 +7,6 @@
 
 namespace ShadersUtils
 {
-	template <typename Derived>
 	class ProgramBase
 	{
 	public:
@@ -18,6 +17,8 @@ namespace ShadersUtils
 		ProgramBase(ProgramId program) :
 			program(program)
 		{}
+
+		virtual ~ProgramBase() = default;
 
 		operator ProgramId() const
 		{
@@ -34,9 +35,20 @@ namespace ShadersUtils
 			return program != 0;
 		}
 
-		std::function<void(Derived&)> frameSetupF;
-
 	private:
 		ProgramId program;
+	};
+
+	template <typename Derived>
+	class ProgramBaseCRTP : public ProgramBase
+	{
+	public:
+		ProgramBaseCRTP() = default;
+
+		ProgramBaseCRTP(ProgramId program) :
+			ProgramBase(program)
+		{}
+
+		std::function<void(Derived&)> frameSetupF;
 	};
 }

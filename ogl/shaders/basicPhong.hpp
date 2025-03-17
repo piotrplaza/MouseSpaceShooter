@@ -6,12 +6,12 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct BasicPhongAccessor : ProgramBase<BasicPhongAccessor>
+		struct BasicPhongAccessor : ProgramBaseCRTP<BasicPhongAccessor>
 		{
-			using ProgramBase::ProgramBase;
+			using ProgramBaseCRTP::ProgramBaseCRTP;
 
 			BasicPhongAccessor(ProgramId program):
-				ProgramBase(program),
+				ProgramBaseCRTP(program),
 				model(program, "model"),
 				vp(program, "vp"),
 				normalMatrix(program, "normalMatrix"),

@@ -236,7 +236,7 @@ namespace Tools
 			auto& shockwave = Globals::Components().shockwaves().emplace(params.center_, params.sourceVelocity_, params.numOfParticles_, params.initExplosionVelocity_,
 				params.initExplosionVelocityRandomMinFactor_, params.particlesRadius_, params.particlesDensity_, params.particlesLinearDamping_, params.particlesAsBullets_, params.particlesAsSensors_);
 			auto& explosionDecoration = Globals::Components().decorations().emplace();
-			explosionDecoration.customShadersProgram = particlesShaders.getProgramId();
+			explosionDecoration.customShadersProgram = &particlesShaders;
 			explosionDecoration.resolutionMode = params.resolutionMode_;
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
@@ -340,7 +340,7 @@ namespace Tools
 	{
 		auto& juliaShaders = Globals::Shaders().julia();
 		auto& background = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
-		background.customShadersProgram = juliaShaders.getProgramId();
+		background.customShadersProgram = &juliaShaders;
 
 		background.renderingSetupF = [=, &juliaShaders, &screenInfo = Globals::Components().systemInfo().screen](auto) {
 			juliaShaders.vp(glm::translate(glm::scale(glm::mat4(1.0f),

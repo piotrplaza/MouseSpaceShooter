@@ -6,12 +6,12 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct JuliaAccessor : ProgramBase<JuliaAccessor>
+		struct JuliaAccessor : ProgramBaseCRTP<JuliaAccessor>
 		{
-			using ProgramBase::ProgramBase;
+			using ProgramBaseCRTP::ProgramBaseCRTP;
 
 			JuliaAccessor(ProgramId program):
-				ProgramBase(program),
+				ProgramBaseCRTP(program),
 				vp(program, "vp"),
 				juliaC(program, "juliaC"),
 				juliaCOffset(program, "juliaCOffset"),

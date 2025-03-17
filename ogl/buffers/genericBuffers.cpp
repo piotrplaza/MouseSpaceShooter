@@ -71,6 +71,9 @@ namespace Buffers
 		if (colorsBuffer)
 			glDeleteBuffers(1, &*colorsBuffer);
 
+		if (velocitiesAndTimesBuffer)
+			glDeleteBuffers(1, &*velocitiesAndTimesBuffer);
+
 		if (hSizesAndAnglesBuffer)
 			glDeleteBuffers(1, &*hSizesAndAnglesBuffer);
 
@@ -79,9 +82,6 @@ namespace Buffers
 
 		if (normalsBuffer)
 			glDeleteBuffers(1, &*normalsBuffer);
-
-		if (velocitiesAndTimesBuffer)
-			glDeleteBuffers(1, &*velocitiesAndTimesBuffer);
 
 		if (instancedTransformsBuffer)
 			glDeleteBuffers(1, &*instancedTransformsBuffer);
@@ -112,6 +112,24 @@ namespace Buffers
 		glEnableVertexAttribArray(positionAttribIdx);
 
 		drawCount = positions.size();
+	}
+
+	void GenericSubBuffers::setPositionsBuffer(glm::vec3 position, unsigned count)
+	{
+		glProxyBindVertexArray(vertexArray);
+
+		glBindBuffer(GL_ARRAY_BUFFER, positionsBuffer);
+		if (numOfAllocatedPositions < count || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
+		{
+			glBufferData(GL_ARRAY_BUFFER, count * sizeof(glm::vec3), nullptr, renderable->bufferDataUsage);
+			numOfAllocatedPositions = count;
+			allocatedBufferDataUsage = renderable->bufferDataUsage;
+		}
+
+		glClearBufferData(GL_ARRAY_BUFFER, GL_RGB32F, GL_RGB, GL_FLOAT, &position);
+		glEnableVertexAttribArray(positionAttribIdx);
+
+		drawCount = count;
 	}
 
 	void GenericSubBuffers::allocateTFPositionsBuffer(unsigned count)

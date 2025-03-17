@@ -6,12 +6,12 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct ParticlesAccessor : ProgramBase<ParticlesAccessor>
+		struct ParticlesAccessor : ProgramBaseCRTP<ParticlesAccessor>
 		{
-			using ProgramBase::ProgramBase;
+			using ProgramBaseCRTP::ProgramBaseCRTP;
 
 			ParticlesAccessor(ProgramId program):
-				ProgramBase(program),
+				ProgramBaseCRTP(program),
 				vp(program, "vp"),
 				color(program, "color"),
 				texture0(program, "texture0")

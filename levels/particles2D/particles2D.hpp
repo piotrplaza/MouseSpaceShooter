@@ -6,11 +6,11 @@
 
 namespace Levels
 {
-	class Particles: public Level
+	class Particles2D: public Level
 	{
 	public:
-		Particles();
-		~Particles();
+		Particles2D();
+		~Particles2D();
 
 		void postSetup() override;
 		void step() override;

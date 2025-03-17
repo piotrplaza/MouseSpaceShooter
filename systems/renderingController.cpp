@@ -50,7 +50,7 @@ namespace
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(resolutionMode);
 
-			buffers.draw(Globals::Shaders().basicPhong().getProgramId(), [&](const auto& buffers) {
+			buffers.draw(Globals::Shaders().basicPhong(), [&](const auto& buffers) {
 				const auto modelMatrix = (buffers.renderable->modelMatrixF)();
 				Globals::Shaders().basicPhong().model(modelMatrix);
 				Globals::Shaders().basicPhong().normalMatrix(Globals::Components().mvp3D().getNormalMatrix(modelMatrix));
@@ -144,11 +144,15 @@ namespace
 		if (staticBuffers[layer].empty() && dynamicBuffers[layer].empty())
 			return;
 
+		const auto& graphicsSettings = Globals::Components().graphicsSettings();
+
 		glProxyUseProgram(Globals::Shaders().basic().getProgramId());
 
 		const float prevForcedAlpha = Globals::Shaders().basic().forcedAlpha.getValue();
 
-		Globals::Shaders().basic().vp(Globals::Components().mvp2D().getVP());
+		Globals::Shaders().basic().vp(graphicsSettings.force3D
+			? Globals::Components().mvp3D().getVP()
+			: Globals::Components().mvp2D().getVP());
 
 		auto render = [&](const auto& buffers) {
 			const auto& resolutionMode = buffers.renderable->resolutionMode;
@@ -158,9 +162,9 @@ namespace
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(resolutionMode);
 
-			buffers.draw(Globals::Shaders().basic().getProgramId(), [](const auto& buffers) {
+			buffers.draw(Globals::Shaders().basic(), [&](const auto& buffers) {
 				Globals::Shaders().basic().model((buffers.renderable->modelMatrixF)());
-				Globals::Shaders().basic().color(buffers.renderable->colorF.isLoaded() ? (buffers.renderable->colorF)() : Globals::Components().graphicsSettings().defaultColorF());
+				Globals::Shaders().basic().color(buffers.renderable->colorF.isLoaded() ? (buffers.renderable->colorF)() : graphicsSettings.defaultColorF());
 			}, [](auto&) {
 				Globals::Shaders().basic().forcedAlpha(!glProxyIsBlendEnabled() * 2 - 1.0f);
 			}, [](auto&) {}, [](auto&) {});
@@ -183,11 +187,15 @@ namespace
 		if (staticBuffers[layer].empty() && dynamicBuffers[layer].empty())
 			return;
 
+		const auto& graphicsSettings = Globals::Components().graphicsSettings();
+
 		glProxyUseProgram(Globals::Shaders().textured().getProgramId());
 
 		const float prevForcedAlpha = Globals::Shaders().textured().forcedAlpha.getValue();
 
-		Globals::Shaders().textured().vp(Globals::Components().mvp2D().getVP());
+		Globals::Shaders().textured().vp(graphicsSettings.force3D
+			? Globals::Components().mvp3D().getVP()
+			: Globals::Components().mvp2D().getVP());
 
 		auto render = [&](const auto& buffers) {
 			const auto& resolutionMode = buffers.renderable->resolutionMode;
@@ -197,10 +205,10 @@ namespace
 
 			texturesFramebuffersRenderer.clearIfFirstOfMode(resolutionMode);
 
-			buffers.draw(Globals::Shaders().textured(), [](const auto& buffers) {
+			buffers.draw(Globals::Shaders().textured(), [&](const auto& buffers) {
 				Globals::Shaders().textured().model((buffers.renderable->modelMatrixF)());
 				Globals::Shaders().textured().visibilityCenter((buffers.renderable->originF)());
-				Globals::Shaders().textured().color(buffers.renderable->colorF.isLoaded() ? buffers.renderable->colorF() : Globals::Components().graphicsSettings().defaultColorF());
+				Globals::Shaders().textured().color(buffers.renderable->colorF.isLoaded() ? buffers.renderable->colorF() : graphicsSettings.defaultColorF());
 				Tools::PrepareTexturedRender(Globals::Shaders().textured(), buffers.renderable->texture);
 			}, [](auto&) {
 				Globals::Shaders().textured().forcedAlpha(!glProxyIsBlendEnabled() * 2 - 1.0f);
@@ -265,7 +273,7 @@ namespace
 				glBeginTransformFeedback(subBuffers.renderable->drawMode);
 			}, [](auto&) {}, [](auto&) {
 				glEndTransformFeedback();
-			}, [](auto&) {});
+			}, [](auto&) {}, true);
 			glFlush();
 			renderable.loaded.buffers->swapActiveBuffers(*renderable.loaded.tfBuffers);
 		};
@@ -310,9 +318,12 @@ namespace Systems
 
 		if (graphicsSettings.forcedDepthTest)
 			glProxySetDepthTest(*graphicsSettings.forcedDepthTest);
+		else if (graphicsSettings.force3D)
+			glProxySetDepthTest(true);
 
 		glProxySetCullFace(graphicsSettings.cullFace);
 
+		glPointSize(graphicsSettings.pointSize);
 		glLineWidth(graphicsSettings.lineWidth);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.getDefaultSubBuffers().fbo);
@@ -338,7 +349,7 @@ namespace Systems
 			TexturedPhongRender(layer, texturesFramebuffersRenderer);
 
 			if (!graphicsSettings.forcedDepthTest)
-				glProxySetDepthTest(false);
+				glProxySetDepthTest(graphicsSettings.force3D);
 			BasicRender(layer, texturesFramebuffersRenderer);
 			TexturedRender(layer, texturesFramebuffersRenderer);
 			CustomShadersRender(layer, texturesFramebuffersRenderer);

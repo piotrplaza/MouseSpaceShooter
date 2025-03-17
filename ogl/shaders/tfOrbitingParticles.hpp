@@ -6,12 +6,12 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct TFOrbitingParticlesAccessor : ProgramBase<TFOrbitingParticlesAccessor>
+		struct TFOrbitingParticlesAccessor : ProgramBaseCRTP<TFOrbitingParticlesAccessor>
 		{
-			using ProgramBase::ProgramBase;
+			using ProgramBaseCRTP::ProgramBaseCRTP;
 
 			TFOrbitingParticlesAccessor(ProgramId program):
-				ProgramBase(program),
+				ProgramBaseCRTP(program),
 				deltaTime(program, "deltaTime")
 			{
 			}
@@ -27,6 +27,7 @@ namespace ShadersUtils
 					glTransformFeedbackVaryings(program, tfOutput.size(), tfOutput.data(), GL_SEPARATE_ATTRIBS);
 				}))
 			{
+				deltaTime(0.0f);
 			}
 
 			TFOrbitingParticles(const TFOrbitingParticles&) = delete;

@@ -17,7 +17,7 @@ struct Physical : Renderable
 		AbstractTextureComponentVariant texture,
 		RenderingSetupF renderingSetupF,
 		RenderLayer renderLayer,
-		std::optional<ShadersUtils::ProgramId> customShadersProgram) :
+		ShadersUtils::ProgramBase* customShadersProgram) :
 		Renderable(texture, std::move(renderingSetupF), renderLayer, customShadersProgram),
 		body(std::move(body))
 	{

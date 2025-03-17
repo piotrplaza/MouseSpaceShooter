@@ -23,8 +23,8 @@ namespace Components
 			hSizesAndAngles(std::move(hSizesAndAngles)),
 			centers(std::move(centers))
 		{
-			tfShaderProgram = Globals::Shaders().tfOrbitingParticles().getProgramId();
-			//customShadersProgram = Globals::Shaders().particles().getProgramId();
+			tfShaderProgram = &Globals::Shaders().tfOrbitingParticles();
+			//customShadersProgram = &Globals::Shaders().particles();
 			drawMode = GL_POINTS;
 			bufferDataUsage = GL_DYNAMIC_COPY;
 		}

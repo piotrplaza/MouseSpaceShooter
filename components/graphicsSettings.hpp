@@ -17,6 +17,8 @@ namespace Components
 		FVec4 defaultColorF = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
 		std::optional<bool> forcedDepthTest;
 		bool cullFace = true;
+		float pointSize{ 1.0f };
 		float lineWidth{ 3.0f };
+		bool force3D = false;
 	};
 }

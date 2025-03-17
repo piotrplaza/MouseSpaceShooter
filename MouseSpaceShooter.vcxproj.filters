@@ -137,9 +137,6 @@
     <Filter Include="src\ogl\shaders\tfOrbitingParticles">
       <UniqueIdentifier>{79adcb5f-9930-4442-8590-ce37bdcff838}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\levels\particles">
-      <UniqueIdentifier>{92c45fba-89a3-4506-92f1-350ebfc69a0a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\levels\damageOn">
       <UniqueIdentifier>{8fea5a81-f66e-4a4f-96d2-f7c1b3483c0e}</UniqueIdentifier>
     </Filter>
@@ -148,6 +145,12 @@
     </Filter>
     <Filter Include="src\levels\tests">
       <UniqueIdentifier>{36a76f89-808a-4007-8af0-91c974b8a8db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\levels\particles3D">
+      <UniqueIdentifier>{92c45fba-89a3-4506-92f1-350ebfc69a0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\levels\particles2D">
+      <UniqueIdentifier>{8a2a5f2e-88a4-4d5c-8bd1-c3020d7335e4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -346,9 +349,6 @@
     <ClCompile Include="tools\buffersHelpers.cpp">
       <Filter>src\tools</Filter>
     </ClCompile>
-    <ClCompile Include="levels\particles\particles.cpp">
-      <Filter>src\levels\particles</Filter>
-    </ClCompile>
     <ClCompile Include="components\details\animationData.cpp">
       <Filter>src\components\details</Filter>
     </ClCompile>
@@ -360,6 +360,12 @@
     </ClCompile>
     <ClCompile Include="commonTypes\componentsContainers.cpp">
       <Filter>src\commonTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\particles3D\particles3D.cpp">
+      <Filter>src\levels\particles3D</Filter>
+    </ClCompile>
+    <ClCompile Include="levels\particles2D\particles2D.cpp">
+      <Filter>src\levels\particles2D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -717,9 +723,6 @@
     <ClInclude Include="ogl\shaders\tfOrbitingParticles.hpp">
       <Filter>src\ogl\shaders\tfOrbitingParticles</Filter>
     </ClInclude>
-    <ClInclude Include="levels\particles\particles.hpp">
-      <Filter>src\levels\particles</Filter>
-    </ClInclude>
     <ClInclude Include="components\particles.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -746,6 +749,12 @@
     </ClInclude>
     <ClInclude Include="components\details\textureData.hpp">
       <Filter>src\components\details</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\particles3D\particles3D.hpp">
+      <Filter>src\levels\particles3D</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\particles2D\particles2D.hpp">
+      <Filter>src\levels\particles2D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -22,7 +22,8 @@
 #include "levels/paint/paint.hpp"
 #include "levels/noise/noise.hpp"
 #include "levels/decals/decals.hpp"
-#include "levels/particles/particles.hpp"
+#include "levels/particles2D/particles2D.hpp"
+#include "levels/particles3D/particles3D.hpp"
 #include "levels/tests/tests.hpp"
 
 #include "levels/damageOn/nest/nest.hpp"
@@ -158,7 +159,8 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Paint>();
 	//activeLevel = std::make_unique<Levels::Noise>();
 	//activeLevel = std::make_unique<Levels::Decals>();
-	activeLevel = std::make_unique<Levels::Particles>();
+	activeLevel = std::make_unique<Levels::Particles2D>();
+	//activeLevel = std::make_unique<Levels::Particles3D>();
 	//activeLevel = std::make_unique<Levels::Tests>();
 
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();

@@ -6,12 +6,12 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct NoiseAccessor : ProgramBase<NoiseAccessor>
+		struct NoiseAccessor : ProgramBaseCRTP<NoiseAccessor>
 		{
-			using ProgramBase::ProgramBase;
+			using ProgramBaseCRTP::ProgramBaseCRTP;
 
 			NoiseAccessor(ProgramId program):
-				ProgramBase(program),
+				ProgramBaseCRTP(program),
 				model(program, "model"),
 				vp(program, "vp"),
 				color(program, "color"),
