@@ -35,19 +35,18 @@ namespace Buffers
 		void setPositionsBuffer(glm::vec3 position, unsigned count);
 		void allocateTFPositionsBuffer(unsigned count);
 		void setColorsBuffer(const std::vector<glm::vec4>& colors);
+		void setColorsBuffer(glm::vec4 color, unsigned count);
 		void allocateTFColorsBuffer(unsigned count);
 		void setVelocitiesAndTimesBuffer(const std::vector<glm::vec4>& velocitiesAndTimes);
+		void setVelocitiesAndTimesBuffer(glm::vec4 velocityAndTime, unsigned count);
 		void allocateTFVelocitiesAndTimesBuffer(unsigned count);
 		void setHSizesAndAnglesBuffer(const std::vector<glm::vec3>& hSizesAndAngles);
+		void setHSizesAndAnglesBuffer(glm::vec3 hSizeAndAngle, unsigned count);
 		void allocateTFHSizesAndAnglesBuffer(unsigned count);
 		void setTexCoordsBuffer(const std::vector<glm::vec2>& texCoords);
-		void allocateTFTexCoordsBuffer(unsigned count);
 		void setNormalsBuffer(const std::vector<glm::vec3>& normals);
-		void allocateTFNormalsBuffer(unsigned count);
 		void setInstancedTransformsBuffer(const std::vector<glm::mat4>& transforms);
-		void allocateTFInstancedTransformsBuffer(unsigned count);
 		void setInstancedNormalTransformsBuffer(const std::vector<glm::mat3>& transforms);
-		void allocateTFInstancedNormalTransformsBuffer(unsigned count);
 		void setIndicesBuffer(const std::vector<unsigned>& indices);
 
 		bool isInstancingActive() const;
@@ -93,10 +92,10 @@ namespace Buffers
 
 		size_t numOfAllocatedPositions = 0;
 		size_t numOfAllocatedColors = 0;
+		size_t numOfAllocatedVelocitiesAndTimes = 0;
+		size_t numOfAllocatedHSizesAndAngles = 0;
 		size_t numOfAllocatedTexCoords = 0;
 		size_t numOfAllocatedNormals = 0;
-		size_t numOfAllocatedHSizesAndAngles = 0;
-		size_t numOfAllocatedVelocitiesAndTimes = 0;
 		size_t numOfAllocatedInstancedTransforms = 0;
 		size_t numOfAllocatedInstancedNormalTransforms = 0;
 		size_t numOfAllocatedIndices = 0;
@@ -262,10 +261,42 @@ namespace Buffers
 	private:
 		inline void RenderableComponentCommonsToBuffersCommons(auto& renderableDef, Buffers::GenericSubBuffers& buffers)
 		{
-			buffers.setPositionsBuffer(renderableDef.getPositions());
+			if (renderableDef.forcedPositionsCount)
+			{
+				assert(renderableDef.positions.size() == 1);
+				buffers.setPositionsBuffer(renderableDef.getPositions()[0], renderableDef.forcedPositionsCount);
+			}
+			else
+				buffers.setPositionsBuffer(renderableDef.getPositions());
 
-			if (renderableDef.accessColors().size())
-				buffers.setColorsBuffer(renderableDef.getColors());
+			if (!renderableDef.colors.empty())
+				if (renderableDef.forcedColorsCount)
+				{
+					assert(renderableDef.colors.size() == 1);
+					buffers.setColorsBuffer(renderableDef.colors[0], renderableDef.forcedColorsCount);
+				}
+				else
+					buffers.setColorsBuffer(renderableDef.colors);
+
+			if constexpr (requires { renderableDef.velocitiesAndTimes; })
+				if (!renderableDef.velocitiesAndTimes.empty())
+					if (renderableDef.forcedVelocitiesAndTimesCount)
+					{
+						assert(renderableDef.velocitiesAndTimes.size() == 1);
+						buffers.setVelocitiesAndTimesBuffer(renderableDef.velocitiesAndTimes[0], renderableDef.forcedVelocitiesAndTimesCount);
+					}
+					else
+						buffers.setVelocitiesAndTimesBuffer(renderableDef.velocitiesAndTimes);
+
+			if constexpr (requires { renderableDef.hSizesAndAngles; })
+				if (!renderableDef.hSizesAndAngles.empty())
+					if (renderableDef.forcedHSizesAndAnglesCount)
+					{
+						assert(renderableDef.hSizesAndAngles.size() == 1);
+						buffers.setHSizesAndAnglesBuffer(renderableDef.hSizesAndAngles[0], renderableDef.forcedHSizesAndAnglesCount);
+					}
+					else
+						buffers.setHSizesAndAnglesBuffer(renderableDef.hSizesAndAngles);
 
 			if (!std::holds_alternative<std::monostate>(renderableDef.texture))
 				buffers.setTexCoordsBuffer(renderableDef.getTexCoords());
@@ -273,31 +304,31 @@ namespace Buffers
 			if (renderableDef.params3D)
 				buffers.setNormalsBuffer(renderableDef.params3D->normals_);
 
-			if constexpr (requires { renderableDef.velocitiesAndTimes; })
-				if (!renderableDef.velocitiesAndTimes.empty())
-					buffers.setVelocitiesAndTimesBuffer(renderableDef.velocitiesAndTimes);
-
-			if constexpr (requires { renderableDef.hSizesAndAngles; })
-				if (!renderableDef.hSizesAndAngles.empty())
-					buffers.setHSizesAndAnglesBuffer(renderableDef.hSizesAndAngles);
-
 			buffers.setIndicesBuffer(renderableDef.getIndices());
 		}
 
 		inline void TFComponentCommonsToBuffersCommons(auto& renderableDef, Buffers::GenericSubBuffers& buffers)
 		{
-			buffers.allocateTFPositionsBuffer(renderableDef.accessPositions().size());
+			buffers.allocateTFPositionsBuffer(renderableDef.forcedPositionsCount
+				? renderableDef.forcedPositionsCount
+				: renderableDef.positions.size());
 
-			if (!renderableDef.accessColors().empty())
-				buffers.allocateTFColorsBuffer(renderableDef.accessColors().size());
+			if (!renderableDef.colors.empty())
+				buffers.allocateTFColorsBuffer(renderableDef.forcedColorsCount
+					? renderableDef.forcedColorsCount
+					: renderableDef.colors.size());
 
 			if constexpr (requires { renderableDef.velocitiesAndTimes; })
 				if (!renderableDef.velocitiesAndTimes.empty())
-					buffers.allocateTFVelocitiesAndTimesBuffer(renderableDef.velocitiesAndTimes.size());
+					buffers.allocateTFVelocitiesAndTimesBuffer(renderableDef.forcedVelocitiesAndTimesCount
+						? renderableDef.forcedVelocitiesAndTimesCount
+						: renderableDef.velocitiesAndTimes.size());
 
 			if constexpr (requires { renderableDef.hSizesAndAngles; })
 				if (!renderableDef.hSizesAndAngles.empty())
-					buffers.allocateTFHSizesAndAnglesBuffer(renderableDef.hSizesAndAngles.size());
+					buffers.allocateTFHSizesAndAnglesBuffer(renderableDef.forcedHSizesAndAnglesCount
+						? renderableDef.forcedHSizesAndAnglesCount
+						: renderableDef.hSizesAndAngles.size());
 		}
 
 		template <typename BuffersContainer>

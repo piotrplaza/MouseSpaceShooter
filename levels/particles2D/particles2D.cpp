@@ -15,8 +15,10 @@
 
 namespace
 {
-	constexpr float mouseSensitivity = 0.1f;
+	constexpr float mouseSensitivity = 0.002f;
 	constexpr unsigned particlesCount = 1000000;
+	constexpr glm::vec2 hSize = glm::vec2(0.5f);
+	constexpr glm::vec2 initVelocityRange = glm::vec2(0.0f, 0.5f);
 }
 
 namespace Levels
@@ -30,12 +32,13 @@ namespace Levels
 			auto& camera = Globals::Components().camera2D();
 			auto& particles = Globals::Components().particles();
 			auto& decorations = Globals::Components().staticDecorations();
-			auto& cursor = decorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle(glm::vec2(0.0f), 1.0f, 20));
+
+			//auto& cursor = decorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle(glm::vec2(0.0f), 0.01f, 20));
+			//cursor.modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), glm::vec3(cursorPosition, 0.0f)); };
 
 			graphicsSettings.pointSize = 1.0f;
 
-			camera.targetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, camera.details.projectionHSize = camera.details.prevProjectionHSize = 100.0f);
-			cursor.modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), glm::vec3(cursorPosition, 0.0f)); };
+			camera.targetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, camera.details.projectionHSize = camera.details.prevProjectionHSize = 1.0f);
 
 			createParticles();
 		}
@@ -58,9 +61,21 @@ namespace Levels
 
 			if (mouse.pressed.lmb)
 				started = true;
+
+			cameraStep();
 		}
 
 	private:
+		void cameraStep()
+		{
+			const auto& mouse = Globals::Components().mouse();
+			auto& camera = Globals::Components().camera2D();
+
+			cameraProjectionHSize -= mouse.pressed.wheel * 0.5f;
+
+			camera.targetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, cameraProjectionHSize);
+		}
+
 		void createParticles()
 		{
 			const auto& camera = Globals::Components().camera2D();
@@ -77,9 +92,9 @@ namespace Levels
 			hSizesAndAngles.reserve(particlesCount);
 			for (unsigned i = 0; i < particlesCount; ++i)
 			{
-				positions.emplace_back(glm::linearRand(glm::vec2(-camera.details.projectionHSize) * 0.5f, glm::vec2(camera.details.projectionHSize) * 0.5f), 0.0f);
+				positions.emplace_back(glm::linearRand(-hSize, hSize), 0.0f);
 				colors.emplace_back(glm::linearRand(glm::vec3(0.01f), glm::vec3(1.0f)), 1.0f);
-				velocitiesAndTimes.emplace_back(glm::circularRand(1.0f) * glm::linearRand(0.0f, 50.0f), 0.0f, 0.0f);
+				velocitiesAndTimes.emplace_back(glm::circularRand(1.0f) * glm::linearRand(initVelocityRange.x, initVelocityRange.y), 0.0f, 0.0f);
 				hSizesAndAngles.emplace_back(glm::vec3(0.0f));
 			}
 			
@@ -103,6 +118,7 @@ namespace Levels
 		glm::vec2 cursorPosition{};
 		ComponentId particlesId{};
 
+		float cameraProjectionHSize = 1.0f;
 		bool started = false;
 	};
 

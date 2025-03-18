@@ -121,7 +121,7 @@ namespace Buffers
 		glBindBuffer(GL_ARRAY_BUFFER, positionsBuffer);
 		if (numOfAllocatedPositions < count || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
 		{
-			glBufferData(GL_ARRAY_BUFFER, count * sizeof(glm::vec3), nullptr, renderable->bufferDataUsage);
+			glBufferData(GL_ARRAY_BUFFER, count * sizeof(position), nullptr, renderable->bufferDataUsage);
 			numOfAllocatedPositions = count;
 			allocatedBufferDataUsage = renderable->bufferDataUsage;
 		}
@@ -174,6 +174,33 @@ namespace Buffers
 		glEnableVertexAttribArray(colorAttribIdx);
 	}
 
+	void GenericSubBuffers::setColorsBuffer(glm::vec4 color, unsigned count)
+	{
+		glProxyBindVertexArray(vertexArray);
+
+		if (count == 0)
+		{
+			glVertexAttrib4f(colorAttribIdx, color.x, color.y, color.z, color.w);
+			glDisableVertexAttribArray(colorAttribIdx);
+			return;
+		}
+
+		if (colorsBuffer)
+			glBindBuffer(GL_ARRAY_BUFFER, *colorsBuffer);
+		else
+			createColorsBuffer();
+
+		if (numOfAllocatedColors < count || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
+		{
+			glBufferData(GL_ARRAY_BUFFER, count * sizeof(color), nullptr, renderable->bufferDataUsage);
+			numOfAllocatedColors = count;
+			allocatedBufferDataUsage = renderable->bufferDataUsage;
+		}
+
+		glClearBufferData(GL_ARRAY_BUFFER, GL_RGBA32F, GL_RGBA, GL_FLOAT, &color);
+		glEnableVertexAttribArray(colorAttribIdx);
+	}
+
 	void GenericSubBuffers::allocateTFColorsBuffer(unsigned count)
 	{
 		if (colorsBuffer)
@@ -219,6 +246,33 @@ namespace Buffers
 		glEnableVertexAttribArray(velocityAndTimeAttribIdx);
 	}
 
+	void GenericSubBuffers::setVelocitiesAndTimesBuffer(glm::vec4 velocityAndTime, unsigned count)
+	{
+		glProxyBindVertexArray(vertexArray);
+
+		if (count == 0)
+		{
+			glVertexAttrib4f(velocityAndTimeAttribIdx, velocityAndTime.x, velocityAndTime.y, velocityAndTime.z, velocityAndTime.w);
+			glDisableVertexAttribArray(velocityAndTimeAttribIdx);
+			return;
+		}
+
+		if (velocitiesAndTimesBuffer)
+			glBindBuffer(GL_ARRAY_BUFFER, *velocitiesAndTimesBuffer);
+		else
+			createVelocitiesAndTimesBuffer();
+
+		if (numOfAllocatedVelocitiesAndTimes < count || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
+		{
+			glBufferData(GL_ARRAY_BUFFER, count * sizeof(velocityAndTime), nullptr, renderable->bufferDataUsage);
+			numOfAllocatedVelocitiesAndTimes = count;
+			allocatedBufferDataUsage = renderable->bufferDataUsage;
+		}
+
+		glClearBufferData(GL_ARRAY_BUFFER, GL_RGBA32F, GL_RGBA, GL_FLOAT, &velocityAndTime);
+		glEnableVertexAttribArray(velocityAndTimeAttribIdx);
+	}
+
 	void GenericSubBuffers::allocateTFVelocitiesAndTimesBuffer(unsigned count)
 	{
 		if (velocitiesAndTimesBuffer)
@@ -260,6 +314,33 @@ namespace Buffers
 		else
 			glBufferSubData(GL_ARRAY_BUFFER, 0, hSizes.size() * sizeof(hSizes.front()), hSizes.data());
 
+		glEnableVertexAttribArray(hSizeAndAngleAttribIdx);
+	}
+
+	void GenericSubBuffers::setHSizesAndAnglesBuffer(glm::vec3 hSizeAndAngle, unsigned count)
+	{
+		glProxyBindVertexArray(vertexArray);
+
+		if (count == 0)
+		{
+			glVertexAttrib3f(hSizeAndAngleAttribIdx, hSizeAndAngle.x, hSizeAndAngle.y, hSizeAndAngle.z);
+			glDisableVertexAttribArray(hSizeAndAngleAttribIdx);
+			return;
+		}
+
+		if (hSizesAndAnglesBuffer)
+			glBindBuffer(GL_ARRAY_BUFFER, *hSizesAndAnglesBuffer);
+		else
+			createHSizesAndAnglesBuffer();
+
+		if (numOfAllocatedHSizesAndAngles < count || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
+		{
+			glBufferData(GL_ARRAY_BUFFER, count * sizeof(hSizeAndAngle), nullptr, renderable->bufferDataUsage);
+			numOfAllocatedHSizesAndAngles = count;
+			allocatedBufferDataUsage = renderable->bufferDataUsage;
+		}
+
+		glClearBufferData(GL_ARRAY_BUFFER, GL_RGB32F, GL_RGB, GL_FLOAT, &hSizeAndAngle);
 		glEnableVertexAttribArray(hSizeAndAngleAttribIdx);
 	}
 
@@ -308,23 +389,6 @@ namespace Buffers
 		glEnableVertexAttribArray(texCoordAttribIdx);
 	}
 
-	void GenericSubBuffers::allocateTFTexCoordsBuffer(unsigned count)
-	{
-		if (texCoordsBuffer)
-			glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, *texCoordsBuffer);
-		else
-			createTexCoordsBuffer(GL_TRANSFORM_FEEDBACK_BUFFER);
-
-		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, texCoordAttribIdx, *colorsBuffer);
-
-		if (numOfAllocatedTexCoords < count || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
-		{
-			glBufferData(GL_TRANSFORM_FEEDBACK_BUFFER, count * sizeof(glm::vec2), nullptr, renderable->bufferDataUsage);
-			numOfAllocatedTexCoords = count;
-			allocatedBufferDataUsage = renderable->bufferDataUsage;
-		}
-	}
-
 	void GenericSubBuffers::setNormalsBuffer(const std::vector<glm::vec3>& normals)
 	{
 		glProxyBindVertexArray(vertexArray);
@@ -351,23 +415,6 @@ namespace Buffers
 			glBufferSubData(GL_ARRAY_BUFFER, 0, normals.size() * sizeof(normals.front()), normals.data());
 
 		glEnableVertexAttribArray(normalAttribIdx);
-	}
-
-	void GenericSubBuffers::allocateTFNormalsBuffer(unsigned count)
-	{
-		if (normalsBuffer)
-			glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, *normalsBuffer);
-		else
-			createNormalsBuffer(GL_TRANSFORM_FEEDBACK_BUFFER);
-
-		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, normalAttribIdx, *normalsBuffer);
-
-		if (numOfAllocatedNormals < count || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
-		{
-			glBufferData(GL_TRANSFORM_FEEDBACK_BUFFER, count * sizeof(glm::vec3), nullptr, renderable->bufferDataUsage);
-			numOfAllocatedNormals = count;
-			allocatedBufferDataUsage = renderable->bufferDataUsage;
-		}
 	}
 
 	void GenericSubBuffers::setInstancedTransformsBuffer(const std::vector<glm::mat4>& transforms)
@@ -405,25 +452,6 @@ namespace Buffers
 		instanceCount = transforms.size();
 	}
 
-	void GenericSubBuffers::allocateTFInstancedTransformsBuffer(unsigned count)
-	{
-		if (instancedTransformsBuffer)
-			glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, *instancedTransformsBuffer);
-		else
-			createInstancedTransformsBuffer(GL_TRANSFORM_FEEDBACK_BUFFER);
-
-		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, instancedTransformAttribIdx, *velocitiesAndTimesBuffer);
-
-		if (numOfAllocatedInstancedTransforms < count || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
-		{
-			glBufferData(GL_TRANSFORM_FEEDBACK_BUFFER, count * sizeof(glm::mat4), nullptr, renderable->bufferDataUsage);
-			numOfAllocatedInstancedTransforms = count;
-			allocatedBufferDataUsage = renderable->bufferDataUsage;
-		}
-
-		instanceCount = count;
-	}
-
 	void GenericSubBuffers::setInstancedNormalTransformsBuffer(const std::vector<glm::mat3>& transforms)
 	{
 		glProxyBindVertexArray(vertexArray);
@@ -455,23 +483,6 @@ namespace Buffers
 
 		for (unsigned i = 0; i < 3; ++i)
 			glEnableVertexAttribArray(instancedNormalTransformAttribIdx + i);
-	}
-
-	void GenericSubBuffers::allocateTFInstancedNormalTransformsBuffer(unsigned count)
-	{
-		if (instancedNormalTransformsBuffer)
-			glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, *instancedNormalTransformsBuffer);
-		else
-			createInstancedNormalTransformsBuffer(GL_TRANSFORM_FEEDBACK_BUFFER);
-
-		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, instancedNormalTransformAttribIdx, *instancedNormalTransformsBuffer);
-
-		if (numOfAllocatedInstancedNormalTransforms < count || !allocatedBufferDataUsage || *allocatedBufferDataUsage != renderable->bufferDataUsage)
-		{
-			glBufferData(GL_TRANSFORM_FEEDBACK_BUFFER, count * sizeof(glm::mat3), nullptr, renderable->bufferDataUsage);
-			numOfAllocatedInstancedNormalTransforms = count;
-			allocatedBufferDataUsage = renderable->bufferDataUsage;
-		}
 	}
 
 	void GenericSubBuffers::setIndicesBuffer(const std::vector<unsigned>& indices)

@@ -139,7 +139,9 @@ struct RenderableDef
 	}
 
 	std::vector<glm::vec3> positions;
+	unsigned forcedPositionsCount = 0;
 	std::vector<glm::vec4> colors;
+	unsigned forcedColorsCount = 0;
 	std::vector<glm::vec2> texCoord;
 	std::vector<unsigned> indices;
 
@@ -168,17 +170,7 @@ struct RenderableDef
 			: positions;
 	}
 
-	virtual std::vector<glm::vec3>& accessPositions()
-	{
-		return positions;
-	}
-
 	virtual const std::vector<glm::vec4>& getColors() const
-	{
-		return colors;
-	}
-
-	virtual std::vector < glm::vec4>& accessColors()
 	{
 		return colors;
 	}
@@ -205,17 +197,7 @@ struct RenderableDef
 		}
 	}
 
-	virtual std::vector<glm::vec2>& accessTexCoords()
-	{
-		return texCoord;
-	}
-
 	virtual const std::vector<unsigned>& getIndices() const
-	{
-		return indices;
-	}
-
-	virtual std::vector<unsigned>& accessIndices()
 	{
 		return indices;
 	}

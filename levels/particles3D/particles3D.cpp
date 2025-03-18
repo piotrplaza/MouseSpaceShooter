@@ -16,8 +16,9 @@
 namespace
 {
 	constexpr float mouseSensitivity = 0.01f;
-	constexpr glm::vec3 hSize = glm::vec3(0.5f);
 	constexpr unsigned particlesCount = 1000000;
+	constexpr glm::vec3 hSize = glm::vec3(0.5f);
+	constexpr glm::vec2 initVelocityRange = glm::vec2(0.0f, 0.5f);
 }
 
 namespace Levels
@@ -65,6 +66,7 @@ namespace Levels
 			cameraStep();
 		}
 
+	private:
 		void cameraStep()
 		{
 			const float height = 1.5f;
@@ -82,7 +84,6 @@ namespace Levels
 				glm::sin(physics.simulationDuration * rotationSpeed) * cameraRadius);
 		}
 
-	private:
 		void createParticles()
 		{
 			auto& particles = Globals::Components().particles();
@@ -100,7 +101,7 @@ namespace Levels
 			{
 				positions.emplace_back(glm::linearRand(-hSize, hSize));
 				colors.emplace_back(glm::linearRand(glm::vec3(0.01f), glm::vec3(1.0f)), 1.0f);
-				velocitiesAndTimes.emplace_back(glm::sphericalRand(glm::linearRand(0.0f, 0.5f)), 0.0f);
+				velocitiesAndTimes.emplace_back(glm::sphericalRand(glm::linearRand(initVelocityRange.x, initVelocityRange.y)), 0.0f);
 				hSizesAndAngles.emplace_back(glm::vec3(0.0f));
 			}
 

@@ -30,7 +30,9 @@ namespace Components
 		}
 
 		std::vector<glm::vec4> velocitiesAndTimes;
+		unsigned forcedVelocitiesAndTimesCount = 0;
 		std::vector<glm::vec3> hSizesAndAngles;
+		unsigned forcedHSizesAndAnglesCount = 0;
 		std::vector<glm::vec3> centers;
 	};
 }
