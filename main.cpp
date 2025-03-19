@@ -74,7 +74,7 @@ const bool debugFullscreen = false;
 const bool releaseFullscreen = true;
 const bool devFullScreen = true;
 const bool console = true;
-const bool glDebug = false;
+const bool glDebug = true;
 const bool audio = true;
 const GLenum glDebugMinSeverity = GL_DEBUG_SEVERITY_LOW;
 const glm::ivec2 windowRes = { 1920, 1080 }; 
@@ -142,7 +142,7 @@ static void InitLevel()
 
 	//activeLevel = std::make_unique<Levels::DamageOn::Nest>();
 
-	activeLevel = std::make_unique<Levels::Playground>();
+	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
@@ -159,7 +159,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Paint>();
 	//activeLevel = std::make_unique<Levels::Noise>();
 	//activeLevel = std::make_unique<Levels::Decals>();
-	//activeLevel = std::make_unique<Levels::Particles2D>();
+	activeLevel = std::make_unique<Levels::Particles2D>();
 	//activeLevel = std::make_unique<Levels::Particles3D>();
 	//activeLevel = std::make_unique<Levels::Tests>();
 

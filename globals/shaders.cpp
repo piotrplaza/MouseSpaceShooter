@@ -4,11 +4,11 @@
 #include "ogl/shaders/texturedPhong.hpp"
 #include "ogl/shaders/basic.hpp"
 #include "ogl/shaders/julia.hpp"
-#include "ogl/shaders/particles.hpp"
+#include "ogl/shaders/billboards.hpp"
 #include "ogl/shaders/textured.hpp"
 #include "ogl/shaders/texturedColorThreshold.hpp"
 #include "ogl/shaders/noise.hpp"
-#include "ogl/shaders/tfOrbitingParticles.hpp"
+#include "ogl/shaders/tfParticles.hpp"
 
 namespace Globals
 {
@@ -34,9 +34,9 @@ namespace Globals
 		return *julia_;
 	}
 
-	ShadersUtils::Programs::Particles& ShadersHolder::particles()
+	ShadersUtils::Programs::Billboards& ShadersHolder::billboards()
 	{
-		return *particles_;
+		return *billboards_;
 	}
 
 	ShadersUtils::Programs::Textured& ShadersHolder::textured()
@@ -54,9 +54,9 @@ namespace Globals
 		return *noise_;
 	}
 
-	ShadersUtils::Programs::TFOrbitingParticles& ShadersHolder::tfOrbitingParticles()
+	ShadersUtils::Programs::TFParticles& ShadersHolder::tfParticles()
 	{
-		return *tfOrbitingParticles_;
+		return *tfParticles_;
 	}
 
 	void ShadersHolder::frameSetup()
@@ -70,11 +70,11 @@ namespace Globals
 		setup(texturedPhong());
 		setup(basic());
 		setup(julia());
-		setup(particles());
+		setup(billboards());
 		setup(textured());
 		setup(texturedColorThreshold());
 		setup(noise());
-		setup(tfOrbitingParticles());
+		setup(tfParticles());
 	}
 
 	void InitializeShaders()

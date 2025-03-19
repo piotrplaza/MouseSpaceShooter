@@ -180,14 +180,14 @@
     <ClInclude Include="ogl\shadersUtils.hpp" />
     <ClInclude Include="ogl\shaders\basic.hpp" />
     <ClInclude Include="ogl\shaders\basicPhong.hpp" />
+    <ClInclude Include="ogl\shaders\billboards.hpp" />
     <ClInclude Include="ogl\shaders\julia.hpp" />
     <ClInclude Include="ogl\shaders\noise.hpp" />
-    <ClInclude Include="ogl\shaders\particles.hpp" />
     <ClInclude Include="ogl\shaders\programBase.hpp" />
     <ClInclude Include="ogl\shaders\textured.hpp" />
     <ClInclude Include="ogl\shaders\texturedColorThreshold.hpp" />
     <ClInclude Include="ogl\shaders\texturedPhong.hpp" />
-    <ClInclude Include="ogl\shaders\tfOrbitingParticles.hpp" />
+    <ClInclude Include="ogl\shaders\tfParticles.hpp" />
     <ClInclude Include="ogl\uniformsUtils.hpp" />
     <ClInclude Include="systems\actors.hpp" />
     <ClInclude Include="systems\audio.hpp" />
@@ -219,20 +219,20 @@
     <None Include="ogl\shaders\basic.vs" />
     <None Include="ogl\shaders\basicPhong.fs" />
     <None Include="ogl\shaders\basicPhong.vs" />
+    <None Include="ogl\shaders\billboards.fs" />
+    <None Include="ogl\shaders\billboards.gs" />
+    <None Include="ogl\shaders\billboards.vs" />
     <None Include="ogl\shaders\julia.fs" />
     <None Include="ogl\shaders\julia.vs" />
     <None Include="ogl\shaders\noise.fs" />
     <None Include="ogl\shaders\noise.vs" />
-    <None Include="ogl\shaders\particles.fs" />
-    <None Include="ogl\shaders\particles.gs" />
-    <None Include="ogl\shaders\particles.vs" />
     <None Include="ogl\shaders\textured.fs" />
     <None Include="ogl\shaders\textured.vs" />
     <None Include="ogl\shaders\texturedColorThreshold.fs" />
     <None Include="ogl\shaders\texturedColorThreshold.vs" />
     <None Include="ogl\shaders\texturedPhong.fs" />
     <None Include="ogl\shaders\texturedPhong.vs" />
-    <None Include="ogl\shaders\tfOrbitingParticles.vs" />
+    <None Include="ogl\shaders\tfParticles.vs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="levels\damageOn\nest\params.txt" />

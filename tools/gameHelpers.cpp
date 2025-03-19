@@ -24,7 +24,7 @@
 
 #include <ogl/shaders/textured.hpp>
 #include <ogl/shaders/julia.hpp>
-#include <ogl/shaders/particles.hpp>
+#include <ogl/shaders/billboards.hpp>
 
 #include <tools/Shapes2D.hpp>
 
@@ -230,7 +230,7 @@ namespace Tools
 
 	void CreateExplosion(ExplosionParams params)
 	{
-		auto& particlesShaders = Globals::Shaders().particles();
+		auto& particlesShaders = Globals::Shaders().billboards();
 
 		auto explosionF = [&, params]() {
 			auto& shockwave = Globals::Components().shockwaves().emplace(params.center_, params.sourceVelocity_, params.numOfParticles_, params.initExplosionVelocity_,

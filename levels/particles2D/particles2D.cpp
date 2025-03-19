@@ -45,6 +45,9 @@ namespace Levels
 
 		void step()
 		{
+			if (!particlesId)
+				return;
+
 			const auto& camera = Globals::Components().camera2D();
 			const auto& mouse = Globals::Components().mouse();
 			auto& particles = Globals::Components().particles()[particlesId];
@@ -94,7 +97,7 @@ namespace Levels
 			{
 				positions.emplace_back(glm::linearRand(-hSize, hSize), 0.0f);
 				colors.emplace_back(glm::linearRand(glm::vec3(0.01f), glm::vec3(1.0f)), 1.0f);
-				velocitiesAndTimes.emplace_back(glm::circularRand(1.0f) * glm::linearRand(initVelocityRange.x, initVelocityRange.y), 0.0f, 0.0f);
+				velocitiesAndTimes.emplace_back(glm::circularRand(glm::linearRand(initVelocityRange.x, initVelocityRange.y)), 0.0f, 0.0f);
 				hSizesAndAngles.emplace_back(glm::vec3(0.0f));
 			}
 			
@@ -103,7 +106,7 @@ namespace Levels
 
 			auto& particles1 = particles.emplace(std::move(positions), std::move(colors), std::move(velocitiesAndTimes), std::move(hSizesAndAngles));
 			particles1.tfRenderingSetupF = [&](ShadersUtils::ProgramBase& programBase) mutable {
-				auto& program = static_cast<ShadersUtils::Programs::TFOrbitingParticlesAccessor&>(programBase);
+				auto& program = static_cast<ShadersUtils::Programs::TFParticlesAccessor&>(programBase);
 				program.deltaTime(0.0f);
 
 				if (started)
@@ -113,6 +116,8 @@ namespace Levels
 			};
 
 			particlesId = particles1.getComponentId();
+
+			//billboards.emplace(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.2f, 0.0f), glm::vec2(-0.2f, 0.2f), 1000);
 		}
 
 		glm::vec2 cursorPosition{};

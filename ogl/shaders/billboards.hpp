@@ -6,11 +6,11 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct ParticlesAccessor : ProgramBaseCRTP<ParticlesAccessor>
+		struct BillboardsAccessor : ProgramBaseCRTP<BillboardsAccessor>
 		{
 			using ProgramBaseCRTP::ProgramBaseCRTP;
 
-			ParticlesAccessor(ProgramId program):
+			BillboardsAccessor(ProgramId program):
 				ProgramBaseCRTP(program),
 				vp(program, "vp"),
 				color(program, "color"),
@@ -23,19 +23,19 @@ namespace ShadersUtils
 			UniformsUtils::Uniform1i texture0;
 		};
 
-		struct Particles : ParticlesAccessor
+		struct Billboards : BillboardsAccessor
 		{
-			Particles() :
-				ParticlesAccessor(LinkProgram(CompileShaders("ogl/shaders/particles.vs",
-					"ogl/shaders/particles.gs", "ogl/shaders/particles.fs"), { {0, "bPos"}, {1, "bColor"} }))
+			Billboards() :
+				BillboardsAccessor(LinkProgram(CompileShaders("ogl/shaders/billboards.vs",
+					"ogl/shaders/billboards.gs", "ogl/shaders/billboards.fs"), { {0, "bPos"}, {1, "bColor"} }))
 			{
 				vp(glm::mat4(1.0f));
 				color(glm::vec4(1.0f));
 			}
 
-			Particles(const Particles&) = delete;
+			Billboards(const Billboards&) = delete;
 
-			~Particles()
+			~Billboards()
 			{
 				glDeleteProgram(getProgramId());
 			}

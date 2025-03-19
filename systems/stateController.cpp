@@ -14,7 +14,7 @@
 #include <components/pauseHandler.hpp>
 
 #include <ogl/shaders/noise.hpp>
-#include <ogl/shaders/tfOrbitingParticles.hpp>
+#include <ogl/shaders/tfParticles.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -76,7 +76,7 @@ namespace Systems
 		const auto& physics = Globals::Components().physics();
 
 		Globals::Shaders().noise().time(physics.simulationDuration);
-		Globals::Shaders().tfOrbitingParticles().deltaTime(physics.frameDuration);
+		Globals::Shaders().tfParticles().deltaTime(physics.frameDuration);
 
 		ProcessFunctors(Globals::Components().renderSetups());
 	}

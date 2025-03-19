@@ -50,9 +50,6 @@
     <Filter Include="src\ogl\shaders\texturedColorThreshold">
       <UniqueIdentifier>{ecbef966-6056-48cd-aef7-d6cc39c9cc82}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ogl\shaders\particles">
-      <UniqueIdentifier>{92adb1c3-7dba-4c44-81d7-e0c84a0acc32}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\commonTypes">
       <UniqueIdentifier>{63186fb2-8de8-482a-a71f-800c739e5cc1}</UniqueIdentifier>
     </Filter>
@@ -134,9 +131,6 @@
     <Filter Include="src\levels\decals">
       <UniqueIdentifier>{975486a0-056e-42e8-9641-646f35c3b4f1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ogl\shaders\tfOrbitingParticles">
-      <UniqueIdentifier>{79adcb5f-9930-4442-8590-ce37bdcff838}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\levels\damageOn">
       <UniqueIdentifier>{8fea5a81-f66e-4a4f-96d2-f7c1b3483c0e}</UniqueIdentifier>
     </Filter>
@@ -151,6 +145,12 @@
     </Filter>
     <Filter Include="src\levels\particles2D">
       <UniqueIdentifier>{8a2a5f2e-88a4-4d5c-8bd1-c3020d7335e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ogl\shaders\tfParticles">
+      <UniqueIdentifier>{79adcb5f-9930-4442-8590-ce37bdcff838}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ogl\shaders\billboards">
+      <UniqueIdentifier>{92adb1c3-7dba-4c44-81d7-e0c84a0acc32}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -465,9 +465,6 @@
     <ClInclude Include="systems\deferredActions.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
-    <ClInclude Include="ogl\shaders\particles.hpp">
-      <Filter>src\ogl\shaders\particles</Filter>
-    </ClInclude>
     <ClInclude Include="commonTypes\resolutionMode.hpp">
       <Filter>src\commonTypes</Filter>
     </ClInclude>
@@ -720,9 +717,6 @@
     <ClInclude Include="levels\decals\decals.hpp">
       <Filter>src\levels\decals</Filter>
     </ClInclude>
-    <ClInclude Include="ogl\shaders\tfOrbitingParticles.hpp">
-      <Filter>src\ogl\shaders\tfOrbitingParticles</Filter>
-    </ClInclude>
     <ClInclude Include="components\particles.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -756,6 +750,12 @@
     <ClInclude Include="levels\particles2D\particles2D.hpp">
       <Filter>src\levels\particles2D</Filter>
     </ClInclude>
+    <ClInclude Include="ogl\shaders\tfParticles.hpp">
+      <Filter>src\ogl\shaders\tfParticles</Filter>
+    </ClInclude>
+    <ClInclude Include="ogl\shaders\billboards.hpp">
+      <Filter>src\ogl\shaders\billboards</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">
@@ -782,15 +782,6 @@
     <None Include="ogl\shaders\texturedColorThreshold.vs">
       <Filter>src\ogl\shaders\texturedColorThreshold</Filter>
     </None>
-    <None Include="ogl\shaders\particles.fs">
-      <Filter>src\ogl\shaders\particles</Filter>
-    </None>
-    <None Include="ogl\shaders\particles.gs">
-      <Filter>src\ogl\shaders\particles</Filter>
-    </None>
-    <None Include="ogl\shaders\particles.vs">
-      <Filter>src\ogl\shaders\particles</Filter>
-    </None>
     <None Include="ogl\shaders\texturedPhong.fs">
       <Filter>src\ogl\shaders\texturedPhong</Filter>
     </None>
@@ -809,8 +800,17 @@
     <None Include="ogl\shaders\noise.vs">
       <Filter>src\ogl\shaders\noise</Filter>
     </None>
-    <None Include="ogl\shaders\tfOrbitingParticles.vs">
-      <Filter>src\ogl\shaders\tfOrbitingParticles</Filter>
+    <None Include="ogl\shaders\tfParticles.vs">
+      <Filter>src\ogl\shaders\tfParticles</Filter>
+    </None>
+    <None Include="ogl\shaders\billboards.fs">
+      <Filter>src\ogl\shaders\billboards</Filter>
+    </None>
+    <None Include="ogl\shaders\billboards.gs">
+      <Filter>src\ogl\shaders\billboards</Filter>
+    </None>
+    <None Include="ogl\shaders\billboards.vs">
+      <Filter>src\ogl\shaders\billboards</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
