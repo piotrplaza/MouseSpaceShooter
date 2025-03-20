@@ -13,8 +13,7 @@ namespace ShadersUtils
 			TFParticlesAccessor(ProgramId program):
 				ProgramBaseCRTP(program),
 				deltaTime(program, "deltaTime"),
-				velocitySpreadRange(program, "velocitySpreadRange"),
-				mode3D(program, "mode3D")
+				velocitySpreadRange(program, "velocitySpreadRange")
 			{
 			}
 
@@ -33,7 +32,6 @@ namespace ShadersUtils
 			{
 				deltaTime(0.0f);
 				velocitySpreadRange(glm::vec2(0.0f));
-				mode3D(false);
 			}
 
 			TFParticles(const TFParticles&) = delete;

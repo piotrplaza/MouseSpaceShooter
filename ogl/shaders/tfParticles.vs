@@ -12,7 +12,6 @@ out vec3 vHSizeAndAngleAttribIdx;
 
 uniform float deltaTime;
 uniform vec2 velocitySpreadRange;
-uniform bool mode3D;
 
 // A single iteration of Bob Jenkins' One-At-A-Time hashing algorithm.
 uint hash( uint x ) {
