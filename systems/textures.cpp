@@ -34,7 +34,8 @@ namespace
 		const bool convertDarkToTransparent = additionalConversion == TextureFile::AdditionalConversion::DarkToTransparent;
 		const bool convertTransparentToDark = additionalConversion == TextureFile::AdditionalConversion::TransparentToDark;
 
-		auto processRow = [&](const auto y) {
+		auto processRow = [&](const auto y_) {
+			const int y = (int)y_;
 			for (int x = 0; x < size.x; ++x)
 			{
 				const int i = (y * size.x + x) * 4;
@@ -70,7 +71,8 @@ namespace
 		const int minChannels = std::min(textureCache.numOfChannels, newNumOfChannels);
 		auto newData = std::make_unique<float[]>(width * height * newNumOfChannels);
 
-		auto processRow = [&](const auto y) {
+		auto processRow = [&](const auto y_) {
+			const int y = (int)y_;
 			for (int x = 0; x < width; ++x)
 			{
 				const int oldIndex = (y * width + x) * textureCache.numOfChannels;
@@ -91,7 +93,8 @@ namespace
 
 		if (newNumOfChannels > textureCache.numOfChannels)
 		{
-			auto processRow = [&](const auto y) {
+			auto processRow = [&](const auto y_) {
+				const int y = (int)y_;
 				for (int x = 0; x < width; ++x)
 				{
 					const int newIndex = (y * width + x) * newNumOfChannels;

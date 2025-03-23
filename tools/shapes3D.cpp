@@ -108,7 +108,7 @@ namespace Tools::Shapes3D
 
 	RenderableDef& AddRectangle(RenderableDef& renderableDef, const glm::vec2& hSize, const std::vector<glm::vec4>& colors, std::function<glm::vec2(glm::vec2, glm::vec3)> defaultAndPosToTexCoordF, const glm::mat4& transform)
 	{
-		unsigned offset = renderableDef.positions.size();
+		unsigned offset = (unsigned)renderableDef.positions.size();
 
 		if (!renderableDef.params3D)
 			renderableDef.params3D = RenderableDef::Params3D{};
@@ -158,7 +158,7 @@ namespace Tools::Shapes3D
 		if (!renderableDef.params3D)
 			renderableDef.params3D = RenderableDef::Params3D{};
 
-		const size_t offset = renderableDef.positions.size();
+		const unsigned offset = (unsigned)renderableDef.positions.size();
 		renderableDef.positions.reserve(offset + rings * sectors);
 		renderableDef.colors.reserve(offset + rings * sectors);
 		renderableDef.params3D->normals_.reserve(offset + rings * sectors);

@@ -23,7 +23,7 @@ namespace
 		b2PolygonShape polygonShape;
 
 		// UB: Breaks Strict Aliasing Rule, but is it better way to avoid copying?
-		polygonShape.Set(reinterpret_cast<const b2Vec2*>(&vertices[0]), vertices.size());
+		polygonShape.Set(reinterpret_cast<const b2Vec2*>(&vertices[0]), (int32)vertices.size());
 		fixtureDef.shape = &polygonShape;
 		fixtureDef.density = density;
 		fixtureDef.restitution = restitution;

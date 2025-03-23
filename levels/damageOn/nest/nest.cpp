@@ -1366,7 +1366,7 @@ namespace Levels::DamageOn
 						return glm::vec3(0.8f, glm::linearRand(0.1f, 0.3f), glm::linearRand(0.2f, 0.4f));
 				}();
 
-				int numOfVertices = Tools::Shapes2D::AppendPositionsOfLightning(weaponType.cache.decoration.positions, getWeaponSourcePoint(sourceInst) + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
+				size_t numOfVertices = Tools::Shapes2D::AppendPositionsOfLightning(weaponType.cache.decoration.positions, getWeaponSourcePoint(sourceInst) + glm::diskRand(glm::min(glm::abs(sourceScalingFactor.x), glm::abs(sourceScalingFactor.y)) * 0.1f),
 					targetInst.actor.getOrigin2D() + glm::diskRand(targetRadius * 0.1f), int(20 * distance), 4.0f / glm::sqrt(distance));
 				const auto sparkColor = glm::mix(glm::vec4(sparkBaseColor, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), sourceInst.manaOvercharging) * glm::linearRand(0.1f, 0.6f);
 				weaponType.cache.decoration.colors.insert(weaponType.cache.decoration.colors.end(), numOfVertices, sparkColor);

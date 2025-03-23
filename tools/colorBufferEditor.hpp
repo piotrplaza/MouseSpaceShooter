@@ -139,7 +139,8 @@ namespace Tools
 			const int rxSquared = radius.x * radius.x;
 			const int rySquared = radius.y * radius.y;
 
-			auto drawRow = [&](int y) {
+			auto drawRow = [&](auto y_) {
+				const int y = (int)y_;
 				const int dy = y - pos.y;
 				const int dySquared = dy * dy;
 				const int dxMax = (int)(sqrt((1.0 - (float)(dySquared) / rySquared) * rxSquared));
@@ -208,7 +209,8 @@ namespace Tools
 
 			if (syncCopy)
 			{
-				auto processRow = [&](int y) {
+				auto processRow = [&](auto y_) {
+					const unsigned y = (unsigned)y_;
 					const int index = y * res.x;
 					std::memcpy(&backColorBuffer[index], &colorBuffer[index], res.x * sizeof(ColorType));
 				};
@@ -293,7 +295,8 @@ namespace Tools
 			const bool perPixelProcessing = sprite || numOfChannels != numOfDestChannels;
 			float* bufferRawData = getRawData();
 
-			auto processRow = [&](const auto y) {
+			auto processRow = [&](const auto y_) {
+				const int y = (int)y_;
 				const int destIndex = (clippedTextureSubData.offset.y + y) * res.x * numOfDestChannels + clippedTextureSubData.offset.x * numOfDestChannels;
 				const int sourceIndex = y * clippedTextureSubData.size.x * numOfChannels;
 				if (perPixelProcessing)

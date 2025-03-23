@@ -354,6 +354,8 @@ namespace Systems
 			TexturedRender(layer, texturesFramebuffersRenderer);
 			CustomShadersRender(layer, texturesFramebuffersRenderer);
 		}
+
+		TransformFeedbackRender();
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, screenInfo.windowSize.x, screenInfo.windowSize.y);
@@ -362,7 +364,5 @@ namespace Systems
 		
 		assert(Globals::Components().mainFramebufferRenderer().renderer);
 		Globals::Components().mainFramebufferRenderer().renderer(framebuffers.getDefaultSubBuffers().textureObject);
-
-		TransformFeedbackRender();
 	}
 }

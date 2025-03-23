@@ -124,7 +124,8 @@ namespace Levels
 		{
 			const auto& physics = Globals::Components().physics();
 			const float neighborsColorFactor = 1.0f - centerColorFactor;
-			auto innerLoop = [&](const auto y) {
+			auto innerLoop = [&](const auto y_) {
+				const int y = (int)y_;
 				for (int x = 0; x < colorBuffer.getRes().x; ++x)
 				{
 					const glm::ivec2 d = Tools::StableRandom::Std3Random::HashRange(glm::ivec2(range.x, range.x), glm::ivec2(range.y, range.y), glm::ivec3(x, y, physics.frameCount));

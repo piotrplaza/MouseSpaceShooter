@@ -27,7 +27,7 @@ namespace ShadersUtils
 			TFParticles():
 				TFParticlesAccessor(LinkProgram(CompileVertexShader("ogl/shaders/tfParticles.vs"), { {0, "bPos"}, {1, "bColor"}, {2, "bVelocityAndTime"}, {3, "bHSizeAndAngleAttribIdx"} }, [](ProgramId program) {
 					const std::array tfOutput = { "vPos", "vColor", "vVelocityAndTime", "vHSizeAndAngleAttribIdx" };
-					glTransformFeedbackVaryings(program, tfOutput.size(), tfOutput.data(), GL_SEPARATE_ATTRIBS);
+					glTransformFeedbackVaryings(program, (unsigned)tfOutput.size(), tfOutput.data(), GL_SEPARATE_ATTRIBS);
 				}))
 			{
 				deltaTime(0.0f);

@@ -37,6 +37,7 @@ namespace Levels
 			//cursor.modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), glm::vec3(cursorPosition, 0.0f)); };
 
 			graphicsSettings.pointSize = 1.0f;
+			graphicsSettings.lineWidth = 1.0f;
 
 			camera.targetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, camera.details.projectionHSize = camera.details.prevProjectionHSize = 1.0f);
 
@@ -115,6 +116,7 @@ namespace Levels
 				return nullptr;
 			};
 
+			particles1.bufferDataUsage = GL_DYNAMIC_COPY;
 			particlesId = particles1.getComponentId();
 
 			//billboards.emplace(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.2f, 0.0f), glm::vec2(-0.2f, 0.2f), 1000);

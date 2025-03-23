@@ -37,7 +37,8 @@ namespace Tools
 
 		operationalBuffer.resize(adjustedSubImageSize.x * adjustedSubImageSize.y * numOfChannels);
 
-		auto processRow = [&](const auto y) {
+		auto processRow = [&](const auto y_) {
+			const int y = (int)y_;
 			const int sourceIndex = ((adjustedOffset.y + y) * sourceImageSize.x + adjustedOffset.x) * numOfChannels;
 			const int destIndex = y * adjustedSubImageSize.x * numOfChannels;
 
@@ -80,7 +81,8 @@ namespace Tools
 
 		operationalBuffer.resize(clippedSize.x * clippedSize.y * numOfChannels);
 
-		auto processRow = [&](const auto y) {
+		auto processRow = [&](const auto y_) {
+			const int y = (int)y_;
 			const int sourceStartIndex = ((y + clippedOffset.y) * subImageSize.x + clippedOffset.x) * numOfChannels;
 			const int destStartIndex = y * clippedSize.x * numOfChannels;
 			std::memcpy(&operationalBuffer[destStartIndex], &subImageData[sourceStartIndex], rowSize);

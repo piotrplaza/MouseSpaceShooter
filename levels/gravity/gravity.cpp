@@ -268,7 +268,7 @@ namespace Levels
 				component.body->ApplyForce({ gravityVec.x, gravityVec.y }, { 0.0f, 0.0f }, true);
 			};
 
-			for (size_t i = debrisBegin; i != debrisEnd; ++i)
+			for (ComponentId i = debrisBegin; i != debrisEnd; ++i)
 				applyGravity(Globals::Components().staticWalls()[i], 400.0f);
 
 			for (auto& missile: Globals::Components().missiles())
@@ -313,9 +313,9 @@ namespace Levels
 
 		float fogAlphaFactor = 1.0f;
 
-		size_t debrisBegin = 0;
-		size_t debrisEnd = 0;
-		size_t planetId = 0;
+		ComponentId debrisBegin = 0;
+		ComponentId debrisEnd = 0;
+		ComponentId planetId = 0;
 
 		std::unordered_map<CM::Missile, Tools::MissileHandler> missilesToHandlers;
 	};

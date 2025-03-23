@@ -66,8 +66,8 @@ namespace Buffers
 		RenderableDef* renderable = nullptr;
 
 		GLuint vertexArray = 0;
-		size_t drawCount = 0;
-		size_t instanceCount = 0;
+		GLsizei drawCount = 0;
+		GLsizei instanceCount = 0;
 
 		GLuint positionsBuffer = 0;
 		std::optional<GLuint> colorsBuffer;
@@ -311,24 +311,24 @@ namespace Buffers
 		{
 			buffers.allocateTFPositionsBuffer(renderableDef.forcedPositionsCount
 				? renderableDef.forcedPositionsCount
-				: renderableDef.positions.size());
+				: (unsigned)renderableDef.positions.size());
 
 			if (!renderableDef.colors.empty())
 				buffers.allocateTFColorsBuffer(renderableDef.forcedColorsCount
 					? renderableDef.forcedColorsCount
-					: renderableDef.colors.size());
+					: (unsigned)renderableDef.colors.size());
 
 			if constexpr (requires { renderableDef.velocitiesAndTimes; })
 				if (!renderableDef.velocitiesAndTimes.empty())
 					buffers.allocateTFVelocitiesAndTimesBuffer(renderableDef.forcedVelocitiesAndTimesCount
 						? renderableDef.forcedVelocitiesAndTimesCount
-						: renderableDef.velocitiesAndTimes.size());
+						: (unsigned)renderableDef.velocitiesAndTimes.size());
 
 			if constexpr (requires { renderableDef.hSizesAndAngles; })
 				if (!renderableDef.hSizesAndAngles.empty())
 					buffers.allocateTFHSizesAndAnglesBuffer(renderableDef.forcedHSizesAndAnglesCount
 						? renderableDef.forcedHSizesAndAnglesCount
-						: renderableDef.hSizesAndAngles.size());
+						: (unsigned)renderableDef.hSizesAndAngles.size());
 		}
 
 		template <typename BuffersContainer>

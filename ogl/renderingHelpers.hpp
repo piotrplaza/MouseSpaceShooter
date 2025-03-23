@@ -70,7 +70,7 @@ namespace
 		for (unsigned i = 0; i < (unsigned)blendingTextureComponent.textures.size(); ++i)
 			PrepareTexturedRender(shadersProgram, blendingTextureComponent.textures[i], Tools::TextureTransform(translate, rotate, scale), i);
 
-		shadersProgram.numOfTextures(blendingTextureComponent.textures.size());
+		shadersProgram.numOfTextures((int)blendingTextureComponent.textures.size());
 	}
 
 	template <typename ShadersProgram>

@@ -12,16 +12,26 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Box2Dv2", "Box2Dv2\Box2Dv2.
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		_Release|x86 = _Release|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0AB88D9F-D4CD-4639-834E-4F73814E9BAE}._Release|x86.ActiveCfg = Release|Win32
-		{0AB88D9F-D4CD-4639-834E-4F73814E9BAE}._Release|x86.Build.0 = Release|Win32
+		{0AB88D9F-D4CD-4639-834E-4F73814E9BAE}.Release|x64.ActiveCfg = Release|x64
+		{0AB88D9F-D4CD-4639-834E-4F73814E9BAE}.Release|x64.Build.0 = Release|x64
+		{0AB88D9F-D4CD-4639-834E-4F73814E9BAE}.Release|x86.ActiveCfg = Release|Win32
+		{0AB88D9F-D4CD-4639-834E-4F73814E9BAE}.Release|x86.Build.0 = Release|Win32
+		{0AB88D9F-D4CD-4639-834E-4F73814E9BAE}.Debug|x64.ActiveCfg = Debug|x64
+		{0AB88D9F-D4CD-4639-834E-4F73814E9BAE}.Debug|x64.Build.0 = Debug|x64
 		{0AB88D9F-D4CD-4639-834E-4F73814E9BAE}.Debug|x86.ActiveCfg = Debug|Win32
 		{0AB88D9F-D4CD-4639-834E-4F73814E9BAE}.Debug|x86.Build.0 = Debug|Win32
-		{3C85B307-3655-4E50-9A40-825FFA47F31B}._Release|x86.ActiveCfg = Release|Win32
-		{3C85B307-3655-4E50-9A40-825FFA47F31B}._Release|x86.Build.0 = Release|Win32
+		{3C85B307-3655-4E50-9A40-825FFA47F31B}.Release|x64.ActiveCfg = Release|x64
+		{3C85B307-3655-4E50-9A40-825FFA47F31B}.Release|x64.Build.0 = Release|x64
+		{3C85B307-3655-4E50-9A40-825FFA47F31B}.Release|x86.ActiveCfg = Release|Win32
+		{3C85B307-3655-4E50-9A40-825FFA47F31B}.Release|x86.Build.0 = Release|Win32
+		{3C85B307-3655-4E50-9A40-825FFA47F31B}.Debug|x64.ActiveCfg = Debug|x64
+		{3C85B307-3655-4E50-9A40-825FFA47F31B}.Debug|x64.Build.0 = Debug|x64
 		{3C85B307-3655-4E50-9A40-825FFA47F31B}.Debug|x86.ActiveCfg = Debug|Win32
 		{3C85B307-3655-4E50-9A40-825FFA47F31B}.Debug|x86.Build.0 = Debug|Win32
 	EndGlobalSection

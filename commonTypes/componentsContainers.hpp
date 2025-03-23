@@ -183,7 +183,7 @@ public:
 	{
 		components.push_back(component);
 		last_ = &components.back();
-		last_->init(components.size() - 1, true);
+		last_->init((ComponentId)components.size() - 1, true);
 		return *last_;
 	}
 
@@ -191,7 +191,7 @@ public:
 	Component& emplace(Params&&... params)
 	{
 		last_ = &components.emplace_back(std::forward<Params>(params)...);
-		last_->init(components.size() - 1, true);
+		last_->init((ComponentId)components.size() - 1, true);
 		return *last_;
 	}
 
@@ -203,7 +203,7 @@ public:
 
 	ComponentId size() const
 	{
-		return components.size();
+		return (ComponentId)components.size();
 	}
 
 	bool empty() const
@@ -362,7 +362,7 @@ public:
 
 	ComponentId size() const
 	{
-		return components.size();
+		return (ComponentId)components.size();
 	}
 
 	bool empty() const

@@ -41,10 +41,10 @@ float floatConstruct( uint m ) {
 }
 
 // Pseudo-random value in half-open range [0:1].
-float random( float x, float t = 0.0 ) { return floatConstruct(hash(floatBitsToUint(x), floatBitsToUint(t))); }
-float random( vec2  v, float t = 0.0 ) { return floatConstruct(hash(floatBitsToUint(v), floatBitsToUint(t))); }
-float random( vec3  v, float t = 0.0 ) { return floatConstruct(hash(floatBitsToUint(v), floatBitsToUint(t))); }
-float random( vec4  v, float t = 0.0 ) { return floatConstruct(hash(floatBitsToUint(v), floatBitsToUint(t))); }
+float random( float x, float t ) { return floatConstruct(hash(floatBitsToUint(x), floatBitsToUint(t))); }
+float random( vec2  v, float t ) { return floatConstruct(hash(floatBitsToUint(v), floatBitsToUint(t))); }
+float random( vec3  v, float t ) { return floatConstruct(hash(floatBitsToUint(v), floatBitsToUint(t))); }
+float random( vec4  v, float t ) { return floatConstruct(hash(floatBitsToUint(v), floatBitsToUint(t))); }
 
 void main()
 {

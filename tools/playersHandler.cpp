@@ -104,7 +104,7 @@ namespace Tools
 				activeGamepads.push_back(i);
 		}
 
-		const unsigned numOfPlayers = std::clamp(activeGamepads.size() + !gamepadForPlayer1, 1u, 4u);
+		const unsigned numOfPlayers = std::clamp((unsigned)activeGamepads.size() + !gamepadForPlayer1, 1u, 4u);
 
 		playersHandlers.reserve(numOfPlayers);
 		unsigned activeGamepadId = 0;
@@ -193,8 +193,8 @@ namespace Tools
 					for (unsigned i = 0; i < allVCorrectedActorsPos.size() - 1; ++i)
 						for (unsigned j = i + 1; j < allVCorrectedActorsPos.size(); ++j)
 						{
-							const auto pos1 = allVCorrectedActorsPos[i];
-							const auto pos2 = allVCorrectedActorsPos[j];
+							const auto& pos1 = allVCorrectedActorsPos[i];
+							const auto& pos2 = allVCorrectedActorsPos[j];
 							/*maxDistance = std::max(maxDistance, glm::max(glm::abs(pos1.x - pos2.x) * systemInfo.framebufferRes.y / systemInfo.framebufferRes.x * scalingFactor,
 								glm::abs(pos1.y - pos2.y) * scalingFactor));*/
 							maxDistance = std::max(maxDistance, glm::distance(glm::vec2(pos1.x / screenInfo.getAspectRatio(), pos1.y),
@@ -224,7 +224,7 @@ namespace Tools
 				activeGamepads.push_back(i);
 		}
 
-		const unsigned numOfPlayers = std::clamp(activeGamepads.size() + !gamepadForPlayer1, 1u, 4u);
+		const unsigned numOfPlayers = std::clamp((unsigned)activeGamepads.size() + !gamepadForPlayer1, 1u, 4u);
 
 		std::erase_if(playersHandlers, [&, i = 0](const auto& playerHandler) mutable {
 			const bool erase = i++ != 0 && playerHandler.gamepadId && !gamepads[*playerHandler.gamepadId].enabled;
@@ -250,8 +250,8 @@ namespace Tools
 					playersHandlers[0].gamepadId = activeGamepadId;
 				else if (playersHandlers.size() < 4)
 				{
-					glm::vec3 initLoc = initLocF(playersHandlers.size());
-					ComponentId planeId = CreatePresettedPlane(playersHandlers.size(), planeTextures[playersHandlers.size()], flameAnimatedTexturesForPlayers[playersHandlers.size()], initLoc);
+					glm::vec3 initLoc = initLocF((unsigned)playersHandlers.size());
+					ComponentId planeId = CreatePresettedPlane((unsigned)playersHandlers.size(), planeTextures[playersHandlers.size()], flameAnimatedTexturesForPlayers[playersHandlers.size()], initLoc);
 					playersHandlers.emplace_back(planeId, activeGamepadId, 0.0f,
 						CreateAndPlayPlaneSound(thrustSoundBuffer, planeId, soundAttenuation), 0.0f, CreateAndPlayPlaneSound(grappleSoundBuffer, planeId, soundAttenuation), 0.0f);
 				}

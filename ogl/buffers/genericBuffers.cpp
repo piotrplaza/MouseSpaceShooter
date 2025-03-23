@@ -111,7 +111,7 @@ namespace Buffers
 
 		glEnableVertexAttribArray(positionAttribIdx);
 
-		drawCount = positions.size();
+		drawCount = (GLsizei)positions.size();
 	}
 
 	void GenericSubBuffers::setPositionsBuffer(glm::vec3 position, unsigned count)
@@ -449,7 +449,7 @@ namespace Buffers
 		for (unsigned i = 0; i < 4; ++i)
 			glEnableVertexAttribArray(instancedTransformAttribIdx + i);
 
-		instanceCount = transforms.size();
+		instanceCount = (GLsizei)transforms.size();
 	}
 
 	void GenericSubBuffers::setInstancedNormalTransformsBuffer(const std::vector<glm::mat3>& transforms)
@@ -506,7 +506,7 @@ namespace Buffers
 		else
 			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(indices.front()), indices.data());
 
-		drawCount = indices.size();
+		drawCount = (GLsizei)indices.size();
 	}
 
 	bool GenericSubBuffers::isInstancingActive() const

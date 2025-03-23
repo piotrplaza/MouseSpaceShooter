@@ -77,8 +77,8 @@ const bool console = true;
 const bool glDebug = true;
 const bool audio = true;
 const GLenum glDebugMinSeverity = GL_DEBUG_SEVERITY_LOW;
-const glm::ivec2 windowRes = { 1920, 1080 }; 
-const glm::ivec2 consolePos = { 3850, 10 };
+const glm::ivec2 windowRes = { 800, 600 }; 
+const glm::ivec2 consolePos = { 900, 10 };
 
 const struct
 {
@@ -140,7 +140,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::SquareRace>();
 	//activeLevel = std::make_unique<Levels::SnakeCube>();
 
-	//activeLevel = std::make_unique<Levels::DamageOn::Nest>();
+	activeLevel = std::make_unique<Levels::DamageOn::Nest>();
 
 	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
@@ -159,7 +159,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Paint>();
 	//activeLevel = std::make_unique<Levels::Noise>();
 	//activeLevel = std::make_unique<Levels::Decals>();
-	activeLevel = std::make_unique<Levels::Particles2D>();
+	//activeLevel = std::make_unique<Levels::Particles2D>();
 	//activeLevel = std::make_unique<Levels::Particles3D>();
 	//activeLevel = std::make_unique<Levels::Tests>();
 

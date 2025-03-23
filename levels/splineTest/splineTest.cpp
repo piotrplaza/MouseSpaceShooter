@@ -146,7 +146,7 @@ namespace Levels
 
 				std::vector<glm::vec2> intermediatePositions;
 
-				const int numOfSplineVertices = complexity * (controlPoints.size() - 1 + loop) + 1;
+				const size_t numOfSplineVertices = complexity * (controlPoints.size() - 1 + loop) + 1;
 
 				Tools::CubicHermiteSpline spline = loop
 					? Tools::CubicHermiteSpline(std::move(controlPoints), Tools::CubicHermiteSpline<>::loop)
@@ -154,7 +154,7 @@ namespace Levels
 
 				intermediatePositions.reserve(numOfSplineVertices);
 
-				for (int i = 0; i < numOfSplineVertices; ++i)
+				for (size_t i = 0; i < numOfSplineVertices; ++i)
 				{
 					const float t = (float)i / (numOfSplineVertices - 1);
 					intermediatePositions.push_back(glm::vec3(spline.getInterpolation(t), 0.0f));
