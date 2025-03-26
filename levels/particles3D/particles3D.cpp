@@ -63,6 +63,9 @@ namespace Levels
 			if (mouse.pressed.lmb)
 				started = true;
 
+			auto& particlesShader = static_cast<ShadersUtils::Programs::TFParticlesAccessor&>(*particles.tfShaderProgram);
+			particlesShader.lifeTimeRange(glm::vec2(0.0f));
+
 			cameraStep();
 		}
 
@@ -109,11 +112,10 @@ namespace Levels
 				particles[particlesId].state = ComponentState::Outdated;
 
 			auto& particles1 = particles.emplace(std::move(positions), std::move(colors), std::move(velocitiesAndTimes), std::move(hSizesAndAngles));
-			particles1.tfRenderingSetupF = [&, deltaTime = UniformsUtils::Uniform1f()](const auto& program) mutable {
-				if (!deltaTime.isValid())
-					deltaTime = UniformsUtils::Uniform1f(program, "deltaTime");
+			particles1.tfRenderingSetupF = [&](auto& programBase) mutable {
+				auto& program = static_cast<ShadersUtils::Programs::TFParticlesAccessor&>(programBase);
 
-				deltaTime(0.0f);
+				program.deltaTime(0.0f);
 
 				if (started)
 					particles1.tfRenderingSetupF = nullptr;

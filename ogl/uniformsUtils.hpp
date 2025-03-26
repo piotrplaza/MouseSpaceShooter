@@ -70,7 +70,7 @@ namespace UniformsUtils
 			assert(values.size() == Size);
 			glProxyUseProgram(programId);
 			this->values = values;
-			glUniform1iv(uniformId, Size, this - values.data());
+			glUniform1iv(uniformId, Size, this->values.data());
 		}
 
 		const std::array<int, Size>& getValues() const
@@ -124,7 +124,7 @@ namespace UniformsUtils
 			assert(values.size() == Size);
 			glProxyUseProgram(programId);
 			this->values = values;
-			glUniform2iv(uniformId, Size, this->values.data());
+			glUniform2iv(uniformId, Size, &this->values[0][0]);
 		}
 
 		const std::array<glm::ivec2, Size>& getValues() const
@@ -286,7 +286,7 @@ namespace UniformsUtils
 			assert(values.size() == Size);
 			glProxyUseProgram(programId);
 			this->values = values;
-			glUniform2fv(uniformId, Size, this->values.data());
+			glUniform2fv(uniformId, Size, &this->values[0][0]);
 		}
 
 		const std::array<glm::vec2, Size>& getValues() const
@@ -340,7 +340,7 @@ namespace UniformsUtils
 			assert(values.size() == Size);
 			glProxyUseProgram(programId);
 			this->values = values;
-			glUniform3fv(uniformId, Size, this->values.data());
+			glUniform3fv(uniformId, Size, &this->values[0][0]);
 		}
 
 		const std::array<glm::vec3, Size>& getValues() const
@@ -394,7 +394,7 @@ namespace UniformsUtils
 			assert(values.size() == Size);
 			glProxyUseProgram(programId);
 			this->values = values;
-			glUniform4fv(uniformId, Size, this->values.data());
+			glUniform4fv(uniformId, Size, &this->values[0][0]);
 		}
 
 		const std::array<glm::vec4, Size>& getValues() const
@@ -448,7 +448,7 @@ namespace UniformsUtils
 			assert(values.size() == Size);
 			glProxyUseProgram(programId);
 			this->values = values;
-			glUniformMatrix3fv(uniformId, Size, GL_FALSE, this->values.data());
+			glUniformMatrix3fv(uniformId, Size, GL_FALSE, &this->values[0][0][0]);
 		}
 
 		const std::array<glm::mat3, Size>& getValues() const
@@ -503,7 +503,7 @@ namespace UniformsUtils
 			assert(values.size() == Size);
 			glProxyUseProgram(programId);
 			this->values = values;
-			glUniformMatrix4fv(uniformId, Size, GL_FALSE, this->values.data());
+			glUniformMatrix4fv(uniformId, Size, GL_FALSE, &this->values[0][0][0]);
 		}
 
 		const std::array<glm::mat4, Size>& getValues() const

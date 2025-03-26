@@ -33,10 +33,10 @@ namespace Levels
 			auto& particles = Globals::Components().particles();
 			auto& decorations = Globals::Components().staticDecorations();
 
-			//auto& cursor = decorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle(glm::vec2(0.0f), 0.01f, 20));
-			//cursor.modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), glm::vec3(cursorPosition, 0.0f)); };
+			auto& cursor = decorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle(glm::vec2(0.0f), 0.005f, 20));
+			cursor.modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), glm::vec3(cursorPosition, 0.0f)); };
 
-			graphicsSettings.pointSize = 1.0f;
+			graphicsSettings.pointSize = 2.0f;
 			graphicsSettings.lineWidth = 1.0f;
 
 			camera.targetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, camera.details.projectionHSize = camera.details.prevProjectionHSize = 1.0f);
@@ -65,6 +65,9 @@ namespace Levels
 
 			if (mouse.pressed.lmb)
 				started = true;
+
+			auto& particlesShader = static_cast<ShadersUtils::Programs::TFParticlesAccessor&>(*particles.tfShaderProgram);
+			particlesShader.respawning(mouse.pressing.lmb);
 
 			cameraStep();
 		}
@@ -101,19 +104,30 @@ namespace Levels
 				velocitiesAndTimes.emplace_back(glm::circularRand(glm::linearRand(initVelocityRange.x, initVelocityRange.y)), 0.0f, 0.0f);
 				hSizesAndAngles.emplace_back(glm::vec3(0.0f));
 			}
-			
+
 			if (particlesId)
 				particles[particlesId].state = ComponentState::Outdated;
 
-			auto& particles1 = particles.emplace(std::move(positions), std::move(colors), std::move(velocitiesAndTimes), std::move(hSizesAndAngles));
-			particles1.tfRenderingSetupF = [&](ShadersUtils::ProgramBase& programBase) mutable {
-				auto& program = static_cast<ShadersUtils::Programs::TFParticlesAccessor&>(programBase);
-				program.deltaTime(0.0f);
+			//auto& particles = particles.emplace(std::move(positions), std::move(colors), std::move(velocitiesAndTimes), std::move(hSizesAndAngles));
+			auto& particles1 = particles.emplace([&]() { return glm::vec3(cursorPosition, 0.0f); }, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.2f, 2.0f),
+				std::array<FVec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }, glm::vec2(0.5f, 1.0f), glm::pi<float>() * 0.05f, glm::vec3(0.0f, -1.0f, 0.0f), 1000);
+			particles1.tfRenderingSetupF = [&, initRS = std::move(particles1.tfRenderingSetupF)](auto& programBase) mutable {
+				return [&, initRT = initRS(programBase), initRS = std::move(initRS)]() mutable {
+					initRT();
+					particles1.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) mutable {
+						auto& program = static_cast<ShadersUtils::Programs::TFParticlesAccessor&>(programBase);
+						program.deltaTime(0.0f);
 
-				if (started)
-					particles1.tfRenderingSetupF = nullptr;
+						if (started)
+						{
+							particles1.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) mutable {
+								return initRS(programBase);
+							};
+						}
 
-				return nullptr;
+						return nullptr;
+					};
+				};
 			};
 
 			particles1.bufferDataUsage = GL_DYNAMIC_COPY;

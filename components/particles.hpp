@@ -30,24 +30,41 @@ namespace Components
 			bufferDataUsage = GL_DYNAMIC_COPY;
 		}
 
-		Particles(glm::vec3 sourcePoint, glm::vec3 initVelocity, glm::vec2 velocitySpreadRange, unsigned particlesCount)
+		Particles(FVec3 sourcePointF, FVec3 initVelocityF, FVec2 lifeTimeRangeF, std::array<FVec4, 2> colorRangeF, glm::vec2 velocitySpreadRange, float velocityRotateZHRange, glm::vec3 gravity, unsigned particlesCount)
 		{
-			positions.push_back(sourcePoint);
+			positions.push_back(sourcePointF());
 			forcedPositionsCount = particlesCount;
 			colors.push_back(glm::vec4(1.0f));
 			forcedColorsCount = particlesCount;
-			velocitiesAndTimes.push_back(glm::vec4(initVelocity, 0.0f));
+			velocitiesAndTimes.push_back(glm::vec4(initVelocityF(), 0.0f));
 			forcedVelocitiesAndTimesCount = particlesCount;
 			hSizesAndAngles.push_back(glm::vec3(0.0f));
 			forcedHSizesAndAnglesCount = particlesCount;
 
 			tfShaderProgram = &Globals::Shaders().tfParticles();
-			tfRenderingSetupF = [&, velocitySpreadRange](auto& programBase) {
-				auto& tfOrbitingParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);
-				tfOrbitingParticles.velocitySpreadRange(velocitySpreadRange);
-				return [&]() {
-					tfOrbitingParticles.velocitySpreadRange(glm::vec2(0.0f));
-					tfRenderingSetupF = nullptr;
+			tfRenderingSetupF = [=](auto& programBase) {
+				auto& tfParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);
+				tfParticles.restart(true);
+				tfParticles.origin(sourcePointF());
+				tfParticles.initVelocity(initVelocityF());
+				tfParticles.lifeTimeRange(lifeTimeRangeF());
+				tfParticles.colorRange(0, colorRangeF[0]());
+				tfParticles.colorRange(1, colorRangeF[1]());
+				tfParticles.velocitySpreadFactorRange(velocitySpreadRange);
+				tfParticles.velocityRotateZHRange(velocityRotateZHRange);
+				tfParticles.gravity(gravity);
+
+				return [=, &tfParticles]() {
+					tfParticles.restart(false);
+					tfRenderingSetupF = [=, &tfParticles](auto) {
+						tfParticles.origin(sourcePointF());
+						tfParticles.initVelocity(initVelocityF());
+						tfParticles.lifeTimeRange(lifeTimeRangeF());
+						/*tfParticles.colorRange(0, colorRangeF[0]());
+						tfParticles.colorRange(1, colorRangeF[1]());*/
+						tfParticles.colorRange(std::array<glm::vec4, 2>{colorRangeF[0](), colorRangeF[1]()});
+						return nullptr;
+					};
 				};
 			};
 
