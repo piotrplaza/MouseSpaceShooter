@@ -367,9 +367,14 @@ namespace Tools
 		return std::nullopt;
 	}
 
-	float GetRelativeVelocity(const b2Body& body1, const b2Body& body2)
+	glm::vec2 GetRelativeVelocity(const b2Body& body1, const b2Body& body2)
 	{
-		return glm::length(ToVec2<glm::vec2>(body2.GetLinearVelocity()) - ToVec2<glm::vec2>(body1.GetLinearVelocity()));
+		return ToVec2<glm::vec2>(body2.GetLinearVelocity() - body1.GetLinearVelocity());
+	}
+
+	float GetRelativeSpeed(const b2Body& body1, const b2Body& body2)
+	{
+		return glm::length(GetRelativeVelocity(body1, body2));
 	}
 
 	void DestroyFixtures(Body& body)

@@ -39,12 +39,6 @@ namespace Systems
 	void Actors::step()
 	{
 		{
-			auto& actors = Globals::Components().actors();
-			for (auto& actor : actors)
-				actor.step();
-		}
-
-		{
 			auto& planes = Globals::Components().planes();
 			auto& grapples = Globals::Components().grapples();
 			unsigned playersCounter = 0;
@@ -90,6 +84,12 @@ namespace Systems
 				grapple.step();
 				grapple.details.previousCenter = grapple.getOrigin2D();
 			}
+		}
+
+		{
+			auto& actors = Globals::Components().actors();
+			for (auto& actor : actors)
+				actor.step();
 		}
 
 		updateDynamicBuffers();

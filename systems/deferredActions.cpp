@@ -14,6 +14,8 @@ namespace Systems
 		auto it = deferredActions.begin();
 		while (it != deferredActions.end())
 		{
+			it->step();
+
 			if (it->details.startTime < 0.0f)
 				it->details.startTime = Globals::Components().physics().simulationDuration + it->delay;
 

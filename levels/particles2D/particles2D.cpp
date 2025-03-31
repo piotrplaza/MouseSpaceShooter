@@ -6,6 +6,7 @@
 #include <components/decoration.hpp>
 #include <components/particles.hpp>
 #include <components/mouse.hpp>
+#include <components/physics.hpp>
 #include <globals/components.hpp>
 
 #include <tools/Shapes2D.hpp>
@@ -46,22 +47,24 @@ namespace Levels
 
 		void step()
 		{
-			if (!particlesId)
-				return;
-
 			const auto& camera = Globals::Components().camera2D();
 			const auto& mouse = Globals::Components().mouse();
-			auto& particles = Globals::Components().particles()[particlesId];
-
-			cursorPosition += mouse.getCartesianDelta() * mouseSensitivity;
-			cursorPosition = glm::clamp(cursorPosition, -camera.details.completeProjectionHSize, camera.details.completeProjectionHSize);
-			particles.centers.emplace_back(cursorPosition, 0.0f);
 
 			if (mouse.pressed.rmb)
 			{
 				createParticles();
 				started = false;
+				return;
 			}
+
+			if (!particlesId)
+				return;
+
+			auto& particles = Globals::Components().particles()[particlesId];
+
+			cursorPosition += mouse.getCartesianDelta() * mouseSensitivity;
+			cursorPosition = glm::clamp(cursorPosition, -camera.details.completeProjectionHSize, camera.details.completeProjectionHSize);
+			particles.centers.emplace_back(cursorPosition, 0.0f);
 
 			if (mouse.pressed.lmb)
 				started = true;
@@ -86,6 +89,8 @@ namespace Levels
 		void createParticles()
 		{
 			const auto& camera = Globals::Components().camera2D();
+			const auto& physics = Globals::Components().physics();
+			const auto& mouse = Globals::Components().mouse();
 			auto& particles = Globals::Components().particles();
 
 			std::vector<glm::vec3> positions;
@@ -109,15 +114,14 @@ namespace Levels
 				particles[particlesId].state = ComponentState::Outdated;
 
 			//auto& particles = particles.emplace(std::move(positions), std::move(colors), std::move(velocitiesAndTimes), std::move(hSizesAndAngles));
-			auto& particles1 = particles.emplace([&]() { return glm::vec3(cursorPosition, 0.0f); }, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.2f, 2.0f),
-				std::array<FVec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }, glm::vec2(0.5f, 1.0f), glm::pi<float>() * 0.05f, glm::vec3(0.0f, -1.0f, 0.0f), 1000);
+			auto& particles1 = particles.emplace([&]() { return glm::vec3(cursorPosition, 0.0f); }, [&, angle = 0.0f]() mutable {
+				angle += 2.0f * physics.frameDuration * mouse.pressing.lmb; return glm::vec3(std::cos(angle), std::sin(angle), 0.0f); }, glm::vec2(0.2f, 2.0f),
+				std::array<FVec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }, glm::vec2(0.5f, 1.0f), glm::pi<float>() * 0.05f,
+				glm::vec3(0.0f, -1.0f, 0.0f), true, 1000);
 			particles1.tfRenderingSetupF = [&, initRS = std::move(particles1.tfRenderingSetupF)](auto& programBase) mutable {
 				return [&, initRT = initRS(programBase), initRS = std::move(initRS)]() mutable {
 					initRT();
 					particles1.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) mutable {
-						auto& program = static_cast<ShadersUtils::Programs::TFParticlesAccessor&>(programBase);
-						program.deltaTime(0.0f);
-
 						if (started)
 						{
 							particles1.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) mutable {
@@ -130,7 +134,6 @@ namespace Levels
 				};
 			};
 
-			particles1.bufferDataUsage = GL_DYNAMIC_COPY;
 			particlesId = particles1.getComponentId();
 
 			//billboards.emplace(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.2f, 0.0f), glm::vec2(-0.2f, 0.2f), 1000);

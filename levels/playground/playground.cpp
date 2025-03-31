@@ -17,6 +17,7 @@
 #include <components/collisionFilter.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/shockwave.hpp>
+#include <components/particles.hpp>
 #include <components/functor.hpp>
 #include <components/mainFramebufferRenderer.hpp>
 #include <components/blendingTexture.hpp>
@@ -63,7 +64,10 @@ namespace Levels
 	public:
 		void globalSettings() const
 		{
-			Globals::Components().graphicsSettings().defaultColorF = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
+			auto& graphicsSettings = Globals::Components().graphicsSettings();
+			graphicsSettings.defaultColorF = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
+			graphicsSettings.pointSize = 2.0f;
+
 			Globals::Components().mainFramebufferRenderer().renderer = Tools::Demo3DRotatedFullscreenRenderer(Globals::Shaders().textured());
 		}
 
@@ -647,28 +651,43 @@ namespace Levels
 					: ResolutionMode{ ResolutionMode::Resolution::QuarterNative, ResolutionMode::Scaling::Linear, ResolutionMode::Blending::Additive};
 				});
 			missilesHandler.setExplosionF([this](auto pos) {
+				Globals::Components().particles().emplace([=]() { return glm::vec3(pos, 0.0f); }, glm::vec3(25.0f, 0.0f, 0.0f), glm::vec2(0.0f, 2.0f),
+					std::array<FVec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }, glm::vec2(0.05f, 1.0f), glm::pi<float>() * 1.0f,
+					glm::vec3(0.0f), false, 500);
+
 				Tools::CreateAndPlaySound(CM::SoundBuffer(missileExplosionSoundBuffer, true), [pos]() { return pos; });
 				explosionFrame = true;
-				});
+			});
 		}
 
 		void collisionHandlers()
 		{
-			auto collisionSound = Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
+			auto collisionAction = Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
+				const auto collisionPoint = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody());
+				const auto relativeVelocity = Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody());
+				const float relativeSpeed = glm::length(relativeVelocity);
+
+				if (relativeSpeed > 10.0f)
+				{
+					Globals::Components().particles().emplace([=]() { return glm::vec3(collisionPoint, 0.0f); }, glm::vec3(relativeVelocity, 0.0f) * 0.3f, glm::vec2(0.0f, 2.0f),
+						std::array<FVec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }, glm::vec2(0.01f, 1.0f), glm::pi<float>() * 1.0f,
+						glm::vec3(0.0f), false, (int)(10 * relativeSpeed));
+				}
+
 				Tools::CreateAndPlaySound(CM::SoundBuffer(collisionSoundBuffer, true),
-					[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {
-						return pos;
+					[collisionPoint]() {
+						return collisionPoint;
 					},
 					[&](auto& sound) {
-						sound.setVolume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
+						sound.setVolume(std::sqrt(Tools::GetRelativeSpeed(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
 						sound.setPitch(Tools::RandomFloat(0.4f, 0.6f));
 					});
 			});
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::actor, Globals::CollisionBits::actor | Globals::CollisionBits::wall,
-				collisionSound);
+				collisionAction);
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::wall, Globals::CollisionBits::wall,
-				collisionSound);
+				collisionAction);
 		}
 
 		void gameStep()

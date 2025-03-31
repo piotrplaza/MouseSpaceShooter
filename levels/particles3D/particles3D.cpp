@@ -48,11 +48,6 @@ namespace Levels
 		{
 			const auto& camera = Globals::Components().camera3D();
 			const auto& mouse = Globals::Components().mouse();
-			auto& particles = Globals::Components().particles()[particlesId];
-
-			cursorPosition += mouse.getCartesianDelta() * mouseSensitivity;
-			cursorPosition = glm::clamp(cursorPosition, -glm::vec2(hSize), glm::vec2(hSize));
-			particles.centers.emplace_back(cursorPosition, 0.0f);
 
 			if (mouse.pressed.rmb)
 			{
@@ -60,11 +55,17 @@ namespace Levels
 				started = false;
 			}
 
+			if (!particlesId)
+				return;
+
+			auto& particles = Globals::Components().particles()[particlesId];
+
+			cursorPosition += mouse.getCartesianDelta() * mouseSensitivity;
+			cursorPosition = glm::clamp(cursorPosition, -glm::vec2(hSize), glm::vec2(hSize));
+			particles.centers.emplace_back(cursorPosition, 0.0f);
+
 			if (mouse.pressed.lmb)
 				started = true;
-
-			auto& particlesShader = static_cast<ShadersUtils::Programs::TFParticlesAccessor&>(*particles.tfShaderProgram);
-			particlesShader.lifeTimeRange(glm::vec2(0.0f));
 
 			cameraStep();
 		}
@@ -109,16 +110,21 @@ namespace Levels
 			}
 
 			if (particlesId)
+			{
 				particles[particlesId].state = ComponentState::Outdated;
+				particlesId = 0;
+			}
 
-			auto& particles1 = particles.emplace(std::move(positions), std::move(colors), std::move(velocitiesAndTimes), std::move(hSizesAndAngles));
-			particles1.tfRenderingSetupF = [&](auto& programBase) mutable {
-				auto& program = static_cast<ShadersUtils::Programs::TFParticlesAccessor&>(programBase);
-
-				program.deltaTime(0.0f);
-
+			auto& particles1 = particles.emplace(std::move(positions), std::move(colors), std::move(velocitiesAndTimes), std::move(hSizesAndAngles), glm::vec2(3.0f),
+				[&]() { return started; }, [&]() { return particlesId = 0; });
+			particles1.tfRenderingSetupF = [&, prevTFRS = std::move(particles1.tfRenderingSetupF)](auto& programBase) {
+				auto& tfParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);
+				tfParticles.deltaTime(0.0f);
 				if (started)
-					particles1.tfRenderingSetupF = nullptr;
+				{
+					//tfParticles.lifeTimeRange(glm::vec2(0.0f));
+					particles1.tfRenderingSetupF = std::move(prevTFRS);
+				}
 
 				return nullptr;
 			};
@@ -127,7 +133,7 @@ namespace Levels
 		}
 
 		glm::vec2 cursorPosition{};
-		ComponentId particlesId{};
+		ComponentId particlesId = 0;
 
 		float cameraRadius = 2.0f;
 		bool started = false;

@@ -217,7 +217,7 @@ namespace Tools
 			[](float sum, const auto& e) {
 				return sum + e.particles.size() * !Globals::Components().physics().paused;
 			}), maxIntensity);
-			};
+		};
 	}
 
 	inline auto StandardFullscreenRenderer(auto& shadersProgram, std::function<float()> quakeIntensityF = DefaultQuakeIntensity())
@@ -278,27 +278,25 @@ namespace Tools
 			glProxySetBlend(false);
 			glProxySetCullFace(false);
 
-			Tools::TexturedScreenRender(shadersProgram, textureObject, [&]()
-				{
-					shadersProgram.vp(vp);
-					shadersProgram.model(model);
-				}, [&]()
-				{
-					const float quakeIntensity = quakeIntensityF();
-					const glm::vec2 quakeIntensityXY = screenInfo.framebufferRes.x > screenInfo.framebufferRes.y
-						? glm::vec2(quakeIntensity, quakeIntensity * screenInfo.getAspectRatio())
-						: glm::vec2(quakeIntensity / screenInfo.getAspectRatio(), quakeIntensity);
+			Tools::TexturedScreenRender(shadersProgram, textureObject, [&]() {
+				shadersProgram.vp(vp);
+				shadersProgram.model(model);
+			}, [&]() {
+				const float quakeIntensity = quakeIntensityF();
+				const glm::vec2 quakeIntensityXY = screenInfo.framebufferRes.x > screenInfo.framebufferRes.y
+					? glm::vec2(quakeIntensity, quakeIntensity * screenInfo.getAspectRatio())
+					: glm::vec2(quakeIntensity / screenInfo.getAspectRatio(), quakeIntensity);
 
-					const glm::vec3 p1 = { -1.0f - Tools::RandomFloat(0.0f, quakeIntensityXY.x), -1.0f - Tools::RandomFloat(0.0f, quakeIntensityXY.y), 0.0f };
-					const glm::vec3 p2 = { 1.0f + Tools::RandomFloat(0.0f, quakeIntensityXY.x), p1.y, 0.0f };
-					const glm::vec3 p3 = { p1.x, 1.0f + Tools::RandomFloat(0.0f, quakeIntensityXY.y), 0.0f };
-					const glm::vec3 p4 = { p2.x, p3.y, 0.0f };
+				const glm::vec3 p1 = { -1.0f - Tools::RandomFloat(0.0f, quakeIntensityXY.x), -1.0f - Tools::RandomFloat(0.0f, quakeIntensityXY.y), 0.0f };
+				const glm::vec3 p2 = { 1.0f + Tools::RandomFloat(0.0f, quakeIntensityXY.x), p1.y, 0.0f };
+				const glm::vec3 p3 = { p1.x, 1.0f + Tools::RandomFloat(0.0f, quakeIntensityXY.y), 0.0f };
+				const glm::vec3 p4 = { p2.x, p3.y, 0.0f };
 
-					return std::array<glm::vec3, 6>{ p1, p2, p3, p3, p2, p4 };
-				});
+				return std::array<glm::vec3, 6>{ p1, p2, p3, p3, p2, p4 };
+			});
 
-				glProxySetBlend(prevBlend);
-				glProxySetCullFace(prevCullFace);
+			glProxySetBlend(prevBlend);
+			glProxySetCullFace(prevCullFace);
 		};
 	}
 

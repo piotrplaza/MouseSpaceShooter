@@ -12,9 +12,10 @@ namespace ShadersUtils
 
 			TFParticlesAccessor(ProgramId program):
 				ProgramBaseCRTP(program),
+				time(program, "time"),
 				deltaTime(program, "deltaTime"),
 				lifeTimeRange(program, "lifeTimeRange"),
-				restart(program, "restart"),
+				init(program, "init"),
 				respawning(program, "respawning"),
 				origin(program, "origin"),
 				initVelocity(program, "initVelocity"),
@@ -25,9 +26,10 @@ namespace ShadersUtils
 			{
 			}
 
+			UniformsUtils::Uniform1f time;
 			UniformsUtils::Uniform1f deltaTime;
 			UniformsUtils::Uniform2f lifeTimeRange;
-			UniformsUtils::Uniform1b restart;
+			UniformsUtils::Uniform1b init;
 			UniformsUtils::Uniform1b respawning;
 			UniformsUtils::Uniform3f origin;
 			UniformsUtils::Uniform3f initVelocity;
@@ -45,9 +47,10 @@ namespace ShadersUtils
 					glTransformFeedbackVaryings(program, (unsigned)tfOutput.size(), tfOutput.data(), GL_SEPARATE_ATTRIBS);
 				}))
 			{
+				time(1.0f);
 				deltaTime(0.0f);
 				lifeTimeRange(glm::vec2(1.0f));
-				restart(false);
+				init(false);
 				respawning(true);
 				origin(glm::vec3(0.0f));
 				initVelocity(glm::vec3(0.0f));

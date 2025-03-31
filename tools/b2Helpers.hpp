@@ -190,7 +190,9 @@ namespace Tools
 	const BodyUserData& AccessUserData(const b2Body& body);
 
 	std::optional<glm::vec2> GetCollisionPoint(const b2Body& body1, const b2Body& body2);
-	float GetRelativeVelocity(const b2Body& body1, const b2Body& body2);
+
+	glm::vec2 GetRelativeVelocity(const b2Body& body1, const b2Body& body2);
+	float GetRelativeSpeed(const b2Body& body1, const b2Body& body2);
 
 	void DestroyFixtures(Body& body);
 

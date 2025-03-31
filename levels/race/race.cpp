@@ -233,7 +233,7 @@ namespace Levels
 							return pos;
 						},
 						[&](auto& sound) {
-							sound.setVolume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
+							sound.setVolume(std::sqrt(Tools::GetRelativeSpeed(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
 						});
 					}));
 		}

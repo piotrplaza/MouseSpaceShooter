@@ -85,11 +85,13 @@ namespace Systems
 
 		mvp.projection = glm::ortho(-camera.details.projectionHSize * framebufferWidthRatio, camera.details.projectionHSize * framebufferWidthRatio,
 			-camera.details.projectionHSize * framebufferHeightRatio, camera.details.projectionHSize * framebufferHeightRatio);
+
+		camera.step();
 	}
 
 	void Camera::step3D(bool paused) const
 	{
-		const auto& camera = Globals::Components().camera3D();
+		auto& camera = Globals::Components().camera3D();
 
 		if (!camera.isEnabled())
 			return;
@@ -110,5 +112,7 @@ namespace Systems
 		}
 
 		mvp.projection = glm::perspective(camera.fov, screenInfo.getAspectRatio(), camera.nearPlane, camera.farPlane);
+
+		camera.step();
 	}
 }

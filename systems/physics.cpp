@@ -102,5 +102,7 @@ namespace Systems
 		physics.simulationDuration += physics.frameDuration;
 		++physics.frameCount;
 		physics.world->Step(physics.frameDuration, physics.velocityIterationsPerStep, physics.positionIterationsPerStep);
+
+		physics.step();
 	}
 }

@@ -330,7 +330,7 @@ namespace Levels
 							return pos;
 						},
 						[&](auto& sound) {
-							sound.setVolume(std::sqrt(Tools::GetRelativeVelocity(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
+							sound.setVolume(std::sqrt(Tools::GetRelativeSpeed(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
 							sound.setPitch(Tools::RandomFloat(0.4f, 0.6f));
 						});
 				}));
@@ -342,7 +342,7 @@ namespace Levels
 							return pos;
 						},
 						[&](auto& sound) {
-							sound.setVolume(std::sqrt(Tools::GetRelativeVelocity(*wall1.GetBody(), *wall2.GetBody()) / 20.0f));
+							sound.setVolume(std::sqrt(Tools::GetRelativeSpeed(*wall1.GetBody(), *wall2.GetBody()) / 20.0f));
 							sound.setPitch(0.5f);
 						}));
 				});

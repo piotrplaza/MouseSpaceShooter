@@ -76,6 +76,7 @@ namespace Systems
 		const auto& physics = Globals::Components().physics();
 
 		Globals::Shaders().noise().time(physics.simulationDuration);
+		Globals::Shaders().tfParticles().time(physics.simulationDuration);
 		Globals::Shaders().tfParticles().deltaTime(physics.frameDuration);
 
 		ProcessFunctors(Globals::Components().renderSetups());

@@ -140,6 +140,12 @@ namespace Systems
 
 	void Textures::step()
 	{
+		for (auto& texture : Globals::Components().staticTextures())
+			texture.step();
+
+		for (auto& texture : Globals::Components().textures())
+			texture.step();
+
 		updateDynamicTextures();
 	}
 

@@ -10,9 +10,10 @@ out vec4 vColor;
 out vec4 vVelocityAndTime;
 out vec3 vHSizeAndAngleAttribIdx;
 
+uniform float time;
 uniform float deltaTime;
 uniform vec2 lifeTimeRange;
-uniform bool restart;
+uniform bool init;
 uniform bool respawning;
 uniform vec3 origin;
 uniform vec3 initVelocity;
@@ -85,16 +86,28 @@ void velocitySpread(inout vec3 velocity)
 	if (length == 0.0)
 		return;
 
-	velocity = rotateZ(velocity, randomRange(vec2(-velocityRotateZHRange, velocityRotateZHRange), 456.0));
-	velocity *= randomRange(velocitySpreadFactorRange, 789.0);
+	velocity = rotateZ(velocity, randomRange(vec2(-velocityRotateZHRange, velocityRotateZHRange), 456.0 * time));
+	velocity *= randomRange(velocitySpreadFactorRange, 789.0 * time);
 }
 
 void updateLifetimeRelatedState(inout vec3 inOutPosition, inout vec3 inOutVelocity, inout float inOutLifetime, inout vec4 inOutColor)
 {
-	if (restart)
+	if (init)
 	{
-		inOutLifetime = randomRange(vec2(0.0, lifeTime), 101112.0);
-		inOutColor = vec4(0.0);
+		if (respawning)
+		{
+			inOutLifetime = randomRange(vec2(0.0, lifeTime), 101112.0 * time);
+			inOutColor = vec4(0.0);
+		}
+		else
+		{
+			//inOutPosition = origin;
+			//inOutVelocity = initVelocity;
+			//inOutLifetime = randomRange(vec2(0.0, lifeTime), 101112.0 * time);
+			//inOutColor = vec4(1.0);
+			velocitySpread(inOutVelocity);
+		}
+
 		return;
 	}
 
