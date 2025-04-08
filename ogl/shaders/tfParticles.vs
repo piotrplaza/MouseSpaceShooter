@@ -21,6 +21,7 @@ uniform vec2 velocitySpreadFactorRange;
 uniform float velocityRotateZHRange;
 uniform vec4 colorRange[2];
 uniform vec3 gravity;
+uniform vec3 AZPlusBPlusCT;
 
 // A single iteration of Bob Jenkins' One-At-A-Time hashing algorithm.
 uint hash( uint x ) {
@@ -141,6 +142,7 @@ void main()
 	vVelocityAndTime = bVelocityAndTime;
 
 	updateLifetimeRelatedState(vPos, vVelocityAndTime.xyz, vVelocityAndTime.w, vColor);
+	vPos.z = AZPlusBPlusCT.x * vPos.z + AZPlusBPlusCT.y + AZPlusBPlusCT.z * vVelocityAndTime.w;
 
 	vHSizeAndAngleAttribIdx = bHSizeAndAngleAttribIdx;
 }

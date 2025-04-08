@@ -22,7 +22,8 @@ namespace ShadersUtils
 				velocitySpreadFactorRange(program, "velocitySpreadFactorRange"),
 				velocityRotateZHRange(program, "velocityRotateZHRange"),
 				colorRange(program, "colorRange"),
-				gravity(program, "gravity")
+				gravity(program, "gravity"),
+				AZPlusBPlusCT(program, "AZPlusBPlusCT")
 			{
 			}
 
@@ -37,6 +38,7 @@ namespace ShadersUtils
 			UniformsUtils::Uniform1f velocityRotateZHRange;
 			UniformsUtils::Uniform4fv<2> colorRange;
 			UniformsUtils::Uniform3f gravity;
+			UniformsUtils::Uniform3f AZPlusBPlusCT;
 		};
 
 		struct TFParticles : TFParticlesAccessor
@@ -58,6 +60,7 @@ namespace ShadersUtils
 				velocityRotateZHRange(0.0f);
 				colorRange(glm::vec4(1.0f));
 				gravity(glm::vec3(0.0f));
+				AZPlusBPlusCT(glm::vec3(1.0f, 0.0f, 0.0f));
 			}
 
 			TFParticles(const TFParticles&) = delete;

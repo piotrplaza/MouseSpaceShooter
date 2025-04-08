@@ -8,7 +8,6 @@
 
 #include <globals/shaders.hpp>
 #include <ogl/shaders/tfParticles.hpp>
-#include <ogl/shaders/billboards.hpp>
 
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -28,7 +27,6 @@ namespace Components
 			hSizesAndAngles(std::move(hSizesAndAngles))
 		{
 			tfShaderProgram = &Globals::Shaders().tfParticles();
-			//customShadersProgram = &Globals::Shaders().billboards();
 
 			tfRenderingSetupF = [=](auto& programBase) {
 				auto& tfParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);

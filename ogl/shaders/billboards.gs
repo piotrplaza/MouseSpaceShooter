@@ -30,7 +30,7 @@ void main()
     const float hSize = 1.0 * gl_in[0].gl_Position.z;
     const mat4 rotMat = rotationMatrix(vec3(0.0, 0.0, 1.0), vAngle[0]);
 
-	gl_Position = vp * (position + rotMat * vec4(-hSize, -hSize, 0.0, 0.0));
+    gl_Position = vp * (position + rotMat * vec4(-hSize, -hSize, 0.0, 0.0));
     gColor = vColor[0];
     gTexCoord = vec2(0.0, 0.0);
     EmitVertex();

@@ -7,7 +7,11 @@
 #include <components/particles.hpp>
 #include <components/mouse.hpp>
 #include <components/physics.hpp>
+#include <components/texture.hpp>
+#include <components/mvp.hpp>
 #include <globals/components.hpp>
+
+#include <ogl/shaders/billboards.hpp>
 
 #include <tools/Shapes2D.hpp>
 
@@ -17,7 +21,7 @@
 namespace
 {
 	constexpr float mouseSensitivity = 0.002f;
-	constexpr unsigned particlesCount = 1000000;
+	constexpr unsigned particlesCount = 10000;
 	constexpr glm::vec2 hSize = glm::vec2(0.5f);
 	constexpr glm::vec2 initVelocityRange = glm::vec2(0.0f, 0.5f);
 }
@@ -27,6 +31,13 @@ namespace Levels
 	class Particles2D::Impl
 	{
 	public:
+		Particles2D::Impl()
+		{
+			auto& textures = Globals::Components().staticTextures();
+
+			explosionTexture = textures.emplace("textures/skull rot.png");
+		}
+
 		void setup()
 		{
 			auto& graphicsSettings = Globals::Components().graphicsSettings();
@@ -93,6 +104,8 @@ namespace Levels
 			const auto& mouse = Globals::Components().mouse();
 			auto& particles = Globals::Components().particles();
 
+			auto& billboardsShader = Globals::Shaders().billboards();
+
 			std::vector<glm::vec3> positions;
 			std::vector<glm::vec4> colors;
 			std::vector<glm::vec4> velocitiesAndTimes;
@@ -113,11 +126,11 @@ namespace Levels
 			if (particlesId)
 				particles[particlesId].state = ComponentState::Outdated;
 
-			//auto& particles = particles.emplace(std::move(positions), std::move(colors), std::move(velocitiesAndTimes), std::move(hSizesAndAngles));
 			auto& particles1 = particles.emplace([&]() { return glm::vec3(cursorPosition, 0.0f); }, [&, angle = 0.0f]() mutable {
 				angle += 2.0f * physics.frameDuration * mouse.pressing.lmb; return glm::vec3(std::cos(angle), std::sin(angle), 0.0f); }, glm::vec2(0.2f, 2.0f),
 				std::array<FVec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }, glm::vec2(0.5f, 1.0f), glm::pi<float>() * 0.05f,
-				glm::vec3(0.0f, -1.0f, 0.0f), true, 1000);
+				glm::vec3(0.0f, -1.0f, 0.0f), true, particlesCount);
+
 			particles1.tfRenderingSetupF = [&, initRS = std::move(particles1.tfRenderingSetupF)](auto& programBase) mutable {
 				return [&, initRT = initRS(programBase), initRS = std::move(initRS)]() mutable {
 					initRT();
@@ -125,6 +138,8 @@ namespace Levels
 						if (started)
 						{
 							particles1.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) mutable {
+								auto& tfParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);
+								tfParticles.AZPlusBPlusCT({ 0.0f, 0.01f, 0.05f });
 								return initRS(programBase);
 							};
 						}
@@ -134,6 +149,19 @@ namespace Levels
 				};
 			};
 
+			particles1.customShadersProgram = &billboardsShader;
+
+			particles1.renderingSetupF = [&](ShadersUtils::ProgramId program) mutable {
+				billboardsShader.vp(Globals::Components().mvp2D().getVP());
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, explosionTexture.component->loaded.textureObject);
+				billboardsShader.texture0(0);
+
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				billboardsShader.color(glm::vec4(1.0f));
+				return std::function<void()>([]() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); });
+			};
+
 			particlesId = particles1.getComponentId();
 
 			//billboards.emplace(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.2f, 0.0f), glm::vec2(-0.2f, 0.2f), 1000);
@@ -141,6 +169,7 @@ namespace Levels
 
 		glm::vec2 cursorPosition{};
 		ComponentId particlesId{};
+		CM::Texture explosionTexture;
 
 		float cameraProjectionHSize = 1.0f;
 		bool started = false;

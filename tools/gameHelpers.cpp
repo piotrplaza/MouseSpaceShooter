@@ -230,34 +230,34 @@ namespace Tools
 
 	void CreateExplosion(ExplosionParams params)
 	{
-		auto& particlesShaders = Globals::Shaders().billboards();
+		auto& billboards = Globals::Shaders().billboards();
 
 		auto explosionF = [&, params]() {
 			auto& shockwave = Globals::Components().shockwaves().emplace(params.center_, params.sourceVelocity_, params.numOfParticles_, params.initExplosionVelocity_,
 				params.initExplosionVelocityRandomMinFactor_, params.particlesRadius_, params.particlesDensity_, params.particlesLinearDamping_, params.particlesAsBullets_, params.particlesAsSensors_);
 			auto& explosionDecoration = Globals::Components().decorations().emplace();
-			explosionDecoration.customShadersProgram = &particlesShaders;
+			explosionDecoration.customShadersProgram = &billboards;
 			explosionDecoration.resolutionMode = params.resolutionMode_;
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 
-			explosionDecoration.renderingSetupF = [params, startTime = Globals::Components().physics().simulationDuration, &particlesShaders](ShadersUtils::ProgramId program) mutable {
-				particlesShaders.vp(Globals::Components().mvp2D().getVP());
+			explosionDecoration.renderingSetupF = [params, startTime = Globals::Components().physics().simulationDuration, &billboards](ShadersUtils::ProgramId program) mutable {
+				billboards.vp(Globals::Components().mvp2D().getVP());
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, params.explosionTexture_.component->loaded.textureObject);
-				particlesShaders.texture0(0);
+				billboards.texture0(0);
 
 				const float elapsed = Globals::Components().physics().simulationDuration - startTime;
 
 				if (params.additiveBlending_)
 				{
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-					particlesShaders.color(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (params.explosionDuration_ * 2.0f), 10.0f)), 1.0f) * params.color_);
+					billboards.color(glm::vec4(glm::vec3(glm::pow(1.0f - elapsed / (params.explosionDuration_ * 2.0f), 10.0f)), 1.0f) * params.color_);
 					return std::function<void()>([]() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); });
 				}
 				else
 				{
-					particlesShaders.color(glm::pow(1.0f - elapsed / (params.explosionDuration_ * 2.0f), 10.0f) * params.color_);
+					billboards.color(glm::pow(1.0f - elapsed / (params.explosionDuration_ * 2.0f), 10.0f) * params.color_);
 					return std::function<void()>();
 				}
 			};
