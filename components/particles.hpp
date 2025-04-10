@@ -13,6 +13,7 @@
 #include <glm/vec4.hpp>
 
 #include <vector>
+#include <variant>
 
 namespace Components
 {
@@ -59,10 +60,20 @@ namespace Components
 			bufferDataUsage = GL_DYNAMIC_COPY;
 		}
 
-		Particles(FVec3 sourcePointF, FVec3 initVelocityF, FVec2 lifeTimeRangeF, std::array<FVec4, 2> colorRangeF, glm::vec2 velocitySpreadRange,
+		Particles(std::variant<FVec3, std::pair<FVec3, FVec3>> sourceFV, FVec3 initVelocityF, FVec2 lifeTimeRangeF, std::array<FVec4, 2> colorRangeF, glm::vec2 velocitySpreadFactorRange,
 			float velocityRotateZHRange, glm::vec3 gravity, bool respawning, unsigned particlesCount)
 		{
-			positions.push_back(sourcePointF());
+			auto unifiedSourceFV = std::visit([&](auto&& source) {
+				using T = std::decay_t<decltype(source)>;
+				if constexpr (std::is_same_v<T, FVec3>)
+					return std::make_pair(source, source);
+				else if constexpr (std::is_same_v<T, std::pair<FVec3, FVec3>>)
+					return std::make_pair(source.first, source.second);
+				else
+					static_assert("Invalid source type");
+				}, sourceFV);
+
+			positions.push_back(unifiedSourceFV.second());
 			forcedPositionsCount = particlesCount;
 			colors.push_back(glm::vec4(1.0f));
 			forcedColorsCount = particlesCount;
@@ -75,11 +86,13 @@ namespace Components
 			tfRenderingSetupF = [=](auto& programBase) {
 				auto& tfParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);
 				tfParticles.init(true);
-				tfParticles.origin(sourcePointF());
+				tfParticles.particlesCount(particlesCount);
+				tfParticles.originBegin(unifiedSourceFV.first());
+				tfParticles.originEnd(unifiedSourceFV.second());
 				tfParticles.initVelocity(initVelocityF());
 				tfParticles.lifeTimeRange(lifeTimeRangeF());
 				tfParticles.colorRange({colorRangeF[0](), colorRangeF[1]()});
-				tfParticles.velocitySpreadFactorRange(velocitySpreadRange);
+				tfParticles.velocitySpreadFactorRange(velocitySpreadFactorRange);
 				tfParticles.velocityRotateZHRange(velocityRotateZHRange);
 				tfParticles.gravity(gravity);
 				tfParticles.respawning(respawning);
@@ -87,7 +100,8 @@ namespace Components
 				return [=, &tfParticles]() {
 					tfParticles.init(false);
 					tfRenderingSetupF = [=, &tfParticles](auto) {
-						tfParticles.origin(sourcePointF());
+						tfParticles.originBegin(unifiedSourceFV.first());
+						tfParticles.originEnd(unifiedSourceFV.second());
 						tfParticles.initVelocity(initVelocityF());
 						tfParticles.lifeTimeRange(lifeTimeRangeF());
 						tfParticles.colorRange({colorRangeF[0](), colorRangeF[1]()});

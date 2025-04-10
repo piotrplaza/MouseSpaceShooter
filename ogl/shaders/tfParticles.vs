@@ -12,13 +12,16 @@ out vec3 vHSizeAndAngleAttribIdx;
 
 uniform float time;
 uniform float deltaTime;
+uniform int particlesCount;
 uniform vec2 lifeTimeRange;
 uniform bool init;
 uniform bool respawning;
-uniform vec3 origin;
+uniform vec3 originBegin;
+uniform vec3 originEnd;
 uniform vec3 initVelocity;
 uniform vec2 velocitySpreadFactorRange;
 uniform float velocityRotateZHRange;
+uniform float velocityFactor;
 uniform vec4 colorRange[2];
 uniform vec3 gravity;
 uniform vec3 AZPlusBPlusCT;
@@ -79,6 +82,10 @@ vec3 rotateZ(vec3 v, float angle) {
 	return rotZ * v;
 }
 
+const vec3 origin = particlesCount == 0
+	? originEnd
+	: mix(originBegin, originEnd, float(gl_VertexID + 1) / particlesCount);
+
 const float lifeTime = randomRange(lifeTimeRange, 123.0);
 
 void velocitySpread(inout vec3 velocity)
@@ -101,13 +108,7 @@ void updateLifetimeRelatedState(inout vec3 inOutPosition, inout vec3 inOutVeloci
 			inOutColor = vec4(0.0);
 		}
 		else
-		{
-			//inOutPosition = origin;
-			//inOutVelocity = initVelocity;
-			//inOutLifetime = randomRange(vec2(0.0, lifeTime), 101112.0 * time);
-			//inOutColor = vec4(1.0);
 			velocitySpread(inOutVelocity);
-		}
 
 		return;
 	}
@@ -125,6 +126,7 @@ void updateLifetimeRelatedState(inout vec3 inOutPosition, inout vec3 inOutVeloci
 
 	if (inOutColor.a > 0.0)
 	{
+		inOutVelocity += (inOutVelocity * velocityFactor - inOutVelocity) * deltaTime;
 		inOutVelocity += gravity * deltaTime;
 		inOutPosition += inOutVelocity * deltaTime;
 

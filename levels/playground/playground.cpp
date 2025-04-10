@@ -66,7 +66,7 @@ namespace Levels
 		{
 			auto& graphicsSettings = Globals::Components().graphicsSettings();
 			graphicsSettings.defaultColorF = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
-			graphicsSettings.pointSize = 2.0f;
+			graphicsSettings.pointSize = 3.0f;
 
 			Globals::Components().mainFramebufferRenderer().renderer = Tools::Demo3DRotatedFullscreenRenderer(Globals::Shaders().textured());
 		}

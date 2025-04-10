@@ -6,7 +6,6 @@
 #include <vector>
 #include <variant>
 #include <functional>
-#include <variant>
 #include <cassert>
 #include <stdexcept>
 

@@ -22,6 +22,7 @@ namespace
 {
 	constexpr float mouseSensitivity = 0.002f;
 	constexpr unsigned particlesCount = 10000;
+	constexpr float sprayingForce = 4.0f;
 	constexpr glm::vec2 hSize = glm::vec2(0.5f);
 	constexpr glm::vec2 initVelocityRange = glm::vec2(0.0f, 0.5f);
 }
@@ -35,7 +36,14 @@ namespace Levels
 		{
 			auto& textures = Globals::Components().staticTextures();
 
-			explosionTexture = textures.emplace("textures/skull rot.png");
+			explosionTexture = textures.emplace(TextureFile("textures/rounded cloud.jpg", 0, true, TextureFile::AdditionalConversion::None, [](float* data, glm::ivec2 size, int numOfChannels) {
+				for (int y = 0; y < size.y; ++y)
+					for (int x = 0; x < size.x; ++x)
+					{
+						glm::vec3& pixel = reinterpret_cast<glm::vec3&>(*(data + (y * size.x + x) * numOfChannels));
+						pixel = glm::vec3(std::max(std::max(pixel.x, pixel.y), pixel.z));
+					}
+			}));
 		}
 
 		void setup()
@@ -61,7 +69,7 @@ namespace Levels
 			const auto& camera = Globals::Components().camera2D();
 			const auto& mouse = Globals::Components().mouse();
 
-			if (mouse.pressed.rmb)
+			if (mouse.pressed.mmb)
 			{
 				createParticles();
 				started = false;
@@ -73,6 +81,7 @@ namespace Levels
 
 			auto& particles = Globals::Components().particles()[particlesId];
 
+			prevCursorPosition = cursorPosition;
 			cursorPosition += mouse.getCartesianDelta() * mouseSensitivity;
 			cursorPosition = glm::clamp(cursorPosition, -camera.details.completeProjectionHSize, camera.details.completeProjectionHSize);
 			particles.centers.emplace_back(cursorPosition, 0.0f);
@@ -126,10 +135,17 @@ namespace Levels
 			if (particlesId)
 				particles[particlesId].state = ComponentState::Outdated;
 
-			auto& particles1 = particles.emplace([&]() { return glm::vec3(cursorPosition, 0.0f); }, [&, angle = 0.0f]() mutable {
-				angle += 2.0f * physics.frameDuration * mouse.pressing.lmb; return glm::vec3(std::cos(angle), std::sin(angle), 0.0f); }, glm::vec2(0.2f, 2.0f),
-				std::array<FVec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }, glm::vec2(0.5f, 1.0f), glm::pi<float>() * 0.05f,
-				glm::vec3(0.0f, -1.0f, 0.0f), true, particlesCount);
+			auto& particles1 = particles.emplace(
+				std::make_pair([&]() { return glm::vec3(prevCursorPosition, 0.0f); }, [&]() { return glm::vec3(cursorPosition, 0.0f); }),
+				[&, angle = 0.0f]() mutable { angle += 2.0f * physics.frameDuration * mouse.pressing.rmb; return glm::vec3(std::cos(angle), std::sin(angle), 0.0f) * sprayingForce; },
+				glm::vec2(0.2f, 2.0f),
+				std::array<FVec4, 2>{ glm::vec4(0.005f, 0.005f, 0.005f, 1.0f), glm::vec4(0.005f, 0.05f, 0.005f, 1.0f) },
+				glm::vec2(0.2f, 1.0f),
+				glm::pi<float>() * 0.05f,
+				glm::vec3(0.0f, -1.0f, 0.0f),
+				true,
+				particlesCount
+			);
 
 			particles1.tfRenderingSetupF = [&, initRS = std::move(particles1.tfRenderingSetupF)](auto& programBase) mutable {
 				return [&, initRT = initRS(programBase), initRS = std::move(initRS)]() mutable {
@@ -139,7 +155,8 @@ namespace Levels
 						{
 							particles1.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) mutable {
 								auto& tfParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);
-								tfParticles.AZPlusBPlusCT({ 0.0f, 0.01f, 0.05f });
+								tfParticles.AZPlusBPlusCT({ 0.0f, 0.01f, 0.2f });
+								tfParticles.velocityFactor(0.0f);
 								return initRS(programBase);
 							};
 						}
@@ -168,6 +185,7 @@ namespace Levels
 		}
 
 		glm::vec2 cursorPosition{};
+		glm::vec2 prevCursorPosition{};
 		ComponentId particlesId{};
 		CM::Texture explosionTexture;
 
