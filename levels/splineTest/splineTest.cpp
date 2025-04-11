@@ -157,7 +157,7 @@ namespace Levels
 				for (size_t i = 0; i < numOfSplineVertices; ++i)
 				{
 					const float t = (float)i / (numOfSplineVertices - 1);
-					intermediatePositions.push_back(glm::vec3(spline.getInterpolation(t), 0.0f));
+					intermediatePositions.push_back(glm::vec3(spline.getSplineSample(t), 0.0f));
 				}
 
 				std::vector<glm::vec3> finalPositions;

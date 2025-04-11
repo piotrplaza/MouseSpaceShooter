@@ -301,7 +301,7 @@ namespace Levels
 			for (size_t i = 0; i < numOfSplineVertices; ++i)
 			{
 				const float t = (float)i / (numOfSplineVertices - 1);
-				intermediatePositions.push_back(glm::vec3(spline.getInterpolation(t), 0.0f));
+				intermediatePositions.push_back(glm::vec3(spline.getSplineSample(t), 0.0f));
 			}
 
 			std::vector<glm::vec3> finalPositions;
@@ -380,7 +380,7 @@ namespace Levels
 			fs << "		std::vector<glm::vec2> veritces;\n";
 			fs << "		veritces.reserve(numOfVertices);\n";
 			fs << "		for (int i = 0; i < numOfVertices; ++i)\n";
-			fs << "			veritces.push_back(glm::vec3(spline.getInterpolation((float)i / (numOfVertices - 1)), 0.0f));\n";
+			fs << "			veritces.push_back(glm::vec3(spline.getSplineSample((float)i / (numOfVertices - 1)), 0.0f));\n";
 
 			fs << "		polylines.emplace(std::move(veritces), Tools::BodyParams().sensor(true));\n";
 

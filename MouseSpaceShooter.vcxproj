@@ -48,6 +48,7 @@
     <ClCompile Include="levels\level.cpp" />
     <ClCompile Include="levels\noise\noise.cpp" />
     <ClCompile Include="levels\paint\paint.cpp" />
+    <ClCompile Include="levels\particles2D2\particles2D2.cpp" />
     <ClCompile Include="levels\particles2D\particles2D.cpp" />
     <ClCompile Include="levels\particles3D\particles3D.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="levels\level.hpp" />
     <ClInclude Include="levels\noise\noise.hpp" />
     <ClInclude Include="levels\paint\paint.hpp" />
+    <ClInclude Include="levels\particles2D2\particles2D2.hpp" />
     <ClInclude Include="levels\particles2D\particles2D.hpp" />
     <ClInclude Include="levels\particles3D\particles3D.hpp" />
     <ClInclude Include="levels\playground\playground.hpp" />

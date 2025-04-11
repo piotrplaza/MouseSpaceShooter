@@ -348,7 +348,7 @@ namespace Levels
 				const int complexity = 100;
 				splineInterpolation.reserve(complexity);
 				for (int i = 0; i < complexity; ++i)
-					splineInterpolation.push_back(glm::vec3(spline.getInterpolation((float)i / (complexity - 1)) + glm::vec2(0.0f, 30.0f), 0.0f));
+					splineInterpolation.push_back(glm::vec3(spline.getSplineSample((float)i / (complexity - 1)) + glm::vec2(0.0f, 30.0f), 0.0f));
 				Globals::Components().staticDecorations().emplace(std::move(splineInterpolation));
 				Globals::Components().staticDecorations().last().drawMode = GL_LINE_STRIP;
 			}

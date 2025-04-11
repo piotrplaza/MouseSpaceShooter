@@ -25,7 +25,7 @@ namespace ShadersUtils
 				velocityRotateZHRange(program, "velocityRotateZHRange"),
 				velocityFactor(program, "velocityFactor"),
 				colorRange(program, "colorRange"),
-				gravity(program, "gravity"),
+				globalForce(program, "globalForce"),
 				AZPlusBPlusCT(program, "AZPlusBPlusCT")
 			{
 			}
@@ -43,7 +43,7 @@ namespace ShadersUtils
 			UniformsUtils::Uniform1f velocityRotateZHRange;
 			UniformsUtils::Uniform1f velocityFactor;
 			UniformsUtils::Uniform4fv<2> colorRange;
-			UniformsUtils::Uniform3f gravity;
+			UniformsUtils::Uniform3f globalForce;
 			UniformsUtils::Uniform3f AZPlusBPlusCT;
 		};
 
@@ -68,7 +68,7 @@ namespace ShadersUtils
 				velocityRotateZHRange(0.0f);
 				velocityFactor(1.0f);
 				colorRange(glm::vec4(1.0f));
-				gravity(glm::vec3(0.0f));
+				globalForce(glm::vec3(0.0f));
 				AZPlusBPlusCT(glm::vec3(1.0f, 0.0f, 0.0f));
 			}
 

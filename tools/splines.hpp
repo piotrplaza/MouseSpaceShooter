@@ -45,7 +45,7 @@ namespace Tools
 			this->keypoints.push_back(keypoints[1]);
 		}
 
-		Vec getInterpolation(float t)
+		Vec getSplineSample(float t) const
 		{
 			assert(t >= 0.0f && t <= 1.0f);
 

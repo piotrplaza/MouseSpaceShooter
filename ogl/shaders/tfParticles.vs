@@ -23,7 +23,7 @@ uniform vec2 velocitySpreadFactorRange;
 uniform float velocityRotateZHRange;
 uniform float velocityFactor;
 uniform vec4 colorRange[2];
-uniform vec3 gravity;
+uniform vec3 globalForce;
 uniform vec3 AZPlusBPlusCT;
 
 // A single iteration of Bob Jenkins' One-At-A-Time hashing algorithm.
@@ -127,7 +127,7 @@ void updateLifetimeRelatedState(inout vec3 inOutPosition, inout vec3 inOutVeloci
 	if (inOutColor.a > 0.0)
 	{
 		inOutVelocity += (inOutVelocity * velocityFactor - inOutVelocity) * deltaTime;
-		inOutVelocity += gravity * deltaTime;
+		inOutVelocity += globalForce * deltaTime;
 		inOutPosition += inOutVelocity * deltaTime;
 
 		inOutColor = mix(mix(colorRange[0], colorRange[1], nRandom(161718.0, gl_VertexID)), vec4(0.0),

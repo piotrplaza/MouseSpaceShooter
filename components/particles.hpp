@@ -61,7 +61,7 @@ namespace Components
 		}
 
 		Particles(std::variant<FVec3, std::pair<FVec3, FVec3>> sourceFV, FVec3 initVelocityF, FVec2 lifeTimeRangeF, std::array<FVec4, 2> colorRangeF, glm::vec2 velocitySpreadFactorRange,
-			float velocityRotateZHRange, glm::vec3 gravity, bool respawning, unsigned particlesCount)
+			float velocityRotateZHRange, FVec3 globalForceF, bool respawning, unsigned particlesCount)
 		{
 			auto unifiedSourceFV = std::visit([&](auto&& source) {
 				using T = std::decay_t<decltype(source)>;
@@ -94,7 +94,7 @@ namespace Components
 				tfParticles.colorRange({colorRangeF[0](), colorRangeF[1]()});
 				tfParticles.velocitySpreadFactorRange(velocitySpreadFactorRange);
 				tfParticles.velocityRotateZHRange(velocityRotateZHRange);
-				tfParticles.gravity(gravity);
+				tfParticles.globalForce(globalForceF());
 				tfParticles.respawning(respawning);
 
 				return [=, &tfParticles]() {
@@ -105,6 +105,7 @@ namespace Components
 						tfParticles.initVelocity(initVelocityF());
 						tfParticles.lifeTimeRange(lifeTimeRangeF());
 						tfParticles.colorRange({colorRangeF[0](), colorRangeF[1]()});
+						tfParticles.globalForce(globalForceF());
 						return nullptr;
 					};
 				};

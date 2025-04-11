@@ -41,7 +41,7 @@ namespace Levels
 					for (int x = 0; x < size.x; ++x)
 					{
 						glm::vec3& pixel = reinterpret_cast<glm::vec3&>(*(data + (y * size.x + x) * numOfChannels));
-						pixel = glm::vec3(std::max(std::max(pixel.x, pixel.y), pixel.z));
+						pixel = glm::vec3((pixel.x + pixel.y + pixel.z) / 3);
 					}
 			}));
 		}

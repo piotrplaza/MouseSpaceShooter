@@ -23,6 +23,7 @@
 #include "levels/noise/noise.hpp"
 #include "levels/decals/decals.hpp"
 #include "levels/particles2D/particles2D.hpp"
+#include "levels/particles2D2/particles2D2.hpp"
 #include "levels/particles3D/particles3D.hpp"
 #include "levels/tests/tests.hpp"
 
@@ -78,7 +79,7 @@ const bool glDebug = true;
 const bool audio = true;
 const GLenum glDebugMinSeverity = GL_DEBUG_SEVERITY_LOW;
 const glm::ivec2 windowRes = { 800, 600 }; 
-const glm::ivec2 consolePos = { -1500, 10 };
+const glm::ivec2 consolePos = { 3850, 10 };
 
 const struct
 {
@@ -159,7 +160,8 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Paint>();
 	//activeLevel = std::make_unique<Levels::Noise>();
 	//activeLevel = std::make_unique<Levels::Decals>();
-	activeLevel = std::make_unique<Levels::Particles2D>();
+	//activeLevel = std::make_unique<Levels::Particles2D>();
+	activeLevel = std::make_unique<Levels::Particles2D2>();
 	//activeLevel = std::make_unique<Levels::Particles3D>();
 	//activeLevel = std::make_unique<Levels::Tests>();
 
