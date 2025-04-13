@@ -1,4 +1,4 @@
-#include "particles2D.hpp"
+#include "Particles2D.hpp"
 
 #include <components/graphicsSettings.hpp>
 
@@ -9,22 +9,89 @@
 #include <components/physics.hpp>
 #include <components/texture.hpp>
 #include <components/mvp.hpp>
+#include <components/systemInfo.hpp>
 #include <globals/components.hpp>
 
 #include <ogl/shaders/billboards.hpp>
 
 #include <tools/Shapes2D.hpp>
+#include <tools/splines.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/random.hpp>
 
 namespace
 {
-	constexpr float mouseSensitivity = 0.002f;
-	constexpr unsigned particlesCount = 10000;
-	constexpr float sprayingForce = 4.0f;
-	constexpr glm::vec2 hSize = glm::vec2(0.5f);
-	constexpr glm::vec2 initVelocityRange = glm::vec2(0.0f, 0.5f);
+	struct Params
+	{
+		const bool manualControl;
+		const float mouseSensitivity;
+		const float duration;
+		const unsigned controlPointsCount;
+		const unsigned particlesCount;
+		const unsigned instancesCount;
+		const float maxColorComponent;
+		const float velocityFactor;
+		const glm::vec2 hSize;
+		const glm::vec2 initVelocityRange;
+		const bool forceRefreshRateBasedStep;
+		const glm::vec3 globalForce;
+		const glm::vec3 AZPlusBPlusCT;
+		const std::optional<std::array<glm::vec4, 2>> forcedColors;
+	};
+
+	constexpr Params params1 = {
+		.manualControl = false,
+		.mouseSensitivity = 0.002f,
+		.duration = 120.0f,
+		.controlPointsCount = 60,
+		.particlesCount = 1000,
+		.instancesCount = 3,
+		.maxColorComponent = 0.005f,
+		.velocityFactor = 10.0f,
+		.hSize = glm::vec2(1.0f),
+		.initVelocityRange = glm::vec2(0.0f, 0.5f),
+		.forceRefreshRateBasedStep = true,
+		.globalForce = glm::vec3(0.0f, 0.0f, 0.0f),
+		.AZPlusBPlusCT = glm::vec3(0.0f, 0.1f, 1.0f),
+		.forcedColors = std::nullopt
+	};
+
+	constexpr Params params2 = {
+		.manualControl = false,
+		.mouseSensitivity = 0.002f,
+		.duration = 60.0f,
+		.controlPointsCount = 240,
+		.particlesCount = 10000,
+		.instancesCount = 3,
+		.maxColorComponent = 0.02f,
+		.velocityFactor = 10.0f,
+		.hSize = glm::vec2(1.0f),
+		.initVelocityRange = glm::vec2(0.0f, 0.5f),
+		.forceRefreshRateBasedStep = false,
+		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
+		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
+		.forcedColors = std::nullopt
+	};
+
+	constexpr Params params3 = {
+		.manualControl = true,
+		.mouseSensitivity = 0.002f,
+		.duration = 60.0f,
+		.controlPointsCount = 240,
+		.particlesCount = 10000,
+		.instancesCount = 1,
+		.maxColorComponent = 0.02f,
+		.velocityFactor = 4.0f,
+		.hSize = glm::vec2(1.0f),
+		.initVelocityRange = glm::vec2(0.0f, 0.5f),
+		.forceRefreshRateBasedStep = false,
+		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
+		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
+		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(0.005f, 0.005f, 0.005f, 1.0f), glm::vec4(0.005f, 0.05f, 0.005f, 1.0f) }
+	};
+
+	constexpr Params params = params1;
 }
 
 namespace Levels
@@ -49,17 +116,49 @@ namespace Levels
 		void setup()
 		{
 			auto& graphicsSettings = Globals::Components().graphicsSettings();
+			auto& physics = Globals::Components().physics();
 			auto& camera = Globals::Components().camera2D();
 			auto& particles = Globals::Components().particles();
 			auto& decorations = Globals::Components().staticDecorations();
 
-			auto& cursor = decorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle(glm::vec2(0.0f), 0.005f, 20));
-			cursor.modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), glm::vec3(cursorPosition, 0.0f)); };
-
 			graphicsSettings.pointSize = 2.0f;
 			graphicsSettings.lineWidth = 1.0f;
 
+			physics.forceRefreshRateBasedStep = params.forceRefreshRateBasedStep;
+
 			camera.targetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, camera.details.projectionHSize = camera.details.prevProjectionHSize = 1.0f);
+
+			if (params.manualControl)
+			{
+				auto& cursor = decorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle(glm::vec2(0.0f), 0.005f, 20));
+				cursor.modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), glm::vec3(cursorPosition[0], 0.0f)); };
+			}
+			else
+			{
+				for (auto& spline : splines)
+				{
+					spline = std::make_unique<const Tools::CubicHermiteSpline<>>([]() {
+						std::vector<glm::vec2> points;
+						points.reserve(params.controlPointsCount);
+						for (unsigned i = 0; i < params.controlPointsCount; ++i)
+							points.emplace_back(glm::linearRand(-params.hSize, params.hSize) * glm::vec2(Globals::Components().systemInfo().screen.getAspectRatio(), 1.0f));
+						points.emplace_back(0.0f);
+						return points;
+					}());
+				}
+			}
+
+			color[0] = { params.maxColorComponent, 0.0f, 0.0f };
+
+			if constexpr (params.instancesCount > 1)
+				color[1] = { 0.0f, params.maxColorComponent, 0.0f };
+
+			if constexpr (params.instancesCount > 2)
+				color[2] = { 0.0f, 0.0f, params.maxColorComponent };
+
+			if constexpr (params.instancesCount > 3)
+				for (unsigned i = 3; i < params.instancesCount; ++i)
+					color[i] = glm::vec3(glm::linearRand(0.0f, params.maxColorComponent), glm::linearRand(0.0f, params.maxColorComponent), glm::linearRand(0.0f, params.maxColorComponent));
 
 			createParticles();
 		}
@@ -68,29 +167,21 @@ namespace Levels
 		{
 			const auto& camera = Globals::Components().camera2D();
 			const auto& mouse = Globals::Components().mouse();
+			const auto& physics = Globals::Components().physics();
 
-			if (mouse.pressed.mmb)
+			for (unsigned i = 0; i < params.instancesCount; ++i)
 			{
-				createParticles();
-				started = false;
-				return;
+				prevCursorPosition[i] = cursorPosition[i];
+				if (params.manualControl)
+				{
+					cursorPosition[i] += mouse.getCartesianDelta() * params.mouseSensitivity;
+					cursorPosition[i] = glm::clamp(cursorPosition[i], -camera.details.completeProjectionHSize, camera.details.completeProjectionHSize);
+				}
+				else
+				{
+					cursorPosition[i] = splines[i]->getSplineSample(std::min(1.0f, physics.simulationDuration / params.duration));
+				}
 			}
-
-			if (!particlesId)
-				return;
-
-			auto& particles = Globals::Components().particles()[particlesId];
-
-			prevCursorPosition = cursorPosition;
-			cursorPosition += mouse.getCartesianDelta() * mouseSensitivity;
-			cursorPosition = glm::clamp(cursorPosition, -camera.details.completeProjectionHSize, camera.details.completeProjectionHSize);
-			particles.centers.emplace_back(cursorPosition, 0.0f);
-
-			if (mouse.pressed.lmb)
-				started = true;
-
-			auto& particlesShader = static_cast<ShadersUtils::Programs::TFParticlesAccessor&>(*particles.tfShaderProgram);
-			particlesShader.respawning(mouse.pressing.lmb);
 
 			cameraStep();
 		}
@@ -115,82 +206,71 @@ namespace Levels
 
 			auto& billboardsShader = Globals::Shaders().billboards();
 
-			std::vector<glm::vec3> positions;
-			std::vector<glm::vec4> colors;
-			std::vector<glm::vec4> velocitiesAndTimes;
-			std::vector<glm::vec3> hSizesAndAngles;
-
-			positions.reserve(particlesCount);
-			colors.reserve(particlesCount);
-			velocitiesAndTimes.reserve(particlesCount);
-			hSizesAndAngles.reserve(particlesCount);
-			for (unsigned i = 0; i < particlesCount; ++i)
+			for (unsigned i = 0; i < params.instancesCount; ++i)
 			{
-				positions.emplace_back(glm::linearRand(-hSize, hSize), 0.0f);
-				colors.emplace_back(glm::linearRand(glm::vec3(0.01f), glm::vec3(1.0f)), 1.0f);
-				velocitiesAndTimes.emplace_back(glm::circularRand(glm::linearRand(initVelocityRange.x, initVelocityRange.y)), 0.0f, 0.0f);
-				hSizesAndAngles.emplace_back(glm::vec3(0.0f));
-			}
+				auto& particlesId = particlesIds[i];
 
-			if (particlesId)
-				particles[particlesId].state = ComponentState::Outdated;
+				if (particlesId)
+					particles[particlesId].state = ComponentState::Outdated;
 
-			auto& particles1 = particles.emplace(
-				std::make_pair([&]() { return glm::vec3(prevCursorPosition, 0.0f); }, [&]() { return glm::vec3(cursorPosition, 0.0f); }),
-				[&, angle = 0.0f]() mutable { angle += 2.0f * physics.frameDuration * mouse.pressing.rmb; return glm::vec3(std::cos(angle), std::sin(angle), 0.0f) * sprayingForce; },
-				glm::vec2(0.2f, 2.0f),
-				std::array<FVec4, 2>{ glm::vec4(0.005f, 0.005f, 0.005f, 1.0f), glm::vec4(0.005f, 0.05f, 0.005f, 1.0f) },
-				glm::vec2(0.2f, 1.0f),
-				glm::pi<float>() * 0.05f,
-				glm::vec3(0.0f, -1.0f, 0.0f),
-				true,
-				particlesCount
-			);
+				auto& particlesInstance = particles.emplace(
+					std::make_pair([&, i]() { return glm::vec3(prevCursorPosition[i], 0.0f); }, [&, i]() { return glm::vec3(cursorPosition[i], 0.0f); }),
+					[&, i, angle = 0.0f]() mutable {
+						angle += 2.0f * physics.frameDuration * (mouse.pressing.lmb - mouse.pressing.rmb);
+						return (params.manualControl ? glm::vec3(std::cos(angle), std::sin(angle), 0.0f) : glm::vec3(cursorPosition[i] - prevCursorPosition[i], 0.0f)) * params.velocityFactor; },
+					glm::vec2(0.2f, 2.0f),
+					params.forcedColors ? std::array<FVec4, 2>{(*params.forcedColors)[0], (*params.forcedColors)[1]} : std::array<FVec4, 2>{ glm::vec4(color[i], 1.0f), glm::vec4(color[i], 1.0f) },
+					glm::vec2(0.2f, 1.0f),
+					glm::pi<float>() * 0.05f,
+					params.globalForce,
+					true,
+					params.particlesCount
+				);
 
-			particles1.tfRenderingSetupF = [&, initRS = std::move(particles1.tfRenderingSetupF)](auto& programBase) mutable {
-				return [&, initRT = initRS(programBase), initRS = std::move(initRS)]() mutable {
-					initRT();
-					particles1.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) mutable {
-						if (started)
-						{
-							particles1.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) mutable {
+				particlesInstance.tfRenderingSetupF = [&, initRS = std::move(particlesInstance.tfRenderingSetupF)](auto& programBase) mutable {
+					return [&, initRT = initRS(programBase), initRS = std::move(initRS)]() mutable {
+						initRT();
+						particlesInstance.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) mutable {
+							particlesInstance.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) mutable {
 								auto& tfParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);
-								tfParticles.AZPlusBPlusCT({ 0.0f, 0.01f, 0.2f });
+								tfParticles.AZPlusBPlusCT(params.AZPlusBPlusCT);
 								tfParticles.velocityFactor(0.0f);
 								return initRS(programBase);
 							};
-						}
 
-						return nullptr;
+							return nullptr;
+						};
 					};
 				};
-			};
 
-			particles1.customShadersProgram = &billboardsShader;
+				particlesInstance.customShadersProgram = &billboardsShader;
 
-			particles1.renderingSetupF = [&](ShadersUtils::ProgramId program) mutable {
-				billboardsShader.vp(Globals::Components().mvp2D().getVP());
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, explosionTexture.component->loaded.textureObject);
-				billboardsShader.texture0(0);
+				particlesInstance.renderingSetupF = [&](ShadersUtils::ProgramId program) mutable {
+					billboardsShader.vp(Globals::Components().mvp2D().getVP());
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, explosionTexture.component->loaded.textureObject);
+					billboardsShader.texture0(0);
 
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-				billboardsShader.color(glm::vec4(1.0f));
-				return std::function<void()>([]() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); });
-			};
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+					billboardsShader.color(glm::vec4(1.0f));
+					return std::function<void()>([]() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); });
+				};
 
-			particlesId = particles1.getComponentId();
+				particlesInstance.resolutionMode = { ResolutionMode::Resolution::H1080, ResolutionMode::Scaling::Linear };
 
-			//billboards.emplace(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.2f, 0.0f), glm::vec2(-0.2f, 0.2f), 1000);
+				particlesId = particlesInstance.getComponentId();
+			}
 		}
 
-		glm::vec2 cursorPosition{};
-		glm::vec2 prevCursorPosition{};
-		ComponentId particlesId{};
+		std::array<glm::vec2, params.instancesCount> cursorPosition{};
+		std::array<glm::vec2, params.instancesCount> prevCursorPosition{};
+		std::array<glm::vec3, params.instancesCount> color{};
+		std::array<ComponentId, params.instancesCount> particlesIds{};
 		CM::Texture explosionTexture;
 
 		float cameraProjectionHSize = 1.0f;
-		bool started = false;
+
+		std::array<std::unique_ptr<const Tools::CubicHermiteSpline<>>, params.instancesCount> splines;
 	};
 
 	Particles2D::Particles2D() :

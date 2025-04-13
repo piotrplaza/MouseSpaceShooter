@@ -152,9 +152,6 @@
     <Filter Include="src\ogl\shaders\billboards">
       <UniqueIdentifier>{92adb1c3-7dba-4c44-81d7-e0c84a0acc32}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\levels\particles2D2">
-      <UniqueIdentifier>{19fce83c-7ea9-4dd1-92a5-1e8e705574ec}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -369,9 +366,6 @@
     </ClCompile>
     <ClCompile Include="levels\particles2D\particles2D.cpp">
       <Filter>src\levels\particles2D</Filter>
-    </ClCompile>
-    <ClCompile Include="levels\particles2D2\particles2D2.cpp">
-      <Filter>src\levels\particles2D2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -761,9 +755,6 @@
     </ClInclude>
     <ClInclude Include="ogl\shaders\billboards.hpp">
       <Filter>src\ogl\shaders\billboards</Filter>
-    </ClInclude>
-    <ClInclude Include="levels\particles2D2\particles2D2.hpp">
-      <Filter>src\levels\particles2D2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
