@@ -196,6 +196,7 @@
     <ClInclude Include="ogl\shaders\texturedColorThreshold.hpp" />
     <ClInclude Include="ogl\shaders\texturedPhong.hpp" />
     <ClInclude Include="ogl\shaders\tfParticles.hpp" />
+    <ClInclude Include="ogl\shaders\trails.hpp" />
     <ClInclude Include="ogl\uniformsUtils.hpp" />
     <ClInclude Include="systems\actors.hpp" />
     <ClInclude Include="systems\audio.hpp" />
@@ -241,6 +242,9 @@
     <None Include="ogl\shaders\texturedPhong.fs" />
     <None Include="ogl\shaders\texturedPhong.vs" />
     <None Include="ogl\shaders\tfParticles.vs" />
+    <None Include="ogl\shaders\trails.fs" />
+    <None Include="ogl\shaders\trails.gs" />
+    <None Include="ogl\shaders\trails.vs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="levels\damageOn\nest\params.txt" />

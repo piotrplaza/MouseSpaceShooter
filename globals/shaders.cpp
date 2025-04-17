@@ -5,6 +5,7 @@
 #include "ogl/shaders/basic.hpp"
 #include "ogl/shaders/julia.hpp"
 #include "ogl/shaders/billboards.hpp"
+#include "ogl/shaders/trails.hpp"
 #include "ogl/shaders/textured.hpp"
 #include "ogl/shaders/texturedColorThreshold.hpp"
 #include "ogl/shaders/noise.hpp"
@@ -39,6 +40,11 @@ namespace Globals
 		return *billboards_;
 	}
 
+	ShadersUtils::Programs::Trails& ShadersHolder::trails()
+	{
+		return *trails_;
+	}
+
 	ShadersUtils::Programs::Textured& ShadersHolder::textured()
 	{
 		return *textured_;
@@ -71,6 +77,7 @@ namespace Globals
 		setup(basic());
 		setup(julia());
 		setup(billboards());
+		setup(trails());
 		setup(textured());
 		setup(texturedColorThreshold());
 		setup(noise());

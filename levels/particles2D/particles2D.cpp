@@ -13,6 +13,7 @@
 #include <globals/components.hpp>
 
 #include <ogl/shaders/billboards.hpp>
+#include <ogl/shaders/trails.hpp>
 
 #include <tools/Shapes2D.hpp>
 #include <tools/splines.hpp>
@@ -24,6 +25,8 @@ namespace
 {
 	struct Params
 	{
+		const enum class RenderMode { Points, Lines, Billboards } renderMode;
+		const enum class BlendMode { Alpha, Additive } blendMode;
 		const bool manualControl;
 		const float mouseSensitivity;
 		const float duration;
@@ -33,7 +36,6 @@ namespace
 		const float maxColorComponent;
 		const float velocityFactor;
 		const glm::vec2 hSize;
-		const glm::vec2 initVelocityRange;
 		const bool forceRefreshRateBasedStep;
 		const glm::vec3 globalForce;
 		const glm::vec3 AZPlusBPlusCT;
@@ -41,6 +43,8 @@ namespace
 	};
 
 	constexpr Params params1 = {
+		.renderMode = Params::RenderMode::Billboards,
+		.blendMode = Params::BlendMode::Additive,
 		.manualControl = false,
 		.mouseSensitivity = 0.002f,
 		.duration = 120.0f,
@@ -50,7 +54,6 @@ namespace
 		.maxColorComponent = 0.005f,
 		.velocityFactor = 10.0f,
 		.hSize = glm::vec2(1.0f),
-		.initVelocityRange = glm::vec2(0.0f, 0.5f),
 		.forceRefreshRateBasedStep = true,
 		.globalForce = glm::vec3(0.0f, 0.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.1f, 1.0f),
@@ -58,6 +61,8 @@ namespace
 	};
 
 	constexpr Params params2 = {
+		.renderMode = Params::RenderMode::Billboards,
+		.blendMode = Params::BlendMode::Additive,
 		.manualControl = false,
 		.mouseSensitivity = 0.002f,
 		.duration = 60.0f,
@@ -67,7 +72,6 @@ namespace
 		.maxColorComponent = 0.02f,
 		.velocityFactor = 10.0f,
 		.hSize = glm::vec2(1.0f),
-		.initVelocityRange = glm::vec2(0.0f, 0.5f),
 		.forceRefreshRateBasedStep = false,
 		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
@@ -75,6 +79,8 @@ namespace
 	};
 
 	constexpr Params params3 = {
+		.renderMode = Params::RenderMode::Billboards,
+		.blendMode = Params::BlendMode::Additive,
 		.manualControl = true,
 		.mouseSensitivity = 0.002f,
 		.duration = 60.0f,
@@ -84,14 +90,49 @@ namespace
 		.maxColorComponent = 0.02f,
 		.velocityFactor = 4.0f,
 		.hSize = glm::vec2(1.0f),
-		.initVelocityRange = glm::vec2(0.0f, 0.5f),
 		.forceRefreshRateBasedStep = false,
 		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
 		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(0.005f, 0.005f, 0.005f, 1.0f), glm::vec4(0.005f, 0.05f, 0.005f, 1.0f) }
 	};
 
-	constexpr Params params = params1;
+	constexpr Params params4 = {
+		.renderMode = Params::RenderMode::Points,
+		.blendMode = Params::BlendMode::Additive,
+		.manualControl = true,
+		.mouseSensitivity = 0.002f,
+		.duration = 60.0f,
+		.controlPointsCount = 240,
+		.particlesCount = 10000,
+		.instancesCount = 1,
+		.maxColorComponent = 0.02f,
+		.velocityFactor = 4.0f,
+		.hSize = glm::vec2(1.0f),
+		.forceRefreshRateBasedStep = false,
+		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
+		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
+		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }
+	};
+
+	constexpr Params params5 = {
+		.renderMode = Params::RenderMode::Lines,
+		.blendMode = Params::BlendMode::Additive,
+		.manualControl = true,
+		.mouseSensitivity = 0.002f,
+		.duration = 60.0f,
+		.controlPointsCount = 240,
+		.particlesCount = 10000,
+		.instancesCount = 1,
+		.maxColorComponent = 0.02f,
+		.velocityFactor = 4.0f,
+		.hSize = glm::vec2(1.0f),
+		.forceRefreshRateBasedStep = false,
+		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
+		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
+		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }
+	};
+
+	constexpr Params params = params5;
 }
 
 namespace Levels
@@ -121,7 +162,7 @@ namespace Levels
 			auto& particles = Globals::Components().particles();
 			auto& decorations = Globals::Components().staticDecorations();
 
-			graphicsSettings.pointSize = 2.0f;
+			graphicsSettings.pointSize = 1.0f;
 			graphicsSettings.lineWidth = 1.0f;
 
 			physics.forceRefreshRateBasedStep = params.forceRefreshRateBasedStep;
@@ -199,20 +240,16 @@ namespace Levels
 
 		void createParticles()
 		{
-			const auto& camera = Globals::Components().camera2D();
+			//const auto& camera = Globals::Components().camera2D();
 			const auto& physics = Globals::Components().physics();
 			const auto& mouse = Globals::Components().mouse();
 			auto& particles = Globals::Components().particles();
 
 			auto& billboardsShader = Globals::Shaders().billboards();
+			auto& trailsShader = Globals::Shaders().trails();
 
 			for (unsigned i = 0; i < params.instancesCount; ++i)
 			{
-				auto& particlesId = particlesIds[i];
-
-				if (particlesId)
-					particles[particlesId].state = ComponentState::Outdated;
-
 				auto& particlesInstance = particles.emplace(
 					std::make_pair([&, i]() { return glm::vec3(prevCursorPosition[i], 0.0f); }, [&, i]() { return glm::vec3(cursorPosition[i], 0.0f); }),
 					[&, i, angle = 0.0f]() mutable {
@@ -243,22 +280,53 @@ namespace Levels
 					};
 				};
 
-				particlesInstance.customShadersProgram = &billboardsShader;
+				if (params.renderMode == Params::RenderMode::Billboards)
+				{
+					particlesInstance.customShadersProgram = &billboardsShader;
+					particlesInstance.renderingSetupF = [&](ShadersUtils::ProgramId program) mutable -> std::function<void()> {
+						billboardsShader.vp(Globals::Components().mvp2D().getVP());
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, explosionTexture.component->loaded.textureObject);
+						billboardsShader.texture0(0);
 
-				particlesInstance.renderingSetupF = [&](ShadersUtils::ProgramId program) mutable {
-					billboardsShader.vp(Globals::Components().mvp2D().getVP());
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, explosionTexture.component->loaded.textureObject);
-					billboardsShader.texture0(0);
+						if (params.blendMode == Params::BlendMode::Additive)
+						{
+							glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+							return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+						}
+						
+						return nullptr;
+					};
+				}
+				else if (params.renderMode == Params::RenderMode::Points)
+				{
+					particlesInstance.renderingSetupF = [&](ShadersUtils::ProgramId program) mutable -> std::function<void()> {
+						if (params.blendMode == Params::BlendMode::Additive)
+						{
+							glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+							return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+						}
 
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-					billboardsShader.color(glm::vec4(1.0f));
-					return std::function<void()>([]() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); });
-				};
+						return nullptr;
+					};
+				}
+				else if (params.renderMode == Params::RenderMode::Lines)
+				{
+					particlesInstance.customShadersProgram = &trailsShader;
+					particlesInstance.renderingSetupF = [&](ShadersUtils::ProgramId program) mutable -> std::function<void()> {
+						trailsShader.vp(Globals::Components().mvp2D().getVP());
+
+						if (params.blendMode == Params::BlendMode::Additive)
+						{
+							glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+							return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
+						}
+
+						return nullptr;
+					};
+				}
 
 				particlesInstance.resolutionMode = { ResolutionMode::Resolution::H1080, ResolutionMode::Scaling::Linear };
-
-				particlesId = particlesInstance.getComponentId();
 			}
 		}
 

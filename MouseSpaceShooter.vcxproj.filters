@@ -152,6 +152,9 @@
     <Filter Include="src\ogl\shaders\billboards">
       <UniqueIdentifier>{92adb1c3-7dba-4c44-81d7-e0c84a0acc32}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ogl\shaders\trails">
+      <UniqueIdentifier>{0a9bac29-fca4-4303-9e91-d8d065354269}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -756,6 +759,9 @@
     <ClInclude Include="ogl\shaders\billboards.hpp">
       <Filter>src\ogl\shaders\billboards</Filter>
     </ClInclude>
+    <ClInclude Include="ogl\shaders\trails.hpp">
+      <Filter>src\ogl\shaders\trails</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">
@@ -811,6 +817,15 @@
     </None>
     <None Include="ogl\shaders\billboards.vs">
       <Filter>src\ogl\shaders\billboards</Filter>
+    </None>
+    <None Include="ogl\shaders\trails.fs">
+      <Filter>src\ogl\shaders\trails</Filter>
+    </None>
+    <None Include="ogl\shaders\trails.gs">
+      <Filter>src\ogl\shaders\trails</Filter>
+    </None>
+    <None Include="ogl\shaders\trails.vs">
+      <Filter>src\ogl\shaders\trails</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

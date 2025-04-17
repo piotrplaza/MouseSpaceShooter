@@ -19,7 +19,7 @@ namespace Systems
 		void postInit() const;
 		void stepSetup();
 		void stepTeardown() const;
-		void renderSetup() const;
+		void renderSetup();
 		void renderTeardown() const;
 		void changeWindowSize(glm::ivec2 size) const;
 		void changeWindowLocation(glm::ivec2 location) const;
@@ -38,6 +38,6 @@ namespace Systems
 		Components::Mouse::Buttons prevMouseKeys;
 		std::array<Components::Gamepad::Buttons, 4> prevGamepadsKeys;
 		std::unordered_map<int, int> controllersToComponents;
-		//bool deferredPause = false;
+		float frameDurationBeforePause = 0.0f;
 	};
 }

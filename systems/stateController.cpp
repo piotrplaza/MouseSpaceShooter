@@ -14,6 +14,7 @@
 #include <components/pauseHandler.hpp>
 
 #include <ogl/shaders/noise.hpp>
+#include <ogl/shaders/trails.hpp>
 #include <ogl/shaders/tfParticles.hpp>
 
 #include <globals/components.hpp>
@@ -71,11 +72,15 @@ namespace Systems
 		ProcessFunctors(Globals::Components().stepTeardowns());
 	}
 
-	void StateController::renderSetup() const
+	void StateController::renderSetup()
 	{
 		const auto& physics = Globals::Components().physics();
 
+		if (!physics.paused)
+			frameDurationBeforePause = physics.frameDuration;
+
 		Globals::Shaders().noise().time(physics.simulationDuration);
+		Globals::Shaders().trails().deltaTime(std::max(frameDurationBeforePause, 0.005f));
 		Globals::Shaders().tfParticles().time(physics.simulationDuration);
 		Globals::Shaders().tfParticles().deltaTime(physics.frameDuration);
 

@@ -9,6 +9,7 @@ namespace ShadersUtils::Programs
 	struct Basic;
 	struct Julia;
 	struct Billboards;
+	struct Trails;;
 	struct Textured;
 	struct TexturedColorThreshold;
 	struct Noise;
@@ -25,6 +26,7 @@ namespace Globals
 		ShadersUtils::Programs::Basic& basic();
 		ShadersUtils::Programs::Julia& julia();
 		ShadersUtils::Programs::Billboards& billboards();
+		ShadersUtils::Programs::Trails& trails();
 		ShadersUtils::Programs::Textured& textured();
 		ShadersUtils::Programs::TexturedColorThreshold& texturedColorThreshold();
 		ShadersUtils::Programs::Noise& noise();
@@ -38,6 +40,7 @@ namespace Globals
 		std::unique_ptr<ShadersUtils::Programs::Basic> basic_ = std::make_unique<ShadersUtils::Programs::Basic>();
 		std::unique_ptr<ShadersUtils::Programs::Julia> julia_ = std::make_unique<ShadersUtils::Programs::Julia>();
 		std::unique_ptr<ShadersUtils::Programs::Billboards> billboards_ = std::make_unique<ShadersUtils::Programs::Billboards>();
+		std::unique_ptr<ShadersUtils::Programs::Trails> trails_ = std::make_unique<ShadersUtils::Programs::Trails>();
 		std::unique_ptr<ShadersUtils::Programs::Textured> textured_ = std::make_unique<ShadersUtils::Programs::Textured>();
 		std::unique_ptr<ShadersUtils::Programs::TexturedColorThreshold> texturedColorThreshold_ = std::make_unique<ShadersUtils::Programs::TexturedColorThreshold>();
 		std::unique_ptr<ShadersUtils::Programs::Noise> noise_ = std::make_unique<ShadersUtils::Programs::Noise>();
