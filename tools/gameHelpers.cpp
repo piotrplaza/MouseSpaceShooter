@@ -15,6 +15,8 @@
 #include <components/sound.hpp>
 #include <components/audioListener.hpp>
 #include <components/texture.hpp>
+#include <components/particles.hpp>
+#include <components/graphicsSettings.hpp>
 
 #include <commonTypes/componentMappers.hpp>
 
@@ -25,6 +27,7 @@
 #include <ogl/shaders/textured.hpp>
 #include <ogl/shaders/julia.hpp>
 #include <ogl/shaders/billboards.hpp>
+#include <ogl/shaders/trails.hpp>
 
 #include <tools/Shapes2D.hpp>
 
@@ -302,6 +305,20 @@ namespace Tools
 			Globals::Components().deferredActions().emplace([explosionF = std::move(explosionF)](float) { explosionF(); return false; });
 		else
 			explosionF();
+	}
+
+	void CreateSparking(SparkingParams params)
+	{
+		auto& sparking = Globals::Components().particles().emplace([=]() { return glm::vec3(params.sourcePoint_, 0.0f); }, glm::vec3(params.initVelocity_, 0.0f), glm::vec2(0.0f, 2.0f),
+			std::array<FVec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }, glm::vec2(params.initVelocityRandomMinFactor_, 1.0f), glm::pi<float>() * params.spreadFactor_, glm::vec3(params.gravity_, 0.0f), false, params.sparksCount_);
+		sparking.customShadersProgram = &Globals::Shaders().trails();
+		sparking.renderingSetupF = [=](auto) {
+			Globals::Shaders().trails().vp(Globals::Components().mvp2D().getVP());
+			Globals::Shaders().trails().deltaTimeFactor(params.trailsScale_);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			glLineWidth(params.lineWidth_);
+			return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); glLineWidth(Globals::Components().graphicsSettings().lineWidth); };
+		};
 	}
 
 	void CreateFogForeground(int numOfLayers, float alphaPerLayer, CM::Texture fogTexture, FVec4 fColor, std::function<glm::vec2(int layer)> textureTranslation)

@@ -267,8 +267,8 @@ namespace Levels
 				particlesInstance.tfRenderingSetupF = [&, initRS = std::move(particlesInstance.tfRenderingSetupF)](auto& programBase) mutable {
 					return [&, initRT = initRS(programBase), initRS = std::move(initRS)]() mutable {
 						initRT();
-						particlesInstance.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) mutable {
-							particlesInstance.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) mutable {
+						particlesInstance.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) {
+							particlesInstance.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) {
 								auto& tfParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);
 								tfParticles.AZPlusBPlusCT(params.AZPlusBPlusCT);
 								tfParticles.velocityFactor(0.0f);
@@ -283,7 +283,7 @@ namespace Levels
 				if (params.renderMode == Params::RenderMode::Billboards)
 				{
 					particlesInstance.customShadersProgram = &billboardsShader;
-					particlesInstance.renderingSetupF = [&](ShadersUtils::ProgramId program) mutable -> std::function<void()> {
+					particlesInstance.renderingSetupF = [&](auto) mutable -> std::function<void()> {
 						billboardsShader.vp(Globals::Components().mvp2D().getVP());
 						glActiveTexture(GL_TEXTURE0);
 						glBindTexture(GL_TEXTURE_2D, explosionTexture.component->loaded.textureObject);
@@ -300,7 +300,7 @@ namespace Levels
 				}
 				else if (params.renderMode == Params::RenderMode::Points)
 				{
-					particlesInstance.renderingSetupF = [&](ShadersUtils::ProgramId program) mutable -> std::function<void()> {
+					particlesInstance.renderingSetupF = [&](auto) mutable -> std::function<void()> {
 						if (params.blendMode == Params::BlendMode::Additive)
 						{
 							glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -313,8 +313,9 @@ namespace Levels
 				else if (params.renderMode == Params::RenderMode::Lines)
 				{
 					particlesInstance.customShadersProgram = &trailsShader;
-					particlesInstance.renderingSetupF = [&](ShadersUtils::ProgramId program) mutable -> std::function<void()> {
+					particlesInstance.renderingSetupF = [&](auto) mutable -> std::function<void()> {
 						trailsShader.vp(Globals::Components().mvp2D().getVP());
+						trailsShader.deltaTimeFactor(4.0f);
 
 						if (params.blendMode == Params::BlendMode::Additive)
 						{

@@ -36,6 +36,7 @@
 #include <ogl/uniformsUtils.hpp>
 #include <ogl/shaders/texturedColorThreshold.hpp>
 #include <ogl/shaders/textured.hpp>
+#include <ogl/shaders/trails.hpp>
 #include <ogl/renderingHelpers.hpp>
 
 #include <tools/Shapes2D.hpp>
@@ -651,10 +652,7 @@ namespace Levels
 					: ResolutionMode{ ResolutionMode::Resolution::QuarterNative, ResolutionMode::Scaling::Linear, ResolutionMode::Blending::Additive};
 				});
 			missilesHandler.setExplosionF([this](auto pos) {
-				Globals::Components().particles().emplace([=]() { return glm::vec3(pos, 0.0f); }, glm::vec3(25.0f, 0.0f, 0.0f), glm::vec2(0.0f, 2.0f),
-					std::array<FVec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }, glm::vec2(0.05f, 1.0f), glm::pi<float>() * 1.0f,
-					glm::vec3(0.0f), false, 500);
-
+				Tools::CreateSparking(Tools::SparkingParams{}.sourcePoint(pos).initVelocity({ 30.0f, 0.0f }).sparksCount(500).lineWidth(4.0f));
 				Tools::CreateAndPlaySound(CM::SoundBuffer(missileExplosionSoundBuffer, true), [pos]() { return pos; });
 				explosionFrame = true;
 			});
@@ -668,11 +666,7 @@ namespace Levels
 				const float relativeSpeed = glm::length(relativeVelocity);
 
 				if (relativeSpeed > 10.0f)
-				{
-					Globals::Components().particles().emplace([=]() { return glm::vec3(collisionPoint, 0.0f); }, glm::vec3(relativeVelocity, 0.0f) * 0.3f, glm::vec2(0.0f, 2.0f),
-						std::array<FVec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }, glm::vec2(0.01f, 1.0f), glm::pi<float>() * 1.0f,
-						glm::vec3(0.0f), false, (int)(10 * relativeSpeed));
-				}
+					Tools::CreateSparking(Tools::SparkingParams{}.sourcePoint(collisionPoint).initVelocity({ relativeSpeed * 0.5f, 0.0f }).sparksCount((int)(10 * relativeSpeed)).lineWidth(4.0f));
 
 				Tools::CreateAndPlaySound(CM::SoundBuffer(collisionSoundBuffer, true),
 					[collisionPoint]() {
@@ -695,7 +689,7 @@ namespace Levels
 			playersHandler.gamepadsAutodetectionStep([](auto) { return glm::vec3(0.0f); });
 			playersHandler.controlStep([this](unsigned playerHandlerId, bool fire) {
 				missilesHandler.launchingMissile(playerHandlerId, fire, CM::SoundBuffer(missileLaunchingSoundBuffer, true));
-				});
+			});
 		
 			const auto& mouse = Globals::Components().mouse();
 			const auto& gamepads = Globals::Components().gamepads();

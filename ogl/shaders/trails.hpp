@@ -14,13 +14,15 @@ namespace ShadersUtils
 				ProgramBaseCRTP(program),
 				vp(program, "vp"),
 				color(program, "color"),
-				deltaTime(program, "deltaTime")
+				deltaTime(program, "deltaTime"),
+				deltaTimeFactor(program, "deltaTimeFactor")
 			{
 			}
 
 			UniformsUtils::UniformMat4f vp;
 			UniformsUtils::Uniform4f color;
 			UniformsUtils::Uniform1f deltaTime;
+			UniformsUtils::Uniform1f deltaTimeFactor;
 		};
 
 		struct Trails : TrailsAccessor
@@ -32,6 +34,7 @@ namespace ShadersUtils
 				vp(glm::mat4(1.0f));
 				color(glm::vec4(1.0f));
 				deltaTime(0.0f);
+				deltaTimeFactor(1.0f);
 			}
 
 			Trails(const Trails&) = delete;

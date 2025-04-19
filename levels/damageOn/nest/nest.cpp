@@ -1410,6 +1410,8 @@ namespace Levels::DamageOn
 					lightningDecoration.state = ComponentState::Outdated;
 			};
 
+			Tools::CreateSparking(Tools::SparkingParams{}.sourcePoint(targetPos).initVelocity({ 0.0f, 10.0f }).initVelocityRandomMinFactor(0.3f).spreadFactor(0.4f).gravity({ 0.0f, -15.0f }).sparksCount(500).lineWidth(2.0f).trailsScale(3.0f));
+
 			soundLimitters(playerTarget).kills->newSound(Tools::CreateAndPlaySound(CM::SoundBuffer(thunderSoundBufferId, false), targetInst.actor.getOrigin2D(), [](auto& sound) {
 				sound.setPitch(glm::linearRand(0.9f, 1.1f));
 				sound.setVolume(1.0f);

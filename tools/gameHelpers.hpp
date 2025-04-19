@@ -193,6 +193,66 @@ namespace Tools
 		std::function<void(Components::Shockwave&)> endCallback_;
 	};
 
+	struct SparkingParams
+	{
+		SparkingParams& sourcePoint(glm::vec2 value)
+		{
+			sourcePoint_ = value;
+			return *this;
+		}
+
+		SparkingParams& initVelocity(glm::vec2 value)
+		{
+			initVelocity_ = value;
+			return *this;
+		}
+
+		SparkingParams& initVelocityRandomMinFactor(float value)
+		{
+			initVelocityRandomMinFactor_ = value;
+			return *this;
+		}
+
+		SparkingParams& gravity(glm::vec2 value)
+		{
+			gravity_ = value;
+			return *this;
+		}
+
+		SparkingParams& spreadFactor(float value)
+		{
+			spreadFactor_ = value;
+			return *this;
+		}
+
+		SparkingParams& sparksCount(int value)
+		{
+			sparksCount_ = value;
+			return *this;
+		}
+
+		SparkingParams& trailsScale(float value)
+		{
+			trailsScale_ = value;
+			return *this;
+		}
+
+		SparkingParams& lineWidth(float value)
+		{
+			lineWidth_ = value;
+			return *this;
+		}
+
+		glm::vec2 sourcePoint_ = { 0.0f, 0.0f };
+		glm::vec2  initVelocity_ = { 10.0f, 0.0f };
+		float initVelocityRandomMinFactor_ = 0.01f;
+		glm::vec2 gravity_ = { 0.0f, 0.0f };
+		float spreadFactor_ = 1.0f;
+		int sparksCount_ = 1000;
+		float trailsScale_ = 1.0f;
+		float lineWidth_ = 1.0f;
+	};
+
 	struct PlaneParams
 	{
 		PlaneParams& position(glm::vec2 value)
@@ -319,6 +379,7 @@ namespace Tools
 		glm::vec2 initialVelocity, CM::Texture missileTexture, CM::AnimatedTexture thrustAnimatedTexture, std::optional<CM::Plane> planeId = std::nullopt,
 		std::optional<CM::SoundBuffer> missileSoundBuffer = std::nullopt);
 	void CreateExplosion(ExplosionParams params);
+	void CreateSparking(SparkingParams params);
 	void CreateFogForeground(int numOfLayers, float alphaPerLayer, CM::Texture fogTexture, FVec4 fColor = glm::vec4(1.0f), std::function<glm::vec2(int layer)> textureTranslation = nullptr);
 	void CreateJuliaBackground(JuliaParams params);
 	Components::Sound& CreateAndPlaySound(CM::SoundBuffer soundBuffer, FVec2 posF = nullptr,
