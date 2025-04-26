@@ -23,7 +23,6 @@ namespace Systems
 
 	void Audio::postInit() const
 	{
-		Globals::Components().audioListener().setEnabled(true);
 	}
 
 	void Audio::step() const

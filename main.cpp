@@ -168,6 +168,8 @@ static void InitLevel()
 
 static void PostInit()
 {
+	Globals::Components().audioListener().forceDisabled(!audio);
+
 	Globals::Systems().stateController().postInit();
 	Globals::Systems().physics().postInit();
 	Globals::Systems().camera().postInit();
@@ -180,8 +182,6 @@ static void PostInit()
 	Globals::Systems().decorations().postInit();
 	Globals::Systems().renderingController().postInit();
 	Globals::Systems().audio().postInit();
-
-	Globals::Components().audioListener().setEnabled(audio);
 }
 
 static void PrepareFrame()

@@ -9,11 +9,13 @@ namespace Components
 		savedVolume = getVolume();
 		setPositioning(Positioning::Camera2D);
 		state = ComponentState::Ongoing;
-		setEnabled(false);
 	}
 
 	void AudioListener::setEnabled(bool value)
 	{
+		if (forceDisabled_)
+			value = false;
+
 		if (value == isEnabled())
 			return;
 
@@ -27,10 +29,16 @@ namespace Components
 		}
 	}
 
+	void AudioListener::forceDisabled(bool value)
+	{
+		forceDisabled_ = value;
+		setEnabled(isEnabled());
+	}
+
 	void AudioListener::setVolume(float value)
 	{
 		savedVolume = value;
-		sf::Listener::setGlobalVolume(value * 100.0f);
+		sf::Listener::setGlobalVolume(value * 100.0f * !forceDisabled_);
 	}
 
 	float AudioListener::getVolume() const

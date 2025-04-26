@@ -1,7 +1,7 @@
 game.pixelArt false
 game.globalVolume 1.0
 game.musicVolume 0.8
-game.musicFile "DamageOn 11.ogg"
+game.musicFile "DamageOn 12.ogg"
 game.camera.minProjectionHSize 8.0
 game.camera.trackingMargin 5.0
 game.camera.positionTransitionFactor 5.0

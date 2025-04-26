@@ -17,6 +17,7 @@ namespace Components
 		AudioListener();
 
 		void setEnabled(bool value) override;
+		void forceDisabled(bool value);
 
 		void setVolume(float value);
 		float getVolume() const;
@@ -37,6 +38,7 @@ namespace Components
 
 	private:
 		float savedVolume;
+		bool forceDisabled_ = false;
 		Positioning positioning;
 	};
 }
