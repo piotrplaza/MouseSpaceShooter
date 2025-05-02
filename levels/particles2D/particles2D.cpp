@@ -35,10 +35,14 @@ namespace
 		const unsigned instancesCount;
 		const float maxColorComponent;
 		const float velocityFactor;
+		const float velocityRotateZHRange;
+		const glm::vec2 velocitySpreadFactorRange;
+		const glm::vec2 lifetimeRange;
 		const glm::vec2 hSize;
 		const bool forceRefreshRateBasedStep;
 		const glm::vec3 globalForce;
 		const glm::vec3 AZPlusBPlusCT;
+		const float originForce;
 		const std::optional<std::array<glm::vec4, 2>> forcedColors;
 	};
 
@@ -53,10 +57,14 @@ namespace
 		.instancesCount = 3,
 		.maxColorComponent = 0.005f,
 		.velocityFactor = 10.0f,
+		.velocityRotateZHRange = 0.05f,
+		.velocitySpreadFactorRange = glm::vec2(0.2f, 1.0f),
+		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
 		.forceRefreshRateBasedStep = true,
 		.globalForce = glm::vec3(0.0f, 0.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.1f, 1.0f),
+		.originForce = 0.0f,
 		.forcedColors = std::nullopt
 	};
 
@@ -71,10 +79,14 @@ namespace
 		.instancesCount = 3,
 		.maxColorComponent = 0.02f,
 		.velocityFactor = 10.0f,
+		.velocityRotateZHRange = 0.05f,
+		.velocitySpreadFactorRange = glm::vec2(0.2f, 1.0f),
+		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
 		.forceRefreshRateBasedStep = false,
 		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
+		.originForce = 0.0f,
 		.forcedColors = std::nullopt
 	};
 
@@ -84,15 +96,19 @@ namespace
 		.manualControl = true,
 		.mouseSensitivity = 0.002f,
 		.duration = 60.0f,
-		.controlPointsCount = 240,
+		.controlPointsCount = 0,
 		.particlesCount = 10000,
 		.instancesCount = 1,
 		.maxColorComponent = 0.02f,
 		.velocityFactor = 4.0f,
+		.velocityRotateZHRange = 0.05f,
+		.velocitySpreadFactorRange = glm::vec2(0.2f, 1.0f),
+		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
 		.forceRefreshRateBasedStep = false,
 		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
+		.originForce = 0.0f,
 		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(0.005f, 0.005f, 0.005f, 1.0f), glm::vec4(0.005f, 0.05f, 0.005f, 1.0f) }
 	};
 
@@ -102,15 +118,19 @@ namespace
 		.manualControl = true,
 		.mouseSensitivity = 0.002f,
 		.duration = 60.0f,
-		.controlPointsCount = 240,
+		.controlPointsCount = 0,
 		.particlesCount = 10000,
 		.instancesCount = 1,
 		.maxColorComponent = 0.02f,
 		.velocityFactor = 4.0f,
+		.velocityRotateZHRange = 0.05f,
+		.velocitySpreadFactorRange = glm::vec2(0.2f, 1.0f),
+		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
 		.forceRefreshRateBasedStep = false,
 		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
+		.originForce = 0.0f,
 		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }
 	};
 
@@ -120,19 +140,67 @@ namespace
 		.manualControl = true,
 		.mouseSensitivity = 0.002f,
 		.duration = 60.0f,
-		.controlPointsCount = 240,
+		.controlPointsCount = 0,
 		.particlesCount = 10000,
 		.instancesCount = 1,
 		.maxColorComponent = 0.02f,
 		.velocityFactor = 4.0f,
+		.velocityRotateZHRange = 0.05f,
+		.velocitySpreadFactorRange = glm::vec2(0.2f, 1.0f),
+		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
 		.forceRefreshRateBasedStep = false,
 		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
+		.originForce = 0.0f,
 		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }
 	};
 
-	constexpr Params params = params5;
+	constexpr Params params6 = {
+		.renderMode = Params::RenderMode::Lines,
+		.blendMode = Params::BlendMode::Additive,
+		.manualControl = false,
+		.mouseSensitivity = 0.002f,
+		.duration = 10.0f,
+		.controlPointsCount = 10,
+		.particlesCount = 1000,
+		.instancesCount = 100,
+		.maxColorComponent = 0.1f,
+		.velocityFactor = 0.5f,
+		.velocityRotateZHRange = 1.0f,
+		.velocitySpreadFactorRange = glm::vec2(20.0f, 100.0f),
+		.lifetimeRange = glm::vec2(10.0f),
+		.hSize = glm::vec2(1.0f),
+		.forceRefreshRateBasedStep = false,
+		.globalForce = glm::vec3(0.0f, 0.0f, 0.0f),
+		.AZPlusBPlusCT = glm::vec3(0.0f, 0.0f, 0.0f),
+		.originForce = 10.0f,
+		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }
+	};
+
+	constexpr Params params7 = {
+		.renderMode = Params::RenderMode::Billboards,
+		.blendMode = Params::BlendMode::Additive,
+		.manualControl = false,
+		.mouseSensitivity = 0.002f,
+		.duration = 10.0f,
+		.controlPointsCount = 10,
+		.particlesCount = 100000,
+		.instancesCount = 10,
+		.maxColorComponent = 0.05f,
+		.velocityFactor = 0.5f,
+		.velocityRotateZHRange = 1.0f,
+		.velocitySpreadFactorRange = glm::vec2(20.0f, 100.0f),
+		.lifetimeRange = glm::vec2(10.0f),
+		.hSize = glm::vec2(1.0f),
+		.forceRefreshRateBasedStep = false,
+		.globalForce = glm::vec3(0.0f, 0.0f, 0.0f),
+		.AZPlusBPlusCT = glm::vec3(0.0f, 0.002f, 0.0001f),
+		.originForce = 5.0f,
+		.forcedColors = std::nullopt
+	};
+
+	constexpr Params params = params7;
 }
 
 namespace Levels
@@ -162,8 +230,10 @@ namespace Levels
 			auto& particles = Globals::Components().particles();
 			auto& decorations = Globals::Components().staticDecorations();
 
-			graphicsSettings.pointSize = 1.0f;
+			graphicsSettings.pointSize = 2.0f;
 			graphicsSettings.lineWidth = 1.0f;
+			graphicsSettings.pointSmooth = true;
+			graphicsSettings.lineSmooth = false;
 
 			physics.forceRefreshRateBasedStep = params.forceRefreshRateBasedStep;
 
@@ -210,17 +280,19 @@ namespace Levels
 			const auto& mouse = Globals::Components().mouse();
 			const auto& physics = Globals::Components().physics();
 
+			const float splineT = std::min(1.0f, physics.simulationDuration / params.duration);
+
 			for (unsigned i = 0; i < params.instancesCount; ++i)
 			{
 				prevCursorPosition[i] = cursorPosition[i];
-				if (params.manualControl)
+				if (params.manualControl || splineT == 1.0f)
 				{
 					cursorPosition[i] += mouse.getCartesianDelta() * params.mouseSensitivity;
 					cursorPosition[i] = glm::clamp(cursorPosition[i], -camera.details.completeProjectionHSize, camera.details.completeProjectionHSize);
 				}
 				else
 				{
-					cursorPosition[i] = splines[i]->getSplineSample(std::min(1.0f, physics.simulationDuration / params.duration));
+					cursorPosition[i] = splines[i]->getSplineSample(splineT);
 				}
 			}
 
@@ -255,10 +327,10 @@ namespace Levels
 					[&, i, angle = 0.0f]() mutable {
 						angle += 2.0f * physics.frameDuration * (mouse.pressing.lmb - mouse.pressing.rmb);
 						return (params.manualControl ? glm::vec3(std::cos(angle), std::sin(angle), 0.0f) : glm::vec3(cursorPosition[i] - prevCursorPosition[i], 0.0f)) * params.velocityFactor; },
-					glm::vec2(0.2f, 2.0f),
+					params.lifetimeRange,
 					params.forcedColors ? std::array<FVec4, 2>{(*params.forcedColors)[0], (*params.forcedColors)[1]} : std::array<FVec4, 2>{ glm::vec4(color[i], 1.0f), glm::vec4(color[i], 1.0f) },
-					glm::vec2(0.2f, 1.0f),
-					glm::pi<float>() * 0.05f,
+					params.velocitySpreadFactorRange,
+					glm::pi<float>() * params.velocityRotateZHRange,
 					params.globalForce,
 					true,
 					params.particlesCount
@@ -267,10 +339,11 @@ namespace Levels
 				particlesInstance.tfRenderingSetupF = [&, initRS = std::move(particlesInstance.tfRenderingSetupF)](auto& programBase) mutable {
 					return [&, initRT = initRS(programBase), initRS = std::move(initRS)]() mutable {
 						initRT();
-						particlesInstance.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) {
+						particlesInstance.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) mutable {
 							particlesInstance.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) {
 								auto& tfParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);
 								tfParticles.AZPlusBPlusCT(params.AZPlusBPlusCT);
+								tfParticles.originForce(params.originForce);
 								tfParticles.velocityFactor(0.0f);
 								return initRS(programBase);
 							};

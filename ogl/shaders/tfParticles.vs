@@ -10,6 +10,7 @@ out vec4 vColor;
 out vec4 vVelocityAndTime;
 out vec3 vHSizeAndAngleAttribIdx;
 
+uniform int componentId;
 uniform float time;
 uniform float deltaTime;
 uniform int particlesCount;
@@ -18,6 +19,7 @@ uniform bool init;
 uniform bool respawning;
 uniform vec3 originBegin;
 uniform vec3 originEnd;
+uniform float originForce;
 uniform vec3 initVelocity;
 uniform vec2 velocitySpreadFactorRange;
 uniform float velocityRotateZHRange;
@@ -86,7 +88,8 @@ const vec3 origin = particlesCount == 0
 	? originEnd
 	: mix(originBegin, originEnd, float(gl_VertexID + 1) / particlesCount);
 
-const float lifeTime = randomRange(lifeTimeRange, 123.0);
+const float lifeTime = randomRange(lifeTimeRange, 123.0 * componentId);
+const float seed = time * componentId;
 
 void velocitySpread(inout vec3 velocity)
 {
@@ -94,8 +97,8 @@ void velocitySpread(inout vec3 velocity)
 	if (length == 0.0)
 		return;
 
-	velocity = rotateZ(velocity, randomRange(vec2(-velocityRotateZHRange, velocityRotateZHRange), 456.0 * time));
-	velocity *= randomRange(velocitySpreadFactorRange, 789.0 * time);
+	velocity = rotateZ(velocity, randomRange(vec2(-velocityRotateZHRange, velocityRotateZHRange), 456.0 * seed));
+	velocity *= randomRange(velocitySpreadFactorRange, 789.0 * seed);
 }
 
 void updateLifetimeRelatedState(inout vec3 inOutPosition, inout vec3 inOutVelocity, inout float inOutLifetime, inout vec4 inOutColor)
@@ -104,7 +107,7 @@ void updateLifetimeRelatedState(inout vec3 inOutPosition, inout vec3 inOutVeloci
 	{
 		if (respawning)
 		{
-			inOutLifetime = randomRange(vec2(0.0, lifeTime), 101112.0 * time);
+			inOutLifetime = randomRange(vec2(0.0, lifeTime), 101112.0 * seed);
 			inOutColor = vec4(0.0);
 		}
 		else
@@ -128,9 +131,18 @@ void updateLifetimeRelatedState(inout vec3 inOutPosition, inout vec3 inOutVeloci
 	{
 		inOutVelocity += (inOutVelocity * velocityFactor - inOutVelocity) * deltaTime;
 		inOutVelocity += globalForce * deltaTime;
+
+		if (originForce > 0.0)
+		{
+			const vec3 originDelta = inOutPosition - origin;
+			const float originDist = length(originDelta);
+			const vec3 originDir = originDist == 0.0 ? vec3(0.0) : normalize(originDelta);
+			inOutVelocity -= originDir * originForce * deltaTime;
+		}
+
 		inOutPosition += inOutVelocity * deltaTime;
 
-		inOutColor = mix(mix(colorRange[0], colorRange[1], nRandom(161718.0, gl_VertexID)), vec4(0.0),
+		inOutColor = mix(mix(colorRange[0], colorRange[1], nRandom(161718.0, gl_VertexID * componentId)), vec4(0.0),
 			lifeTimeRange.y > 0.0
 			? inOutLifetime / lifeTime
 			: 0.0);

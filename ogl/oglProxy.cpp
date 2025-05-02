@@ -9,6 +9,8 @@ namespace
 	bool blend = false;
 	bool depthTest = false;
 	bool cullFace = false;
+	bool pointSmooth = false;
+	bool lineSmooth = false;
 	GLenum debugOutputMinSeverity = 0;
 }
 
@@ -68,6 +70,30 @@ void glProxySetCullFace(bool enabled)
 	}
 }
 
+void glProxySetPointSmooth(bool enabled)
+{
+	if (enabled != pointSmooth)
+	{
+		if (enabled)
+			glEnable(GL_POINT_SMOOTH);
+		else
+			glDisable(GL_POINT_SMOOTH);
+		pointSmooth = enabled;
+	}
+}
+
+void glProxySetLineSmooth(bool enabled)
+{
+	if (enabled != lineSmooth)
+	{
+		if (enabled)
+			glEnable(GL_LINE_SMOOTH);
+		else
+			glDisable(GL_LINE_SMOOTH);
+		lineSmooth = enabled;
+	}
+}
+
 bool glProxyIsBlendEnabled()
 {
 	return blend;
@@ -81,6 +107,16 @@ bool glProxyIsDepthTestEnabled()
 bool glProxyIsCullFaceEnabled()
 {
 	return cullFace;
+}
+
+bool glProxyIsPointSmoothEnabled()
+{
+	return pointSmooth;
+}
+
+bool glProxyIsLineSmoothEnabled()
+{
+	return lineSmooth;
 }
 
 #endif

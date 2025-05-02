@@ -62,7 +62,6 @@ namespace Levels
 
 			cursorPosition += mouse.getCartesianDelta() * mouseSensitivity;
 			cursorPosition = glm::clamp(cursorPosition, -glm::vec2(hSize), glm::vec2(hSize));
-			particles.centers.emplace_back(cursorPosition, 0.0f);
 
 			if (mouse.pressed.lmb)
 				started = true;

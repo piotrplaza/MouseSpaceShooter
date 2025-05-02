@@ -12,6 +12,7 @@ namespace ShadersUtils
 
 			TFParticlesAccessor(ProgramId program):
 				ProgramBaseCRTP(program),
+				componentId(program, "componentId"),
 				time(program, "time"),
 				deltaTime(program, "deltaTime"),
 				particlesCount(program, "particlesCount"),
@@ -20,6 +21,7 @@ namespace ShadersUtils
 				respawning(program, "respawning"),
 				originBegin(program, "originBegin"),
 				originEnd(program, "originEnd"),
+				originForce(program, "originForce"),
 				initVelocity(program, "initVelocity"),
 				velocitySpreadFactorRange(program, "velocitySpreadFactorRange"),
 				velocityRotateZHRange(program, "velocityRotateZHRange"),
@@ -30,6 +32,7 @@ namespace ShadersUtils
 			{
 			}
 
+			UniformsUtils::Uniform1i componentId;
 			UniformsUtils::Uniform1f time;
 			UniformsUtils::Uniform1f deltaTime;
 			UniformsUtils::Uniform1i particlesCount;
@@ -38,6 +41,7 @@ namespace ShadersUtils
 			UniformsUtils::Uniform1b respawning;
 			UniformsUtils::Uniform3f originBegin;
 			UniformsUtils::Uniform3f originEnd;
+			UniformsUtils::Uniform1f originForce;
 			UniformsUtils::Uniform3f initVelocity;
 			UniformsUtils::Uniform2f velocitySpreadFactorRange;
 			UniformsUtils::Uniform1f velocityRotateZHRange;
@@ -55,6 +59,7 @@ namespace ShadersUtils
 					glTransformFeedbackVaryings(program, (unsigned)tfOutput.size(), tfOutput.data(), GL_SEPARATE_ATTRIBS);
 				}))
 			{
+				componentId(1);
 				time(1.0f);
 				deltaTime(0.0f);
 				lifeTimeRange(glm::vec2(1.0f));
@@ -63,6 +68,7 @@ namespace ShadersUtils
 				respawning(true);
 				originBegin(glm::vec3(0.0f));
 				originEnd(glm::vec3(0.0f));
+				originForce(0.0f);
 				initVelocity(glm::vec3(0.0f));
 				velocitySpreadFactorRange(glm::vec2(1.0f));
 				velocityRotateZHRange(0.0f);

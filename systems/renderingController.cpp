@@ -322,6 +322,8 @@ namespace Systems
 			glProxySetDepthTest(true);
 
 		glProxySetCullFace(graphicsSettings.cullFace);
+		glProxySetPointSmooth(graphicsSettings.pointSmooth);
+		glProxySetLineSmooth(graphicsSettings.lineSmooth);
 
 		glPointSize(graphicsSettings.pointSize);
 		glLineWidth(graphicsSettings.lineWidth);

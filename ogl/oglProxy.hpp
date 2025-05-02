@@ -38,6 +38,22 @@ inline void glProxySetCullFace(bool enabled)
 		glDisable(GL_CULL_FACE);
 }
 
+inline void glProxySetPointSmooth(bool enabled)
+{
+	if (enabled)
+		glEnable(GL_POINT_SMOOTH);
+	else
+		glDisable(GL_POINT_SMOOTH);
+}
+
+inline void glProxySetLineSmooth(bool enabled)
+{
+	if (enabled)
+		glEnable(GL_LINE_SMOOTH);
+	else
+		glDisable(GL_LINE_SMOOTH);
+}
+
 inline bool glProxyIsBlendEnabled()
 {
 	return glIsEnabled(GL_BLEND);
@@ -53,6 +69,16 @@ inline bool glProxyIsCullFaceEnabled()
 	return glIsEnabled(GL_CULL_FACE);
 }
 
+inline bool glProxyIsPointSmoothEnabled()
+{
+	return glIsEnabled(GL_POINT_SMOOTH);
+}
+
+inline bool glProxyIsLineSmoothEnabled()
+{
+	return glIsEnabled(GL_LINE_SMOOTH);
+}
+
 #else
 
 void glProxyUseProgram(GLuint id);
@@ -61,10 +87,14 @@ void glProxyBindVertexArray(GLuint vao);
 void glProxySetBlend(bool enabled);
 void glProxySetDepthTest(bool enabled);
 void glProxySetCullFace(bool enabled);
+void glProxySetPointSmooth(bool enabled);
+void glProxySetLineSmooth(bool enabled);
 
 bool glProxyIsBlendEnabled();
 bool glProxyIsDepthTestEnabled();
 bool glProxyIsCullFaceEnabled();
+bool glProxyIsPointSmoothEnabled();
+bool glProxyIsLineSmoothEnabled();
 
 #endif
 

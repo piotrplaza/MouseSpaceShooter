@@ -32,6 +32,7 @@ namespace Components
 			tfRenderingSetupF = [=](auto& programBase) {
 				auto& tfParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);
 				tfParticles.init(true);
+				tfParticles.componentId(getComponentId());
 				tfParticles.respawning(false);
 				tfParticles.lifeTimeRange(lifeTimeRangeF());
 
@@ -86,6 +87,7 @@ namespace Components
 			tfRenderingSetupF = [=](auto& programBase) {
 				auto& tfParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);
 				tfParticles.init(true);
+				tfParticles.componentId(getComponentId());
 				tfParticles.particlesCount(particlesCount);
 				tfParticles.originBegin(unifiedSourceFV.first());
 				tfParticles.originEnd(unifiedSourceFV.second());
@@ -128,6 +130,5 @@ namespace Components
 		unsigned forcedVelocitiesAndTimesCount = 0;
 		std::vector<glm::vec3> hSizesAndAngles;
 		unsigned forcedHSizesAndAnglesCount = 0;
-		std::vector<glm::vec3> centers;
 	};
 }

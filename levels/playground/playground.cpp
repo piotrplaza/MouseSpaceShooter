@@ -17,7 +17,6 @@
 #include <components/collisionFilter.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/shockwave.hpp>
-#include <components/particles.hpp>
 #include <components/functor.hpp>
 #include <components/mainFramebufferRenderer.hpp>
 #include <components/blendingTexture.hpp>
@@ -652,7 +651,7 @@ namespace Levels
 					: ResolutionMode{ ResolutionMode::Resolution::QuarterNative, ResolutionMode::Scaling::Linear, ResolutionMode::Blending::Additive};
 				});
 			missilesHandler.setExplosionF([this](auto pos) {
-				Tools::CreateSparking(Tools::SparkingParams{}.sourcePoint(pos).initVelocity({ 30.0f, 0.0f }).sparksCount(500).lineWidth(4.0f));
+				Tools::CreateSparking(Tools::SparkingParams{}.sourcePoint(pos).initVelocity({ 50.0f, 0.0f }).sparksCount(1000).lineWidth(2.0f));
 				Tools::CreateAndPlaySound(CM::SoundBuffer(missileExplosionSoundBuffer, true), [pos]() { return pos; });
 				explosionFrame = true;
 			});

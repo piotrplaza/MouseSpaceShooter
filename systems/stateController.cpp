@@ -80,7 +80,7 @@ namespace Systems
 			frameDurationBeforePause = physics.frameDuration;
 
 		Globals::Shaders().noise().time(physics.simulationDuration);
-		Globals::Shaders().trails().deltaTime(std::max(frameDurationBeforePause, 0.005f));
+		Globals::Shaders().trails().deltaTime(std::max(frameDurationBeforePause, 0.01f));
 		Globals::Shaders().tfParticles().time(physics.simulationDuration);
 		Globals::Shaders().tfParticles().deltaTime(physics.frameDuration);
 
