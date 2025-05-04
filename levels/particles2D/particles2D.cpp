@@ -34,16 +34,19 @@ namespace
 		const unsigned particlesCount;
 		const unsigned instancesCount;
 		const float maxColorComponent;
+		const float initVelocity;
 		const float velocityFactor;
 		const float velocityRotateZHRange;
 		const glm::vec2 velocitySpreadFactorRange;
 		const glm::vec2 lifetimeRange;
 		const glm::vec2 hSize;
+		const bool respawning = false;
 		const bool forceRefreshRateBasedStep;
 		const glm::vec3 globalForce;
 		const glm::vec3 AZPlusBPlusCT;
 		const float originForce;
 		const std::optional<std::array<glm::vec4, 2>> forcedColors;
+		const std::optional<glm::vec2> firstInitialVelocity;
 	};
 
 	constexpr Params params1 = {
@@ -56,16 +59,19 @@ namespace
 		.particlesCount = 1000,
 		.instancesCount = 3,
 		.maxColorComponent = 0.005f,
-		.velocityFactor = 10.0f,
+		.initVelocity = 10.0f,
+		.velocityFactor = 1.0f,
 		.velocityRotateZHRange = 0.05f,
 		.velocitySpreadFactorRange = glm::vec2(0.2f, 1.0f),
 		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
+		.respawning = true,
 		.forceRefreshRateBasedStep = true,
 		.globalForce = glm::vec3(0.0f, 0.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.1f, 1.0f),
 		.originForce = 0.0f,
-		.forcedColors = std::nullopt
+		.forcedColors = std::nullopt,
+		.firstInitialVelocity = std::nullopt
 	};
 
 	constexpr Params params2 = {
@@ -78,16 +84,19 @@ namespace
 		.particlesCount = 10000,
 		.instancesCount = 3,
 		.maxColorComponent = 0.02f,
-		.velocityFactor = 10.0f,
+		.initVelocity = 10.0f,
+		.velocityFactor = 1.0f,
 		.velocityRotateZHRange = 0.05f,
 		.velocitySpreadFactorRange = glm::vec2(0.2f, 1.0f),
 		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
+		.respawning = true,
 		.forceRefreshRateBasedStep = false,
 		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
 		.originForce = 0.0f,
-		.forcedColors = std::nullopt
+		.forcedColors = std::nullopt,
+		.firstInitialVelocity = std::nullopt
 	};
 
 	constexpr Params params3 = {
@@ -100,16 +109,19 @@ namespace
 		.particlesCount = 10000,
 		.instancesCount = 1,
 		.maxColorComponent = 0.02f,
-		.velocityFactor = 4.0f,
+		.initVelocity = 4.0f,
+		.velocityFactor = 1.0f,
 		.velocityRotateZHRange = 0.05f,
 		.velocitySpreadFactorRange = glm::vec2(0.2f, 1.0f),
 		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
+		.respawning = true,
 		.forceRefreshRateBasedStep = false,
 		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
 		.originForce = 0.0f,
-		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(0.005f, 0.005f, 0.005f, 1.0f), glm::vec4(0.005f, 0.05f, 0.005f, 1.0f) }
+		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(0.005f, 0.005f, 0.005f, 1.0f), glm::vec4(0.005f, 0.05f, 0.005f, 1.0f) },
+		.firstInitialVelocity = std::nullopt
 	};
 
 	constexpr Params params4 = {
@@ -122,16 +134,19 @@ namespace
 		.particlesCount = 10000,
 		.instancesCount = 1,
 		.maxColorComponent = 0.02f,
-		.velocityFactor = 4.0f,
+		.initVelocity = 4.0f,
+		.velocityFactor = 1.0f,
 		.velocityRotateZHRange = 0.05f,
 		.velocitySpreadFactorRange = glm::vec2(0.2f, 1.0f),
 		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
+		.respawning = true,
 		.forceRefreshRateBasedStep = false,
 		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
 		.originForce = 0.0f,
-		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }
+		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) },
+		.firstInitialVelocity = std::nullopt
 	};
 
 	constexpr Params params5 = {
@@ -144,16 +159,19 @@ namespace
 		.particlesCount = 10000,
 		.instancesCount = 1,
 		.maxColorComponent = 0.02f,
-		.velocityFactor = 4.0f,
+		.initVelocity = 4.0f,
+		.velocityFactor = 1.0f,
 		.velocityRotateZHRange = 0.05f,
 		.velocitySpreadFactorRange = glm::vec2(0.2f, 1.0f),
 		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
+		.respawning = true,
 		.forceRefreshRateBasedStep = false,
 		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
 		.originForce = 0.0f,
-		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }
+		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) },
+		.firstInitialVelocity = std::nullopt
 	};
 
 	constexpr Params params6 = {
@@ -166,16 +184,19 @@ namespace
 		.particlesCount = 1000,
 		.instancesCount = 100,
 		.maxColorComponent = 0.1f,
-		.velocityFactor = 0.5f,
+		.initVelocity = 0.5f,
+		.velocityFactor = 1.0f,
 		.velocityRotateZHRange = 1.0f,
 		.velocitySpreadFactorRange = glm::vec2(20.0f, 100.0f),
 		.lifetimeRange = glm::vec2(10.0f),
 		.hSize = glm::vec2(1.0f),
+		.respawning = true,
 		.forceRefreshRateBasedStep = false,
 		.globalForce = glm::vec3(0.0f, 0.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.0f, 0.0f),
 		.originForce = 10.0f,
-		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) }
+		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) },
+		.firstInitialVelocity = std::nullopt
 	};
 
 	constexpr Params params7 = {
@@ -187,20 +208,48 @@ namespace
 		.controlPointsCount = 10,
 		.particlesCount = 100000,
 		.instancesCount = 10,
-		.maxColorComponent = 0.05f,
-		.velocityFactor = 0.5f,
+		.maxColorComponent = 0.1f,
+		.initVelocity = 0.5f,
+		.velocityFactor = 0.0f,
 		.velocityRotateZHRange = 1.0f,
 		.velocitySpreadFactorRange = glm::vec2(20.0f, 100.0f),
 		.lifetimeRange = glm::vec2(10.0f),
 		.hSize = glm::vec2(1.0f),
+		.respawning = true,
 		.forceRefreshRateBasedStep = false,
 		.globalForce = glm::vec3(0.0f, 0.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.002f, 0.0001f),
 		.originForce = 5.0f,
-		.forcedColors = std::nullopt
+		.forcedColors = std::nullopt,
+		.firstInitialVelocity = std::nullopt
 	};
 
-	constexpr Params params = params7;
+	constexpr Params params8 = {
+		.renderMode = Params::RenderMode::Billboards,
+		.blendMode = Params::BlendMode::Additive,
+		.manualControl = false,
+		.mouseSensitivity = 0.002f,
+		.duration = 10.0f,
+		.controlPointsCount = 10,
+		.particlesCount = 100000,
+		.instancesCount = 10,
+		.maxColorComponent = 0.1f,
+		.initVelocity = 0.0f,
+		.velocityFactor = 0.5f,
+		.velocityRotateZHRange = 1.0f,
+		.velocitySpreadFactorRange = glm::vec2(0.0f, 100.0f),
+		.lifetimeRange = glm::vec2(0.0f),
+		.hSize = glm::vec2(1.0f),
+		.respawning = false,
+		.forceRefreshRateBasedStep = false,
+		.globalForce = glm::vec3(0.0f, 0.0f, 0.0f),
+		.AZPlusBPlusCT = glm::vec3(0.0f, 0.002f, 0.0f),
+		.originForce = 10.0f,
+		.forcedColors = std::nullopt,
+		.firstInitialVelocity = glm::vec2(0.001f, 0.0f)
+	};
+
+	constexpr Params params = params8;
 }
 
 namespace Levels
@@ -250,7 +299,7 @@ namespace Levels
 				{
 					spline = std::make_unique<const Tools::CubicHermiteSpline<>>([]() {
 						std::vector<glm::vec2> points;
-						points.reserve(params.controlPointsCount);
+						points.reserve(params.controlPointsCount + 1);
 						for (unsigned i = 0; i < params.controlPointsCount; ++i)
 							points.emplace_back(glm::linearRand(-params.hSize, params.hSize) * glm::vec2(Globals::Components().systemInfo().screen.getAspectRatio(), 1.0f));
 						points.emplace_back(0.0f);
@@ -324,27 +373,35 @@ namespace Levels
 			{
 				auto& particlesInstance = particles.emplace(
 					std::make_pair([&, i]() { return glm::vec3(prevCursorPosition[i], 0.0f); }, [&, i]() { return glm::vec3(cursorPosition[i], 0.0f); }),
-					[&, i, angle = 0.0f]() mutable {
+					[&, i, angle = 0.0f, firstInitialVelocity = params.firstInitialVelocity]() mutable {
 						angle += 2.0f * physics.frameDuration * (mouse.pressing.lmb - mouse.pressing.rmb);
-						return (params.manualControl ? glm::vec3(std::cos(angle), std::sin(angle), 0.0f) : glm::vec3(cursorPosition[i] - prevCursorPosition[i], 0.0f)) * params.velocityFactor; },
+						if (firstInitialVelocity)
+						{
+							const auto result = glm::vec3(*firstInitialVelocity, 0.0f);
+							firstInitialVelocity = std::nullopt;
+							return result;
+						}
+						return (params.manualControl ? glm::vec3(std::cos(angle), std::sin(angle), 0.0f) : glm::vec3(cursorPosition[i] - prevCursorPosition[i], 0.0f)) * params.initVelocity;
+					},
 					params.lifetimeRange,
-					params.forcedColors ? std::array<FVec4, 2>{(*params.forcedColors)[0], (*params.forcedColors)[1]} : std::array<FVec4, 2>{ glm::vec4(color[i], 1.0f), glm::vec4(color[i], 1.0f) },
+					params.forcedColors ? std::array<FVec4, 2>{ (*params.forcedColors)[0], (*params.forcedColors)[1]} : std::array<FVec4, 2>{ glm::vec4(color[i], 1.0f), glm::vec4(color[i], 1.0f) },
 					params.velocitySpreadFactorRange,
 					glm::pi<float>() * params.velocityRotateZHRange,
 					params.globalForce,
-					true,
+					params.respawning,
 					params.particlesCount
 				);
 
 				particlesInstance.tfRenderingSetupF = [&, initRS = std::move(particlesInstance.tfRenderingSetupF)](auto& programBase) mutable {
+					auto& tfParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);
+					tfParticles.originInit(true);
 					return [&, initRT = initRS(programBase), initRS = std::move(initRS)]() mutable {
 						initRT();
 						particlesInstance.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) mutable {
 							particlesInstance.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) {
-								auto& tfParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);
 								tfParticles.AZPlusBPlusCT(params.AZPlusBPlusCT);
 								tfParticles.originForce(params.originForce);
-								tfParticles.velocityFactor(0.0f);
+								tfParticles.velocityFactor(params.velocityFactor);
 								return initRS(programBase);
 							};
 

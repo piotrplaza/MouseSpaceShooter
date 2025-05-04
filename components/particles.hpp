@@ -113,10 +113,10 @@ namespace Components
 				};
 			};
 
-			if (!respawning)
+			if (auto duration = lifeTimeRangeF().y; duration != 0.0f && !respawning)
 			{
 				const auto& physics = Globals::Components().physics();
-				stepF = [&, startTime = physics.simulationDuration, duration = lifeTimeRangeF().y]() {
+				stepF = [&, startTime = physics.simulationDuration, duration]() {
 					if (physics.simulationDuration - startTime > duration)
 						state = ComponentState::Outdated;
 				};

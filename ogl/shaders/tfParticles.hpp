@@ -19,6 +19,7 @@ namespace ShadersUtils
 				lifeTimeRange(program, "lifeTimeRange"),
 				init(program, "init"),
 				respawning(program, "respawning"),
+				originInit(program, "originInit"),
 				originBegin(program, "originBegin"),
 				originEnd(program, "originEnd"),
 				originForce(program, "originForce"),
@@ -39,6 +40,7 @@ namespace ShadersUtils
 			UniformsUtils::Uniform2f lifeTimeRange;
 			UniformsUtils::Uniform1b init;
 			UniformsUtils::Uniform1b respawning;
+			UniformsUtils::Uniform1b originInit;
 			UniformsUtils::Uniform3f originBegin;
 			UniformsUtils::Uniform3f originEnd;
 			UniformsUtils::Uniform1f originForce;
@@ -66,6 +68,7 @@ namespace ShadersUtils
 				particlesCount(0);
 				init(false);
 				respawning(true);
+				originInit(false);
 				originBegin(glm::vec3(0.0f));
 				originEnd(glm::vec3(0.0f));
 				originForce(0.0f);

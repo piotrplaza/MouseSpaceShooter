@@ -17,6 +17,7 @@ uniform int particlesCount;
 uniform vec2 lifeTimeRange;
 uniform bool init;
 uniform bool respawning;
+uniform bool originInit;
 uniform vec3 originBegin;
 uniform vec3 originEnd;
 uniform float originForce;
@@ -105,6 +106,9 @@ void updateLifetimeRelatedState(inout vec3 inOutPosition, inout vec3 inOutVeloci
 {
 	if (init)
 	{
+		if (originInit)
+			inOutPosition = origin;
+
 		if (respawning)
 		{
 			inOutLifetime = randomRange(vec2(0.0, lifeTime), 101112.0 * seed);
@@ -115,6 +119,8 @@ void updateLifetimeRelatedState(inout vec3 inOutPosition, inout vec3 inOutVeloci
 
 		return;
 	}
+
+	const vec4 baseColor = mix(colorRange[0], colorRange[1], nRandom(161718.0, gl_VertexID * componentId));
 
 	inOutLifetime += deltaTime;
 
@@ -142,7 +148,7 @@ void updateLifetimeRelatedState(inout vec3 inOutPosition, inout vec3 inOutVeloci
 
 		inOutPosition += inOutVelocity * deltaTime;
 
-		inOutColor = mix(mix(colorRange[0], colorRange[1], nRandom(161718.0, gl_VertexID * componentId)), vec4(0.0),
+		inOutColor = mix(baseColor, vec4(0.0),
 			lifeTimeRange.y > 0.0
 			? inOutLifetime / lifeTime
 			: 0.0);
