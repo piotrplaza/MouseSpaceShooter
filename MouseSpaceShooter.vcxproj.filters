@@ -370,6 +370,9 @@
     <ClCompile Include="levels\particles2D\particles2D.cpp">
       <Filter>src\levels\particles2D</Filter>
     </ClCompile>
+    <ClCompile Include="tools\particleSystemHelpers.cpp">
+      <Filter>src\tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mvp.hpp">
@@ -761,6 +764,9 @@
     </ClInclude>
     <ClInclude Include="ogl\shaders\trails.hpp">
       <Filter>src\ogl\shaders\trails</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\particleSystemHelpers.hpp">
+      <Filter>src\tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

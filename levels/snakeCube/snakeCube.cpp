@@ -154,7 +154,7 @@ namespace Levels
 			auto& wiredCuboid = Globals::Components().staticDecorations().emplace();
 			Tools::Shapes3D::AddWiredCuboid(wiredCuboid, glm::vec3(cubeHSize - 0.001f), wiredCubeColor);
 			wiredCuboid.params3D->lightModelEnabled(false).fogAmplification(0.5f);
-			wiredCuboid.renderingSetupF = [](auto) {
+			wiredCuboid.renderingSetupF = [](auto&) {
 				return nullptr;
 			};
 #ifdef TEST

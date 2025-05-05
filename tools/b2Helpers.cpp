@@ -88,7 +88,7 @@ namespace Tools
 		return body;
 	}
 
-	Body CreateCircleBody(float radius, const BodyParams& bodyParams)
+	Body CreateDiscBody(float radius, const BodyParams& bodyParams)
 	{
 
 		Body body = CreateEmptyBody(bodyParams);
@@ -161,7 +161,7 @@ namespace Tools
 		Body body = CreateEmptyBody(bodyParams);
 		std::set<float> radians;
 
-		for (int i = 0; i < numOfVertices; ++i)
+		while ((int)radians.size() < numOfVertices)
 			radians.insert(float(rand() % radResolution) / radResolution * glm::two_pi<float>());
 
 		auto it = radians.begin();

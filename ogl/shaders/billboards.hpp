@@ -6,12 +6,12 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct BillboardsAccessor : ProgramBaseCRTP<BillboardsAccessor>
+		struct BillboardsAccessor : AccessorBase
 		{
-			using ProgramBaseCRTP::ProgramBaseCRTP;
+			using AccessorBase::AccessorBase;
 
 			BillboardsAccessor(ProgramId program):
-				ProgramBaseCRTP(program),
+				AccessorBase(program),
 				vp(program, "vp"),
 				color(program, "color"),
 				texture0(program, "texture0")
@@ -23,10 +23,10 @@ namespace ShadersUtils
 			UniformsUtils::Uniform1i texture0;
 		};
 
-		struct Billboards : BillboardsAccessor
+		struct Billboards : ProgramBase<BillboardsAccessor>
 		{
 			Billboards() :
-				BillboardsAccessor(LinkProgram(CompileShaders("ogl/shaders/billboards.vs",
+				ProgramBase(LinkProgram(CompileShaders("ogl/shaders/billboards.vs",
 					"ogl/shaders/billboards.gs", "ogl/shaders/billboards.fs"), { {0, "bPos"}, {1, "bColor"} }))
 			{
 				vp(glm::mat4(1.0f));

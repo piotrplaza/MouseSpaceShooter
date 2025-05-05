@@ -102,7 +102,7 @@ namespace Levels
 
 		void createGrapples()
 		{
-			ball = &Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f,
+			ball = &Globals::Components().grapples().emplace(Tools::CreateDiscBody(2.0f,
 				Tools::BodyParams().bodyType(b2_dynamicBody).density(0.02f).restitution(0.5f)), CM::Texture(orbTexture, true));
 			ball->range = 15.0f;
 		}

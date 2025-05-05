@@ -54,6 +54,30 @@ inline void glProxySetLineSmooth(bool enabled)
 		glDisable(GL_LINE_SMOOTH);
 }
 
+inline void glProxyPointSize(GLfloat size)
+{
+	glPointSize(size);
+}
+
+inline void glProxyLineWidth(GLfloat width)
+{
+	glLineWidth(width);
+}
+
+inline GLuint glProxyGetCurrentProgramId()
+{
+	GLint id;
+	glGetIntegerv(GL_CURRENT_PROGRAM, &id);
+	return static_cast<GLuint>(id);
+}
+
+inline GLuint glProxyGetCurrentVertexArray()
+{
+	GLint id;
+	glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &id);
+	return static_cast<GLuint>(id);
+}
+
 inline bool glProxyIsBlendEnabled()
 {
 	return glIsEnabled(GL_BLEND);
@@ -79,22 +103,40 @@ inline bool glProxyIsLineSmoothEnabled()
 	return glIsEnabled(GL_LINE_SMOOTH);
 }
 
+inline GLfloat glProxyGetPointSize()
+{
+	GLfloat size;
+	glGetFloatv(GL_POINT_SIZE, &size);
+	return size;
+}
+
+inline GLfloat glProxyGetLineWidth()
+{
+	GLfloat width;
+	glGetFloatv(GL_LINE_WIDTH, &width);
+	return width;
+
 #else
 
 void glProxyUseProgram(GLuint id);
 void glProxyBindVertexArray(GLuint vao);
-
 void glProxySetBlend(bool enabled);
 void glProxySetDepthTest(bool enabled);
 void glProxySetCullFace(bool enabled);
 void glProxySetPointSmooth(bool enabled);
 void glProxySetLineSmooth(bool enabled);
+void glProxyPointSize(GLfloat size);
+void glProxyLineWidth(GLfloat width);
 
+GLuint glProxyGetCurrentProgramId();
+GLuint glProxyGetCurrentVertexArray();
 bool glProxyIsBlendEnabled();
 bool glProxyIsDepthTestEnabled();
 bool glProxyIsCullFaceEnabled();
 bool glProxyIsPointSmoothEnabled();
 bool glProxyIsLineSmoothEnabled();
+GLfloat glProxyGetPointSize();
+GLfloat glProxyGetLineWidth();
 
 #endif
 

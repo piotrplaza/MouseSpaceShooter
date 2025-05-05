@@ -27,18 +27,26 @@ namespace Components
 			velocitiesAndTimes(std::move(velocitiesAndTimes)),
 			hSizesAndAngles(std::move(hSizesAndAngles))
 		{
-			tfShaderProgram = &Globals::Shaders().tfParticles();
+			auto& tfParticles = Globals::Shaders().tfParticles();
+			tfShaderProgram = &tfParticles;
 
-			tfRenderingSetupF = [=](auto& programBase) {
-				auto& tfParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);
+			tfRenderingSetupF = [=, &tfParticles](auto&) {
+				tfParticles.saveUniforms();
 				tfParticles.init(true);
 				tfParticles.componentId(getComponentId());
 				tfParticles.respawning(false);
 				tfParticles.lifeTimeRange(lifeTimeRangeF());
 
-				return [=, &tfParticles]() {
-					tfParticles.init(false);
-					tfRenderingSetupF = nullptr;
+				return [&, checkpoint = tfParticles.getUniformsCheckpoint()]() mutable {
+					tfRenderingSetupF = [&, checkpoint = std::move(checkpoint)](auto&) {
+						tfParticles.saveUniforms();
+						tfParticles.restoreUniformsCheckpoint(checkpoint);
+						tfParticles.init(false);
+						return [&]() {
+							tfParticles.restoreUniforms();
+						};
+					};
+					tfParticles.restoreUniforms();
 				};
 			};
 
@@ -61,7 +69,7 @@ namespace Components
 			bufferDataUsage = GL_DYNAMIC_COPY;
 		}
 
-		Particles(std::variant<FVec3, std::pair<FVec3, FVec3>> sourceFV, FVec3 initVelocityF, FVec2 lifeTimeRangeF, std::array<FVec4, 2> colorRangeF, glm::vec2 velocitySpreadFactorRange,
+		Particles(std::variant<FVec3, std::pair<FVec3, FVec3>> sourceFV, FVec3 velocityOffsetF, FVec3 initVelocityF, FVec2 lifeTimeRangeF, std::array<FVec4, 2> colorRangeF, glm::vec2 velocitySpreadFactorRange,
 			float velocityRotateZHRange, FVec3 globalForceF, bool respawning, unsigned particlesCount)
 		{
 			auto unifiedSourceFV = std::visit([&](auto&& source) {
@@ -69,10 +77,10 @@ namespace Components
 				if constexpr (std::is_same_v<T, FVec3>)
 					return std::make_pair(source, source);
 				else if constexpr (std::is_same_v<T, std::pair<FVec3, FVec3>>)
-					return std::make_pair(source.first, source.second);
+					return source;
 				else
 					static_assert("Invalid source type");
-				}, sourceFV);
+			}, sourceFV);
 
 			positions.push_back(unifiedSourceFV.second());
 			forcedPositionsCount = particlesCount;
@@ -83,14 +91,16 @@ namespace Components
 			hSizesAndAngles.push_back(glm::vec3(0.0f));
 			forcedHSizesAndAnglesCount = particlesCount;
 
-			tfShaderProgram = &Globals::Shaders().tfParticles();
-			tfRenderingSetupF = [=](auto& programBase) {
-				auto& tfParticles = static_cast<ShadersUtils::Programs::TFParticles&>(programBase);
+			auto& tfParticles = Globals::Shaders().tfParticles();
+			tfShaderProgram = &tfParticles;
+			tfRenderingSetupF = [=, &tfParticles](auto&) {
+				tfParticles.saveUniforms();
 				tfParticles.init(true);
 				tfParticles.componentId(getComponentId());
 				tfParticles.particlesCount(particlesCount);
 				tfParticles.originBegin(unifiedSourceFV.first());
 				tfParticles.originEnd(unifiedSourceFV.second());
+				tfParticles.velocityOffset(velocityOffsetF());
 				tfParticles.initVelocity(initVelocityF());
 				tfParticles.lifeTimeRange(lifeTimeRangeF());
 				tfParticles.colorRange({colorRangeF[0](), colorRangeF[1]()});
@@ -99,17 +109,29 @@ namespace Components
 				tfParticles.globalForce(globalForceF());
 				tfParticles.respawning(respawning);
 
-				return [=, &tfParticles]() {
-					tfParticles.init(false);
-					tfRenderingSetupF = [=, &tfParticles](auto) {
+				return [=, checkpoint = tfParticles.getUniformsCheckpoint(), &tfParticles]() mutable {
+					tfRenderingSetupF = [=, checkpoint = std::move(checkpoint), &tfParticles](auto&) {
+						tfParticles.saveUniforms();
+						tfParticles.restoreUniformsCheckpoint(checkpoint);
+						tfParticles.init(false);
+						//tfParticles.componentId(getComponentId());
+						//tfParticles.particlesCount(particlesCount);
 						tfParticles.originBegin(unifiedSourceFV.first());
 						tfParticles.originEnd(unifiedSourceFV.second());
+						tfParticles.velocityOffset(velocityOffsetF());
 						tfParticles.initVelocity(initVelocityF());
 						tfParticles.lifeTimeRange(lifeTimeRangeF());
 						tfParticles.colorRange({colorRangeF[0](), colorRangeF[1]()});
+						//tfParticles.velocitySpreadFactorRange(velocitySpreadFactorRange);
+						//tfParticles.velocityRotateZHRange(velocityRotateZHRange);
 						tfParticles.globalForce(globalForceF());
-						return nullptr;
+						//tfParticles.respawning(respawning);
+
+						return [&]() {
+							tfParticles.restoreUniforms();
+						};
 					};
+					tfParticles.restoreUniforms();
 				};
 			};
 

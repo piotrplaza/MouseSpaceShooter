@@ -6,17 +6,20 @@
 
 namespace
 {
+	GLuint currentProgramId = 0;
+	GLuint currentVAO = 0;
 	bool blend = false;
 	bool depthTest = false;
 	bool cullFace = false;
 	bool pointSmooth = false;
 	bool lineSmooth = false;
+	GLfloat pointSize = 0.0f;
+	GLfloat lineWidth = 0.0f;
 	GLenum debugOutputMinSeverity = 0;
 }
 
 void glProxyUseProgram(GLuint id)
 {
-	static GLuint currentProgramId = 0;
 	if (id != currentProgramId)
 	{
 		glUseProgram(id);
@@ -26,7 +29,6 @@ void glProxyUseProgram(GLuint id)
 
 void glProxyBindVertexArray(GLuint vao)
 {
-	static GLuint currentVAO = 0;
 	if (vao != currentVAO)
 	{
 		glBindVertexArray(vao);
@@ -94,6 +96,34 @@ void glProxySetLineSmooth(bool enabled)
 	}
 }
 
+void glProxyPointSize(GLfloat size)
+{
+	if (size != pointSize)
+	{
+		glPointSize(size);
+		pointSize = size;
+	}
+}
+
+void glProxyLineWidth(GLfloat width)
+{
+	if (width != lineWidth)
+	{
+		glLineWidth(width);
+		lineWidth = width;
+	}
+}
+
+GLuint glProxyGetCurrentProgramId()
+{
+	return currentProgramId;
+}
+
+GLuint glProxyGetCurrentVertexArray()
+{
+	return currentVAO;
+}
+
 bool glProxyIsBlendEnabled()
 {
 	return blend;
@@ -117,6 +147,16 @@ bool glProxyIsPointSmoothEnabled()
 bool glProxyIsLineSmoothEnabled()
 {
 	return lineSmooth;
+}
+
+GLfloat glProxyGetPointSize()
+{
+	return pointSize;
+}
+
+GLfloat glProxyGetLineWidth()
+{
+	return lineWidth;
 }
 
 #endif

@@ -22,7 +22,7 @@ namespace Buffers
 
 struct RenderableDef
 {
-	using RenderingSetupF = std::function<std::function<void()>(ShadersUtils::ProgramBase&)>;
+	using RenderingSetupF = std::function<std::function<void()>(ShadersUtils::AccessorBase&)>;
 
 	struct Params3D
 	{

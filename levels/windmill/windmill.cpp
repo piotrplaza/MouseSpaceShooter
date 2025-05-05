@@ -64,10 +64,10 @@ namespace Levels
 			](ShadersUtils::ProgramId program) mutable {
 				if (!visibilityReduction.isValid())
 				{
-					visibilityReduction = UniformsUtils::Uniform1b(program, "visibilityReduction");
-					visibilityCenter = UniformsUtils::Uniform2f(program, "visibilityCenter");
-					fullVisibilityDistance = UniformsUtils::Uniform1f(program, "fullVisibilityDistance");
-					invisibilityDistance = UniformsUtils::Uniform1f(program, "invisibilityDistance");
+					visibilityReduction.reset(program, "visibilityReduction");
+					visibilityCenter.reset(program, "visibilityCenter");
+					fullVisibilityDistance.reset(program, "fullVisibilityDistance");
+					invisibilityDistance.reset(program, "invisibilityDistance");
 				}
 
 				visibilityReduction(true);
@@ -249,7 +249,7 @@ namespace Levels
 			{
 				const float startAngle = glm::half_pi<float>() * i;
 
-				auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleRDist).bodyType(b2_kinematicBody)),
+				auto& grapple = Globals::Components().grapples().emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleRDist).bodyType(b2_kinematicBody)),
 					TCM::Texture(orbTexture));
 				grapple.range = 15.0f;
 				grapple.stepF = [&, grappleRDist, startAngle, angle = 0.0f, rotationSpeed = 0.2f]() mutable {
@@ -264,7 +264,7 @@ namespace Levels
 			{
 				const float startAngle = glm::half_pi<float>() * i;
 
-				auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleRDist)
+				auto& grapple = Globals::Components().grapples().emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position(glm::vec2(glm::cos(startAngle), glm::sin(startAngle)) * grappleRDist)
 					.bodyType(b2_dynamicBody).density(10.0f)), TCM::Texture(orbTexture));
 				grapple.range = 15.0f;
 				grapplesDebris.push_back(grapple.getComponentId());

@@ -6,12 +6,12 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct NoiseAccessor : ProgramBaseCRTP<NoiseAccessor>
+		struct NoiseAccessor : AccessorBase
 		{
-			using ProgramBaseCRTP::ProgramBaseCRTP;
+			using AccessorBase::AccessorBase;
 
 			NoiseAccessor(ProgramId program):
-				ProgramBaseCRTP(program),
+				AccessorBase(program),
 				model(program, "model"),
 				vp(program, "vp"),
 				color(program, "color"),
@@ -19,7 +19,7 @@ namespace ShadersUtils
 				noiseWeights(program, "noiseWeights"),
 				noiseMin(program, "noiseMin"),
 				noiseMax(program, "noiseMax"),
-				time(program, "time")
+				time(program, "time", false)
 			{
 			}
 
@@ -33,10 +33,10 @@ namespace ShadersUtils
 			UniformsUtils::Uniform1f time;
 		};
 
-		struct Noise : NoiseAccessor
+		struct Noise : ProgramBase<NoiseAccessor>
 		{
 			Noise():
-				NoiseAccessor(LinkProgram(CompileShaders("ogl/shaders/noise.vs",
+				ProgramBase(LinkProgram(CompileShaders("ogl/shaders/noise.vs",
 					"ogl/shaders/noise.fs"), { {0, "bPos"}, {1, "bColor"}, {4, "bInstancedTransform"} }))
 			{
 				model(glm::mat4(1.0f));

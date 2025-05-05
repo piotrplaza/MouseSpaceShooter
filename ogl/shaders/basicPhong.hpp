@@ -6,12 +6,12 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct BasicPhongAccessor : ProgramBaseCRTP<BasicPhongAccessor>
+		struct BasicPhongAccessor : AccessorBase
 		{
-			using ProgramBaseCRTP::ProgramBaseCRTP;
+			using AccessorBase::AccessorBase;
 
 			BasicPhongAccessor(ProgramId program):
-				ProgramBaseCRTP(program),
+				AccessorBase(program),
 				model(program, "model"),
 				vp(program, "vp"),
 				normalMatrix(program, "normalMatrix"),
@@ -67,10 +67,10 @@ namespace ShadersUtils
 			UniformsUtils::Uniform1f forcedAlpha;
 		};
 
-		struct BasicPhong : BasicPhongAccessor
+		struct BasicPhong : ProgramBase<BasicPhongAccessor>
 		{
 			BasicPhong():
-				BasicPhongAccessor(LinkProgram(CompileShaders("ogl/shaders/basicPhong.vs",
+				ProgramBase(LinkProgram(CompileShaders("ogl/shaders/basicPhong.vs",
 					"ogl/shaders/basicPhong.fs"), { {0, "bPos"}, {1, "bColor"}, {3, "bNormal"}, {4, "bInstancedTransform"}, {8, "bInstancedNormalTransform"} }))
 			{
 				model(glm::mat4(1.0f));

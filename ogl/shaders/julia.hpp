@@ -6,12 +6,12 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct JuliaAccessor : ProgramBaseCRTP<JuliaAccessor>
+		struct JuliaAccessor : AccessorBase
 		{
-			using ProgramBaseCRTP::ProgramBaseCRTP;
+			using AccessorBase::AccessorBase;
 
 			JuliaAccessor(ProgramId program):
-				ProgramBaseCRTP(program),
+				AccessorBase(program),
 				vp(program, "vp"),
 				juliaC(program, "juliaC"),
 				juliaCOffset(program, "juliaCOffset"),
@@ -33,10 +33,10 @@ namespace ShadersUtils
 			UniformsUtils::Uniform1i iterations;
 		};
 
-		struct Julia : JuliaAccessor
+		struct Julia : ProgramBase<JuliaAccessor>
 		{
 			Julia():
-				JuliaAccessor(LinkProgram(CompileShaders("ogl/shaders/julia.vs",
+				ProgramBase(LinkProgram(CompileShaders("ogl/shaders/julia.vs",
 					"ogl/shaders/julia.fs"), { {0, "bPos"} }))
 			{
 				vp(glm::mat4(1.0f));

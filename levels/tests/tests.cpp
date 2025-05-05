@@ -15,6 +15,7 @@
 #include <globals/shaders.hpp>
 
 #include <tools/Shapes2D.hpp>
+#include <tools/particleSystemHelpers.hpp>
 #include <ogl/oglHelpers.hpp>
 
 #include <glm/gtc/constants.hpp>
@@ -71,7 +72,7 @@ namespace Tests
 			decoration.positions = Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }, glm::quarter_pi<float>());
 			decoration.resolutionMode = { ResolutionMode::Resolution::H405, ResolutionMode::Scaling::Nearest };
 			decoration.texture = CM::Texture(texture);
-			decoration.renderingSetupF = [&](auto) {
+			decoration.renderingSetupF = [&](auto&) {
 				bool prevBlend = glProxyIsBlendEnabled();
 				glProxySetBlend(false);
 				return [prevBlend]() mutable {
@@ -143,7 +144,25 @@ namespace Tests
 		float volume = 1.0f;
 	};
 
-	auto activeTest = std::make_unique<Music>();
+	struct ParticleSystemsSwitching : public TestBase
+	{
+		void setup() override
+		{
+			Tools::CreateParticleSystem({});
+		}
+
+		void step() override
+		{
+			if (Globals::Components().keyboard().pressed[' '])
+			{
+				Tools::CreateSparking({});
+				//const auto pos = glm::vec3(0.0f, 1.0f, 0.0f);
+				//Tools::CreateParticleSystem(Tools::ParticleSystemParams{}.position(pos).prevPosition(pos).velocityFactor(10.0f));
+			}
+		}
+	};
+
+	auto activeTest = std::make_unique<ParticleSystemsSwitching>();
 }
 
 namespace Levels

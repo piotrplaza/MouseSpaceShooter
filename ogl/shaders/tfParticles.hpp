@@ -6,15 +6,15 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct TFParticlesAccessor : ProgramBaseCRTP<TFParticlesAccessor>
+		struct TFParticlesAccessor : AccessorBase
 		{
-			using ProgramBaseCRTP::ProgramBaseCRTP;
+			using AccessorBase::AccessorBase;
 
 			TFParticlesAccessor(ProgramId program):
-				ProgramBaseCRTP(program),
+				AccessorBase(program),
 				componentId(program, "componentId"),
-				time(program, "time"),
-				deltaTime(program, "deltaTime"),
+				time(program, "time", false),
+				deltaTime(program, "deltaTime", false),
 				particlesCount(program, "particlesCount"),
 				lifeTimeRange(program, "lifeTimeRange"),
 				init(program, "init"),
@@ -23,6 +23,7 @@ namespace ShadersUtils
 				originBegin(program, "originBegin"),
 				originEnd(program, "originEnd"),
 				originForce(program, "originForce"),
+				velocityOffset(program, "velocityOffset"),
 				initVelocity(program, "initVelocity"),
 				velocitySpreadFactorRange(program, "velocitySpreadFactorRange"),
 				velocityRotateZHRange(program, "velocityRotateZHRange"),
@@ -44,6 +45,7 @@ namespace ShadersUtils
 			UniformsUtils::Uniform3f originBegin;
 			UniformsUtils::Uniform3f originEnd;
 			UniformsUtils::Uniform1f originForce;
+			UniformsUtils::Uniform3f velocityOffset;
 			UniformsUtils::Uniform3f initVelocity;
 			UniformsUtils::Uniform2f velocitySpreadFactorRange;
 			UniformsUtils::Uniform1f velocityRotateZHRange;
@@ -53,10 +55,10 @@ namespace ShadersUtils
 			UniformsUtils::Uniform3f AZPlusBPlusCT;
 		};
 
-		struct TFParticles : TFParticlesAccessor
+		struct TFParticles : ProgramBase<TFParticlesAccessor>
 		{
 			TFParticles():
-				TFParticlesAccessor(LinkProgram(CompileVertexShader("ogl/shaders/tfParticles.vs"), { {0, "bPos"}, {1, "bColor"}, {2, "bVelocityAndTime"}, {3, "bHSizeAndAngleAttribIdx"} }, [](ProgramId program) {
+				ProgramBase(LinkProgram(CompileVertexShader("ogl/shaders/tfParticles.vs"), { {0, "bPos"}, {1, "bColor"}, {2, "bVelocityAndTime"}, {3, "bHSizeAndAngleAttribIdx"} }, [](ProgramId program) {
 					const std::array tfOutput = { "vPos", "vColor", "vVelocityAndTime", "vHSizeAndAngleAttribIdx" };
 					glTransformFeedbackVaryings(program, (unsigned)tfOutput.size(), tfOutput.data(), GL_SEPARATE_ATTRIBS);
 				}))
@@ -72,6 +74,7 @@ namespace ShadersUtils
 				originBegin(glm::vec3(0.0f));
 				originEnd(glm::vec3(0.0f));
 				originForce(0.0f);
+				velocityOffset(glm::vec3(0.0f));
 				initVelocity(glm::vec3(0.0f));
 				velocitySpreadFactorRange(glm::vec2(1.0f));
 				velocityRotateZHRange(0.0f);

@@ -15,12 +15,11 @@ uniform float deltaTimeFactor;
 
 void main()
 {
-    gl_Position = vp * gl_in[0].gl_Position;
-    gColor = vColor[0] * color;
-    EmitVertex();
-    gl_Position = vp * (gl_in[0].gl_Position + vec4(vVelocityAndTime[0].xyz * deltaTime * deltaTimeFactor, 0.0));
-    gColor = vColor[0] * color;
-    EmitVertex();
-
-    EndPrimitive();
+	gl_Position = vp * gl_in[0].gl_Position;
+	gColor = vColor[0] * color;
+	EmitVertex();
+	gl_Position = vp * (gl_in[0].gl_Position + vec4(vVelocityAndTime[0].xyz * deltaTime * deltaTimeFactor, 0.0));
+	gColor = vColor[0] * color;
+	EmitVertex();
+	EndPrimitive();
 }

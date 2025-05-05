@@ -18,6 +18,7 @@
 #include <ogl/shaders/textured.hpp>
 
 #include <tools/gameHelpers.hpp>
+#include <tools/particleSystemHelpers.hpp>
 #include <tools/b2Helpers.hpp>
 #include <tools/Shapes2D.hpp>
 

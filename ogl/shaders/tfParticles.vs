@@ -21,6 +21,7 @@ uniform bool originInit;
 uniform vec3 originBegin;
 uniform vec3 originEnd;
 uniform float originForce;
+uniform vec3 velocityOffset;
 uniform vec3 initVelocity;
 uniform vec2 velocitySpreadFactorRange;
 uniform float velocityRotateZHRange;
@@ -100,6 +101,7 @@ void velocitySpread(inout vec3 velocity)
 
 	velocity = rotateZ(velocity, randomRange(vec2(-velocityRotateZHRange, velocityRotateZHRange), 456.0 * seed));
 	velocity *= randomRange(velocitySpreadFactorRange, 789.0 * seed);
+	velocity += velocityOffset;
 }
 
 void updateLifetimeRelatedState(inout vec3 inOutPosition, inout vec3 inOutVelocity, inout float inOutLifetime, inout vec4 inOutColor)

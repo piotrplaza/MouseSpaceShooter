@@ -78,7 +78,7 @@ namespace Levels
 
 		for (int i = 0; i < 2; ++i)
 		{
-			startingLineEnds[i] = dynamicWalls.emplace(Tools::CreateCircleBody(startingLineEndsRadius)).getComponentId();
+			startingLineEnds[i] = dynamicWalls.emplace(Tools::CreateDiscBody(startingLineEndsRadius)).getComponentId();
 			dynamicWalls.last().renderF = [&]() { return controlPointsEnds && controlPoints.size() == 2; };
 			dynamicWalls.last().colorF = []() { return startingLineEndsColor; };
 			dynamicWalls.last().stepF = [&, &wall = dynamicWalls.last(), i]() {
@@ -181,7 +181,7 @@ namespace Levels
 			startingLineEndsRadius = std::clamp(startingLineEndsRadius + mouse.pressed.wheel * 0.2f, 0.2f, 5.0f);
 			auto& dynamicWalls = Globals::Components().walls();
 			for (auto wallId : startingLineEnds)
-				dynamicWalls[wallId].changeBody(Tools::CreateCircleBody(startingLineEndsRadius));
+				dynamicWalls[wallId].changeBody(Tools::CreateDiscBody(startingLineEndsRadius));
 		};
 
 		auto scaleStartingLine = [&]() {

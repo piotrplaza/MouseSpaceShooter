@@ -23,7 +23,7 @@ namespace Components
 			std::vector<glm::vec2> texCoord = {},
 			RenderingSetupF renderingSetupF = nullptr,
 			RenderLayer renderLayer = RenderLayer::Midground,
-			ShadersUtils::ProgramBase* customShadersProgram = nullptr):
+			ShadersUtils::AccessorBase* customShadersProgram = nullptr):
 			Physical(std::move(body), texture, std::move(renderingSetupF), renderLayer, customShadersProgram)
 		{
 			//stepF = [&]() {

@@ -27,6 +27,10 @@ namespace
 	{
 		const enum class RenderMode { Points, Lines, Billboards } renderMode;
 		const enum class BlendMode { Alpha, Additive } blendMode;
+		const float pointSize;
+		const float lineWidth;
+		const float pointSmooth;
+		const float lineSmooth;
 		const bool manualControl;
 		const float mouseSensitivity;
 		const float duration;
@@ -40,22 +44,26 @@ namespace
 		const glm::vec2 velocitySpreadFactorRange;
 		const glm::vec2 lifetimeRange;
 		const glm::vec2 hSize;
-		const bool respawning = false;
+		const bool respawning;
 		const bool forceRefreshRateBasedStep;
 		const glm::vec3 globalForce;
 		const glm::vec3 AZPlusBPlusCT;
 		const float originForce;
 		const std::optional<std::array<glm::vec4, 2>> forcedColors;
-		const std::optional<glm::vec2> firstInitialVelocity;
+		const std::optional<glm::vec2> firstInitVelocity;
 	};
 
 	constexpr Params params1 = {
 		.renderMode = Params::RenderMode::Billboards,
 		.blendMode = Params::BlendMode::Additive,
+		.pointSize = 2.0f,
+		.lineWidth = 1.0f,
+		.pointSmooth = true,
+		.lineSmooth = false,
 		.manualControl = false,
 		.mouseSensitivity = 0.002f,
-		.duration = 120.0f,
-		.controlPointsCount = 60,
+		.duration = 10.0f,
+		.controlPointsCount = 5,
 		.particlesCount = 1000,
 		.instancesCount = 3,
 		.maxColorComponent = 0.005f,
@@ -71,16 +79,20 @@ namespace
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.1f, 1.0f),
 		.originForce = 0.0f,
 		.forcedColors = std::nullopt,
-		.firstInitialVelocity = std::nullopt
+		.firstInitVelocity = std::nullopt
 	};
 
 	constexpr Params params2 = {
 		.renderMode = Params::RenderMode::Billboards,
 		.blendMode = Params::BlendMode::Additive,
+		.pointSize = 2.0f,
+		.lineWidth = 1.0f,
+		.pointSmooth = true,
+		.lineSmooth = false,
 		.manualControl = false,
 		.mouseSensitivity = 0.002f,
-		.duration = 60.0f,
-		.controlPointsCount = 240,
+		.duration = 10.0f,
+		.controlPointsCount = 40,
 		.particlesCount = 10000,
 		.instancesCount = 3,
 		.maxColorComponent = 0.02f,
@@ -96,15 +108,19 @@ namespace
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
 		.originForce = 0.0f,
 		.forcedColors = std::nullopt,
-		.firstInitialVelocity = std::nullopt
+		.firstInitVelocity = std::nullopt
 	};
 
 	constexpr Params params3 = {
 		.renderMode = Params::RenderMode::Billboards,
 		.blendMode = Params::BlendMode::Additive,
+		.pointSize = 2.0f,
+		.lineWidth = 1.0f,
+		.pointSmooth = true,
+		.lineSmooth = false,
 		.manualControl = true,
 		.mouseSensitivity = 0.002f,
-		.duration = 60.0f,
+		.duration = 10.0f,
 		.controlPointsCount = 0,
 		.particlesCount = 10000,
 		.instancesCount = 1,
@@ -121,15 +137,19 @@ namespace
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
 		.originForce = 0.0f,
 		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(0.005f, 0.005f, 0.005f, 1.0f), glm::vec4(0.005f, 0.05f, 0.005f, 1.0f) },
-		.firstInitialVelocity = std::nullopt
+		.firstInitVelocity = std::nullopt
 	};
 
 	constexpr Params params4 = {
 		.renderMode = Params::RenderMode::Points,
 		.blendMode = Params::BlendMode::Additive,
+		.pointSize = 2.0f,
+		.lineWidth = 1.0f,
+		.pointSmooth = true,
+		.lineSmooth = false,
 		.manualControl = true,
 		.mouseSensitivity = 0.002f,
-		.duration = 60.0f,
+		.duration = 10.0f,
 		.controlPointsCount = 0,
 		.particlesCount = 10000,
 		.instancesCount = 1,
@@ -146,15 +166,19 @@ namespace
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
 		.originForce = 0.0f,
 		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) },
-		.firstInitialVelocity = std::nullopt
+		.firstInitVelocity = std::nullopt
 	};
 
 	constexpr Params params5 = {
 		.renderMode = Params::RenderMode::Lines,
 		.blendMode = Params::BlendMode::Additive,
+		.pointSize = 2.0f,
+		.lineWidth = 1.0f,
+		.pointSmooth = true,
+		.lineSmooth = false,
 		.manualControl = true,
 		.mouseSensitivity = 0.002f,
-		.duration = 60.0f,
+		.duration = 10.0f,
 		.controlPointsCount = 0,
 		.particlesCount = 10000,
 		.instancesCount = 1,
@@ -171,12 +195,16 @@ namespace
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
 		.originForce = 0.0f,
 		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) },
-		.firstInitialVelocity = std::nullopt
+		.firstInitVelocity = std::nullopt
 	};
 
 	constexpr Params params6 = {
 		.renderMode = Params::RenderMode::Lines,
 		.blendMode = Params::BlendMode::Additive,
+		.pointSize = 2.0f,
+		.lineWidth = 1.0f,
+		.pointSmooth = true,
+		.lineSmooth = false,
 		.manualControl = false,
 		.mouseSensitivity = 0.002f,
 		.duration = 10.0f,
@@ -196,12 +224,16 @@ namespace
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.0f, 0.0f),
 		.originForce = 10.0f,
 		.forcedColors = std::array<glm::vec4, 2>{ glm::vec4(1.0f, 1.0f, 0.3f, 1.0f), glm::vec4(1.0f, 0.5f, 0.3f, 1.0f) },
-		.firstInitialVelocity = std::nullopt
+		.firstInitVelocity = std::nullopt
 	};
 
 	constexpr Params params7 = {
 		.renderMode = Params::RenderMode::Billboards,
 		.blendMode = Params::BlendMode::Additive,
+		.pointSize = 2.0f,
+		.lineWidth = 1.0f,
+		.pointSmooth = true,
+		.lineSmooth = false,
 		.manualControl = false,
 		.mouseSensitivity = 0.002f,
 		.duration = 10.0f,
@@ -221,12 +253,16 @@ namespace
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.002f, 0.0001f),
 		.originForce = 5.0f,
 		.forcedColors = std::nullopt,
-		.firstInitialVelocity = std::nullopt
+		.firstInitVelocity = std::nullopt
 	};
 
 	constexpr Params params8 = {
 		.renderMode = Params::RenderMode::Billboards,
 		.blendMode = Params::BlendMode::Additive,
+		.pointSize = 2.0f,
+		.lineWidth = 1.0f,
+		.pointSmooth = true,
+		.lineSmooth = false,
 		.manualControl = false,
 		.mouseSensitivity = 0.002f,
 		.duration = 10.0f,
@@ -246,10 +282,10 @@ namespace
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.002f, 0.0f),
 		.originForce = 10.0f,
 		.forcedColors = std::nullopt,
-		.firstInitialVelocity = glm::vec2(0.001f, 0.0f)
+		.firstInitVelocity = glm::vec2(0.001f, 0.0f)
 	};
 
-	constexpr Params params = params8;
+	constexpr Params params = params5;
 }
 
 namespace Levels
@@ -279,10 +315,10 @@ namespace Levels
 			auto& particles = Globals::Components().particles();
 			auto& decorations = Globals::Components().staticDecorations();
 
-			graphicsSettings.pointSize = 2.0f;
-			graphicsSettings.lineWidth = 1.0f;
-			graphicsSettings.pointSmooth = true;
-			graphicsSettings.lineSmooth = false;
+			graphicsSettings.pointSize = params.pointSize;
+			graphicsSettings.lineWidth = params.lineWidth;
+			graphicsSettings.pointSmooth = params.pointSmooth;
+			graphicsSettings.lineSmooth = params.lineSmooth;
 
 			physics.forceRefreshRateBasedStep = params.forceRefreshRateBasedStep;
 
@@ -334,15 +370,20 @@ namespace Levels
 			for (unsigned i = 0; i < params.instancesCount; ++i)
 			{
 				prevCursorPosition[i] = cursorPosition[i];
+				prevCursorOffset[i] = cursorOffset[i];
 				if (params.manualControl || splineT == 1.0f)
 				{
 					cursorPosition[i] += mouse.getCartesianDelta() * params.mouseSensitivity;
 					cursorPosition[i] = glm::clamp(cursorPosition[i], -camera.details.completeProjectionHSize, camera.details.completeProjectionHSize);
 				}
 				else
-				{
 					cursorPosition[i] = splines[i]->getSplineSample(splineT);
-				}
+
+				if (mouse.pressed.xmb1)
+					cursorOffset[i] = glm::diskRand(0.2f);
+
+				if (mouse.pressed.xmb2)
+					cursorOffset[i] = glm::vec2(0.0f, 0.0f);
 			}
 
 			cameraStep();
@@ -372,16 +413,16 @@ namespace Levels
 			for (unsigned i = 0; i < params.instancesCount; ++i)
 			{
 				auto& particlesInstance = particles.emplace(
-					std::make_pair([&, i]() { return glm::vec3(prevCursorPosition[i], 0.0f); }, [&, i]() { return glm::vec3(cursorPosition[i], 0.0f); }),
-					[&, i, angle = 0.0f, firstInitialVelocity = params.firstInitialVelocity]() mutable {
+					std::make_pair([&, i]() { return glm::vec3(prevCursorPosition[i] + prevCursorOffset[i], 0.0f); }, [&, i]() { return glm::vec3(cursorPosition[i] + cursorOffset[i], 0.0f); }), glm::vec3(0.0f),
+					[&, i, angle = 0.0f, firstInitVelocity = params.firstInitVelocity]() mutable {
 						angle += 2.0f * physics.frameDuration * (mouse.pressing.lmb - mouse.pressing.rmb);
-						if (firstInitialVelocity)
+						if (firstInitVelocity)
 						{
-							const auto result = glm::vec3(*firstInitialVelocity, 0.0f);
-							firstInitialVelocity = std::nullopt;
+							const auto result = glm::vec3(*firstInitVelocity, 0.0f);
+							firstInitVelocity = std::nullopt;
 							return result;
 						}
-						return (params.manualControl ? glm::vec3(std::cos(angle), std::sin(angle), 0.0f) : glm::vec3(cursorPosition[i] - prevCursorPosition[i], 0.0f)) * params.initVelocity;
+						return (params.manualControl ? glm::vec3(std::cos(angle), std::sin(angle), 0.0f) : glm::vec3((cursorPosition[i] + cursorOffset[i]) - (prevCursorPosition[i] + prevCursorOffset[i]), 0.0f)) * params.initVelocity;
 					},
 					params.lifetimeRange,
 					params.forcedColors ? std::array<FVec4, 2>{ (*params.forcedColors)[0], (*params.forcedColors)[1]} : std::array<FVec4, 2>{ glm::vec4(color[i], 1.0f), glm::vec4(color[i], 1.0f) },
@@ -397,15 +438,11 @@ namespace Levels
 					tfParticles.originInit(true);
 					return [&, initRT = initRS(programBase), initRS = std::move(initRS)]() mutable {
 						initRT();
-						particlesInstance.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) mutable {
-							particlesInstance.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) {
-								tfParticles.AZPlusBPlusCT(params.AZPlusBPlusCT);
-								tfParticles.originForce(params.originForce);
-								tfParticles.velocityFactor(params.velocityFactor);
-								return initRS(programBase);
-							};
-
-							return nullptr;
+						particlesInstance.tfRenderingSetupF = [&, initRS = std::move(initRS)](auto& programBase) {
+							tfParticles.AZPlusBPlusCT(params.AZPlusBPlusCT);
+							tfParticles.originForce(params.originForce);
+							tfParticles.velocityFactor(params.velocityFactor);
+							return initRS(programBase);
 						};
 					};
 				};
@@ -413,7 +450,7 @@ namespace Levels
 				if (params.renderMode == Params::RenderMode::Billboards)
 				{
 					particlesInstance.customShadersProgram = &billboardsShader;
-					particlesInstance.renderingSetupF = [&](auto) mutable -> std::function<void()> {
+					particlesInstance.renderingSetupF = [&](auto&) mutable -> std::function<void()> {
 						billboardsShader.vp(Globals::Components().mvp2D().getVP());
 						glActiveTexture(GL_TEXTURE0);
 						glBindTexture(GL_TEXTURE_2D, explosionTexture.component->loaded.textureObject);
@@ -430,7 +467,7 @@ namespace Levels
 				}
 				else if (params.renderMode == Params::RenderMode::Points)
 				{
-					particlesInstance.renderingSetupF = [&](auto) mutable -> std::function<void()> {
+					particlesInstance.renderingSetupF = [&](auto&) mutable -> std::function<void()> {
 						if (params.blendMode == Params::BlendMode::Additive)
 						{
 							glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -443,9 +480,9 @@ namespace Levels
 				else if (params.renderMode == Params::RenderMode::Lines)
 				{
 					particlesInstance.customShadersProgram = &trailsShader;
-					particlesInstance.renderingSetupF = [&](auto) mutable -> std::function<void()> {
+					particlesInstance.renderingSetupF = [&](auto&) mutable -> std::function<void()> {
 						trailsShader.vp(Globals::Components().mvp2D().getVP());
-						trailsShader.deltaTimeFactor(4.0f);
+						trailsShader.deltaTimeFactor(2.0f);
 
 						if (params.blendMode == Params::BlendMode::Additive)
 						{
@@ -463,6 +500,8 @@ namespace Levels
 
 		std::array<glm::vec2, params.instancesCount> cursorPosition{};
 		std::array<glm::vec2, params.instancesCount> prevCursorPosition{};
+		std::array<glm::vec2, params.instancesCount> cursorOffset{};
+		std::array<glm::vec2, params.instancesCount> prevCursorOffset{};
 		std::array<glm::vec3, params.instancesCount> color{};
 		std::array<ComponentId, params.instancesCount> particlesIds{};
 		CM::Texture explosionTexture;

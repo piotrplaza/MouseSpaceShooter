@@ -21,6 +21,7 @@
 #include <ogl/shaders/textured.hpp>
 
 #include <tools/gameHelpers.hpp>
+#include <tools/particleSystemHelpers.hpp>
 #include <tools/playersHandler.hpp>
 #include <tools/splines.hpp>
 
@@ -115,7 +116,7 @@ namespace Levels
 		void customElements()
 		{
 			auto& grapples = Globals::Components().grapples();
-			grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 20.0f, 0.0f }))).range = 20.0f;
+			grapples.emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ 20.0f, 0.0f }))).range = 20.0f;
 		}
 
 		void collisions()

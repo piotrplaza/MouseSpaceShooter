@@ -22,6 +22,7 @@
 #include <ogl/shaders/textured.hpp>
 
 #include <tools/gameHelpers.hpp>
+#include <tools/particleSystemHelpers.hpp>
 #include <tools/playersHandler.hpp>
 #include <tools/b2Helpers.hpp>
 #include <tools/Shapes2D.hpp>
@@ -129,8 +130,8 @@ namespace Levels
 				staticWalls.emplace(Tools::CreateBoxBody({ squareHSize, squareHSize }, Tools::BodyParams{}.friction(10.0f)), CM::Texture(cityTexture, true));
 				staticWalls.last().texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 
-				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ ringRadius, 0.0f })), CM::Texture(orbTexture, true));
-				staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ squareHSize, 0.0f })), CM::Texture(orbTexture, true));
+				staticWalls.emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ ringRadius, 0.0f })), CM::Texture(orbTexture, true));
+				staticWalls.emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ squareHSize, 0.0f })), CM::Texture(orbTexture, true));
 			}
 
 			{
@@ -307,10 +308,10 @@ namespace Levels
 
 				constexpr float range = (ringRadius - squareHSize) * 0.6f;
 
-				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ -squareHSize, -squareHSize })), CM::Texture(orbTexture, true)).range = range;
-				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ squareHSize, -squareHSize })), CM::Texture(orbTexture, true)).range = range;
-				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ -squareHSize, squareHSize })), CM::Texture(orbTexture, true)).range = range;
-				grapples.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ squareHSize, squareHSize })), CM::Texture(orbTexture, true)).range = range;
+				grapples.emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ -squareHSize, -squareHSize })), CM::Texture(orbTexture, true)).range = range;
+				grapples.emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ squareHSize, -squareHSize })), CM::Texture(orbTexture, true)).range = range;
+				grapples.emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ -squareHSize, squareHSize })), CM::Texture(orbTexture, true)).range = range;
+				grapples.emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ squareHSize, squareHSize })), CM::Texture(orbTexture, true)).range = range;
 			}
 
 			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, gamepadForPlayer1,

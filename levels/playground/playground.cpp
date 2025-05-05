@@ -45,6 +45,7 @@
 #include <tools/playersHandler.hpp>
 #include <tools/missilesHandler.hpp>
 #include <tools/splines.hpp>
+#include <tools/particleSystemHelpers.hpp>
 
 #include <commonTypes/fTypes.hpp>
 
@@ -290,10 +291,10 @@ namespace Levels
 			] (ShadersUtils::ProgramId program) mutable {
 				if (!colorUniform.isValid())
 				{
-					colorUniform = UniformsUtils::Uniform4f(program, "color");
-					visibilityReduction = UniformsUtils::Uniform1b(program, "visibilityReduction");
-					fullVisibilityDistance = UniformsUtils::Uniform1f(program, "fullVisibilityDistance");
-					invisibilityDistance = UniformsUtils::Uniform1f(program, "invisibilityDistance");
+					colorUniform.reset(program, "color");
+					visibilityReduction.reset(program, "visibilityReduction");
+					fullVisibilityDistance.reset(program, "fullVisibilityDistance");
+					invisibilityDistance.reset(program, "invisibilityDistance");
 				}
 
 				colorUniform(colorF());
@@ -305,7 +306,7 @@ namespace Levels
 				return [=]() mutable {
 					colorUniform(Globals::Components().graphicsSettings().defaultColorF());
 					visibilityReduction(false);
-					};
+				};
 			} };
 		}
 
@@ -321,7 +322,7 @@ namespace Levels
 					addBlendingColor = UniformsUtils::Uniform4f()
 				](ShadersUtils::ProgramId program) mutable {
 					if (!addBlendingColor.isValid())
-						addBlendingColor = UniformsUtils::Uniform4f(program, "addBlendingColor");
+						addBlendingColor.reset(program, "addBlendingColor");
 
 					float minDistance = std::numeric_limits<float>::max();
 					for (const auto& playerHandler : playersHandler.getPlayersHandlers())
@@ -359,7 +360,8 @@ namespace Levels
 			auto renderingSetupF = [
 				texturesCustomTransformUniform = UniformsUtils::UniformMat4f()
 			](ShadersUtils::ProgramId program) mutable {
-					if (!texturesCustomTransformUniform.isValid()) texturesCustomTransformUniform = UniformsUtils::UniformMat4f(program, "texturesCustomTransform");
+					if (!texturesCustomTransformUniform.isValid())
+						texturesCustomTransformUniform.reset(program, "texturesCustomTransform");
 					const float simulationDuration = Globals::Components().physics().simulationDuration;
 					texturesCustomTransformUniform(Tools::TextureTransform(glm::vec2(glm::cos(simulationDuration), glm::sin(simulationDuration)) * 0.1f ));
 					return [=]() mutable { texturesCustomTransformUniform(glm::mat4(1.0f)); };
@@ -397,7 +399,7 @@ namespace Levels
 			for (const float pos : {-30.0f, 30.0f})
 			{
 				{
-					auto renderingSetupF = [=, this, wallId = Globals::Components().staticWalls().size()](auto) {
+					auto renderingSetupF = [=, this, wallId = Globals::Components().staticWalls().size()](auto&) {
 						Tools::MVPInitialization(Globals::Shaders().texturedColorThreshold(), Globals::Components().staticWalls()[wallId].modelMatrixF());
 
 						if (pos < 0.0f)
@@ -416,24 +418,38 @@ namespace Levels
 						return [=]() mutable { Globals::Shaders().texturedColorThreshold().texturesCustomTransform(glm::mat4(1.0f)); };
 						};
 
-					Globals::Components().staticWalls().emplace(Tools::CreateCircleBody(5.0f, Tools::BodyParams().position({ 0.0f, pos }).bodyType(b2_dynamicBody).density(0.01f)),
+					const auto radius = 5.0f;
+					auto& disc = Globals::Components().staticWalls().emplace(Tools::CreateDiscBody(radius, Tools::BodyParams().position({ 0.0f, pos }).bodyType(b2_dynamicBody).density(0.01f)),
 						CM::DummyTexture(), std::move(renderingSetupF), RenderLayer::Midground, &Globals::Shaders().texturedColorThreshold());
+
+					constexpr int particleEmittersCount = 8;
+					constexpr float radialStep = glm::two_pi<float>() / particleEmittersCount;
+					for (int i = 0; i < particleEmittersCount; ++i)
+					{
+						const float angle = radialStep * i;
+						auto finalAngleF = [=, &disc]() { return disc.getAngle() + angle; };
+						Tools::CreateParticleSystem(Tools::ParticleSystemParams{}
+							.position([=, &disc]() { return glm::vec3(disc.getOrigin2D() + glm::vec2(glm::cos(finalAngleF()), glm::sin(finalAngleF())) * radius, 0.0f); })
+							.velocityFactor(1.0f).initVelocity([=]() { return glm::vec3(glm::vec2(glm::cos(finalAngleF()), glm::sin(finalAngleF())) * 10.0f, 0.0f); })
+							.velocityOffset([&]() { return glm::vec3(disc.getVelocity(), 0.0f); })
+							.globalForce(glm::vec3(0.0f))
+							.particlesCount(10000));
+					}
 				}
 
-				auto& wall = Globals::Components().staticWalls().emplace(Tools::CreateCircleBody(10.0f, Tools::BodyParams().position({ pos, 0.0f }).bodyType(b2_dynamicBody).density(0.01f)),
+				auto& wall = Globals::Components().staticWalls().emplace(Tools::CreateDiscBody(10.0f, Tools::BodyParams().position({ pos, 0.0f }).bodyType(b2_dynamicBody).density(0.01f)),
 					CM::DummyTexture());
 				wall.renderLayer = RenderLayer::NearMidground;
 				wall.renderF = []() { return false; };
 
 				auto renderingSetupF = [
-						wallId = Globals::Components().staticWalls().size() - 1,
-						texturedProgram = ShadersUtils::Programs::TexturedAccessor()
-					](ShadersUtils::ProgramId program) mutable {
-						if (!texturedProgram.isValid()) texturedProgram = program;
-						texturedProgram.color(glm::vec4(
+						wallId = Globals::Components().staticWalls().size() - 1
+					](ShadersUtils::AccessorBase& shaderBase) mutable {
+						auto& program = static_cast<ShadersUtils::Programs::TexturedAccessor&>(shaderBase);
+						program.color(glm::vec4(
 							glm::sin(Globals::Components().physics().simulationDuration* glm::two_pi<float>() * 0.2f) + 1.0f) / 2.0f);
-						texturedProgram.model(Globals::Components().staticWalls()[wallId].modelMatrixF());
-						return [=]() mutable { texturedProgram.color(Globals::Components().graphicsSettings().defaultColorF()); };
+						program.model(Globals::Components().staticWalls()[wallId].modelMatrixF());
+						return [&]() mutable { program.color(Globals::Components().graphicsSettings().defaultColorF()); };
 					};
 
 				wall.subsequence.emplace_back(Tools::Shapes2D::CreatePositionsOfFunctionalRectangles({ 1.0f, 1.0f },
@@ -467,13 +483,13 @@ namespace Levels
 						this
 				](ShadersUtils::ProgramId program) mutable {
 					if (!alphaFromBlendingTextureUniform.isValid())
-						alphaFromBlendingTextureUniform = UniformsUtils::Uniform1b(program, "alphaFromBlendingTexture");
+						alphaFromBlendingTextureUniform.reset(program, "alphaFromBlendingTexture");
 					if (!colorAccumulationUniform.isValid())
-						colorAccumulationUniform = UniformsUtils::Uniform1b(program, "colorAccumulation");
+						colorAccumulationUniform.reset(program, "colorAccumulation");
 					if (!texturesCustomTransform.isValid())
-						texturesCustomTransform = UniformsUtils::UniformMat4fv<5>(program, "texturesCustomTransform");
+						texturesCustomTransform.reset(program, "texturesCustomTransform");
 					if (!sceneCoordTextures.isValid())
-						sceneCoordTextures = UniformsUtils::Uniform1b(program, "sceneCoordTextures");
+						sceneCoordTextures.reset(program, "sceneCoordTextures");
 
 					alphaFromBlendingTextureUniform(true);
 					colorAccumulationUniform(true);
@@ -514,7 +530,7 @@ namespace Levels
 				this
 			](ShadersUtils::ProgramId program) mutable {
 					if (!playerUnhidingRadiusUniform.isValid())
-						playerUnhidingRadiusUniform = UniformsUtils::Uniform1f(program, "playerUnhidingRadius");
+						playerUnhidingRadiusUniform.reset(program, "playerUnhidingRadius");
 
 					playerUnhidingRadiusUniform(20.0f);
 
@@ -534,17 +550,18 @@ namespace Levels
 
 		void createGrapples() const
 		{
-			Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 0.0f, 10.0f })),
+			Globals::Components().grapples().emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ 0.0f, 10.0f })),
 				CM::Texture(orbTexture, true)).range = 15.0f;
 
 			{
 				auto renderingSetupF = [colorUniform = UniformsUtils::Uniform4f()](ShadersUtils::ProgramId program) mutable {
-					if (!colorUniform.isValid()) colorUniform = UniformsUtils::Uniform4f(program, "color");
+					if (!colorUniform.isValid())
+						colorUniform.reset(program, "color");
 					colorUniform(glm::vec4((glm::sin(Globals::Components().physics().simulationDuration / 3.0f * glm::two_pi<float>()) + 1.0f) / 2.0f));
 					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColorF()); };
 				};
 
-				Globals::Components().grapples().emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 0.0f, -10.0f })),
+				Globals::Components().grapples().emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ 0.0f, -10.0f })),
 					CM::Texture(orbTexture, true), std::move(renderingSetupF)).range = 15.0f;
 			}
 
@@ -552,17 +569,18 @@ namespace Levels
 				auto renderingSetupF = [
 					texturesCustomTransformUniform = UniformsUtils::UniformMat4f()
 				](ShadersUtils::ProgramId program) mutable {
-					if (!texturesCustomTransformUniform.isValid()) texturesCustomTransformUniform = UniformsUtils::UniformMat4f(program, "texturesCustomTransform");
+					if (!texturesCustomTransformUniform.isValid())
+						texturesCustomTransformUniform.reset(program, "texturesCustomTransform");
 					texturesCustomTransformUniform(Tools::TextureTransform({ 0.0f, 0.0f }, 0.0f, { 2.0f, 2.0f }));
 					return [=]() mutable { texturesCustomTransformUniform(glm::mat4(1.0f)); };
 					};
 
-					Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f,
+					Globals::Components().grapples().emplace(Tools::CreateDiscBody(2.0f,
 						Tools::BodyParams().position({ -10.0f, -30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)),
 						CM::Texture(orbTexture, true), std::move(renderingSetupF)).range = 30.0f;
 			}
 
-			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(4.0f,
+			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateDiscBody(4.0f,
 				Tools::BodyParams().position({ -10.0f, 30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)), CM::DummyTexture());
 			grapple.range = 30.0f;
 			grapple.renderF = []() { return false; };
@@ -586,7 +604,8 @@ namespace Levels
 		{
 			const auto alpha = std::make_shared<float>(0.0f);
 			auto standardRSF =  [=, colorUniform = UniformsUtils::Uniform4f()](ShadersUtils::ProgramId program) mutable {
-					if (!colorUniform.isValid()) colorUniform = UniformsUtils::Uniform4f(program, "color");
+					if (!colorUniform.isValid())
+						colorUniform.reset(program, "color");
 					colorUniform(glm::vec4(*alpha));
 					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColorF()); };
 				};
@@ -611,7 +630,7 @@ namespace Levels
 						Tools::BodyParams().position({ -50.0f, 30.0f })), CM::Texture(woodTexture, true, { 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }), standardRSF);
 					dynamicWallId = wall.getComponentId();
 
-					auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(2.0f, Tools::BodyParams().position({ 50.0f, 30.0f })),
+					auto& grapple = Globals::Components().grapples().emplace(Tools::CreateDiscBody(2.0f, Tools::BodyParams().position({ 50.0f, 30.0f })),
 						CM::AnimatedTexture(recursiveFaceAnimatedTexture, true, { 0.0f, 0.0f }, 0.0f, { 6.0f, 6.0f }), recursiveFaceRSF);
 					grapple.range = 20.0f;
 					dynamicGrappleId = grapple.getComponentId();

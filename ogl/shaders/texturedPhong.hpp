@@ -6,12 +6,12 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct TexturedPhongAccessor : ProgramBaseCRTP<TexturedPhongAccessor>
+		struct TexturedPhongAccessor : AccessorBase
 		{
-			using ProgramBaseCRTP::ProgramBaseCRTP;
+			using AccessorBase::AccessorBase;
 
 			TexturedPhongAccessor(ProgramId program) :
-				ProgramBaseCRTP(program),
+				AccessorBase(program),
 				model(program, "model"),
 				vp(program, "vp"),
 				normalMatrix(program, "normalMatrix"),
@@ -101,10 +101,10 @@ namespace ShadersUtils
 			UniformsUtils::Uniform1f forcedAlpha;
 		};
 
-		struct TexturedPhong : TexturedPhongAccessor
+		struct TexturedPhong : ProgramBase<TexturedPhongAccessor>
 		{
 			TexturedPhong() :
-				TexturedPhongAccessor(LinkProgram(CompileShaders("ogl/shaders/texturedPhong.vs",
+				ProgramBase(LinkProgram(CompileShaders("ogl/shaders/texturedPhong.vs",
 					"ogl/shaders/texturedPhong.fs"), { {0, "bPos"}, {1, "bColor"}, {2, "bTexCoord"}, {3, "bNormal"}, {4, "bInstancedTransform"}, {8, "bInstancedNormalTransform"} }))
 			{
 				model(glm::mat4(1.0f));

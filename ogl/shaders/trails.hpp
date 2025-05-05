@@ -6,15 +6,15 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct TrailsAccessor : ProgramBaseCRTP<TrailsAccessor>
+		struct TrailsAccessor : AccessorBase
 		{
-			using ProgramBaseCRTP::ProgramBaseCRTP;
+			using AccessorBase::AccessorBase;
 
 			TrailsAccessor(ProgramId program):
-				ProgramBaseCRTP(program),
+				AccessorBase(program),
 				vp(program, "vp"),
 				color(program, "color"),
-				deltaTime(program, "deltaTime"),
+				deltaTime(program, "deltaTime", false),
 				deltaTimeFactor(program, "deltaTimeFactor")
 			{
 			}
@@ -25,10 +25,10 @@ namespace ShadersUtils
 			UniformsUtils::Uniform1f deltaTimeFactor;
 		};
 
-		struct Trails : TrailsAccessor
+		struct Trails : ProgramBase<TrailsAccessor>
 		{
 			Trails() :
-				TrailsAccessor(LinkProgram(CompileShaders("ogl/shaders/trails.vs",
+				ProgramBase(LinkProgram(CompileShaders("ogl/shaders/trails.vs",
 					"ogl/shaders/trails.gs", "ogl/shaders/trails.fs"), { {0, "bPos"}, {1, "bColor"}, {2, "bVelocityAndTime"} }))
 			{
 				vp(glm::mat4(1.0f));

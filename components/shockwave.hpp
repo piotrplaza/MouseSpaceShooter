@@ -27,7 +27,7 @@ namespace Components
 			const float angleStep = glm::two_pi<float>() / numOfParticles;
 			for (int i = 0; i < numOfParticles; ++i)
 			{
-				particles.push_back(Tools::CreateCircleBody(particlesRadius,
+				particles.push_back(Tools::CreateDiscBody(particlesRadius,
 					Tools::BodyParams().position(center).bodyType(b2_dynamicBody).density(particlesDensity).sensor(particlesAsSensors)));
 				particles.back()->SetBullet(particlesAsBullets);
 				particles.back()->SetLinearVelocity(ToVec2<b2Vec2>(sourceVelocity + glm::vec2(glm::cos(angle), glm::sin(angle)) * initExplosionVelocity *

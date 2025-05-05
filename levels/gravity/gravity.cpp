@@ -29,6 +29,7 @@
 
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
+#include <tools/particleSystemHelpers.hpp>
 #include <tools/b2Helpers.hpp>
 
 #include <glm/gtx/vector_angle.hpp>
@@ -189,7 +190,7 @@ namespace Levels
 
 		void createGrapples()
 		{
-			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateCircleBody(20.0f,
+			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateDiscBody(20.0f,
 				Tools::BodyParams()), CM::Texture(orbTexture, true));
 			grapple.range = 100.0f;
 			planetId = grapple.getComponentId();

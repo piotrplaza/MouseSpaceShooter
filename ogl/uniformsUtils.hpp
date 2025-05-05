@@ -12,6 +12,12 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <array>
+#include <functional>
+
+namespace ShadersUtils
+{
+	struct AccessorBase;
+}
 
 namespace UniformsUtils
 {
@@ -19,14 +25,26 @@ namespace UniformsUtils
 	{
 	public:
 		Uniform();
-		Uniform(ShadersUtils::ProgramId programId, const std::string& uniformName);
+		Uniform(ShadersUtils::ProgramId programId, const std::string& uniformName, bool checkpointCapturing = true);
 
 		bool isValid() const;
+		void reset(ShadersUtils::ProgramId programId, const std::string& uniformName);
+
+		virtual std::function<void()> getCheckpoint() = 0;
 
 	protected:
+		std::function<void()> createCheckpoint(auto this_, auto value)
+		{
+			if (!checkpointCapturing)
+				return []() {};
+			return [=]() { this_->operator()(value); };
+		}
+
 		bool isValidInternal() const;
+
 		ShadersUtils::ProgramId programId = 0;
 		GLint uniformId = -1;
+		bool checkpointCapturing = true;
 	};
 
 	class Uniform1i : public Uniform
@@ -37,6 +55,8 @@ namespace UniformsUtils
 		void operator ()(int value);
 
 		int getValue() const;
+
+		std::function<void()> getCheckpoint() override;
 
 	private:
 		int value{};
@@ -79,6 +99,11 @@ namespace UniformsUtils
 			return values;
 		}
 
+		std::function<void()> getCheckpoint() override
+		{
+			return createCheckpoint(this, values);
+		}
+
 	private:
 		std::array<int, Size> values{};
 	};
@@ -91,6 +116,8 @@ namespace UniformsUtils
 		void operator ()(glm::ivec2 value);
 		
 		const glm::ivec2& getValue() const;
+
+		std::function<void()> getCheckpoint() override;
 
 	private:
 		glm::ivec2 value{};
@@ -133,6 +160,11 @@ namespace UniformsUtils
 			return values;
 		}
 
+		std::function<void()> getCheckpoint() override
+		{
+			return createCheckpoint(this, values);
+		}
+
 	private:
 		std::array<glm::ivec2, Size> values{};
 	};
@@ -145,6 +177,8 @@ namespace UniformsUtils
 		void operator ()(bool value);
 		
 		bool getValue() const;
+
+		std::function<void()> getCheckpoint() override;
 
 	private:
 		bool value{};
@@ -187,6 +221,11 @@ namespace UniformsUtils
 			return values;
 		}
 
+		std::function<void()> getCheckpoint() override
+		{
+			return createCheckpoint(this, values);
+		}
+
 	private:
 		std::array<int, Size> values{};
 	};
@@ -199,6 +238,8 @@ namespace UniformsUtils
 		void operator ()(float value);
 		
 		float getValue() const;
+
+		std::function<void()> getCheckpoint() override;
 
 	private:
 		float value{};
@@ -241,6 +282,11 @@ namespace UniformsUtils
 			return values;
 		}
 
+		std::function<void()> getCheckpoint() override
+		{
+			return createCheckpoint(this, values);
+		}
+
 	private:
 		std::array<float, Size> values{};
 	};
@@ -253,6 +299,8 @@ namespace UniformsUtils
 		void operator ()(glm::vec2 value);
 		
 		const glm::vec2& getValue() const;
+
+		std::function<void()> getCheckpoint() override;
 
 	private:
 		glm::vec2 value{};
@@ -295,6 +343,11 @@ namespace UniformsUtils
 			return values;
 		}
 
+		std::function<void()> getCheckpoint() override
+		{
+			return createCheckpoint(this, values);
+		}
+
 	private:
 		std::array<glm::vec2, Size> values{};
 	};
@@ -307,6 +360,8 @@ namespace UniformsUtils
 		void operator ()(glm::vec3 value);
 
 		const glm::vec3& getValue() const;
+
+		std::function<void()> getCheckpoint() override;
 
 	private:
 		glm::vec3 value{};
@@ -349,6 +404,11 @@ namespace UniformsUtils
 			return values;
 		}
 
+		std::function<void()> getCheckpoint() override
+		{
+			return createCheckpoint(this, values);
+		}
+
 	private:
 		std::array<glm::vec3, Size> values{};
 	};
@@ -361,6 +421,8 @@ namespace UniformsUtils
 		void operator ()(glm::vec4 value);
 
 		const glm::vec4& getValue() const;
+
+		std::function<void()> getCheckpoint() override;
 
 	private:
 		glm::vec4 value{};
@@ -403,6 +465,11 @@ namespace UniformsUtils
 			return values;
 		}
 
+		std::function<void()> getCheckpoint() override  
+		{  
+			return createCheckpoint(this, values);
+		}
+
 	private:
 		std::array<glm::vec4, Size> values{};
 	};
@@ -415,6 +482,8 @@ namespace UniformsUtils
 		void operator ()(glm::mat3 value);
 
 		const glm::mat3& getValue() const;
+
+		std::function<void()> getCheckpoint() override;
 
 	private:
 		glm::mat3 value{};
@@ -457,6 +526,11 @@ namespace UniformsUtils
 			return values;
 		}
 
+		std::function<void()> getCheckpoint() override
+		{
+			return createCheckpoint(this, values);
+		}
+
 	private:
 		std::array<glm::mat3, Size> values{};
 	};
@@ -468,8 +542,9 @@ namespace UniformsUtils
 
 		void operator ()(glm::mat4 value);
 
-
 		const glm::mat4& getValue() const;
+
+		std::function<void()> getCheckpoint() override;
 
 	private:
 		glm::mat4 value{};
@@ -510,6 +585,11 @@ namespace UniformsUtils
 		{
 			assert(isValidInternal());
 			return values;
+		}
+
+		std::function<void()> getCheckpoint() override
+		{
+			return createCheckpoint(this, values);
 		}
 
 	private:

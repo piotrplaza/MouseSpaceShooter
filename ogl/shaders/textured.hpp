@@ -6,12 +6,12 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct TexturedAccessor : ProgramBaseCRTP<TexturedAccessor>
+		struct TexturedAccessor : AccessorBase
 		{
-			using ProgramBaseCRTP::ProgramBaseCRTP;
+			using AccessorBase::AccessorBase;
 
 			TexturedAccessor(ProgramId program):
-				ProgramBaseCRTP(program),
+				AccessorBase(program),
 				model(program, "model"),
 				vp(program, "vp"),
 				color(program, "color"),
@@ -57,10 +57,10 @@ namespace ShadersUtils
 			UniformsUtils::Uniform1f forcedAlpha;
 		};
 
-		struct Textured : TexturedAccessor
+		struct Textured : ProgramBase<TexturedAccessor>
 		{
 			Textured():
-				TexturedAccessor(LinkProgram(CompileShaders("ogl/shaders/textured.vs",
+				ProgramBase(LinkProgram(CompileShaders("ogl/shaders/textured.vs",
 					"ogl/shaders/textured.fs"), { {0, "bPos"}, {1, "bColor"}, {2, "bTexCoord"}, {3, "bNormal"}, {4, "bInstancedTransform"} }))
 			{
 				model(glm::mat4(1.0f));

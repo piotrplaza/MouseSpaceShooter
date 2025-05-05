@@ -30,6 +30,7 @@
 #include <tools/Shapes2D.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
+#include <tools/particleSystemHelpers.hpp>
 #include <tools/glmHelpers.hpp>
 
 #include <ogl/uniformsUtils.hpp>
@@ -68,10 +69,10 @@ namespace Levels::DamageOn
 			] (ShadersUtils::ProgramId program) mutable {
 				if (!colorUniform.isValid())
 				{
-					colorUniform = UniformsUtils::Uniform4f(program, "color");
-					visibilityReduction = UniformsUtils::Uniform1b(program, "visibilityReduction");
-					fullVisibilityDistance = UniformsUtils::Uniform1f(program, "fullVisibilityDistance");
-					invisibilityDistance = UniformsUtils::Uniform1f(program, "invisibilityDistance");
+					colorUniform.reset(program, "color");
+					visibilityReduction.reset(program, "visibilityReduction");
+					fullVisibilityDistance.reset(program, "fullVisibilityDistance");
+					invisibilityDistance.reset(program, "invisibilityDistance");
 				}
 
 				visibilityReduction(true);
@@ -264,7 +265,7 @@ namespace Levels::DamageOn
 
 			for (const auto& circleWall : levelParams.walls.circles)
 			{
-				dynamicWalls.emplace(Tools::CreateCircleBody(circleWall.z * levelParams.mapHHeight, Tools::BodyParams{}.position(glm::vec2(circleWall) * levelParams.mapHHeight))).renderF = [&]() { return debug.hitboxesRendering; };
+				dynamicWalls.emplace(Tools::CreateDiscBody(circleWall.z * levelParams.mapHHeight, Tools::BodyParams{}.position(glm::vec2(circleWall) * levelParams.mapHHeight))).renderF = [&]() { return debug.hitboxesRendering; };
 				dynamicWalls.last().colorF = glm::vec4(0.2f);
 				dynamicWalls.last().stepF = [&, &wall = dynamicWalls.last()]() { wall.setEnabled(!bonusLevel); };
 			}
@@ -280,7 +281,7 @@ namespace Levels::DamageOn
 					.bodyType(b2_dynamicBody).linearDamping(0.1f).angularDamping(1.0f).density(levelParams.debris.density);
 				auto& debris = dynamicWalls.emplace(levelParams.debris.radiusRange == glm::vec2(0.0f)
 					? Tools::CreateBoxBody(debrisHSize, bodyParams)
-					: Tools::CreateCircleBody(debrisHSize.x, bodyParams)
+					: Tools::CreateDiscBody(debrisHSize.x, bodyParams)
 					, CM::DummyTexture());
 				debris.renderF = [&]() { return debug.hitboxesRendering; };
 				debris.colorF = glm::vec4(0.2f);
@@ -1055,7 +1056,7 @@ namespace Levels::DamageOn
 		{
 			const auto& physics = Globals::Components().physics();
 
-			auto& playerActor = Globals::Components().actors().emplace(Tools::CreateCircleBody(playerType.init.radius, Tools::BodyParams{}
+			auto& playerActor = Globals::Components().actors().emplace(Tools::CreateDiscBody(playerType.init.radius, Tools::BodyParams{}
 				.linearDamping(playerType.init.linearDamping).fixedRotation(true).bodyType(b2_dynamicBody).density(playerType.init.density).position(position)), CM::DummyTexture{});
 			playerActor.renderF = [&]() { return debug.hitboxesRendering; };
 			playerActor.colorF = glm::vec4(0.2f);
@@ -1075,7 +1076,7 @@ namespace Levels::DamageOn
 			for (float sideFactor : { -1.0f, 1.0f })
 			{
 				auto& playerPresentation = playerActor.subsequence.emplace_back();
-				playerPresentation.renderingSetupF = [&](auto) {
+				playerPresentation.renderingSetupF = [&](auto&) {
 					bool prevBlend = glProxyIsBlendEnabled();
 					if (!debug.presentationTransparency)
 						glProxySetBlend(false);
@@ -1115,7 +1116,7 @@ namespace Levels::DamageOn
 				enemyType.init.animation.direction, enemyType.init.animation.mode, enemyType.init.animation.textureLayout });
 			enemyAnimatedTexture.start(true);
 
-			auto& enemyActor = Globals::Components().actors().emplace(Tools::CreateCircleBody(radius, Tools::BodyParams{ defaultBodyParams }
+			auto& enemyActor = Globals::Components().actors().emplace(Tools::CreateDiscBody(radius, Tools::BodyParams{ defaultBodyParams }
 				.bodyType(b2_dynamicBody)
 				.density(enemyType.init.density)
 				.position(position)), CM::DummyTexture());
@@ -1160,7 +1161,7 @@ namespace Levels::DamageOn
 				{
 					enemyPresentation.texture = CM::AnimatedTexture(enemyInst.animatedTexture.getComponentId(), false);
 					enemyPresentation.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
-					enemyPresentation.renderingSetupF = [&](auto) {
+					enemyPresentation.renderingSetupF = [&](auto&) {
 						bool prevBlend = glProxyIsBlendEnabled();
 						if (!debug.presentationTransparency)
 							glProxySetBlend(false);
@@ -1435,7 +1436,7 @@ namespace Levels::DamageOn
 			const auto velocity = direction * weaponInst.type.init.velocity;
 			const auto& physics = Globals::Components().physics();
 			auto& dynamicActors = Globals::Components().actors();
-			auto& fireball = dynamicActors.emplace(Tools::CreateCircleBody(radius,
+			auto& fireball = dynamicActors.emplace(Tools::CreateDiscBody(radius,
 				Tools::BodyParams{}.position(startPos).bodyType(b2_kinematicBody).sensor(true).bullet(true).velocity(velocity)), CM::DummyTexture());
 			fireball.modelMatrixF = [&, scale = 0.0f, nV = glm::normalize(velocity)]() mutable {
 				scale += physics.frameDuration * 2.0f;

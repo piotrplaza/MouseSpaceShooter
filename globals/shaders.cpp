@@ -67,21 +67,7 @@ namespace Globals
 
 	void ShadersHolder::frameSetup()
 	{
-		auto setup = [](auto& program) {
-			if (program.frameSetupF)
-				program.frameSetupF(program);
-		};
-
-		setup(basicPhong());
-		setup(texturedPhong());
-		setup(basic());
-		setup(julia());
-		setup(billboards());
-		setup(trails());
-		setup(textured());
-		setup(texturedColorThreshold());
-		setup(noise());
-		setup(tfParticles());
+		ShadersUtils::ProgramFrameSetup::FrameSetup();
 	}
 
 	void InitializeShaders()

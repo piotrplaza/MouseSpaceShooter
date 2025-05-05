@@ -20,8 +20,8 @@ namespace Levels
 		{
 			auto& staticWalls = Globals::Components().staticWalls();
 
-			auto& wall1 = staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams()));
-			auto& wall2 = staticWalls.emplace(Tools::CreateCircleBody(1.0f, Tools::BodyParams().position({ 0.0f, 5.0f }).bodyType(b2_dynamicBody)));
+			auto& wall1 = staticWalls.emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams()));
+			auto& wall2 = staticWalls.emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ 0.0f, 5.0f }).bodyType(b2_dynamicBody)));
 
 			Tools::CreateDistanceJoint(*wall1.body, *wall2.body, wall1.originF(), wall2.originF(), true, distance(wall1.originF(), wall2.originF()));
 		}

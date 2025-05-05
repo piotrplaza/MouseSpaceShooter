@@ -63,7 +63,7 @@ struct Renderable : ComponentBase, RenderableDef
 	Renderable(AbstractTextureComponentVariant texture,
 		RenderingSetupF renderingSetupF,
 		RenderLayer renderLayer,
-		ShadersUtils::ProgramBase* customShadersProgram = nullptr,
+		ShadersUtils::AccessorBase* customShadersProgram = nullptr,
 		std::vector<glm::vec3> positions = {},
 		std::vector<glm::vec2> texCoord = {}):
 		RenderableDef(std::move(positions), std::move(texCoord), texture, std::move(renderingSetupF)),
@@ -77,8 +77,8 @@ struct Renderable : ComponentBase, RenderableDef
 	{
 	}
 
-	ShadersUtils::ProgramBase* tfShaderProgram = nullptr;
-	ShadersUtils::ProgramBase* customShadersProgram = nullptr;
+	ShadersUtils::AccessorBase* tfShaderProgram = nullptr;
+	ShadersUtils::AccessorBase* customShadersProgram = nullptr;
 	std::optional<Instancing> instancing;
 
 	ResolutionMode resolutionMode = Globals::Components().defaults().resolutionMode;

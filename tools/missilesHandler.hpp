@@ -4,6 +4,8 @@
 
 #include "gameHelpers.hpp"
 
+#include "particleSystemHelpers.hpp"
+
 #include <glm/vec2.hpp>
 
 #include <optional>

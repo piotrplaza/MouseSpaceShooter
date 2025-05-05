@@ -165,12 +165,12 @@ namespace Tools
 	Body CreateEmptyBody(const BodyParams& bodyParams = BodyParams{});
 
 	Body CreateBoxBody(glm::vec2 hSize, const BodyParams& bodyParams = BodyParams{});
-	Body CreateCircleBody(float radius, const BodyParams& bodyParams = BodyParams{});
+	Body CreateDiscBody(float radius, const BodyParams& bodyParams = BodyParams{});
 	Body CreatePieBody(float radius, float angleStart = 0.0f, float angleStop = glm::two_pi<float>(), int pieces = 20, const BodyParams& bodyParams = BodyParams{});
 	Body CreateConvex4Body(const std::array<glm::vec2, 4>& vertices, const BodyParams& bodyParams = BodyParams{});
 	Body CreateTrianglesBody(const std::vector<std::array<glm::vec2, 3>>& vertices, const BodyParams& bodyParams = BodyParams{});
 	Body CreatePolylineBody(const std::vector<glm::vec2>& vertices, const BodyParams& bodyParams = BodyParams{});
-	Body CreateRandomPolygonBody(int numOfVertices, float radius, const BodyParams& bodyParams = BodyParams{}, int radResolution = 100);
+	Body CreateRandomPolygonBody(int numOfVertices, float radius, const BodyParams& bodyParams = BodyParams{}, int radResolution = 50);
 
 	void CreatePolylineFixtures(Body& body, const std::vector<glm::vec2>& vertices, const BodyParams& bodyParams = BodyParams{});
 

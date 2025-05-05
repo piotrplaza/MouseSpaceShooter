@@ -325,8 +325,8 @@ namespace Systems
 		glProxySetPointSmooth(graphicsSettings.pointSmooth);
 		glProxySetLineSmooth(graphicsSettings.lineSmooth);
 
-		glPointSize(graphicsSettings.pointSize);
-		glLineWidth(graphicsSettings.lineWidth);
+		glProxyPointSize(graphicsSettings.pointSize);
+		glProxyLineWidth(graphicsSettings.lineWidth);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.getDefaultSubBuffers().fbo);
 		glViewport(0, 0, framebuffers.getDefaultSubBuffers().size.x, framebuffers.getDefaultSubBuffers().size.y);

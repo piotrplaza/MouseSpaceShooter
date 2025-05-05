@@ -6,12 +6,12 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct TexturedColorThresholdAccessor : ProgramBaseCRTP<TexturedColorThresholdAccessor>
+		struct TexturedColorThresholdAccessor : AccessorBase
 		{
-			using ProgramBaseCRTP::ProgramBaseCRTP;
+			using AccessorBase::AccessorBase;
 
 			TexturedColorThresholdAccessor(ProgramId program):
-				ProgramBaseCRTP(program),
+				AccessorBase(program),
 				model(program, "model"),
 				vp(program, "vp"),
 				color(program, "color"),
@@ -45,10 +45,10 @@ namespace ShadersUtils
 			UniformsUtils::Uniform1b sceneCoordTextures;
 		};
 
-		struct TexturedColorThreshold : TexturedColorThresholdAccessor
+		struct TexturedColorThreshold : ProgramBase<TexturedColorThresholdAccessor>
 		{
 			TexturedColorThreshold():
-				TexturedColorThresholdAccessor(LinkProgram(CompileShaders("ogl/shaders/texturedColorThreshold.vs",
+				ProgramBase(LinkProgram(CompileShaders("ogl/shaders/texturedColorThreshold.vs",
 					"ogl/shaders/texturedColorThreshold.fs"), { {0, "bPos"}, {1, "bColor"}, {2, "bTexCoord"}, {4, "bInstancedTransform"} }))
 			{
 				model(glm::mat4(1.0f));

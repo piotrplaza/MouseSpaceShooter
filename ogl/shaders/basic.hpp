@@ -6,12 +6,12 @@ namespace ShadersUtils
 {
 	namespace Programs
 	{
-		struct BasicAccessor : ProgramBaseCRTP<BasicAccessor>
+		struct BasicAccessor : AccessorBase
 		{
-			using ProgramBaseCRTP::ProgramBaseCRTP;
+			using AccessorBase::AccessorBase;
 
 			BasicAccessor(ProgramId program):
-				ProgramBaseCRTP(program),
+				AccessorBase(program),
 				model(program, "model"),
 				vp(program, "vp"),
 				color(program, "color"),
@@ -25,10 +25,10 @@ namespace ShadersUtils
 			UniformsUtils::Uniform1f forcedAlpha;
 		};
 
-		struct Basic : BasicAccessor
+		struct Basic : ProgramBase<BasicAccessor>
 		{
 			Basic():
-				BasicAccessor(LinkProgram(CompileShaders("ogl/shaders/basic.vs",
+				ProgramBase(LinkProgram(CompileShaders("ogl/shaders/basic.vs",
 					"ogl/shaders/basic.fs"), { {0, "bPos"}, {1, "bColor"}, {4, "bInstancedTransform"} }))
 			{
 				model(glm::mat4(1.0f));

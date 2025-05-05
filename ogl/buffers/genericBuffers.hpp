@@ -192,7 +192,7 @@ namespace Buffers
 		}
 
 		template <typename GeneralSetup, typename PostSetup, typename GeneralTeardown, typename PostTeardown>
-		void draw(ShadersUtils::ProgramBase& program, GeneralSetup generalSetup, PostSetup postSetup, GeneralTeardown generalTeardown, PostTeardown postTeardown, bool transformFeedback = false) const
+		void draw(ShadersUtils::AccessorBase& program, GeneralSetup generalSetup, PostSetup postSetup, GeneralTeardown generalTeardown, PostTeardown postTeardown, bool transformFeedback = false) const
 		{
 			if (!renderable || renderable->state == ComponentState::Outdated || !renderable->isEnabled())
 				return;
