@@ -136,6 +136,7 @@ namespace Tools
 		glm::vec2 referenceVelocity{};
 		std::optional<CM::Plane> plane;
 		std::optional<CM::Sound> sound;
+		bool collided = false;
 
 	private:
 		bool valid = true;

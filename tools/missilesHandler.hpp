@@ -34,7 +34,7 @@ namespace Tools
 		void removeActiveMissiles();
 
 	private:
-		const MissileHandler& launchMissile(ComponentId playerId, std::optional<CM::SoundBuffer> soundBuffer = std::nullopt, float maxLifetime = 5.0f);
+		const MissileHandler& launchMissile(ComponentId playerId, std::optional<CM::SoundBuffer> soundBuffer, float maxLifetime);
 
 		std::unordered_map<CM::Missile, Tools::MissileHandler> missilesToHandlers;
 

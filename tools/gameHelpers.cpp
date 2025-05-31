@@ -58,7 +58,8 @@ namespace Tools
 		backThrust(other.backThrust),
 		referenceVelocity(other.referenceVelocity),
 		plane(other.plane),
-		sound(other.sound)
+		sound(other.sound),
+		collided(other.collided)
 	{
 		other.valid = false;
 	}

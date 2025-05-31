@@ -41,25 +41,16 @@ namespace Tools
 			[this](const auto& missileFixture, const auto& targetFixture) {
 				auto& deferredActions = Globals::Components().deferredActions();
 				const auto& missileBody = *missileFixture.GetBody();
-
-				deferredActions.emplace([&](auto) {
-					missilesToHandlers.erase(std::get<CM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).componentId);
-					return false;
-					});
-
 				const glm::vec2 explosionCenter = ToVec2<glm::vec2>(missileBody.GetWorldCenter());
 
+				missilesToHandlers.at(std::get<CM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).componentId).collided = true;
 				CreateExplosion(explosionParams.center(explosionCenter).explosionTexture(explosionTexture)
 					.resolutionMode(resolutionModeF ? resolutionModeF(*targetFixture.GetBody()) : explosionParams.resolutionMode_));
 
 				const auto& targetBodyComponentVariant = Tools::AccessUserData(*targetFixture.GetBody()).bodyComponentVariant;
 				if (const CM::Missile* targetMissile = std::get_if<CM::Missile>(&targetBodyComponentVariant))
 				{
-					deferredActions.emplace([=](auto) {
-						missilesToHandlers.erase(targetMissile->componentId);
-						return false;
-						});
-
+					missilesToHandlers.at(targetMissile->componentId).collided = true;
 					CreateExplosion(explosionParams.center(ToVec2<glm::vec2>(targetFixture.GetBody()->GetWorldCenter())).explosionTexture(explosionTexture));
 				}
 
@@ -136,8 +127,15 @@ namespace Tools
 		auto& deferredActions = Globals::Components().deferredActions();
 		deferredActions.emplace(
 			[this, missile = missileHandler.missile, maxLifetime](float duration) {
+				if (missilesToHandlers.at(missile).collided)
+				{
+					missilesToHandlers.erase(missile);
+					return false;
+				}
+
 				if (duration < maxLifetime)
 					return true;
+
 				missilesToHandlers.erase(missile);
 				return false;
 			});
