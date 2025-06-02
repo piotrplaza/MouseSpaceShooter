@@ -20,8 +20,17 @@
 #include <tools/Shapes2D.hpp>
 #include <tools/utility.hpp>
 #include <tools/gameHelpers.hpp>
+#include <tools/playersHandler.hpp>
 
 #include <algorithm>
+
+namespace
+{
+	constexpr static float ballSize = 2.0f;
+	constexpr static glm::vec2 levelHSize = { 100.0f, 60.0f };
+	constexpr static float bordersHGauge = 50.0f;
+	constexpr static float grappleHookRange = 15.0f;
+}
 
 namespace Levels
 {
@@ -38,35 +47,54 @@ namespace Levels
 		{
 			auto& textures = Globals::Components().staticTextures();
 
-			plane1Texture = textures.size();
-			textures.emplace("textures/plane 1.png");
+			planeTextures[0] = textures.emplace("textures/plane 1.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
 			textures.last().scale = glm::vec2(1.6f, 1.8f);
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().preserveAspectRatio = true;
 
+			planeTextures[1] = textures.emplace("textures/alien ship 1.png");
+			textures.last().translate = glm::vec2(-0.2f, 0.0f);
+			textures.last().scale = glm::vec2(1.9f);
+			textures.last().minFilter = GL_LINEAR;
+			textures.last().preserveAspectRatio = true;
+
+			planeTextures[2] = textures.emplace("textures/plane 2.png");
+			textures.last().translate = glm::vec2(0.4f, 0.0f);
+			textures.last().scale = glm::vec2(1.8f, 1.8f);
+			textures.last().minFilter = GL_LINEAR;
+			textures.last().preserveAspectRatio = true;
+
+			planeTextures[3] = textures.emplace("textures/alien ship 2.png");
+			textures.last().translate = glm::vec2(0.0f, 0.0f);
+			textures.last().scale = glm::vec2(1.45f, 1.4f);
+			textures.last().minFilter = GL_LINEAR;
+			textures.last().preserveAspectRatio = true;
+
+			ballTexture = textures.size();
+			textures.emplace("textures/ball.png");
+			textures.last().scale = glm::vec2(ballSize * 2);
+
 			woodTexture = textures.size();
 			textures.emplace("textures/wood.jpg", GL_MIRRORED_REPEAT);
 			textures.last().scale = glm::vec2(50.0f);
 
-			orbTexture = textures.size();
-			textures.emplace("textures/orb.png");
-			textures.last().scale = glm::vec2(4.0f);
-
 			playFieldTexture = textures.size();
 			textures.emplace("textures/play field.jpg");
 
-			flame1AnimationTexture = textures.size();
+			flameAnimationTexture = textures.size();
 			textures.emplace("textures/flame animation 1.jpg");
 			textures.last().minFilter = GL_LINEAR;
 		}
 
 		void setAnimations()
 		{
-			flame1AnimatedTexture = Globals::Components().staticAnimatedTextures().size();
-			Globals::Components().staticAnimatedTextures().add({ CM::Texture(flame1AnimationTexture, true), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
-				AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
-			Globals::Components().staticAnimatedTextures().last().start(true);
+			for (auto& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
+			{
+				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().add({ CM::Texture(flameAnimationTexture, true), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+					AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
+				Globals::Components().staticAnimatedTextures().last().start(true);
+			}
 		}
 
 		void createBackground() const
@@ -77,16 +105,16 @@ namespace Levels
 
 		void createPlayers()
 		{
-			player1Id = Tools::CreatePlane(Tools::CreateTrianglesBody({ { glm::vec2{2.0f, 0.0f}, glm::vec2{-1.0f, 1.0f}, glm::vec2{-1.0f, -1.0f} } }, Tools::GetDefaultParamsForPlaneBody()),
-				CM::Texture(plane1Texture, true), CM::AnimatedTexture(flame1AnimatedTexture, true), Tools::PlaneParams().position({ -10.0f, 0.0f }));
-			Globals::Components().planes()[player1Id].connectIfApproaching = true;
+			playersHandler.initPlayers(Tools::PlayersHandler::InitPlayerParams{}.planeTextures(planeTextures).flameTextures(flameAnimatedTextureForPlayers).gamepadForPlayer1(false).initLocationFunc(
+				[](unsigned playerId, unsigned numOfPlayers) {
+					const float gap = 5.0f;
+					const float farPlayersDistance = gap * (numOfPlayers - 1);
+					return glm::vec3(-10.0f, -farPlayersDistance / 2.0f + gap * playerId, 0.0f);
+				}));
 		}
 
 		void createStationaryWalls() const
 		{
-			const glm::vec2 levelHSize = { 100.0f, 60.0f };
-			const float bordersHGauge = 50.0f;
-
 			Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHSize.y + bordersHGauge * 2 },
 				Tools::BodyParams().position({ -levelHSize.x - bordersHGauge, 0.0f })), CM::Texture(woodTexture, true));
 
@@ -100,51 +128,35 @@ namespace Levels
 				Tools::BodyParams().position({ 0.0f, levelHSize.y + bordersHGauge })), CM::Texture(woodTexture, true));
 		}
 
-		void createGrapples()
+		void createBall()
 		{
-			ball = &Globals::Components().grapples().emplace(Tools::CreateDiscBody(2.0f,
-				Tools::BodyParams().bodyType(b2_dynamicBody).density(0.02f).restitution(0.5f)), CM::Texture(orbTexture, true));
-			ball->range = 15.0f;
+			ball = &Globals::Components().grapples().emplace(Tools::CreateDiscBody(2.0f, Tools::BodyParams().bodyType(b2_dynamicBody).density(0.02f).restitution(0.5f)), CM::Texture(ballTexture, true));
+			ball->range = grappleHookRange;
 		}
 
-		void setCamera() const
+		void setCamera()
 		{
-			const auto& player = Globals::Components().planes()[player1Id];
-
-			Globals::Components().camera2D().projectionTransitionFactor = 6;
-			Globals::Components().camera2D().positionTransitionFactor = 6;
-			Globals::Components().camera2D().targetPositionAndProjectionHSizeF = [&]() {
-				return glm::vec3((player.getOrigin2D() + ball->getOrigin2D()) * 0.5f, 30.0f + glm::distance(player.getOrigin2D(), ball->getOrigin2D()) * 0.3f);
-			};
+			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin(50.0f).additionalActors([&]() {
+				return ball->getOrigin2D();
+			}));
 		}
 
-		void step() const
+		void step()
 		{
-			float mouseSensitivity = 0.01f;
-			float gamepadSensitivity = 50.0f;
-
-			const auto& physics = Globals::Components().physics();
-			const auto& mouse = Globals::Components().mouse();
-			const auto& gamepad = Globals::Components().gamepads()[0];
-			auto& player1Controls = Globals::Components().planes()[player1Id].controls;
-
-			player1Controls.turningDelta = mouse.getCartesianDelta() * mouseSensitivity +
-				Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
-			player1Controls.autoRotation = (bool)std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
-			player1Controls.throttling = std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
-			player1Controls.magneticHook = mouse.pressing.xmb1 || gamepad.pressing.lShoulder || gamepad.lTrigger >= 0.5f;
+			playersHandler.gamepadsAutodetectionStep([](auto) { return glm::vec3(0.0f); });
+			playersHandler.controlStep();
 		}
 
 	private:
-		unsigned plane1Texture = 0;
+		std::array<CM::Texture, 4> planeTextures;
 		unsigned woodTexture = 0;
-		unsigned orbTexture = 0;
+		unsigned ballTexture = 0;
 		unsigned playFieldTexture = 0;
-		unsigned flame1AnimationTexture = 0;
+		unsigned flameAnimationTexture = 0;
 
-		unsigned flame1AnimatedTexture = 0;
+		std::array<CM::AnimatedTexture, 4> flameAnimatedTextureForPlayers;
 
-		unsigned player1Id{};
+		Tools::PlayersHandler playersHandler;
 		Components::Grapple* ball = nullptr;
 	};
 
@@ -157,7 +169,7 @@ namespace Levels
 		impl->createBackground();
 		impl->createPlayers();
 		impl->createStationaryWalls();
-		impl->createGrapples();
+		impl->createBall();
 		impl->setCamera();
 	}
 

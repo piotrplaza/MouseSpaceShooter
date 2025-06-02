@@ -23,12 +23,12 @@ namespace Levels
 		{
 			Globals::Components().graphicsSettings().defaultColorF = glm::vec4{ 0.7f, 0.7f, 0.7f, 1.0f };
 
-			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
+			playersHandler.initPlayers(Tools::PlayersHandler::InitPlayerParams{}.planeTextures(planeTextures).flameTextures(flameAnimatedTextureForPlayers).gamepadForPlayer1(false).initLocationFunc(
 				[this](unsigned playerId, unsigned numOfPlayers) {
 					const float gap = 5.0f;
 					const float farPlayersDistance = gap * (numOfPlayers - 1);
 					return glm::vec3(-10.0f, -farPlayersDistance / 2.0f + gap * playerId, 0.0f);
-				});
+				}));
 
 			for (const auto& plane : Globals::Components().planes())
 				cout << plane.body->GetMass() << endl;

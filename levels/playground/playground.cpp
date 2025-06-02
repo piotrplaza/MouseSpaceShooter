@@ -652,12 +652,12 @@ namespace Levels
 
 		void initHandlers()
 		{
-			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
+			playersHandler.initPlayers(Tools::PlayersHandler::InitPlayerParams{}.planeTextures(planeTextures).flameTextures(flameAnimatedTextureForPlayers).gamepadForPlayer1(false).initLocationFunc(
 				[](unsigned playerId, unsigned numOfPlayers) {
 					const float gap = 5.0f;
 					const float farPlayersDistance = gap * (numOfPlayers - 1);
 					return glm::vec3(-10.0f, -farPlayersDistance / 2.0f + gap * playerId, 0.0f);
-				}, false, CM::SoundBuffer(thrustSoundBuffer, true), CM::SoundBuffer(grappleSoundBuffer, true));
+				}).centerToFront(false).thrustSound(CM::SoundBuffer(thrustSoundBuffer, true)).grappleSound(CM::SoundBuffer(grappleSoundBuffer, true)));
 
 			missilesHandler.initCollisions();
 			missilesHandler.setPlayersHandler(playersHandler);

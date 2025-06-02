@@ -314,11 +314,11 @@ namespace Levels
 				grapples.emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ squareHSize, squareHSize })), CM::Texture(orbTexture, true)).range = range;
 			}
 
-			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, gamepadForPlayer1,
+			playersHandler.initPlayers(Tools::PlayersHandler::InitPlayerParams{}.planeTextures(planeTextures).flameTextures(flameAnimatedTextureForPlayers).gamepadForPlayer1(gamepadForPlayer1).initLocationFunc(
 				[this](unsigned playerId, unsigned numOfPlayers) {
 					const float distance = 4.0f;
 					return glm::vec3((squareHSize + ringRadius) * 0.5f - ((numOfPlayers - 1) * distance) * 0.5f + playerId * distance, -0.1f, glm::half_pi<float>());
-				}, true, CM::SoundBuffer(thrustSoundBuffer, true), CM::SoundBuffer(grappleSoundBuffer, true), soundAttenuation);
+				}).centerToFront(true).thrustSound(CM::SoundBuffer(thrustSoundBuffer, true)).grappleSound(CM::SoundBuffer(grappleSoundBuffer, true)).soundAttenuation(soundAttenuation));
 
 			collisionHandlers();
 

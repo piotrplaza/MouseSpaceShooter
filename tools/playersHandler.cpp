@@ -35,7 +35,7 @@ namespace
 				planeTexture, flameAnimatedTexture, Tools::PlaneParams().position(initLoc).angle(initLoc.z).thrustOffset({ -0.7f, 0.1f }).thrustAngle(0.0f));
 		}
 
-		assert(!"wrong actor id");
+		assert(!"wrong plane id");
 
 		return 0;
 	}
@@ -79,8 +79,7 @@ namespace Tools
 		}
 	}
 
-	void PlayersHandler::initPlayers(const std::array<CM::Texture, 4>& planeTexturesForPlayers, const std::array<CM::AnimatedTexture, 4>& flameAnimatedTexturesForPlayers, bool gamepadForPlayer1,
-		std::function<glm::vec3(unsigned playerId, unsigned numOfPlayers)> initLocF, bool centerToFront, std::optional<CM::SoundBuffer> thrustSoundBuffer, std::optional<CM::SoundBuffer> grappleSoundBuffer, float soundAttenuation)
+	void PlayersHandler::initPlayers(InitPlayerParams params)
 	{
 		const auto& gamepads = Globals::Components().gamepads();
 		auto& planes = Globals::Components().planes();
@@ -88,12 +87,12 @@ namespace Tools
 
 		playersHandlers.clear();
 
-		this->planeTextures = planeTexturesForPlayers;
-		this->flameAnimatedTexturesForPlayers = flameAnimatedTexturesForPlayers;
-		this->gamepadForPlayer1 = gamepadForPlayer1;
-		this->thrustSoundBuffer = thrustSoundBuffer;
-		this->grappleSoundBuffer = grappleSoundBuffer;
-		this->soundAttenuation = soundAttenuation;
+		this->planeTextures = params.planeTextures_;
+		this->flameAnimatedTexturesForPlayers = params.flameAnimatedTextures_;
+		this->gamepadForPlayer1 = params.gamepadForPlayer1_;
+		this->thrustSoundBuffer = params.thrustSoundBuffer_;
+		this->grappleSoundBuffer = params.grappleSoundBuffer_;
+		this->soundAttenuation = params.soundAttenuation_;
 
 		std::vector<unsigned> activeGamepads;
 
@@ -110,12 +109,12 @@ namespace Tools
 		unsigned activeGamepadId = 0;
 		for (unsigned i = 0; i < numOfPlayers; ++i)
 		{
-			const glm::vec3 initLoc = initLocF(i, numOfPlayers);
+			const glm::vec3 initLoc = params.initLocF_(i, numOfPlayers);
 			ComponentId planeId = CreatePresettedPlane(i, planeTextures[i], flameAnimatedTexturesForPlayers[i], initLoc);
 			playersHandlers.emplace_back(planeId, i == 0 && !gamepadForPlayer1 || activeGamepads.empty() ? std::nullopt : std::optional(activeGamepads[activeGamepadId++]),
 				0.0f, CreateAndPlayPlaneSound(thrustSoundBuffer, planeId, soundAttenuation), 0.0f, CreateAndPlayPlaneSound(grappleSoundBuffer, planeId, soundAttenuation), 0.0f);
 
-			if (centerToFront)
+			if (params.centerToFront_)
 			{
 				auto& plane = planes[planeId];
 				plane.setOrigin(plane.getOrigin2D() - glm::vec2(std::cos(plane.getAngle()), std::sin(plane.getAngle())) * plane.getHorizontalOffsets()[1]);
@@ -123,23 +122,23 @@ namespace Tools
 		}
 	}
 
-	void PlayersHandler::setCamera(CameraParams cameraParams)
+	void PlayersHandler::setCamera(CameraParams params)
 	{
 		const auto& planes = Globals::Components().planes();
 		const auto& screenInfo = Globals::Components().systemInfo().screen;
 		const auto& physics = Globals::Components().physics();
 
-		auto velocityCorrection = [velocityFactor = cameraParams.velocityFactor_](const auto& plane) {
+		auto velocityCorrection = [velocityFactor = params.velocityFactor_](const auto& plane) {
 			return plane.getVelocity() * velocityFactor;
 		};
 
-		Globals::Components().camera2D().positionTransitionFactor = cameraParams.transitionFactor_;
-		Globals::Components().camera2D().projectionTransitionFactor = cameraParams.transitionFactor_;
+		Globals::Components().camera2D().positionTransitionFactor = params.transitionFactor_;
+		Globals::Components().camera2D().projectionTransitionFactor = params.transitionFactor_;
 		Globals::Components().camera2D().targetPositionAndProjectionHSizeF = [&, velocityCorrection,
-				projectionHSizeMin = std::move(cameraParams.projectionHSizeMin_),
-				scalingFactor = cameraParams.scalingFactor_,
-				additionalActors = cameraParams.additionalActors_,
-				trackingTimeAfterDisabled = cameraParams.trackingTimeAfterDisabled_]() {
+				projectionHSizeMin = std::move(params.projectionHSizeMin_),
+				scalingFactor = params.scalingFactor_,
+				additionalActors = params.additionalActors_,
+				trackingTimeAfterDisabled = params.trackingTimeAfterDisabled_]() {
 
 			glm::vec2 sumOfVelocityCorrections(0.0f);
 			auto& playersHandlers = accessPlayersHandlers();
@@ -292,7 +291,7 @@ namespace Tools
 				playerControls.turningDelta = mouse.getCartesianDelta() * mouseSensitivity;
 				playerControls.autoRotation = (bool)mouse.pressing.rmb;
 				playerControls.throttling = (float)mouse.pressing.rmb;
-				playerControls.magneticHook = mouse.pressing.xmb1;
+				playerControls.grappleHook = mouse.pressing.xmb1;
 				playerControls.backPressed = mouse.pressed.mmb;
 				fire = mouse.pressing.lmb;
 			}
@@ -304,7 +303,7 @@ namespace Tools
 				playerControls.turningDelta += Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
 				playerControls.autoRotation |= (bool)gamepad.rTrigger;
 				playerControls.throttling = std::max(gamepad.rTrigger, playerControls.throttling);
-				playerControls.magneticHook |= gamepad.pressing.lShoulder || gamepad.pressing.a || gamepad.lTrigger >= 0.5f;
+				playerControls.grappleHook |= gamepad.pressing.lShoulder || gamepad.pressing.a || gamepad.lTrigger >= 0.5f;
 				playerControls.backPressed |= gamepad.pressed.back;
 				fire |= gamepad.pressing.x;
 			}
@@ -337,19 +336,19 @@ namespace Tools
 		}
 	}
 
-	const std::vector<Tools::PlayerHandler>& PlayersHandler::getPlayersHandlers() const
+	auto PlayersHandler::getPlayersHandlers() const -> const std::vector<PlayerHandler>&
 	{
 		return playersHandlers;
 	}
 
-	std::vector<Tools::PlayerHandler>& PlayersHandler::accessPlayersHandlers()
+	auto PlayersHandler::accessPlayersHandlers() -> std::vector<PlayerHandler>&
 	{
 		return playersHandlers;
 	}
 
-	const std::vector<const Tools::PlayerHandler*> PlayersHandler::getActivePlayersHandlers() const
+	auto PlayersHandler::getActivePlayersHandlers() const -> const std::vector<const PlayerHandler*>
 	{
-		std::vector<const Tools::PlayerHandler*> activePlayersHandlers;
+		std::vector<const PlayerHandler*> activePlayersHandlers;
 
 		for (const auto& playerHandler : playersHandlers)
 			if (Globals::Components().planes()[playerHandler.playerId].isEnabled())
@@ -358,9 +357,9 @@ namespace Tools
 		return activePlayersHandlers;
 	}
 
-	std::vector<Tools::PlayerHandler*> PlayersHandler::accessActivePlayersHandlers()
+	auto PlayersHandler::accessActivePlayersHandlers() -> std::vector<PlayerHandler*>
 	{
-		std::vector<Tools::PlayerHandler*> activePlayersHandlers;
+		std::vector<PlayerHandler*> activePlayersHandlers;
 
 		for (auto& playerHandler : playersHandlers)
 			if (Globals::Components().planes()[playerHandler.playerId].isEnabled())

@@ -31,8 +31,6 @@ namespace Components
 			//};
 		}
 
-		bool connectIfApproaching = false;
-
 		float manoeuvrability = 1.0f;
 
 		struct Controls
@@ -41,7 +39,7 @@ namespace Components
 			bool autoRotation = false;
 			float autoRotationFactor = 1.0f;
 			float throttling = 0.0f;
-			bool magneticHook = false;
+			bool grappleHook = false;
 			bool backPressed = false;
 		} controls;
 

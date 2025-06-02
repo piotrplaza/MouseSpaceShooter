@@ -107,7 +107,7 @@ namespace Levels
 		{
 			playersHandler = Tools::PlayersHandler();
 			playersHandler->setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 10.0f; }).scalingFactor(0.7f));
-			playersHandler->initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
+			playersHandler->initPlayers(Tools::PlayersHandler::InitPlayerParams{}.planeTextures(planeTextures).flameTextures(flameAnimatedTextureForPlayers).gamepadForPlayer1(false).initLocationFunc(
 				[&](unsigned playerId, unsigned numOfPlayers) {
 					const auto startingLineEnds = startingLineEditing.getStartingLineEnds();
 					if (!startingLine || startingLineEnds.empty())
@@ -120,7 +120,7 @@ namespace Levels
 					const glm::vec2 ntv = glm::rotate(glm::normalize(startingLineEndsVector), -glm::half_pi<float>());
 					return glm::vec3(playerPositionOnStartingLine2D + ntv * startingLineEditing.getStartingPositionLineDistance(),
 						glm::orientedAngle({ -1.0f, 0.0f }, ntv));
-				}, startingLine);
+				}).centerToFront(startingLine));
 		}
 
 		void step()

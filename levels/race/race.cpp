@@ -264,7 +264,7 @@ namespace Levels
 
 			customElements();
 
-			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
+			playersHandler.initPlayers(Tools::PlayersHandler::InitPlayerParams{}.planeTextures(planeTextures).flameTextures(flameAnimatedTextureForPlayers).gamepadForPlayer1(false).initLocationFunc(
 				[&](unsigned playerId, unsigned numOfPlayers) {
 					if (glm::distance(startingLineP1, startingLineP2) == 0.0f)
 						return glm::vec3(0.0f, 0.0f, 0.0f);
@@ -277,7 +277,7 @@ namespace Levels
 
 					return glm::vec3(playerPositionOnStartingLine2D + ntv * startingPositionLineDistance,
 						glm::orientedAngle({ -1.0f, 0.0f }, ntv));
-				}, true, CM::SoundBuffer(thrustSoundBuffer, true), CM::SoundBuffer(grappleSoundBuffer, true));
+				}).centerToFront(true).thrustSound(CM::SoundBuffer(thrustSoundBuffer, true)).grappleSound(CM::SoundBuffer(grappleSoundBuffer, true)));
 
 			collisions();
 

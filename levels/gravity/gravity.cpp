@@ -245,7 +245,7 @@ namespace Levels
 				Tools::ApplyDeadzone(gamepad.lStick) * physics.frameDuration * gamepadSensitivity;
 			player1Controls.autoRotation = (bool)std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
 			player1Controls.throttling = std::max((float)mouse.pressing.rmb, gamepad.rTrigger);
-			player1Controls.magneticHook = mouse.pressing.xmb1 || gamepad.pressing.lShoulder || gamepad.lTrigger >= 0.5f;
+			player1Controls.grappleHook = mouse.pressing.xmb1 || gamepad.pressing.lShoulder || gamepad.lTrigger >= 0.5f;
 
 			if (mouse.pressing.lmb || gamepad.pressing.x)
 			{

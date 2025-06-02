@@ -59,7 +59,7 @@ namespace Systems
 
 		void turn(Components::Plane& plane) const;
 		void throttle(Components::Plane& plane) const;
-		void magneticHook(Components::Plane& plane, Connections& planeConnections);
+		void grappleHook(Components::Plane& plane, Connections& planeConnections);
 		void createGrappleJoint(Components::Plane& plane) const;
 
 		std::unordered_map<ComponentId, Connections> allConnections;

@@ -1596,7 +1596,6 @@ namespace Levels::DamageOn
 					shockwavesToDamage.erase(shockwave.getComponentId());
 				});
 
-			
 			const float explosionPower = power / 100.0f;
 
 			explosionParams.center(actor.getMassCenter()).explosionTexture(CM::Texture(explosionTextureId, true))

@@ -385,10 +385,10 @@ namespace Levels
 			const auto& windmill = Globals::Components().staticWalls()[windmillWall];
 			windmill.body->SetTransform({ 0.0f, 0.0f }, 0.0f);
 
-			playersHandler.initPlayers(planeTextures, flameAnimatedTextureForPlayers, false,
+			playersHandler.initPlayers(Tools::PlayersHandler::InitPlayerParams{}.planeTextures(planeTextures).flameTextures(flameAnimatedTextureForPlayers).gamepadForPlayer1(false).initLocationFunc(
 				[this](unsigned playerId, auto) {
 					return initLoc(playerId);
-				}, false, CM::SoundBuffer(thrustSoundBuffer, true), CM::SoundBuffer(grappleSoundBuffer, true));
+				}).centerToFront(false).thrustSound(CM::SoundBuffer(thrustSoundBuffer, true)).grappleSound(CM::SoundBuffer(grappleSoundBuffer, true)));
 
 			missilesHandler.initCollisions();
 

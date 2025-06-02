@@ -68,7 +68,7 @@ namespace Systems
 
 				turn(plane);
 				throttle(plane);
-				magneticHook(plane, planeConnections);
+				grappleHook(plane, planeConnections);
 
 				planeConnections.updateBuffers();
 
@@ -151,34 +151,66 @@ namespace Systems
 		plane.throttle(plane.controls.throttling * planeForwardForce);
 	}
 
-	void Actors::magneticHook(Components::Plane& plane, Connections& planeConnections)
+	void Actors::grappleHook(Components::Plane& plane, Connections& planeConnections)
 	{
+		using MPBehavior = Components::Grapple::MPBehavior;
+		auto& planes = Globals::Components().planes();
 		planeConnections.params.clear();
 
 		ComponentId nearestGrappleId = 0;
 		float nearestGrappleDistance = std::numeric_limits<float>::infinity();
 		std::vector<ComponentId> grapplesInRange;
 
-		for (const auto& grapple: Globals::Components().grapples())
-		{
-			const float grappleDistance = glm::distance(plane.getOrigin2D(), grapple.getOrigin2D());
-
-			if (grappleDistance > grapple.range) continue;
-
-			grapplesInRange.push_back(grapple.getComponentId());
-
-			if (grappleDistance < nearestGrappleDistance)
-			{
-				nearestGrappleDistance = grappleDistance;
-				nearestGrappleId = grapple.getComponentId();
-			}
-		}
-
-		if (!plane.controls.magneticHook)
+		if (!plane.controls.grappleHook)
 		{
 			plane.details.grappleJoint.reset();
 			plane.details.connectedGrappleId = std::nullopt;
 			plane.details.weakConnectedGrappleId = std::nullopt;
+		}
+		
+		for (const auto& grapple: Globals::Components().grapples())
+		{
+			std::vector<Components::Plane*> otherConnectedPlanes;
+
+			if (grapple.multiplayerBehavior != MPBehavior::All)
+			{
+				auto isOtherConnectedPlane = [&](const Components::Plane& p) {
+					return p.isEnabled() && p.getComponentId() != plane.getComponentId() && p.details.connectedGrappleId && *p.details.connectedGrappleId == grapple.getComponentId();
+				};
+				for (auto it = std::find_if(planes.begin(), planes.end(), isOtherConnectedPlane); it != planes.end(); it = std::find_if(++it, planes.end(), isOtherConnectedPlane))
+					otherConnectedPlanes.push_back(&*it);
+			}
+
+			const float grappleDistance = glm::distance(plane.getOrigin2D(), grapple.getOrigin2D());
+
+			if (grappleDistance > grapple.range)
+				continue;
+
+			grapplesInRange.push_back(grapple.getComponentId());
+			const bool isCurrentPlaneFastest = [&]() {
+				auto* fastestPlane = &plane;
+				for (auto* otherConnectedPlane : otherConnectedPlanes)
+				{
+					if (glm::length(otherConnectedPlane->getVelocity()) > glm::length(fastestPlane->getVelocity()))
+						fastestPlane = otherConnectedPlane;
+				}
+				return fastestPlane == &plane;
+			}();
+			if (grappleDistance < nearestGrappleDistance &&
+				(grapple.multiplayerBehavior == MPBehavior::All ||
+				(grapple.multiplayerBehavior == MPBehavior::First && otherConnectedPlanes.empty()) ||
+				(grapple.multiplayerBehavior == MPBehavior::Fastest && isCurrentPlaneFastest)))
+			{
+				nearestGrappleDistance = grappleDistance;
+				nearestGrappleId = grapple.getComponentId();
+			}
+			if (grapple.multiplayerBehavior == MPBehavior::Fastest && isCurrentPlaneFastest)
+				for (auto* otherConnectedPlane : otherConnectedPlanes)
+				{
+					otherConnectedPlane->details.grappleJoint.reset();
+					otherConnectedPlane->details.connectedGrappleId = std::nullopt;
+					otherConnectedPlane->details.weakConnectedGrappleId = std::nullopt;
+				}
 		}
 
 		for (ComponentId grappleInRange : grapplesInRange)
@@ -187,10 +219,10 @@ namespace Systems
 
 			if (grappleInRange == nearestGrappleId)
 			{
-				if (plane.controls.magneticHook && !plane.details.grappleJoint &&
+				if (plane.controls.grappleHook && !plane.details.grappleJoint &&
 					(glm::distance(plane.getOrigin2D(), grapple.getOrigin2D()) >=
 					glm::distance(plane.details.previousCenter, grapple.details.previousCenter) ||
-					plane.connectIfApproaching))
+					grapple.connectIfApproaching))
 				{
 					plane.details.connectedGrappleId = grappleInRange;
 					plane.details.weakConnectedGrappleId = std::nullopt;
@@ -198,7 +230,7 @@ namespace Systems
 				}
 				else if(plane.details.connectedGrappleId != grappleInRange)
 				{
-					if (plane.controls.magneticHook)
+					if (plane.controls.grappleHook)
 					{
 						if (plane.details.grappleJoint)
 						{
@@ -239,7 +271,7 @@ namespace Systems
 		const auto& grapple = Globals::Components().grapples()[*plane.details.connectedGrappleId];
 
 		plane.details.grappleJoint.reset(Tools::CreateDistanceJoint(*plane.body, *grapple.body,
-			ToVec2<glm::vec2>(plane.body->GetWorldCenter()), ToVec2<glm::vec2>(grapple.body->GetWorldCenter()),
+			ToVec2<glm::vec2>(plane.body->GetPosition()), ToVec2<glm::vec2>(grapple.body->GetPosition()),
 			true, glm::distance(plane.getOrigin2D(), grapple.getOrigin2D())));
 	}
 

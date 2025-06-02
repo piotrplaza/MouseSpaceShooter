@@ -26,9 +26,7 @@ namespace
 		void Contact(b2Contact* contact, DynamicComponents<Components::CollisionHandler>& collisionHandlers)
 		{
 			for (auto& collisionHandler : collisionHandlers)
-			{
 				collisionHandler.rawHandler(*contact->GetFixtureA(), *contact->GetFixtureB());
-			}
 		}
 	} contactListener;
 
