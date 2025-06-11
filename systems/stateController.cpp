@@ -11,7 +11,7 @@
 #include <components/functor.hpp>
 #include <components/physics.hpp>
 #include <components/gamepad.hpp>
-#include <components/pauseHandler.hpp>
+#include <components/appStateHandler.hpp>
 
 #include <ogl/shaders/noise.hpp>
 #include <ogl/shaders/trails.hpp>
@@ -53,6 +53,7 @@ namespace Systems
 
 	void StateController::postInit() const
 	{
+		Globals::Components().appStateHandler().exitF = []() { return Globals::Components().keyboard().pressed[/*VK_ESCAPE*/ 0x1B]; };
 		ProcessFunctors(Globals::Components().postInits());
 	}
 
@@ -163,12 +164,12 @@ namespace Systems
 	void StateController::setWindowFocus(bool focus)
 	{
 		auto& physics = Globals::Components().physics();
-		auto& pauseHandler = Globals::Components().pauseHandler();
+		auto& appStateHandler = Globals::Components().appStateHandler();
 		if (!focus)
 		{
 			if (Globals::Components().physics().paused)
 				return;
-			pauseHandler.handler(physics.paused);
+			appStateHandler.pauseF(physics.paused);
 			physics.paused = true;
 		}
 
@@ -227,7 +228,7 @@ namespace Systems
 	{
 		auto& keyboard = Globals::Components().keyboard();
 		auto& physics = Globals::Components().physics();
-		const auto& pauseHandler = Globals::Components().pauseHandler();
+		const auto& appStateHandler = Globals::Components().appStateHandler();
 
 		for (size_t i = 0; i < keys.size(); ++i)
 		{
@@ -239,7 +240,7 @@ namespace Systems
 		prevKeyboardKeys = keys;
 
 		if (keyboard.pressed['P'])
-			physics.paused = pauseHandler.handler(physics.paused);
+			physics.paused = appStateHandler.pauseF(physics.paused);
 	}
 
 	void StateController::handleSDL()
@@ -407,12 +408,12 @@ namespace Systems
 		updateButton(&Components::Gamepad::Buttons::dLeft);
 		updateButton(&Components::Gamepad::Buttons::dRight);
 
-		const auto& pauseHandler = Globals::Components().pauseHandler();
+		const auto& appStateHandler = Globals::Components().appStateHandler();
 		auto& physics = Globals::Components().physics();
 
 		for (const auto& gamepad : Globals::Components().gamepads())
 			if (gamepad.isEnabled() && gamepad.pressed.start)
-				physics.paused = pauseHandler.handler(physics.paused);
+				physics.paused = appStateHandler.pauseF(physics.paused);
 	}
 
 	void StateController::resetPrevKeys()

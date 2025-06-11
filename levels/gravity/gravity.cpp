@@ -127,23 +127,23 @@ namespace Levels
 
 		void createForeground()
 		{
-			Tools::CreateFogForeground(2, 0.02f, CM::Texture(fogTexture, true), [&, fogTargetAlphaFactor = 1.0f]() mutable {
-				if (explosionFrame)
-				{
-					const float maxAlphaFactor = 2.0f;
-					fogTargetAlphaFactor = fogTargetAlphaFactor < maxAlphaFactor
-						? fogTargetAlphaFactor + Globals::Components().physics().frameDuration * 10.0f
-						: maxAlphaFactor;
-				}
-				else
-				{
-					fogTargetAlphaFactor = fogTargetAlphaFactor > 1.0f
-						? fogTargetAlphaFactor - Globals::Components().physics().frameDuration * 0.2f
-						: 1.0f;
-				}
-				fogAlphaFactor += (fogTargetAlphaFactor - fogAlphaFactor) * 0.05f * Globals::Components().physics().frameDuration;
-				return glm::vec4(1.0f, 1.0f, 1.0f, fogAlphaFactor);
-				});
+			//Tools::CreateFogForeground(2, 0.02f, CM::Texture(fogTexture, true), [&, fogTargetAlphaFactor = 1.0f]() mutable {
+			//	if (explosionFrame)
+			//	{
+			//		const float maxAlphaFactor = 2.0f;
+			//		fogTargetAlphaFactor = fogTargetAlphaFactor < maxAlphaFactor
+			//			? fogTargetAlphaFactor + Globals::Components().physics().frameDuration * 10.0f
+			//			: maxAlphaFactor;
+			//	}
+			//	else
+			//	{
+			//		fogTargetAlphaFactor = fogTargetAlphaFactor > 1.0f
+			//			? fogTargetAlphaFactor - Globals::Components().physics().frameDuration * 0.2f
+			//			: 1.0f;
+			//	}
+			//	fogAlphaFactor += (fogTargetAlphaFactor - fogAlphaFactor) * 0.05f * Globals::Components().physics().frameDuration;
+			//	return glm::vec4(1.0f, 1.0f, 1.0f, fogAlphaFactor);
+			//});
 		}
 
 		void createAdditionalDecorations() const

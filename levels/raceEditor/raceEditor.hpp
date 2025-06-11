@@ -12,6 +12,7 @@ namespace Levels
 		RaceEditor();
 		~RaceEditor();
 
+		void postSetup() override;
 		void step() override;
 
 	private:

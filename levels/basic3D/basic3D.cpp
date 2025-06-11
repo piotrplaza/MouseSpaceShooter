@@ -42,7 +42,7 @@ namespace Levels
 			const auto& physics = Globals::Components().physics();
 			auto& staticDecorations = Globals::Components().staticDecorations();
 
-#define TEST 3
+#define TEST 5
 #if TEST == 0
 			auto& shape = staticDecorations.emplace();
 			Tools::Shapes3D::AddRectangle(shape, { 1.8f, 1.8f }, { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } });

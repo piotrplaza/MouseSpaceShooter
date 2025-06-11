@@ -31,6 +31,7 @@
 #include "components/mouse.hpp"
 #include "components/physics.hpp"
 #include "components/audioListener.hpp"
+#include "components/appStateHandler.hpp"
 
 #include "systems/stateController.hpp"
 #include "systems/structures.hpp"
@@ -130,11 +131,8 @@ static void InitEngine()
 
 static void InitLevel()
 {
-#if 0
 	activeLevel = std::make_unique<Levels::RaceEditor>();
-#else
 	//activeLevel = std::make_unique<Levels::Race>();
-#endif
 
 	//activeLevel = std::make_unique<Levels::Windmill>();
 	//activeLevel = std::make_unique<Levels::SquareRace>();
@@ -143,7 +141,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::DamageOn::Nest>();
 
 	//activeLevel = std::make_unique<Levels::Playground>();
-	activeLevel = std::make_unique<Levels::Rocketball>();
+	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
 	//activeLevel = std::make_unique<Levels::Dzidzia>();
@@ -454,7 +452,7 @@ int APIENTRY WinMain(
 	{
 		InitEngine();
 
-		while (!keys[VK_ESCAPE] && !quit)
+		while (!Globals::Components().appStateHandler().exitF() && !quit)
 		{
 			while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 			{

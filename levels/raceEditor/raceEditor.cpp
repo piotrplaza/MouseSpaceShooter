@@ -10,6 +10,7 @@
 #include <components/camera2D.hpp>
 #include <components/texture.hpp>
 #include <components/animatedTexture.hpp>
+#include <components/appStateHandler.hpp>
 
 #include <globals/components.hpp>
 
@@ -43,20 +44,7 @@ namespace Levels
 
 		void setup()
 		{
-			auto& staticDecoration = Globals::Components().staticDecorations();
 			auto& textures = Globals::Components().staticTextures();
-
-			staticDecoration.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, cursorRadius, 20));
-			staticDecoration.last().modelMatrixF = [this]() {
-				return glm::scale(glm::translate(glm::mat4{ 1.0f }, { mousePos, 0.0f }), glm::vec3(zoomScale));
-			};
-			staticDecoration.last().renderLayer = RenderLayer::NearForeground;
-			staticDecoration.last().renderF = [&]()
-			{
-				return !playersHandler;
-			};
-
-			setEditorCamera();
 
 			planeTextures[0] = textures.emplace("textures/plane 1.png");
 			textures.last().translate = glm::vec2(0.4f, 0.0f);
@@ -85,6 +73,25 @@ namespace Levels
 			flameAnimationTexture = textures.size();
 			textures.emplace("textures/flame animation 1.jpg");
 			textures.last().minFilter = GL_LINEAR;
+		}
+
+		void postSetup()
+		{
+			auto& appStateHandler = Globals::Components().appStateHandler();
+			auto& staticDecoration = Globals::Components().staticDecorations();
+
+			appStateHandler.exitF = [&keyboard = Globals::Components().keyboard()]() { return keyboard.pressed[/*VK_ESCAPE*/ 0x1B] && keyboard.pressing[/*VK_SHIFT*/ 0x10]; };
+
+			staticDecoration.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, cursorRadius, 20));
+			staticDecoration.last().modelMatrixF = [this]() {
+				return glm::scale(glm::translate(glm::mat4{ 1.0f }, { mousePos, 0.0f }), glm::vec3(zoomScale));
+			};
+			staticDecoration.last().renderLayer = RenderLayer::NearForeground;
+			staticDecoration.last().renderF = [&]() {
+				return !playersHandler;
+			};
+
+			setEditorCamera();
 
 			for (auto& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
 			{
@@ -248,6 +255,11 @@ namespace Levels
 	}
 
 	RaceEditor::~RaceEditor() = default;
+
+	void RaceEditor::postSetup()
+	{
+		impl->postSetup();
+	}
 
 	void RaceEditor::step()
 	{

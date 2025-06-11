@@ -732,9 +732,6 @@
     <ClInclude Include="components\details\animationData.hpp">
       <Filter>src\components\details</Filter>
     </ClInclude>
-    <ClInclude Include="components\pauseHandler.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="levels\damageOn\nest\nest.hpp">
       <Filter>src\levels\damageOn\nest</Filter>
     </ClInclude>
@@ -767,6 +764,9 @@
     </ClInclude>
     <ClInclude Include="tools\particleSystemHelpers.hpp">
       <Filter>src\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="components\appStateHandler.hpp">
+      <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

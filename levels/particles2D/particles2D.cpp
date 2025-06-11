@@ -285,7 +285,7 @@ namespace
 		.firstInitVelocity = glm::vec2(0.001f, 0.0f)
 	};
 
-	constexpr Params params = params5;
+	constexpr Params params = params3;
 }
 
 namespace Levels

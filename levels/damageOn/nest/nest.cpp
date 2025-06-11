@@ -16,7 +16,7 @@
 #include <components/sound.hpp>
 #include <components/audioListener.hpp>
 #include <components/physics.hpp>
-#include <components/pauseHandler.hpp>
+#include <components/appStateHandler.hpp>
 #include <components/CollisionHandler.hpp>
 #include <components/mainFramebufferRenderer.hpp>
 #include <globals/components.hpp>
@@ -168,7 +168,7 @@ namespace Levels::DamageOn
 				return glm::vec2(x, y);
 			});
 
-			Globals::Components().pauseHandler().handler = [](bool prevPauseState) {
+			Globals::Components().appStateHandler().pauseF = [](bool prevPauseState) {
 				auto& musics = Globals::Components().musics();
 				auto& audioListener = Globals::Components().audioListener();
 				audioListener.setEnabled(!audioListener.isEnabled());

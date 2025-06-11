@@ -208,7 +208,7 @@ namespace Levels
 		if (keyboard.pressed['E'])
 			controlPointsEnds = !controlPointsEnds;
 
-		if (keyboard.pressed['R'])
+		if (mouse.pressed.mmb)
 			reverse();
 
 		if (mouse.pressing.lmb)

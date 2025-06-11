@@ -115,8 +115,8 @@ namespace Levels
 
 		void customElements()
 		{
-			auto& grapples = Globals::Components().grapples();
-			grapples.emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ 20.0f, 0.0f }))).range = 20.0f;
+			//auto& grapples = Globals::Components().grapples();
+			//grapples.emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ 20.0f, 0.0f }))).range = 20.0f;
 		}
 
 		void collisions()

@@ -107,7 +107,7 @@ namespace Levels
 			cursorColor.g = std::clamp(cursorColor.g, 0.0f, 1.0f);
 			cursorColor.b = std::clamp(cursorColor.b, 0.0f, 1.0f);
 
-			if (keyboard.pressing[0x20/*VK_SPACE*/])
+			if (keyboard.pressing[0x20/*VK_SPACE*/] || mouse.pressing.rmb)
 			{
 				auto& texture = Globals::Components().textures()[textureId];
 				texture.source = TextureData(TextureFile(texturePath, 3));
@@ -134,7 +134,7 @@ namespace Levels
 							colorBuffer.getColor({ x - d.x, y + d.y }) + colorBuffer.getColor({ x, y + d.y }) + colorBuffer.getColor({ x + d.x, y + d.y })) / 8.0f * neighborsColorFactor;
 					colorBuffer.putColor({ x, y }, newColor);
 				}
-				};
+			};
 
 			if constexpr (ColorBufferEditor::IsDoubleBuffering())
 			{

@@ -103,6 +103,7 @@
     <ClInclude Include="commonTypes\idGenerator.hpp" />
     <ClInclude Include="commonTypes\renderLayer.hpp" />
     <ClInclude Include="commonTypes\resolutionMode.hpp" />
+    <ClInclude Include="components\appStateHandler.hpp" />
     <ClInclude Include="components\defaults.hpp" />
     <ClInclude Include="components\details\textureData.hpp" />
     <ClInclude Include="components\actor.hpp" />
@@ -130,7 +131,6 @@
     <ClInclude Include="components\mouse.hpp" />
     <ClInclude Include="components\music.hpp" />
     <ClInclude Include="components\mvp.hpp" />
-    <ClInclude Include="components\pauseHandler.hpp" />
     <ClInclude Include="components\physics.hpp" />
     <ClInclude Include="components\plane.hpp" />
     <ClInclude Include="components\polyline.hpp" />

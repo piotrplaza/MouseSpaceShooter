@@ -9,7 +9,7 @@ namespace Components
 		using Wall::Wall;
 
 		float range = 0.0f;
-		bool connectIfApproaching = true;
+		bool connectIfApproaching = false;
 
 		enum class MPBehavior { All, First, Fastest } multiplayerBehavior = MPBehavior::All;
 
