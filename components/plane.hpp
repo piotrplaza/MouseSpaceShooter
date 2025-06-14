@@ -47,8 +47,8 @@ namespace Components
 		{
 			glm::vec2 previousCenter{ 0.0f, 0.0f };
 			std::unique_ptr<b2Joint, b2JointDeleter> grappleJoint;
-			std::optional<ComponentId> connectedGrappleId;
-			std::optional<ComponentId> weakConnectedGrappleId;
+			std::optional<std::pair<bool, ComponentId>> connectedGrappleId;
+			std::optional< std::pair<bool, ComponentId>> weakConnectedGrappleId;
 			float throttleForce = 0.0f;
 		} details;
 

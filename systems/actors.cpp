@@ -40,10 +40,9 @@ namespace Systems
 	{
 		{
 			auto& planes = Globals::Components().planes();
-			auto& grapples = Globals::Components().grapples();
 			unsigned playersCounter = 0;
 
-			for (auto& plane : planes)
+			for (auto& plane: planes)
 			{
 				if (!plane.teardownF)
 					plane.teardownF = [&]() { allConnections.erase(plane.getComponentId()); };
@@ -57,13 +56,15 @@ namespace Systems
 					continue;
 				}
 
-				if (plane.details.connectedGrappleId && !grapples.contains(*plane.details.connectedGrappleId))
+				if (plane.details.connectedGrappleId && ((plane.details.connectedGrappleId->first && !Globals::Components().staticGrapples().contains(plane.details.connectedGrappleId->second))
+					|| (!plane.details.connectedGrappleId->first && !Globals::Components().grapples().contains(plane.details.connectedGrappleId->second))))
 				{
 					plane.details.grappleJoint.release();
 					plane.details.connectedGrappleId = std::nullopt;
 				}
 
-				if (plane.details.weakConnectedGrappleId && !grapples.contains(*plane.details.weakConnectedGrappleId))
+				if (plane.details.weakConnectedGrappleId && ((plane.details.weakConnectedGrappleId->first && !Globals::Components().staticGrapples().contains(plane.details.weakConnectedGrappleId->second))
+					|| (!plane.details.weakConnectedGrappleId->first && !Globals::Components().grapples().contains(plane.details.weakConnectedGrappleId->second))))
 					plane.details.weakConnectedGrappleId = std::nullopt;
 
 				turn(plane);
@@ -79,7 +80,13 @@ namespace Systems
 
 			Globals::Shaders().textured().numOfPlayers(playersCounter);
 
-			for (auto& grapple : grapples)
+			for (auto& grapple: Globals::Components().staticGrapples())
+			{
+				grapple.step();
+				grapple.details.previousCenter = grapple.getOrigin2D();
+			}
+
+			for (auto& grapple: Globals::Components().grapples())
 			{
 				grapple.step();
 				grapple.details.previousCenter = grapple.getOrigin2D();
@@ -111,7 +118,9 @@ namespace Systems
 
 		if (plane.details.grappleJoint && plane.controls.autoRotation)
 		{
-			const auto& grapple = Globals::Components().grapples()[*plane.details.connectedGrappleId];
+			const auto& grapple = plane.details.connectedGrappleId->first
+				? Globals::Components().staticGrapples()[plane.details.connectedGrappleId->second]
+				: Globals::Components().grapples()[plane.details.connectedGrappleId->second];
 			const glm::vec2 stepVelocity = (plane.getOrigin2D() - plane.details.previousCenter) - (grapple.getOrigin2D() - grapple.details.previousCenter);
 			const float stepVelocityLength = glm::length(stepVelocity);
 
@@ -159,7 +168,7 @@ namespace Systems
 
 		ComponentId nearestGrappleId = 0;
 		float nearestGrappleDistance = std::numeric_limits<float>::infinity();
-		std::vector<ComponentId> grapplesInRange;
+		std::vector<std::pair<bool, ComponentId>> grapplesInRange;
 
 		if (!plane.controls.grappleHook)
 		{
@@ -167,68 +176,77 @@ namespace Systems
 			plane.details.connectedGrappleId = std::nullopt;
 			plane.details.weakConnectedGrappleId = std::nullopt;
 		}
-		
-		for (const auto& grapple: Globals::Components().grapples())
-		{
-			std::vector<Components::Plane*> otherConnectedPlanes;
 
-			if (grapple.multiplayerBehavior != MPBehavior::All)
+		auto processGraples = [&](auto& grapples) {
+			for (const auto& grapple : grapples)
 			{
-				auto isOtherConnectedPlane = [&](const Components::Plane& p) {
-					return p.isEnabled() && p.getComponentId() != plane.getComponentId() && p.details.connectedGrappleId && *p.details.connectedGrappleId == grapple.getComponentId();
-				};
-				for (auto it = std::find_if(planes.begin(), planes.end(), isOtherConnectedPlane); it != planes.end(); it = std::find_if(++it, planes.end(), isOtherConnectedPlane))
-					otherConnectedPlanes.push_back(&*it);
-			}
+				std::vector<Components::Plane*> otherConnectedPlanes;
 
-			const float grappleDistance = glm::distance(plane.getOrigin2D(), grapple.getOrigin2D());
-
-			if (grappleDistance > grapple.range)
-				continue;
-
-			grapplesInRange.push_back(grapple.getComponentId());
-			const bool isCurrentPlaneFastest = [&]() {
-				auto* fastestPlane = &plane;
-				for (auto* otherConnectedPlane : otherConnectedPlanes)
+				if (grapple.multiplayerBehavior != MPBehavior::All)
 				{
-					if (glm::length(otherConnectedPlane->getVelocity()) > glm::length(fastestPlane->getVelocity()))
-						fastestPlane = otherConnectedPlane;
+					auto isOtherConnectedPlane = [&](const Components::Plane& p) {
+						return p.isEnabled() && p.getComponentId() != plane.getComponentId() && p.details.connectedGrappleId &&
+						((p.details.connectedGrappleId->first && grapple.isStatic() && p.details.connectedGrappleId->second == grapple.getComponentId()) ||
+							(!p.details.connectedGrappleId->first && !grapple.isStatic() && p.details.connectedGrappleId->second == grapple.getComponentId()));
+					};
+					for (auto it = std::find_if(planes.begin(), planes.end(), isOtherConnectedPlane); it != planes.end(); it = std::find_if(++it, planes.end(), isOtherConnectedPlane))
+						otherConnectedPlanes.push_back(&*it);
 				}
-				return fastestPlane == &plane;
-			}();
-			if (grappleDistance < nearestGrappleDistance &&
-				(grapple.multiplayerBehavior == MPBehavior::All ||
-				(grapple.multiplayerBehavior == MPBehavior::First && otherConnectedPlanes.empty()) ||
-				(grapple.multiplayerBehavior == MPBehavior::Fastest && isCurrentPlaneFastest)))
-			{
-				nearestGrappleDistance = grappleDistance;
-				nearestGrappleId = grapple.getComponentId();
-			}
-			if (grapple.multiplayerBehavior == MPBehavior::Fastest && isCurrentPlaneFastest)
-				for (auto* otherConnectedPlane : otherConnectedPlanes)
-				{
-					otherConnectedPlane->details.grappleJoint.reset();
-					otherConnectedPlane->details.connectedGrappleId = std::nullopt;
-					otherConnectedPlane->details.weakConnectedGrappleId = std::nullopt;
-				}
-		}
 
-		for (ComponentId grappleInRange : grapplesInRange)
+				const float grappleDistance = glm::distance(plane.getOrigin2D(), grapple.getOrigin2D());
+
+				if (grappleDistance > grapple.range)
+					continue;
+
+				grapplesInRange.emplace_back(grapple.isStatic(), grapple.getComponentId());
+				const bool isCurrentPlaneFastest = [&]() {
+					auto* fastestPlane = &plane;
+					for (auto* otherConnectedPlane : otherConnectedPlanes)
+					{
+						if (glm::length(otherConnectedPlane->getVelocity()) > glm::length(fastestPlane->getVelocity()))
+							fastestPlane = otherConnectedPlane;
+					}
+					return fastestPlane == &plane;
+					}();
+				if (grappleDistance < nearestGrappleDistance &&
+					(grapple.multiplayerBehavior == MPBehavior::All ||
+						(grapple.multiplayerBehavior == MPBehavior::First && otherConnectedPlanes.empty()) ||
+						(grapple.multiplayerBehavior == MPBehavior::Fastest && isCurrentPlaneFastest)))
+				{
+					nearestGrappleDistance = grappleDistance;
+					nearestGrappleId = grapple.getComponentId();
+				}
+				if (grapple.multiplayerBehavior == MPBehavior::Fastest && isCurrentPlaneFastest)
+					for (auto* otherConnectedPlane : otherConnectedPlanes)
+					{
+						otherConnectedPlane->details.grappleJoint.reset();
+						otherConnectedPlane->details.connectedGrappleId = std::nullopt;
+						otherConnectedPlane->details.weakConnectedGrappleId = std::nullopt;
+					}
+			}
+		};
+
+		processGraples(Globals::Components().staticGrapples());
+		processGraples(Globals::Components().grapples());
+
+		for (const auto isStaticAndGrappleId : grapplesInRange)
 		{
-			const auto& grapple = Globals::Components().grapples()[grappleInRange];
+			const auto& grapple = isStaticAndGrappleId.first
+				? Globals::Components().staticGrapples()[isStaticAndGrappleId.second]
+				: Globals::Components().grapples()[isStaticAndGrappleId.second];
 
-			if (grappleInRange == nearestGrappleId)
+			if (isStaticAndGrappleId.second == nearestGrappleId)
 			{
 				if (plane.controls.grappleHook && !plane.details.grappleJoint &&
 					(glm::distance(plane.getOrigin2D(), grapple.getOrigin2D()) >=
 					glm::distance(plane.details.previousCenter, grapple.details.previousCenter) ||
 					grapple.connectIfApproaching))
 				{
-					plane.details.connectedGrappleId = grappleInRange;
+					plane.details.connectedGrappleId = isStaticAndGrappleId;
 					plane.details.weakConnectedGrappleId = std::nullopt;
 					createGrappleJoint(plane);
 				}
-				else if(plane.details.connectedGrappleId != grappleInRange)
+				else if(plane.details.connectedGrappleId != isStaticAndGrappleId)
 				{
 					if (plane.controls.grappleHook)
 					{
@@ -237,7 +255,7 @@ namespace Systems
 							planeConnections.params.emplace_back(plane.getOrigin2D(), grapple.getOrigin2D(),
 								glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) * 0.2f, 1);
 						}
-						plane.details.weakConnectedGrappleId = grappleInRange;
+						plane.details.weakConnectedGrappleId = isStaticAndGrappleId;
 					}
 					else
 					{
@@ -246,7 +264,7 @@ namespace Systems
 					}
 				}
 			}
-			else if (plane.details.connectedGrappleId != grappleInRange)
+			else if (plane.details.connectedGrappleId != isStaticAndGrappleId)
 			{
 				planeConnections.params.emplace_back(plane.getOrigin2D(), grapple.getOrigin2D(), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) * 0.2f, 1);
 			}
@@ -254,12 +272,16 @@ namespace Systems
 
 		if (plane.details.connectedGrappleId)
 		{
-			planeConnections.params.emplace_back(plane.getOrigin2D(), Globals::Components().grapples()[*plane.details.connectedGrappleId].getOrigin2D(),
+			planeConnections.params.emplace_back(plane.getOrigin2D(), plane.details.connectedGrappleId->first
+				? Globals::Components().staticGrapples()[plane.details.connectedGrappleId->second].getOrigin2D()
+				: Globals::Components().grapples()[plane.details.connectedGrappleId->second].getOrigin2D(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) * 0.7f, 20, 0.4f);
 		}
 		else if (plane.details.weakConnectedGrappleId)
 		{
-			planeConnections.params.emplace_back(plane.getOrigin2D(), Globals::Components().grapples()[*plane.details.weakConnectedGrappleId].getOrigin2D(),
+			planeConnections.params.emplace_back(plane.getOrigin2D(), plane.details.weakConnectedGrappleId->first
+				? Globals::Components().staticGrapples()[plane.details.weakConnectedGrappleId->second].getOrigin2D()
+				: Globals::Components().grapples()[plane.details.weakConnectedGrappleId->second].getOrigin2D(),
 				glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) * 0.5f, 1);
 		}
 	}
@@ -268,7 +290,9 @@ namespace Systems
 	{
 		assert(plane.details.connectedGrappleId);
 
-		const auto& grapple = Globals::Components().grapples()[*plane.details.connectedGrappleId];
+		const auto& grapple = plane.details.connectedGrappleId->first
+			? Globals::Components().staticGrapples()[plane.details.connectedGrappleId->second]
+			: Globals::Components().grapples()[plane.details.connectedGrappleId->second];
 
 		plane.details.grappleJoint.reset(Tools::CreateDistanceJoint(*plane.body, *grapple.body,
 			ToVec2<glm::vec2>(plane.body->GetPosition()), ToVec2<glm::vec2>(grapple.body->GetPosition()),

@@ -85,6 +85,7 @@ namespace Globals
 		DynamicComponents<Components::Actor>& actors();
 		StaticComponents<Components::Wall>& staticWalls();
 		DynamicComponents<Components::Wall>& walls();
+		StaticComponents<Components::Grapple>& staticGrapples();
 		DynamicComponents<Components::Grapple>& grapples();
 		DynamicComponents<Components::Plane>& planes();
 		StaticComponents<Components::Polyline>& staticPolylines();
@@ -140,6 +141,7 @@ namespace Globals
 		std::unique_ptr<DynamicComponents<Components::Actor>> actors_ = std::make_unique<DynamicComponents<Components::Actor>>();
 		std::unique_ptr<StaticComponents<Components::Wall>> staticWalls_ = std::make_unique<StaticComponents<Components::Wall>>();
 		std::unique_ptr<DynamicComponents<Components::Wall>> walls_ = std::make_unique<DynamicComponents<Components::Wall>>();
+		std::unique_ptr<StaticComponents<Components::Grapple>> staticGrapples_ = std::make_unique<StaticComponents<Components::Grapple>>();
 		std::unique_ptr<DynamicComponents<Components::Grapple>> grapples_ = std::make_unique<DynamicComponents<Components::Grapple>>();
 		std::unique_ptr<DynamicComponents<Components::Plane>> planes_ = std::make_unique<DynamicComponents<Components::Plane>>();
 		std::unique_ptr<StaticComponents<Components::Polyline>> staticPolylines_ = std::make_unique<StaticComponents<Components::Polyline>>();

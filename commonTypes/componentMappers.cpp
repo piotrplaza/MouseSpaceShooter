@@ -269,8 +269,8 @@ namespace ComponentMappers
 	{
 	}
 
-	Grapple::Grapple(ComponentId id):
-		component(&Globals::Components().grapples()[id]),
+	Grapple::Grapple(ComponentId id, bool static_):
+		component(static_ ? &Globals::Components().staticGrapples()[id] : &Globals::Components().grapples()[id]),
 		componentId(id)
 	{
 	}

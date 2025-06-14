@@ -550,7 +550,7 @@ namespace Levels
 
 		void createGrapples() const
 		{
-			Globals::Components().grapples().emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ 0.0f, 10.0f })),
+			Globals::Components().staticGrapples().emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ 0.0f, 10.0f })),
 				CM::Texture(orbTexture, true)).range = 15.0f;
 
 			{
@@ -561,7 +561,7 @@ namespace Levels
 					return [=]() mutable { colorUniform(Globals::Components().graphicsSettings().defaultColorF()); };
 				};
 
-				Globals::Components().grapples().emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ 0.0f, -10.0f })),
+				Globals::Components().staticGrapples().emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ 0.0f, -10.0f })),
 					CM::Texture(orbTexture, true), std::move(renderingSetupF)).range = 15.0f;
 			}
 
@@ -575,12 +575,12 @@ namespace Levels
 					return [=]() mutable { texturesCustomTransformUniform(glm::mat4(1.0f)); };
 					};
 
-					Globals::Components().grapples().emplace(Tools::CreateDiscBody(2.0f,
+					Globals::Components().staticGrapples().emplace(Tools::CreateDiscBody(2.0f,
 						Tools::BodyParams().position({ -10.0f, -30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)),
 						CM::Texture(orbTexture, true), std::move(renderingSetupF)).range = 30.0f;
 			}
 
-			auto& grapple = Globals::Components().grapples().emplace(Tools::CreateDiscBody(4.0f,
+			auto& grapple = Globals::Components().staticGrapples().emplace(Tools::CreateDiscBody(4.0f,
 				Tools::BodyParams().position({ -10.0f, 30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)), CM::DummyTexture());
 			grapple.range = 30.0f;
 			grapple.renderF = []() { return false; };

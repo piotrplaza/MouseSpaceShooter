@@ -13,7 +13,7 @@ namespace Components
 	struct Polyline : Physical
 	{
 		Polyline(const std::vector<glm::vec2>& vertices,
-			Tools::BodyParams bodyParams = Tools::BodyParams{},
+			Tools::BodyParams bodyParams = Tools::BodyParams{}.sensor(true),
 			RenderingSetupF renderingSetupF = nullptr,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			ShadersUtils::AccessorBase* customShadersProgram = nullptr) :
@@ -23,7 +23,7 @@ namespace Components
 			bufferDataUsage = GL_DYNAMIC_DRAW;
 		}
 
-		Polyline(Tools::BodyParams bodyParams = Tools::BodyParams{},
+		Polyline(Tools::BodyParams bodyParams = Tools::BodyParams{}.sensor(true),
 			RenderingSetupF renderingSetupF = nullptr,
 			RenderLayer renderLayer = RenderLayer::Midground,
 			ShadersUtils::AccessorBase* customShadersProgram = nullptr) :
@@ -54,7 +54,7 @@ namespace Components
 			
 			std::vector<glm::vec3> customVertices;
 
-			// Box2d keeps body's fixture in reverse order.
+			// Box2d keeps body's fixture in reversed order.
 			if (keyVerticesTransformer)
 				keyVerticesTransformer(vertices);
 
@@ -81,10 +81,11 @@ namespace Components
 				loaded.buffers->setPositionsBuffer(getPositions());
 		}
 
-		void replaceFixtures(const std::vector<glm::vec2>& vertices, const Tools::BodyParams& bodyParams)
+		void replaceFixtures(const std::vector<glm::vec2>& vertices, const Tools::BodyParams& bodyParams = Tools::BodyParams{}.sensor(true))
 		{
 			Tools::DestroyFixtures(body);
-			Tools::CreatePolylineFixtures(body, vertices, bodyParams);
+			if (vertices.size() > 1)
+				Tools::CreatePolylineFixtures(body, vertices, bodyParams);
 			Tools::SetCollisionFilteringBits(*body, Globals::CollisionBits::polyline, Globals::CollisionBits::all);
 		}
 	};

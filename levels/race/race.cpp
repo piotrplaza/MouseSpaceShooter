@@ -73,7 +73,7 @@ namespace Levels
 			textures.last().preserveAspectRatio = true;
 
 			flameAnimationTexture = textures.size();
-			textures.emplace("textures/flame animation 1.jpg");
+			textures.emplace("textures/flame animation 1_1.jpg");
 			textures.last().minFilter = GL_LINEAR;
 
 			explosionTexture = textures.size();
@@ -96,7 +96,7 @@ namespace Levels
 		{
 			for (auto& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
 			{
-				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().add({ CM::Texture(flameAnimationTexture, true), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().add({ CM::Texture(flameAnimationTexture, true), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 115 }, 0.02f, 32, 0,
 					AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
@@ -111,15 +111,14 @@ namespace Levels
 		{
 			GeneratedCode::CreateStartingLine(startingStaticPolyline, startingLineP1, startingLineP2, startingPositionLineDistance);
 			GeneratedCode::CreateDeadlySplines(playersHandler, deadlySplines);
+			GeneratedCode::CreateGrapples();
 		}
 
 		void customElements()
 		{
-			//auto& grapples = Globals::Components().grapples();
-			//grapples.emplace(Tools::CreateDiscBody(1.0f, Tools::BodyParams().position({ 20.0f, 0.0f }))).range = 20.0f;
 		}
 
-		void collisions()
+		void initCollisions()
 		{
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::actor, Globals::CollisionBits::polyline,
 			[this](const auto& plane, const auto& polyline) {
@@ -279,7 +278,7 @@ namespace Levels
 						glm::orientedAngle({ -1.0f, 0.0f }, ntv));
 				}).centerToFront(true).thrustSound(CM::SoundBuffer(thrustSoundBuffer, true)).grappleSound(CM::SoundBuffer(grappleSoundBuffer, true)));
 
-			collisions();
+			initCollisions();
 
 			maxCircuits = 0;
 			playersToCircuits.clear();

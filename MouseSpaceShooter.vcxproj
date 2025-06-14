@@ -51,6 +51,7 @@
     <ClCompile Include="levels\particles2D\particles2D.cpp" />
     <ClCompile Include="levels\particles3D\particles3D.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
+    <ClCompile Include="levels\raceEditor\grappleEditing.cpp" />
     <ClCompile Include="levels\raceEditor\presets.cpp" />
     <ClCompile Include="levels\raceEditor\raceEditor.cpp" />
     <ClCompile Include="levels\raceEditor\splinesEditing.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="levels\particles3D\particles3D.hpp" />
     <ClInclude Include="levels\playground\playground.hpp" />
     <ClInclude Include="levels\raceEditor\common.hpp" />
+    <ClInclude Include="levels\raceEditor\grappleEditing.hpp" />
     <ClInclude Include="levels\raceEditor\raceEditor.hpp" />
     <ClInclude Include="levels\raceEditor\splinesEditing.hpp" />
     <ClInclude Include="levels\raceEditor\startingLineEditing.hpp" />

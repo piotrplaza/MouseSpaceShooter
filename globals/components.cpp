@@ -202,6 +202,11 @@ namespace Globals
 		return *walls_;
 	}
 
+	StaticComponents<Components::Grapple>& ComponentsHolder::staticGrapples()
+	{
+		return *staticGrapples_;
+	}
+
 	DynamicComponents<Components::Grapple>& ComponentsHolder::grapples()
 	{
 		return *grapples_;

@@ -39,8 +39,8 @@ namespace Levels
 
 		FBool ongoing;
 
-		std::unordered_map<ComponentId, SplineDef> splineDecorationIdToSplineDef;
-		std::optional<ComponentId> activeSplineDecorationId;
+		std::unordered_map<ComponentId, SplineDef> polylineIdToSplineDef;
+		std::optional<ComponentId> activePolylineId;
 		std::optional<std::list<ControlPoint>::iterator> movingControlPoint;
 		std::optional<std::list<ControlPoint>::iterator> movingAdjacentControlPoint;
 	};

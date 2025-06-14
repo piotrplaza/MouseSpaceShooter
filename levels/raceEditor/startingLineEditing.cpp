@@ -158,17 +158,9 @@ namespace Levels
 				if (movingControlPoint)
 					return;
 
-				if (keyboard.pressing[/*VK_SHIFT*/0x10])
-				{
-					for (const auto& controlPoint : controlPoints)
-						dynamicDecorations[controlPoint.decorationId].state = ComponentState::Outdated;
-					controlPoints.clear();
-				}
-				else
-				{
-					dynamicDecorations[it->decorationId].state = ComponentState::Outdated;
-					controlPoints.erase(it);
-				}
+				for (const auto& controlPoint : controlPoints)
+					dynamicDecorations[controlPoint.decorationId].state = ComponentState::Outdated;
+				controlPoints.clear();
 
 				removed = true;
 			});

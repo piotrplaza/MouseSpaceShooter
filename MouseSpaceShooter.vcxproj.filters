@@ -373,6 +373,9 @@
     <ClCompile Include="tools\particleSystemHelpers.cpp">
       <Filter>src\tools</Filter>
     </ClCompile>
+    <ClCompile Include="levels\raceEditor\grappleEditing.cpp">
+      <Filter>src\levels\raceEditor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mvp.hpp">
@@ -767,6 +770,9 @@
     </ClInclude>
     <ClInclude Include="components\appStateHandler.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="levels\raceEditor\grappleEditing.hpp">
+      <Filter>src\levels\raceEditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

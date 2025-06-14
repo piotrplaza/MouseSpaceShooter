@@ -25,6 +25,9 @@ namespace Systems
 		for (auto& wall : Globals::Components().walls())
 			wall.step();
 
+		for (auto& grapple : Globals::Components().staticGrapples())
+			grapple.step();
+
 		for (auto& grapple : Globals::Components().grapples())
 			grapple.step();
 
@@ -41,6 +44,9 @@ namespace Systems
 	{
 		Tools::UpdateStaticBuffers(Globals::Components().staticWalls(), loadedStaticWalls);
 		loadedStaticWalls = Globals::Components().staticWalls().size();
+
+		Tools::UpdateStaticBuffers(Globals::Components().staticGrapples(), loadedStaticGrapples);
+		loadedStaticGrapples = Globals::Components().staticGrapples().size();
 
 		Tools::UpdateStaticBuffers(Globals::Components().staticPolylines(), loadedStaticPolylines);
 		loadedStaticPolylines = Globals::Components().staticPolylines().size();

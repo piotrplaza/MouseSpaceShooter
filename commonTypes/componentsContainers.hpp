@@ -221,6 +221,11 @@ public:
 		return components;
 	}
 
+	bool contains(ComponentId id) const
+	{
+		return id < components.size();
+	}
+
 	void teardown() override
 	{
 		for (auto& component : components)

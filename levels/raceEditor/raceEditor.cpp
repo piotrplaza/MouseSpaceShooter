@@ -2,6 +2,7 @@
 
 #include "startingLineEditing.hpp"
 #include "splinesEditing.hpp"
+#include "grappleEditing.hpp"
 
 #include <components/mouse.hpp>
 #include <components/keyboard.hpp>
@@ -11,11 +12,15 @@
 #include <components/texture.hpp>
 #include <components/animatedTexture.hpp>
 #include <components/appStateHandler.hpp>
+#include <components/plane.hpp>
+#include <components/collisionHandler.hpp>
+#include <components/deferredAction.hpp>
 
 #include <globals/components.hpp>
 
 #include <tools/playersHandler.hpp>
 #include <tools/Shapes2D.hpp>
+#include <tools/particleSystemHelpers.hpp>
 
 #include <glm/gtx/vector_angle.hpp>
 
@@ -38,7 +43,8 @@ namespace Levels
 	public:
 		RaceEditor::Impl():
 			startingLineEditing(mousePos, oldMousePos, mouseDelta, zoomScale, [this]() { return !playersHandler && editMode == 1; }),
-			splineEditing(mousePos, oldMousePos, mouseDelta, zoomScale, [this]() { return !playersHandler && editMode == 2; })
+			splineEditing(mousePos, oldMousePos, mouseDelta, zoomScale, [this]() { return !playersHandler && editMode == 2; }),
+			grappleEditing(mousePos, oldMousePos, mouseDelta, zoomScale, [this]() { return !playersHandler && editMode == 3; })
 		{
 		}
 
@@ -71,8 +77,13 @@ namespace Levels
 			textures.last().preserveAspectRatio = true;
 
 			flameAnimationTexture = textures.size();
-			textures.emplace("textures/flame animation 1.jpg");
+			textures.emplace("textures/flame animation 1_1.jpg");
 			textures.last().minFilter = GL_LINEAR;
+
+			explosionTexture = textures.size();
+			textures.emplace("textures/explosion.png");
+
+			initCollisions();
 		}
 
 		void postSetup()
@@ -95,7 +106,7 @@ namespace Levels
 
 			for (auto& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
 			{
-				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().add({ CM::Texture(flameAnimationTexture, true), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 122 }, 0.02f, 32, 0,
+				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().add({ CM::Texture(flameAnimationTexture, true), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 115 }, 0.02f, 32, 0,
 					AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
@@ -104,16 +115,15 @@ namespace Levels
 		void setEditorCamera() const
 		{
 			auto& camera = Globals::Components().camera2D();
-
 			camera.targetPositionAndProjectionHSizeF = [&]() {
-				return glm::vec3(cameraPos, projectionHSize);
+				return glm::vec3(cameraPos, editProjectionHSize);
 			};
 		}
 
 		void initPlayersHandler(bool startingLine)
 		{
 			playersHandler = Tools::PlayersHandler();
-			playersHandler->setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 10.0f; }).scalingFactor(0.7f));
+			playersHandler->setCamera(Tools::PlayersHandler::CameraParams{}.projectionHSizeMin([&]() { return testProjectionHSizeMin; }).scalingFactor(0.7f));
 			playersHandler->initPlayers(Tools::PlayersHandler::InitPlayerParams{}.planeTextures(planeTextures).flameTextures(flameAnimatedTextureForPlayers).gamepadForPlayer1(false).initLocationFunc(
 				[&](unsigned playerId, unsigned numOfPlayers) {
 					const auto startingLineEnds = startingLineEditing.getStartingLineEnds();
@@ -145,9 +155,9 @@ namespace Levels
 				playersHandler->controlStep();
 			else
 			{
-				mousePos += mouse.getCartesianDelta() * projectionHSize * 0.001f;
-				mousePos.x = std::clamp(mousePos.x, -projectionHSize * screenRatio + cameraPos.x, projectionHSize * screenRatio + cameraPos.x);
-				mousePos.y = std::clamp(mousePos.y, -projectionHSize + cameraPos.y, projectionHSize + cameraPos.y);
+				mousePos += mouse.getCartesianDelta() * editProjectionHSize * 0.001f;
+				mousePos.x = std::clamp(mousePos.x, -editProjectionHSize * screenRatio + cameraPos.x, editProjectionHSize * screenRatio + cameraPos.x);
+				mousePos.y = std::clamp(mousePos.y, -editProjectionHSize + cameraPos.y, editProjectionHSize + cameraPos.y);
 			}
 
 			mouseDelta = mousePos - oldMousePos;
@@ -177,12 +187,17 @@ namespace Levels
 				fs << "\n";
 				startingLineEditing.generateCode(fs);
 				splineEditing.generateCode(fs);
+				grappleEditing.generateCode(fs);
 				fs << "}\n";
 			};
 
 			for (int i = 0; i < 10; ++i)
 				if (keyboard.pressed['0' + i])
+				{
+					playersHandler = std::nullopt;
+					setEditorCamera();
 					editMode = i;
+				}
 
 			if (keyboard.pressed['T'])
 				if (playersHandler)
@@ -191,12 +206,19 @@ namespace Levels
 					setEditorCamera();
 				}
 				else
-					initPlayersHandler(keyboard.pressing[/*VK_SHIFT*/0x10]);
+					initPlayersHandler(!keyboard.pressing[/*VK_SHIFT*/0x10]);
 
 			if (!keyboard.pressing[/*VK_SHIFT*/0x10] && !keyboard.pressing[/*VK_CONTROL*/0x11] && !keyboard.pressing[/*VK_SPACE*/' '])
 			{
-				projectionHSize = std::clamp(projectionHSize + mouse.pressed.wheel * -10.0f * zoomScale, 1.0f, 10000.0f);
-				zoomScale = projectionHSize / 50.0f;
+				if (playersHandler)
+				{
+					testProjectionHSizeMin = std::clamp(testProjectionHSizeMin + mouse.pressed.wheel * -2.0f, 1.0f, 10000.0f);
+				}
+				else
+				{
+					editProjectionHSize = std::clamp(editProjectionHSize + mouse.pressed.wheel * -10.0f * zoomScale, 1.0f, 10000.0f);
+					zoomScale = editProjectionHSize / 50.0f;
+				}
 			}
 
 			if (!playersHandler)
@@ -213,6 +235,8 @@ namespace Levels
 					startingLineEditing.edit(cameraMoving); break;
 				case 2:
 					splineEditing.edit(cameraMoving); break;
+				case 3:
+					grappleEditing.edit(cameraMoving); break;
 				}
 
 				if (cameraMoving)
@@ -221,6 +245,28 @@ namespace Levels
 
 			startingLineEditing.update();
 			splineEditing.update();
+			grappleEditing.update();
+		}
+
+		void destroyPlane(Components::Plane& plane)
+		{
+			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getOrigin2D()).sourceVelocity(plane.getVelocity()).
+				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(CM::Texture(explosionTexture, true)));
+			plane.setEnabled(false);
+		}
+
+		void initCollisions()
+		{
+			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::actor, Globals::CollisionBits::polyline, [this](const auto& plane, const auto& polyline) {
+				Globals::Components().deferredActions().emplace([&](auto) {
+					auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
+					const auto& polylineComponent = Tools::AccessComponent<CM::Polyline>(polyline);
+
+					destroyPlane(planeComponent);
+
+					return false;
+				});
+			});
 		}
 
 	private:
@@ -231,20 +277,23 @@ namespace Levels
 		glm::vec2 cameraPos{};
 
 		bool cameraMoving = false;
-		float projectionHSize = 50.0f;
+		float editProjectionHSize = 50.0f;
+		float testProjectionHSizeMin = 10.0f;
 		float zoomScale = 1.0f;
 
 		std::array<CM::Texture, 4> planeTextures;
 		ComponentId flameAnimationTexture = 0;
+		ComponentId explosionTexture = 0;
 
 		std::array<CM::AnimatedTexture, 4> flameAnimatedTextureForPlayers;
 
 		std::optional<Tools::PlayersHandler> playersHandler;
 
-		int editMode = 2;
+		int editMode = 1;
 
 		StartingLineEditing startingLineEditing;
 		SplineEditing splineEditing;
+		GrappleEditing grappleEditing;
 	};
 
 	RaceEditor::RaceEditor() :

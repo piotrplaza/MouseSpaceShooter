@@ -134,7 +134,7 @@ namespace ComponentMappers
 	{
 		Grapple() = default;
 		Grapple(Components::Grapple& component);
-		Grapple(ComponentId id);
+		Grapple(ComponentId id, bool static_);
 
 		Components::Grapple* component = nullptr;
 		ComponentId componentId = 0;
