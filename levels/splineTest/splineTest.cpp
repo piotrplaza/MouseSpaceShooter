@@ -30,7 +30,7 @@ namespace Levels
 			auto& dynamicDecorations = Globals::Components().decorations();
 			auto& camera = Globals::Components().camera2D();
 
-			staticDecoration.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, 0.05f, 20));
+			staticDecoration.emplace(Tools::Shapes2D::CreatePositionsOfDisc({ 0.0f, 0.0f }, 0.05f, 20));
 			staticDecoration.last().modelMatrixF = [this]() {
 				return glm::translate(glm::mat4{ 1.0f }, { mousePos, 0.0f });
 			};
@@ -64,7 +64,7 @@ namespace Levels
 			const glm::vec2 mouseDelta = mousePos - oldMousePos;
 
 			auto addControlPoint = [&](decltype(controlPoints)::iterator it) {
-				dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, controlPointSize, 20));
+				dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfDisc({ 0.0f, 0.0f }, controlPointSize, 20));
 				dynamicDecorations.last().colorF = []() { return glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); };
 				auto insertedIt = controlPoints.insert(it, { dynamicDecorations.last().getComponentId(), mousePos });
 				dynamicDecorations.last().modelMatrixF = [&pos = insertedIt->pos]() {

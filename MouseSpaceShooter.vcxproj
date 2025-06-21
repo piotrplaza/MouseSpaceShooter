@@ -52,7 +52,6 @@
     <ClCompile Include="levels\particles3D\particles3D.cpp" />
     <ClCompile Include="levels\playground\playground.cpp" />
     <ClCompile Include="levels\raceEditor\grappleEditing.cpp" />
-    <ClCompile Include="levels\raceEditor\presets.cpp" />
     <ClCompile Include="levels\raceEditor\raceEditor.cpp" />
     <ClCompile Include="levels\raceEditor\splinesEditing.cpp" />
     <ClCompile Include="levels\raceEditor\startingLineEditing.cpp" />
@@ -87,6 +86,7 @@
     <ClCompile Include="tools\gameHelpers.cpp" />
     <ClCompile Include="tools\geometryHelpers.cpp" />
     <ClCompile Include="tools\missilesHandler.cpp" />
+    <ClCompile Include="tools\paramsFromFile.cpp" />
     <ClCompile Include="tools\particleSystemHelpers.cpp" />
     <ClCompile Include="tools\playersHandler.cpp" />
     <ClCompile Include="tools\shapes2D.cpp" />
@@ -220,6 +220,7 @@
     <ClInclude Include="tools\geometryHelpers.hpp" />
     <ClInclude Include="tools\glmHelpers.hpp" />
     <ClInclude Include="tools\missilesHandler.hpp" />
+    <ClInclude Include="tools\paramsFromFile.hpp" />
     <ClInclude Include="tools\particleSystemHelpers.hpp" />
     <ClInclude Include="tools\playersHandler.hpp" />
     <ClInclude Include="tools\shapes2D.hpp" />
@@ -252,6 +253,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="levels\damageOn\nest\params.txt" />
+    <Text Include="levels\raceEditor\params.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

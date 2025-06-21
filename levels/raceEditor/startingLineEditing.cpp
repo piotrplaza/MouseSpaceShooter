@@ -9,6 +9,7 @@
 
 #include <tools/b2Helpers.hpp>
 #include <tools/Shapes2D.hpp>
+#include <tools/paramsFromFile.hpp>
 
 #include <glm/vec4.hpp>
 #include <glm/gtx/vector_angle.hpp>
@@ -23,19 +24,21 @@ namespace
 	constexpr glm::vec4 startingPositionLineColor(0.4f, 0.4f, 0.4f, 1.0f);
 	constexpr glm::vec4 startingLineEndsColor(1.0f, 0.0f, 0.0f, 1.0f);
 	constexpr glm::vec4 arrowColor(0.4f, 0.4f, 0.4f, 1.0f);
-	constexpr float controlPointRadius = 0.75f;
 	constexpr float scalingFactor = 0.05f;
 }
 
 namespace Levels
 {
-	StartingLineEditing::StartingLineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing):
+	StartingLineEditing::StartingLineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile):
 		mousePos(mousePos),
 		oldMousePos(oldMousePos),
 		mouseDelta(mouseDelta),
 		zoomScale(zoomScale),
-		ongoing(std::move(ongoing))
+		ongoing(std::move(ongoing)),
+		paramsFromFile(paramsFromFile)
 	{
+		paramsFromFile.loadParam(controlPointRadius, "editor.controlPointRadius", false);
+
 		auto& dynamicDecorations = Globals::Components().decorations();
 
 		auto& startingLine = dynamicDecorations.emplace();
@@ -71,6 +74,7 @@ namespace Levels
 		};
 		arrow.drawMode = GL_LINES;
 		arrow.renderLayer = RenderLayer::FarMidground;
+		arrowId = arrow.getComponentId();
 
 		auto& startingLineDecoration = dynamicDecorations.emplace();
 
@@ -94,14 +98,14 @@ namespace Levels
 		}
 	}
 
-	void StartingLineEditing::edit(bool& cameraMoving)
+	void StartingLineEditing::edit()
 	{
 		const auto& mouse = Globals::Components().mouse();
 		const auto& keyboard = Globals::Components().keyboard();
 		auto& dynamicDecorations = Globals::Components().decorations();
 
 		auto addControlPoint = [&]() {
-			dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, controlPointRadius, 20));
+			dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfDisc({ 0.0f, 0.0f }, controlPointRadius, 20));
 			dynamicDecorations.last().colorF = []() { return controlPointColor; };
 			const auto& controlPoint = controlPoints.emplace_back( dynamicDecorations.last().getComponentId(), mousePos );
 			dynamicDecorations.last().modelMatrixF = [&, &pos = controlPoint.pos]() {
@@ -112,8 +116,9 @@ namespace Levels
 
 			if (controlPoints.size() > 2)
 			{
-				dynamicDecorations[controlPoints.front().decorationId].state = ComponentState::Outdated;
-				controlPoints.pop_front();
+				for (const auto& controlPoint : controlPoints)
+					dynamicDecorations[controlPoint.decorationId].state = ComponentState::Outdated;
+				controlPoints.clear();
 			}
 		};
 
@@ -150,10 +155,16 @@ namespace Levels
 		};
 
 		auto removeControlPoint = [&]() {
-			if (cameraMoving)
-				return;
+			controlPointAction([&](auto it) {
+				if (movingControlPoint)
+					return;
 
-			bool removed = false;
+				dynamicDecorations[it->decorationId].state = ComponentState::Outdated;
+				controlPoints.erase(it);
+			});
+		};
+
+		auto removeControlPoints = [&]() {
 			controlPointAction([&](auto it) {
 				if (movingControlPoint)
 					return;
@@ -161,19 +172,12 @@ namespace Levels
 				for (const auto& controlPoint : controlPoints)
 					dynamicDecorations[controlPoint.decorationId].state = ComponentState::Outdated;
 				controlPoints.clear();
-
-				removed = true;
 			});
-
-			if (!removed)
-				cameraMoving = true;
 		};
 
-		auto changeStartingLineEndsRadius = [&]() {
-			startingLineEndsRadius = std::clamp(startingLineEndsRadius + mouse.pressed.wheel * 0.2f, 0.2f, 5.0f);
-			auto& dynamicWalls = Globals::Components().walls();
-			for (auto wallId : startingLineEnds)
-				dynamicWalls[wallId].changeBody(Tools::CreateDiscBody(startingLineEndsRadius));
+		auto changeStartingPositionLineDistance = [&]() {
+			startingPositionLineDistance += mouse.pressed.wheel * 2.0f;
+			startingPositionLineDistance = std::clamp(startingPositionLineDistance, 0.0f, 100.0f);
 		};
 
 		auto scaleStartingLine = [&]() {
@@ -187,9 +191,11 @@ namespace Levels
 			}
 		};
 
-		auto changeStartingPositionLineDistance = [&]() {
-			startingPositionLineDistance += mouse.pressed.wheel * 2.0f;
-			startingPositionLineDistance = std::clamp(startingPositionLineDistance, 0.0f, 100.0f);
+		auto changeStartingLineEndsRadius = [&]() {
+			startingLineEndsRadius = std::clamp(startingLineEndsRadius + mouse.pressed.wheel * 0.2f, 0.0f, 20.0f);
+			auto& dynamicWalls = Globals::Components().walls();
+			for (auto wallId : startingLineEnds)
+				dynamicWalls[wallId].changeBody(Tools::CreateDiscBody(startingLineEndsRadius));
 		};
 
 		auto reverse = [&]() {
@@ -208,31 +214,42 @@ namespace Levels
 		else
 			movingControlPoint = std::nullopt;
 
-		if (mouse.pressing.rmb)
+		if (mouse.pressing.rmb && keyboard.pressing[/*VK_SHIFT*/0x10])
 			removeControlPoint();
-		else
-			cameraMoving = false;
 
-		if (keyboard.pressing[/*VK_SPACE*/' '] && mouse.pressed.wheel)
-			changeStartingLineEndsRadius();
+		if (mouse.pressing.rmb && keyboard.pressing[/*VK_CONTROL*/0x11])
+			removeControlPoints();
 
-		if (keyboard.pressing[/*VK_CONTROL*/0x11] && mouse.pressed.wheel)
+		if (mouse.pressed.wheel && keyboard.pressing[/*VK_SHIFT*/0x10])
+			changeStartingPositionLineDistance();
+
+		if (mouse.pressed.wheel && keyboard.pressing[/*VK_CONTROL*/0x11])
 			scaleStartingLine();
 
-		if (keyboard.pressing[/*VK_SHIFT*/0x10] && mouse.pressed.wheel)
-			changeStartingPositionLineDistance();
+		if (mouse.pressed.wheel && keyboard.pressing[/*VK_MENU*/0x12])
+			changeStartingLineEndsRadius();
 	}
 
 	void StartingLineEditing::update() const
 	{
 		auto& startingLine = Globals::Components().decorations()[startingLineId];
+		auto& startingPositionLine = Globals::Components().decorations()[startingPositionLineId];
+		auto& arrow = Globals::Components().decorations()[arrowId];
+
+		const bool lineReady = controlPoints.size() == 2;
+
+		startingLine.setEnabled(lineReady);
+		startingPositionLine.setEnabled(lineReady);
+		arrow.setEnabled(lineReady);
+
+		if (!lineReady)
+			return;
 
 		startingLine.positions.clear();
 		for (auto& controlPoint : controlPoints)
 			startingLine.positions.emplace_back(controlPoint.pos, 0.0f);
 		startingLine.state = ComponentState::Changed;
 
-		auto& startingPositionLine = Globals::Components().decorations()[startingPositionLineId];
 		startingPositionLine.positions = startingLine.positions;
 		startingPositionLine.state = ComponentState::Changed;
 	}

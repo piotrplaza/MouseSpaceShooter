@@ -11,6 +11,7 @@
 #include <tools/glmHelpers.hpp>
 #include <tools/splines.hpp>
 #include <tools/Shapes2D.hpp>
+#include <tools/paramsFromFile.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -24,23 +25,24 @@ namespace
 	constexpr glm::vec4 inactiveSplineColor = activeSplineColor * 0.5f;
 	constexpr glm::vec4 activeControlPointColor(0.0f, 1.0f, 0.0f, 1.0f);
 	constexpr glm::vec4 inactiveControlPointColor = activeControlPointColor * 0.5f;
-	constexpr float controlPointRadius = 0.75f;
 	constexpr int controlPointComplexity = 20;
 	constexpr float scalingFactor = 0.05f;
 }
 
 namespace Levels
 {
-	SplineEditing::SplineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing):
+	SplineEditing::SplineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile):
 		mousePos(mousePos),
 		oldMousePos(oldMousePos),
 		mouseDelta(mouseDelta),
 		zoomScale(zoomScale),
-		ongoing(std::move(ongoing))
+		ongoing(std::move(ongoing)),
+		paramsFromFile(paramsFromFile)
 	{
+		paramsFromFile.loadParam(controlPointRadius, "editor.controlPointRadius", false);
 	}
 
-	void SplineEditing::edit(bool& cameraMoving)
+	void SplineEditing::edit()
 	{
 		const auto& mouse = Globals::Components().mouse();
 		const auto& keyboard = Globals::Components().keyboard();
@@ -64,7 +66,7 @@ namespace Levels
 
 			auto& controlPoints = polylineIdToSplineDef[*activePolylineId].controlPoints;
 
-			dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, controlPointRadius, controlPointComplexity));
+			dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfDisc({ 0.0f, 0.0f }, controlPointRadius, controlPointComplexity));
 			dynamicDecorations.last().colorF = [&, id = *activePolylineId]() {
 				return (activePolylineId && id == *activePolylineId)
 					? activeControlPointColor
@@ -130,33 +132,27 @@ namespace Levels
 		};
 
 		auto removeControlPoint = [&]() {
-			if (cameraMoving)
-				return;
-
-			bool removed = false;
 			controlPointAction([&](auto splineId, auto& splineDef, auto it) {
 				if (movingControlPoint || movingAdjacentControlPoint)
 					return;
 
-				if (keyboard.pressing[/*VK_SHIFT*/0x10])
-				{
-					for (const auto& controlPoint : splineDef.controlPoints)
-						dynamicDecorations[controlPoint.decorationId].state = ComponentState::Outdated;
+				dynamicDecorations[it->decorationId].state = ComponentState::Outdated;
+				splineDef.controlPoints.erase(it);
+				if (splineDef.controlPoints.empty())
 					polylineIdToSplineDef.erase(splineId);
-				}
-				else
-				{
-					dynamicDecorations[it->decorationId].state = ComponentState::Outdated;
-					splineDef.controlPoints.erase(it);
-					if (splineDef.controlPoints.empty())
-						polylineIdToSplineDef.erase(splineId);
-				}
-
-				removed = true;
 			});
+		};
 
-			if (!removed)
-				cameraMoving = true;
+		auto removeActiveSpline = [&]() {
+			auto& dynamicDecorations = Globals::Components().decorations();
+			auto& polylines = Globals::Components().polylines();
+
+			for (const auto& controlPoint : polylineIdToSplineDef[*activePolylineId].controlPoints)
+				dynamicDecorations[controlPoint.decorationId].state = ComponentState::Outdated;
+
+			polylines[*activePolylineId].state = ComponentState::Outdated;
+			polylineIdToSplineDef.erase(*activePolylineId);
+			activePolylineId = std::nullopt;
 		};
 
 		auto tryAddOrMoveAdjacentControlPoint = [&]() {
@@ -189,7 +185,7 @@ namespace Levels
 				polylineIdToSplineDef[sourcePolyline.getComponentId()];
 			for (auto& controlPoint : polylineIdToSplineDef[targetPolyline.getComponentId()].controlPoints)
 			{
-				auto& controlPointDecoration = dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, controlPointRadius,
+				auto& controlPointDecoration = dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfDisc({ 0.0f, 0.0f }, controlPointRadius,
 					controlPointComplexity));
 				controlPoint.decorationId = controlPointDecoration.getComponentId();
 				controlPointDecoration.colorF = [&, id = targetPolyline.getComponentId()]() {
@@ -204,18 +200,6 @@ namespace Levels
 				controlPointDecoration.renderLayer = RenderLayer::NearMidground;
 			}
 			
-		};
-
-		auto delete_ = [&]() {
-			auto& dynamicDecorations = Globals::Components().decorations();
-			auto& polylines = Globals::Components().polylines();
-
-			for (const auto& controlPoint : polylineIdToSplineDef[*activePolylineId].controlPoints)
-				dynamicDecorations[controlPoint.decorationId].state = ComponentState::Outdated;
-
-			polylines[*activePolylineId].state = ComponentState::Outdated;
-			polylineIdToSplineDef.erase(*activePolylineId);
-			activePolylineId = std::nullopt;
 		};
 
 		auto scaleActiveSpline = [&]() {
@@ -235,10 +219,8 @@ namespace Levels
 		else
 			movingControlPoint = std::nullopt;
 
-		if (mouse.pressing.rmb)
+		if (mouse.pressing.rmb && keyboard.pressing[/*VK_SHIFT*/0x10])
 			removeControlPoint();
-		else
-			cameraMoving = false;
 
 		if (mouse.pressing.mmb)
 			tryAddOrMoveAdjacentControlPoint();
@@ -249,9 +231,6 @@ namespace Levels
 		{
 			auto& splineDef = polylineIdToSplineDef[*activePolylineId];
 
-			if (keyboard.pressed[' '])
-				splineDef.lightning = !splineDef.lightning;
-
 			if (keyboard.pressed['L'])
 				splineDef.loop = !splineDef.loop;
 
@@ -261,22 +240,23 @@ namespace Levels
 			if (keyboard.pressed['C'])
 				copy();
 
-			if (keyboard.pressed[/*VK_DELETE*/0x2E])
-				delete_();
-
-			if (keyboard.pressing[/*VK_SHIFT*/0x10])
-			{
+			if (mouse.pressed.wheel && keyboard.pressing[/*VK_SHIFT*/0x10])
 				splineDef.complexity = std::clamp(splineDef.complexity + mouse.pressed.wheel, 1, 50);
-			}
 
-			if (keyboard.pressing[/*VK_CONTROL*/0x11] && mouse.pressed.wheel)
+			if (mouse.pressed.wheel && keyboard.pressing[/*VK_CONTROL*/0x11])
 				scaleActiveSpline();
+
+			if (keyboard.pressed[/*VK_DELETE*/0x2E] || (mouse.pressing.rmb && keyboard.pressing[/*VK_CONTROL*/0x11]))
+				removeActiveSpline();
+
+			if (keyboard.pressing[/*VK_MENU*/0x12] && mouse.pressed.wheel)
+				splineDef.lightning = std::clamp(splineDef.lightning + mouse.pressed.wheel, 0, 50);
 		}
 	}
 
 	void SplineEditing::update() const
 	{
-		for (auto& [polylineId, SplineDef] : polylineIdToSplineDef)
+		for (auto& [polylineId, splineDef] : polylineIdToSplineDef)
 		{
 			const auto& splineDef = polylineIdToSplineDef.at(polylineId);
 			auto& polyline = Globals::Components().polylines()[polylineId];
@@ -289,14 +269,14 @@ namespace Levels
 			}
 
 			std::vector<glm::vec2> controlPointsPos;
-			controlPointsPos.reserve(SplineDef.controlPoints.size());
-			for (const auto& controlPoint : SplineDef.controlPoints)
+			controlPointsPos.reserve(splineDef.controlPoints.size());
+			for (const auto& controlPoint : splineDef.controlPoints)
 				controlPointsPos.push_back(controlPoint.pos);
 
-			const int numOfVertices = 10 * ((int)controlPointsPos.size() - 1 + 1) + 1;
+			const int numOfVertices = ((int)controlPointsPos.size() - !splineDef.loop) * splineDef.complexity + 1;
 			std::vector<glm::vec2> veritces;
 			veritces.reserve(numOfVertices);
-			Tools::CubicHermiteSpline spline = SplineDef.loop
+			Tools::CubicHermiteSpline spline = splineDef.loop
 				? Tools::CubicHermiteSpline(std::move(controlPointsPos), Tools::CubicHermiteSpline<>::loop)
 				: Tools::CubicHermiteSpline(std::move(controlPointsPos));
 			for (int i = 0; i < numOfVertices; ++i)
@@ -305,11 +285,11 @@ namespace Levels
 			polyline.replaceFixtures(veritces);
 			if (splineDef.lightning)
 			{
-				polyline.segmentVerticesGenerator = [](const auto& v1, const auto& v2) {
-					return Tools::Shapes2D::CreatePositionsOfLightning(v1, v2, std::max(1, (int)glm::distance(v1, v2)), sqrt(glm::distance(v1, v2)) * 0.1f);
+				polyline.segmentVerticesGenerator = [&](const auto& v1, const auto& v2) {
+					return Tools::Shapes2D::CreatePositionsOfLightning(v1, v2, std::max(1, (int)glm::distance(v1, v2)), sqrt(glm::distance(v1, v2)) * splineDef.complexity * splineDef.lightning * 0.001f);
 				};
 				polyline.keyVerticesTransformer = [&](std::vector<glm::vec3>& vertices) {
-					Tools::VerticesDefaultRandomTranslate(vertices, splineDef.loop, (float)(splineDef.complexity * 0.01f));
+					Tools::VerticesDefaultRandomTranslate(vertices, splineDef.loop, (float)(splineDef.complexity * splineDef.lightning * 0.001f));
 				};
 			}
 			else

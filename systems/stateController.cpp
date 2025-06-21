@@ -44,8 +44,18 @@ namespace Systems
 {
 	StateController::StateController()
 	{
-		auto& limits = Globals::Components().systemInfo().limits;
-		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &limits.maxTextureUnits);
+		auto& systemInfo = Globals::Components().systemInfo();
+		auto& gamepads = Globals::Components().gamepads();
+
+		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &systemInfo.limits.maxTextureUnits);
+
+		for (unsigned i = 0; i < gamepads.size(); ++i)
+		{
+			auto& gamepad = gamepads[i];
+			gamepad.init(i, false);
+			gamepad.setEnabled(false);
+		}
+
 		handleSDL();
 	}
 
@@ -245,18 +255,20 @@ namespace Systems
 
 	void StateController::handleSDL()
 	{
+		auto& gamepads = Globals::Components().gamepads();
+
 		auto getJoystickInstanceId = [](int joystickId) {
 			SDL_GameController* controller = SDL_GameControllerOpen(joystickId);
 			SDL_Joystick* joystick = SDL_GameControllerGetJoystick(controller);
 			return SDL_JoystickInstanceID(joystick);
 		};
 
-		auto changeButtonState = [this](int controllerId, int buttonId, bool state) {
+		auto changeButtonState = [&](int controllerId, int buttonId, bool state) {
 			auto it = controllersToComponents.find(controllerId);
 			if (it == controllersToComponents.end())
 				return;
 
-			auto& gamepad = Globals::Components().gamepads()[it->second];
+			auto& gamepad = gamepads[it->second];
 
 			switch (buttonId)
 			{
@@ -341,19 +353,18 @@ namespace Systems
 			{
 			case SDL_CONTROLLERDEVICEADDED:
 			{
-				auto& gamepads = Globals::Components().gamepads();
 				const int joystickInstanceId = getJoystickInstanceId(event.cdevice.which);
 				for (int i = 0; i < (int)gamepads.size(); ++i)
 				{
 					auto it = std::find_if(controllersToComponents.begin(), controllersToComponents.end(), [&](const auto& val) {
 						return val.second == i;
-						});
+					});
 
 					if (it != controllersToComponents.end())
 						continue;
 
 					controllersToComponents.emplace(joystickInstanceId, i);
-					gamepads[i].enabled = true;
+					gamepads[i].setEnabled(true);
 					break;
 				}
 			} break;
@@ -363,7 +374,10 @@ namespace Systems
 				auto it = controllersToComponents.find(event.cdevice.which);
 				if (it == controllersToComponents.end())
 					continue;
-				gamepads[it->second] = Components::Gamepad();
+				auto& gamepad = gamepads[it->second];
+				gamepad = Components::Gamepad();
+				gamepad.init(it->second, false);
+				gamepad.setEnabled(false);
 				prevGamepadsKeys[it->second] = Components::Gamepad::Buttons();
 				controllersToComponents.erase(it);
 			} break;

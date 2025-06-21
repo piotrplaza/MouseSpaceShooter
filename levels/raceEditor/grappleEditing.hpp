@@ -11,14 +11,19 @@
 #include <list>
 #include <unordered_map>
 
+namespace Tools
+{
+	class ParamsFromFile;
+}
+
 namespace Levels
 {
 	class GrappleEditing
 	{
 	public:
-		GrappleEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing);
+		GrappleEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile);
 
-		void edit(bool& cameraMoving);
+		void edit();
 		void update() const;
 
 		void generateCode(std::ofstream& fs) const;
@@ -31,6 +36,7 @@ namespace Levels
 		{
 			std::list<ControlPoint>::iterator controlPoint;
 			ComponentId grappleId{};
+			ComponentId rangeDecorationId{};
 			float radius{};
 			float range{};
 		};
@@ -43,8 +49,14 @@ namespace Levels
 
 		FBool ongoing;
 
+		const Tools::ParamsFromFile& paramsFromFile;
+
 		std::list<ControlPoint> controlPoints;
 		std::unordered_map<ComponentId, GrappleData> cpDecoIdsToGrapplesData;
 		std::optional<std::list<ControlPoint>::iterator> movingControlPoint;
+
+		float controlPointRadius = 0.75f;
+		float grappleInitRadius = 2.0f;
+		float grappleInitRange = 40.0f;
 	};
 }

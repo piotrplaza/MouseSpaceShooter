@@ -78,7 +78,7 @@ const bool console = true;
 const bool glDebug = false;
 const bool audio = true;
 const GLenum glDebugMinSeverity = GL_DEBUG_SEVERITY_LOW;
-const glm::ivec2 windowRes = { 800, 600 }; 
+const glm::ivec2 windowRes = { 800, 600 };
 const glm::ivec2 consolePos = { 3850, 10 };
 
 const struct
@@ -87,7 +87,7 @@ const struct
 	int bitsPerPixel;
 	int refreshRate;
 	bool enabled;
-} forcedScreenMode = { { 1920, 1080 }, 32, 60, false };
+} forcedScreenMode = { { 800, 600 }, 32, 60, false };
 
 const bool fullScreen =
 #ifdef _DEBUG
@@ -253,6 +253,10 @@ static LRESULT CALLBACK WndProc(
 	if (wParam == SC_KEYMENU)
 		return 0;
 
+	auto isAltGrActive = []() {
+		return (GetKeyState(VK_RMENU) & 0x8000) && (GetKeyState(VK_CONTROL) & 0x8000);
+	};
+
 	switch(message)
 	{
 		case WM_CREATE:
@@ -282,9 +286,13 @@ static LRESULT CALLBACK WndProc(
 			focus = false;
 			break;
 		case WM_KEYDOWN:
+		case WM_SYSKEYDOWN:
 			keys[wParam] = true;
 			break;
 		case WM_KEYUP:
+		case WM_SYSKEYUP:
+			if (wParam == VK_CONTROL && isAltGrActive())
+				break;
 			keys[wParam] = false;
 			break;
 		case WM_RBUTTONDOWN:

@@ -285,7 +285,7 @@ namespace
 		.firstInitVelocity = glm::vec2(0.001f, 0.0f)
 	};
 
-	constexpr Params params = params3;
+	constexpr Params params = params4;
 }
 
 namespace Levels
@@ -326,7 +326,7 @@ namespace Levels
 
 			if (params.manualControl)
 			{
-				auto& cursor = decorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle(glm::vec2(0.0f), 0.005f, 20));
+				auto& cursor = decorations.emplace(Tools::Shapes2D::CreatePositionsOfDisc(glm::vec2(0.0f), 0.005f, 20));
 				cursor.modelMatrixF = [&]() { return glm::translate(glm::mat4(1.0f), glm::vec3(cursorPosition[0], 0.0f)); };
 			}
 			else

@@ -1,0 +1,14 @@
+defaults.editProjectionHSize 100.0f
+defaults.testProjectionHSizeMin 30.0f
+
+editor.controlPointRadius 0.75
+editor.mouse.cursorRadius 0.25
+editor.mouse.cursorColor 1.0 1.0 1.0 1.0
+editor.mouse.moveSensitivity 0.001
+editor.mouse.wheelSensitivity 5.0
+
+background.color 0.0 0.05 0.2
+background.imagePath "racing/space track 1.jpg"
+
+grapples.initRadius 2.0
+grapples.initRange 40.0

@@ -286,9 +286,6 @@
     <ClCompile Include="levels\raceEditor\raceEditor.cpp">
       <Filter>src\levels\raceEditor</Filter>
     </ClCompile>
-    <ClCompile Include="levels\raceEditor\presets.cpp">
-      <Filter>src\levels\raceEditor</Filter>
-    </ClCompile>
     <ClCompile Include="levels\raceEditor\splinesEditing.cpp">
       <Filter>src\levels\raceEditor</Filter>
     </ClCompile>
@@ -375,6 +372,9 @@
     </ClCompile>
     <ClCompile Include="levels\raceEditor\grappleEditing.cpp">
       <Filter>src\levels\raceEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\paramsFromFile.cpp">
+      <Filter>src\tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -774,6 +774,9 @@
     <ClInclude Include="levels\raceEditor\grappleEditing.hpp">
       <Filter>src\levels\raceEditor</Filter>
     </ClInclude>
+    <ClInclude Include="tools\paramsFromFile.hpp">
+      <Filter>src\tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">
@@ -843,6 +846,9 @@
   <ItemGroup>
     <Text Include="levels\damageOn\nest\params.txt">
       <Filter>src\levels\damageOn\nest</Filter>
+    </Text>
+    <Text Include="levels\raceEditor\params.txt">
+      <Filter>src\levels\raceEditor</Filter>
     </Text>
   </ItemGroup>
 </Project>

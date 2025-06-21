@@ -50,7 +50,7 @@ namespace Levels
 			auto& texture = Globals::Components().textures()[mainTextureId];
 			auto& staticDecorations = Globals::Components().staticDecorations();
 			staticDecorations.emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 0.5f * texture.loaded.getAspectRatio(), 0.5f }), CM::Texture(mainTextureId, false), Tools::Shapes2D::CreateTexCoordOfRectangle());
-			auto& cursor = staticDecorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, 1.0f, 100));
+			auto& cursor = staticDecorations.emplace(Tools::Shapes2D::CreatePositionsOfDisc({ 0.0f, 0.0f }, 1.0f, 100));
 			cursor.colorF = [&]() { return glm::vec4(cursorColor, 1.0f); };
 			cursor.modelMatrixF = [&]() {
 				return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(cursorPos, 0.0f)), glm::vec3(glm::vec2(cursorHSize) * 0.1f, 1.0f));
@@ -80,7 +80,7 @@ namespace Levels
 			if (!decalTextureData.file.path.empty())
 				Globals::Systems().textures().textureDataFromFile(decalTextureData);
 
-#define TEST 7
+#define TEST 6
 #if TEST != 7
 			switch (effect)
 			{
@@ -101,7 +101,7 @@ namespace Levels
 #elif TEST == 1
 				editor->putCircle(cursorPosInTexture, int(cursorHSize * textureSize.y), cursorColor);
 #elif TEST == 2
-				editor->putEllipse(cursorPosInTexture, { cursorHSize * textureSize.y, cursorHSize * textureSize.y }, cursorColor);
+				editor->putEllipse(cursorPosInTexture, { cursorHSize * textureSize.y * 2, cursorHSize * textureSize.y }, cursorColor);
 #elif TEST == 3
 				{
 					const auto size = glm::ivec2(cursorHSize * textureSize.y, cursorHSize * textureSize.y) * 2;
@@ -113,13 +113,13 @@ namespace Levels
 							data.push_back(glm::vec3(Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f)));
 					texture.subImagesF = [textureSubData = TextureSubData(TextureSubData::Params{}.imagesData({ { TextureData(std::move(data), size), offset } }).exclusiveLoad(false))]() mutable -> auto& {
 						return textureSubData;
-						};
+					};
 				}
 #elif TEST == 4
 				texture.subImagesF = [textureSubData = TextureSubData(TextureSubData::Params{}.imagesData({ { TextureData(TextureFile(decalTexturePath, 3)), {} } })
 					.deferredOffsetPosF([=](const auto& size, auto, auto) { return cursorPosInTexture - size / 2; }))]() mutable -> auto& {
 					return textureSubData;
-					};
+				};
 #elif TEST == 5
 				{
 					decalTextureSubData.deferredOffsetPosF = [=](const auto& size, auto, auto) { return cursorPosInTexture - size / 2; };

@@ -94,7 +94,7 @@ namespace Tools::Shapes2D
 		return positions;
 	}
 
-	size_t AppendPositionsOfCircle(std::vector<glm::vec3>& positions, const glm::vec2& position, float radius, int complexity,
+	size_t AppendPositionsOfDisc(std::vector<glm::vec3>& positions, const glm::vec2& position, float radius, int complexity,
 		const glm::mat4& modelMatrix, float z)
 	{
 		const size_t initialSize = positions.size();
@@ -113,6 +113,33 @@ namespace Tools::Shapes2D
 				glm::sin(radialPosition)) * radius, z, 1.0f));
 			positions.push_back(modelMatrix * glm::vec4(position + glm::vec2(glm::cos(nextRadialPosition),
 				glm::sin(nextRadialPosition)) * radius, z, 1.0f));
+		}
+
+		return positions.size() - initialSize;
+	}
+
+	std::vector<glm::vec3> CreatePositionsOfDisc(const glm::vec2& position, float radius, int complexity,
+		const glm::mat4& modelMatrix, float z)
+	{
+		std::vector<glm::vec3> positions;
+		AppendPositionsOfDisc(positions, position, radius, complexity, modelMatrix, z);
+		return positions;
+	}
+
+	size_t AppendPositionsOfCircle(std::vector<glm::vec3>& positions, const glm::vec2& position, float radius, int complexity,
+		const glm::mat4& modelMatrix, float z)
+	{
+		const size_t initialSize = positions.size();
+
+		positions.reserve(positions.size() + complexity);
+
+		const float radialStep = glm::two_pi<float>() / complexity;
+
+		for (int i = 0; i < complexity; ++i)
+		{
+			const float radialPosition = i * radialStep;
+			positions.push_back(modelMatrix * glm::vec4(position + glm::vec2(glm::cos(radialPosition),
+				glm::sin(radialPosition)) * radius, z, 1.0f));
 		}
 
 		return positions.size() - initialSize;

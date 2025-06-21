@@ -12,14 +12,19 @@
 #include <list>
 #include <array>
 
+namespace Tools
+{
+	class ParamsFromFile;
+}
+
 namespace Levels
 {
 	class StartingLineEditing
 	{
 	public:
-		StartingLineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing);
+		StartingLineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile);
 
-		void edit(bool& cameraMoving);
+		void edit();
 		void update() const;
 
 		void generateCode(std::ofstream& fs) const;
@@ -36,13 +41,17 @@ namespace Levels
 
 		FBool ongoing;
 
+		const Tools::ParamsFromFile& paramsFromFile;
+
 		ComponentId startingLineId;
 		ComponentId startingPositionLineId;
+		ComponentId arrowId;
 		std::array<ComponentId, 2> startingLineEnds;
 		std::list<ControlPoint> controlPoints;
 		std::optional<std::list<ControlPoint>::iterator> movingControlPoint;
 		bool controlPointsEnds = false;
 		float startingLineEndsRadius = 1.0f;
 		float startingPositionLineDistance = 1.0f;
+		float controlPointRadius = 0.75f;
 	};
 }

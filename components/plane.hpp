@@ -11,9 +11,6 @@
 #include <optional>
 #include <limits>
 
-#include <iostream>
-using namespace std;
-
 namespace Components
 {
 	struct Plane : Physical

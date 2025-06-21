@@ -284,7 +284,7 @@ namespace Tools
 			case b2Shape::e_circle:
 			{
 				const auto& circleShape = static_cast<const b2CircleShape&>(*fixture->GetShape());
-				Tools::Shapes2D::AppendPositionsOfCircle(vertices, ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity);
+				Tools::Shapes2D::AppendPositionsOfDisc(vertices, ToVec2<glm::vec2>(circleShape.m_p), circleShape.m_radius, circleGraphicsComplexity);
 				break;
 			}
 			case b2Shape::e_edge:

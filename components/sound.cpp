@@ -5,6 +5,7 @@
 #include "audioListener.hpp"
 
 #include <globals/components.hpp>
+#include <components/defaults.hpp>
 
 #include <tools/utility.hpp>
 
@@ -40,9 +41,11 @@ namespace Components
 			return;
 		}
 
-		setVolume(1.0f);
-		setMinDistance(4.0f);
-		setAttenuation(0.2f);
+		const auto& defaults = Globals::Components().defaults();
+
+		setVolume(defaults.soundVolume);
+		setMinDistance(defaults.soundMinDistance);
+		setAttenuation(defaults.soundAttenuation);
 
 		state = ComponentState::Ongoing;
 

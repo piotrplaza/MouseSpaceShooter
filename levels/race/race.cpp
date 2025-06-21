@@ -41,7 +41,8 @@ namespace Levels
 	public:
 		void setGraphicsSettings() const
 		{
-			Globals::Components().graphicsSettings().backgroundColorF = glm::vec4{ 0.7f, 0.8f, 0.9f, 1.0f };
+			auto& graphicsSettings = Globals::Components().graphicsSettings();
+			graphicsSettings.cullFace = false;
 		}
 
 		void loadTextures()
@@ -72,11 +73,11 @@ namespace Levels
 			textures.last().minFilter = GL_LINEAR;
 			textures.last().preserveAspectRatio = true;
 
-			flameAnimationTexture = textures.size();
+			flameAnimationTextureId = textures.size();
 			textures.emplace("textures/flame animation 1_1.jpg");
 			textures.last().minFilter = GL_LINEAR;
 
-			explosionTexture = textures.size();
+			explosionTextureId = textures.size();
 			textures.emplace("textures/explosion.png");
 		}
 
@@ -86,17 +87,17 @@ namespace Levels
 			musics.emplace("audio/Ghosthack-Ambient Beds_Daylight_Am 75Bpm (WET).ogg", 1.0f).play();
 
 			auto& soundsBuffers = Globals::Components().staticSoundsBuffers();
-			thrustSoundBuffer = soundsBuffers.emplace("audio/thrust.wav", 0.2f).getComponentId();
-			grappleSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
-			playerExplosionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack-AC21_Impact_Cracked.wav").getComponentId();
-			collisionSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
+			thrustSoundBufferId = soundsBuffers.emplace("audio/thrust.wav", 0.2f).getComponentId();
+			grappleSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
+			playerExplosionSoundBufferId = soundsBuffers.emplace("audio/Ghosthack-AC21_Impact_Cracked.wav").getComponentId();
+			collisionSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
 		}
 
 		void setAnimations()
 		{
 			for (auto& flameAnimatedTextureForPlayer : flameAnimatedTextureForPlayers)
 			{
-				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().add({ CM::Texture(flameAnimationTexture, true), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 115 }, 0.02f, 32, 0,
+				flameAnimatedTextureForPlayer = Globals::Components().staticAnimatedTextures().add({ CM::Texture(flameAnimationTextureId, true), { 500, 498 }, { 8, 4 }, { 3, 0 }, 442, 374, { 55, 115 }, 0.02f, 32, 0,
 					AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
@@ -104,13 +105,16 @@ namespace Levels
 
 		void setCamera()
 		{
-			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([]() { return 30.0f; }).scalingFactor(0.7f));
+			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin(30.0f).transitionFactor(2.0f).scalingFactor(0.9f).velocityFactor(1.0f));
 		}
 
-		void generatedStaticElements()
+		void generatedElements()
 		{
-			GeneratedCode::CreateStartingLine(startingStaticPolyline, startingLineP1, startingLineP2, startingPositionLineDistance);
-			GeneratedCode::CreateDeadlySplines(playersHandler, deadlySplines);
+			auto& graphicsSettings = Globals::Components().graphicsSettings();
+			graphicsSettings.backgroundColorF = GeneratedCode::GetBackgroundColor();
+			GeneratedCode::CreateBackground(backgroundTextureId, backgroundDecorationId);
+			GeneratedCode::CreateStartingLine(startingStaticPolylineId, startingLineP1, startingLineP2, startingPositionLineDistance);
+			GeneratedCode::CreateDeadlySplines(playersHandler, deadlySplineIds);
 			GeneratedCode::CreateGrapples();
 		}
 
@@ -126,7 +130,7 @@ namespace Levels
 					auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
 					const auto& polylineComponent = Tools::AccessComponent<CM::Polyline>(polyline);
 
-					if (!deadlySplines.contains(polylineComponent.getComponentId()))
+					if (!deadlySplineIds.contains(polylineComponent.getComponentId()))
 						return false;
 
 					auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
@@ -148,7 +152,7 @@ namespace Levels
 					auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
 					const auto& polylineComponent = Tools::AccessComponent<CM::Polyline>(polyline);
 
-					if (polylineComponent.getComponentId() != startingStaticPolyline)
+					if (polylineComponent.getComponentId() != startingStaticPolylineId)
 						return false;
 
 					auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
@@ -208,7 +212,7 @@ namespace Levels
 					const auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
 					const auto& polylineComponent = Tools::AccessComponent<CM::Polyline>(polyline);
 
-					if (polylineComponent.getComponentId() != startingStaticPolyline)
+					if (polylineComponent.getComponentId() != startingStaticPolylineId)
 						return false;
 
 					const glm::vec2 polylineVec = glm::normalize(polylineComponent.getPositions()[1] - polylineComponent.getPositions()[0]);
@@ -228,7 +232,7 @@ namespace Levels
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::actor, Globals::CollisionBits::actor | Globals::CollisionBits::wall,
 				Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
-					Tools::CreateAndPlaySound(CM::SoundBuffer(collisionSoundBuffer, true),
+					Tools::CreateAndPlaySound(CM::SoundBuffer(collisionSoundBufferId, true),
 					[pos = *Tools::GetCollisionPoint(*plane.GetBody(), *obstacle.GetBody())]() {
 							return pos;
 						},
@@ -251,8 +255,8 @@ namespace Levels
 		void destroyPlane(Components::Plane& plane)
 		{
 			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getOrigin2D()).sourceVelocity(plane.getVelocity()).
-				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(CM::Texture(explosionTexture, true)));
-			Tools::CreateAndPlaySound(CM::SoundBuffer(playerExplosionSoundBuffer, true), [pos = plane.getOrigin2D()]() { return pos; });
+				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(CM::Texture(explosionTextureId, true)));
+			Tools::CreateAndPlaySound(CM::SoundBuffer(playerExplosionSoundBufferId, true), [pos = plane.getOrigin2D()]() { return pos; });
 			plane.setEnabled(false);
 			playersToCircuits.erase(plane.getComponentId());
 		}
@@ -276,7 +280,7 @@ namespace Levels
 
 					return glm::vec3(playerPositionOnStartingLine2D + ntv * startingPositionLineDistance,
 						glm::orientedAngle({ -1.0f, 0.0f }, ntv));
-				}).centerToFront(true).thrustSound(CM::SoundBuffer(thrustSoundBuffer, true)).grappleSound(CM::SoundBuffer(grappleSoundBuffer, true)));
+				}).centerToFront(true).thrustSound(CM::SoundBuffer(thrustSoundBufferId, true)).grappleSound(CM::SoundBuffer(grappleSoundBufferId, true)).soundAttenuation(0.1f));
 
 			initCollisions();
 
@@ -289,21 +293,22 @@ namespace Levels
 
 	private:
 		std::array<CM::Texture, 4> planeTextures;
-		ComponentId flameAnimationTexture = 0;
-		ComponentId explosionTexture = 0;
+		ComponentId flameAnimationTextureId = 0;
+		ComponentId explosionTextureId = 0;
 
 		std::array<CM::AnimatedTexture, 4> flameAnimatedTextureForPlayers;
 
-		ComponentId thrustSoundBuffer = 0;
-		ComponentId grappleSoundBuffer = 0;
-		ComponentId playerExplosionSoundBuffer = 0;
-		ComponentId collisionSoundBuffer = 0;
-
-		ComponentId startingStaticPolyline = 0;
+		ComponentId thrustSoundBufferId = 0;
+		ComponentId grappleSoundBufferId = 0;
+		ComponentId playerExplosionSoundBufferId = 0;
+		ComponentId collisionSoundBufferId = 0;
+		ComponentId backgroundTextureId = 0;
+		ComponentId backgroundDecorationId = 0;
+		ComponentId startingStaticPolylineId = 0;
 
 		Tools::PlayersHandler playersHandler;
 
-		std::unordered_set<ComponentId> deadlySplines;
+		std::unordered_set<ComponentId> deadlySplineIds;
 		unsigned maxCircuits = 0;
 		std::unordered_map<unsigned, unsigned> playersToCircuits;
 
@@ -320,7 +325,7 @@ namespace Levels
 		impl->loadAudio();
 		impl->setAnimations();
 		impl->setCamera();
-		impl->generatedStaticElements();
+		impl->generatedElements();
 		impl->reset();
 	}
 

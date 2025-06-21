@@ -99,7 +99,7 @@ namespace Tools
 		for (unsigned i = 0; i < gamepads.size(); ++i)
 		{
 			const auto& gamepad = gamepads[i];
-			if (gamepad.enabled)
+			if (gamepad.isEnabled())
 				activeGamepads.push_back(i);
 		}
 
@@ -128,13 +128,13 @@ namespace Tools
 		const auto& screenInfo = Globals::Components().systemInfo().screen;
 		const auto& physics = Globals::Components().physics();
 
-		auto velocityCorrection = [velocityFactor = params.velocityFactor_](const auto& plane) {
+		auto velocityCorrectionF = [velocityFactor = params.velocityFactor_](const auto& plane) {
 			return plane.getVelocity() * velocityFactor;
 		};
 
 		Globals::Components().camera2D().positionTransitionFactor = params.transitionFactor_;
 		Globals::Components().camera2D().projectionTransitionFactor = params.transitionFactor_;
-		Globals::Components().camera2D().targetPositionAndProjectionHSizeF = [&, velocityCorrection,
+		Globals::Components().camera2D().targetPositionAndProjectionHSizeF = [&, velocityCorrectionF,
 				projectionHSizeMin = std::move(params.projectionHSizeMin_),
 				scalingFactor = params.scalingFactor_,
 				additionalActors = params.additionalActors_,
@@ -142,10 +142,15 @@ namespace Tools
 
 			glm::vec2 sumOfVelocityCorrections(0.0f);
 			auto& playersHandlers = accessPlayersHandlers();
+
+			unsigned activePlayersCount = std::count_if(playersHandlers.begin(), playersHandlers.end(), [&](const auto& playerHandler) {
+				return planes[playerHandler.playerId].isEnabled() || playerHandler.disabledTime && physics.simulationDuration - *playerHandler.disabledTime <= trackingTimeAfterDisabled;
+			});
+
 			std::vector<glm::vec2> allActorsPos;
-			allActorsPos.reserve(playersHandlers.size() + additionalActors.size());
+			allActorsPos.reserve(activePlayersCount + additionalActors.size());
 			std::vector<glm::vec2> allVCorrectedActorsPos;
-			allVCorrectedActorsPos.reserve(playersHandlers.size() + additionalActors.size());
+			allVCorrectedActorsPos.reserve(activePlayersCount + additionalActors.size());
 
 			for (auto& playerHandler : playersHandlers)
 			{
@@ -161,8 +166,9 @@ namespace Tools
 					playerHandler.disabledTime = std::nullopt;
 
 				allActorsPos.emplace_back(plane.getOrigin2D());
-				allVCorrectedActorsPos.emplace_back(plane.getOrigin2D() + velocityCorrection(plane));
-				sumOfVelocityCorrections += velocityCorrection(plane);
+				const auto velocityCorrection = velocityCorrectionF(plane);
+				allVCorrectedActorsPos.emplace_back(plane.getOrigin2D() + velocityCorrection);
+				sumOfVelocityCorrections += velocityCorrection;
 			}
 			for (const auto& additionalActor : additionalActors)
 			{
@@ -180,17 +186,17 @@ namespace Tools
 					max = { std::max(max.x, actorPos.x), std::max(max.y, actorPos.y) };
 				}
 
-				return (min + max) / 2.0f + sumOfVelocityCorrections / (float)playersHandlers.size();
+				return (min + max) / 2.0f + sumOfVelocityCorrections / (float)activePlayersCount;
 			}();
 
 			auto targetProjection = [&]() {
 				const float maxDistance = [&]() {
-					if (playersHandlers.size() == 1 && additionalActors.empty())
-						return glm::length(velocityCorrection(planes[playersHandlers[0].playerId])) + projectionHSizeMin();
+					if (activePlayersCount == 1 && additionalActors.empty())
+						return glm::length(velocityCorrectionF(planes[playersHandlers[0].playerId])) + projectionHSizeMin();
 
 					float maxDistance = 0.0f;
-					for (unsigned i = 0; i < allVCorrectedActorsPos.size() - 1; ++i)
-						for (unsigned j = i + 1; j < allVCorrectedActorsPos.size(); ++j)
+					for (int i = 0; i < (int)allVCorrectedActorsPos.size() - 1; ++i)
+						for (int j = i + 1; j < (int)allVCorrectedActorsPos.size(); ++j)
 						{
 							const auto& pos1 = allVCorrectedActorsPos[i];
 							const auto& pos2 = allVCorrectedActorsPos[j];
@@ -200,10 +206,10 @@ namespace Tools
 								glm::vec2(pos2.x / screenInfo.getAspectRatio(), pos2.y)) * scalingFactor);
 						}
 					return maxDistance;
-					}();
+				}();
 
 				return std::max(projectionHSizeMin(), maxDistance);
-				}();
+			}();
 
 			return glm::vec3(targetPosition, targetProjection);
 		};
@@ -219,14 +225,14 @@ namespace Tools
 		for (unsigned i = 0; i < gamepads.size(); ++i)
 		{
 			const auto& gamepad = gamepads[i];
-			if (gamepad.enabled)
+			if (gamepad.isEnabled())
 				activeGamepads.push_back(i);
 		}
 
 		const unsigned numOfPlayers = std::clamp((unsigned)activeGamepads.size() + !gamepadForPlayer1, 1u, 4u);
 
 		std::erase_if(playersHandlers, [&, i = 0](const auto& playerHandler) mutable {
-			const bool erase = i++ != 0 && playerHandler.gamepadId && !gamepads[*playerHandler.gamepadId].enabled;
+			const bool erase = i++ != 0 && playerHandler.gamepadId && !gamepads[*playerHandler.gamepadId].isEnabled();
 			if (erase)
 			{
 				planes[playerHandler.playerId].state = ComponentState::Outdated;

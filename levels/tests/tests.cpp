@@ -9,6 +9,7 @@
 #include <components/SoundBuffer.hpp>
 #include <components/sound.hpp>
 #include <components/music.hpp>
+#include <components/gamepad.hpp>
 #include <globals/components.hpp>
 
 #include <ogl/shaders/textured.hpp>
@@ -38,8 +39,8 @@ namespace Tests
 		{
 			const auto& screenInfo = Globals::Components().systemInfo().screen;
 			const auto pos = glm::linearRand(-screenInfo.getNormalizedFramebufferRes(), screenInfo.getNormalizedFramebufferRes()) * 9.0f;
-			auto& decoration = Globals::Components().decorations().emplace(Tools::Shapes2D::CreatePositionsOfCircle(pos, 1.0f, 20));
-			decoration.subsequence.emplace_back(Tools::Shapes2D::CreatePositionsOfCircle(pos, 0.2f, 20));
+			auto& decoration = Globals::Components().decorations().emplace(Tools::Shapes2D::CreatePositionsOfDisc(pos, 1.0f, 20));
+			decoration.subsequence.emplace_back(Tools::Shapes2D::CreatePositionsOfDisc(pos, 0.2f, 20));
 			decoration.subsequence.back().colorF = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 			decoration.state = ComponentState::LastShot;
 		}
@@ -162,7 +163,22 @@ namespace Tests
 		}
 	};
 
-	auto activeTest = std::make_unique<ParticleSystemsSwitching>();
+	struct Gamepad : public TestBase
+	{
+		void step() override
+		{
+			const auto& gamepads = Globals::Components().gamepads();
+			for (const auto& gamepad : gamepads)
+			{
+				if (gamepad.isEnabled())
+				{
+					std::cout << gamepad.getComponentId() << ": " << gamepad.lStick.x << ", " << gamepad.lStick.y << std::endl;
+				}
+			}
+		}
+	};
+
+	auto activeTest = std::make_unique<Gamepad>();
 }
 
 namespace Levels

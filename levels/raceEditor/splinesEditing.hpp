@@ -10,14 +10,20 @@
 #include <unordered_map>
 #include <list>
 
+namespace Tools
+{
+	class ParamsFromFile;
+}
+
+
 namespace Levels
 {
 	class SplineEditing
 	{
 	public:
-		SplineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing);
+		SplineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile);
 
-		void edit(bool& cameraMoving);
+		void edit();
 		void update() const;
 
 		void generateCode(std::ofstream& fs) const;
@@ -26,9 +32,9 @@ namespace Levels
 		struct SplineDef
 		{
 			std::list<ControlPoint> controlPoints;
-			bool lightning = false;
 			bool loop = false;
 			int complexity = 10;
+			int lightning = 0;
 		};
 
 		const glm::vec2& mousePos;
@@ -39,9 +45,12 @@ namespace Levels
 
 		FBool ongoing;
 
+		const Tools::ParamsFromFile& paramsFromFile;
+
 		std::unordered_map<ComponentId, SplineDef> polylineIdToSplineDef;
 		std::optional<ComponentId> activePolylineId;
 		std::optional<std::list<ControlPoint>::iterator> movingControlPoint;
 		std::optional<std::list<ControlPoint>::iterator> movingAdjacentControlPoint;
+		float controlPointRadius = 0.75f;
 	};
 }

@@ -8,9 +8,6 @@
 
 #include <ranges>
 
-#include <iostream>
-using namespace std;
-
 namespace Tools
 {
 	template <typename Component>

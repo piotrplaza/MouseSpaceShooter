@@ -9,6 +9,7 @@
 
 #include <tools/b2Helpers.hpp>
 #include <tools/Shapes2D.hpp>
+#include <tools/paramsFromFile.hpp>
 
 #include <glm/vec4.hpp>
 #include <glm/gtx/vector_angle.hpp>
@@ -20,26 +21,31 @@ namespace
 {
 	constexpr glm::vec4 controlPointColor(0.0f, 1.0f, 0.0f, 1.0f);
 	constexpr glm::vec4 grappleColor(0.0f, 1.0f, 1.0f, 1.0f);
-	constexpr float controlPointRadius = 0.75f;
-	constexpr float grappleInitRadius = 2.0f;
-	constexpr float grappleInitRange = 40.0f;
-	constexpr float scalingFactor = 0.5f;
+	constexpr glm::vec4 grappleRangeColor(0.5f);
+	constexpr float radiusScalingFactor = 0.5f;
+	constexpr float rangeScalingFactor = 2.0f;
 	constexpr float minGrappleRadius = 0.2f;
 	constexpr float maxGrappleRadius = 100.0f;
+	constexpr float minGrappleRange = 5.0f;
+	constexpr float maxGrappleRange = 1000.0f;
 }
 
 namespace Levels
 {
-	GrappleEditing::GrappleEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing) :
+	GrappleEditing::GrappleEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile) :
 		mousePos(mousePos),
 		oldMousePos(oldMousePos),
 		mouseDelta(mouseDelta),
 		zoomScale(zoomScale),
-		ongoing(std::move(ongoing))
+		ongoing(std::move(ongoing)),
+		paramsFromFile(paramsFromFile)
 	{
+		paramsFromFile.loadParam(controlPointRadius, "editor.controlPointRadius", false);
+		paramsFromFile.loadParam(grappleInitRadius, "grapples.initRadius", false);
+		paramsFromFile.loadParam(grappleInitRange, "grapples.initRange", false);
 	}
 
-	void GrappleEditing::edit(bool& cameraMoving)
+	void GrappleEditing::edit()
 	{
 		const auto& mouse = Globals::Components().mouse();
 		const auto& keyboard = Globals::Components().keyboard();
@@ -47,15 +53,15 @@ namespace Levels
 		auto& grapples = Globals::Components().grapples();
 
 		auto addControlPoint = [&]() {
-			dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, controlPointRadius, 20));
-			dynamicDecorations.last().colorF = controlPointColor;
-			const auto& controlPoint = controlPoints.emplace_back(dynamicDecorations.last().getComponentId(), mousePos);
+			auto& cpDecorations = dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfDisc({ 0.0f, 0.0f }, controlPointRadius, 20));
+			cpDecorations.colorF = controlPointColor;
+			const auto& controlPoint = controlPoints.emplace_back(cpDecorations.getComponentId(), mousePos);
 			const auto cpIt = std::prev(controlPoints.end());
-			dynamicDecorations.last().modelMatrixF = [&, &pos = controlPoint.pos]() {
+			cpDecorations.modelMatrixF = [&, &pos = controlPoint.pos]() {
 				return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), glm::vec3(zoomScale));
 			};
-			dynamicDecorations.last().renderF = ongoing;
-			dynamicDecorations.last().renderLayer = RenderLayer::NearMidground;
+			cpDecorations.renderF = ongoing;
+			cpDecorations.renderLayer = RenderLayer::NearMidground;
 
 			auto& grapple = grapples.emplace(Tools::CreateDiscBody(grappleInitRadius, Tools::BodyParams{}));
 			grapple.range = grappleInitRange;
@@ -64,7 +70,17 @@ namespace Levels
 				grapple.colorF = grappleColor;
 			};
 
-			cpDecoIdsToGrapplesData.insert({ controlPoint.decorationId, GrappleData{cpIt, grapple.getComponentId(), grappleInitRadius, grappleInitRange} });
+			auto& rangeDecoration = dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, 1.0f, 100));
+			rangeDecoration.drawMode = GL_LINE_LOOP;
+			rangeDecoration.colorF = [&]() {
+				return grappleRangeColor * (float)ongoing();
+			};
+
+			const auto& grappleData = cpDecoIdsToGrapplesData.insert({ controlPoint.decorationId, GrappleData{cpIt, grapple.getComponentId(), rangeDecoration.getComponentId(), grappleInitRadius, grappleInitRange} }).first->second;
+
+			rangeDecoration.modelMatrixF = [&, &pos = controlPoint.pos]() {
+				return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), glm::vec3(grappleData.range));
+			};
 		};
 
 		auto controlPointAction = [&](std::function<void(std::list<ControlPoint>::iterator)> action) {
@@ -96,49 +112,26 @@ namespace Levels
 			}
 
 			addControlPoint();
-			};
+		};
 
 		auto removeControlPoint = [&]() {
-			if (cameraMoving)
-				return;
-
-			bool removed = false;
 			controlPointAction([&](auto it) {
 				if (movingControlPoint)
 					return;
 
-				if (keyboard.pressing[/*VK_SHIFT*/0x10])
-				{
-					for (const auto& controlPoint : controlPoints)
-					{
-						const auto& grappleData = cpDecoIdsToGrapplesData.at(controlPoint.decorationId);
-						grapples[grappleData.grappleId].state = ComponentState::Outdated;
-						dynamicDecorations[controlPoint.decorationId].state = ComponentState::Outdated;
-					}
-					controlPoints.clear();
-					cpDecoIdsToGrapplesData.clear();
-				}
-				else
-				{
-					auto cpDecoIdsToGrapplesDataIt = cpDecoIdsToGrapplesData.find(it->decorationId);
-					grapples[cpDecoIdsToGrapplesDataIt->second.grappleId].state = ComponentState::Outdated;
-					dynamicDecorations[it->decorationId].state = ComponentState::Outdated;
-					controlPoints.erase(it);
-					cpDecoIdsToGrapplesData.erase(cpDecoIdsToGrapplesDataIt);
-				}
-				removed = true;
+				auto cpDecoIdsToGrapplesDataIt = cpDecoIdsToGrapplesData.find(it->decorationId);
+				grapples[cpDecoIdsToGrapplesDataIt->second.grappleId].state = ComponentState::Outdated;
+				dynamicDecorations[cpDecoIdsToGrapplesDataIt->second.rangeDecorationId].state = ComponentState::Outdated;
+				dynamicDecorations[it->decorationId].state = ComponentState::Outdated;
+				controlPoints.erase(it);
+				cpDecoIdsToGrapplesData.erase(cpDecoIdsToGrapplesDataIt);
 			});
-
-			if (!removed)
-				cameraMoving = true;
 		};
 
 		auto resizeGrapple = [&]() {
-			if (mouse.pressed.wheel == 0)
-				return;
 			controlPointAction([&](auto it) {
 				auto& grappleData = cpDecoIdsToGrapplesData.at(it->decorationId);
-				float newRadius = std::clamp(grappleData.radius + mouse.pressed.wheel * scalingFactor * zoomScale, minGrappleRadius, maxGrappleRadius);
+				float newRadius = std::clamp(grappleData.radius + mouse.pressed.wheel * radiusScalingFactor * zoomScale, minGrappleRadius, maxGrappleRadius);
 				if (newRadius != grappleData.radius)
 				{
 					grappleData.radius = newRadius;
@@ -148,18 +141,28 @@ namespace Levels
 			});
 		};
 
+		auto resizeRange = [&]() {
+			controlPointAction([&](auto it) {
+				auto& grappleData = cpDecoIdsToGrapplesData.at(it->decorationId);
+				grappleData.range = std::clamp(grappleData.range + mouse.pressed.wheel * rangeScalingFactor * zoomScale, minGrappleRange, maxGrappleRange);
+				auto& grapple = Globals::Components().grapples()[grappleData.grappleId];
+				grapple.range = grappleData.range;
+			});
+		};
+
 		if (mouse.pressing.lmb)
 			addOrMoveControlPoint();
 		else
 			movingControlPoint = std::nullopt;
 
-		if (mouse.pressing.rmb)
+		if (mouse.pressing.rmb && keyboard.pressing[/*VK_SHIFT*/0x10])
 			removeControlPoint();
-		else
-			cameraMoving = false;
 
-		if (keyboard.pressing[/*VK_SHIFT*/0x10])
+		if (mouse.pressed.wheel && keyboard.pressing[/*VK_SHIFT*/0x10])
 			resizeGrapple();
+
+		if (mouse.pressed.wheel && keyboard.pressing[/*VK_CONTROL*/0x11])
+			resizeRange();
 	}
 
 	void GrappleEditing::update() const

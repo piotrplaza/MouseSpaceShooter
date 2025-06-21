@@ -16,4 +16,7 @@
     <LocalDebuggerEnvironment>PATH=%PATH%;$(SolutionDir)\dll\x64;$(VCToolsInstallDir)bin\Hostx64\x64</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup>
+    <ShowAllFiles>false</ShowAllFiles>
+  </PropertyGroup>
 </Project>

@@ -347,7 +347,7 @@ namespace Levels::DamageOn
 
 				auto stickDirection = [&](const glm::vec2& stick) {
 					const float directionLength = glm::length(stick);
-					if (!gamepadApplying || !gamepad.enabled || directionLength <= gameParams.gamepad.deadZone)
+					if (!gamepadApplying || !gamepad.isEnabled() || directionLength <= gameParams.gamepad.deadZone)
 						return glm::vec2(0.0f);
 					if (directionLength > 1.0f)
 						return stick / directionLength;

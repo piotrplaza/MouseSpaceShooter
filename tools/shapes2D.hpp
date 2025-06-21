@@ -17,6 +17,10 @@ namespace Tools::Shapes2D
 		const glm::vec2& scaleRange, const glm::vec2& angleRange, const glm::vec2& stepRange, float z = 0.0f);
 	std::vector<glm::vec3> CreatePositionsOfFunctionalRectangles(const glm::vec2& hSize, std::function<glm::vec2(float)> positionF,
 		std::function<glm::vec2(float)> scaleF, std::function<float(float)> angleF, std::function<std::optional<float>()> inputEmitter, float z = 0.0f);
+	size_t AppendPositionsOfDisc(std::vector<glm::vec3>& vertices, const glm::vec2& position, float radius, int complexity,
+		const glm::mat4& modelMatrix = glm::mat4(1.0f), float z = 0.0f);
+	std::vector<glm::vec3> CreatePositionsOfDisc(const glm::vec2& position, float radius, int complexity,
+		const glm::mat4& modelMatrix = glm::mat4(1.0f), float z = 0.0f);
 	size_t AppendPositionsOfCircle(std::vector<glm::vec3>& vertices, const glm::vec2& position, float radius, int complexity,
 		const glm::mat4& modelMatrix = glm::mat4(1.0f), float z = 0.0f);
 	std::vector<glm::vec3> CreatePositionsOfCircle(const glm::vec2& position, float radius, int complexity,

@@ -8,8 +8,6 @@ namespace Components
 {
 	struct Gamepad : ComponentBase
 	{
-		bool enabled = false;
-
 		struct Buttons
 		{
 			bool a = false;

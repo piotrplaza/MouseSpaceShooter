@@ -12,7 +12,6 @@
 #include <tools/shapes2D.hpp>
 
 #include <iostream>
-using namespace std;
 
 namespace Levels
 {
@@ -31,7 +30,7 @@ namespace Levels
 				}));
 
 			for (const auto& plane : Globals::Components().planes())
-				cout << plane.body->GetMass() << endl;
+				std::cout << plane.body->GetMass() << std::endl;
 		}
 
 		void loadTextures()

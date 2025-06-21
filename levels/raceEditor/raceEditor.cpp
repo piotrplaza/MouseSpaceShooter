@@ -15,12 +15,14 @@
 #include <components/plane.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/deferredAction.hpp>
+#include <components/graphicsSettings.hpp>
 
 #include <globals/components.hpp>
 
 #include <tools/playersHandler.hpp>
 #include <tools/Shapes2D.hpp>
 #include <tools/particleSystemHelpers.hpp>
+#include <tools/paramsFromFile.hpp>
 
 #include <glm/gtx/vector_angle.hpp>
 
@@ -28,28 +30,53 @@
 #include <optional>
 #include <fstream>
 #include <array>
+#include <sstream>
 
 namespace
 {
-	constexpr float cursorRadius = 0.25f;
+	static const char* paramsPath = "levels/raceEditor/params.txt";
 }
 
 namespace Levels
 {
-	void createSplines();
-
 	class RaceEditor::Impl
 	{
 	public:
 		RaceEditor::Impl():
-			startingLineEditing(mousePos, oldMousePos, mouseDelta, zoomScale, [this]() { return !playersHandler && editMode == 1; }),
-			splineEditing(mousePos, oldMousePos, mouseDelta, zoomScale, [this]() { return !playersHandler && editMode == 2; }),
-			grappleEditing(mousePos, oldMousePos, mouseDelta, zoomScale, [this]() { return !playersHandler && editMode == 3; })
+			paramsFromFile(paramsPath),
+			startingLineEditing(mousePos, oldMousePos, mouseDelta, zoomScale, [this]() { return !playersHandler && editMode == 1; }, paramsFromFile),
+			splineEditing(mousePos, oldMousePos, mouseDelta, zoomScale, [this]() { return !playersHandler && editMode == 2; }, paramsFromFile),
+			grappleEditing(mousePos, oldMousePos, mouseDelta, zoomScale, [this]() { return !playersHandler && editMode == 3; }, paramsFromFile)
 		{
+		}
+
+		void loadParams()
+		{
+			paramsFromFile.loadParam(editProjectionHSize, "defaults.editProjectionHSize", false);
+			paramsFromFile.loadParam(testProjectionHSizeMin, "defaults.testProjectionHSizeMin", false);
+			paramsFromFile.loadParam(cursorRadius, "editor.mouse.cursorRadius", false);
+			paramsFromFile.loadParam(cursorColor, "editor.mouse.cursorColor", false);
+			paramsFromFile.loadParam(cursorSensitivity, "editor.mouse.moveSensitivity", false);
+			paramsFromFile.loadParam(wheelSensitivity, "editor.mouse.wheelSensitivity", false);
+			paramsFromFile.loadParam(backgroundColor, "background.color", false);
+			paramsFromFile.loadParam(backgroundImagePath, "background.imagePath", false);
+			{
+				size_t pos;
+				while ((pos = backgroundImagePath.find('"')) != std::string::npos)
+					backgroundImagePath.erase(pos, 1);
+				backgroundImagePath = "textures/" + backgroundImagePath;
+			}
 		}
 
 		void setup()
 		{
+			loadParams();
+
+			auto& graphicsSettings = Globals::Components().graphicsSettings();
+
+			graphicsSettings.backgroundColorF = glm::vec4(backgroundColor, 1.0f);
+			graphicsSettings.cullFace = false;
+
 			auto& textures = Globals::Components().staticTextures();
 
 			planeTextures[0] = textures.emplace("textures/plane 1.png");
@@ -83,22 +110,27 @@ namespace Levels
 			explosionTexture = textures.size();
 			textures.emplace("textures/explosion.png");
 
-			initCollisions();
+			backgroundTexture = textures.size();
+			textures.emplace(backgroundImagePath);
 		}
 
 		void postSetup()
 		{
+			createBackground();
+			initCollisions();
+
 			auto& appStateHandler = Globals::Components().appStateHandler();
 			auto& staticDecoration = Globals::Components().staticDecorations();
 
 			appStateHandler.exitF = [&keyboard = Globals::Components().keyboard()]() { return keyboard.pressed[/*VK_ESCAPE*/ 0x1B] && keyboard.pressing[/*VK_SHIFT*/ 0x10]; };
 
-			staticDecoration.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, cursorRadius, 20));
-			staticDecoration.last().modelMatrixF = [this]() {
+			auto& cursor = staticDecoration.emplace(Tools::Shapes2D::CreatePositionsOfDisc({ 0.0f, 0.0f }, cursorRadius, 20));
+			cursor.colorF = cursorColor;
+			cursor.modelMatrixF = [this]() {
 				return glm::scale(glm::translate(glm::mat4{ 1.0f }, { mousePos, 0.0f }), glm::vec3(zoomScale));
 			};
-			staticDecoration.last().renderLayer = RenderLayer::NearForeground;
-			staticDecoration.last().renderF = [&]() {
+			cursor.renderLayer = RenderLayer::NearForeground;
+			cursor.renderF = [&]() {
 				return !playersHandler;
 			};
 
@@ -118,12 +150,14 @@ namespace Levels
 			camera.targetPositionAndProjectionHSizeF = [&]() {
 				return glm::vec3(cameraPos, editProjectionHSize);
 			};
+			camera.positionTransitionFactor = 10.0f;
+			camera.projectionTransitionFactor = 10.0f;
 		}
 
 		void initPlayersHandler(bool startingLine)
 		{
 			playersHandler = Tools::PlayersHandler();
-			playersHandler->setCamera(Tools::PlayersHandler::CameraParams{}.projectionHSizeMin([&]() { return testProjectionHSizeMin; }).scalingFactor(0.7f));
+			playersHandler->setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([&]() { return testProjectionHSizeMin; }).transitionFactor(2.0f).scalingFactor(0.9f).velocityFactor(1.0f));
 			playersHandler->initPlayers(Tools::PlayersHandler::InitPlayerParams{}.planeTextures(planeTextures).flameTextures(flameAnimatedTextureForPlayers).gamepadForPlayer1(false).initLocationFunc(
 				[&](unsigned playerId, unsigned numOfPlayers) {
 					const auto startingLineEnds = startingLineEditing.getStartingLineEnds();
@@ -155,7 +189,7 @@ namespace Levels
 				playersHandler->controlStep();
 			else
 			{
-				mousePos += mouse.getCartesianDelta() * editProjectionHSize * 0.001f;
+				mousePos += mouse.getCartesianDelta() * editProjectionHSize * cursorSensitivity;
 				mousePos.x = std::clamp(mousePos.x, -editProjectionHSize * screenRatio + cameraPos.x, editProjectionHSize * screenRatio + cameraPos.x);
 				mousePos.y = std::clamp(mousePos.y, -editProjectionHSize + cameraPos.y, editProjectionHSize + cameraPos.y);
 			}
@@ -164,31 +198,6 @@ namespace Levels
 
 			auto resetView = [&]() {
 				cameraPos = glm::vec2(0.0f);
-			};
-
-			auto generateCode = [&]() {
-				std::ofstream fs("levels/race/generatedCode.hpp");
-
-				fs << "#include <components/polyline.hpp>\n";
-				fs << "\n";
-				fs << "#include <globals/components.hpp>\n";
-				fs << "\n";
-				fs << "#include <tools/Shapes2D.hpp>\n";
-				fs << "\n";
-				fs << "#include <glm/vec2.hpp>\n";
-				fs << "#include <glm/vec3.hpp>\n";
-				fs << "#include <glm/vec4.hpp>\n";
-				fs << "#include <glm/gtx/vector_angle.hpp>\n";
-				fs << "\n";
-				fs << "#include <unordered_set>\n";
-				fs << "\n";
-				fs << "namespace GeneratedCode\n";
-				fs << "{\n";
-				fs << "\n";
-				startingLineEditing.generateCode(fs);
-				splineEditing.generateCode(fs);
-				grappleEditing.generateCode(fs);
-				fs << "}\n";
 			};
 
 			for (int i = 0; i < 10; ++i)
@@ -208,7 +217,7 @@ namespace Levels
 				else
 					initPlayersHandler(!keyboard.pressing[/*VK_SHIFT*/0x10]);
 
-			if (!keyboard.pressing[/*VK_SHIFT*/0x10] && !keyboard.pressing[/*VK_CONTROL*/0x11] && !keyboard.pressing[/*VK_SPACE*/' '])
+			if (!keyboard.pressing[/*VK_SHIFT*/0x10] && !keyboard.pressing[/*VK_CONTROL*/0x11] && !keyboard.pressing[/*VK_MENU*/0x12] && !keyboard.pressing[' '])
 			{
 				if (playersHandler)
 				{
@@ -232,15 +241,25 @@ namespace Levels
 				switch (editMode)
 				{
 				case 1:
-					startingLineEditing.edit(cameraMoving); break;
+					startingLineEditing.edit(); break;
 				case 2:
-					splineEditing.edit(cameraMoving); break;
+					splineEditing.edit(); break;
 				case 3:
-					grappleEditing.edit(cameraMoving); break;
+					grappleEditing.edit(); break;
+				case 9:
+					editBackground(); break;
 				}
 
-				if (cameraMoving)
+				if (mouse.pressing.rmb && !keyboard.pressing[/*VK_SHIFT*/ 0x10] && !keyboard.pressing[/*VK_CONTROL*/ 0x11] && !keyboard.pressing[/*VK_MENU*/ 0x12] && !keyboard.pressing[' '])
 					cameraPos += mouseDelta;
+			}
+			else
+			{
+				if (keyboard.pressed['R'])
+				{
+					playersHandler = std::nullopt;
+					initPlayersHandler(!keyboard.pressing[/*VK_SHIFT*/0x10]);
+				}
 			}
 
 			startingLineEditing.update();
@@ -253,6 +272,39 @@ namespace Levels
 			Tools::CreateExplosion(Tools::ExplosionParams().center(plane.getOrigin2D()).sourceVelocity(plane.getVelocity()).
 				initExplosionVelocityRandomMinFactor(0.2f).explosionTexture(CM::Texture(explosionTexture, true)));
 			plane.setEnabled(false);
+		}
+
+		void createBackground()
+		{
+			const auto& textures = Globals::Components().staticTextures();
+			auto& staticDecoration = Globals::Components().staticDecorations();
+
+			backgroundImageAspectRatio = textures[backgroundTexture].loaded.getAspectRatio();
+			backgroundImageScale = glm::vec2(editProjectionHSize * 2);
+
+			auto& background = staticDecoration.emplace(Tools::Shapes2D::CreatePositionsOfRectangle({}, { 0.5f * backgroundImageAspectRatio, 0.5f }));
+			background.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
+			background.modelMatrixF = [this]() {
+				return glm::scale(glm::translate(glm::mat4{ 1.0f }, glm::vec3(backgroundImagePosition, 0.0f)), glm::vec3(backgroundImageScale, 1.0f));
+			};
+			background.renderLayer = RenderLayer::Background;
+			background.texture = CM::Texture(backgroundTexture, true);
+		}
+
+		void editBackground()
+		{
+			const auto& mouse = Globals::Components().mouse();
+			const auto& keyboard = Globals::Components().keyboard();
+
+			cameraMoving = mouse.pressing.rmb;
+
+			if (mouse.pressing.lmb || (bool)mouse.pressed.wheel)
+			{
+				if (keyboard.pressing[/*VK_SHIFT*/ 0x10])
+					backgroundImageScale += mouse.getCartesianDelta() * editProjectionHSize * cursorSensitivity + (float)mouse.pressed.wheel * wheelSensitivity;
+				else
+					backgroundImagePosition += mouse.getCartesianDelta() * editProjectionHSize * cursorSensitivity;
+			}
 		}
 
 		void initCollisions()
@@ -270,6 +322,61 @@ namespace Levels
 		}
 
 	private:
+		void generateCode() const
+		{
+			std::ofstream fs("levels/race/generatedCode.hpp");
+
+			fs << "#include <components/polyline.hpp>\n";
+			fs << "#include <components/decoration.hpp>\n";
+			fs << "#include <components/texture.hpp>\n";
+			fs << "\n";
+			fs << "#include <globals/components.hpp>\n";
+			fs << "\n";
+			fs << "#include <tools/Shapes2D.hpp>\n";
+			fs << "\n";
+			fs << "#include <glm/vec2.hpp>\n";
+			fs << "#include <glm/vec3.hpp>\n";
+			fs << "#include <glm/vec4.hpp>\n";
+			fs << "#include <glm/gtx/vector_angle.hpp>\n";
+			fs << "\n";
+			fs << "#include <unordered_set>\n";
+			fs << "\n";
+			fs << "namespace GeneratedCode\n";
+			fs << "{\n";
+			fs << "\n";
+
+
+			fs << "inline glm::vec4 GetBackgroundColor()\n";
+			fs << "{\n";
+			fs << "	return {" << backgroundColor.x << ", " << backgroundColor.y << ", " << backgroundColor.z << ", 1.0f};\n";
+			fs << "}\n";
+			fs << "\n";
+
+			fs << "inline void CreateBackground(ComponentId& backgroundTextureId, ComponentId& backgroundDecorationId)\n";
+			fs << "{\n";
+			if (!backgroundImagePath.empty())
+			{
+				fs << "	backgroundTextureId = Globals::Components().staticTextures().size();\n";
+				fs << "	Globals::Components().staticTextures().emplace(\"" << backgroundImagePath << "\");\n";
+				fs << "	auto& background = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({}, { 0.5f * " << backgroundImageAspectRatio << ", 0.5f }));\n";
+				fs << "	background.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();\n";
+				fs << "	background.modelMatrixF = glm::scale(glm::translate(glm::mat4{ 1.0f }, glm::vec3(glm::vec2(" << backgroundImagePosition.x << ", " << backgroundImagePosition.y << "), 0.0f)), ";
+					fs << "	glm::vec3(glm::vec2(" << backgroundImageScale.x << ", " << backgroundImageScale.y << "), 1.0f));\n";
+				fs << "	background.renderLayer = RenderLayer::Background;\n";
+				fs << "	background.texture = CM::Texture(backgroundTextureId, true);\n";
+				fs << "	backgroundDecorationId = background.getComponentId();\n";
+			}
+			fs << "}\n";
+			fs << "\n";
+
+			startingLineEditing.generateCode(fs);
+			splineEditing.generateCode(fs);
+			grappleEditing.generateCode(fs);
+			fs << "}\n";
+		}
+
+		Tools::ParamsFromFile paramsFromFile;
+
 		glm::vec2 mousePos{};
 		glm::vec2 oldMousePos{};
 		glm::vec2 mouseDelta{};
@@ -278,12 +385,22 @@ namespace Levels
 
 		bool cameraMoving = false;
 		float editProjectionHSize = 50.0f;
-		float testProjectionHSizeMin = 10.0f;
+		float testProjectionHSizeMin = 30.0f;
 		float zoomScale = 1.0f;
+		float cursorRadius = 0.25f;
+		glm::vec4 cursorColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		float cursorSensitivity = 0.001f;
+		float wheelSensitivity = 5.0f;
+		glm::vec3 backgroundColor = { 0.0f, 0.0f, 0.0f };
+		std::string backgroundImagePath;
+		float backgroundImageAspectRatio = 1.0f;
+		glm::vec2 backgroundImagePosition = { 0.0f, 0.0f };
+		glm::vec2 backgroundImageScale = { 1.0f, 1.0f };
 
 		std::array<CM::Texture, 4> planeTextures;
 		ComponentId flameAnimationTexture = 0;
 		ComponentId explosionTexture = 0;
+		ComponentId backgroundTexture = 0;
 
 		std::array<CM::AnimatedTexture, 4> flameAnimatedTextureForPlayers;
 
@@ -300,7 +417,6 @@ namespace Levels
 		impl(std::make_unique<Impl>())
 	{
 		impl->setup();
-		createSplines();
 	}
 
 	RaceEditor::~RaceEditor() = default;
