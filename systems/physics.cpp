@@ -7,7 +7,7 @@
 
 #include <globals/components.hpp>
 
-#define FORCE_REFRESH_RATE_BASED_STEP 0
+#define FORCE_REFRESH_RATE_OR_TIME_BASED_STEP 0
 
 namespace
 {
@@ -84,7 +84,7 @@ namespace Systems
 		const auto& screenInfo = Globals::Components().systemInfo().screen;
 		const auto currentTime = std::chrono::high_resolution_clock::now();
 
-#if defined _DEBUG || FORCE_REFRESH_RATE_BASED_STEP
+#if (FORCE_REFRESH_RATE_OR_TIME_BASED_STEP == 0 && defined _DEBUG) || FORCE_REFRESH_RATE_OR_TIME_BASED_STEP == 1
 		physics.frameDuration = physics.gameSpeed * screenInfo.getRefreshDuration();
 #else
 		if (physics.forceRefreshRateBasedStep)

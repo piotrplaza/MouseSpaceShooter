@@ -86,12 +86,12 @@ vec3 rotateZ(vec3 v, float angle) {
 	return rotZ * v;
 }
 
-const vec3 origin = particlesCount == 0
+vec3 origin = particlesCount == 0
 	? originEnd
 	: mix(originBegin, originEnd, float(gl_VertexID + 1) / particlesCount);
 
-const float lifeTime = randomRange(lifeTimeRange, 123.0 * componentId);
-const float seed = time * componentId;
+float lifeTime = randomRange(lifeTimeRange, 123.0 * componentId);
+float seed = time * componentId;
 
 void velocitySpread(inout vec3 velocity)
 {
