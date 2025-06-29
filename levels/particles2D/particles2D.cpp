@@ -45,7 +45,7 @@ namespace
 		const glm::vec2 lifetimeRange;
 		const glm::vec2 hSize;
 		const bool respawning;
-		const bool forceRefreshRateBasedStep;
+		const bool forceRefreshRateOrTimeBasedStep;
 		const glm::vec3 globalForce;
 		const glm::vec3 AZPlusBPlusCT;
 		const float originForce;
@@ -74,7 +74,7 @@ namespace
 		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
 		.respawning = true,
-		.forceRefreshRateBasedStep = true,
+		.forceRefreshRateOrTimeBasedStep = 1,
 		.globalForce = glm::vec3(0.0f, 0.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.1f, 1.0f),
 		.originForce = 0.0f,
@@ -103,7 +103,7 @@ namespace
 		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
 		.respawning = true,
-		.forceRefreshRateBasedStep = false,
+		.forceRefreshRateOrTimeBasedStep = 0,
 		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
 		.originForce = 0.0f,
@@ -132,7 +132,7 @@ namespace
 		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
 		.respawning = true,
-		.forceRefreshRateBasedStep = false,
+		.forceRefreshRateOrTimeBasedStep = 0,
 		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
 		.originForce = 0.0f,
@@ -161,7 +161,7 @@ namespace
 		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
 		.respawning = true,
-		.forceRefreshRateBasedStep = false,
+		.forceRefreshRateOrTimeBasedStep = 0,
 		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
 		.originForce = 0.0f,
@@ -190,7 +190,7 @@ namespace
 		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
 		.respawning = true,
-		.forceRefreshRateBasedStep = false,
+		.forceRefreshRateOrTimeBasedStep = 0,
 		.globalForce = glm::vec3(0.0f, -1.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.01f, 0.2f),
 		.originForce = 0.0f,
@@ -219,7 +219,7 @@ namespace
 		.lifetimeRange = glm::vec2(10.0f),
 		.hSize = glm::vec2(1.0f),
 		.respawning = true,
-		.forceRefreshRateBasedStep = false,
+		.forceRefreshRateOrTimeBasedStep = 0,
 		.globalForce = glm::vec3(0.0f, 0.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.0f, 0.0f),
 		.originForce = 10.0f,
@@ -248,7 +248,7 @@ namespace
 		.lifetimeRange = glm::vec2(10.0f),
 		.hSize = glm::vec2(1.0f),
 		.respawning = true,
-		.forceRefreshRateBasedStep = false,
+		.forceRefreshRateOrTimeBasedStep = 0,
 		.globalForce = glm::vec3(0.0f, 0.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.002f, 0.0001f),
 		.originForce = 5.0f,
@@ -277,7 +277,7 @@ namespace
 		.lifetimeRange = glm::vec2(0.0f),
 		.hSize = glm::vec2(1.0f),
 		.respawning = false,
-		.forceRefreshRateBasedStep = false,
+		.forceRefreshRateOrTimeBasedStep = 0,
 		.globalForce = glm::vec3(0.0f, 0.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.002f, 0.0f),
 		.originForce = 10.0f,
@@ -320,7 +320,7 @@ namespace Levels
 			graphicsSettings.pointSmooth = params.pointSmooth;
 			graphicsSettings.lineSmooth = params.lineSmooth;
 
-			physics.forceRefreshRateBasedStep = params.forceRefreshRateBasedStep;
+			physics.forceRefreshRateOrTimeBasedStep = params.forceRefreshRateOrTimeBasedStep;
 
 			camera.targetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, camera.details.projectionHSize = camera.details.prevProjectionHSize = 1.0f);
 

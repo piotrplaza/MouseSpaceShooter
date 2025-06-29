@@ -84,18 +84,33 @@ namespace Systems
 		const auto& screenInfo = Globals::Components().systemInfo().screen;
 		const auto currentTime = std::chrono::high_resolution_clock::now();
 
-#if (FORCE_REFRESH_RATE_OR_TIME_BASED_STEP == 0 && defined _DEBUG) || FORCE_REFRESH_RATE_OR_TIME_BASED_STEP == 1
-		physics.frameDuration = physics.gameSpeed * screenInfo.getRefreshDuration();
-#else
-		if (physics.forceRefreshRateBasedStep)
+		auto refreshRateBasedStep = [&]() {
 			physics.frameDuration = physics.gameSpeed * screenInfo.getRefreshDuration();
-		else
-		{
+		};
+
+		auto timeBasedStep = [&]() {
 			physics.frameDuration = physics.gameSpeed * std::chrono::duration<float>(currentTime - physics.prevFrameTime).count();
 			if (1.0f / physics.frameDuration < physics.minFPS)
 				physics.frameDuration = 1.0f / physics.minFPS;
-		}
+		};
+
+#if FORCE_REFRESH_RATE_OR_TIME_BASED_STEP == 1
+		refreshRateBasedStep();
+#elif FORCE_REFRESH_RATE_OR_TIME_BASED_STEP == 2
+		timeBasedStep();
+#else
+		if (physics.forceRefreshRateOrTimeBasedStep == 1)
+			refreshRateBasedStep();
+		else if (physics.forceRefreshRateOrTimeBasedStep == 2)
+			timeBasedStep();
+		else
+#if defined _DEBUG
+			refreshRateBasedStep();
+#else
+			timeBasedStep();
 #endif
+#endif
+
 		physics.prevFrameTime = currentTime;
 		physics.simulationDuration += physics.frameDuration;
 		++physics.frameCount;
