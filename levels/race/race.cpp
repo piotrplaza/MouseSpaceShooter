@@ -84,7 +84,7 @@ namespace Levels
 		void loadAudio()
 		{
 			auto& musics = Globals::Components().staticMusics();
-			musics.emplace("audio/Ghosthack-Ambient Beds_Daylight_Am 75Bpm (WET).ogg", 1.0f).play();
+			musics.emplace(GeneratedCode::musicPath, 1.0f).play();
 
 			auto& soundsBuffers = Globals::Components().staticSoundsBuffers();
 			thrustSoundBufferId = soundsBuffers.emplace("audio/thrust.wav", 0.2f).getComponentId();
@@ -105,13 +105,15 @@ namespace Levels
 
 		void setCamera()
 		{
-			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin(30.0f).transitionFactor(2.0f).scalingFactor(0.9f).velocityFactor(1.0f));
+			const glm::vec2 levelHSize = GeneratedCode::backgroundImageScale * 0.5f * glm::vec2(GeneratedCode::backgroundImageAspectRatio, 1.0f);
+			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin(GeneratedCode::projectionHSizeMin).transitionFactor(2.0f).scalingFactor(0.9f).velocityFactor(1.0f)
+				.boundaryParams_levelHSize_trackingMargin({ levelHSize, 0.0f }));
 		}
 
 		void generatedElements()
 		{
 			auto& graphicsSettings = Globals::Components().graphicsSettings();
-			graphicsSettings.backgroundColorF = GeneratedCode::GetBackgroundColor();
+			graphicsSettings.backgroundColorF = GeneratedCode::backgroundColor;
 			GeneratedCode::CreateBackground(backgroundTextureId, backgroundDecorationId);
 			GeneratedCode::CreateStartingLine(startingStaticPolylineId, startingLineP1, startingLineP2, startingPositionLineDistance);
 			GeneratedCode::CreateDeadlySplines(playersHandler, deadlySplineIds);
@@ -120,6 +122,16 @@ namespace Levels
 
 		void customElements()
 		{
+			const glm::vec2 levelHSize = GeneratedCode::backgroundImageScale * 0.5f * glm::vec2(GeneratedCode::backgroundImageAspectRatio, 1.0f);
+			auto& walls = Globals::Components().staticWalls();
+
+			{
+				const float wallHWidth = 2.0f;
+				walls.emplace(Tools::CreateBoxBody({ wallHWidth, levelHSize.y + wallHWidth * 2.0f }, Tools::BodyParams().position({ -levelHSize.x - wallHWidth, 0.0f })));
+				walls.emplace(Tools::CreateBoxBody({ wallHWidth, levelHSize.y + wallHWidth * 2.0f }, Tools::BodyParams().position({ levelHSize.x + wallHWidth, 0.0f })));
+				walls.emplace(Tools::CreateBoxBody({ levelHSize.x + wallHWidth * 2.0f, wallHWidth }, Tools::BodyParams().position({ 0.0f, -levelHSize.y - wallHWidth })));
+				walls.emplace(Tools::CreateBoxBody({ levelHSize.x + wallHWidth * 2.0f, wallHWidth }, Tools::BodyParams().position({ 0.0f, levelHSize.y + wallHWidth })));
+			}
 		}
 
 		void initCollisions()
@@ -141,7 +153,7 @@ namespace Levels
 					destroyPlane(planeComponent);
 
 					return false;
-					});
+				});
 			});
 
 			auto collisionsStarted = std::make_shared<std::unordered_map<ComponentId, int>>();
@@ -204,8 +216,8 @@ namespace Levels
 							destroyPlane(Globals::Components().planes()[worsePlayerId]);
 					}
 					return false;
-					});
 				});
+			});
 
 			Globals::Components().endCollisionHandlers().emplace(Globals::CollisionBits::actor, Globals::CollisionBits::polyline, [this, collisionsStarted, collisionsBlocked](const auto& plane, auto& polyline) {
 				Globals::Components().deferredActions().emplace([&, collisionsStarted, collisionsBlocked](auto) {
@@ -227,8 +239,8 @@ namespace Levels
 					collisionsBlocked->erase(planeComponent.getComponentId());
 
 					return false;
-					});
 				});
+			});
 
 			Globals::Components().beginCollisionHandlers().emplace(Globals::CollisionBits::actor, Globals::CollisionBits::actor | Globals::CollisionBits::wall,
 				Tools::SkipDuplicatedBodiesCollisions([this](const auto& plane, const auto& obstacle) {
@@ -239,7 +251,9 @@ namespace Levels
 						[&](auto& sound) {
 							sound.setVolume(std::sqrt(Tools::GetRelativeSpeed(*plane.GetBody(), *obstacle.GetBody()) / 20.0f));
 						});
-					}));
+					}
+				)
+			);
 		}
 
 		void step()

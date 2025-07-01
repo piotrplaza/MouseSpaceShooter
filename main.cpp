@@ -132,13 +132,13 @@ static void InitEngine()
 static void InitLevel()
 {
 	//activeLevel = std::make_unique<Levels::RaceEditor>();
-	//activeLevel = std::make_unique<Levels::Race>();
+	activeLevel = std::make_unique<Levels::Race>();
 
 	//activeLevel = std::make_unique<Levels::Windmill>();
 	//activeLevel = std::make_unique<Levels::SquareRace>();
 	//activeLevel = std::make_unique<Levels::SnakeCube>();
 
-	activeLevel = std::make_unique<Levels::DamageOn::Nest>();
+	//activeLevel = std::make_unique<Levels::DamageOn::Nest>();
 
 	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();

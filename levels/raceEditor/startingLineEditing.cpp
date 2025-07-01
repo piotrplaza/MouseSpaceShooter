@@ -20,7 +20,6 @@
 namespace
 {
 	constexpr glm::vec4 controlPointColor(0.0f, 1.0f, 0.0f, 1.0f);
-	constexpr glm::vec4 startingLineColor(1.0f, 0.0f, 0.0f, 1.0f);
 	constexpr glm::vec4 startingPositionLineColor(0.4f, 0.4f, 0.4f, 1.0f);
 	constexpr glm::vec4 startingLineEndsColor(1.0f, 0.0f, 0.0f, 1.0f);
 	constexpr glm::vec4 arrowColor(0.4f, 0.4f, 0.4f, 1.0f);
@@ -38,19 +37,20 @@ namespace Levels
 		paramsFromFile(paramsFromFile)
 	{
 		paramsFromFile.loadParam(controlPointRadius, "editor.controlPointRadius", false);
+		paramsFromFile.loadParam(startingLineColor, "startingLine.color", false);
 
 		auto& dynamicDecorations = Globals::Components().decorations();
 
 		auto& startingLine = dynamicDecorations.emplace();
 		startingLine.renderF = [&]() { return controlPoints.size() == 2; };
-		startingLine.colorF = []() { return startingLineColor; };
+		startingLine.colorF = startingLineColor;
 		startingLine.drawMode = GL_LINES;
 		startingLine.renderLayer = RenderLayer::FarMidground;
 		startingLineId = startingLine.getComponentId();
 
 		auto& startingPositionLine = dynamicDecorations.emplace();
 		startingPositionLine.renderF = [&]() { return controlPoints.size() == 2 && this->ongoing(); };
-		startingPositionLine.colorF = []() { return startingPositionLineColor; };
+		startingPositionLine.colorF = startingPositionLineColor;
 		startingPositionLine.modelMatrixF = [&]() {
 			const glm::vec2 v = glm::rotate(glm::normalize(controlPoints.back().pos - controlPoints.front().pos), -glm::half_pi<float>());
 			return glm::translate(glm::mat4(1.0f), glm::vec3(v * startingPositionLineDistance, 0.0f));
@@ -264,7 +264,7 @@ namespace Levels
 			fs << "	const glm::vec2 cp2 = { " << controlPoints.back().pos.x << ", " << controlPoints.back().pos.y << " };\n";
 			fs << "	auto& startingLine = Globals::Components().staticPolylines().emplace(std::vector<glm::vec2>{ cp1, cp2 },\n";
 			fs << "		Tools::BodyParams().sensor(true)); \n";
-			fs << "	startingLine.colorF = []() { return glm::vec4(0.0f, 0.0f, 1.0f, 1.0f); };\n";
+			fs << "	startingLine.colorF = glm::vec4((float)" << startingLineColor.r << ", (float)" << startingLineColor.g << ", (float)" << startingLineColor.b << ", (float)" << startingLineColor.a << ");\n";
 			fs << "\n";
 			fs << "	startingLineId = startingLine.getComponentId();\n";
 			fs << "	p1 = cp1;\n";

@@ -84,8 +84,8 @@ namespace Tools
 			bool gamepadForPlayer1_ = false;
 			std::function<glm::vec3(unsigned, unsigned)> initLocF_;
 			bool centerToFront_ = false;
-			std::optional<CM::SoundBuffer> thrustSoundBuffer_ = std::nullopt;
-			std::optional<CM::SoundBuffer> grappleSoundBuffer_ = std::nullopt;
+			std::optional<CM::SoundBuffer> thrustSoundBuffer_;
+			std::optional<CM::SoundBuffer> grappleSoundBuffer_;
 			float soundAttenuation_ = 1.0f;
 		};
 
@@ -127,12 +127,19 @@ namespace Tools
 				return *this;
 			}
 
+			CameraParams& boundaryParams_levelHSize_trackingMargin(std::tuple<FVec2, FFloat> value)
+			{
+				boundaryParams_levelHSize_trackingMargin_ = std::move(value);
+				return *this;
+			}
+
 			FFloat projectionHSizeMin_;
 			float scalingFactor_ = 0.6f;
 			float velocityFactor_ = 0.1f;
 			float transitionFactor_ = 10.0f;
 			float trackingTimeAfterDisabled_ = 1.0f;
 			std::vector<FVec2> additionalActors_;
+			std::optional<std::tuple<FVec2, FFloat>> boundaryParams_levelHSize_trackingMargin_;
 		};
 
 		~PlayersHandler();

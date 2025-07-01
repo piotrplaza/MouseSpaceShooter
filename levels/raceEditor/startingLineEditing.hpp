@@ -53,5 +53,6 @@ namespace Levels
 		float startingLineEndsRadius = 1.0f;
 		float startingPositionLineDistance = 1.0f;
 		float controlPointRadius = 0.75f;
+		glm::vec4 startingLineColor = { 1.0f, 0.0f, 0.0f, 1.0f };
 	};
 }

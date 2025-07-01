@@ -52,5 +52,7 @@ namespace Levels
 		std::optional<std::list<ControlPoint>::iterator> movingControlPoint;
 		std::optional<std::list<ControlPoint>::iterator> movingAdjacentControlPoint;
 		float controlPointRadius = 0.75f;
+		glm::vec4 activeSplineColor = { 0.0f, 0.0f, 1.0f, 1.0f };
+		glm::vec4 inactiveSplineColor;
 	};
 }

@@ -20,7 +20,6 @@
 namespace
 {
 	constexpr glm::vec4 controlPointColor(0.0f, 1.0f, 0.0f, 1.0f);
-	constexpr glm::vec4 grappleColor(0.0f, 1.0f, 1.0f, 1.0f);
 	constexpr glm::vec4 grappleRangeColor(0.5f);
 	constexpr float radiusScalingFactor = 0.5f;
 	constexpr float rangeScalingFactor = 2.0f;
@@ -41,6 +40,7 @@ namespace Levels
 		paramsFromFile(paramsFromFile)
 	{
 		paramsFromFile.loadParam(controlPointRadius, "editor.controlPointRadius", false);
+		paramsFromFile.loadParam(grappleColor, "grapples.color", false);
 		paramsFromFile.loadParam(grappleInitRadius, "grapples.initRadius", false);
 		paramsFromFile.loadParam(grappleInitRange, "grapples.initRange", false);
 	}
@@ -176,7 +176,8 @@ namespace Levels
 		for (const auto&[decoId, grappleData]: cpDecoIdsToGrapplesData)
 		{
 			fs << "	Globals::Components().staticGrapples().emplace(Tools::CreateDiscBody((float)" << grappleData.radius << ", " <<
-				"Tools::BodyParams{}.position({ (float)" << grappleData.controlPoint->pos.x << ", (float)" << grappleData.controlPoint->pos.y << " }))).range = (float)" << grappleData.range << "; \n";
+				"Tools::BodyParams{}.position({ (float)" << grappleData.controlPoint->pos.x << ", (float)" << grappleData.controlPoint->pos.y << " }))).range = (float)" << grappleData.range << ";\n";
+			fs << "	Globals::Components().staticGrapples().last().colorF = glm::vec4((float)" << grappleColor.r << ", (float)" << grappleColor.g << ", (float)" << grappleColor.b << ", (float)" << grappleColor.a << ");\n";
 
 		}
 		fs << "}\n";

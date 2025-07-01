@@ -58,5 +58,6 @@ namespace Levels
 		float controlPointRadius = 0.75f;
 		float grappleInitRadius = 2.0f;
 		float grappleInitRange = 40.0f;
+		glm::vec4 grappleColor = { 0.0f, 1.0f, 1.0f, 1.0f };
 	};
 }

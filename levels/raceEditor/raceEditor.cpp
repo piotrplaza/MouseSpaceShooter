@@ -53,7 +53,7 @@ namespace Levels
 		void loadParams()
 		{
 			paramsFromFile.loadParam(editProjectionHSize, "defaults.editProjectionHSize", false);
-			paramsFromFile.loadParam(testProjectionHSizeMin, "defaults.testProjectionHSizeMin", false);
+			paramsFromFile.loadParam(gameProjectionHSizeMin, "defaults.gameProjectionHSizeMin", false);
 			paramsFromFile.loadParam(cursorRadius, "editor.mouse.cursorRadius", false);
 			paramsFromFile.loadParam(cursorColor, "editor.mouse.cursorColor", false);
 			paramsFromFile.loadParam(cursorSensitivity, "editor.mouse.moveSensitivity", false);
@@ -65,6 +65,13 @@ namespace Levels
 				while ((pos = backgroundImagePath.find('"')) != std::string::npos)
 					backgroundImagePath.erase(pos, 1);
 				backgroundImagePath = "textures/" + backgroundImagePath;
+			}
+			paramsFromFile.loadParam(musicPath, "audio.music", false);
+			{
+				size_t pos;
+				while ((pos = musicPath.find('"')) != std::string::npos)
+					musicPath.erase(pos, 1);
+				musicPath = "\"audio/" + musicPath + "\"";
 			}
 		}
 
@@ -157,7 +164,7 @@ namespace Levels
 		void initPlayersHandler(bool startingLine)
 		{
 			playersHandler = Tools::PlayersHandler();
-			playersHandler->setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([&]() { return testProjectionHSizeMin; }).transitionFactor(2.0f).scalingFactor(0.9f).velocityFactor(1.0f));
+			playersHandler->setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin([&]() { return gameProjectionHSizeMin; }).transitionFactor(2.0f).scalingFactor(0.9f).velocityFactor(1.0f));
 			playersHandler->initPlayers(Tools::PlayersHandler::InitPlayerParams{}.planeTextures(planeTextures).flameTextures(flameAnimatedTextureForPlayers).gamepadForPlayer1(false).initLocationFunc(
 				[&](unsigned playerId, unsigned numOfPlayers) {
 					const auto startingLineEnds = startingLineEditing.getStartingLineEnds();
@@ -200,6 +207,9 @@ namespace Levels
 				cameraPos = glm::vec2(0.0f);
 			};
 
+			if (keyboard.pressed['G'])
+				generateCode();
+
 			for (int i = 0; i < 10; ++i)
 				if (keyboard.pressed['0' + i])
 				{
@@ -221,7 +231,7 @@ namespace Levels
 			{
 				if (playersHandler)
 				{
-					testProjectionHSizeMin = std::clamp(testProjectionHSizeMin + mouse.pressed.wheel * -2.0f, 1.0f, 10000.0f);
+					gameProjectionHSizeMin = std::clamp(gameProjectionHSizeMin + mouse.pressed.wheel * -5.0f, 1.0f, 10000.0f);
 				}
 				else
 				{
@@ -234,9 +244,6 @@ namespace Levels
 			{
 				if (keyboard.pressed['R'])
 					resetView();
-
-				if (keyboard.pressed['G'])
-					generateCode();
 
 				switch (editMode)
 				{
@@ -345,23 +352,22 @@ namespace Levels
 			fs << "{\n";
 			fs << "\n";
 
-
-			fs << "inline glm::vec4 GetBackgroundColor()\n";
-			fs << "{\n";
-			fs << "	return {" << backgroundColor.x << ", " << backgroundColor.y << ", " << backgroundColor.z << ", 1.0f};\n";
-			fs << "}\n";
+			fs << "constexpr static glm::vec4 backgroundColor = {(float)" << backgroundColor.r << ", (float)" << backgroundColor.g << ", (float)" << backgroundColor.b << ", (float)1};\n";
+			fs << "constexpr static glm::vec2 backgroundImagePosition = {(float)" << backgroundImagePosition.x << ", (float)" << backgroundImagePosition.y << "};\n";
+			fs << "constexpr static float backgroundImageAspectRatio = (float)" << backgroundImageAspectRatio << ";\n";
+			fs << "constexpr static glm::vec2 backgroundImageScale = {(float)" << backgroundImageScale.x << ", (float)" << backgroundImageScale.y << "};\n";
+			fs << "constexpr static float projectionHSizeMin = (float)" << gameProjectionHSizeMin << ";\n";
+			fs << "constexpr static const char* musicPath = " << musicPath << ";\n";
 			fs << "\n";
-
 			fs << "inline void CreateBackground(ComponentId& backgroundTextureId, ComponentId& backgroundDecorationId)\n";
 			fs << "{\n";
 			if (!backgroundImagePath.empty())
 			{
 				fs << "	backgroundTextureId = Globals::Components().staticTextures().size();\n";
 				fs << "	Globals::Components().staticTextures().emplace(\"" << backgroundImagePath << "\");\n";
-				fs << "	auto& background = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({}, { 0.5f * " << backgroundImageAspectRatio << ", 0.5f }));\n";
+				fs << "	auto& background = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({}, { 0.5f * backgroundImageAspectRatio, 0.5f }));\n";
 				fs << "	background.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();\n";
-				fs << "	background.modelMatrixF = glm::scale(glm::translate(glm::mat4{ 1.0f }, glm::vec3(glm::vec2(" << backgroundImagePosition.x << ", " << backgroundImagePosition.y << "), 0.0f)), ";
-					fs << "	glm::vec3(glm::vec2(" << backgroundImageScale.x << ", " << backgroundImageScale.y << "), 1.0f));\n";
+				fs << "	background.modelMatrixF = glm::scale(glm::translate(glm::mat4{ 1.0f }, glm::vec3(backgroundImagePosition, 0.0f)), glm::vec3(backgroundImageScale, 1.0f));\n";
 				fs << "	background.renderLayer = RenderLayer::Background;\n";
 				fs << "	background.texture = CM::Texture(backgroundTextureId, true);\n";
 				fs << "	backgroundDecorationId = background.getComponentId();\n";
@@ -385,7 +391,7 @@ namespace Levels
 
 		bool cameraMoving = false;
 		float editProjectionHSize = 50.0f;
-		float testProjectionHSizeMin = 30.0f;
+		float gameProjectionHSizeMin = 30.0f;
 		float zoomScale = 1.0f;
 		float cursorRadius = 0.25f;
 		glm::vec4 cursorColor = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -393,6 +399,7 @@ namespace Levels
 		float wheelSensitivity = 5.0f;
 		glm::vec3 backgroundColor = { 0.0f, 0.0f, 0.0f };
 		std::string backgroundImagePath;
+		std::string musicPath;
 		float backgroundImageAspectRatio = 1.0f;
 		glm::vec2 backgroundImagePosition = { 0.0f, 0.0f };
 		glm::vec2 backgroundImageScale = { 1.0f, 1.0f };

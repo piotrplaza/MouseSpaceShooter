@@ -21,8 +21,6 @@
 
 namespace
 {
-	constexpr glm::vec4 activeSplineColor(0.0f, 0.0f, 1.0f, 1.0f);
-	constexpr glm::vec4 inactiveSplineColor = activeSplineColor * 0.5f;
 	constexpr glm::vec4 activeControlPointColor(0.0f, 1.0f, 0.0f, 1.0f);
 	constexpr glm::vec4 inactiveControlPointColor = activeControlPointColor * 0.5f;
 	constexpr int controlPointComplexity = 20;
@@ -40,6 +38,8 @@ namespace Levels
 		paramsFromFile(paramsFromFile)
 	{
 		paramsFromFile.loadParam(controlPointRadius, "editor.controlPointRadius", false);
+		paramsFromFile.loadParam(activeSplineColor, "splines.color", false);
+		inactiveSplineColor = activeSplineColor * 0.5f;
 	}
 
 	void SplineEditing::edit()
@@ -329,6 +329,7 @@ namespace Levels
 			fs << "			veritces.push_back(glm::vec3(spline.getSplineSample((float)i / (numOfVertices - 1)), 0.0f));\n";
 
 			fs << "		polylines.emplace(std::move(veritces));\n";
+			fs << "		polylines.last().colorF = glm::vec4((float)" << activeSplineColor.r << ", (float)" << activeSplineColor.g << ", (float)" << activeSplineColor.b << ", (float)" << activeSplineColor.a << ");\n";
 
 			if (splineDef.lightning)
 			{
