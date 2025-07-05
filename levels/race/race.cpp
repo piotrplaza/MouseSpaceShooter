@@ -13,6 +13,7 @@
 #include <components/collisionHandler.hpp>
 #include <components/deferredAction.hpp>
 #include <components/grapple.hpp>
+#include <components/defaults.hpp>
 
 #include <globals/components.hpp>
 #include <globals/shaders.hpp>
@@ -32,6 +33,8 @@
 namespace
 {
 	unsigned circuitsToEliminate = 1;
+	bool gamepadForPlayer1 = false;
+	bool invincibleFinalPlayer = false;
 }
 
 namespace Levels
@@ -39,10 +42,13 @@ namespace Levels
 	class Race::Impl
 	{
 	public:
-		void setGraphicsSettings() const
+		void generalSetup() const
 		{
 			auto& graphicsSettings = Globals::Components().graphicsSettings();
 			graphicsSettings.cullFace = false;
+
+			auto& defaults = Globals::Components().defaults();
+			defaults.soundAttenuation = 0.1f;
 		}
 
 		void loadTextures()
@@ -106,7 +112,8 @@ namespace Levels
 		void setCamera()
 		{
 			const glm::vec2 levelHSize = GeneratedCode::backgroundImageScale * 0.5f * glm::vec2(GeneratedCode::backgroundImageAspectRatio, 1.0f);
-			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin(GeneratedCode::projectionHSizeMin).transitionFactor(2.0f).scalingFactor(0.9f).velocityFactor(1.0f)
+			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin(GeneratedCode::projectionHSizeMin).projectionHSizeDefault(levelHSize.x)
+				.transitionFactor(2.0f).scalingFactor(0.9f).velocityFactor(1.0f)
 				.boundaryParams_levelHSize_trackingMargin({ levelHSize, 0.0f }));
 		}
 
@@ -142,12 +149,15 @@ namespace Levels
 					auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
 					const auto& polylineComponent = Tools::AccessComponent<CM::Polyline>(polyline);
 
+					if (!planeComponent.isEnabled())
+						return false;
+
 					if (!deadlySplineIds.contains(polylineComponent.getComponentId()))
 						return false;
 
 					auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
 
-					if (activePlayersHandlers.size() < 2)
+					if (invincibleFinalPlayer && activePlayersHandlers.size() == 1)
 						return false;
 
 					destroyPlane(planeComponent);
@@ -163,6 +173,9 @@ namespace Levels
 				Globals::Components().deferredActions().emplace([&, collisionsStarted, collisionsBlocked](auto) {
 					auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
 					const auto& polylineComponent = Tools::AccessComponent<CM::Polyline>(polyline);
+
+					if (!planeComponent.isEnabled())
+						return false;
 
 					if (polylineComponent.getComponentId() != startingStaticPolylineId)
 						return false;
@@ -262,7 +275,10 @@ namespace Levels
 
 			const auto& planes = Globals::Components().planes();
 			const auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
-			if (activePlayersHandlers.size() == 1 && planes[activePlayersHandlers.front()->playerId].controls.backPressed)
+			const auto& playersHandlers = playersHandler.getPlayersHandlers();
+
+			if ((activePlayersHandlers.size() == 1 && planes[activePlayersHandlers.front()->playerId].controls.backPressed) ||
+				(activePlayersHandlers.empty() && std::any_of(playersHandlers.begin(), playersHandlers.end(), [&](const auto& e) { return planes[e.playerId].controls.backPressed; })))
 				reset();
 		}
 
@@ -281,7 +297,7 @@ namespace Levels
 
 			customElements();
 
-			playersHandler.initPlayers(Tools::PlayersHandler::InitPlayerParams{}.planeTextures(planeTextures).flameTextures(flameAnimatedTextureForPlayers).gamepadForPlayer1(false).initLocationFunc(
+			playersHandler.initPlayers(Tools::PlayersHandler::InitPlayerParams{}.planeTextures(planeTextures).flameTextures(flameAnimatedTextureForPlayers).gamepadForPlayer1(gamepadForPlayer1).initLocationFunc(
 				[&](unsigned playerId, unsigned numOfPlayers) {
 					if (glm::distance(startingLineP1, startingLineP2) == 0.0f)
 						return glm::vec3(0.0f, 0.0f, 0.0f);
@@ -334,7 +350,7 @@ namespace Levels
 	Race::Race() :
 		impl(std::make_unique<Impl>())
 	{
-		impl->setGraphicsSettings();
+		impl->generalSetup();
 		impl->loadTextures();
 		impl->loadAudio();
 		impl->setAnimations();

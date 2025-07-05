@@ -136,8 +136,9 @@ namespace Tools
 
 		camera2D.positionTransitionFactor = params.transitionFactor_;
 		camera2D.projectionTransitionFactor = params.transitionFactor_;
-		camera2D.targetPositionAndProjectionHSizeF = [&, params, velocityCorrectionF, prevTargetPositionAndProjectionHSizeF = std::move(camera2D.targetPositionAndProjectionHSizeF)]() {
+		camera2D.targetPositionAndProjectionHSizeF = [&, params, velocityCorrectionF]() {
 			const float projectionHSizeMin = params.projectionHSizeMin_();
+			const float projectionHSizeDefault = params.projectionHSizeDefault_();
 			glm::vec2 sumOfVelocityCorrections(0.0f);
 			auto& playersHandlers = accessPlayersHandlers();
 
@@ -146,7 +147,7 @@ namespace Tools
 			});
 
 			if (activePlayersCount == 0 && params.additionalActors_.empty())
-				return prevTargetPositionAndProjectionHSizeF();
+				return glm::vec3(0.0f, 0.0f, projectionHSizeDefault / screenInfo.getAspectRatio());
 
 			std::vector<glm::vec2> allActorsPos;
 			allActorsPos.reserve(activePlayersCount + params.additionalActors_.size());
@@ -299,15 +300,6 @@ namespace Tools
 			auto& playerHandler = playersHandlers[i];
 			auto& plane = Globals::Components().planes()[playerHandler.playerId];
 
-			if (!plane.isEnabled())
-			{
-				if (playerHandler.thrustSound)
-					Globals::Components().sounds()[*playerHandler.thrustSound].setVolume(0.0f);
-				if (playerHandler.grappleSound)
-					Globals::Components().sounds()[*playerHandler.grappleSound].setVolume(0.0f);
-				continue;
-			}
-
 			const auto gamepadId = playerHandler.gamepadId;
 			auto& playerControls = plane.controls;
 			bool fire = false;
@@ -334,6 +326,15 @@ namespace Tools
 				playerControls.grappleHook |= gamepad.pressing.lShoulder || gamepad.pressing.a || gamepad.lTrigger >= 0.5f;
 				playerControls.backPressed |= gamepad.pressed.back;
 				fire |= gamepad.pressing.x;
+			}
+
+			if (!plane.isEnabled())
+			{
+				if (playerHandler.thrustSound)
+					Globals::Components().sounds()[*playerHandler.thrustSound].setVolume(0.0f);
+				if (playerHandler.grappleSound)
+					Globals::Components().sounds()[*playerHandler.grappleSound].setVolume(0.0f);
+				continue;
 			}
 
 			if (fireF)

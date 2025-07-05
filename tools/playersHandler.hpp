@@ -97,6 +97,12 @@ namespace Tools
 				return *this;
 			}
 
+			CameraParams& projectionHSizeDefault(FFloat value)
+			{
+				projectionHSizeDefault_ = value;
+				return *this;
+			}
+
 			CameraParams& scalingFactor(float value)
 			{
 				scalingFactor_ = value;
@@ -133,7 +139,8 @@ namespace Tools
 				return *this;
 			}
 
-			FFloat projectionHSizeMin_;
+			FFloat projectionHSizeMin_ = 0.0f;
+			FFloat projectionHSizeDefault_ = 0.0f;
 			float scalingFactor_ = 0.6f;
 			float velocityFactor_ = 0.1f;
 			float transitionFactor_ = 10.0f;

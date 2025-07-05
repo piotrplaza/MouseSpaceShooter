@@ -321,6 +321,9 @@ namespace Levels
 					auto& planeComponent = Tools::AccessComponent<CM::Plane>(plane);
 					const auto& polylineComponent = Tools::AccessComponent<CM::Polyline>(polyline);
 
+					if (!planeComponent.isEnabled())
+						return false;
+
 					destroyPlane(planeComponent);
 
 					return false;
