@@ -20,7 +20,7 @@ constexpr static glm::vec4 backgroundColor = {(float)0, (float)0.05, (float)0.2,
 constexpr static glm::vec2 backgroundImagePosition = {(float)0, (float)0};
 constexpr static float backgroundImageAspectRatio = (float)1;
 constexpr static glm::vec2 backgroundImageScale = {(float)200, (float)200};
-constexpr static float projectionHSizeMin = (float)30;
+constexpr static float projectionHSizeMin = (float)40;
 constexpr static const char* musicPath = "audio/Ghosthack-Ambient Beds_Daylight_Am 75Bpm (WET).ogg";
 
 inline void CreateBackground(ComponentId& backgroundTextureId, ComponentId& backgroundDecorationId)
