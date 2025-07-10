@@ -29,11 +29,12 @@ namespace
 
 namespace Levels
 {
-	SplineEditing::SplineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile):
+	SplineEditing::SplineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, const float& scale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile):
 		mousePos(mousePos),
 		oldMousePos(oldMousePos),
 		mouseDelta(mouseDelta),
 		zoomScale(zoomScale),
+		scale(scale),
 		ongoing(std::move(ongoing)),
 		paramsFromFile(paramsFromFile)
 	{
@@ -64,21 +65,20 @@ namespace Levels
 				}
 			}
 
-			auto& controlPoints = polylineIdToSplineDef[*activePolylineId].controlPoints;
-
-			dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfDisc({ 0.0f, 0.0f }, controlPointRadius, controlPointComplexity));
-			dynamicDecorations.last().colorF = [&, id = *activePolylineId]() {
+			auto& cpDecorations = dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfDisc({ 0.0f, 0.0f }, controlPointRadius, controlPointComplexity));
+			cpDecorations.colorF = [&, id = *activePolylineId]() {
 				return (activePolylineId && id == *activePolylineId)
 					? activeControlPointColor
 					: inactiveControlPointColor;
 			};
 
-			auto insertedIt = controlPoints.insert(it ? *it : controlPoints.begin(), { dynamicDecorations.last().getComponentId(), mousePos });
-			dynamicDecorations.last().modelMatrixF = [&, &pos = insertedIt->pos]() {
-				return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), glm::vec3(zoomScale));
+			auto& controlPoints = polylineIdToSplineDef[*activePolylineId].controlPoints;
+			auto insertedIt = controlPoints.insert(it ? *it : controlPoints.begin(), { cpDecorations.getComponentId(), mousePos / scale });
+			cpDecorations.modelMatrixF = [&, &pos = insertedIt->pos]() {
+				return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos * scale, 0.0f)), glm::vec3(zoomScale));
 			};
-			dynamicDecorations.last().renderF = ongoing;
-			dynamicDecorations.last().renderLayer = RenderLayer::NearMidground;
+			cpDecorations.renderF = ongoing;
+			cpDecorations.renderLayer = RenderLayer::NearMidground;
 
 			return insertedIt;
 		};
@@ -87,7 +87,7 @@ namespace Levels
 		{
 			for (auto& [splineId, splineDef] : polylineIdToSplineDef)
 				for (auto it = splineDef.controlPoints.begin(); it != splineDef.controlPoints.end(); ++it)
-					if (glm::distance(it->pos, oldMousePos) < controlPointRadius * zoomScale)
+					if (glm::distance(it->pos * scale, oldMousePos) < controlPointRadius * zoomScale)
 					{
 						activePolylineId = splineId;
 						action(splineId, splineDef, it);
@@ -111,10 +111,10 @@ namespace Levels
 				{
 					auto& splineDef = polylineIdToSplineDef[*activePolylineId];
 					for (auto& controlPoint : splineDef.controlPoints)
-						controlPoint.pos += mouseDelta;
+						controlPoint.pos += mouseDelta / scale;
 				}
 				else
-					(*movingControlPoint)->pos += mouseDelta;
+					(*movingControlPoint)->pos += mouseDelta / scale;
 
 				return;
 			}
@@ -163,7 +163,7 @@ namespace Levels
 				});
 
 			if (movingAdjacentControlPoint)
-				(*movingAdjacentControlPoint)->pos += mouseDelta;
+				(*movingAdjacentControlPoint)->pos += mouseDelta / scale;
 		};
 
 		auto deactivate = [&]() {
@@ -185,19 +185,19 @@ namespace Levels
 				polylineIdToSplineDef[sourcePolyline.getComponentId()];
 			for (auto& controlPoint : polylineIdToSplineDef[targetPolyline.getComponentId()].controlPoints)
 			{
-				auto& controlPointDecoration = dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfDisc({ 0.0f, 0.0f }, controlPointRadius,
+				auto& cpDecoration = dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfDisc({ 0.0f, 0.0f }, controlPointRadius,
 					controlPointComplexity));
-				controlPoint.decorationId = controlPointDecoration.getComponentId();
-				controlPointDecoration.colorF = [&, id = targetPolyline.getComponentId()]() {
+				controlPoint.decorationId = cpDecoration.getComponentId();
+				cpDecoration.colorF = [&, id = targetPolyline.getComponentId()]() {
 					return (activePolylineId && id == *activePolylineId)
 						? activeControlPointColor
 						: inactiveControlPointColor;
 				};
-				controlPointDecoration.modelMatrixF = [&, &pos = controlPoint.pos]() {
-					return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), glm::vec3(zoomScale));
+				cpDecoration.modelMatrixF = [&, &pos = controlPoint.pos]() {
+					return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos * scale, 0.0f)), glm::vec3(zoomScale));
 				};
-				controlPointDecoration.renderF = ongoing;
-				controlPointDecoration.renderLayer = RenderLayer::NearMidground;
+				cpDecoration.renderF = ongoing;
+				cpDecoration.renderLayer = RenderLayer::NearMidground;
 			}
 			
 		};
@@ -268,19 +268,19 @@ namespace Levels
 				continue;
 			}
 
-			std::vector<glm::vec2> controlPointsPos;
-			controlPointsPos.reserve(splineDef.controlPoints.size());
+			std::vector<glm::vec2> keypoints;
+			keypoints.reserve(splineDef.controlPoints.size());
 			for (const auto& controlPoint : splineDef.controlPoints)
-				controlPointsPos.push_back(controlPoint.pos);
+				keypoints.push_back(controlPoint.pos * scale);
 
-			const int numOfVertices = ((int)controlPointsPos.size() - !splineDef.loop) * splineDef.complexity + 1;
+			const int numOfKeypoints = ((int)keypoints.size() - !splineDef.loop) * splineDef.complexity + 1;
 			std::vector<glm::vec2> veritces;
-			veritces.reserve(numOfVertices);
+			veritces.reserve(numOfKeypoints);
 			Tools::CubicHermiteSpline spline = splineDef.loop
-				? Tools::CubicHermiteSpline(std::move(controlPointsPos), Tools::CubicHermiteSpline<>::loop)
-				: Tools::CubicHermiteSpline(std::move(controlPointsPos));
-			for (int i = 0; i < numOfVertices; ++i)
-				veritces.push_back(glm::vec3(spline.getSplineSample((float)i / (numOfVertices - 1)), 0.0f));
+				? Tools::CubicHermiteSpline(std::move(keypoints), Tools::CubicHermiteSpline<>::loop)
+				: Tools::CubicHermiteSpline(std::move(keypoints));
+			for (int i = 0; i < numOfKeypoints; ++i)
+				veritces.push_back(glm::vec3(spline.getSplineSample((float)i / (numOfKeypoints - 1)), 0.0f));
 
 			polyline.replaceFixtures(veritces);
 			if (splineDef.lightning)
@@ -307,26 +307,23 @@ namespace Levels
 		if (!polylineIdToSplineDef.empty())
 			fs << "	auto& polylines = Globals::Components().staticPolylines();\n";
 
-		auto createControlPoints = [&](const auto& splineDef) {
-			fs << "		std::vector<glm::vec2> controlPoints;\n";
-			fs << "		controlPoints.reserve(" << splineDef.controlPoints.size() << ");\n";
-			for (const auto& cp : splineDef.controlPoints)
-				fs << "		controlPoints.push_back({" << cp.pos.x << ", " << cp.pos.y << "});\n";
-		};
-
 		for (const auto& [splineDecorationId, splineDef] : polylineIdToSplineDef)
 		{
 			if (splineDef.controlPoints.size() < 2)
 				continue;
 
 			fs << "\n	{\n";
-			createControlPoints(splineDef);
-			fs << "\n		const int numOfVertices = " << splineDef.complexity << " * (controlPoints.size() - 1 + " << splineDef.loop << ") + 1;\n";
-			fs << "		Tools::CubicHermiteSpline spline(std::move(controlPoints)" << (splineDef.loop ? ", Tools::CubicHermiteSpline<>::loop);\n" : ");\n");
+			fs << "		std::vector<glm::vec2> keypoints;\n";
+			fs << "		keypoints.reserve(" << splineDef.controlPoints.size() << ");\n";
+			for (const auto& cp : splineDef.controlPoints)
+				fs << "		keypoints.push_back({" << cp.pos.x << ", " << cp.pos.y << "});\n";
+
+			fs << "		const int numOfVertices = " << splineDef.complexity << " * (keypoints.size() - 1 + " << splineDef.loop << ") + 1;\n";
+			fs << "		Tools::CubicHermiteSpline spline(std::move(keypoints)" << (splineDef.loop ? ", Tools::CubicHermiteSpline<>::loop);\n" : ");\n");
 			fs << "		std::vector<glm::vec2> veritces;\n";
 			fs << "		veritces.reserve(numOfVertices);\n";
 			fs << "		for (int i = 0; i < numOfVertices; ++i)\n";
-			fs << "			veritces.push_back(glm::vec3(spline.getSplineSample((float)i / (numOfVertices - 1)), 0.0f));\n";
+			fs << "			veritces.push_back(glm::vec3(spline.getSplineSample((float)i / (numOfVertices - 1)) * scale, 0.0f));\n";
 
 			fs << "		polylines.emplace(std::move(veritces));\n";
 			fs << "		polylines.last().colorF = glm::vec4((float)" << activeSplineColor.r << ", (float)" << activeSplineColor.g << ", (float)" << activeSplineColor.b << ", (float)" << activeSplineColor.a << ");\n";

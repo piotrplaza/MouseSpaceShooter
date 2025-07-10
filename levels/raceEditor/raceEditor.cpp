@@ -44,9 +44,9 @@ namespace Levels
 	public:
 		RaceEditor::Impl():
 			paramsFromFile(paramsPath),
-			startingLineEditing(mousePos, oldMousePos, mouseDelta, zoomScale, [this]() { return !playersHandler && editMode == 1; }, paramsFromFile),
-			splineEditing(mousePos, oldMousePos, mouseDelta, zoomScale, [this]() { return !playersHandler && editMode == 2; }, paramsFromFile),
-			grappleEditing(mousePos, oldMousePos, mouseDelta, zoomScale, [this]() { return !playersHandler && editMode == 3; }, paramsFromFile)
+			startingLineEditing(mousePos, oldMousePos, mouseDelta, zoomScale, scale, [this]() { return !playersHandler && editMode == 1; }, paramsFromFile),
+			splineEditing(mousePos, oldMousePos, mouseDelta, zoomScale, scale, [this]() { return !playersHandler && editMode == 2; }, paramsFromFile),
+			grappleEditing(mousePos, oldMousePos, mouseDelta, zoomScale, scale, [this]() { return !playersHandler && editMode == 3; }, paramsFromFile)
 		{
 		}
 
@@ -171,10 +171,10 @@ namespace Levels
 					if (!startingLine || startingLineEnds.empty())
 						return glm::vec3(mousePos, 0.0f);
 
-					const glm::vec2 startingLineEndsVector = startingLineEnds[1] - startingLineEnds[0];
+					const glm::vec2 startingLineEndsVector = (startingLineEnds[1] - startingLineEnds[0]) * scale;
 					const float startingLineLength = glm::length(startingLineEndsVector);
 					const float playerPositionOnStartingLine = startingLineLength * (playerId + 1) / (numOfPlayers + 1);
-					const glm::vec2 playerPositionOnStartingLine2D = startingLineEnds[0] + startingLineEndsVector * playerPositionOnStartingLine / startingLineLength;
+					const glm::vec2 playerPositionOnStartingLine2D = startingLineEnds[0] * scale + startingLineEndsVector * playerPositionOnStartingLine / startingLineLength;
 					const glm::vec2 ntv = glm::rotate(glm::normalize(startingLineEndsVector), -glm::half_pi<float>());
 					return glm::vec3(playerPositionOnStartingLine2D + ntv * startingLineEditing.getStartingPositionLineDistance(),
 						glm::orientedAngle({ -1.0f, 0.0f }, ntv));
@@ -240,6 +240,9 @@ namespace Levels
 				}
 			}
 
+			if (keyboard.pressing[' '] && mouse.pressed.wheel)
+				scale = std::clamp(scale + mouse.pressed.wheel * 0.1f, 0.1f, 10.0f);
+
 			if (!playersHandler)
 			{
 				if (keyboard.pressed['R'])
@@ -292,7 +295,7 @@ namespace Levels
 			auto& background = staticDecoration.emplace(Tools::Shapes2D::CreatePositionsOfRectangle({}, { 0.5f * backgroundImageAspectRatio, 0.5f }));
 			background.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();
 			background.modelMatrixF = [this]() {
-				return glm::scale(glm::translate(glm::mat4{ 1.0f }, glm::vec3(backgroundImagePosition, 0.0f)), glm::vec3(backgroundImageScale, 1.0f));
+				return glm::scale(glm::translate(glm::mat4{ 1.0f }, glm::vec3(backgroundImagePosition, 0.0f)), glm::vec3(backgroundImageScale * scale, 1.0f));
 			};
 			background.renderLayer = RenderLayer::Background;
 			background.texture = CM::Texture(backgroundTexture, true);
@@ -354,7 +357,7 @@ namespace Levels
 			fs << "namespace GeneratedCode\n";
 			fs << "{\n";
 			fs << "\n";
-
+			fs << "constexpr static float scale = (float)" << scale << ";\n";
 			fs << "constexpr static glm::vec4 backgroundColor = {(float)" << backgroundColor.r << ", (float)" << backgroundColor.g << ", (float)" << backgroundColor.b << ", (float)1};\n";
 			fs << "constexpr static glm::vec2 backgroundImagePosition = {(float)" << backgroundImagePosition.x << ", (float)" << backgroundImagePosition.y << "};\n";
 			fs << "constexpr static float backgroundImageAspectRatio = (float)" << backgroundImageAspectRatio << ";\n";
@@ -370,7 +373,7 @@ namespace Levels
 				fs << "	Globals::Components().staticTextures().emplace(\"" << backgroundImagePath << "\");\n";
 				fs << "	auto& background = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({}, { 0.5f * backgroundImageAspectRatio, 0.5f }));\n";
 				fs << "	background.texCoord = Tools::Shapes2D::CreateTexCoordOfRectangle();\n";
-				fs << "	background.modelMatrixF = glm::scale(glm::translate(glm::mat4{ 1.0f }, glm::vec3(backgroundImagePosition, 0.0f)), glm::vec3(backgroundImageScale, 1.0f));\n";
+				fs << "	background.modelMatrixF = glm::scale(glm::translate(glm::mat4{ 1.0f }, glm::vec3(backgroundImagePosition, 0.0f)), glm::vec3(backgroundImageScale * scale, 1.0f));\n";
 				fs << "	background.renderLayer = RenderLayer::Background;\n";
 				fs << "	background.texture = CM::Texture(backgroundTextureId, true);\n";
 				fs << "	backgroundDecorationId = background.getComponentId();\n";
@@ -400,6 +403,7 @@ namespace Levels
 		glm::vec4 cursorColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		float cursorSensitivity = 0.001f;
 		float wheelSensitivity = 5.0f;
+		float scale = 1.0f;
 		glm::vec3 backgroundColor = { 0.0f, 0.0f, 0.0f };
 		std::string backgroundImagePath;
 		std::string musicPath;

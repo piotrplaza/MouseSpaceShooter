@@ -111,7 +111,7 @@ namespace Levels
 
 		void setCamera()
 		{
-			const glm::vec2 levelHSize = GeneratedCode::backgroundImageScale * 0.5f * glm::vec2(GeneratedCode::backgroundImageAspectRatio, 1.0f);
+			const glm::vec2 levelHSize = GeneratedCode::backgroundImageScale * 0.5f * glm::vec2(GeneratedCode::backgroundImageAspectRatio, 1.0f) * GeneratedCode::scale;
 			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin(GeneratedCode::projectionHSizeMin).projectionHSizeDefault(levelHSize.x)
 				.transitionFactor(2.0f).scalingFactor(0.9f).velocityFactor(1.0f)
 				.boundaryParams_levelHSize_trackingMargin({ levelHSize, 0.0f }));
@@ -129,7 +129,7 @@ namespace Levels
 
 		void customElements()
 		{
-			const glm::vec2 levelHSize = GeneratedCode::backgroundImageScale * 0.5f * glm::vec2(GeneratedCode::backgroundImageAspectRatio, 1.0f);
+			const glm::vec2 levelHSize = GeneratedCode::backgroundImageScale * 0.5f * glm::vec2(GeneratedCode::backgroundImageAspectRatio, 1.0f) * GeneratedCode::scale;
 			auto& walls = Globals::Components().staticWalls();
 
 			{

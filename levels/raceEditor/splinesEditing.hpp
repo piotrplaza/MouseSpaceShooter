@@ -21,7 +21,7 @@ namespace Levels
 	class SplineEditing
 	{
 	public:
-		SplineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile);
+		SplineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, const float& scale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile);
 
 		void edit();
 		void update() const;
@@ -42,6 +42,7 @@ namespace Levels
 		const glm::vec2& mouseDelta;
 
 		const float& zoomScale;
+		const float& scale;
 
 		FBool ongoing;
 

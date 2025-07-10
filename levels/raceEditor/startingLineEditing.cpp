@@ -28,11 +28,12 @@ namespace
 
 namespace Levels
 {
-	StartingLineEditing::StartingLineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile):
+	StartingLineEditing::StartingLineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, const float& scale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile):
 		mousePos(mousePos),
 		oldMousePos(oldMousePos),
 		mouseDelta(mouseDelta),
 		zoomScale(zoomScale),
+		scale(scale),
 		ongoing(std::move(ongoing)),
 		paramsFromFile(paramsFromFile)
 	{
@@ -44,6 +45,9 @@ namespace Levels
 		auto& startingLine = dynamicDecorations.emplace();
 		startingLine.renderF = [&]() { return controlPoints.size() == 2; };
 		startingLine.colorF = startingLineColor;
+		startingLine.modelMatrixF = [&]() {
+			return glm::scale(glm::mat4(1.0f), glm::vec3(scale));
+		};
 		startingLine.drawMode = GL_LINES;
 		startingLine.renderLayer = RenderLayer::FarMidground;
 		startingLineId = startingLine.getComponentId();
@@ -53,7 +57,7 @@ namespace Levels
 		startingPositionLine.colorF = startingPositionLineColor;
 		startingPositionLine.modelMatrixF = [&]() {
 			const glm::vec2 v = glm::rotate(glm::normalize(controlPoints.back().pos - controlPoints.front().pos), -glm::half_pi<float>());
-			return glm::translate(glm::mat4(1.0f), glm::vec3(v * startingPositionLineDistance, 0.0f));
+			return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(v * startingPositionLineDistance, 0.0f)), glm::vec3(scale));
 		};
 		startingPositionLine.drawMode = GL_LINES;
 		startingPositionLine.renderLayer = RenderLayer::FarMidground;
@@ -70,7 +74,7 @@ namespace Levels
 			const glm::vec2 pos = (controlPoints.front().pos + controlPoints.back().pos) * 0.5f;
 			const glm::vec2 v = glm::normalize(controlPoints.back().pos - controlPoints.front().pos);
 			const float angle = glm::orientedAngle({ 1.0f, 0.0f }, v) + glm::half_pi<float>();
-			return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), angle, { 0.0f, 0.0f, 1.0f }), glm::vec3(zoomScale));
+			return glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(pos * scale, 0.0f)), angle, { 0.0f, 0.0f, 1.0f }), glm::vec3(zoomScale));
 		};
 		arrow.drawMode = GL_LINES;
 		arrow.renderLayer = RenderLayer::FarMidground;
@@ -105,19 +109,19 @@ namespace Levels
 		auto& dynamicDecorations = Globals::Components().decorations();
 
 		auto addControlPoint = [&]() {
-			dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfDisc({ 0.0f, 0.0f }, controlPointRadius, 20));
-			dynamicDecorations.last().colorF = []() { return controlPointColor; };
-			const auto& controlPoint = controlPoints.emplace_back( dynamicDecorations.last().getComponentId(), mousePos );
-			dynamicDecorations.last().modelMatrixF = [&, &pos = controlPoint.pos]() {
-				return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), glm::vec3(zoomScale));
+			auto& cpDecoration = dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfDisc({ 0.0f, 0.0f }, controlPointRadius, 20));
+			cpDecoration.colorF = []() { return controlPointColor; };
+			const auto& controlPoint = controlPoints.emplace_back(cpDecoration.getComponentId(), mousePos / scale);
+			cpDecoration.modelMatrixF = [&, &pos = controlPoint.pos]() {
+				return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos * scale, 0.0f)), glm::vec3(zoomScale));
 			};
-			dynamicDecorations.last().renderF = ongoing;
-			dynamicDecorations.last().renderLayer = RenderLayer::NearMidground;
+			cpDecoration.renderF = ongoing;
+			cpDecoration.renderLayer = RenderLayer::NearMidground;
 
 			if (controlPoints.size() > 2)
 			{
 				for (const auto& controlPoint : controlPoints)
-					dynamicDecorations[controlPoint.decorationId].state = ComponentState::Outdated;
+					cpDecoration.state = ComponentState::Outdated;
 				controlPoints.clear();
 			}
 		};
@@ -125,7 +129,7 @@ namespace Levels
 		auto controlPointAction = [&](std::function<void(std::list<ControlPoint>::iterator)> action)
 		{
 			for (auto it = controlPoints.begin(); it != controlPoints.end(); ++it)
-				if (glm::distance(it->pos, oldMousePos) < controlPointRadius * zoomScale)
+				if (glm::distance(it->pos * scale, oldMousePos) < controlPointRadius * zoomScale)
 				{
 					action(it);
 					return;
@@ -143,10 +147,10 @@ namespace Levels
 				if (keyboard.pressing[/*VK_SHIFT*/0x10])
 				{
 					for (auto& controlPoint : controlPoints)
-						controlPoint.pos += mouseDelta;
+						controlPoint.pos += mouseDelta / scale;
 				}
 				else
-					(*movingControlPoint)->pos += mouseDelta;
+					(*movingControlPoint)->pos += mouseDelta / scale;
 
 				return;
 			}
@@ -262,13 +266,13 @@ namespace Levels
 		{
 			fs << "	const glm::vec2 cp1 = { " << controlPoints.front().pos.x << ", " << controlPoints.front().pos.y << " };\n";
 			fs << "	const glm::vec2 cp2 = { " << controlPoints.back().pos.x << ", " << controlPoints.back().pos.y << " };\n";
-			fs << "	auto& startingLine = Globals::Components().staticPolylines().emplace(std::vector<glm::vec2>{ cp1, cp2 },\n";
+			fs << "	auto& startingLine = Globals::Components().staticPolylines().emplace(std::vector<glm::vec2>{ cp1 * scale, cp2 * scale },\n";
 			fs << "		Tools::BodyParams().sensor(true)); \n";
 			fs << "	startingLine.colorF = glm::vec4((float)" << startingLineColor.r << ", (float)" << startingLineColor.g << ", (float)" << startingLineColor.b << ", (float)" << startingLineColor.a << ");\n";
 			fs << "\n";
 			fs << "	startingLineId = startingLine.getComponentId();\n";
-			fs << "	p1 = cp1;\n";
-			fs << "	p2 = cp2;\n";
+			fs << "	p1 = cp1 * scale;\n";
+			fs << "	p2 = cp2 * scale;\n";
 			fs << "	startingPositionLineDistance = " << startingPositionLineDistance << ";\n";
 		}
 		fs << "}\n";

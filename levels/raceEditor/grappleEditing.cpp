@@ -31,11 +31,12 @@ namespace
 
 namespace Levels
 {
-	GrappleEditing::GrappleEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile) :
+	GrappleEditing::GrappleEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, const float& scale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile) :
 		mousePos(mousePos),
 		oldMousePos(oldMousePos),
 		mouseDelta(mouseDelta),
 		zoomScale(zoomScale),
+		scale(scale),
 		ongoing(std::move(ongoing)),
 		paramsFromFile(paramsFromFile)
 	{
@@ -55,20 +56,16 @@ namespace Levels
 		auto addControlPoint = [&]() {
 			auto& cpDecorations = dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfDisc({ 0.0f, 0.0f }, controlPointRadius, 20));
 			cpDecorations.colorF = controlPointColor;
-			const auto& controlPoint = controlPoints.emplace_back(cpDecorations.getComponentId(), mousePos);
+			const auto& controlPoint = controlPoints.emplace_back(cpDecorations.getComponentId(), mousePos / scale);
 			const auto cpIt = std::prev(controlPoints.end());
 			cpDecorations.modelMatrixF = [&, &pos = controlPoint.pos]() {
-				return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), glm::vec3(zoomScale));
+				return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos * scale, 0.0f)), glm::vec3(zoomScale));
 			};
 			cpDecorations.renderF = ongoing;
 			cpDecorations.renderLayer = RenderLayer::NearMidground;
 
 			auto& grapple = grapples.emplace(Tools::CreateDiscBody(grappleInitRadius, Tools::BodyParams{}));
-			grapple.range = grappleInitRange;
-			grapple.stepF = [&]() {
-				grapple.setOrigin(controlPoint.pos);
-				grapple.colorF = grappleColor;
-			};
+			grapple.range = grappleInitRange * scale;
 
 			auto& rangeDecoration = dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfCircle({ 0.0f, 0.0f }, 1.0f, 100));
 			rangeDecoration.drawMode = GL_LINE_LOOP;
@@ -79,13 +76,23 @@ namespace Levels
 			const auto& grappleData = cpDecoIdsToGrapplesData.insert({ controlPoint.decorationId, GrappleData{cpIt, grapple.getComponentId(), rangeDecoration.getComponentId(), grappleInitRadius, grappleInitRange} }).first->second;
 
 			rangeDecoration.modelMatrixF = [&, &pos = controlPoint.pos]() {
-				return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)), glm::vec3(grappleData.range));
+				return glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos * scale, 0.0f)), glm::vec3(grappleData.range * scale));
+			};
+
+			grapple.stepF = [&, prevScale = 0.0f]() mutable {
+				if (scale != prevScale)
+				{
+					grapple.changeBody(Tools::CreateDiscBody(grappleData.radius * scale, Tools::BodyParams{}));
+					prevScale = scale;
+				}
+				grapple.setOrigin(controlPoint.pos * scale);
+				grapple.colorF = grappleColor;
 			};
 		};
 
 		auto controlPointAction = [&](std::function<void(std::list<ControlPoint>::iterator)> action) {
 			for (auto it = controlPoints.begin(); it != controlPoints.end(); ++it)
-				if (glm::distance(it->pos, oldMousePos) < controlPointRadius * zoomScale)
+				if (glm::distance(it->pos * scale, oldMousePos) < controlPointRadius * zoomScale)
 				{
 					action(it);
 					return;
@@ -103,10 +110,10 @@ namespace Levels
 				if (keyboard.pressing[/*VK_SHIFT*/0x10])
 				{
 					for (auto& controlPoint : controlPoints)
-						controlPoint.pos += mouseDelta;
+						controlPoint.pos += mouseDelta / scale;
 				}
 				else
-					(*movingControlPoint)->pos += mouseDelta;
+					(*movingControlPoint)->pos += mouseDelta / scale;
 
 				return;
 			}
@@ -136,7 +143,7 @@ namespace Levels
 				{
 					grappleData.radius = newRadius;
 					auto& grapple = Globals::Components().grapples()[grappleData.grappleId];
-					grapple.changeBody(Tools::CreateDiscBody(newRadius, Tools::BodyParams{}));
+					grapple.changeBody(Tools::CreateDiscBody(newRadius * scale, Tools::BodyParams{}));
 				}
 			});
 		};
@@ -175,8 +182,8 @@ namespace Levels
 		fs << "{\n";
 		for (const auto&[decoId, grappleData]: cpDecoIdsToGrapplesData)
 		{
-			fs << "	Globals::Components().staticGrapples().emplace(Tools::CreateDiscBody((float)" << grappleData.radius << ", " <<
-				"Tools::BodyParams{}.position({ (float)" << grappleData.controlPoint->pos.x << ", (float)" << grappleData.controlPoint->pos.y << " }))).range = (float)" << grappleData.range << ";\n";
+			fs << "	Globals::Components().staticGrapples().emplace(Tools::CreateDiscBody((float)" << grappleData.radius << " * scale, " <<
+				"Tools::BodyParams{}.position(glm::vec2((float)" << grappleData.controlPoint->pos.x << ", (float)" << grappleData.controlPoint->pos.y << " ) * scale))).range = (float)" << grappleData.range << " * scale;\n";
 			fs << "	Globals::Components().staticGrapples().last().colorF = glm::vec4((float)" << grappleColor.r << ", (float)" << grappleColor.g << ", (float)" << grappleColor.b << ", (float)" << grappleColor.a << ");\n";
 
 		}

@@ -22,7 +22,7 @@ namespace Levels
 	class StartingLineEditing
 	{
 	public:
-		StartingLineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile);
+		StartingLineEditing(const glm::vec2& mousePos, const glm::vec2& oldMousePos, const glm::vec2& mouseDelta, const float& zoomScale, const float& scale, FBool ongoing, const Tools::ParamsFromFile& paramsFromFile);
 
 		void edit();
 		void update() const;
@@ -38,6 +38,7 @@ namespace Levels
 		const glm::vec2& mouseDelta;
 
 		const float& zoomScale;
+		const float& scale;
 
 		FBool ongoing;
 
