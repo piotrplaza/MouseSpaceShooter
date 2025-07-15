@@ -85,6 +85,9 @@ namespace Levels
 
 			explosionTextureId = textures.size();
 			textures.emplace("textures/explosion.png");
+
+			digitsTextureId = textures.size();
+			textures.emplace("textures/space digits.png");
 		}
 
 		void loadAudio()
@@ -97,6 +100,8 @@ namespace Levels
 			grappleSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
 			playerExplosionSoundBufferId = soundsBuffers.emplace("audio/Ghosthack-AC21_Impact_Cracked.wav").getComponentId();
 			collisionSoundBufferId = soundsBuffers.emplace("audio/Ghosthack Impact - Edge.wav").getComponentId();
+			countSoundBuffer = soundsBuffers.emplace("audio/count1.wav");
+			startSoundBuffer = soundsBuffers.emplace("audio/count2.wav");
 		}
 
 		void setAnimations()
@@ -107,6 +112,10 @@ namespace Levels
 					AnimationData::Direction::Backward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
 				Globals::Components().staticAnimatedTextures().last().start(true);
 			}
+
+			digitsAnimatedTexture = Globals::Components().staticAnimatedTextures().add({ CM::Texture(digitsTextureId, true), { 1700, 290 }, { 10, 1 }, { 0, 0 }, 1525, 0, { 170, 290 }, 1.0f, 10, 0,
+				AnimationData::Direction::Forward, AnimationData::Mode::Repeat, AnimationData::TextureLayout::Horizontal });
+			digitsAnimatedTexture.component->start(true);
 		}
 
 		void setCamera()
@@ -310,7 +319,7 @@ namespace Levels
 
 					return glm::vec3(playerPositionOnStartingLine2D + ntv * startingPositionLineDistance,
 						glm::orientedAngle({ -1.0f, 0.0f }, ntv));
-				}).centerToFront(true).thrustSound(CM::SoundBuffer(thrustSoundBufferId, true)).grappleSound(CM::SoundBuffer(grappleSoundBufferId, true)).soundAttenuation(0.1f));
+				}).centerToFront(true).thrustSound(CM::SoundBuffer(thrustSoundBufferId, true)).grappleSound(CM::SoundBuffer(grappleSoundBufferId, true)).soundAttenuation(0.1f).waiting(3.0f));
 
 			initCollisions();
 
@@ -319,19 +328,26 @@ namespace Levels
 			auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
 			for (const auto& activePlayerHandler : activePlayersHandlers)
 				playersToCircuits[activePlayerHandler->playerId] = 0;
+
+			Tools::CountDown(digitsAnimatedTexture, countSoundBuffer, startSoundBuffer);
 		}
 
 	private:
 		std::array<CM::Texture, 4> planeTextures;
 		ComponentId flameAnimationTextureId = 0;
 		ComponentId explosionTextureId = 0;
+		ComponentId digitsTextureId = 0;
 
 		std::array<CM::AnimatedTexture, 4> flameAnimatedTextureForPlayers;
+		CM::AnimatedTexture digitsAnimatedTexture;
 
 		ComponentId thrustSoundBufferId = 0;
 		ComponentId grappleSoundBufferId = 0;
 		ComponentId playerExplosionSoundBufferId = 0;
 		ComponentId collisionSoundBufferId = 0;
+		CM::SoundBuffer countSoundBuffer;
+		CM::SoundBuffer startSoundBuffer;
+
 		ComponentId backgroundTextureId = 0;
 		ComponentId backgroundDecorationId = 0;
 		ComponentId startingStaticPolylineId = 0;

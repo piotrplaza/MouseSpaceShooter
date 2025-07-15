@@ -79,6 +79,12 @@ namespace Tools
 				return *this;
 			}
 
+			InitPlayerParams& waiting(std::optional<float> value)
+			{
+				waiting_ = std::move(value);
+				return *this;
+			}
+
 			std::array<CM::Texture, 4> planeTextures_;
 			std::array<CM::AnimatedTexture, 4> flameAnimatedTextures_;
 			bool gamepadForPlayer1_ = false;
@@ -87,6 +93,7 @@ namespace Tools
 			std::optional<CM::SoundBuffer> thrustSoundBuffer_;
 			std::optional<CM::SoundBuffer> grappleSoundBuffer_;
 			float soundAttenuation_ = 1.0f;
+			std::optional<float> waiting_ = std::nullopt;
 		};
 
 		struct CameraParams
@@ -171,5 +178,6 @@ namespace Tools
 		std::optional<CM::SoundBuffer> thrustSoundBuffer;
 		std::optional<CM::SoundBuffer> grappleSoundBuffer;
 		float soundAttenuation = 1.0f;
+		std::optional<float> waiting;
 	};
 }

@@ -82,14 +82,14 @@ void AnimationData::setAdditionalTransformation(glm::vec2 translate, float angle
 	additionalTransform = Tools::TextureTransform(translate, angle, scale);
 }
 
-void AnimationData::forceFrame(std::optional<int> frame)
+void AnimationData::setForcedFrame(std::optional<int> frame)
 {
 	forcedFrame = frame;
 }
 
-bool AnimationData::isForcingFrame() const
+std::optional<int> AnimationData::getForcedFrame() const
 {
-	return forcedFrame.has_value();
+	return forcedFrame;
 }
 
 int AnimationData::getAbsoluteFrame(float functionalSpeedScaling) const

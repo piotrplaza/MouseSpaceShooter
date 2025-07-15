@@ -385,9 +385,9 @@ namespace Levels::DamageOn
 					playerInst.angle = -glm::min(glm::quarter_pi<float>(), (vLength * vLength * playerType.init.presentation.velocityRotationFactor));
 
 					playerInst.animatedTexture.setSpeedScaling(playerType.init.presentation.velocityAnimationSpeedFactor == 0.0f ? 1.0f : vLength * playerType.init.presentation.velocityAnimationSpeedFactor);
-					if (playerInst.animatedTexture.isForcingFrame())
+					if (playerInst.animatedTexture.getForcedFrame())
 					{
-						playerInst.animatedTexture.forceFrame(std::nullopt);
+						playerInst.animatedTexture.setForcedFrame(std::nullopt);
 						playerInst.animatedTexture.start(true);
 					}
 
@@ -396,7 +396,7 @@ namespace Levels::DamageOn
 					else if (direction.x > 0.0f)
 						playerInst.sideFactor = 1.0f;
 					else if (direction.y == 0.0f)
-						playerInst.animatedTexture.forceFrame(playerType.init.animation.neutralFrame);
+						playerInst.animatedTexture.setForcedFrame(playerType.init.animation.neutralFrame);
 
 					playerInst.sideTransition += playerInst.sideFactor * physics.frameDuration * 7.0f;
 					playerInst.sideTransition = glm::clamp(playerInst.sideTransition, 0.0f, 1.0f);

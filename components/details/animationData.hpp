@@ -34,8 +34,8 @@ struct AnimationData
 
 	void setAdditionalTransformation(glm::vec2 translate, float angle = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
 
-	void forceFrame(std::optional<int> frame);
-	bool isForcingFrame() const;
+	void setForcedFrame(std::optional<int> frame);
+	std::optional<int> getForcedFrame() const;
 
 private:
 	int getAbsoluteFrame(float functionalSpeedScaling) const;

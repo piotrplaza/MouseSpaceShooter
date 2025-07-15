@@ -10,6 +10,7 @@
 #include <components/sound.hpp>
 #include <components/audioListener.hpp>
 #include <components/mouse.hpp>
+#include <components/deferredAction.hpp>
 
 #include <globals/components.hpp>
 
@@ -87,12 +88,21 @@ namespace Tools
 
 		playersHandlers.clear();
 
-		this->planeTextures = params.planeTextures_;
-		this->flameAnimatedTexturesForPlayers = params.flameAnimatedTextures_;
-		this->gamepadForPlayer1 = params.gamepadForPlayer1_;
-		this->thrustSoundBuffer = params.thrustSoundBuffer_;
-		this->grappleSoundBuffer = params.grappleSoundBuffer_;
-		this->soundAttenuation = params.soundAttenuation_;
+		planeTextures = params.planeTextures_;
+		flameAnimatedTexturesForPlayers = params.flameAnimatedTextures_;
+		gamepadForPlayer1 = params.gamepadForPlayer1_;
+		thrustSoundBuffer = params.thrustSoundBuffer_;
+		grappleSoundBuffer = params.grappleSoundBuffer_;
+		soundAttenuation = params.soundAttenuation_;
+		waiting = params.waiting_;
+
+		if (waiting)
+			Globals::Components().deferredActions().emplace([&](float duration) {
+				if (*waiting > duration)
+					return true;
+				waiting = std::nullopt;
+				return false;
+			});
 
 		std::vector<unsigned> activeGamepads;
 
@@ -288,6 +298,9 @@ namespace Tools
 
 	void PlayersHandler::controlStep(std::function<void(unsigned playerHandlerId, bool fire)> fireF)
 	{
+		if (waiting)
+			return;
+
 		const float mouseSensitivity = 0.01f;
 		const float gamepadSensitivity = 50.0f;
 

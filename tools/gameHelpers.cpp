@@ -13,6 +13,7 @@
 #include <components/sound.hpp>
 #include <components/audioListener.hpp>
 #include <components/texture.hpp>
+#include <components/systemInfo.hpp>
 
 #include <commonTypes/componentMappers.hpp>
 
@@ -327,6 +328,62 @@ namespace Tools
 				handler(fixture1, fixture2);
 				prevCollisions.insert(bodies);
 			}
+		};
+	}
+
+	void CountDown(CM::AnimatedTexture digitsAnimatedTexture, CM::SoundBuffer countSoundBufferId, CM::SoundBuffer startSoundBufferId, float onScreenScale)
+	{
+		const auto& physics = Globals::Components().physics();
+		const auto& systemInfo = Globals::Components().systemInfo();
+		auto& digit = Globals::Components().decorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, glm::vec2(0.7f / systemInfo.screen.getAspectRatio(), 1.0f) * onScreenScale), digitsAnimatedTexture, Tools::Shapes2D::CreateTexCoordOfRectangle());
+		auto scale = std::make_shared<float>(1.0f);
+		digit.renderingSetupF = [&, scale](ShadersUtils::AccessorBase& accessorBase) {
+			auto& shader = static_cast<ShadersUtils::Programs::TexturedAccessor&>(accessorBase);
+			shader.vp(glm::scale(glm::mat4(1.0f), glm::vec3(*scale)));
+			return nullptr;
+		};
+		digit.stepF = [&, start = physics.simulationDuration, digitsAnimatedTexture, countSoundBufferId, startSoundBufferId, scale]() mutable {
+			const float duration = physics.simulationDuration - start;
+			if (duration < 1.0f)
+			{
+				if (!digitsAnimatedTexture.component->getForcedFrame() || *digitsAnimatedTexture.component->getForcedFrame() != 3)
+				{
+					digitsAnimatedTexture.component->setForcedFrame(3);
+					Tools::CreateAndPlaySound(countSoundBufferId);
+				}
+			}
+			else if (duration < 2.0f)
+			{
+				if (*digitsAnimatedTexture.component->getForcedFrame() != 2)
+				{
+					digitsAnimatedTexture.component->setForcedFrame(2);
+					Tools::CreateAndPlaySound(countSoundBufferId);
+				}
+			}
+			else if (duration < 3.0f)
+			{
+				if (*digitsAnimatedTexture.component->getForcedFrame() != 1)
+				{
+					digitsAnimatedTexture.component->setForcedFrame(1);
+					Tools::CreateAndPlaySound(countSoundBufferId);
+				}
+			}
+			else if (duration < 4.0f)
+			{
+				if (*digitsAnimatedTexture.component->getForcedFrame() != 0)
+				{
+					digitsAnimatedTexture.component->setForcedFrame(0);
+					Tools::CreateAndPlaySound(startSoundBufferId);
+				}
+				*scale = 1.0f + (duration - 3.0f) * 10.0f;
+				digit.colorF = glm::vec4(1.0f - (duration - 3.0f) * 2.0f);
+			}
+			else
+			{
+				digitsAnimatedTexture.component->setForcedFrame(std::nullopt);
+				digit.state = ComponentState::Outdated;
+			}
+			return true;
 		};
 	}
 }
