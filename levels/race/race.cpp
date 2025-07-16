@@ -35,6 +35,7 @@ namespace
 	unsigned circuitsToEliminate = 1;
 	bool gamepadForPlayer1 = false;
 	bool invincibleFinalPlayer = false;
+	bool falseStart = true;
 }
 
 namespace Levels
@@ -189,6 +190,12 @@ namespace Levels
 					if (polylineComponent.getComponentId() != startingStaticPolylineId)
 						return false;
 
+					if (!started)
+					{
+						destroyPlane(planeComponent);
+						return false;
+					}
+
 					auto activePlayersHandlers = playersHandler.getActivePlayersHandlers();
 
 					if (activePlayersHandlers.size() < 2)
@@ -317,9 +324,9 @@ namespace Levels
 					const glm::vec2 playerPositionOnStartingLine2D = startingLineP1 + startingLineEndsVector * playerPositionOnStartingLine / startingLineLength;
 					const glm::vec2 ntv = glm::rotate(glm::normalize(startingLineEndsVector), -glm::half_pi<float>());
 
-					return glm::vec3(playerPositionOnStartingLine2D + ntv * startingPositionLineDistance,
+					return glm::vec3(playerPositionOnStartingLine2D + ntv * (startingPositionLineDistance + 0.1f),
 						glm::orientedAngle({ -1.0f, 0.0f }, ntv));
-				}).centerToFront(true).thrustSound(CM::SoundBuffer(thrustSoundBufferId, true)).grappleSound(CM::SoundBuffer(grappleSoundBufferId, true)).soundAttenuation(0.1f).waiting(3.0f));
+				}).centerToFront(true).thrustSound(CM::SoundBuffer(thrustSoundBufferId, true)).grappleSound(CM::SoundBuffer(grappleSoundBufferId, true)).soundAttenuation(0.1f).waiting(falseStart ? std::nullopt : std::optional<float>(3.0f)));
 
 			initCollisions();
 
@@ -329,7 +336,8 @@ namespace Levels
 			for (const auto& activePlayerHandler : activePlayersHandlers)
 				playersToCircuits[activePlayerHandler->playerId] = 0;
 
-			Tools::CountDown(digitsAnimatedTexture, countSoundBuffer, startSoundBuffer);
+			started = false;
+			Tools::CountDown(digitsAnimatedTexture, countSoundBuffer, startSoundBuffer, 0.3f, [&]() { started = true; });
 		}
 
 	private:
@@ -361,6 +369,7 @@ namespace Levels
 		glm::vec2 startingLineP1{ 0.0f };
 		glm::vec2 startingLineP2{ 0.0f };
 		float startingPositionLineDistance = 0.0f;
+		bool started = false;
 	};
 
 	Race::Race() :

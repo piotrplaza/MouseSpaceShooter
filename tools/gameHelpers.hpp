@@ -166,5 +166,5 @@ namespace Tools
 	Components::Sound& CreateAndPlaySound(CM::SoundBuffer soundBuffer, FVec2 posF = nullptr,
 		std::function<void(Components::Sound&)> config = nullptr, std::function<void(Components::Sound&)> stepF = nullptr);
 	std::function<void(b2Fixture&, b2Fixture&)> SkipDuplicatedBodiesCollisions(std::function<void(b2Fixture&, b2Fixture&)> handler);
-	void CountDown(CM::AnimatedTexture digitsAnimatedTexture, CM::SoundBuffer countSoundBufferId, CM::SoundBuffer startSoundBufferId, float onScreenScale = 0.2f);
+	void CountDown(CM::AnimatedTexture digitsAnimatedTexture, CM::SoundBuffer countSoundBufferId, CM::SoundBuffer startSoundBufferId, float onScreenScale = 0.2f, std::function<void()> startF = nullptr);
 }

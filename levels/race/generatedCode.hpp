@@ -16,7 +16,7 @@
 namespace GeneratedCode
 {
 
-constexpr static float scale = (float)1;
+constexpr static float scale = (float)1.5;
 constexpr static glm::vec4 backgroundColor = {(float)0, (float)0.05, (float)0.2, (float)1};
 constexpr static glm::vec2 backgroundImagePosition = {(float)0, (float)0};
 constexpr static float backgroundImageAspectRatio = (float)1;
@@ -47,7 +47,7 @@ inline void CreateStartingLine(ComponentId& startingLineId, glm::vec2& p1, glm::
 	startingLineId = startingLine.getComponentId();
 	p1 = cp1 * scale;
 	p2 = cp2 * scale;
-	startingPositionLineDistance = 0;
+	startingPositionLineDistance = 10.0f;
 }
 
 inline void CreateDeadlySplines(const Tools::PlayersHandler& playersHandler, std::unordered_set<ComponentId>& deadlySplines)

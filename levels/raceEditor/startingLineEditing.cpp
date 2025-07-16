@@ -273,7 +273,7 @@ namespace Levels
 			fs << "	startingLineId = startingLine.getComponentId();\n";
 			fs << "	p1 = cp1 * scale;\n";
 			fs << "	p2 = cp2 * scale;\n";
-			fs << "	startingPositionLineDistance = " << startingPositionLineDistance << ";\n";
+			fs << "	startingPositionLineDistance = (float)" << startingPositionLineDistance << ";\n";
 		}
 		fs << "}\n";
 		fs << "\n";

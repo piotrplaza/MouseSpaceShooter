@@ -331,7 +331,7 @@ namespace Tools
 		};
 	}
 
-	void CountDown(CM::AnimatedTexture digitsAnimatedTexture, CM::SoundBuffer countSoundBufferId, CM::SoundBuffer startSoundBufferId, float onScreenScale)
+	void CountDown(CM::AnimatedTexture digitsAnimatedTexture, CM::SoundBuffer countSoundBufferId, CM::SoundBuffer startSoundBufferId, float onScreenScale, std::function<void()> startF)
 	{
 		const auto& physics = Globals::Components().physics();
 		const auto& systemInfo = Globals::Components().systemInfo();
@@ -342,7 +342,7 @@ namespace Tools
 			shader.vp(glm::scale(glm::mat4(1.0f), glm::vec3(*scale)));
 			return nullptr;
 		};
-		digit.stepF = [&, start = physics.simulationDuration, digitsAnimatedTexture, countSoundBufferId, startSoundBufferId, scale]() mutable {
+		digit.stepF = [&, start = physics.simulationDuration, digitsAnimatedTexture, countSoundBufferId, startSoundBufferId, scale, startF = std::move(startF)]() mutable {
 			const float duration = physics.simulationDuration - start;
 			if (duration < 1.0f)
 			{
@@ -351,6 +351,7 @@ namespace Tools
 					digitsAnimatedTexture.component->setForcedFrame(3);
 					Tools::CreateAndPlaySound(countSoundBufferId);
 				}
+				digit.colorF = glm::vec4(1.0f - duration);
 			}
 			else if (duration < 2.0f)
 			{
@@ -359,6 +360,7 @@ namespace Tools
 					digitsAnimatedTexture.component->setForcedFrame(2);
 					Tools::CreateAndPlaySound(countSoundBufferId);
 				}
+				digit.colorF = glm::vec4(2.0f - duration);
 			}
 			else if (duration < 3.0f)
 			{
@@ -367,6 +369,7 @@ namespace Tools
 					digitsAnimatedTexture.component->setForcedFrame(1);
 					Tools::CreateAndPlaySound(countSoundBufferId);
 				}
+				digit.colorF = glm::vec4(3.0f - duration);
 			}
 			else if (duration < 4.0f)
 			{
@@ -374,6 +377,8 @@ namespace Tools
 				{
 					digitsAnimatedTexture.component->setForcedFrame(0);
 					Tools::CreateAndPlaySound(startSoundBufferId);
+					if (startF)
+						startF();
 				}
 				*scale = 1.0f + (duration - 3.0f) * 10.0f;
 				digit.colorF = glm::vec4(1.0f - (duration - 3.0f) * 2.0f);
