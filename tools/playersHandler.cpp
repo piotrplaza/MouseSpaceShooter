@@ -150,10 +150,15 @@ namespace Tools
 			const float projectionHSizeMin = params.projectionHSizeMin_();
 			const float projectionHSizeDefault = params.projectionHSizeDefault_();
 			glm::vec2 sumOfVelocityCorrections(0.0f);
+			ComponentId activePlayerId = 0;
 			auto& playersHandlers = accessPlayersHandlers();
 
+			
 			unsigned activePlayersCount = std::count_if(playersHandlers.begin(), playersHandlers.end(), [&](const auto& playerHandler) {
-				return planes[playerHandler.playerId].isEnabled() || playerHandler.disabledTime && physics.simulationDuration - *playerHandler.disabledTime <= params.trackingTimeAfterDisabled_;
+				const bool isActive = planes[playerHandler.playerId].isEnabled() || playerHandler.disabledTime && physics.simulationDuration - *playerHandler.disabledTime <= params.trackingTimeAfterDisabled_;
+				if (isActive)
+					activePlayerId = playerHandler.playerId;
+				return isActive;
 			});
 
 			std::vector<glm::vec2> allActorsPos;
@@ -204,7 +209,7 @@ namespace Tools
 			auto targetProjection = [&]() {
 				const float maxDistance = [&]() {
 					if (activePlayersCount == 1 && params.additionalActors_.empty())
-						return glm::length(velocityCorrectionF(planes[playersHandlers[0].playerId])) + projectionHSizeMin;
+						return glm::length(velocityCorrectionF(planes[activePlayerId])) + projectionHSizeMin;
 
 					float maxDistance = 0.0f;
 					for (int i = 0; i < (int)allVCorrectedActorsPos.size() - 1; ++i)
