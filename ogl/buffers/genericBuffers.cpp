@@ -532,7 +532,6 @@ namespace Buffers
 		assert(numOfAllocatedPositions == other.numOfAllocatedPositions);
 		std::swap(positionsBuffer, other.positionsBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, positionsBuffer);
-		glBufferData(GL_ARRAY_BUFFER, numOfAllocatedPositions * sizeof(glm::vec3), nullptr, renderable->bufferDataUsage);
 		glVertexAttribPointer(positionAttribIdx, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 		if (other.colorsBuffer && colorsBuffer)
@@ -540,7 +539,6 @@ namespace Buffers
 			assert(numOfAllocatedColors == other.numOfAllocatedColors);
 			std::swap(colorsBuffer, other.colorsBuffer);
 			glBindBuffer(GL_ARRAY_BUFFER, *colorsBuffer);
-			glBufferData(GL_ARRAY_BUFFER, numOfAllocatedColors * sizeof(glm::vec4), nullptr, renderable->bufferDataUsage);
 			glVertexAttribPointer(colorAttribIdx, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 		}
 
@@ -549,7 +547,6 @@ namespace Buffers
 			assert(numOfAllocatedVelocitiesAndTimes == other.numOfAllocatedVelocitiesAndTimes);
 			std::swap(velocitiesAndTimesBuffer, other.velocitiesAndTimesBuffer);
 			glBindBuffer(GL_ARRAY_BUFFER, *velocitiesAndTimesBuffer);
-			glBufferData(GL_ARRAY_BUFFER, numOfAllocatedVelocitiesAndTimes * sizeof(glm::vec4), nullptr, renderable->bufferDataUsage);
 			glVertexAttribPointer(velocityAndTimeAttribIdx, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 		}
 
@@ -558,7 +555,6 @@ namespace Buffers
 			assert(numOfAllocatedHSizesAndAngles == other.numOfAllocatedHSizesAndAngles);
 			std::swap(hSizesAndAnglesBuffer, other.hSizesAndAnglesBuffer);
 			glBindBuffer(GL_ARRAY_BUFFER, *hSizesAndAnglesBuffer);
-			glBufferData(GL_ARRAY_BUFFER, numOfAllocatedHSizesAndAngles * sizeof(glm::vec3), nullptr, renderable->bufferDataUsage);
 			glVertexAttribPointer(hSizeAndAngleAttribIdx, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		}
 
@@ -567,7 +563,6 @@ namespace Buffers
 			assert(numOfAllocatedTexCoords == other.numOfAllocatedTexCoords);
 			std::swap(texCoordsBuffer, other.texCoordsBuffer);
 			glBindBuffer(GL_ARRAY_BUFFER, *texCoordsBuffer);
-			glBufferData(GL_ARRAY_BUFFER, numOfAllocatedTexCoords * sizeof(glm::vec2), nullptr, renderable->bufferDataUsage);
 			glVertexAttribPointer(texCoordAttribIdx, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 		}
 
@@ -576,7 +571,6 @@ namespace Buffers
 			assert(numOfAllocatedNormals == other.numOfAllocatedNormals);
 			std::swap(normalsBuffer, other.normalsBuffer);
 			glBindBuffer(GL_ARRAY_BUFFER, *normalsBuffer);
-			glBufferData(GL_ARRAY_BUFFER, numOfAllocatedNormals * sizeof(glm::vec3), nullptr, renderable->bufferDataUsage);
 			glVertexAttribPointer(normalAttribIdx, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		}
 
@@ -585,7 +579,6 @@ namespace Buffers
 			assert(numOfAllocatedInstancedTransforms == other.numOfAllocatedInstancedTransforms);
 			std::swap(instancedTransformsBuffer, other.instancedTransformsBuffer);
 			glBindBuffer(GL_ARRAY_BUFFER, *instancedTransformsBuffer);
-			glBufferData(GL_ARRAY_BUFFER, numOfAllocatedInstancedTransforms * sizeof(glm::mat4), nullptr, renderable->bufferDataUsage);
 			for (unsigned i = 0; i < 4; ++i)
 			{
 				glVertexAttribPointer(instancedTransformAttribIdx + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4) * i));
@@ -598,7 +591,6 @@ namespace Buffers
 			assert(numOfAllocatedInstancedNormalTransforms == other.numOfAllocatedInstancedNormalTransforms);
 			std::swap(instancedNormalTransformsBuffer, other.instancedNormalTransformsBuffer);
 			glBindBuffer(GL_ARRAY_BUFFER, *instancedNormalTransformsBuffer);
-			glBufferData(GL_ARRAY_BUFFER, numOfAllocatedInstancedNormalTransforms * sizeof(glm::mat3), nullptr, renderable->bufferDataUsage);
 			for (unsigned i = 0; i < 3; ++i)
 			{
 				glVertexAttribPointer(instancedNormalTransformAttribIdx + i, 3, GL_FLOAT, GL_FALSE, sizeof(glm::mat3), (void*)(sizeof(glm::vec3) * i));
@@ -611,7 +603,6 @@ namespace Buffers
 			assert(numOfAllocatedIndices == other.numOfAllocatedIndices);
 			std::swap(indicesBuffer, other.indicesBuffer);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *indicesBuffer);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, numOfAllocatedIndices * sizeof(unsigned), nullptr, renderable->bufferDataUsage);
 		}
 	}
 

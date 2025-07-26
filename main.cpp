@@ -75,11 +75,12 @@ const bool debugFullscreen = false;
 const bool releaseFullscreen = true;
 const bool devFullScreen = true;
 const bool console = true;
-const bool glDebug = false;
+const bool glDebug = true;
 const bool audio = true;
 const GLenum glDebugMinSeverity = GL_DEBUG_SEVERITY_LOW;
 const glm::ivec2 windowRes = { 800, 600 };
-const glm::ivec2 consolePos = { 3850, 10 };
+const glm::ivec2 windowPos = { 10, 10 };
+const glm::ivec2 consolePos = { 850, 10 };
 
 const struct
 {
@@ -132,7 +133,7 @@ static void InitEngine()
 static void InitLevel()
 {
 	//activeLevel = std::make_unique<Levels::RaceEditor>();
-	activeLevel = std::make_unique<Levels::Race>();
+	//activeLevel = std::make_unique<Levels::Race>();
 
 	//activeLevel = std::make_unique<Levels::Windmill>();
 	//activeLevel = std::make_unique<Levels::SquareRace>();
@@ -157,7 +158,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Paint>();
 	//activeLevel = std::make_unique<Levels::Noise>();
 	//activeLevel = std::make_unique<Levels::Decals>();
-	//activeLevel = std::make_unique<Levels::Particles2D>();
+	activeLevel = std::make_unique<Levels::Particles2D>();
 	//activeLevel = std::make_unique<Levels::Particles3D>();
 	//activeLevel = std::make_unique<Levels::Tests>();
 
@@ -413,7 +414,6 @@ int APIENTRY WinMain(
 	}
 
 	const LPCTSTR lpszAppName = "OpenGL window";
-	const int winPosX = 10, winPosY = 10;
 
 	WNDCLASS wc{};
 	wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -434,7 +434,7 @@ int APIENTRY WinMain(
 		lpszAppName,
 		fullScreen ? WS_POPUP | WS_MAXIMIZE :
 		WS_OVERLAPPEDWINDOW,
-		winPosX, winPosY,
+		windowPos.x, windowPos.y,
 		windowRes.x, windowRes.y,
 		nullptr,
 		nullptr,
