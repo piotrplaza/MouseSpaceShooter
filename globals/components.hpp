@@ -21,6 +21,7 @@ namespace Components
 	struct Texture;
 	struct AnimatedTexture;
 	struct BlendingTexture;
+	struct RenderTexture;
 	struct AudioListener;
 	struct Music;
 	struct SoundBuffer;
@@ -76,6 +77,8 @@ namespace Globals
 		DynamicComponents<Components::AnimatedTexture>& animatedTextures();
 		StaticComponents<Components::BlendingTexture>& staticBlendingTextures();
 		DynamicComponents<Components::BlendingTexture>& blendingTextures();
+		StaticComponents<Components::RenderTexture>& staticRenderTextures();
+		DynamicComponents<Components::RenderTexture>& renderTextures();
 		StaticComponents<Components::Music>& staticMusics();
 		DynamicComponents<Components::Music>& musics();
 		StaticComponents<Components::SoundBuffer>& staticSoundsBuffers();
@@ -132,6 +135,8 @@ namespace Globals
 		std::unique_ptr<DynamicComponents<Components::AnimatedTexture>> animatedTextures_ = std::make_unique<DynamicComponents<Components::AnimatedTexture>>();
 		std::unique_ptr<StaticComponents<Components::BlendingTexture>> staticBlendingTextures_ = std::make_unique<StaticComponents<Components::BlendingTexture>>();
 		std::unique_ptr<DynamicComponents<Components::BlendingTexture>> blendingTextures_ = std::make_unique<DynamicComponents<Components::BlendingTexture>>();
+		std::unique_ptr<StaticComponents<Components::RenderTexture>> staticRenderTextures_ = std::make_unique<StaticComponents<Components::RenderTexture>>();
+		std::unique_ptr<DynamicComponents<Components::RenderTexture>> renderTextures_ = std::make_unique<DynamicComponents<Components::RenderTexture>>();
 		std::unique_ptr<StaticComponents<Components::Music>> staticMusics_ = std::make_unique<StaticComponents<Components::Music>>();
 		std::unique_ptr<DynamicComponents<Components::Music>> musics_ = std::make_unique<DynamicComponents<Components::Music>>();
 		std::unique_ptr<StaticComponents<Components::SoundBuffer>> staticSoundsBuffers_ = std::make_unique<StaticComponents<Components::SoundBuffer>>();

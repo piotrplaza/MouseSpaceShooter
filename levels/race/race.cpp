@@ -123,7 +123,7 @@ namespace Levels
 		{
 			const glm::vec2 levelHSize = GeneratedCode::backgroundImageScale * 0.5f * glm::vec2(GeneratedCode::backgroundImageAspectRatio, 1.0f) * GeneratedCode::scale;
 			playersHandler.setCamera(Tools::PlayersHandler::CameraParams().projectionHSizeMin(GeneratedCode::projectionHSizeMin).projectionHSizeDefault(levelHSize.x)
-				.transitionFactor(2.0f).scalingFactor(0.9f).velocityFactor(1.0f)
+				.transitionFactor(2.0f).scalingFactor(0.9f).velocityFactor(0.5f)
 				.boundaryParams_levelHSize_trackingMargin({ levelHSize, 0.0f }));
 		}
 
@@ -144,10 +144,10 @@ namespace Levels
 
 			{
 				const float wallHWidth = 2.0f;
-				walls.emplace(Tools::CreateBoxBody({ wallHWidth, levelHSize.y + wallHWidth * 2.0f }, Tools::BodyParams().position({ -levelHSize.x - wallHWidth, 0.0f })));
-				walls.emplace(Tools::CreateBoxBody({ wallHWidth, levelHSize.y + wallHWidth * 2.0f }, Tools::BodyParams().position({ levelHSize.x + wallHWidth, 0.0f })));
-				walls.emplace(Tools::CreateBoxBody({ levelHSize.x + wallHWidth * 2.0f, wallHWidth }, Tools::BodyParams().position({ 0.0f, -levelHSize.y - wallHWidth })));
-				walls.emplace(Tools::CreateBoxBody({ levelHSize.x + wallHWidth * 2.0f, wallHWidth }, Tools::BodyParams().position({ 0.0f, levelHSize.y + wallHWidth })));
+				walls.emplace(Tools::CreateBoxBody({ wallHWidth, levelHSize.y + wallHWidth * 2.0f }, Tools::BodyParams().position({ -levelHSize.x - wallHWidth, 0.0f }))).renderF = false;
+				walls.emplace(Tools::CreateBoxBody({ wallHWidth, levelHSize.y + wallHWidth * 2.0f }, Tools::BodyParams().position({ levelHSize.x + wallHWidth, 0.0f }))).renderF = false;
+				walls.emplace(Tools::CreateBoxBody({ levelHSize.x + wallHWidth * 2.0f, wallHWidth }, Tools::BodyParams().position({ 0.0f, -levelHSize.y - wallHWidth }))).renderF = false;
+				walls.emplace(Tools::CreateBoxBody({ levelHSize.x + wallHWidth * 2.0f, wallHWidth }, Tools::BodyParams().position({ 0.0f, levelHSize.y + wallHWidth }))).renderF = false;
 			}
 		}
 

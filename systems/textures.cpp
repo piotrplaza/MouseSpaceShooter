@@ -1,6 +1,7 @@
 #include "textures.hpp"
 
 #include <components/texture.hpp>
+#include <components/renderTexture.hpp>
 #include <components/framebuffers.hpp>
 #include <components/systemInfo.hpp>
 
@@ -369,7 +370,7 @@ namespace Systems
 
 	void Textures::createTextureFramebuffers()
 	{
-		assert(Globals::Components().staticTextures().empty());
+		assert(Globals::Components().staticRenderTextures().empty());
 
 		auto createTextureFramebuffer = [this](Components::Framebuffers::SubBuffers& subBuffers, GLint textureMagFilter) {
 			glActiveTexture(GL_TEXTURE0);
@@ -377,13 +378,13 @@ namespace Systems
 			glGenTextures(1, &textureObject);
 			glBindTexture(GL_TEXTURE_2D, textureObject);
 
-			const auto& texture = Globals::Components().staticTextures().emplace(textureObject, GL_CLAMP_TO_EDGE, GL_NEAREST, textureMagFilter);
-			subBuffers.textureId = texture.getComponentId();
-			subBuffers.textureObject = texture.loaded.textureObject;
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture.wrapMode);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture.wrapMode);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture.minFilter);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texture.magFilter);
+			const auto& renderTexture = Globals::Components().staticRenderTextures().emplace(textureObject, GL_CLAMP_TO_EDGE, GL_NEAREST, textureMagFilter);
+			subBuffers.textureId = renderTexture.getComponentId();
+			subBuffers.textureObject = renderTexture.loaded.textureObject;
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, renderTexture.wrapMode);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, renderTexture.wrapMode);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, renderTexture.minFilter);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, renderTexture.magFilter);
 
 			glGenFramebuffers(1, &subBuffers.fbo);
 			glBindFramebuffer(GL_FRAMEBUFFER, subBuffers.fbo);

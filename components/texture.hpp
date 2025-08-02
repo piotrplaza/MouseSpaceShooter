@@ -31,16 +31,6 @@ namespace Components
 		{
 		}
 
-		Texture(unsigned textureObject, GLint wrapMode, GLint minFilter, GLint magFilter) :
-			wrapMode(wrapMode),
-			minFilter(minFilter),
-			magFilter(magFilter)
-		{
-			loaded.textureObject = textureObject;
-
-			state = ComponentState::Ongoing;
-		}
-
 		TextureSourceVariant source;
 
 		GLint wrapMode = GL_CLAMP_TO_BORDER;

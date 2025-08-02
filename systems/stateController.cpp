@@ -8,6 +8,7 @@
 #include <components/graphicsSettings.hpp>
 #include <components/framebuffers.hpp>
 #include <components/texture.hpp>
+#include <components/renderTexture.hpp>
 #include <components/functor.hpp>
 #include <components/physics.hpp>
 #include <components/gamepad.hpp>
@@ -128,7 +129,7 @@ namespace Systems
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, subBuffers.textureObject);
 			subBuffers.size = size;
-			Globals::Components().staticTextures()[subBuffers.textureId].loaded.size = subBuffers.size;
+			Globals::Components().staticRenderTextures()[subBuffers.textureId].loaded.size = subBuffers.size;
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, subBuffers.size.x, subBuffers.size.y, 0, GL_RGBA, GL_FLOAT, nullptr);
 
 			glBindRenderbuffer(GL_RENDERBUFFER, subBuffers.depthBuffer);
