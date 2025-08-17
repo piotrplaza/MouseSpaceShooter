@@ -3,10 +3,9 @@
 #include "b2Helpers.hpp"
 
 #include <commonTypes/componentMappers.hpp>
-#include <commonTypes/resolutionMode.hpp>
+#include <commonTypes/standardRenderMode.hpp>
 #include <commonTypes/componentId.hpp>
 #include <commonTypes/fTypes.hpp>
-#include <commonTypes/renderLayer.hpp>
 
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
@@ -162,7 +161,7 @@ namespace Tools
 		glm::vec2 initialVelocity, CM::Texture missileTexture, CM::AnimatedTexture thrustAnimatedTexture, std::optional<CM::Plane> planeId = std::nullopt,
 		std::optional<CM::SoundBuffer> missileSoundBuffer = std::nullopt);
 	void CreateFogForeground(int numOfLayers, float alphaPerLayer, CM::Texture fogTexture, FVec4 fColor = glm::vec4(1.0f), std::function<glm::vec2(int layer)> textureTranslation = nullptr);
-	void CreateJuliaBackground(JuliaParams params);
+	Components::Decoration& CreateJuliaBackground(JuliaParams params);
 	Components::Sound& CreateAndPlaySound(CM::SoundBuffer soundBuffer, FVec2 posF = nullptr,
 		std::function<void(Components::Sound&)> config = nullptr, std::function<void(Components::Sound&)> stepF = nullptr);
 	std::function<void(b2Fixture&, b2Fixture&)> SkipDuplicatedBodiesCollisions(std::function<void(b2Fixture&, b2Fixture&)> handler);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <commonTypes/componentsContainers.hpp>
+#include <commonTypes/standardRenderMode.hpp>
 
 #include <memory>
 #include <deque>
@@ -49,8 +50,7 @@ namespace Components
 	struct AppStateHandler;
 }
 
-namespace Globals
-{
+namespace Globals {
 	class ComponentsHolder
 	{
 	public:
@@ -66,10 +66,11 @@ namespace Globals
 		Components::Camera2D& camera2D();
 		Components::Camera3D& camera3D();
 		Components::GraphicsSettings& graphicsSettings();
-		Components::Framebuffers& framebuffers();
 		Components::MainFramebufferRenderer& mainFramebufferRenderer();
 		Components::AudioListener& audioListener();
 		Components::AppStateHandler& appStateHandler();
+		Components::Framebuffers& defaultFramebuffers();
+		Components::RenderTexture& defaultTargetTexture(const StandardRenderMode& renderMode = {});
 
 		StaticComponents<Components::Texture>& staticTextures();
 		DynamicComponents<Components::Texture>& textures();
@@ -124,10 +125,10 @@ namespace Globals
 		std::unique_ptr<Components::Camera2D> camera_ = std::make_unique<Components::Camera2D>();
 		std::unique_ptr<Components::Camera3D> camera3D_ = std::make_unique<Components::Camera3D>();
 		std::unique_ptr<Components::GraphicsSettings> graphicsSettings_ = std::make_unique<Components::GraphicsSettings>();
-		std::unique_ptr<Components::Framebuffers> framebuffers_ = std::make_unique<Components::Framebuffers>();
 		std::unique_ptr<Components::MainFramebufferRenderer> mainFramebufferRenderer_ = std::make_unique<Components::MainFramebufferRenderer>();
 		std::unique_ptr<Components::AudioListener> audioListener_ = std::make_unique<Components::AudioListener>();
 		std::unique_ptr<Components::AppStateHandler> appStateHandler_ = std::make_unique<Components::AppStateHandler>();
+		std::unique_ptr<Components::Framebuffers> defaultFramebuffers_ = std::make_unique<Components::Framebuffers>();
 
 		std::unique_ptr<StaticComponents<Components::Texture>> staticTextures_ = std::make_unique<StaticComponents<Components::Texture>>();
 		std::unique_ptr<DynamicComponents<Components::Texture>> textures_ = std::make_unique<DynamicComponents<Components::Texture>>();

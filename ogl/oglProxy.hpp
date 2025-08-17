@@ -140,5 +140,5 @@ GLfloat glProxyGetLineWidth();
 
 #endif
 
-void glProxyEnableDebugOutput(GLenum minSeverity = GL_DEBUG_SEVERITY_LOW);
+void glProxyEnableDebugOutput(GLenum minSeverity = GL_DEBUG_SEVERITY_LOW, bool performance = true);
 void glProxyDisableDebugOutput();

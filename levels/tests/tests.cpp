@@ -17,6 +17,7 @@
 
 #include <tools/Shapes2D.hpp>
 #include <tools/particleSystemHelpers.hpp>
+#include <tools/gameHelpers.hpp>
 #include <ogl/oglHelpers.hpp>
 
 #include <glm/gtc/constants.hpp>
@@ -31,6 +32,40 @@ namespace Tests
 		virtual void setup() {}
 		virtual void teardown() {}
 		virtual void step() {}
+	};
+
+	struct BasicBox : public TestBase
+	{
+		void setup() override
+		{
+			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle());
+		}
+	};
+
+	struct BasicLayers : public TestBase
+	{
+		void setup() override
+		{
+			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle());
+			Globals::Components().staticDecorations().last().colorF = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+			Globals::Components().staticDecorations().last().renderLayer = RenderLayer::Midground;
+
+			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.2f, 0.2f }));
+			Globals::Components().staticDecorations().last().colorF = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+			Globals::Components().staticDecorations().last().renderLayer = RenderLayer::Background;
+		}
+	};
+
+	struct MultiShaderLayers : public TestBase
+	{
+		void setup() override
+		{
+			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle(glm::vec2(0.0f), glm::vec2(2.0f)));
+			Globals::Components().staticDecorations().last().colorF = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			Globals::Components().staticDecorations().last().renderLayer = RenderLayer::Midground;
+
+			Tools::CreateJuliaBackground(Tools::JuliaParams{}).renderLayer = RenderLayer::Background;
+		}
 	};
 
 	struct SubsequenceLastShot : public TestBase
@@ -71,7 +106,7 @@ namespace Tests
 			auto& texture = Globals::Components().textures().emplace();
 			texture.source = "textures/rose.png";
 			decoration.positions = Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }, glm::quarter_pi<float>());
-			decoration.resolutionMode = { ResolutionMode::Resolution::H405, ResolutionMode::Scaling::Nearest };
+			decoration.targetTexture = Globals::Components().defaultTargetTexture({ StandardRenderMode::Resolution::H405, StandardRenderMode::Scaling::Nearest, StandardRenderMode::mainBlending });
 			decoration.texture = CM::Texture(texture);
 			decoration.renderingSetupF = [&](auto&) {
 				bool prevBlend = glProxyIsBlendEnabled();
@@ -178,7 +213,7 @@ namespace Tests
 		}
 	};
 
-	auto activeTest = std::make_unique<Gamepad>();
+	auto activeTest = std::make_unique<BasicLayers>();
 }
 
 namespace Levels

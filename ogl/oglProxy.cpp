@@ -16,6 +16,7 @@ namespace
 	GLfloat pointSize = 0.0f;
 	GLfloat lineWidth = 0.0f;
 	GLenum debugOutputMinSeverity = 0;
+	bool debugOutputPerformance = false;
 }
 
 void glProxyUseProgram(GLuint id)
@@ -161,18 +162,49 @@ GLfloat glProxyGetLineWidth()
 
 #endif
 
-void glProxyEnableDebugOutput(GLenum minSeverity)
+void glProxyEnableDebugOutput(GLenum minSeverity, bool performance)
 {
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	debugOutputMinSeverity = minSeverity;
-	glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+	debugOutputPerformance = performance;
+	glDebugMessageCallback([](GLenum, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
 		if ((severity == GL_DEBUG_SEVERITY_MEDIUM && debugOutputMinSeverity == GL_DEBUG_SEVERITY_HIGH) ||
 			(severity == GL_DEBUG_SEVERITY_LOW && (debugOutputMinSeverity == GL_DEBUG_SEVERITY_MEDIUM || debugOutputMinSeverity == GL_DEBUG_SEVERITY_HIGH)) ||
 			(severity == GL_DEBUG_SEVERITY_NOTIFICATION && (debugOutputMinSeverity == GL_DEBUG_SEVERITY_LOW || debugOutputMinSeverity == GL_DEBUG_SEVERITY_MEDIUM || debugOutputMinSeverity == GL_DEBUG_SEVERITY_HIGH)))
 			return;
 
-		std::cout << std::hex << "glDebug: source=0x" << source << "; type=0x" << type << "; id=0x" << id << "; severity=0x" << severity << "; message=\"" << message << "\"" << std::endl;
+		if (!debugOutputPerformance && type == GL_DEBUG_TYPE_PERFORMANCE)
+			return;
+
+		const char* typeStr = [&]() {
+			switch (type)
+			{
+			case GL_DEBUG_TYPE_ERROR: return "ERROR";
+			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED_BEHAVIOR";
+			case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "UNDEFINED_BEHAVIOR";
+			case GL_DEBUG_TYPE_PORTABILITY: return "PORTABILITY";
+			case GL_DEBUG_TYPE_PERFORMANCE: return "PERFORMANCE";
+			case GL_DEBUG_TYPE_MARKER: return "MARKER";
+			case GL_DEBUG_TYPE_PUSH_GROUP: return "PUSH_GROUP";
+			case GL_DEBUG_TYPE_POP_GROUP: return "POP_GROUP";
+			case GL_DEBUG_TYPE_OTHER: return "OTHER";
+			default: return "UNKNOWN";
+			}
+		}();
+
+		const char* severityStr = [&]() {
+			switch (severity)
+			{
+			case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
+			case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
+			case GL_DEBUG_SEVERITY_LOW: return "LOW";
+			case GL_DEBUG_SEVERITY_NOTIFICATION: return "NOTIFICATION";
+			default: return "UNKNOWN";
+			}
+		}();
+
+		std::cout << std::hex << "glDebug: type=" << typeStr << "; id=0x" << id << "; severity=" << severityStr << "; message=\"" << message << "\"" << std::endl;
 	}, 0);
 }
 
@@ -181,4 +213,5 @@ void glProxyDisableDebugOutput()
 	glDisable(GL_DEBUG_OUTPUT);
 	glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	debugOutputMinSeverity = 0;
+	debugOutputPerformance = false;
 }

@@ -15,9 +15,8 @@ namespace Components
 		Polyline(const std::vector<glm::vec2>& vertices,
 			Tools::BodyParams bodyParams = Tools::BodyParams{}.sensor(true),
 			RenderingSetupF renderingSetupF = nullptr,
-			RenderLayer renderLayer = RenderLayer::Midground,
 			ShadersUtils::AccessorBase* customShadersProgram = nullptr) :
-			Physical(Tools::CreatePolylineBody(vertices, bodyParams), std::monostate{}, std::move(renderingSetupF), renderLayer, customShadersProgram)
+			Physical(Tools::CreatePolylineBody(vertices, bodyParams), std::monostate{}, std::move(renderingSetupF), customShadersProgram)
 		{
 			drawMode = GL_LINE_STRIP;
 			bufferDataUsage = GL_DYNAMIC_DRAW;
@@ -25,9 +24,8 @@ namespace Components
 
 		Polyline(Tools::BodyParams bodyParams = Tools::BodyParams{}.sensor(true),
 			RenderingSetupF renderingSetupF = nullptr,
-			RenderLayer renderLayer = RenderLayer::Midground,
 			ShadersUtils::AccessorBase* customShadersProgram = nullptr) :
-			Physical(Tools::CreateEmptyBody(bodyParams), std::monostate{}, std::move(renderingSetupF), renderLayer, customShadersProgram)
+			Physical(Tools::CreateEmptyBody(bodyParams), std::monostate{}, std::move(renderingSetupF), customShadersProgram)
 		{
 			drawMode = GL_LINE_STRIP;
 			bufferDataUsage = GL_DYNAMIC_DRAW;
@@ -38,7 +36,7 @@ namespace Components
 
 		void init(ComponentId id, bool static_) override
 		{
-			ComponentBase::init(id, static_);
+			Physical::init(id, static_);
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::polyline, Globals::CollisionBits::all);
 			setBodyComponentVariant(CM::Polyline(*this));
 		}

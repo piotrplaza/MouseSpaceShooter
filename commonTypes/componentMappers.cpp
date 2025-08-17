@@ -5,6 +5,7 @@
 #include <components/Texture.hpp>
 #include <components/AnimatedTexture.hpp>
 #include <components/BlendingTexture.hpp>
+#include <components/RenderTexture.hpp>
 #include <components/Decoration.hpp>
 #include <components/Actor.hpp>
 #include <components/Grapple.hpp>
@@ -168,6 +169,57 @@ namespace ComponentMappers
 	}
 
 	bool BlendingTexture::isStatic() const
+	{
+		assert(component);
+		return component->isStatic();
+	}
+
+	RenderTexture::RenderTexture(Components::RenderTexture& component, glm::vec2 translate, float rotate, glm::vec2 scale):
+		component(&component),
+		componentId(component.getComponentId()),
+		translate(translate),
+		rotate(rotate),
+		scale(scale)
+	{
+	}
+
+	RenderTexture::RenderTexture(ComponentId id, bool static_, glm::vec2 translate, float rotate, glm::vec2 scale):
+		component(static_ ? &Globals::Components().staticRenderTextures()[id] : &Globals::Components().renderTextures()[id]),
+		componentId(id),
+		translate(translate),
+		rotate(rotate),
+		scale(scale)
+	{
+	}
+
+	bool RenderTexture::operator==(const RenderTexture& other) const
+	{
+		return component == other.component;
+	}
+
+	bool RenderTexture::operator!=(const RenderTexture& other) const
+	{
+		return component != other.component;
+	}
+
+	bool RenderTexture::operator<(const RenderTexture& other) const
+	{
+		return component < other.component;
+	}
+
+	RenderTexture& RenderTexture::operator=(Components::RenderTexture& component)
+	{
+		this->component = &component;
+		componentId = component.getComponentId();
+		return *this;
+	}
+
+	bool RenderTexture::isValid() const
+	{
+		return component;
+	}
+
+	bool RenderTexture::isStatic() const
 	{
 		assert(component);
 		return component->isStatic();

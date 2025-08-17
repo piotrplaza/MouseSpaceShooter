@@ -11,6 +11,7 @@ namespace Components
 	struct Texture;
 	struct AnimatedTexture;
 	struct BlendingTexture;
+	struct RenderTexture;
 	struct Decoration;
 	struct Actor;
 	struct Grapple;
@@ -87,6 +88,28 @@ namespace ComponentMappers
 		bool operator!=(const BlendingTexture&) const;
 		bool operator<(const BlendingTexture&) const;
 		BlendingTexture& operator=(Components::BlendingTexture& component);
+
+		bool isValid() const;
+		bool isStatic() const;
+	};
+
+	struct RenderTexture
+	{
+		RenderTexture() = default;
+		RenderTexture(Components::RenderTexture& component, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
+		RenderTexture(ComponentId id, bool static_, glm::vec2 translate = { 0.0f, 0.0f }, float rotate = 0.0f, glm::vec2 scale = { 1.0f, 1.0f });
+
+		Components::RenderTexture* component = nullptr;
+		ComponentId componentId = 0;
+
+		glm::vec2 translate{};
+		float rotate{};
+		glm::vec2 scale{ 1.0f, 1.0f };
+
+		bool operator==(const RenderTexture&) const;
+		bool operator!=(const RenderTexture&) const;
+		bool operator<(const RenderTexture&) const;
+		RenderTexture& operator=(Components::RenderTexture& component);
 
 		bool isValid() const;
 		bool isStatic() const;
@@ -300,6 +323,13 @@ namespace std {
 	};
 
 	template<>
+	struct hash<CM::RenderTexture> {
+		std::size_t operator()(const CM::RenderTexture& targetTexture) const {
+			return (std::size_t)targetTexture.component;
+		}
+	};
+
+	template<>
 	struct hash<CM::Decoration> {
 		std::size_t operator()(const CM::Decoration& decoration) const {
 			return (std::size_t)decoration.component;
@@ -368,6 +398,7 @@ using AbstractTextureComponentVariant = std::variant<
 	CM::Texture,
 	CM::AnimatedTexture,
 	CM::BlendingTexture,
+	CM::RenderTexture,
 	CM::DummyTexture>;
 
 using BodyComponentVariant = std::variant<

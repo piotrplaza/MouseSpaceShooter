@@ -294,7 +294,8 @@ namespace Levels::DamageOn
 				debrisPresentation.colorF = glm::vec4(0.4, 0.4, 0.4, 1.0f);
 			}
 			
-			dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfRectangle(glm::vec2(0.0f), levelHSize), CM::Texture(backgroundTextureId, false), Tools::Shapes2D::CreateTexCoordOfRectangle()).renderLayer = RenderLayer::FarBackground;
+			dynamicDecorations.emplace(Tools::Shapes2D::CreatePositionsOfRectangle(glm::vec2(0.0f), levelHSize), CM::Texture(backgroundTextureId, false), Tools::Shapes2D::CreateTexCoordOfRectangle());
+			dynamicDecorations.last().renderLayer = RenderLayer::FarBackground;
 
 			changeLevelMode();
 		}
@@ -1306,7 +1307,7 @@ namespace Levels::DamageOn
 				else
 				{
 					detonate(targetActor, false, 10.0f, 0.0f, Tools::ExplosionParams{}.color({ 0.2f, 0.0f, 0.0f, 1.0f }).presentationScaleFactor(2.0f * targetInst.radius).additiveBlending(false).particlesAsSensors(true)
-						.renderLayer(RenderLayer::NearMidground), [&]() -> auto& {
+						.renderLayer({ RenderLayer::NearMidground }), [&]() -> auto& {
 						return Tools::CreateAndPlaySound(CM::SoundBuffer(enemyKillSoundBufferId, false), targetActor.getOrigin2D(), [basePitch](auto& sound) {
 							sound.setPitch(glm::linearRand(basePitch, basePitch * 2.0f));
 							sound.setVolume(0.7f);

@@ -5,7 +5,7 @@
 
 #include <tools/geometryHelpers.hpp>
 
-#include <commonTypes/resolutionMode.hpp>
+#include <commonTypes/standardRenderMode.hpp>
 
 namespace Components
 {
@@ -15,9 +15,8 @@ namespace Components
 			AbstractTextureComponentVariant texture = std::monostate{},
 			std::vector<glm::vec2> texCoord = {},
 			RenderingSetupF renderingSetupF = nullptr,
-			RenderLayer renderLayer = RenderLayer::NearMidground,
 			ShadersUtils::AccessorBase* customShadersProgram = nullptr) :
-			Renderable(texture, std::move(renderingSetupF), renderLayer, customShadersProgram, std::move(vertices), std::move(texCoord))
+			Renderable(texture, std::move(renderingSetupF), customShadersProgram, std::move(vertices), std::move(texCoord))
 		{
 		}
 	};

@@ -211,9 +211,6 @@
     <ClCompile Include="systems\deferredActions.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
-    <ClCompile Include="commonTypes\resolutionMode.cpp">
-      <Filter>src\commonTypes</Filter>
-    </ClCompile>
     <ClCompile Include="systems\renderingController.cpp">
       <Filter>src\systems</Filter>
     </ClCompile>
@@ -376,6 +373,9 @@
     <ClCompile Include="tools\paramsFromFile.cpp">
       <Filter>src\tools</Filter>
     </ClCompile>
+    <ClCompile Include="commonTypes\standardRenderMode.cpp">
+      <Filter>src\commonTypes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\mvp.hpp">
@@ -474,9 +474,6 @@
     <ClInclude Include="systems\deferredActions.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
-    <ClInclude Include="commonTypes\resolutionMode.hpp">
-      <Filter>src\commonTypes</Filter>
-    </ClInclude>
     <ClInclude Include="systems\renderingController.hpp">
       <Filter>src\systems</Filter>
     </ClInclude>
@@ -533,9 +530,6 @@
     </ClInclude>
     <ClInclude Include="systems\structures.hpp">
       <Filter>src\systems</Filter>
-    </ClInclude>
-    <ClInclude Include="commonTypes\renderLayer.hpp">
-      <Filter>src\commonTypes</Filter>
     </ClInclude>
     <ClInclude Include="components\renderingBuffers.hpp">
       <Filter>src\components</Filter>
@@ -779,6 +773,9 @@
     </ClInclude>
     <ClInclude Include="components\renderTexture.hpp">
       <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="commonTypes\standardRenderMode.hpp">
+      <Filter>src\commonTypes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

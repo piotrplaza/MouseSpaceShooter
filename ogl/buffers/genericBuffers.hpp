@@ -5,7 +5,7 @@
 #include <globals/components.hpp>
 
 #include <commonTypes/componentMappers.hpp>
-#include <commonTypes/resolutionMode.hpp>
+#include <commonTypes/standardRenderMode.hpp>
 
 #include <ogl/shadersUtils.hpp>
 #include <ogl/oglProxy.hpp>
@@ -131,7 +131,7 @@ namespace Buffers
 					if (renderableComponent.params3D && !renderableComponent.params3D->gpuSideInstancedNormalTransforms_)
 						setInstancedNormalTransformsBuffer(calcNormalTransforms(renderableComponent.instancing->transforms_));
 				}
-				};
+			};
 
 			auto applySubsequencePart = [&]() {
 				auto subBuffersIt = subsequence.begin();

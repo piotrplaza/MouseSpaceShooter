@@ -121,7 +121,7 @@ namespace Levels
 			if (controlPoints.size() > 2)
 			{
 				for (const auto& controlPoint : controlPoints)
-					cpDecoration.state = ComponentState::Outdated;
+					dynamicDecorations[controlPoint.decorationId].state = ComponentState::Outdated;
 				controlPoints.clear();
 			}
 		};

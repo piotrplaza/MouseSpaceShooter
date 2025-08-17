@@ -2,7 +2,8 @@
 
 #include "_componentBase.hpp"
 
-#include <commonTypes/resolutionMode.hpp>
+#include <commonTypes/standardRenderMode.hpp>
+#include <commonTypes/componentId.hpp>
 
 #include <glm/vec2.hpp>
 
@@ -22,20 +23,16 @@ namespace Components
 			glm::ivec2 size = { 0, 0 };
 		};
 
-		const SubBuffers& getSubBuffers(ResolutionMode resolutionMode) const
+		const SubBuffers& getMainSubBuffers() const
 		{
-			//if (resolutionMode.isDefaultMode())
-			//	return dummy;
-
-			return subBuffers[(size_t)resolutionMode.resolution][(size_t)resolutionMode.scaling][(size_t)resolutionMode.blending];
+			return subBuffers[(size_t)StandardRenderMode::mainResolution][(size_t)StandardRenderMode::mainScaling][(size_t)StandardRenderMode::mainBlending];
 		}
 
-		const SubBuffers& getDefaultSubBuffers() const
+		const SubBuffers& getSubBuffers(const StandardRenderMode& renderMode) const
 		{
-			return subBuffers[(size_t)ResolutionMode::defaultResolution][(size_t)ResolutionMode::defaultScaling][(size_t)ResolutionMode::defaultBlending];
+			return subBuffers[(size_t)renderMode.resolution][(size_t)renderMode.scaling][(size_t)renderMode.blending];
 		}
 
-		//SubBuffers dummy;
-		SubBuffers subBuffers[(size_t)ResolutionMode::Resolution::COUNT][(size_t)ResolutionMode::Scaling::COUNT][(size_t)ResolutionMode::Blending::COUNT];
+		SubBuffers subBuffers[(size_t)StandardRenderMode::Resolution::COUNT][(size_t)StandardRenderMode::Scaling::COUNT][(size_t)StandardRenderMode::Blending::COUNT];
 	};
 }

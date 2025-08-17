@@ -188,7 +188,8 @@ namespace Levels
 			auto& staticDecorations = Globals::Components().staticDecorations();
 
 			staticDecorations.emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 15.0f, 15.0f }),
-				CM::AnimatedTexture(recursiveFaceAnimatedTexture, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(recursiveFaceRSF), RenderLayer::NearForeground);
+				CM::AnimatedTexture(recursiveFaceAnimatedTexture, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(recursiveFaceRSF));
+			staticDecorations.last().renderLayer = RenderLayer::NearForeground;
 			staticDecorations.last().modelMatrixF = [&, angle = 0.0f]() mutable {
 				return glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(innerForceScale)), angle += 2.0f * physics.frameDuration, { 0.0f, 0.0f, 1.0f });
 			};

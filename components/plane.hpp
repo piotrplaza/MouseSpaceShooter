@@ -19,13 +19,9 @@ namespace Components
 			AbstractTextureComponentVariant texture = std::monostate{},
 			std::vector<glm::vec2> texCoord = {},
 			RenderingSetupF renderingSetupF = nullptr,
-			RenderLayer renderLayer = RenderLayer::Midground,
 			ShadersUtils::AccessorBase* customShadersProgram = nullptr):
-			Physical(std::move(body), texture, std::move(renderingSetupF), renderLayer, customShadersProgram)
+			Physical(std::move(body), texture, std::move(renderingSetupF), customShadersProgram)
 		{
-			//stepF = [&]() {
-			//	cout << getComponentId() << ": " << !!details.grappleJoint << endl;
-			//};
 		}
 
 		float manoeuvrability = 1.0f;
@@ -51,7 +47,7 @@ namespace Components
 
 		void init(ComponentId id, bool static_) override
 		{
-			ComponentBase::init(id, static_);
+			Physical::init(id, static_);
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::actor, Globals::CollisionBits::all);
 			setBodyComponentVariant(CM::Plane(*this));
 		}

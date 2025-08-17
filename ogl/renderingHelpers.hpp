@@ -3,6 +3,7 @@
 #include <components/texture.hpp>
 #include <components/blendingTexture.hpp>
 #include <components/animatedTexture.hpp>
+#include <components/renderTexture.hpp>
 #include <components/mvp.hpp>
 #include <components/systemInfo.hpp>
 #include <components/physics.hpp>
@@ -33,7 +34,7 @@ namespace
 	inline void PrepareTexturedRender(ShadersProgram& shadersProgram, const AbstractTextureComponentVariant& texture,
 		const glm::mat4& additionalTransform, unsigned textureId);
 
-	inline void TexturedRenderInitialization(auto& shadersProgram, const Components::Texture& textureComponent,
+	inline void TexturedRenderInitialization(auto& shadersProgram, const auto& textureComponent,
 		glm::vec2 translate, float rotate, glm::vec2 scale, const glm::mat4& additionalTransform, unsigned textureId)
 	{
 		glActiveTexture(GL_TEXTURE0 + textureId);
@@ -103,6 +104,12 @@ namespace
 			void operator ()(const CM::BlendingTexture& blendingTexture) const
 			{
 				BlendingTexturedRenderInitialization(shadersProgram, *blendingTexture.component, blendingTexture.translate, blendingTexture.rotate, blendingTexture.scale);
+			}
+
+			void operator ()(const CM::RenderTexture& texture) const
+			{
+				TexturedRenderInitialization(shadersProgram, *texture.component, texture.translate, texture.rotate, texture.scale,
+					additionalTransform, textureId);
 			}
 
 			void operator ()(CM::DummyTexture) const

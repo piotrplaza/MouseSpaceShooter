@@ -43,12 +43,14 @@ namespace
 		Globals::Shaders().basicPhong().vp(Globals::Components().mvp3D().getVP());
 
 		auto render = [&](const auto& buffers) {
-			const auto& resolutionMode = buffers.renderable->resolutionMode;
-			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isDefaultMode(), subBuffers.fbo,
-				subBuffers.size, Globals::Components().framebuffers().getDefaultSubBuffers().fbo, Globals::Components().framebuffers().getDefaultSubBuffers().size);
+			assert(buffers.renderable->targetTexture.component);
+			assert(buffers.renderable->targetTexture.component->loaded.standardRenderMode);
+			const auto& renderMode = *buffers.renderable->targetTexture.component->loaded.standardRenderMode;
+			const auto& subBuffers = Globals::Components().defaultFramebuffers().getSubBuffers(renderMode);
+			Tools::ConditionalScopedFramebuffer csfb(!renderMode.isMainMode(), subBuffers.fbo,
+				subBuffers.size, Globals::Components().defaultFramebuffers().getMainSubBuffers().fbo, Globals::Components().defaultFramebuffers().getMainSubBuffers().size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(resolutionMode);
+			texturesFramebuffersRenderer.clearIfFirstOfMode(renderMode);
 
 			buffers.draw(Globals::Shaders().basicPhong(), [&](const auto& buffers) {
 				const auto modelMatrix = (buffers.renderable->modelMatrixF)();
@@ -97,12 +99,14 @@ namespace
 		Globals::Shaders().texturedPhong().vp(Globals::Components().mvp3D().getVP());
 
 		auto render = [&](const auto& buffers) {
-			const auto& resolutionMode = buffers.renderable->resolutionMode;
-			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isDefaultMode(), subBuffers.fbo,
-				subBuffers.size, Globals::Components().framebuffers().getDefaultSubBuffers().fbo, Globals::Components().framebuffers().getDefaultSubBuffers().size);
+			assert(buffers.renderable->targetTexture.component);
+			assert(buffers.renderable->targetTexture.component->loaded.standardRenderMode);
+			const auto& renderMode = *buffers.renderable->targetTexture.component->loaded.standardRenderMode;
+			const auto& subBuffers = Globals::Components().defaultFramebuffers().getSubBuffers(renderMode);
+			Tools::ConditionalScopedFramebuffer csfb(!renderMode.isMainMode(), subBuffers.fbo,
+				subBuffers.size, Globals::Components().defaultFramebuffers().getMainSubBuffers().fbo, Globals::Components().defaultFramebuffers().getMainSubBuffers().size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(resolutionMode);
+			texturesFramebuffersRenderer.clearIfFirstOfMode(renderMode);
 
 			buffers.draw(Globals::Shaders().texturedPhong(), [&](const auto& buffers) {
 				const auto modelMatrix = (buffers.renderable->modelMatrixF)();
@@ -155,12 +159,14 @@ namespace
 			: Globals::Components().mvp2D().getVP());
 
 		auto render = [&](const auto& buffers) {
-			const auto& resolutionMode = buffers.renderable->resolutionMode;
-			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isDefaultMode(), subBuffers.fbo,
-				subBuffers.size, Globals::Components().framebuffers().getDefaultSubBuffers().fbo, Globals::Components().framebuffers().getDefaultSubBuffers().size);
+			assert(buffers.renderable->targetTexture.component);
+			assert(buffers.renderable->targetTexture.component->loaded.standardRenderMode);
+			const auto& renderMode = *buffers.renderable->targetTexture.component->loaded.standardRenderMode;
+			const auto& subBuffers = Globals::Components().defaultFramebuffers().getSubBuffers(renderMode);
+			Tools::ConditionalScopedFramebuffer csfb(!renderMode.isMainMode(), subBuffers.fbo,
+				subBuffers.size, Globals::Components().defaultFramebuffers().getMainSubBuffers().fbo, Globals::Components().defaultFramebuffers().getMainSubBuffers().size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(resolutionMode);
+			texturesFramebuffersRenderer.clearIfFirstOfMode(renderMode);
 
 			buffers.draw(Globals::Shaders().basic(), [&](const auto& buffers) {
 				Globals::Shaders().basic().model((buffers.renderable->modelMatrixF)());
@@ -198,12 +204,14 @@ namespace
 			: Globals::Components().mvp2D().getVP());
 
 		auto render = [&](const auto& buffers) {
-			const auto& resolutionMode = buffers.renderable->resolutionMode;
-			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isDefaultMode(), subBuffers.fbo,
-				subBuffers.size, Globals::Components().framebuffers().getDefaultSubBuffers().fbo, Globals::Components().framebuffers().getDefaultSubBuffers().size);
+			assert(buffers.renderable->targetTexture.component);
+			assert(buffers.renderable->targetTexture.component->loaded.standardRenderMode);
+			const auto& renderMode = *buffers.renderable->targetTexture.component->loaded.standardRenderMode;
+			const auto& subBuffers = Globals::Components().defaultFramebuffers().getSubBuffers(renderMode);
+			Tools::ConditionalScopedFramebuffer csfb(!renderMode.isMainMode(), subBuffers.fbo,
+				subBuffers.size, Globals::Components().defaultFramebuffers().getMainSubBuffers().fbo, Globals::Components().defaultFramebuffers().getMainSubBuffers().size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(resolutionMode);
+			texturesFramebuffersRenderer.clearIfFirstOfMode(renderMode);
 
 			buffers.draw(Globals::Shaders().textured(), [&](const auto& buffers) {
 				Globals::Shaders().textured().model((buffers.renderable->modelMatrixF)());
@@ -233,12 +241,14 @@ namespace
 			return;
 
 		auto render = [&](const auto& buffers) {
-			const auto& resolutionMode = buffers.renderable->resolutionMode;
-			const auto& subBuffers = Globals::Components().framebuffers().getSubBuffers(resolutionMode);
-			Tools::ConditionalScopedFramebuffer csfb(!resolutionMode.isDefaultMode(), subBuffers.fbo,
-				subBuffers.size, Globals::Components().framebuffers().getDefaultSubBuffers().fbo, Globals::Components().framebuffers().getDefaultSubBuffers().size);
+			assert(buffers.renderable->targetTexture.component);
+			assert(buffers.renderable->targetTexture.component->loaded.standardRenderMode);
+			const auto& renderMode = *buffers.renderable->targetTexture.component->loaded.standardRenderMode;
+			const auto& subBuffers = Globals::Components().defaultFramebuffers().getSubBuffers(renderMode);
+			Tools::ConditionalScopedFramebuffer csfb(!renderMode.isMainMode(), subBuffers.fbo,
+				subBuffers.size, Globals::Components().defaultFramebuffers().getMainSubBuffers().fbo, Globals::Components().defaultFramebuffers().getMainSubBuffers().size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(resolutionMode);
+			texturesFramebuffersRenderer.clearIfFirstOfMode(renderMode);
 
 			assert(buffers.renderable->customShadersProgram);
 			glProxyUseProgram(*buffers.renderable->customShadersProgram);
@@ -312,7 +322,7 @@ namespace Systems
 		const auto& graphicsSettings = Globals::Components().graphicsSettings();
 		const auto clearColor = graphicsSettings.backgroundColorF();
 		const auto& screenInfo = Globals::Components().systemInfo().screen;
-		const auto& framebuffers = Globals::Components().framebuffers();
+		const auto& framebuffers = Globals::Components().defaultFramebuffers();
 
 		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 
@@ -328,8 +338,8 @@ namespace Systems
 		glProxyPointSize(graphicsSettings.pointSize);
 		glProxyLineWidth(graphicsSettings.lineWidth);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.getDefaultSubBuffers().fbo);
-		glViewport(0, 0, framebuffers.getDefaultSubBuffers().size.x, framebuffers.getDefaultSubBuffers().size.y);
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.getMainSubBuffers().fbo);
+		glViewport(0, 0, framebuffers.getMainSubBuffers().size.x, framebuffers.getMainSubBuffers().size.y);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		Tools::Lights3DSetup(Globals::Shaders().basicPhong());
@@ -358,13 +368,13 @@ namespace Systems
 		}
 
 		TransformFeedbackRender();
-		
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, screenInfo.windowSize.x, screenInfo.windowSize.y);
 		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 		assert(Globals::Components().mainFramebufferRenderer().renderer);
-		Globals::Components().mainFramebufferRenderer().renderer(framebuffers.getDefaultSubBuffers().textureObject);
+		Globals::Components().mainFramebufferRenderer().renderer(framebuffers.getMainSubBuffers().textureObject);
 	}
 }

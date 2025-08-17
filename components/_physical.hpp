@@ -16,9 +16,8 @@ struct Physical : Renderable
 	Physical(Body body,
 		AbstractTextureComponentVariant texture,
 		RenderingSetupF renderingSetupF,
-		RenderLayer renderLayer,
 		ShadersUtils::AccessorBase* customShadersProgram) :
-		Renderable(texture, std::move(renderingSetupF), renderLayer, customShadersProgram),
+		Renderable(texture, std::move(renderingSetupF), customShadersProgram),
 		body(std::move(body))
 	{
 		if (!this->body)
@@ -32,6 +31,7 @@ struct Physical : Renderable
 
 	std::vector<glm::vec3> getPositions(bool transformed = false) const override
 	{
+		assert(body);
 		return transformed
 			? Tools::TransformMat4(Tools::GetVertices(*body), modelMatrixF())
 			: Tools::GetVertices(*body);

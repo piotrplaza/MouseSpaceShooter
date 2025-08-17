@@ -89,7 +89,9 @@ namespace Systems
 		};
 
 		auto timeBasedStep = [&]() {
-			physics.frameDuration = physics.gameSpeed * std::chrono::duration<float>(currentTime - physics.prevFrameTime).count();
+			physics.frameDuration = physics.simulationDuration == 0
+				? physics.gameSpeed * screenInfo.getRefreshDuration()
+				: physics.gameSpeed * std::chrono::duration<float>(currentTime - physics.prevFrameTime).count();
 			if (1.0f / physics.frameDuration < physics.minFPS)
 				physics.frameDuration = 1.0f / physics.minFPS;
 		};

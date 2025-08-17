@@ -20,7 +20,7 @@ namespace Components
 
 		void init(ComponentId id, bool static_) override
 		{
-			ComponentBase::init(id, static_);
+			Physical::init(id, static_);
 			if (this->body)
 			{
 				Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);

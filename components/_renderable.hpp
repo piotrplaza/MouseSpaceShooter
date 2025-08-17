@@ -9,7 +9,6 @@
 #include <tools/geometryHelpers.hpp>
 
 #include <commonTypes/componentMappers.hpp>
-#include <commonTypes/resolutionMode.hpp>
 #include <commonTypes/renderLayer.hpp>
 
 #include <ogl/shaders/programBase.hpp>
@@ -62,12 +61,10 @@ struct Renderable : ComponentBase, RenderableDef
 
 	Renderable(AbstractTextureComponentVariant texture,
 		RenderingSetupF renderingSetupF,
-		RenderLayer renderLayer,
 		ShadersUtils::AccessorBase* customShadersProgram = nullptr,
 		std::vector<glm::vec3> positions = {},
 		std::vector<glm::vec2> texCoord = {}):
 		RenderableDef(std::move(positions), std::move(texCoord), texture, std::move(renderingSetupF)),
-		renderLayer(renderLayer),
 		customShadersProgram(customShadersProgram)
 	{
 	}
@@ -77,11 +74,18 @@ struct Renderable : ComponentBase, RenderableDef
 	{
 	}
 
+	void init(ComponentId id, bool static_) override
+	{
+		ComponentBase::init(id, static_);
+		if (!targetTexture.isValid())
+			targetTexture = Globals::Components().defaultTargetTexture();
+	}
+
 	ShadersUtils::AccessorBase* tfShaderProgram = nullptr;
 	ShadersUtils::AccessorBase* customShadersProgram = nullptr;
 	std::optional<Instancing> instancing;
 
-	ResolutionMode resolutionMode = Globals::Components().defaults().resolutionMode;
+	CM::RenderTexture targetTexture;
 	RenderLayer renderLayer = Globals::Components().defaults().renderLayer;
 
 	std::deque<RenderableDef> subsequence;

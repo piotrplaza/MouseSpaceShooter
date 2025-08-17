@@ -13,7 +13,6 @@
 #include <components/sound.hpp>
 #include <components/audioListener.hpp>
 #include <components/texture.hpp>
-#include <components/systemInfo.hpp>
 
 #include <commonTypes/componentMappers.hpp>
 
@@ -254,16 +253,16 @@ namespace Tools
 
 			auto& fogLayer = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
 				CM::DummyTexture(), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
+			fogLayer.targetTexture = Globals::Components().defaultTargetTexture({ StandardRenderMode::Resolution::H540, StandardRenderMode::Scaling::Linear, StandardRenderMode::mainBlending });
 			fogLayer.renderLayer = RenderLayer::Foreground;
 			fogLayer.stepF = [=, &fogLayer]() mutable {
 				fogTexture.translate = textureTranslation ? textureTranslation(layer) : glm::vec2(0.0f);
 				fogLayer.texture = fogTexture;
 			};
-			fogLayer.resolutionMode = { ResolutionMode::Resolution::H540, ResolutionMode::Scaling::Linear };
 		}
 	}
 
-	void CreateJuliaBackground(JuliaParams params)
+	Components::Decoration& CreateJuliaBackground(JuliaParams params)
 	{
 		auto& juliaShaders = Globals::Shaders().julia();
 		auto& background = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 10.0f, 10.0f }));
@@ -282,7 +281,9 @@ namespace Tools
 		};
 
 		background.renderLayer = RenderLayer::Background;
-		background.resolutionMode = { ResolutionMode::Resolution::Native, ResolutionMode::Scaling::Linear, ResolutionMode::Blending::Additive };
+		background.targetTexture = Globals::Components().defaultTargetTexture({ StandardRenderMode::Resolution::Native, StandardRenderMode::Scaling::Linear, StandardRenderMode::Blending::Additive });
+
+		return background;
 	}
 
 	Components::Sound& CreateAndPlaySound(CM::SoundBuffer soundBuffer, FVec2 posF, std::function<void(Components::Sound&)> config, std::function<void(Components::Sound&)> stepF)

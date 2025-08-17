@@ -2,6 +2,10 @@
 
 #include "_componentBase.hpp"
 
+#include <commonTypes/standardRenderMode.hpp>
+
+#include <optional>
+
 namespace Components
 {
 	struct RenderTexture : ComponentBase
@@ -20,12 +24,18 @@ namespace Components
 		GLint minFilter = GL_LINEAR_MIPMAP_LINEAR;
 		GLint magFilter = GL_LINEAR;
 
+		glm::vec2 translate{ 0.0f };
+		float rotate = 0.0f;
+		glm::vec2 scale{ 1.0f };
+
 		struct
 		{
 			unsigned textureObject = 0;
 
 			glm::ivec2 size = { 0, 0 };
 			int numOfChannels = 0;
+
+			std::optional<StandardRenderMode> standardRenderMode;
 
 			GLint getFormat() const
 			{

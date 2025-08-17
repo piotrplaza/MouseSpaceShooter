@@ -99,7 +99,7 @@ inline void CreateDeadlySplines(const Tools::PlayersHandler& playersHandler, std
 		keypoints.push_back({58.6384, 50.6081});
 		keypoints.push_back({65.405, 34.3855});
 		keypoints.push_back({68.1938, 19.3509});
-		const int numOfVertices = 10 * (keypoints.size() - 1 + 1) + 1;
+		const int numOfVertices = 10 * ((int)keypoints.size() - 1 + 1) + 1;
 		Tools::CubicHermiteSpline spline(std::move(keypoints), Tools::CubicHermiteSpline<>::loop);
 		std::vector<glm::vec2> veritces;
 		veritces.reserve(numOfVertices);
@@ -163,7 +163,7 @@ inline void CreateDeadlySplines(const Tools::PlayersHandler& playersHandler, std
 		keypoints.push_back({40.4829, 44.948});
 		keypoints.push_back({46.5812, 32.9655});
 		keypoints.push_back({49.5458, 18.6165});
-		const int numOfVertices = 10 * (keypoints.size() - 1 + 1) + 1;
+		const int numOfVertices = 10 * ((int)keypoints.size() - 1 + 1) + 1;
 		Tools::CubicHermiteSpline spline(std::move(keypoints), Tools::CubicHermiteSpline<>::loop);
 		std::vector<glm::vec2> veritces;
 		veritces.reserve(numOfVertices);

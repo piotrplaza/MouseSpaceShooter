@@ -70,17 +70,21 @@
 #include <array>
 #include <type_traits>
 #include <thread>
+#include <iostream>
 
 const bool debugFullscreen = false;
 const bool releaseFullscreen = true;
 const bool devFullScreen = true;
 const bool console = true;
-const bool glDebug = false;
 const bool audio = true;
+
+const bool glDebug = true;
 const GLenum glDebugMinSeverity = GL_DEBUG_SEVERITY_LOW;
-const glm::ivec2 windowRes = { 800, 600 };
+const bool glDebugPerformance = false;
+
+const glm::ivec2 windowRes = { 1280, 1024 };
 const glm::ivec2 windowPos = { 10, 10 };
-const glm::ivec2 consolePos = { 850, 10 };
+const glm::ivec2 consolePos = { 1300, 10 };
 
 const struct
 {
@@ -105,7 +109,7 @@ static void InitOGL()
 	assert(GLEW_OK == glewInitResult);
 
 	if (glDebug)
-		glProxyEnableDebugOutput(glDebugMinSeverity);
+		glProxyEnableDebugOutput(glDebugMinSeverity, glDebugPerformance);
 
 	Tools::VSync(true);
 	glProxySetBlend(true);
@@ -132,8 +136,8 @@ static void InitEngine()
 
 static void InitLevel()
 {
-	//activeLevel = std::make_unique<Levels::RaceEditor>();
-	activeLevel = std::make_unique<Levels::Race>();
+	activeLevel = std::make_unique<Levels::RaceEditor>();
+	//activeLevel = std::make_unique<Levels::Race>();
 
 	//activeLevel = std::make_unique<Levels::Windmill>();
 	//activeLevel = std::make_unique<Levels::SquareRace>();
@@ -160,8 +164,8 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Decals>();
 	//activeLevel = std::make_unique<Levels::Particles2D>();
 	//activeLevel = std::make_unique<Levels::Particles3D>();
-	//activeLevel = std::make_unique<Levels::Tests>();
 
+	//activeLevel = std::make_unique<Levels::Tests>();
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }
 
@@ -395,6 +399,8 @@ int APIENTRY WinMain(
 	if (console)
 		Tools::RedirectIOToConsole(consolePos);
 
+	std::cout << "WinMain begin\n";
+
 	if (forcedScreenMode.enabled)
 	{
 		DEVMODE dmScreenSettings;
@@ -530,5 +536,7 @@ int APIENTRY WinMain(
 			MB_OK | MB_ICONEXCLAMATION);
 	}
 	
+	std::cout << "WinMain end\n";
+
 	return (int)msg.wParam;
 }

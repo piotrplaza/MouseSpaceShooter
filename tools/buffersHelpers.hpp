@@ -1,6 +1,7 @@
 #pragma once
 
 #include <components/renderingBuffers.hpp>
+#include <components/renderTexture.hpp>
 
 #include <globals/components.hpp>
 
@@ -14,6 +15,7 @@ namespace Tools
 	inline void UpdateStaticBuffers(StaticComponents<Component>& components, size_t offset = 0)
 	{
 		auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers;
+		auto& staticOfflineBuffers = Globals::Components().renderingBuffers().staticOfflineBuffers;
 		auto& staticTFBuffers = Globals::Components().renderingBuffers().staticTFBuffers;
 
 		for (auto& component : components.underlyingContainer() | std::views::drop(offset))
@@ -22,19 +24,39 @@ namespace Tools
 				continue;
 
 			assert(component.state != ComponentState::LastShot);
+			assert(component.targetTexture.component);
 
-			auto& selectedBuffers = [&, layer = (size_t)component.renderLayer]() -> auto& {
+			const auto& standardRenderMode = component.targetTexture.component->loaded.standardRenderMode;
+
+			auto& selectedBuffers = [&]() -> auto& {
+				if (standardRenderMode)
+				{
+					const auto layer = (size_t)component.renderLayer;
+
+					if (component.customShadersProgram)
+						return staticBuffers.customShaders[layer].emplace_back();
+					if (component.params3D)
+					{
+						if (std::holds_alternative<std::monostate>(component.texture))
+							return staticBuffers.basicPhong[layer].emplace_back();
+						return staticBuffers.texturedPhong[layer].emplace_back();
+					}
+					if (std::holds_alternative<std::monostate>(component.texture))
+						return staticBuffers.basic[layer].emplace_back();
+					return staticBuffers.textured[layer].emplace_back();
+				}
+
 				if (component.customShadersProgram)
-					return staticBuffers.customShaders[layer].emplace_back();
+					return staticOfflineBuffers.customShaders.emplace_back();
 				if (component.params3D)
 				{
 					if (std::holds_alternative<std::monostate>(component.texture))
-						return staticBuffers.basicPhong[layer].emplace_back();
-					return staticBuffers.texturedPhong[layer].emplace_back();
+						return staticOfflineBuffers.basicPhong.emplace_back();
+					return staticOfflineBuffers.texturedPhong.emplace_back();
 				}
 				if (std::holds_alternative<std::monostate>(component.texture))
-					return staticBuffers.basic[layer].emplace_back();
-				return staticBuffers.textured[layer].emplace_back();
+					return staticOfflineBuffers.basic.emplace_back();
+				return staticOfflineBuffers.textured.emplace_back();
 			}();
 
 			selectedBuffers.applyComponent(component, true);
@@ -51,6 +73,7 @@ namespace Tools
 	inline void UpdateDynamicBuffers(DynamicComponents<Component>& components)
 	{
 		auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers;
+		auto& dynamicOfflineBuffers = Globals::Components().renderingBuffers().dynamicOfflineBuffers;
 		auto& dynamicTFBuffers = Globals::Components().renderingBuffers().dynamicTFBuffers;
 
 		for (auto& component : components)
@@ -58,22 +81,44 @@ namespace Tools
 			if (component.state == ComponentState::Ongoing || component.state == ComponentState::Outdated)
 				continue;
 
+			assert(component.targetTexture.component);
+
+			const auto& standardRenderMode = component.targetTexture.component->loaded.standardRenderMode;
+
 			// TODO: What if the layer or shader type was changed? Prob leak.
-			const auto layer = (size_t)component.renderLayer;
 			auto& mapOfSelectedBuffers = [&]() -> auto& {
+				if (standardRenderMode)
+				{
+					const auto layer = (size_t)component.renderLayer;
+
+					if (component.customShadersProgram)
+						return dynamicBuffers.customShaders[layer];
+					else if (component.params3D)
+					{
+						if (std::holds_alternative<std::monostate>(component.texture))
+							return dynamicBuffers.basicPhong[layer];
+						else
+							return dynamicBuffers.texturedPhong[layer];
+					}
+					else if (std::holds_alternative<std::monostate>(component.texture))
+						return dynamicBuffers.basic[layer];
+					else
+						return dynamicBuffers.textured[layer];
+				}
+
 				if (component.customShadersProgram)
-					return dynamicBuffers.customShaders[layer];
+					return dynamicOfflineBuffers.customShaders;
 				else if (component.params3D)
 				{
 					if (std::holds_alternative<std::monostate>(component.texture))
-						return dynamicBuffers.basicPhong[layer];
+						return dynamicOfflineBuffers.basicPhong;
 					else
-						return dynamicBuffers.texturedPhong[layer];
+						return dynamicOfflineBuffers.texturedPhong;
 				}
 				else if (std::holds_alternative<std::monostate>(component.texture))
-					return dynamicBuffers.basic[layer];
+					return dynamicOfflineBuffers.basic;
 				else
-					return dynamicBuffers.textured[layer];
+					return dynamicOfflineBuffers.textured;
 			}();
 
 			if (!component.loaded.buffers)

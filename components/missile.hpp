@@ -13,9 +13,8 @@ namespace Components
 			float thrustForce = 5.0f,
 			AbstractTextureComponentVariant texture = std::monostate{},
 			RenderingSetupF renderingSetupF = nullptr,
-			RenderLayer renderLayer = RenderLayer::Midground,
 			ShadersUtils::AccessorBase* customShadersProgram = nullptr):
-			Physical(std::move(body), texture, std::move(renderingSetupF), renderLayer, customShadersProgram),
+			Physical(std::move(body), texture, std::move(renderingSetupF), customShadersProgram),
 			thrustForce(thrustForce)
 		{
 		}
@@ -24,7 +23,7 @@ namespace Components
 
 		void init(ComponentId id, bool static_) override
 		{
-			ComponentBase::init(id, static_);
+			Physical::init(id, static_);
 			Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::projectile, Globals::CollisionBits::all);
 			setBodyComponentVariant(CM::Missile(*this));
 		}

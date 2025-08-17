@@ -318,7 +318,7 @@ namespace Levels
 			for (const auto& cp : splineDef.controlPoints)
 				fs << "		keypoints.push_back({" << cp.pos.x << ", " << cp.pos.y << "});\n";
 
-			fs << "		const int numOfVertices = " << splineDef.complexity << " * (keypoints.size() - 1 + " << splineDef.loop << ") + 1;\n";
+			fs << "		const int numOfVertices = " << splineDef.complexity << " * ((int)keypoints.size() - 1 + " << splineDef.loop << ") + 1;\n";
 			fs << "		Tools::CubicHermiteSpline spline(std::move(keypoints)" << (splineDef.loop ? ", Tools::CubicHermiteSpline<>::loop);\n" : ");\n");
 			fs << "		std::vector<glm::vec2> veritces;\n";
 			fs << "		veritces.reserve(numOfVertices);\n";

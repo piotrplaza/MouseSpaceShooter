@@ -372,19 +372,24 @@ namespace Systems
 	{
 		assert(Globals::Components().staticRenderTextures().empty());
 
-		auto createTextureFramebuffer = [this](Components::Framebuffers::SubBuffers& subBuffers, GLint textureMagFilter) {
+		auto createTextureFramebuffer = [](const StandardRenderMode& standardRenderMode) {
+			auto& defaultFramebuffers = Globals::Components().defaultFramebuffers();
+			auto& subBuffers = defaultFramebuffers.subBuffers[(size_t)standardRenderMode.resolution][(size_t)standardRenderMode.scaling][(size_t)standardRenderMode.blending];
+
+			const auto glScaling = standardRenderMode.scaling == StandardRenderMode::Scaling::Linear ? GL_LINEAR : GL_NEAREST;
 			glActiveTexture(GL_TEXTURE0);
 			unsigned textureObject;
 			glGenTextures(1, &textureObject);
 			glBindTexture(GL_TEXTURE_2D, textureObject);
 
-			const auto& renderTexture = Globals::Components().staticRenderTextures().emplace(textureObject, GL_CLAMP_TO_EDGE, GL_NEAREST, textureMagFilter);
-			subBuffers.textureId = renderTexture.getComponentId();
-			subBuffers.textureObject = renderTexture.loaded.textureObject;
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, renderTexture.wrapMode);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, renderTexture.wrapMode);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, renderTexture.minFilter);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, renderTexture.magFilter);
+			auto& targetTexture = Globals::Components().staticRenderTextures().emplace(textureObject, GL_CLAMP_TO_EDGE, GL_NEAREST, glScaling);
+			targetTexture.loaded.standardRenderMode = standardRenderMode;
+			subBuffers.textureId = targetTexture.getComponentId();
+			subBuffers.textureObject = targetTexture.loaded.textureObject;
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, targetTexture.wrapMode);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, targetTexture.wrapMode);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, targetTexture.minFilter);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, targetTexture.magFilter);
 
 			glGenFramebuffers(1, &subBuffers.fbo);
 			glBindFramebuffer(GL_FRAMEBUFFER, subBuffers.fbo);
@@ -395,12 +400,10 @@ namespace Systems
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, subBuffers.depthBuffer);
 		};
 
-		auto& framebuffers = Globals::Components().framebuffers();
-
-		for (size_t res = 0; res < (size_t)ResolutionMode::Resolution::COUNT; ++res)
-			for (size_t scaling = 0; scaling < (size_t)ResolutionMode::Scaling::COUNT; ++scaling)
-				for (size_t blending = 0; blending < (size_t)ResolutionMode::Blending::COUNT; ++blending)
-					createTextureFramebuffer(framebuffers.subBuffers[res][scaling][blending], (ResolutionMode::Scaling)scaling == ResolutionMode::Scaling::Linear ? GL_LINEAR : GL_NEAREST);
+		for (size_t res = 0; res < (size_t)StandardRenderMode::Resolution::COUNT; ++res)
+			for (size_t scaling = 0; scaling < (size_t)StandardRenderMode::Scaling::COUNT; ++scaling)
+				for (size_t blending = 0; blending < (size_t)StandardRenderMode::Blending::COUNT; ++blending)
+					createTextureFramebuffer({ (StandardRenderMode::Resolution)res, (StandardRenderMode::Scaling)scaling, (StandardRenderMode::Blending)blending });
 	}
 
 	void Textures::updateStaticTextures()

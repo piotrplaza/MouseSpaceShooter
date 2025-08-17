@@ -7,6 +7,7 @@
 #include <components/mouse.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/framebuffers.hpp>
+
 #include <components/texture.hpp>
 #include <components/renderTexture.hpp>
 #include <components/functor.hpp>
@@ -118,12 +119,11 @@ namespace Systems
 			return;
 
 		auto& screenInfo = Globals::Components().systemInfo().screen;
-		auto& framebuffers = Globals::Components().framebuffers();
+		auto& defaultFramebuffers = Globals::Components().defaultFramebuffers();
 
 		screenInfo.framebufferRes = size;
 
-		auto setTextureFramebufferSize = [&](Components::Framebuffers::SubBuffers& subBuffers, glm::ivec2 size)
-		{
+		auto setTextureFramebufferSize = [&](Components::Framebuffers::SubBuffers& subBuffers, glm::ivec2 size) {
 			glBindFramebuffer(GL_FRAMEBUFFER, subBuffers.fbo);
 
 			glActiveTexture(GL_TEXTURE0);
@@ -140,22 +140,22 @@ namespace Systems
 
 		const float aspectRatio = screenInfo.getAspectRatio();
 
-		for (size_t scaling = 0; scaling < (size_t)ResolutionMode::Scaling::COUNT; ++scaling)
-			for (size_t blending = 0; blending < (size_t)ResolutionMode::Blending::COUNT; ++blending)
+		for (size_t scaling = 0; scaling < (size_t)StandardRenderMode::Scaling::COUNT; ++scaling)
+			for (size_t blending = 0; blending < (size_t)StandardRenderMode::Blending::COUNT; ++blending)
 			{
-				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::Native][scaling][blending], size);
-				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::HalfNative][scaling][blending], size / 2);
-				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::QuarterNative][scaling][blending], size / 4);
-				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::OctaNative][scaling][blending], size / 8);
-				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H2160][scaling][blending], { 2160 * aspectRatio, 2160 });
-				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H1080][scaling][blending], { 1080 * aspectRatio, 1080 });
-				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H540][scaling][blending], { 540 * aspectRatio, 540 });
-				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H405][scaling][blending], { 405 * aspectRatio, 405 });
-				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H270][scaling][blending], { 270 * aspectRatio, 270 });
-				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H135][scaling][blending], { 135 * aspectRatio, 135 });
-				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H68][scaling][blending], { 68 * aspectRatio, 68 });
-				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H34][scaling][blending], { 34 * aspectRatio, 34 });
-				setTextureFramebufferSize(framebuffers.subBuffers[(size_t)ResolutionMode::Resolution::H17][scaling][blending], { 17 * aspectRatio, 17 });
+				setTextureFramebufferSize(defaultFramebuffers.subBuffers[(size_t)StandardRenderMode::Resolution::Native][scaling][blending], size);
+				setTextureFramebufferSize(defaultFramebuffers.subBuffers[(size_t)StandardRenderMode::Resolution::HalfNative][scaling][blending], size / 2);
+				setTextureFramebufferSize(defaultFramebuffers.subBuffers[(size_t)StandardRenderMode::Resolution::QuarterNative][scaling][blending], size / 4);
+				setTextureFramebufferSize(defaultFramebuffers.subBuffers[(size_t)StandardRenderMode::Resolution::OctaNative][scaling][blending], size / 8);
+				setTextureFramebufferSize(defaultFramebuffers.subBuffers[(size_t)StandardRenderMode::Resolution::H2160][scaling][blending], { 2160 * aspectRatio, 2160 });
+				setTextureFramebufferSize(defaultFramebuffers.subBuffers[(size_t)StandardRenderMode::Resolution::H1080][scaling][blending], { 1080 * aspectRatio, 1080 });
+				setTextureFramebufferSize(defaultFramebuffers.subBuffers[(size_t)StandardRenderMode::Resolution::H540][scaling][blending], { 540 * aspectRatio, 540 });
+				setTextureFramebufferSize(defaultFramebuffers.subBuffers[(size_t)StandardRenderMode::Resolution::H405][scaling][blending], { 405 * aspectRatio, 405 });
+				setTextureFramebufferSize(defaultFramebuffers.subBuffers[(size_t)StandardRenderMode::Resolution::H270][scaling][blending], { 270 * aspectRatio, 270 });
+				setTextureFramebufferSize(defaultFramebuffers.subBuffers[(size_t)StandardRenderMode::Resolution::H135][scaling][blending], { 135 * aspectRatio, 135 });
+				setTextureFramebufferSize(defaultFramebuffers.subBuffers[(size_t)StandardRenderMode::Resolution::H68][scaling][blending], { 68 * aspectRatio, 68 });
+				setTextureFramebufferSize(defaultFramebuffers.subBuffers[(size_t)StandardRenderMode::Resolution::H34][scaling][blending], { 34 * aspectRatio, 34 });
+				setTextureFramebufferSize(defaultFramebuffers.subBuffers[(size_t)StandardRenderMode::Resolution::H17][scaling][blending], { 17 * aspectRatio, 17 });
 			}
 	}
 

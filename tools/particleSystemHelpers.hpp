@@ -1,9 +1,9 @@
 #pragma once
 
 #include <commonTypes/componentMappers.hpp>
-#include <commonTypes/resolutionMode.hpp>
-#include <commonTypes/fTypes.hpp>
 #include <commonTypes/renderLayer.hpp>
+#include <commonTypes/standardRenderMode.hpp>
+#include <commonTypes/fTypes.hpp>
 
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
@@ -130,9 +130,9 @@ namespace Tools
 			return *this;
 		}
 
-		ExplosionParams& resolutionMode(ResolutionMode value)
+		ExplosionParams& renderMode(StandardRenderMode value)
 		{
-			resolutionMode_ = value;
+			renderMode_ = value;
 			return *this;
 		}
 
@@ -166,8 +166,8 @@ namespace Tools
 		float presentationScaleFactor_ = 20.0f;
 		glm::vec4 color_ = glm::vec4(1.0f);
 		bool additiveBlending_ = true;
-		RenderLayer renderLayer_ = RenderLayer::FarForeground;
-		ResolutionMode resolutionMode_{};
+		RenderLayer renderLayer_ = RenderLayer::Midground;
+		StandardRenderMode renderMode_{};
 		std::function<void(Components::Shockwave&)> beginCallback_;
 		std::function<void(Components::Shockwave&)> endCallback_;
 	};
@@ -234,7 +234,7 @@ namespace Tools
 
 	struct ParticleSystemParams
 	{
-		enum class RenderMode { Points, Lines, Billboards };
+		enum class DrawMode { Points, Lines, Billboards };
 		enum class BlendMode { Alpha, Additive };
 
 		ParticleSystemParams& position(FVec3 value)
@@ -249,13 +249,13 @@ namespace Tools
 			return *this;
 		}
 
-		ParticleSystemParams& resolutionMode(ResolutionMode value)
+		ParticleSystemParams& renderMode(StandardRenderMode value)
 		{
 			resolutionMode_ = value;
 			return *this;
 		}
 
-		ParticleSystemParams& renderMode(RenderMode value)
+		ParticleSystemParams& renderMode(DrawMode value)
 		{
 			renderMode_ = value;
 			return *this;
@@ -389,8 +389,8 @@ namespace Tools
 
 		FVec3 position_ = glm::vec3(0.0f);
 		FVec3 prevPosition_;
-		ResolutionMode resolutionMode_ = { ResolutionMode::Resolution::HalfNative, ResolutionMode::Scaling::Linear };
-		RenderMode renderMode_ = RenderMode::Lines;
+		StandardRenderMode resolutionMode_ = { StandardRenderMode::Resolution::HalfNative, StandardRenderMode::Scaling::Linear, StandardRenderMode::mainBlending };
+		DrawMode renderMode_ = DrawMode::Lines;
 		BlendMode blendMode_ = BlendMode::Additive;
 		float pointSize_ = 2.0f;
 		float lineWidth_ = 1.0f;

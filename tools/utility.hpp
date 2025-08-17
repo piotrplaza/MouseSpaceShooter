@@ -51,11 +51,17 @@ namespace Tools
 	template <typename TextureComponent>
 	inline glm::mat4 TextureTransform(const TextureComponent& textureComponent)
 	{
+		const bool preserveAspectRatio = [&]() {
+			if constexpr (requires { textureComponent.preserveAspectRatio; })
+				return textureComponent.preserveAspectRatio;
+			return false;
+		}();
+
 		return
 			glm::translate(
 				glm::rotate(
 					glm::scale(glm::mat4(1.0f), glm::vec3(
-						(textureComponent.preserveAspectRatio ? (float)textureComponent.loaded.size.y / textureComponent.loaded.size.x : 1.0f)
+						(preserveAspectRatio ? (float)textureComponent.loaded.size.y / textureComponent.loaded.size.x : 1.0f)
 						* 1.0f / textureComponent.scale.x, 1.0f / textureComponent.scale.y, 1.0f)),
 					textureComponent.rotate, { 0.0f, 0.0f, -1.0f }),
 				glm::vec3(-textureComponent.translate, 0.0f));

@@ -103,11 +103,6 @@ namespace Globals
 		return *graphicsSettings_;
 	}
 
-	Components::Framebuffers& ComponentsHolder::framebuffers()
-	{
-		return *framebuffers_;
-	}
-
 	Components::MainFramebufferRenderer& ComponentsHolder::mainFramebufferRenderer()
 	{
 		return *mainFramebufferRenderer_;
@@ -121,6 +116,17 @@ namespace Globals
 	Components::AppStateHandler& ComponentsHolder::appStateHandler()
 	{
 		return *appStateHandler_;
+	}
+
+	Components::Framebuffers& ComponentsHolder::defaultFramebuffers()
+	{
+		return *defaultFramebuffers_;
+	}
+
+	Components::RenderTexture& ComponentsHolder::defaultTargetTexture(const StandardRenderMode& renderMode)
+	{
+		const auto framebufferTextureId = defaultFramebuffers().getSubBuffers(renderMode).textureId;
+		return staticRenderTextures()[framebufferTextureId];
 	}
 
 	StaticComponents<Components::Texture>& ComponentsHolder::staticTextures()
@@ -354,3 +360,4 @@ namespace Globals
 		return *componentsHolder;
 	}
 }
+	

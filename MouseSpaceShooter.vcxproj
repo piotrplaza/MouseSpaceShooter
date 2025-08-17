@@ -22,7 +22,7 @@
     <ClCompile Include="3rdParty\stb_image\stb_image.cpp" />
     <ClCompile Include="commonTypes\componentMappers.cpp" />
     <ClCompile Include="commonTypes\componentsContainers.cpp" />
-    <ClCompile Include="commonTypes\resolutionMode.cpp" />
+    <ClCompile Include="commonTypes\standardRenderMode.cpp" />
     <ClCompile Include="components\audioListener.cpp" />
     <ClCompile Include="components\details\animationData.cpp" />
     <ClCompile Include="components\music.cpp" />
@@ -102,8 +102,7 @@
     <ClInclude Include="commonTypes\componentsContainers.hpp" />
     <ClInclude Include="commonTypes\fTypes.hpp" />
     <ClInclude Include="commonTypes\idGenerator.hpp" />
-    <ClInclude Include="commonTypes\renderLayer.hpp" />
-    <ClInclude Include="commonTypes\resolutionMode.hpp" />
+    <ClInclude Include="commonTypes\standardRenderMode.hpp" />
     <ClInclude Include="components\appStateHandler.hpp" />
     <ClInclude Include="components\defaults.hpp" />
     <ClInclude Include="components\details\textureData.hpp" />

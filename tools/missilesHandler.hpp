@@ -25,7 +25,7 @@ namespace Tools
 
 		void setExplosionParams(Tools::ExplosionParams explosionParams);
 
-		void setResolutionModeF(std::function<ResolutionMode(const b2Body&)> resolutionModeF);
+		void setRenderModeF(std::function<StandardRenderMode(const b2Body&)> renderModeF);
 		void setExplosionF(std::function<void(glm::vec2)> explosionF);
 
 		const MissileHandler* launchingMissile(unsigned playerHandlerId, bool tryToLaunch, std::optional<CM::SoundBuffer> soundBuffer = std::nullopt,
@@ -46,7 +46,7 @@ namespace Tools
 
 		Tools::ExplosionParams explosionParams;
 
-		std::function<ResolutionMode(const b2Body&)> resolutionModeF;
+		std::function<StandardRenderMode(const b2Body&)> renderModeF;
 		std::function<void(glm::vec2)> explosionF;
 	};
 }

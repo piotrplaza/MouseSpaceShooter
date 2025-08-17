@@ -339,8 +339,8 @@ namespace Levels
 				};
 
 				Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle(portraitCenter, { 10.0f, 10.0f }),
-					CM::BlendingTexture(blendingTexture, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF),
-					RenderLayer::NearMidground);
+					CM::BlendingTexture(blendingTexture, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
+				Globals::Components().staticDecorations().last().renderLayer = RenderLayer::NearMidground;
 			}
 
 			{
@@ -380,13 +380,15 @@ namespace Levels
 
 				auto& wall1Body = *Globals::Components().staticWalls().emplace(
 					Tools::CreateBoxBody({ 0.5f, 5.0f }, Tools::BodyParams().position({ 5.0f, -5.0f }).bodyType(b2_dynamicBody).density(0.2f)),
-					CM::Texture(woodTexture, true), std::move(renderingSetupF), RenderLayer::NearMidground).body;
+					CM::Texture(woodTexture, true), std::move(renderingSetupF)).body;
+				Globals::Components().staticWalls().last().renderLayer = RenderLayer::NearMidground;
 				wall1Body.GetFixtureList()->SetRestitution(0.5f);
 				setRenderingSetupAndSubsequence();
 
 				auto& wall2Body = *Globals::Components().staticWalls().emplace(
 					Tools::CreateBoxBody({ 0.5f, 5.0f }, Tools::BodyParams().position({ 5.0f, 5.0f }).bodyType(b2_dynamicBody).density(0.2f)),
-					CM::Texture(woodTexture, true), nullptr, RenderLayer::NearMidground).body;
+					CM::Texture(woodTexture, true), nullptr).body;
+				Globals::Components().staticWalls().last().renderLayer = RenderLayer::NearMidground;
 				wall2Body.GetFixtureList()->SetRestitution(0.5f);
 				setRenderingSetupAndSubsequence();
 
@@ -420,7 +422,8 @@ namespace Levels
 
 					const auto radius = 5.0f;
 					auto& disc = Globals::Components().staticWalls().emplace(Tools::CreateDiscBody(radius, Tools::BodyParams().position({ 0.0f, pos }).bodyType(b2_dynamicBody).density(0.01f)),
-						CM::DummyTexture(), std::move(renderingSetupF), RenderLayer::Midground, &Globals::Shaders().texturedColorThreshold());
+						CM::DummyTexture(), std::move(renderingSetupF), &Globals::Shaders().texturedColorThreshold());
+					Globals::Components().staticWalls().last().renderLayer = RenderLayer::Midground;
 
 					constexpr int particleEmittersCount = 8;
 					constexpr float radialStep = glm::two_pi<float>() / particleEmittersCount;
@@ -464,7 +467,7 @@ namespace Levels
 					}), Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::Texture(roseTexture, true), std::move(renderingSetupF));
 			}
 
-			Globals::Components().staticWalls().last().resolutionMode = { ResolutionMode::Resolution::H68 };
+			Globals::Components().staticWalls().last().targetTexture = Globals::Components().defaultTargetTexture(StandardRenderMode::Resolution::H68);
 			lowResBodies.insert(Globals::Components().staticWalls().last().body.get());
 		}
 
@@ -516,13 +519,20 @@ namespace Levels
 					Globals::Components().staticBlendingTextures().add({ CM::Texture(fractalTexture, true), CM::Texture(woodTexture, true), CM::Texture(spaceRockTexture, true), CM::Texture(foiledEggsTexture, true) });
 
 					Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHeightHSize + bordersHGauge * 2 },
-						Tools::BodyParams().position({ -levelWidthHSize - bordersHGauge, 0.0f })), CM::BlendingTexture(blendingTexture, true), renderingSetupF, RenderLayer::NearMidground);
+						Tools::BodyParams().position({ -levelWidthHSize - bordersHGauge, 0.0f })), CM::BlendingTexture(blendingTexture, true), renderingSetupF);
+					Globals::Components().staticWalls().last().renderLayer = RenderLayer::NearMidground;
+
 					Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ bordersHGauge, levelHeightHSize + bordersHGauge * 2 },
-						Tools::BodyParams().position({ levelWidthHSize + bordersHGauge, 0.0f })), CM::BlendingTexture(blendingTexture, true), renderingSetupF, RenderLayer::NearMidground);
+						Tools::BodyParams().position({ levelWidthHSize + bordersHGauge, 0.0f })), CM::BlendingTexture(blendingTexture, true), renderingSetupF);
+					Globals::Components().staticWalls().last().renderLayer = RenderLayer::NearMidground;
+
 					Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHeightHSize + bordersHGauge * 2, bordersHGauge },
-						Tools::BodyParams().position({ 0.0f, -levelHeightHSize - bordersHGauge })), CM::BlendingTexture(blendingTexture, true), renderingSetupF, RenderLayer::NearMidground);
+						Tools::BodyParams().position({ 0.0f, -levelHeightHSize - bordersHGauge })), CM::BlendingTexture(blendingTexture, true), renderingSetupF);
+					Globals::Components().staticWalls().last().renderLayer = RenderLayer::NearMidground;
+
 					Globals::Components().staticWalls().emplace(Tools::CreateBoxBody({ levelHeightHSize + bordersHGauge * 2, bordersHGauge },
-						Tools::BodyParams().position({ 0.0f, levelHeightHSize + bordersHGauge })), CM::BlendingTexture(blendingTexture, true), std::move(renderingSetupF), RenderLayer::NearMidground);
+						Tools::BodyParams().position({ 0.0f, levelHeightHSize + bordersHGauge })), CM::BlendingTexture(blendingTexture, true), std::move(renderingSetupF));
+					Globals::Components().staticWalls().last().renderLayer = RenderLayer::NearMidground;
 			}
 
 			auto renderingSetupF = [
@@ -664,10 +674,10 @@ namespace Levels
 			missilesHandler.setExplosionTexture(CM::Texture(explosionTexture, true));
 			missilesHandler.setMissileTexture(CM::Texture(missile2Texture, true));
 			missilesHandler.setFlameAnimatedTexture(CM::AnimatedTexture(flameAnimatedTexture, true));
-			missilesHandler.setResolutionModeF([this](const auto& targetBody) {
+			missilesHandler.setRenderModeF([this](const auto& targetBody) {
 				return lowResBodies.contains(&targetBody)
-					? ResolutionMode{ ResolutionMode::Resolution::H135, ResolutionMode::Scaling::Nearest, ResolutionMode::Blending::Additive }
-					: ResolutionMode{ ResolutionMode::Resolution::QuarterNative, ResolutionMode::Scaling::Linear, ResolutionMode::Blending::Additive};
+					? StandardRenderMode{ StandardRenderMode::Resolution::H135, StandardRenderMode::Scaling::Nearest, StandardRenderMode::Blending::Additive }
+					: StandardRenderMode{ StandardRenderMode::Resolution::QuarterNative, StandardRenderMode::Scaling::Linear, StandardRenderMode::Blending::Additive};
 				});
 			missilesHandler.setExplosionF([this](auto pos) {
 				Tools::CreateSparking(Tools::SparkingParams{}.sourcePoint(pos).initVelocity({ 50.0f, 0.0f }).sparksCount(1000).lineWidth(2.0f));

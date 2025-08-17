@@ -45,7 +45,7 @@ namespace Tools
 
 				missilesToHandlers.at(std::get<CM::Missile>(Tools::AccessUserData(missileBody).bodyComponentVariant).componentId).collided = true;
 				CreateExplosion(explosionParams.center(explosionCenter).explosionTexture(explosionTexture)
-					.resolutionMode(resolutionModeF ? resolutionModeF(*targetFixture.GetBody()) : explosionParams.resolutionMode_));
+					.renderMode(renderModeF ? renderModeF(*targetFixture.GetBody()) : explosionParams.renderMode_));
 
 				const auto& targetBodyComponentVariant = Tools::AccessUserData(*targetFixture.GetBody()).bodyComponentVariant;
 				if (const CM::Missile* targetMissile = std::get_if<CM::Missile>(&targetBodyComponentVariant))
@@ -84,9 +84,9 @@ namespace Tools
 		this->explosionParams = explosionParams;
 	}
 
-	void MissilesHandler::setResolutionModeF(std::function<ResolutionMode(const b2Body&)> resolutionModeF)
+	void MissilesHandler::setRenderModeF(std::function<StandardRenderMode(const b2Body&)> renderModeF)
 	{
-		this->resolutionModeF = resolutionModeF;
+		this->renderModeF = std::move(renderModeF);
 	}
 
 	void MissilesHandler::setExplosionF(std::function<void(glm::vec2)> explosionF)

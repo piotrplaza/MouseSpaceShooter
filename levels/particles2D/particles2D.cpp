@@ -25,7 +25,7 @@ namespace
 {
 	struct Params
 	{
-		const enum class RenderMode { Points, Lines, Billboards } renderMode;
+		const enum class DrawMode { Points, Lines, Billboards } renderMode;
 		const enum class BlendMode { Alpha, Additive } blendMode;
 		const float pointSize;
 		const float lineWidth;
@@ -54,7 +54,7 @@ namespace
 	};
 
 	constexpr Params params1 = {
-		.renderMode = Params::RenderMode::Billboards,
+		.renderMode = Params::DrawMode::Billboards,
 		.blendMode = Params::BlendMode::Additive,
 		.pointSize = 2.0f,
 		.lineWidth = 1.0f,
@@ -74,7 +74,7 @@ namespace
 		.lifetimeRange = glm::vec2(0.2f, 2.0f),
 		.hSize = glm::vec2(1.0f),
 		.respawning = true,
-		.forceRefreshRateOrTimeBasedStep = 1,
+		.forceRefreshRateOrTimeBasedStep = 0,
 		.globalForce = glm::vec3(0.0f, 0.0f, 0.0f),
 		.AZPlusBPlusCT = glm::vec3(0.0f, 0.1f, 1.0f),
 		.originForce = 0.0f,
@@ -83,7 +83,7 @@ namespace
 	};
 
 	constexpr Params params2 = {
-		.renderMode = Params::RenderMode::Billboards,
+		.renderMode = Params::DrawMode::Billboards,
 		.blendMode = Params::BlendMode::Additive,
 		.pointSize = 2.0f,
 		.lineWidth = 1.0f,
@@ -112,7 +112,7 @@ namespace
 	};
 
 	constexpr Params params3 = {
-		.renderMode = Params::RenderMode::Billboards,
+		.renderMode = Params::DrawMode::Billboards,
 		.blendMode = Params::BlendMode::Additive,
 		.pointSize = 2.0f,
 		.lineWidth = 1.0f,
@@ -141,7 +141,7 @@ namespace
 	};
 
 	constexpr Params params4 = {
-		.renderMode = Params::RenderMode::Points,
+		.renderMode = Params::DrawMode::Points,
 		.blendMode = Params::BlendMode::Additive,
 		.pointSize = 2.0f,
 		.lineWidth = 1.0f,
@@ -170,7 +170,7 @@ namespace
 	};
 
 	constexpr Params params5 = {
-		.renderMode = Params::RenderMode::Lines,
+		.renderMode = Params::DrawMode::Lines,
 		.blendMode = Params::BlendMode::Additive,
 		.pointSize = 2.0f,
 		.lineWidth = 1.0f,
@@ -199,7 +199,7 @@ namespace
 	};
 
 	constexpr Params params6 = {
-		.renderMode = Params::RenderMode::Lines,
+		.renderMode = Params::DrawMode::Lines,
 		.blendMode = Params::BlendMode::Additive,
 		.pointSize = 2.0f,
 		.lineWidth = 1.0f,
@@ -228,7 +228,7 @@ namespace
 	};
 
 	constexpr Params params7 = {
-		.renderMode = Params::RenderMode::Billboards,
+		.renderMode = Params::DrawMode::Billboards,
 		.blendMode = Params::BlendMode::Additive,
 		.pointSize = 2.0f,
 		.lineWidth = 1.0f,
@@ -257,7 +257,7 @@ namespace
 	};
 
 	constexpr Params params8 = {
-		.renderMode = Params::RenderMode::Billboards,
+		.renderMode = Params::DrawMode::Billboards,
 		.blendMode = Params::BlendMode::Additive,
 		.pointSize = 2.0f,
 		.lineWidth = 1.0f,
@@ -285,7 +285,7 @@ namespace
 		.firstInitVelocity = glm::vec2(0.001f, 0.0f)
 	};
 
-	constexpr Params params = params4;
+	constexpr Params params = params5;
 }
 
 namespace Levels
@@ -321,6 +321,7 @@ namespace Levels
 			graphicsSettings.lineSmooth = params.lineSmooth;
 
 			physics.forceRefreshRateOrTimeBasedStep = params.forceRefreshRateOrTimeBasedStep;
+			physics.minFPS = 0;
 
 			camera.targetPositionAndProjectionHSizeF = glm::vec3(0.0f, 0.0f, camera.details.projectionHSize = camera.details.prevProjectionHSize = 1.0f);
 
@@ -427,7 +428,7 @@ namespace Levels
 					params.lifetimeRange,
 					params.forcedColors ? std::array<FVec4, 2>{ (*params.forcedColors)[0], (*params.forcedColors)[1]} : std::array<FVec4, 2>{ glm::vec4(color[i], 1.0f), glm::vec4(color[i], 1.0f) },
 					params.velocitySpreadFactorRange,
-					glm::pi<float>() * params.velocityRotateZHRange,
+					glm::pi<float>()* params.velocityRotateZHRange,
 					params.globalForce,
 					params.respawning,
 					params.particlesCount
@@ -443,11 +444,11 @@ namespace Levels
 							tfParticles.originForce(params.originForce);
 							tfParticles.velocityFactor(params.velocityFactor);
 							return initRS(programBase);
+							};
 						};
 					};
-				};
 
-				if (params.renderMode == Params::RenderMode::Billboards)
+				if (params.renderMode == Params::DrawMode::Billboards)
 				{
 					particlesInstance.customShadersProgram = &billboardsShader;
 					particlesInstance.renderingSetupF = [&](auto&) mutable -> std::function<void()> {
@@ -461,11 +462,11 @@ namespace Levels
 							glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 							return []() { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); };
 						}
-						
+
 						return nullptr;
-					};
+						};
 				}
-				else if (params.renderMode == Params::RenderMode::Points)
+				else if (params.renderMode == Params::DrawMode::Points)
 				{
 					particlesInstance.renderingSetupF = [&](auto&) mutable -> std::function<void()> {
 						if (params.blendMode == Params::BlendMode::Additive)
@@ -475,9 +476,9 @@ namespace Levels
 						}
 
 						return nullptr;
-					};
+						};
 				}
-				else if (params.renderMode == Params::RenderMode::Lines)
+				else if (params.renderMode == Params::DrawMode::Lines)
 				{
 					particlesInstance.customShadersProgram = &trailsShader;
 					particlesInstance.renderingSetupF = [&](auto&) mutable -> std::function<void()> {
@@ -491,10 +492,10 @@ namespace Levels
 						}
 
 						return nullptr;
-					};
+						};
 				}
 
-				particlesInstance.resolutionMode = { ResolutionMode::Resolution::H1080, ResolutionMode::Scaling::Linear };
+				particlesInstance.targetTexture = Globals::Components().defaultTargetTexture({ StandardRenderMode::Resolution::H1080, StandardRenderMode::Scaling::Linear, StandardRenderMode::mainBlending });
 			}
 		}
 

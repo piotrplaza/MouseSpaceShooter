@@ -40,26 +40,15 @@ namespace Levels
 		{
 			Globals::Components().graphicsSettings().defaultColorF = glm::vec4{ 0.7f, 0.7f, 0.7f, 1.0f };
 
-			sceneCoordTexturesRSF = [
-				sceneCoordTextures = UniformsUtils::Uniform1b()
-			](ShadersUtils::ProgramId program) mutable {
-				if (!sceneCoordTextures.isValid())
-					sceneCoordTextures = UniformsUtils::Uniform1b(program, "sceneCoordTextures");
-
-				sceneCoordTextures(true);
-
-				return [=]() mutable { sceneCoordTextures(false); };
+			sceneCoordTexturesRSF = [](auto& shaderBase) mutable {
+				auto& shader = static_cast<ShadersUtils::Programs::TexturedAccessor&>(shaderBase);
+				shader.sceneCoordTextures(true);
+				return [=]() mutable { shader.sceneCoordTextures(false); };
 			};
 
 			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
 			{
 				recursiveFaceRSsF[i] = [
-					modelMatrix = UniformsUtils::UniformMat4f(),
-					color = UniformsUtils::Uniform4f(),
-					visibilityReduction = UniformsUtils::Uniform1b(),
-					visibilityCenter = UniformsUtils::Uniform2f(),
-					fullVisibilityDistance = UniformsUtils::Uniform1f(),
-					invisibilityDistance = UniformsUtils::Uniform1f(),
 					startTime = Globals::Components().physics().simulationDuration,
 					cycleDuration = Tools::RandomFloat(1.0f, 5.0f),
 					scale = Tools::RandomFloat(5.0f, 20.0f),
@@ -67,17 +56,8 @@ namespace Levels
 					pos = glm::vec2(Tools::RandomFloat(-borderHSize.x, borderHSize.x), Tools::RandomFloat(-borderHSize.y, borderHSize.y)) * 0.8f,
 					rotSpeed = Tools::RandomFloat(-5.0f, 5.0f),
 					targetColor = glm::vec3(Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f), Tools::RandomFloat(0.0f, 1.0f))
-				](ShadersUtils::ProgramId program) mutable {
-					if (!modelMatrix.isValid())
-					{
-						modelMatrix = UniformsUtils::UniformMat4f(program, "model");
-						color = UniformsUtils::Uniform4f(program, "color");
-						visibilityReduction = UniformsUtils::Uniform1b(program, "visibilityReduction");
-						visibilityCenter = UniformsUtils::Uniform2f(program, "visibilityCenter");
-						fullVisibilityDistance = UniformsUtils::Uniform1f(program, "fullVisibilityDistance");
-						invisibilityDistance = UniformsUtils::Uniform1f(program, "invisibilityDistance");
-					}
-
+				](auto& shaderBase) mutable {
+					auto& shader = static_cast<ShadersUtils::Programs::TexturedAccessor&>(shaderBase);
 					float cycleTime = Globals::Components().physics().simulationDuration - startTime;
 
 					if (cycleTime > cycleDuration)
@@ -92,20 +72,20 @@ namespace Levels
 						startTime = Globals::Components().physics().simulationDuration;
 					}
 
-					modelMatrix(glm::scale(
+					shader.model(glm::scale(
 						glm::rotate(
 							glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0)),
 							angle += Globals::Components().physics().frameDuration * rotSpeed, { 0.0f, 0.0f, -1.0f }),
 						{ scale, scale, 1.0f }));
-					color(glm::vec4(targetColor, 1.0f) * glm::sin(cycleTime / cycleDuration * glm::pi<float>()) * 0.2f);
-					visibilityReduction(true);
-					visibilityCenter(pos);
-					fullVisibilityDistance(0.0f);
-					invisibilityDistance(scale * 0.8f);
+					shader.color(glm::vec4(targetColor, 1.0f) * glm::sin(cycleTime / cycleDuration * glm::pi<float>()) * 0.2f);
+					shader.visibilityReduction(true);
+					shader.visibilityCenter(pos);
+					shader.fullVisibilityDistance(0.0f);
+					shader.invisibilityDistance(scale * 0.8f);
 
 					return [=]() mutable {
-						color(glm::vec4(1.0f));
-						visibilityReduction(false);
+						shader.color(glm::vec4(1.0f));
+						shader.visibilityReduction(false);
 					};
 				};
 			}
@@ -217,7 +197,8 @@ namespace Levels
 			for (unsigned i = 0; i < numOfRecursiveFaces; ++i)
 			{
 				staticDecorations.emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }),
-					CM::AnimatedTexture(recursiveFaceAnimatedTextureBegin + i, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(recursiveFaceRSsF[i]), RenderLayer::NearBackground);
+					CM::AnimatedTexture(recursiveFaceAnimatedTextureBegin + i, true), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(recursiveFaceRSsF[i]));
+				staticDecorations.last().renderLayer = RenderLayer::NearBackground;
 			}
 		}
 

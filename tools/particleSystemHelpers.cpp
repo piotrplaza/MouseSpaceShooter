@@ -29,7 +29,8 @@ namespace Tools
 				params.initExplosionVelocityRandomMinFactor_, params.particlesRadius_, params.particlesDensity_, params.particlesLinearDamping_, params.particlesAsBullets_, params.particlesAsSensors_);
 			auto& explosionDecoration = Globals::Components().decorations().emplace();
 			explosionDecoration.customShadersProgram = &billboards;
-			explosionDecoration.resolutionMode = params.resolutionMode_;
+			explosionDecoration.renderLayer = params.renderLayer_;
+			explosionDecoration.targetTexture = Globals::Components().defaultTargetTexture(params.renderMode_);
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 
@@ -53,8 +54,6 @@ namespace Tools
 					return std::function<void()>();
 				}
 			};
-
-			explosionDecoration.renderLayer = params.renderLayer_;
 
 			shockwave.stepF = [params, startTime = Globals::Components().physics().simulationDuration, &shockwave, &explosionDecoration]() {
 				const float elapsed = Globals::Components().physics().simulationDuration - startTime;
@@ -160,7 +159,7 @@ namespace Tools
 			};
 		};
 
-		if (params.renderMode_ == ParticleSystemParams::RenderMode::Billboards)
+		if (params.renderMode_ == ParticleSystemParams::DrawMode::Billboards)
 		{
 			particlesInstance.customShadersProgram = &billboardsShader;
 			particlesInstance.renderingSetupF = [&, params](auto&) mutable -> std::function<void()> {
@@ -178,7 +177,7 @@ namespace Tools
 				return nullptr;
 			};
 		}
-		else if (params.renderMode_ == ParticleSystemParams::RenderMode::Points)
+		else if (params.renderMode_ == ParticleSystemParams::DrawMode::Points)
 		{
 			particlesInstance.renderingSetupF = [&, params](auto&) mutable -> std::function<void()> {
 				const bool prevPointSmooth = glProxyIsPointSmoothEnabled();
@@ -197,7 +196,7 @@ namespace Tools
 				};
 			};
 		}
-		else if (params.renderMode_ == ParticleSystemParams::RenderMode::Lines)
+		else if (params.renderMode_ == ParticleSystemParams::DrawMode::Lines)
 		{
 			particlesInstance.customShadersProgram = &trailsShader;
 			particlesInstance.renderingSetupF = [&, params](auto&) mutable -> std::function<void()> {
@@ -221,6 +220,6 @@ namespace Tools
 			};
 		}
 
-		particlesInstance.resolutionMode = params.resolutionMode_;
+		particlesInstance.targetTexture = Globals::Components().defaultTargetTexture(params.resolutionMode_);
 	}
 }

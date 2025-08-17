@@ -11,15 +11,14 @@ namespace Components
 		Wall(Body body = {},
 			AbstractTextureComponentVariant texture = std::monostate{},
 			RenderingSetupF renderingSetupF = nullptr,
-			RenderLayer renderLayer = RenderLayer::Midground,
 			ShadersUtils::AccessorBase* customShadersProgram = nullptr):
-			Physical(std::move(body), texture, std::move(renderingSetupF), renderLayer, customShadersProgram)
+			Physical(std::move(body), texture, std::move(renderingSetupF), customShadersProgram)
 		{
 		}
 
 		void init(ComponentId id, bool static_) override
 		{
-			ComponentBase::init(id, static_);
+			Physical::init(id, static_);
 			if (this->body)
 			{
 				Tools::SetCollisionFilteringBits(*this->body, Globals::CollisionBits::wall, Globals::CollisionBits::all);
