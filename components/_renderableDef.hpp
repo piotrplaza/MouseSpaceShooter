@@ -147,6 +147,7 @@ struct RenderableDef
 
 	RenderingSetupF renderingSetupF;
 	RenderingSetupF tfRenderingSetupF;
+
 	FMat4 modelMatrixF = glm::mat4(1.0f);
 	FVec3 originF = [&]() { return modelMatrixF() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); };
 	FVec4 colorF;

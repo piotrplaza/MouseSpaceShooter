@@ -12,10 +12,8 @@
 namespace Tools
 {
 	template <typename Component>
-	inline void UpdateStaticBuffers(StaticComponents<Component>& components, size_t offset = 0)
+	inline void ProcessStaticComponents(StaticComponents<Component>& components, size_t offset = 0)
 	{
-		auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers;
-		auto& staticOfflineBuffers = Globals::Components().renderingBuffers().staticOfflineBuffers;
 		auto& staticTFBuffers = Globals::Components().renderingBuffers().staticTFBuffers;
 
 		for (auto& component : components.underlyingContainer() | std::views::drop(offset))
@@ -26,37 +24,35 @@ namespace Tools
 			assert(component.state != ComponentState::LastShot);
 			assert(component.targetTexture.component);
 
-			const auto& standardRenderMode = component.targetTexture.component->loaded.standardRenderMode;
-
 			auto& selectedBuffers = [&]() -> auto& {
-				if (standardRenderMode)
-				{
-					const auto layer = (size_t)component.renderLayer;
-
-					if (component.customShadersProgram)
-						return staticBuffers.customShaders[layer].emplace_back();
-					if (component.params3D)
+				const auto layer = (size_t)component.renderLayer;
+				const auto& standardRenderMode = component.targetTexture.component->loaded.standardRenderMode;
+				auto& staticBuffers = [&]() ->auto& {
+					if (standardRenderMode)
 					{
-						if (std::holds_alternative<std::monostate>(component.texture))
-							return staticBuffers.basicPhong[layer].emplace_back();
-						return staticBuffers.texturedPhong[layer].emplace_back();
+						component.vpMatrix = Globals::Components().vpDefault2D();
+						return Globals::Components().renderingBuffers().staticBuffers;
 					}
-					if (std::holds_alternative<std::monostate>(component.texture))
-						return staticBuffers.basic[layer].emplace_back();
-					return staticBuffers.textured[layer].emplace_back();
-				}
+					else
+					{
+						component.vpMatrix = Globals::Components().vpIdentity();
+						return Globals::Components().renderingBuffers().staticOfflineBuffers;
+					}
+				}();
 
 				if (component.customShadersProgram)
-					return staticOfflineBuffers.customShaders.emplace_back();
+					return staticBuffers.customShaders[layer].emplace_back();
 				if (component.params3D)
 				{
+					if (standardRenderMode)
+						component.vpMatrix = Globals::Components().vpDefault3D();
 					if (std::holds_alternative<std::monostate>(component.texture))
-						return staticOfflineBuffers.basicPhong.emplace_back();
-					return staticOfflineBuffers.texturedPhong.emplace_back();
+						return staticBuffers.basicPhong[layer].emplace_back();
+					return staticBuffers.texturedPhong[layer].emplace_back();
 				}
 				if (std::holds_alternative<std::monostate>(component.texture))
-					return staticOfflineBuffers.basic.emplace_back();
-				return staticOfflineBuffers.textured.emplace_back();
+					return staticBuffers.basic[layer].emplace_back();
+				return staticBuffers.textured[layer].emplace_back();
 			}();
 
 			selectedBuffers.applyComponent(component, true);
@@ -70,10 +66,8 @@ namespace Tools
 	}
 
 	template <typename Component>
-	inline void UpdateDynamicBuffers(DynamicComponents<Component>& components)
+	inline void ProcessDynamicComponents(DynamicComponents<Component>& components)
 	{
-		auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers;
-		auto& dynamicOfflineBuffers = Globals::Components().renderingBuffers().dynamicOfflineBuffers;
 		auto& dynamicTFBuffers = Globals::Components().renderingBuffers().dynamicTFBuffers;
 
 		for (auto& component : components)
@@ -83,42 +77,38 @@ namespace Tools
 
 			assert(component.targetTexture.component);
 
-			const auto& standardRenderMode = component.targetTexture.component->loaded.standardRenderMode;
-
-			// TODO: What if the layer or shader type was changed? Prob leak.
+			// TODO: What if a layer or a shader type was changed? Prob leak.
 			auto& mapOfSelectedBuffers = [&]() -> auto& {
-				if (standardRenderMode)
-				{
-					const auto layer = (size_t)component.renderLayer;
-
-					if (component.customShadersProgram)
-						return dynamicBuffers.customShaders[layer];
-					else if (component.params3D)
+				const auto layer = (size_t)component.renderLayer;
+				const auto& standardRenderMode = component.targetTexture.component->loaded.standardRenderMode;
+				auto& dynamicBuffers = [&]() ->auto& {
+					if (standardRenderMode)
 					{
-						if (std::holds_alternative<std::monostate>(component.texture))
-							return dynamicBuffers.basicPhong[layer];
-						else
-							return dynamicBuffers.texturedPhong[layer];
+						component.vpMatrix = Globals::Components().vpDefault2D();
+						return Globals::Components().renderingBuffers().dynamicBuffers;
 					}
-					else if (std::holds_alternative<std::monostate>(component.texture))
-						return dynamicBuffers.basic[layer];
 					else
-						return dynamicBuffers.textured[layer];
-				}
+					{
+						component.vpMatrix = Globals::Components().vpIdentity();
+						return Globals::Components().renderingBuffers().dynamicOfflineBuffers;
+					}
+				}();
 
 				if (component.customShadersProgram)
-					return dynamicOfflineBuffers.customShaders;
+					return dynamicBuffers.customShaders[layer];
 				else if (component.params3D)
 				{
+					if (standardRenderMode)
+						component.vpMatrix = Globals::Components().vpDefault3D();
 					if (std::holds_alternative<std::monostate>(component.texture))
-						return dynamicOfflineBuffers.basicPhong;
+						return dynamicBuffers.basicPhong[layer];
 					else
-						return dynamicOfflineBuffers.texturedPhong;
+						return dynamicBuffers.texturedPhong[layer];
 				}
 				else if (std::holds_alternative<std::monostate>(component.texture))
-					return dynamicOfflineBuffers.basic;
+					return dynamicBuffers.basic[layer];
 				else
-					return dynamicOfflineBuffers.textured;
+					return dynamicBuffers.textured[layer];
 			}();
 
 			if (!component.loaded.buffers)

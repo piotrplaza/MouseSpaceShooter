@@ -16,6 +16,7 @@
 #include <components/Shockwave.hpp>
 #include <components/SoundBuffer.hpp>
 #include <components/Sound.hpp>
+#include <components/vp.hpp>
 
 namespace ComponentMappers
 {
@@ -670,6 +671,51 @@ namespace ComponentMappers
 	}
 
 	bool Sound::isStatic() const
+	{
+		assert(component);
+		return component->isStatic();
+	}
+
+	VP::VP(Components::VP& component) :
+		component(&component),
+		componentId(component.getComponentId())
+	{
+	}
+
+	VP::VP(ComponentId id, bool static_) :
+		component(static_ ? &Globals::Components().staticVPs()[id] : &Globals::Components().vps()[id]),
+		componentId(id)
+	{
+	}
+
+	bool VP::operator==(const VP& other) const
+	{
+		return component == other.component;
+	}
+
+	bool VP::operator!=(const VP& other) const
+	{
+		return component != other.component;
+	}
+
+	bool VP::operator<(const VP& other) const
+	{
+		return component < other.component;
+	}
+
+	VP& VP::operator=(Components::VP& component)
+	{
+		this->component = &component;
+		componentId = component.getComponentId();
+		return *this;
+	}
+
+	bool VP::isValid() const
+	{
+		return component;
+	}
+
+	bool VP::isStatic() const
 	{
 		assert(component);
 		return component->isStatic();

@@ -22,6 +22,7 @@ namespace Components
 	struct Shockwave;
 	struct SoundBuffer;
 	struct Sound;
+	struct VP;
 }
 
 namespace ComponentMappers
@@ -293,6 +294,21 @@ namespace ComponentMappers
 		bool operator<(const Sound&) const;
 		Sound& operator=(Components::Sound& component);
 
+		bool isValid() const;
+		bool isStatic() const;
+	};
+
+	struct VP
+	{
+		VP() = default;
+		VP(Components::VP& component);
+		VP(ComponentId id, bool static_);
+		Components::VP* component = nullptr;
+		ComponentId componentId = 0;
+		bool operator==(const VP&) const;
+		bool operator!=(const VP&) const;
+		bool operator<(const VP&) const;
+		VP& operator=(Components::VP& component);
 		bool isValid() const;
 		bool isStatic() const;
 	};

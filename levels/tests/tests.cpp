@@ -10,6 +10,7 @@
 #include <components/sound.hpp>
 #include <components/music.hpp>
 #include <components/gamepad.hpp>
+#include <components/renderTexture.hpp>
 #include <globals/components.hpp>
 
 #include <ogl/shaders/textured.hpp>
@@ -106,7 +107,7 @@ namespace Tests
 			auto& texture = Globals::Components().textures().emplace();
 			texture.source = "textures/rose.png";
 			decoration.positions = Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }, glm::quarter_pi<float>());
-			decoration.targetTexture = Globals::Components().defaultTargetTexture({ StandardRenderMode::Resolution::H405, StandardRenderMode::Scaling::Nearest, StandardRenderMode::mainBlending });
+			decoration.targetTexture = Globals::Components().standardRenderTexture({ StandardRenderMode::Resolution::H405, StandardRenderMode::Scaling::Nearest, StandardRenderMode::mainBlending });
 			decoration.texture = CM::Texture(texture);
 			decoration.renderingSetupF = [&](auto&) {
 				bool prevBlend = glProxyIsBlendEnabled();
@@ -213,7 +214,19 @@ namespace Tests
 		}
 	};
 
-	auto activeTest = std::make_unique<BasicLayers>();
+	struct CustomRenderTexture : public TestBase
+	{
+		void setup() override
+		{
+			auto& renderTexture = Globals::Components().renderTextures().emplace(glm::vec2(100));
+			renderTexture.borderColor = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, glm::vec2(5.0f)));
+			Globals::Components().staticDecorations().last().targetTexture = renderTexture;
+			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, glm::vec2(10.0f)), renderTexture, Tools::Shapes2D::CreateTexCoordOfRectangle());
+		}
+	};
+
+	auto activeTest = std::make_unique<CustomRenderTexture>();
 }
 
 namespace Levels

@@ -24,6 +24,9 @@ namespace Systems
 		for (auto& decoration: Globals::Components().decorations())
 			decoration.step();
 
+		for (auto& particles : Globals::Components().staticParticles())
+			particles.step();
+
 		for (auto& particles : Globals::Components().particles())
 			particles.step();
 
@@ -32,15 +35,15 @@ namespace Systems
 
 	void Decorations::updateStaticBuffers()
 	{
-		Tools::UpdateStaticBuffers(Globals::Components().staticDecorations(), loadedStaticDecorations);
+		Tools::ProcessStaticComponents(Globals::Components().staticDecorations(), loadedStaticDecorations);
 		loadedStaticDecorations = Globals::Components().staticDecorations().size();
-		Tools::UpdateStaticBuffers(Globals::Components().staticParticles(), loadedStaticParticles);
+		Tools::ProcessStaticComponents(Globals::Components().staticParticles(), loadedStaticParticles);
 		loadedStaticParticles = Globals::Components().staticParticles().size();
 	}
 
 	void Decorations::updateDynamicBuffers()
 	{
-		Tools::UpdateDynamicBuffers(Globals::Components().decorations());
-		Tools::UpdateDynamicBuffers(Globals::Components().particles());
+		Tools::ProcessDynamicComponents(Globals::Components().decorations());
+		Tools::ProcessDynamicComponents(Globals::Components().particles());
 	}
 }

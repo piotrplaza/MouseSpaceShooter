@@ -10,7 +10,7 @@
 #include <components/graphicsSettings.hpp>
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
-#include <components/mvp.hpp>
+#include <components/vp.hpp>
 #include <components/missile.hpp>
 #include <components/collisionHandler.hpp>
 #include <components/shockwave.hpp>

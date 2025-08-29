@@ -12,7 +12,7 @@
 #include <components/keyboard.hpp>
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
-#include <components/mvp.hpp>
+#include <components/vp.hpp>
 #include <components/missile.hpp>
 #include <components/collisionFilter.hpp>
 #include <components/collisionHandler.hpp>
@@ -467,7 +467,7 @@ namespace Levels
 					}), Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::Texture(roseTexture, true), std::move(renderingSetupF));
 			}
 
-			Globals::Components().staticWalls().last().targetTexture = Globals::Components().defaultTargetTexture(StandardRenderMode::Resolution::H68);
+			Globals::Components().staticWalls().last().targetTexture = Globals::Components().standardRenderTexture(StandardRenderMode::Resolution::H68);
 			lowResBodies.insert(Globals::Components().staticWalls().last().body.get());
 		}
 
@@ -576,18 +576,18 @@ namespace Levels
 			}
 
 			{
-				auto renderingSetupF = [
-					texturesCustomTransformUniform = UniformsUtils::UniformMat4f()
-				](ShadersUtils::ProgramId program) mutable {
-					if (!texturesCustomTransformUniform.isValid())
-						texturesCustomTransformUniform.reset(program, "texturesCustomTransform");
-					texturesCustomTransformUniform(Tools::TextureTransform({ 0.0f, 0.0f }, 0.0f, { 2.0f, 2.0f }));
-					return [=]() mutable { texturesCustomTransformUniform(glm::mat4(1.0f)); };
-					};
-
-					Globals::Components().staticGrapples().emplace(Tools::CreateDiscBody(2.0f,
-						Tools::BodyParams().position({ -10.0f, -30.0f }).bodyType(b2_dynamicBody).density(0.1f).restitution(0.2f)),
-						CM::Texture(orbTexture, true), std::move(renderingSetupF)).range = 30.0f;
+				auto& currentMainRenderTexture = Globals::Components().standardRenderTexture();
+				auto& newMainRenderTexture = Globals::Components().staticRenderTextures().emplace(currentMainRenderTexture.loaded.size,
+					currentMainRenderTexture.wrapMode, currentMainRenderTexture.minFilter, currentMainRenderTexture.magFilter);
+				newMainRenderTexture.preserveAspectRatio = true;
+				Globals::Components().renderTeardowns().emplace([&]() {
+					newMainRenderTexture.loaded.standardRenderMode = currentMainRenderTexture.loaded.standardRenderMode;
+					std::swap(currentMainRenderTexture.loaded, newMainRenderTexture.loaded);
+					return true;
+				});
+				Globals::Components().staticGrapples().emplace(Tools::CreateDiscBody(5.0f,
+					Tools::BodyParams().position({ -10.0f, -30.0f }).bodyType(b2_dynamicBody).density(0.02f).restitution(0.2f)),
+					CM::RenderTexture(newMainRenderTexture, {}, {}, glm::vec2(10.0f))).range = 30.0f;
 			}
 
 			auto& grapple = Globals::Components().staticGrapples().emplace(Tools::CreateDiscBody(4.0f,

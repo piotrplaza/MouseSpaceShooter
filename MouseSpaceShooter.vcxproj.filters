@@ -378,9 +378,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="components\mvp.hpp">
-      <Filter>src\components</Filter>
-    </ClInclude>
     <ClInclude Include="components\physics.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
@@ -776,6 +773,15 @@
     </ClInclude>
     <ClInclude Include="commonTypes\standardRenderMode.hpp">
       <Filter>src\commonTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="components\renderTexturesMapper.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\standardRenderTextures.hpp">
+      <Filter>src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="components\vp.hpp">
+      <Filter>src\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

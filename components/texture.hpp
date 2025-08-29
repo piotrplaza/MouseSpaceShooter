@@ -41,6 +41,7 @@ namespace Components
 		float rotate = 0.0f;
 		glm::vec2 scale{ 1.0f };
 		bool preserveAspectRatio = false;
+		glm::vec4 borderColor{ 0.0f };
 
 		std::function<std::pair<glm::ivec2, glm::ivec2>(glm::ivec2)> sourceFragmentCornerAndSizeF;
 		std::function<TextureSubData()> subImagesF;

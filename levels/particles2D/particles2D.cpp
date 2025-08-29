@@ -8,7 +8,7 @@
 #include <components/mouse.hpp>
 #include <components/physics.hpp>
 #include <components/texture.hpp>
-#include <components/mvp.hpp>
+#include <components/vp.hpp>
 #include <components/systemInfo.hpp>
 #include <globals/components.hpp>
 
@@ -452,7 +452,7 @@ namespace Levels
 				{
 					particlesInstance.customShadersProgram = &billboardsShader;
 					particlesInstance.renderingSetupF = [&](auto&) mutable -> std::function<void()> {
-						billboardsShader.vp(Globals::Components().mvp2D().getVP());
+						billboardsShader.vp(Globals::Components().vpDefault2D().getVP());
 						glActiveTexture(GL_TEXTURE0);
 						glBindTexture(GL_TEXTURE_2D, explosionTexture.component->loaded.textureObject);
 						billboardsShader.texture0(0);
@@ -482,7 +482,7 @@ namespace Levels
 				{
 					particlesInstance.customShadersProgram = &trailsShader;
 					particlesInstance.renderingSetupF = [&](auto&) mutable -> std::function<void()> {
-						trailsShader.vp(Globals::Components().mvp2D().getVP());
+						trailsShader.vp(Globals::Components().vpDefault2D().getVP());
 						trailsShader.deltaTimeFactor(2.0f);
 
 						if (params.blendMode == Params::BlendMode::Additive)
@@ -495,7 +495,7 @@ namespace Levels
 						};
 				}
 
-				particlesInstance.targetTexture = Globals::Components().defaultTargetTexture({ StandardRenderMode::Resolution::H1080, StandardRenderMode::Scaling::Linear, StandardRenderMode::mainBlending });
+				particlesInstance.targetTexture = Globals::Components().standardRenderTexture({ StandardRenderMode::Resolution::H1080, StandardRenderMode::Scaling::Linear, StandardRenderMode::mainBlending });
 			}
 		}
 

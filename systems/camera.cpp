@@ -2,7 +2,7 @@
 
 #include <components/camera2D.hpp>
 #include <components/camera3D.hpp>
-#include <components/mvp.hpp>
+#include <components/vp.hpp>
 #include <components/systemInfo.hpp>
 #include <components/physics.hpp>
 
@@ -18,7 +18,11 @@
 
 namespace Systems
 {
-	Camera::Camera() = default;
+	Camera::Camera()
+	{
+		for (int i = 0; i < 3; ++i)
+			Globals::Components().staticVPs().emplace();
+	}
 
 	void Camera::postInit() const
 	{
@@ -55,7 +59,7 @@ namespace Systems
 			return;
 
 		const auto& screenInfo = Globals::Components().systemInfo().screen;
-		auto& mvp = Globals::Components().mvp2D();
+		auto& vp = Globals::Components().vpDefault2D();
 		auto& physics = Globals::Components().physics();
 
 		const float framebufferWidthRatio = screenInfo.framebufferRes.x > screenInfo.framebufferRes.y
@@ -80,10 +84,10 @@ namespace Systems
 			camera.details.completeProjectionHSize = glm::vec2(camera.details.projectionHSize * framebufferWidthRatio, camera.details.projectionHSize * framebufferHeightRatio);
 			camera.details.prevCompleteProjectionHSize = glm::vec2(camera.details.prevProjectionHSize * framebufferWidthRatio, camera.details.prevProjectionHSize * framebufferHeightRatio);
 
-			mvp.view = glm::translate(glm::mat4(1.0f), glm::vec3(-camera.details.position, 0.0f));
+			vp.view = glm::translate(glm::mat4(1.0f), glm::vec3(-camera.details.position, 0.0f));
 		}
 
-		mvp.projection = glm::ortho(-camera.details.projectionHSize * framebufferWidthRatio, camera.details.projectionHSize * framebufferWidthRatio,
+		vp.projection = glm::ortho(-camera.details.projectionHSize * framebufferWidthRatio, camera.details.projectionHSize * framebufferWidthRatio,
 			-camera.details.projectionHSize * framebufferHeightRatio, camera.details.projectionHSize * framebufferHeightRatio);
 
 		camera.step();
@@ -97,21 +101,21 @@ namespace Systems
 			return;
 
 		const auto& screenInfo = Globals::Components().systemInfo().screen;
-		auto& mvp = Globals::Components().mvp3D();
+		auto& vp = Globals::Components().vpDefault3D();
 
 		if (!paused)
 		{
 			std::visit(Tools::Overloads{
 				[&](const Components::Camera3D::EulerRotation& rotation) {
-					mvp.view = glm::inverse(glm::eulerAngleYXZ(-rotation.y, rotation.x, rotation.z)) * glm::translate(glm::mat4(1.0f), -camera.position);
+					vp.view = glm::inverse(glm::eulerAngleYXZ(-rotation.y, rotation.x, rotation.z)) * glm::translate(glm::mat4(1.0f), -camera.position);
 				},
 				[&](const Components::Camera3D::LookAtRotation& rotation) {
-					mvp.view = glm::lookAt(camera.position, rotation.target, rotation.up);
+					vp.view = glm::lookAt(camera.position, rotation.target, rotation.up);
 				}
 				}, camera.rotation);
 		}
 
-		mvp.projection = glm::perspective(camera.fov, screenInfo.getAspectRatio(), camera.nearPlane, camera.farPlane);
+		vp.projection = glm::perspective(camera.fov, screenInfo.getAspectRatio(), camera.nearPlane, camera.farPlane);
 
 		camera.step();
 	}

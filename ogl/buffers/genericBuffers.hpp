@@ -148,7 +148,7 @@ namespace Buffers
 					RenderableComponentCommonsToBuffersCommons(renderableDef, subBuffers);
 				}
 				subsequence.resize(std::distance(subsequence.begin(), subBuffersIt));
-				};
+			};
 
 			applyMainPart();
 			applySubsequencePart();

@@ -2,7 +2,7 @@
 
 #include <components/texture.hpp>
 #include <components/renderTexture.hpp>
-#include <components/framebuffers.hpp>
+#include <components/renderTexturesMapper.hpp>
 #include <components/systemInfo.hpp>
 
 #include <globals/components.hpp>
@@ -126,17 +126,15 @@ namespace Systems
 		stbi_set_flip_vertically_on_load(true);
 		stbi_ldr_to_hdr_gamma(1.0f);
 
-		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(glm::vec4(0.0f)));
-
-		createTextureFramebuffers();
-
-		staticTexturesOffset = Globals::Components().staticTextures().size();
+		createAndConfigureStandardRenderTextures();
 	}
 
 	void Textures::postInit()
 	{
 		updateStaticTextures();
+		updateStaticRenderTextures();
 		updateDynamicTextures();
+		updateDynamicRenderTextures();
 	}
 
 	void Textures::step()
@@ -144,10 +142,31 @@ namespace Systems
 		for (auto& texture : Globals::Components().staticTextures())
 			texture.step();
 
+		for (auto& renderTexture : Globals::Components().staticRenderTextures())
+			renderTexture.step();
+
 		for (auto& texture : Globals::Components().textures())
 			texture.step();
 
+		for (auto& renderTexture : Globals::Components().renderTextures())
+			renderTexture.step();
+
 		updateDynamicTextures();
+		updateDynamicRenderTextures();
+	}
+
+	void Textures::updateStaticTextures()
+	{
+		for (auto& texture : Globals::Components().staticTextures().underlyingContainer() | std::views::drop(staticTexturesOffset))
+			updateTexture(texture);
+		staticTexturesOffset = Globals::Components().staticTextures().size();
+	}
+
+	void Textures::updateStaticRenderTextures()
+	{
+		for (auto& renderTexture : Globals::Components().staticRenderTextures().underlyingContainer() | std::views::drop(staticRenderTexturesOffset))
+			updateRenderTexture(renderTexture);
+		staticRenderTexturesOffset = Globals::Components().staticRenderTextures().size();
 	}
 
 	const Textures::TextureCache& Textures::loadFile(const TextureFile& file)
@@ -210,6 +229,47 @@ namespace Systems
 		textureData.file = {};
 
 		return textureCache;
+	}
+
+
+	void Textures::updateDynamicTextures()
+	{
+		for (auto& texture : Globals::Components().textures())
+			updateTexture(texture);
+	}
+
+	void Textures::updateTexture(Components::Texture& texture)
+	{
+		if (texture.state == ComponentState::Ongoing)
+			return;
+		if (texture.state == ComponentState::Changed)
+		{
+			loadAndConfigureTexture(texture);
+			texture.state = ComponentState::Ongoing;
+			return;
+		}
+		if (texture.state == ComponentState::Outdated)
+		{
+			deleteTexture(texture);
+			return;
+		}
+		if (texture.state == ComponentState::LastShot)
+		{
+			loadAndConfigureTexture(texture);
+			texture.teardownF = [&, prevTeardownF = std::move(texture.teardownF)]() {
+				if (prevTeardownF)
+					prevTeardownF();
+				deleteTexture(texture);
+				};
+			return;
+		}
+		assert(!"unsupported texture state");
+	}
+
+	void Textures::deleteTexture(Components::Texture& texture)
+	{
+		glDeleteTextures(1, &texture.loaded.textureObject);
+		texture.loaded.textureObject = 0;
 	}
 
 	void Textures::loadAndConfigureTexture(Components::Texture& texture)
@@ -347,7 +407,6 @@ namespace Systems
 				throw std::runtime_error("Unable to create texture unit.");
 		}
 
-		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture.loaded.textureObject);
 
 		std::visit(DataSourceVisitor{ *this, texture }, texture.source);
@@ -356,6 +415,7 @@ namespace Systems
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture.wrapMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture.minFilter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texture.magFilter);
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &texture.borderColor[0]);
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -368,88 +428,119 @@ namespace Systems
 		}
 	}
 
-	void Textures::createTextureFramebuffers()
+	void Textures::createAndConfigureStandardRenderTextures()
 	{
 		assert(Globals::Components().staticRenderTextures().empty());
 
-		auto createTextureFramebuffer = [](const StandardRenderMode& standardRenderMode) {
-			auto& defaultFramebuffers = Globals::Components().defaultFramebuffers();
-			auto& subBuffers = defaultFramebuffers.subBuffers[(size_t)standardRenderMode.resolution][(size_t)standardRenderMode.scaling][(size_t)standardRenderMode.blending];
-
+		auto createStandardRenderTexture = [](const StandardRenderMode& standardRenderMode) {
 			const auto glScaling = standardRenderMode.scaling == StandardRenderMode::Scaling::Linear ? GL_LINEAR : GL_NEAREST;
-			glActiveTexture(GL_TEXTURE0);
+
+			auto& renderTexture = Globals::Components().staticRenderTextures().emplace(standardRenderMode, GL_CLAMP_TO_EDGE, GL_NEAREST, glScaling);
+			Globals::Components().renderTexturesMapper().renderTextureIds[(size_t)standardRenderMode.resolution][(size_t)standardRenderMode.scaling][(size_t)standardRenderMode.blending] = renderTexture.getComponentId();
+
 			unsigned textureObject;
 			glGenTextures(1, &textureObject);
 			glBindTexture(GL_TEXTURE_2D, textureObject);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, renderTexture.wrapMode);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, renderTexture.wrapMode);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, renderTexture.minFilter);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, renderTexture.magFilter);
+			renderTexture.loaded.textureObject = textureObject;
 
-			auto& targetTexture = Globals::Components().staticRenderTextures().emplace(textureObject, GL_CLAMP_TO_EDGE, GL_NEAREST, glScaling);
-			targetTexture.loaded.standardRenderMode = standardRenderMode;
-			subBuffers.textureId = targetTexture.getComponentId();
-			subBuffers.textureObject = targetTexture.loaded.textureObject;
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, targetTexture.wrapMode);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, targetTexture.wrapMode);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, targetTexture.minFilter);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, targetTexture.magFilter);
+			glGenFramebuffers(1, &renderTexture.loaded.fbo);
+			glBindFramebuffer(GL_FRAMEBUFFER, renderTexture.loaded.fbo);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTexture.loaded.textureObject, 0);
 
-			glGenFramebuffers(1, &subBuffers.fbo);
-			glBindFramebuffer(GL_FRAMEBUFFER, subBuffers.fbo);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, subBuffers.textureObject, 0);
-
-			glGenRenderbuffers(1, &subBuffers.depthBuffer);
-			glBindRenderbuffer(GL_RENDERBUFFER, subBuffers.depthBuffer);
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, subBuffers.depthBuffer);
+			glGenRenderbuffers(1, &renderTexture.loaded.depthBuffer);
+			glBindRenderbuffer(GL_RENDERBUFFER, renderTexture.loaded.depthBuffer);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderTexture.loaded.depthBuffer);
 		};
 
 		for (size_t res = 0; res < (size_t)StandardRenderMode::Resolution::COUNT; ++res)
 			for (size_t scaling = 0; scaling < (size_t)StandardRenderMode::Scaling::COUNT; ++scaling)
 				for (size_t blending = 0; blending < (size_t)StandardRenderMode::Blending::COUNT; ++blending)
-					createTextureFramebuffer({ (StandardRenderMode::Resolution)res, (StandardRenderMode::Scaling)scaling, (StandardRenderMode::Blending)blending });
+					createStandardRenderTexture({ (StandardRenderMode::Resolution)res, (StandardRenderMode::Scaling)scaling, (StandardRenderMode::Blending)blending });
+
+		staticRenderTexturesOffset = Globals::Components().staticRenderTextures().size();
 	}
 
-	void Textures::updateStaticTextures()
+	void Textures::updateDynamicRenderTextures()
 	{
-		for (auto& texture : Globals::Components().staticTextures().underlyingContainer() | std::views::drop(staticTexturesOffset))
-			updateTexture(texture);
-		staticTexturesOffset = Globals::Components().staticTextures().size();
+		for (auto& renderTexture : Globals::Components().renderTextures())
+			updateRenderTexture(renderTexture);
 	}
 
-	void Textures::updateDynamicTextures()
+	void Textures::updateRenderTexture(Components::RenderTexture& renderTexture)
 	{
-		for (auto& texture: Globals::Components().textures())
-			updateTexture(texture);
-	}
-
-	void Textures::updateTexture(Components::Texture& texture)
-	{
-		if (texture.state == ComponentState::Ongoing)
+		if (renderTexture.state == ComponentState::Ongoing)
 			return;
-		if (texture.state == ComponentState::Changed)
+		if (renderTexture.state == ComponentState::Changed)
 		{
-			loadAndConfigureTexture(texture);
-			texture.state = ComponentState::Ongoing;
+			configureRenderTexture(renderTexture);
+			renderTexture.state = ComponentState::Ongoing;
 			return;
 		}
-		if (texture.state == ComponentState::Outdated)
+		if (renderTexture.state == ComponentState::Outdated)
 		{
-			deleteTexture(texture);
+			deleteRenderTexture(renderTexture);
 			return;
 		}
-		if (texture.state == ComponentState::LastShot)
+		if (renderTexture.state == ComponentState::LastShot)
 		{
-			loadAndConfigureTexture(texture);
-			texture.teardownF = [&, prevTeardownF = std::move(texture.teardownF)]() {
+			configureRenderTexture(renderTexture);
+			renderTexture.teardownF = [&, prevTeardownF = std::move(renderTexture.teardownF)]() {
 				if (prevTeardownF)
 					prevTeardownF();
-				deleteTexture(texture);
+				deleteRenderTexture(renderTexture);
 			};
 			return;
 		}
 		assert(!"unsupported texture state");
 	}
 
-	void Textures::deleteTexture(Components::Texture& texture)
+	void Textures::deleteRenderTexture(Components::RenderTexture& renderTexture)
 	{
-		glDeleteTextures(1, &texture.loaded.textureObject);
-		texture.loaded.textureObject = 0;
+		glDeleteFramebuffers(1, &renderTexture.loaded.fbo);
+		renderTexture.loaded.fbo = 0;
+		glDeleteRenderbuffers(1, &renderTexture.loaded.depthBuffer);
+		renderTexture.loaded.depthBuffer = 0;
+		glDeleteTextures(1, &renderTexture.loaded.textureObject);
+		renderTexture.loaded.textureObject = 0;
+	}
+
+	void Textures::configureRenderTexture(Components::RenderTexture& renderTexture)
+	{
+		if (renderTexture.stepF)
+			renderTexture.stepF();
+		assert(renderTexture.size);
+
+		unsigned textureObject;
+		glGenTextures(1, &textureObject);
+		glBindTexture(GL_TEXTURE_2D, textureObject);
+		renderTexture.loaded.textureObject = textureObject;
+
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &renderTexture.borderColor[0]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, renderTexture.wrapMode);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, renderTexture.wrapMode);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, renderTexture.minFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, renderTexture.magFilter);
+
+		glGenFramebuffers(1, &renderTexture.loaded.fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, renderTexture.loaded.fbo);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTexture.loaded.textureObject, 0);
+
+		glGenRenderbuffers(1, &renderTexture.loaded.depthBuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, renderTexture.loaded.depthBuffer);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderTexture.loaded.depthBuffer);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, renderTexture.size->x, renderTexture.size->y, 0, GL_RGBA, GL_FLOAT, nullptr);
+
+		glBindRenderbuffer(GL_RENDERBUFFER, renderTexture.loaded.depthBuffer);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, renderTexture.size->x, renderTexture.size->y);
+
+		assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+
+		renderTexture.loaded.size = *renderTexture.size;
+		renderTexture.loaded.numOfChannels = 4;
 	}
 }

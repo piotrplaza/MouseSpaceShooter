@@ -6,7 +6,7 @@
 #include <components/physics.hpp>
 #include <components/decoration.hpp>
 #include <components/missile.hpp>
-#include <components/mvp.hpp>
+#include <components/vp.hpp>
 #include <components/camera2D.hpp>
 #include <components/systemInfo.hpp>
 #include <components/animatedTexture.hpp>
@@ -239,21 +239,21 @@ namespace Tools
 			auto renderingSetupF = [=, texturedProgram = ShadersUtils::Programs::TexturedAccessor()
 			](ShadersUtils::AccessorBase& shaderBase) mutable {
 				auto& program = static_cast<ShadersUtils::Programs::TexturedAccessor&>(shaderBase);
-				program.vp(glm::translate(glm::scale(Globals::Components().mvp2D().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
+				program.vp(glm::translate(glm::scale(Globals::Components().vpDefault2D().getVP(), glm::vec3(glm::vec2(100.0f), 0.0f)),
 					glm::vec3(-Globals::Components().camera2D().details.prevPosition * (0.0002f + layer * 0.0002f), 0.0f)));
 				program.color(fColor() * glm::vec4(1.0f, 1.0f, 1.0f, alphaPerLayer));
 
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 				return [&]() mutable {
-					program.vp(Globals::Components().mvp2D().getVP());
+					program.vp(Globals::Components().vpDefault2D().getVP());
 					glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 				};
 			};
 
 			auto& fogLayer = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
 				CM::DummyTexture(), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
-			fogLayer.targetTexture = Globals::Components().defaultTargetTexture({ StandardRenderMode::Resolution::H540, StandardRenderMode::Scaling::Linear, StandardRenderMode::mainBlending });
+			fogLayer.targetTexture = Globals::Components().standardRenderTexture({ StandardRenderMode::Resolution::H540, StandardRenderMode::Scaling::Linear, StandardRenderMode::mainBlending });
 			fogLayer.renderLayer = RenderLayer::Foreground;
 			fogLayer.stepF = [=, &fogLayer]() mutable {
 				fogTexture.translate = textureTranslation ? textureTranslation(layer) : glm::vec2(0.0f);
@@ -281,7 +281,7 @@ namespace Tools
 		};
 
 		background.renderLayer = RenderLayer::Background;
-		background.targetTexture = Globals::Components().defaultTargetTexture({ StandardRenderMode::Resolution::Native, StandardRenderMode::Scaling::Linear, StandardRenderMode::Blending::Additive });
+		background.targetTexture = Globals::Components().standardRenderTexture({ StandardRenderMode::Resolution::Native, StandardRenderMode::Scaling::Linear, StandardRenderMode::Blending::Additive });
 
 		return background;
 	}

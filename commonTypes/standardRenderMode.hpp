@@ -1,5 +1,7 @@
 #pragma once
 
+#include <commonTypes/componentMappers.hpp>
+
 #include <ogl/oglProxy.hpp>
 
 #include <glm/glm.hpp>
@@ -81,15 +83,24 @@ namespace ShadersUtils::Programs
 	struct Textured;
 }
 
-class TexturesFramebuffersRenderer
+class StandardRenderTexturesRenderer
 {
 public:
-	TexturesFramebuffersRenderer(ShadersUtils::Programs::Textured& texturedShadersProgram);
-	~TexturesFramebuffersRenderer();
+	StandardRenderTexturesRenderer(ShadersUtils::Programs::Textured& texturedShadersProgram);
+	~StandardRenderTexturesRenderer();
 
-	void clearIfFirstOfMode(const StandardRenderMode& renderMode);
+	void clearIfFirstOfRenderTexture(const CM::RenderTexture& renderTexture);
 
 private:
 	ShadersUtils::Programs::Textured& texturedShadersProgram;
 	bool ongoingModes[(size_t)StandardRenderMode::Resolution::COUNT][(size_t)StandardRenderMode::Scaling::COUNT][(size_t)StandardRenderMode::Blending::COUNT]{};
+};
+
+class CustomRenderTexturesRenderer
+{
+public:
+	void clearIfFirstOfRenderTexture(const CM::RenderTexture& renderTexture);
+
+private:
+	std::unordered_set<CM::RenderTexture> ongoingRenderTextures;
 };

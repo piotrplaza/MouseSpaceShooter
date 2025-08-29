@@ -4,7 +4,7 @@
 #include <components/blendingTexture.hpp>
 #include <components/animatedTexture.hpp>
 #include <components/renderTexture.hpp>
-#include <components/mvp.hpp>
+#include <components/vp.hpp>
 #include <components/systemInfo.hpp>
 #include <components/physics.hpp>
 #include <components/mouse.hpp>
@@ -147,13 +147,13 @@ namespace Tools
 		if constexpr (requires { shadersProgram.model; })
 			shadersProgram.model(modelMatrix_);
 		if constexpr (requires { shadersProgram.mv; })
-			shadersProgram.mv(Globals::Components().mvp2D().getMV(modelMatrix_));
+			shadersProgram.mv(Globals::Components().vpDefault2D().getMV(modelMatrix_));
 		if constexpr (requires { shadersProgram.vp; })
-			shadersProgram.vp(Globals::Components().mvp2D().getVP());
+			shadersProgram.vp(Globals::Components().vpDefault2D().getVP());
 		if constexpr (requires { shadersProgram.mvp; })
-			shadersProgram.mvp(Globals::Components().mvp2D().getMVP(modelMatrix_));
+			shadersProgram.mvp(Globals::Components().vpDefault2D().getMVP(modelMatrix_));
 		if constexpr (requires { shadersProgram.normalMatrix; })
-			shadersProgram.normalMatrix(Globals::Components().mvp2D().getNormalMatrix());
+			shadersProgram.normalMatrix(Globals::Components().vpDefault2D().getNormalMatrix());
 	}
 
 	inline void TexturedScreenRender(auto& shadersProgram, unsigned textureObject, std::function<void()> customSetup = nullptr,
@@ -310,7 +310,7 @@ namespace Tools
 	inline void Lights3DSetup(auto& shadersProgram)
 	{
 		const auto& lights3D = Globals::Components().lights3D();
-		const auto& mvp3D = Globals::Components().mvp3D();
+		const auto& vp3D = Globals::Components().vpDefault3D();
 		const auto& graphicsSettings = Globals::Components().graphicsSettings();
 
 		shadersProgram.clearColor(graphicsSettings.backgroundColorF());
@@ -318,7 +318,7 @@ namespace Tools
 		unsigned i = 0;
 		for (const auto& light : lights3D)
 		{
-			shadersProgram.lightsPos(i, (light.viewSpace ? glm::inverse(mvp3D.view) : glm::mat4(1.0f)) * glm::vec4(light.position, 1.0f));
+			shadersProgram.lightsPos(i, (light.viewSpace ? glm::inverse(vp3D.view) : glm::mat4(1.0f)) * glm::vec4(light.position, 1.0f));
 			shadersProgram.lightsCol(i, light.color);
 			shadersProgram.lightsAttenuation(i, light.attenuation);
 			shadersProgram.lightsDarkColorFactor(i, light.darkColorFactor);

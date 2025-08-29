@@ -5,7 +5,7 @@
 #include <components/mouse.hpp>
 #include <components/gamepad.hpp>
 #include <components/systemInfo.hpp>
-#include <components/mvp.hpp>
+#include <components/vp.hpp>
 #include <components/physics.hpp>
 #include <components/texture.hpp>
 #include <components/animatedTexture.hpp>
@@ -31,7 +31,7 @@
 #include <components/shockwave.hpp>
 #include <components/light2D.hpp>
 #include <components/light3D.hpp>
-#include <components/framebuffers.hpp>
+#include <components/renderTexturesMapper.hpp>
 #include <components/functor.hpp>
 #include <components/mainFramebufferRenderer.hpp>
 #include <components/deferredAction.hpp>
@@ -73,14 +73,19 @@ namespace Globals
 		return *systemInfo_;
 	}
 
-	Components::MVP& ComponentsHolder::mvp2D()
+	Components::VP& ComponentsHolder::vpIdentity()
 	{
-		return *mvp2D_;
+		return staticVPs()[0];
 	}
 
-	Components::MVP& ComponentsHolder::mvp3D()
+	Components::VP& ComponentsHolder::vpDefault2D()
 	{
-		return *mvp3D_;
+		return staticVPs()[1];
+	}
+
+	Components::VP& ComponentsHolder::vpDefault3D()
+	{
+		return staticVPs()[2];
 	}
 
 	Components::Physics& ComponentsHolder::physics()
@@ -118,15 +123,24 @@ namespace Globals
 		return *appStateHandler_;
 	}
 
-	Components::Framebuffers& ComponentsHolder::defaultFramebuffers()
+	Components::RenderTexturesMapper& ComponentsHolder::renderTexturesMapper()
 	{
-		return *defaultFramebuffers_;
+		return *renderTexturesMapper_;
 	}
 
-	Components::RenderTexture& ComponentsHolder::defaultTargetTexture(const StandardRenderMode& renderMode)
+	Components::RenderTexture& ComponentsHolder::standardRenderTexture(const StandardRenderMode& renderMode)
 	{
-		const auto framebufferTextureId = defaultFramebuffers().getSubBuffers(renderMode).textureId;
-		return staticRenderTextures()[framebufferTextureId];
+		return staticRenderTextures()[renderTexturesMapper().getRenderTexture(renderMode)];
+	}
+
+	StaticComponents<Components::VP>& ComponentsHolder::staticVPs()
+	{
+		return *staticVPs_;
+	}
+
+	DynamicComponents<Components::VP>& ComponentsHolder::vps()
+	{
+		return *vps_;
 	}
 
 	StaticComponents<Components::Texture>& ComponentsHolder::staticTextures()

@@ -3,7 +3,7 @@
 #include <components/physics.hpp>
 #include <components/decoration.hpp>
 #include <components/texture.hpp>
-#include <components/mvp.hpp>
+#include <components/vp.hpp>
 #include <components/shockwave.hpp>
 #include <components/particles.hpp>
 #include <components/graphicsSettings.hpp>
@@ -30,12 +30,12 @@ namespace Tools
 			auto& explosionDecoration = Globals::Components().decorations().emplace();
 			explosionDecoration.customShadersProgram = &billboards;
 			explosionDecoration.renderLayer = params.renderLayer_;
-			explosionDecoration.targetTexture = Globals::Components().defaultTargetTexture(params.renderMode_);
+			explosionDecoration.targetTexture = Globals::Components().standardRenderTexture(params.renderMode_);
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 
 			explosionDecoration.renderingSetupF = [params, startTime = Globals::Components().physics().simulationDuration, &billboards](ShadersUtils::ProgramId program) mutable {
-				billboards.vp(Globals::Components().mvp2D().getVP());
+				billboards.vp(Globals::Components().vpDefault2D().getVP());
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, params.explosionTexture_.component->loaded.textureObject);
 				billboards.texture0(0);
@@ -103,7 +103,7 @@ namespace Tools
 		auto& trails = Globals::Shaders().trails();
 		sparking.customShadersProgram = &trails;
 		sparking.renderingSetupF = [&, params](auto&) {
-			Globals::Shaders().trails().vp(Globals::Components().mvp2D().getVP());
+			Globals::Shaders().trails().vp(Globals::Components().vpDefault2D().getVP());
 			Globals::Shaders().trails().deltaTimeFactor(params.trailsScale_);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 			glLineWidth(params.lineWidth_);
@@ -163,7 +163,7 @@ namespace Tools
 		{
 			particlesInstance.customShadersProgram = &billboardsShader;
 			particlesInstance.renderingSetupF = [&, params](auto&) mutable -> std::function<void()> {
-				billboardsShader.vp(Globals::Components().mvp2D().getVP());
+				billboardsShader.vp(Globals::Components().vpDefault2D().getVP());
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, params.texture_.component->loaded.textureObject);
 				billboardsShader.texture0(0);
@@ -206,7 +206,7 @@ namespace Tools
 				glProxySetLineSmooth(params.lineSmooth_);
 				glLineWidth(params.lineWidth_);
 
-				trailsShader.vp(Globals::Components().mvp2D().getVP());
+				trailsShader.vp(Globals::Components().vpDefault2D().getVP());
 				trailsShader.deltaTimeFactor(params.deltaTimeFactor_);
 
 				if (params.blendMode_ == ParticleSystemParams::BlendMode::Additive)
@@ -220,6 +220,6 @@ namespace Tools
 			};
 		}
 
-		particlesInstance.targetTexture = Globals::Components().defaultTargetTexture(params.resolutionMode_);
+		particlesInstance.targetTexture = Globals::Components().standardRenderTexture(params.resolutionMode_);
 	}
 }

@@ -2,10 +2,9 @@
 
 #include <components/systemInfo.hpp>
 #include <components/graphicsSettings.hpp>
-#include <components/framebuffers.hpp>
 #include <components/mainFramebufferRenderer.hpp>
 #include <components/renderingBuffers.hpp>
-#include <components/mvp.hpp>
+#include <components/vp.hpp>
 
 #include <systems/structures.hpp>
 #include <systems/actors.hpp>
@@ -26,11 +25,8 @@
 
 namespace
 {
-	void BasicPhongRender(size_t layer, TexturesFramebuffersRenderer& texturesFramebuffersRenderer)
+	void BasicPhongRender(size_t layer, auto& renderTextureClearer, const auto& staticBuffers, const auto& dynamicBuffers)
 	{
-		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers.basicPhong;
-		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.basicPhong;
-
 		if (staticBuffers[layer].empty() && dynamicBuffers[layer].empty())
 			return;
 
@@ -40,22 +36,23 @@ namespace
 
 		const float prevForcedAlpha = Globals::Shaders().basicPhong().forcedAlpha.getValue();
 
-		Globals::Shaders().basicPhong().vp(Globals::Components().mvp3D().getVP());
-
 		auto render = [&](const auto& buffers) {
-			assert(buffers.renderable->targetTexture.component);
-			assert(buffers.renderable->targetTexture.component->loaded.standardRenderMode);
-			const auto& renderMode = *buffers.renderable->targetTexture.component->loaded.standardRenderMode;
-			const auto& subBuffers = Globals::Components().defaultFramebuffers().getSubBuffers(renderMode);
-			Tools::ConditionalScopedFramebuffer csfb(!renderMode.isMainMode(), subBuffers.fbo,
-				subBuffers.size, Globals::Components().defaultFramebuffers().getMainSubBuffers().fbo, Globals::Components().defaultFramebuffers().getMainSubBuffers().size);
+			assert(buffers.renderable->targetTexture.isValid());
+			const auto& cmTargetTexture = buffers.renderable->targetTexture;
+			const auto& targetTexture = *cmTargetTexture.component;
+			const auto& standardRenderMode = targetTexture.loaded.standardRenderMode;
+			const auto& mainRenderTexture = Globals::Components().standardRenderTexture();
+			Tools::ConditionalScopedFramebuffer csfb(!standardRenderMode || !standardRenderMode->isMainMode(), targetTexture.loaded.fbo,
+				targetTexture.loaded.size, mainRenderTexture.loaded.fbo, mainRenderTexture.loaded.size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(renderMode);
+			renderTextureClearer.clearIfFirstOfRenderTexture(cmTargetTexture);
+
+			Globals::Shaders().basicPhong().vp(buffers.renderable->vpMatrix.component->getVP());
 
 			buffers.draw(Globals::Shaders().basicPhong(), [&](const auto& buffers) {
 				const auto modelMatrix = (buffers.renderable->modelMatrixF)();
 				Globals::Shaders().basicPhong().model(modelMatrix);
-				Globals::Shaders().basicPhong().normalMatrix(Globals::Components().mvp3D().getNormalMatrix(modelMatrix));
+				Globals::Shaders().basicPhong().normalMatrix(Globals::Components().vpDefault3D().getNormalMatrix(modelMatrix));
 				Globals::Shaders().basicPhong().color(buffers.renderable->colorF.isLoaded() ? (buffers.renderable->colorF)() : graphicsSettings.defaultColorF());
 				Globals::Shaders().basicPhong().ambient(buffers.renderable->params3D->ambient_);
 				Globals::Shaders().basicPhong().diffuse(buffers.renderable->params3D->diffuse_);
@@ -82,11 +79,8 @@ namespace
 		Globals::Shaders().basicPhong().forcedAlpha(prevForcedAlpha);
 	}
 
-	void TexturedPhongRender(size_t layer, TexturesFramebuffersRenderer& texturesFramebuffersRenderer)
+	void TexturedPhongRender(size_t layer, auto& renderTextureClearer, const auto& staticBuffers, const auto& dynamicBuffers)
 	{
-		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers.texturedPhong;
-		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.texturedPhong;
-
 		if (staticBuffers[layer].empty() && dynamicBuffers[layer].empty())
 			return;
 
@@ -96,22 +90,23 @@ namespace
 
 		const float prevForcedAlpha = Globals::Shaders().texturedPhong().forcedAlpha.getValue();
 
-		Globals::Shaders().texturedPhong().vp(Globals::Components().mvp3D().getVP());
-
 		auto render = [&](const auto& buffers) {
-			assert(buffers.renderable->targetTexture.component);
-			assert(buffers.renderable->targetTexture.component->loaded.standardRenderMode);
-			const auto& renderMode = *buffers.renderable->targetTexture.component->loaded.standardRenderMode;
-			const auto& subBuffers = Globals::Components().defaultFramebuffers().getSubBuffers(renderMode);
-			Tools::ConditionalScopedFramebuffer csfb(!renderMode.isMainMode(), subBuffers.fbo,
-				subBuffers.size, Globals::Components().defaultFramebuffers().getMainSubBuffers().fbo, Globals::Components().defaultFramebuffers().getMainSubBuffers().size);
+			assert(buffers.renderable->targetTexture.isValid());
+			const auto& cmTargetTexture = buffers.renderable->targetTexture;
+			const auto& targetTexture = *cmTargetTexture.component;
+			const auto& standardRenderMode = targetTexture.loaded.standardRenderMode;
+			const auto& mainRenderTexture = Globals::Components().standardRenderTexture();
+			Tools::ConditionalScopedFramebuffer csfb(!standardRenderMode || !standardRenderMode->isMainMode(), targetTexture.loaded.fbo,
+				targetTexture.loaded.size, mainRenderTexture.loaded.fbo, mainRenderTexture.loaded.size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(renderMode);
+			renderTextureClearer.clearIfFirstOfRenderTexture(cmTargetTexture);
+
+			Globals::Shaders().texturedPhong().vp(buffers.renderable->vpMatrix.component->getVP());
 
 			buffers.draw(Globals::Shaders().texturedPhong(), [&](const auto& buffers) {
 				const auto modelMatrix = (buffers.renderable->modelMatrixF)();
 				Globals::Shaders().texturedPhong().model(modelMatrix);
-				Globals::Shaders().texturedPhong().normalMatrix(Globals::Components().mvp3D().getNormalMatrix(modelMatrix));
+				Globals::Shaders().texturedPhong().normalMatrix(Globals::Components().vpDefault3D().getNormalMatrix(modelMatrix));
 				Globals::Shaders().texturedPhong().color(buffers.renderable->colorF.isLoaded() ? (buffers.renderable->colorF)() : graphicsSettings.defaultColorF());
 				Globals::Shaders().texturedPhong().ambient(buffers.renderable->params3D->ambient_);
 				Globals::Shaders().texturedPhong().diffuse(buffers.renderable->params3D->diffuse_);
@@ -140,11 +135,8 @@ namespace
 		Globals::Shaders().texturedPhong().forcedAlpha(prevForcedAlpha);
 	}
 
-	void BasicRender(size_t layer, TexturesFramebuffersRenderer& texturesFramebuffersRenderer)
+	void BasicRender(size_t layer, auto& renderTextureClearer, const auto& staticBuffers, const auto& dynamicBuffers)
 	{
-		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers.basic;
-		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.basic;
-
 		if (staticBuffers[layer].empty() && dynamicBuffers[layer].empty())
 			return;
 
@@ -154,19 +146,18 @@ namespace
 
 		const float prevForcedAlpha = Globals::Shaders().basic().forcedAlpha.getValue();
 
-		Globals::Shaders().basic().vp(graphicsSettings.force3D
-			? Globals::Components().mvp3D().getVP()
-			: Globals::Components().mvp2D().getVP());
-
 		auto render = [&](const auto& buffers) {
-			assert(buffers.renderable->targetTexture.component);
-			assert(buffers.renderable->targetTexture.component->loaded.standardRenderMode);
-			const auto& renderMode = *buffers.renderable->targetTexture.component->loaded.standardRenderMode;
-			const auto& subBuffers = Globals::Components().defaultFramebuffers().getSubBuffers(renderMode);
-			Tools::ConditionalScopedFramebuffer csfb(!renderMode.isMainMode(), subBuffers.fbo,
-				subBuffers.size, Globals::Components().defaultFramebuffers().getMainSubBuffers().fbo, Globals::Components().defaultFramebuffers().getMainSubBuffers().size);
+			assert(buffers.renderable->targetTexture.isValid());
+			const auto& cmTargetTexture = buffers.renderable->targetTexture;
+			const auto& targetTexture = *cmTargetTexture.component;
+			const auto& standardRenderMode = targetTexture.loaded.standardRenderMode;
+			const auto& mainRenderTexture = Globals::Components().standardRenderTexture();
+			Tools::ConditionalScopedFramebuffer csfb(!standardRenderMode || !standardRenderMode->isMainMode(), targetTexture.loaded.fbo,
+				targetTexture.loaded.size, mainRenderTexture.loaded.fbo, mainRenderTexture.loaded.size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(renderMode);
+			renderTextureClearer.clearIfFirstOfRenderTexture(cmTargetTexture);
+
+			Globals::Shaders().basic().vp(buffers.renderable->vpMatrix.component->getVP());
 
 			buffers.draw(Globals::Shaders().basic(), [&](const auto& buffers) {
 				Globals::Shaders().basic().model((buffers.renderable->modelMatrixF)());
@@ -185,11 +176,8 @@ namespace
 		Globals::Shaders().basic().forcedAlpha(prevForcedAlpha);
 	}
 
-	void TexturedRender(size_t layer, TexturesFramebuffersRenderer& texturesFramebuffersRenderer)
+	void TexturedRender(size_t layer, auto& renderTextureClearer, const auto& staticBuffers, const auto& dynamicBuffers)
 	{
-		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers.textured;
-		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.textured;
-
 		if (staticBuffers[layer].empty() && dynamicBuffers[layer].empty())
 			return;
 
@@ -199,19 +187,18 @@ namespace
 
 		const float prevForcedAlpha = Globals::Shaders().textured().forcedAlpha.getValue();
 
-		Globals::Shaders().textured().vp(graphicsSettings.force3D
-			? Globals::Components().mvp3D().getVP()
-			: Globals::Components().mvp2D().getVP());
-
 		auto render = [&](const auto& buffers) {
-			assert(buffers.renderable->targetTexture.component);
-			assert(buffers.renderable->targetTexture.component->loaded.standardRenderMode);
-			const auto& renderMode = *buffers.renderable->targetTexture.component->loaded.standardRenderMode;
-			const auto& subBuffers = Globals::Components().defaultFramebuffers().getSubBuffers(renderMode);
-			Tools::ConditionalScopedFramebuffer csfb(!renderMode.isMainMode(), subBuffers.fbo,
-				subBuffers.size, Globals::Components().defaultFramebuffers().getMainSubBuffers().fbo, Globals::Components().defaultFramebuffers().getMainSubBuffers().size);
+			assert(buffers.renderable->targetTexture.isValid());
+			const auto& cmTargetTexture = buffers.renderable->targetTexture;
+			const auto& targetTexture = *cmTargetTexture.component;
+			const auto& standardRenderMode = targetTexture.loaded.standardRenderMode;
+			const auto& mainRenderTexture = Globals::Components().standardRenderTexture();
+			Tools::ConditionalScopedFramebuffer csfb(!standardRenderMode || !standardRenderMode->isMainMode(), targetTexture.loaded.fbo,
+				targetTexture.loaded.size, mainRenderTexture.loaded.fbo, mainRenderTexture.loaded.size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(renderMode);
+			renderTextureClearer.clearIfFirstOfRenderTexture(cmTargetTexture);
+
+			Globals::Shaders().textured().vp(buffers.renderable->vpMatrix.component->getVP());
 
 			buffers.draw(Globals::Shaders().textured(), [&](const auto& buffers) {
 				Globals::Shaders().textured().model((buffers.renderable->modelMatrixF)());
@@ -232,23 +219,21 @@ namespace
 		Globals::Shaders().textured().forcedAlpha(prevForcedAlpha);
 	}
 
-	void CustomShadersRender(size_t layer, TexturesFramebuffersRenderer& texturesFramebuffersRenderer)
+	void CustomShadersRender(size_t layer, auto& renderTextureClearer, const auto& staticBuffers, const auto& dynamicBuffers)
 	{
-		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers.customShaders;
-		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers.customShaders;
-
 		if (staticBuffers[layer].empty() && dynamicBuffers[layer].empty())
 			return;
 
 		auto render = [&](const auto& buffers) {
-			assert(buffers.renderable->targetTexture.component);
-			assert(buffers.renderable->targetTexture.component->loaded.standardRenderMode);
-			const auto& renderMode = *buffers.renderable->targetTexture.component->loaded.standardRenderMode;
-			const auto& subBuffers = Globals::Components().defaultFramebuffers().getSubBuffers(renderMode);
-			Tools::ConditionalScopedFramebuffer csfb(!renderMode.isMainMode(), subBuffers.fbo,
-				subBuffers.size, Globals::Components().defaultFramebuffers().getMainSubBuffers().fbo, Globals::Components().defaultFramebuffers().getMainSubBuffers().size);
+			assert(buffers.renderable->targetTexture.isValid());
+			const auto& cmTargetTexture = buffers.renderable->targetTexture;
+			const auto& targetTexture = *cmTargetTexture.component;
+			const auto& standardRenderMode = targetTexture.loaded.standardRenderMode;
+			const auto& mainRenderTexture = Globals::Components().standardRenderTexture();
+			Tools::ConditionalScopedFramebuffer csfb(!standardRenderMode || !standardRenderMode->isMainMode(), targetTexture.loaded.fbo,
+				targetTexture.loaded.size, mainRenderTexture.loaded.fbo, mainRenderTexture.loaded.size);
 
-			texturesFramebuffersRenderer.clearIfFirstOfMode(renderMode);
+			renderTextureClearer.clearIfFirstOfRenderTexture(cmTargetTexture);
 
 			assert(buffers.renderable->customShadersProgram);
 			glProxyUseProgram(*buffers.renderable->customShadersProgram);
@@ -322,7 +307,11 @@ namespace Systems
 		const auto& graphicsSettings = Globals::Components().graphicsSettings();
 		const auto clearColor = graphicsSettings.backgroundColorF();
 		const auto& screenInfo = Globals::Components().systemInfo().screen;
-		const auto& framebuffers = Globals::Components().defaultFramebuffers();
+		const auto& mainRenderTexture = Globals::Components().standardRenderTexture();
+		const auto& staticBuffers = Globals::Components().renderingBuffers().staticBuffers;
+		const auto& dynamicBuffers = Globals::Components().renderingBuffers().dynamicBuffers;
+		const auto& staticOfflineBuffers = Globals::Components().renderingBuffers().staticOfflineBuffers;
+		const auto& dynamicOfflineBuffers = Globals::Components().renderingBuffers().dynamicOfflineBuffers;
 
 		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 
@@ -338,14 +327,10 @@ namespace Systems
 		glProxyPointSize(graphicsSettings.pointSize);
 		glProxyLineWidth(graphicsSettings.lineWidth);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.getMainSubBuffers().fbo);
-		glViewport(0, 0, framebuffers.getMainSubBuffers().size.x, framebuffers.getMainSubBuffers().size.y);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		Tools::Lights3DSetup(Globals::Shaders().basicPhong());
 		Tools::Lights3DSetup(Globals::Shaders().texturedPhong());
 
-		const auto viewPos = Globals::Components().mvp3D().getViewPos();
+		const auto viewPos = Globals::Components().vpDefault3D().getViewPos();
 		Globals::Shaders().basicPhong().viewPos(viewPos);
 		Globals::Shaders().texturedPhong().viewPos(viewPos);
 
@@ -353,18 +338,42 @@ namespace Systems
 
 		for (size_t layer = 0; layer < (size_t)RenderLayer::COUNT; ++layer)
 		{
-			TexturesFramebuffersRenderer texturesFramebuffersRenderer(Globals::Shaders().textured());
+			CustomRenderTexturesRenderer customRenderTexturesRenderer;
 
 			if (!graphicsSettings.forcedDepthTest)
 				glProxySetDepthTest(true);
-			BasicPhongRender(layer, texturesFramebuffersRenderer);
-			TexturedPhongRender(layer, texturesFramebuffersRenderer);
+
+			BasicPhongRender(layer, customRenderTexturesRenderer, staticOfflineBuffers.basicPhong, dynamicOfflineBuffers.basicPhong);
+			TexturedPhongRender(layer, customRenderTexturesRenderer, staticOfflineBuffers.texturedPhong, dynamicOfflineBuffers.texturedPhong);
 
 			if (!graphicsSettings.forcedDepthTest)
 				glProxySetDepthTest(graphicsSettings.force3D);
-			BasicRender(layer, texturesFramebuffersRenderer);
-			TexturedRender(layer, texturesFramebuffersRenderer);
-			CustomShadersRender(layer, texturesFramebuffersRenderer);
+
+			BasicRender(layer, customRenderTexturesRenderer, staticOfflineBuffers.basic, dynamicOfflineBuffers.basic);
+			TexturedRender(layer, customRenderTexturesRenderer, staticOfflineBuffers.textured, dynamicOfflineBuffers.textured);
+			CustomShadersRender(layer, customRenderTexturesRenderer, staticOfflineBuffers.customShaders, dynamicOfflineBuffers.customShaders);
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, mainRenderTexture.loaded.fbo);
+		glViewport(0, 0, mainRenderTexture.loaded.size.x, mainRenderTexture.loaded.size.y);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		for (size_t layer = 0; layer < (size_t)RenderLayer::COUNT; ++layer)
+		{
+			StandardRenderTexturesRenderer standardRenderTexturesRenderer(Globals::Shaders().textured());
+
+			if (!graphicsSettings.forcedDepthTest)
+				glProxySetDepthTest(true);
+
+			BasicPhongRender(layer, standardRenderTexturesRenderer, staticBuffers.basicPhong, dynamicBuffers.basicPhong);
+			TexturedPhongRender(layer, standardRenderTexturesRenderer, staticBuffers.texturedPhong, dynamicBuffers.texturedPhong);
+
+			if (!graphicsSettings.forcedDepthTest)
+				glProxySetDepthTest(graphicsSettings.force3D);
+
+			BasicRender(layer, standardRenderTexturesRenderer, staticBuffers.basic, dynamicBuffers.basic);
+			TexturedRender(layer, standardRenderTexturesRenderer, staticBuffers.textured, dynamicBuffers.textured);
+			CustomShadersRender(layer, standardRenderTexturesRenderer, staticBuffers.customShaders, dynamicBuffers.customShaders);
 		}
 
 		TransformFeedbackRender();
@@ -375,6 +384,6 @@ namespace Systems
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		assert(Globals::Components().mainFramebufferRenderer().renderer);
-		Globals::Components().mainFramebufferRenderer().renderer(framebuffers.getMainSubBuffers().textureObject);
+		Globals::Components().mainFramebufferRenderer().renderer(mainRenderTexture.loaded.textureObject);
 	}
 }

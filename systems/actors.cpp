@@ -3,7 +3,7 @@
 #include <components/actor.hpp>
 #include <components/plane.hpp>
 #include <components/physics.hpp>
-#include <components/mvp.hpp>
+#include <components/vp.hpp>
 #include <components/grapple.hpp>
 #include <components/graphicsSettings.hpp>
 #include <components/decoration.hpp>
@@ -104,8 +104,8 @@ namespace Systems
 
 	void Actors::updateDynamicBuffers()
 	{
-		Tools::UpdateDynamicBuffers(Globals::Components().actors());
-		Tools::UpdateDynamicBuffers(Globals::Components().planes());
+		Tools::ProcessDynamicComponents(Globals::Components().actors());
+		Tools::ProcessDynamicComponents(Globals::Components().planes());
 	}
 
 	void Actors::turn(Components::Plane& plane) const

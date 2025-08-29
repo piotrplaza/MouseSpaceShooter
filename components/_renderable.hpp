@@ -74,18 +74,12 @@ struct Renderable : ComponentBase, RenderableDef
 	{
 	}
 
-	void init(ComponentId id, bool static_) override
-	{
-		ComponentBase::init(id, static_);
-		if (!targetTexture.isValid())
-			targetTexture = Globals::Components().defaultTargetTexture();
-	}
-
+	CM::VP vpMatrix;
 	ShadersUtils::AccessorBase* tfShaderProgram = nullptr;
 	ShadersUtils::AccessorBase* customShadersProgram = nullptr;
 	std::optional<Instancing> instancing;
 
-	CM::RenderTexture targetTexture;
+	CM::RenderTexture targetTexture = Globals::Components().standardRenderTexture();
 	RenderLayer renderLayer = Globals::Components().defaults().renderLayer;
 
 	std::deque<RenderableDef> subsequence;
@@ -94,6 +88,7 @@ struct Renderable : ComponentBase, RenderableDef
 
 	struct
 	{
+		CM::VP vpMatrix;
 		Buffers::GenericBuffers* buffers = nullptr;
 		Buffers::GenericBuffers* tfBuffers = nullptr;
 	} loaded;

@@ -13,13 +13,3 @@ struct BuffersColections
 	std::array<CollectionsType, (size_t)RenderLayer::COUNT> textured;
 	std::array<CollectionsType, (size_t)RenderLayer::COUNT> customShaders;
 };
-
-template <typename CollectionsType>
-struct OfflineBuffersColections
-{
-	CollectionsType basicPhong;
-	CollectionsType texturedPhong;
-	CollectionsType basic;
-	CollectionsType textured;
-	CollectionsType customShaders;
-};

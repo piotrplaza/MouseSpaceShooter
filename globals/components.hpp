@@ -17,7 +17,7 @@ namespace Components
 	struct Mouse;
 	struct Gamepad;
 	struct SystemInfo;
-	struct MVP;
+	struct VP;
 	struct Physics;
 	struct Texture;
 	struct AnimatedTexture;
@@ -43,7 +43,7 @@ namespace Components
 	struct Shockwave;
 	struct Light2D;
 	struct Light3D;
-	struct Framebuffers;
+	struct RenderTexturesMapper;
 	struct Functor;
 	struct MainFramebufferRenderer;
 	struct DeferredAction;
@@ -60,8 +60,9 @@ namespace Globals {
 		Components::Mouse& mouse();
 		std::array<Components::Gamepad, 4>& gamepads();
 		Components::SystemInfo& systemInfo();
-		Components::MVP& mvp2D();
-		Components::MVP& mvp3D();
+		Components::VP& vpIdentity();
+		Components::VP& vpDefault2D();
+		Components::VP& vpDefault3D();
 		Components::Physics& physics();
 		Components::Camera2D& camera2D();
 		Components::Camera3D& camera3D();
@@ -69,9 +70,11 @@ namespace Globals {
 		Components::MainFramebufferRenderer& mainFramebufferRenderer();
 		Components::AudioListener& audioListener();
 		Components::AppStateHandler& appStateHandler();
-		Components::Framebuffers& defaultFramebuffers();
-		Components::RenderTexture& defaultTargetTexture(const StandardRenderMode& renderMode = {});
+		Components::RenderTexturesMapper& renderTexturesMapper();
+		Components::RenderTexture& standardRenderTexture(const StandardRenderMode& renderMode = {});
 
+		StaticComponents<Components::VP>& staticVPs();
+		DynamicComponents<Components::VP>& vps();
 		StaticComponents<Components::Texture>& staticTextures();
 		DynamicComponents<Components::Texture>& textures();
 		StaticComponents<Components::AnimatedTexture>& staticAnimatedTextures();
@@ -119,8 +122,6 @@ namespace Globals {
 		std::unique_ptr<Components::Mouse> mouseState_ = std::make_unique<Components::Mouse>();
 		std::unique_ptr<std::array<Components::Gamepad, 4>> gamepads_ = std::make_unique< std::array<Components::Gamepad, 4>>();
 		std::unique_ptr<Components::SystemInfo> systemInfo_ = std::make_unique<Components::SystemInfo>();
-		std::unique_ptr<Components::MVP> mvp2D_ = std::make_unique<Components::MVP>();
-		std::unique_ptr<Components::MVP> mvp3D_ = std::make_unique<Components::MVP>();
 		std::unique_ptr<Components::Physics> physics_ = std::make_unique<Components::Physics>();
 		std::unique_ptr<Components::Camera2D> camera_ = std::make_unique<Components::Camera2D>();
 		std::unique_ptr<Components::Camera3D> camera3D_ = std::make_unique<Components::Camera3D>();
@@ -128,8 +129,10 @@ namespace Globals {
 		std::unique_ptr<Components::MainFramebufferRenderer> mainFramebufferRenderer_ = std::make_unique<Components::MainFramebufferRenderer>();
 		std::unique_ptr<Components::AudioListener> audioListener_ = std::make_unique<Components::AudioListener>();
 		std::unique_ptr<Components::AppStateHandler> appStateHandler_ = std::make_unique<Components::AppStateHandler>();
-		std::unique_ptr<Components::Framebuffers> defaultFramebuffers_ = std::make_unique<Components::Framebuffers>();
+		std::unique_ptr<Components::RenderTexturesMapper> renderTexturesMapper_ = std::make_unique<Components::RenderTexturesMapper>();
 
+		std::unique_ptr<StaticComponents<Components::VP>> staticVPs_ = std::make_unique<StaticComponents<Components::VP>>();
+		std::unique_ptr<DynamicComponents<Components::VP>> vps_ = std::make_unique<DynamicComponents<Components::VP>>();
 		std::unique_ptr<StaticComponents<Components::Texture>> staticTextures_ = std::make_unique<StaticComponents<Components::Texture>>();
 		std::unique_ptr<DynamicComponents<Components::Texture>> textures_ = std::make_unique<DynamicComponents<Components::Texture>>();
 		std::unique_ptr<StaticComponents<Components::AnimatedTexture>> staticAnimatedTextures_ = std::make_unique<StaticComponents<Components::AnimatedTexture>>();

@@ -10,16 +10,23 @@ namespace Components
 {
 	struct RenderTexture : ComponentBase
 	{
-		RenderTexture(unsigned textureObject, GLint wrapMode, GLint minFilter, GLint magFilter) :
+		RenderTexture(const StandardRenderMode& standardRenderMode, GLint wrapMode, GLint minFilter, GLint magFilter) :
 			wrapMode(wrapMode),
 			minFilter(minFilter),
 			magFilter(magFilter)
 		{
-			loaded.textureObject = textureObject;
-
-			state = ComponentState::Ongoing;
+			loaded.standardRenderMode = standardRenderMode;
 		}
 
+		RenderTexture(glm::ivec2 size, GLint wrapMode = GL_CLAMP_TO_BORDER, GLint minFilter = GL_NEAREST, GLint magFilter = GL_LINEAR)
+		{
+			this->size = size;
+			this->wrapMode = wrapMode;
+			this->minFilter = minFilter;
+			this->magFilter = magFilter;
+		}
+
+		std::optional<glm::ivec2> size;
 		GLint wrapMode = GL_CLAMP_TO_BORDER;
 		GLint minFilter = GL_LINEAR_MIPMAP_LINEAR;
 		GLint magFilter = GL_LINEAR;
@@ -27,9 +34,13 @@ namespace Components
 		glm::vec2 translate{ 0.0f };
 		float rotate = 0.0f;
 		glm::vec2 scale{ 1.0f };
+		bool preserveAspectRatio = false;
+		glm::vec4 borderColor{ 0.0f };
 
 		struct
 		{
+			unsigned fbo = 0;
+			unsigned depthBuffer = 0;
 			unsigned textureObject = 0;
 
 			glm::ivec2 size = { 0, 0 };
