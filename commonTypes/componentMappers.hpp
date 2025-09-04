@@ -303,12 +303,15 @@ namespace ComponentMappers
 		VP() = default;
 		VP(Components::VP& component);
 		VP(ComponentId id, bool static_);
+
 		Components::VP* component = nullptr;
 		ComponentId componentId = 0;
+
 		bool operator==(const VP&) const;
 		bool operator!=(const VP&) const;
 		bool operator<(const VP&) const;
 		VP& operator=(Components::VP& component);
+
 		bool isValid() const;
 		bool isStatic() const;
 	};

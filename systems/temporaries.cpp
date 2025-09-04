@@ -23,6 +23,6 @@ namespace Systems
 
 	void Temporaries::updateDynamicBuffers()
 	{
-		Tools::ProcessDynamicComponents(Globals::Components().missiles());
+		Tools::ProcessDynamicRenderableComponents(Globals::Components().missiles());
 	}
 }

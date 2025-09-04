@@ -495,7 +495,7 @@ namespace Levels
 						};
 				}
 
-				particlesInstance.targetTexture = Globals::Components().standardRenderTexture({ StandardRenderMode::Resolution::H1080, StandardRenderMode::Scaling::Linear, StandardRenderMode::mainBlending });
+				particlesInstance.targetTextures.emplace_back(Globals::Components().standardRenderTexture({ StandardRenderMode::Resolution::H1080, StandardRenderMode::Scaling::Linear, StandardRenderMode::mainBlending }));
 			}
 		}
 

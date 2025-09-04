@@ -35,15 +35,15 @@ namespace Systems
 
 	void Decorations::updateStaticBuffers()
 	{
-		Tools::ProcessStaticComponents(Globals::Components().staticDecorations(), loadedStaticDecorations);
+		Tools::ProcessStaticRenderableComponents(Globals::Components().staticDecorations(), loadedStaticDecorations);
 		loadedStaticDecorations = Globals::Components().staticDecorations().size();
-		Tools::ProcessStaticComponents(Globals::Components().staticParticles(), loadedStaticParticles);
+		Tools::ProcessStaticRenderableComponents(Globals::Components().staticParticles(), loadedStaticParticles);
 		loadedStaticParticles = Globals::Components().staticParticles().size();
 	}
 
 	void Decorations::updateDynamicBuffers()
 	{
-		Tools::ProcessDynamicComponents(Globals::Components().decorations());
-		Tools::ProcessDynamicComponents(Globals::Components().particles());
+		Tools::ProcessDynamicRenderableComponents(Globals::Components().decorations());
+		Tools::ProcessDynamicRenderableComponents(Globals::Components().particles());
 	}
 }

@@ -107,7 +107,7 @@ namespace Tests
 			auto& texture = Globals::Components().textures().emplace();
 			texture.source = "textures/rose.png";
 			decoration.positions = Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, { 1.0f, 1.0f }, glm::quarter_pi<float>());
-			decoration.targetTexture = Globals::Components().standardRenderTexture({ StandardRenderMode::Resolution::H405, StandardRenderMode::Scaling::Nearest, StandardRenderMode::mainBlending });
+			decoration.targetTextures = { Globals::Components().standardRenderTexture({ StandardRenderMode::Resolution::H405, StandardRenderMode::Scaling::Nearest, StandardRenderMode::mainBlending }) };
 			decoration.texture = CM::Texture(texture);
 			decoration.renderingSetupF = [&](auto&) {
 				bool prevBlend = glProxyIsBlendEnabled();
@@ -221,12 +221,30 @@ namespace Tests
 			auto& renderTexture = Globals::Components().renderTextures().emplace(glm::vec2(100));
 			renderTexture.borderColor = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
 			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, glm::vec2(5.0f)));
-			Globals::Components().staticDecorations().last().targetTexture = renderTexture;
+			Globals::Components().staticDecorations().last().targetTextures = { renderTexture };
 			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 0.0f, 0.0f }, glm::vec2(10.0f)), renderTexture, Tools::Shapes2D::CreateTexCoordOfRectangle());
 		}
 	};
 
-	auto activeTest = std::make_unique<CustomRenderTexture>();
+	struct CustomRenderTextureTwoTargets : public TestBase
+	{
+		void setup() override
+		{
+			auto& renderTexture1 = Globals::Components().renderTextures().emplace(glm::vec2(100));
+			renderTexture1.borderColor = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+			auto& renderTexture2 = Globals::Components().renderTextures().emplace(glm::vec2(20));
+			renderTexture2.borderColor = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+
+			Globals::Components().staticDecorations().emplace(std::vector<glm::vec3>{ {-1.0f, -1.0f, 0.0f}, { 1.0f, 1.0f, 0.0f} });
+			Globals::Components().staticDecorations().last().targetTextures = { renderTexture1, renderTexture2 };
+			Globals::Components().staticDecorations().last().drawMode = GL_LINES;
+
+			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ -8.0f, 0.0f }, glm::vec2(6.0f)), renderTexture1, Tools::Shapes2D::CreateTexCoordOfRectangle());
+			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 8.0f, 0.0f }, glm::vec2(6.0f)), renderTexture2, Tools::Shapes2D::CreateTexCoordOfRectangle());
+		}
+	};
+
+	auto activeTest = std::make_unique<CustomRenderTextureTwoTargets>();
 }
 
 namespace Levels

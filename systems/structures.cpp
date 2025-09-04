@@ -42,20 +42,20 @@ namespace Systems
 
 	void Structures::updateStaticBuffers()
 	{
-		Tools::ProcessStaticComponents(Globals::Components().staticWalls(), loadedStaticWalls);
+		Tools::ProcessStaticRenderableComponents(Globals::Components().staticWalls(), loadedStaticWalls);
 		loadedStaticWalls = Globals::Components().staticWalls().size();
 
-		Tools::ProcessStaticComponents(Globals::Components().staticGrapples(), loadedStaticGrapples);
+		Tools::ProcessStaticRenderableComponents(Globals::Components().staticGrapples(), loadedStaticGrapples);
 		loadedStaticGrapples = Globals::Components().staticGrapples().size();
 
-		Tools::ProcessStaticComponents(Globals::Components().staticPolylines(), loadedStaticPolylines);
+		Tools::ProcessStaticRenderableComponents(Globals::Components().staticPolylines(), loadedStaticPolylines);
 		loadedStaticPolylines = Globals::Components().staticPolylines().size();
 	}
 
 	void Structures::updateDynamicBuffers()
 	{
-		Tools::ProcessDynamicComponents(Globals::Components().walls());
-		Tools::ProcessDynamicComponents(Globals::Components().grapples());
-		Tools::ProcessDynamicComponents(Globals::Components().polylines());
+		Tools::ProcessDynamicRenderableComponents(Globals::Components().walls());
+		Tools::ProcessDynamicRenderableComponents(Globals::Components().grapples());
+		Tools::ProcessDynamicRenderableComponents(Globals::Components().polylines());
 	}
 }

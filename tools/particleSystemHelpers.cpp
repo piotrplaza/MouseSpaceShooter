@@ -30,7 +30,7 @@ namespace Tools
 			auto& explosionDecoration = Globals::Components().decorations().emplace();
 			explosionDecoration.customShadersProgram = &billboards;
 			explosionDecoration.renderLayer = params.renderLayer_;
-			explosionDecoration.targetTexture = Globals::Components().standardRenderTexture(params.renderMode_);
+			explosionDecoration.targetTextures = { Globals::Components().standardRenderTexture(params.renderMode_) };
 			explosionDecoration.drawMode = GL_POINTS;
 			explosionDecoration.bufferDataUsage = GL_DYNAMIC_DRAW;
 
@@ -220,6 +220,6 @@ namespace Tools
 			};
 		}
 
-		particlesInstance.targetTexture = Globals::Components().standardRenderTexture(params.resolutionMode_);
+		particlesInstance.targetTextures = { Globals::Components().standardRenderTexture(params.resolutionMode_) };
 	}
 }

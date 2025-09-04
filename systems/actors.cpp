@@ -104,8 +104,8 @@ namespace Systems
 
 	void Actors::updateDynamicBuffers()
 	{
-		Tools::ProcessDynamicComponents(Globals::Components().actors());
-		Tools::ProcessDynamicComponents(Globals::Components().planes());
+		Tools::ProcessDynamicRenderableComponents(Globals::Components().actors());
+		Tools::ProcessDynamicRenderableComponents(Globals::Components().planes());
 	}
 
 	void Actors::turn(Components::Plane& plane) const

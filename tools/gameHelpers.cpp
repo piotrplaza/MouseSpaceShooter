@@ -253,7 +253,7 @@ namespace Tools
 
 			auto& fogLayer = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ posXI, posYI }, glm::vec2(2.0f, 2.0f) + (layer * 0.2f)),
 				CM::DummyTexture(), Tools::Shapes2D::CreateTexCoordOfRectangle(), std::move(renderingSetupF));
-			fogLayer.targetTexture = Globals::Components().standardRenderTexture({ StandardRenderMode::Resolution::H540, StandardRenderMode::Scaling::Linear, StandardRenderMode::mainBlending });
+			fogLayer.targetTextures = { Globals::Components().standardRenderTexture({ StandardRenderMode::Resolution::H540, StandardRenderMode::Scaling::Linear, StandardRenderMode::mainBlending }) };
 			fogLayer.renderLayer = RenderLayer::Foreground;
 			fogLayer.stepF = [=, &fogLayer]() mutable {
 				fogTexture.translate = textureTranslation ? textureTranslation(layer) : glm::vec2(0.0f);
@@ -281,7 +281,7 @@ namespace Tools
 		};
 
 		background.renderLayer = RenderLayer::Background;
-		background.targetTexture = Globals::Components().standardRenderTexture({ StandardRenderMode::Resolution::Native, StandardRenderMode::Scaling::Linear, StandardRenderMode::Blending::Additive });
+		background.targetTextures = { Globals::Components().standardRenderTexture({ StandardRenderMode::Resolution::Native, StandardRenderMode::Scaling::Linear, StandardRenderMode::Blending::Additive }) };
 
 		return background;
 	}

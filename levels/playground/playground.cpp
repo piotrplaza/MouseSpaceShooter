@@ -467,7 +467,7 @@ namespace Levels
 					}), Tools::Shapes2D::CreateTexCoordOfRectangle(), CM::Texture(roseTexture, true), std::move(renderingSetupF));
 			}
 
-			Globals::Components().staticWalls().last().targetTexture = Globals::Components().standardRenderTexture(StandardRenderMode::Resolution::H68);
+			Globals::Components().staticWalls().last().targetTextures = { Globals::Components().standardRenderTexture(StandardRenderMode::Resolution::H68) };
 			lowResBodies.insert(Globals::Components().staticWalls().last().body.get());
 		}
 

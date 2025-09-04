@@ -74,12 +74,12 @@ struct Renderable : ComponentBase, RenderableDef
 	{
 	}
 
-	CM::VP vpMatrix;
+	std::vector<CM::VP> vps;
 	ShadersUtils::AccessorBase* tfShaderProgram = nullptr;
 	ShadersUtils::AccessorBase* customShadersProgram = nullptr;
 	std::optional<Instancing> instancing;
 
-	CM::RenderTexture targetTexture = Globals::Components().standardRenderTexture();
+	std::vector<CM::RenderTexture> targetTextures = { Globals::Components().standardRenderTexture() };
 	RenderLayer renderLayer = Globals::Components().defaults().renderLayer;
 
 	std::deque<RenderableDef> subsequence;
@@ -88,7 +88,7 @@ struct Renderable : ComponentBase, RenderableDef
 
 	struct
 	{
-		CM::VP vpMatrix;
+		std::vector<CM::VP> vps;
 		Buffers::GenericBuffers* buffers = nullptr;
 		Buffers::GenericBuffers* tfBuffers = nullptr;
 	} loaded;
