@@ -145,7 +145,7 @@ static void InitLevel()
 
 	//activeLevel = std::make_unique<Levels::DamageOn::Nest>();
 
-	activeLevel = std::make_unique<Levels::Playground>();
+	//activeLevel = std::make_unique<Levels::Playground>();
 	//activeLevel = std::make_unique<Levels::Rocketball>();
 	//activeLevel = std::make_unique<Levels::Gravity>();
 	//activeLevel = std::make_unique<Levels::Basic>();
@@ -165,7 +165,7 @@ static void InitLevel()
 	//activeLevel = std::make_unique<Levels::Particles2D>();
 	//activeLevel = std::make_unique<Levels::Particles3D>();
 
-	//activeLevel = std::make_unique<Levels::Tests>();
+	activeLevel = std::make_unique<Levels::Tests>();
 	//activeLevel = std::make_unique<Levels::FPSScalingProblems>();
 }
 

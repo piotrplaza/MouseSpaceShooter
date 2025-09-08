@@ -21,8 +21,11 @@ namespace Systems
 
 			if (it->details.startTime <= Globals::Components().physics().simulationDuration)
 			{
-				if (it->deferredAction(Globals::Components().physics().simulationDuration - it->details.startTime))
+				if (it->deferredAction(Globals::Components().physics().simulationDuration - it->details.startTime, it->delay))
+				{
+					it->details.startTime += it->delay;
 					++it;
+				}
 				else
 					it = deferredActions.remove(it);
 			}

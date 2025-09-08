@@ -11,9 +11,11 @@
 #include <components/music.hpp>
 #include <components/gamepad.hpp>
 #include <components/renderTexture.hpp>
+#include <components/vp.hpp>
 #include <globals/components.hpp>
 
 #include <ogl/shaders/textured.hpp>
+#include <ogl/shaders/effects.hpp>
 #include <globals/shaders.hpp>
 
 #include <tools/Shapes2D.hpp>
@@ -244,7 +246,24 @@ namespace Tests
 		}
 	};
 
-	auto activeTest = std::make_unique<CustomRenderTextureTwoTargets>();
+	struct ShaderEffects : public TestBase
+	{
+		void setup() override
+		{
+			auto& renderTexture1 = Globals::Components().renderTextures().emplace(glm::vec2(1000));
+			auto& renderTexture2 = Globals::Components().renderTextures().emplace(glm::vec2(200));
+
+			auto& effect1 = Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({}, { 1.0f, 1.0f }));
+			effect1.vps = { Globals::Components().vpIdentity(), Globals::Components().vps().emplace(glm::mat4(1.0f), glm::translate(glm::mat4(1.0f), {10.0f, 0.0f, 0.0f} )) };
+			effect1.targetTextures = { renderTexture1, renderTexture2 };
+			effect1.customShadersProgram = &Globals::Shaders().effects();
+
+			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ -8.0f, 0.0f }, glm::vec2(6.0f)), renderTexture1, Tools::Shapes2D::CreateTexCoordOfRectangle());
+			Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ 8.0f, 0.0f }, glm::vec2(6.0f)), renderTexture2, Tools::Shapes2D::CreateTexCoordOfRectangle());
+		}
+	};
+
+	auto activeTest = std::make_unique<ShaderEffects>();
 }
 
 namespace Levels

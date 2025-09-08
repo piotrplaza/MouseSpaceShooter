@@ -9,6 +9,18 @@ namespace Components
 {
 	struct VP : ComponentBase
 	{
+		VP() = default;
+
+		VP(glm::mat4 projection)
+			: projection(projection)
+		{
+		}
+
+		VP(glm::mat4 view, glm::mat4 projection)
+			: view(view), projection(projection)
+		{
+		}
+
 		glm::mat4 view{ 1.0f };
 		glm::mat4 projection{ 1.0f };
 

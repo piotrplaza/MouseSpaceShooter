@@ -8,19 +8,25 @@ namespace Components
 {
 	struct DeferredAction : ComponentBase
 	{
-		DeferredAction(std::function<bool(float duration)> deferredAction, float delay = 0.0f) :
+		DeferredAction(std::function<bool(float duration, float& delay)> deferredAction = nullptr, float delay = 0.0f) :
 			deferredAction(std::move(deferredAction)),
 			delay(delay)
 		{
 		}
 
-		DeferredAction(FBool deferredAction, float delay = 0.0f) :
-			deferredAction([=](auto) { return deferredAction(); }),
+		DeferredAction(std::function<bool(float duration)> deferredAction = nullptr, float delay = 0.0f) :
+			deferredAction([=](float duration, auto) { return deferredAction(duration); }),
 			delay(delay)
 		{
 		}
 
-		std::function<bool(float duration)> deferredAction;
+		DeferredAction(FBool deferredAction, float delay = 0.0f) :
+			deferredAction([=](auto, auto) { return deferredAction(); }),
+			delay(delay)
+		{
+		}
+
+		std::function<bool(float duration, float& delay)> deferredAction;
 		float delay = 0.0f;
 
 		struct

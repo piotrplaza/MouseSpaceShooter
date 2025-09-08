@@ -155,6 +155,9 @@
     <Filter Include="src\ogl\shaders\trails">
       <UniqueIdentifier>{0a9bac29-fca4-4303-9e91-d8d065354269}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ogl\shaders\effects">
+      <UniqueIdentifier>{449c26a6-c2d8-4a37-a88e-20d1bd8b04f5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -783,6 +786,9 @@
     <ClInclude Include="components\vp.hpp">
       <Filter>src\components</Filter>
     </ClInclude>
+    <ClInclude Include="ogl\shaders\effects.hpp">
+      <Filter>src\ogl\shaders\effects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ogl\shaders\basic.fs">
@@ -847,6 +853,12 @@
     </None>
     <None Include="ogl\shaders\trails.vs">
       <Filter>src\ogl\shaders\trails</Filter>
+    </None>
+    <None Include="ogl\shaders\effects.fs">
+      <Filter>src\ogl\shaders\effects</Filter>
+    </None>
+    <None Include="ogl\shaders\effects.vs">
+      <Filter>src\ogl\shaders\effects</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

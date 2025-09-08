@@ -9,6 +9,7 @@
 #include "ogl/shaders/textured.hpp"
 #include "ogl/shaders/texturedColorThreshold.hpp"
 #include "ogl/shaders/noise.hpp"
+#include "ogl/shaders/effects.hpp"
 #include "ogl/shaders/tfParticles.hpp"
 
 namespace Globals
@@ -58,6 +59,11 @@ namespace Globals
 	ShadersUtils::Programs::Noise& ShadersHolder::noise()
 	{
 		return *noise_;
+	}
+
+	ShadersUtils::Programs::Effects& ShadersHolder::effects()
+	{
+		return *effects_;
 	}
 
 	ShadersUtils::Programs::TFParticles& ShadersHolder::tfParticles()

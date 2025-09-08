@@ -69,7 +69,14 @@ namespace Levels
 			graphicsSettings.defaultColorF = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
 			graphicsSettings.pointSize = 3.0f;
 
-			Globals::Components().mainFramebufferRenderer().renderer = Tools::Demo3DRotatedFullscreenRenderer(Globals::Shaders().textured());
+			float intensityFactor = 0.00005f;
+			float maxIntensity = 200.0f;
+
+			Globals::Components().mainFramebufferRenderer().renderer = Tools::Demo3DRotatedFullscreenRenderer(Globals::Shaders().textured(), [=]() {
+				return intensityFactor * std::min(std::accumulate(Globals::Components().shockwaves().begin(), Globals::Components().shockwaves().end(), 0.0f, [=](float sum, const auto& e) {
+					return sum + e.particles.size() * !Globals::Components().physics().paused * !dzioblinExplosionIds.contains(e.getComponentId());
+				}), maxIntensity);
+			});
 		}
 
 		void loadTextures()
@@ -161,7 +168,11 @@ namespace Levels
 			textures.last().scale = glm::vec2(1.0f, 1.0f);
 
 			ppTexture = textures.size();
-			textures.emplace("textures/pp.png");
+			textures.emplace("textures/photos/pp.png");
+			textures.last().preserveAspectRatio = true;
+
+			dzioblinTexture = textures.size();
+			textures.emplace("textures/photos/dzioblin.png");
 			textures.last().preserveAspectRatio = true;
 
 			skullTexture = textures.size();
@@ -197,6 +208,7 @@ namespace Levels
 			thrustSoundBuffer = soundsBuffers.emplace("audio/thrust.wav", 0.2f).getComponentId();
 			grappleSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Synth - Choatic_C.wav").getComponentId();
 			avatarSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Scrape - Horror_C.wav", 0.4f).getComponentId();
+			thunderSoundBuffer = soundsBuffers.emplace("audio/Ghosthack Impact - Thunder.wav", 0.4f).getComponentId();
 
 			for (float x : {-40.0f, 40.0f})
 				Tools::CreateAndPlaySound(CM::SoundBuffer(avatarSoundBuffer, true), [x]() { return glm::vec2(x, -40.0f); },
@@ -310,7 +322,7 @@ namespace Levels
 			} };
 		}
 
-		void createAdditionalDecorations() const
+		void createAdditionalDecorations()
 		{
 			const auto blendingTexture = Globals::Components().staticBlendingTextures().size();
 			Globals::Components().staticBlendingTextures().add({ CM::AnimatedTexture(invertedFlameAnimatedTexture, true), CM::Texture(ppTexture, true), CM::Texture(skullTexture, true), CM::Texture(avatarTexture, true) });
@@ -344,7 +356,31 @@ namespace Levels
 			}
 
 			{
-				Tools::CubicHermiteSpline spline({ { -5.0f, 5.0f }, { -5.0f, -5.0f }, { 5.0f, -5.0f }, { 5.0f, 5.0f }, { -5.0f, 5.0f }, {-5.0f, -5.0f}, { 5.0f, -5.0f } }, true, true);
+				Globals::Components().staticDecorations().emplace(Tools::Shapes2D::CreatePositionsOfRectangle({ -1.0f, -43.0f }, { 10.0f, 10.0f }),
+					CM::Texture(dzioblinTexture, true), Tools::Shapes2D::CreateTexCoordOfRectangle());
+				Globals::Components().staticDecorations().last().renderLayer = RenderLayer::NearMidground;
+
+				Globals::Components().deferredActions().emplace([&, i = 0](auto, float& delay) mutable {
+					Tools::CreateExplosion(Tools::ExplosionParams{}.center({ 0.0f, -40.0f }).explosionTexture(CM::Texture(explosionTexture, true)).particlesDensity(0.0001f).color(glm::vec4(0.5f, 0.3f, 0.3f, 0.5f)).beginCallback([&](auto& shockwave) {
+						dzioblinExplosionIds.insert(shockwave.getComponentId());
+					}).endCallback([&](auto& shockwave) {
+							dzioblinExplosionIds.erase(shockwave.getComponentId());
+					}));
+
+					Tools::CreateAndPlaySound(CM::SoundBuffer(thunderSoundBuffer, true), glm::vec2(0.0f, -40.0f), [](auto& sound) {
+						sound.setPitch(0.5f);
+					});
+
+					if (++i % 2 == 0)
+						delay = 0.5f;
+					else
+						delay = 0.15f;
+					return true;
+				});
+			}
+
+			{
+				Tools::CubicHermiteSpline spline({ { -5.0f, 5.0f }, { -5.0f, -5.0f }, { 5.0f, -5.0f }, { 5.0f, 5.0f }, { -5.0f, 5.0f }, { -5.0f, -5.0f }, { 5.0f, -5.0f } }, true, true);
 				std::vector<glm::vec3> splineInterpolation;
 				const int complexity = 100;
 				splineInterpolation.reserve(complexity);
@@ -357,17 +393,17 @@ namespace Levels
 
 		void createMovableWalls()
 		{
-			auto renderingSetupF = [
-				texturesCustomTransformUniform = UniformsUtils::UniformMat4f()
-			](ShadersUtils::ProgramId program) mutable {
+			{
+				auto renderingSetupF = [
+					texturesCustomTransformUniform = UniformsUtils::UniformMat4f()
+				](ShadersUtils::ProgramId program) mutable {
 					if (!texturesCustomTransformUniform.isValid())
 						texturesCustomTransformUniform.reset(program, "texturesCustomTransform");
 					const float simulationDuration = Globals::Components().physics().simulationDuration;
-					texturesCustomTransformUniform(Tools::TextureTransform(glm::vec2(glm::cos(simulationDuration), glm::sin(simulationDuration)) * 0.1f ));
+					texturesCustomTransformUniform(Tools::TextureTransform(glm::vec2(glm::cos(simulationDuration), glm::sin(simulationDuration)) * 0.1f));
 					return [=]() mutable { texturesCustomTransformUniform(glm::mat4(1.0f)); };
 				};
 
-			{
 				auto setRenderingSetupAndSubsequence = [&]()
 				{
 					Globals::Components().staticWalls().last().subsequence.emplace_back(Tools::Shapes2D::CreatePositionsOfLineOfRectangles({ 0.4f, 0.4f },
@@ -622,7 +658,7 @@ namespace Levels
 
 			auto recursiveFaceRSF = createRecursiveFaceRS([=]() { return glm::vec4(*alpha); }, {1.0f, 2.0f});
 
-			auto spawner = [this, alpha, standardRSF = std::move(standardRSF), recursiveFaceRSF = std::move(recursiveFaceRSF), first = true](float duration, auto& spawner) mutable -> bool // Type deduction doesn't get it is always bool.
+			auto spawner = [this, alpha, standardRSF = std::move(standardRSF), recursiveFaceRSF = std::move(recursiveFaceRSF), first = true](float duration, float& delay, auto& spawner) mutable -> bool // Type deduction doesn't get it is always bool.
 			{
 				const float existenceDuration = 2.0f;
 				const float fadeDuration = 0.2f;
@@ -636,6 +672,7 @@ namespace Levels
 				if (first)
 				{
 					first = false;
+					delay = 0.0f;
 					auto& wall = Globals::Components().walls().emplace(Tools::CreateBoxBody({ 5.0f, 5.0f },
 						Tools::BodyParams().position({ -50.0f, 30.0f })), CM::Texture(woodTexture, true, { 0.0f, 0.0f }, 0.0f, { 5.0f, 5.0f }), standardRSF);
 					dynamicWallId = wall.getComponentId();
@@ -650,14 +687,14 @@ namespace Levels
 					first = true;
 					Globals::Components().walls()[dynamicWallId].state = ComponentState::Outdated;
 					Globals::Components().grapples()[dynamicGrappleId].state = ComponentState::Outdated;
-					Globals::Components().deferredActions().emplace([spawner](float duration) mutable { return spawner(duration, spawner); }, existenceDuration);
+					Globals::Components().deferredActions().emplace([spawner](float duration, float& delay) mutable { return spawner(duration, delay, spawner); }, existenceDuration);
 
 					return false;
 				}
 
 				return true;
 			};
-			Globals::Components().deferredActions().emplace([spawner = std::move(spawner)](float duration) mutable { return spawner(duration, spawner); });
+			Globals::Components().deferredActions().emplace([spawner = std::move(spawner)](float duration, float& delay) mutable { return spawner(duration, delay, spawner); });
 		}
 
 		void initHandlers()
@@ -834,6 +871,7 @@ namespace Levels
 		ComponentId fractalTexture = 0;
 		ComponentId mosaicTexture = 0;
 		ComponentId ppTexture = 0;
+		ComponentId dzioblinTexture = 0;
 		ComponentId skullTexture = 0;
 		ComponentId avatarTexture = 0;
 		ComponentId recursiveFaceAnimationTexture = 0;
@@ -851,6 +889,9 @@ namespace Levels
 		ComponentId thrustSoundBuffer = 0;
 		ComponentId grappleSoundBuffer = 0;
 		ComponentId avatarSoundBuffer = 0;
+		ComponentId thunderSoundBuffer = 0;
+
+		std::unordered_set<ComponentId> dzioblinExplosionIds;
 
 		float projectionHSizeBase = 20.0f;
 

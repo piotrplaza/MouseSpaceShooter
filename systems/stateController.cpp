@@ -16,6 +16,7 @@
 
 #include <ogl/shaders/noise.hpp>
 #include <ogl/shaders/trails.hpp>
+#include <ogl/shaders/effects.hpp>
 #include <ogl/shaders/tfParticles.hpp>
 
 #include <globals/components.hpp>
@@ -93,6 +94,8 @@ namespace Systems
 
 		Globals::Shaders().noise().time(physics.simulationDuration);
 		Globals::Shaders().trails().deltaTime(std::max(frameDurationBeforePause, 0.01f));
+		Globals::Shaders().effects().time(physics.simulationDuration);
+		Globals::Shaders().effects().deltaTime(physics.frameDuration);
 		Globals::Shaders().tfParticles().time(physics.simulationDuration);
 		Globals::Shaders().tfParticles().deltaTime(physics.frameDuration);
 

@@ -194,6 +194,7 @@
     <ClInclude Include="ogl\shaders\basic.hpp" />
     <ClInclude Include="ogl\shaders\basicPhong.hpp" />
     <ClInclude Include="ogl\shaders\billboards.hpp" />
+    <ClInclude Include="ogl\shaders\effects.hpp" />
     <ClInclude Include="ogl\shaders\julia.hpp" />
     <ClInclude Include="ogl\shaders\noise.hpp" />
     <ClInclude Include="ogl\shaders\programBase.hpp" />
@@ -238,6 +239,8 @@
     <None Include="ogl\shaders\billboards.fs" />
     <None Include="ogl\shaders\billboards.gs" />
     <None Include="ogl\shaders\billboards.vs" />
+    <None Include="ogl\shaders\effects.fs" />
+    <None Include="ogl\shaders\effects.vs" />
     <None Include="ogl\shaders\julia.fs" />
     <None Include="ogl\shaders\julia.vs" />
     <None Include="ogl\shaders\noise.fs" />
